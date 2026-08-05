@@ -1,16 +1,31 @@
 {
-  "name": "aspire-lms-monorepo",
-  "version": "1.0.0",
-  "description": "Aspire LMS Full-Stack Application Monorepo with separated Frontend & Backend directories",
+  "name": "aspire-lms-admin",
   "private": true,
+  "version": "1.0.0",
+  "type": "module",
   "scripts": {
-    "dev": "vite frontend",
-    "start:frontend": "vite frontend",
-    "start:backend": "npm --prefix backend start",
-    "build:frontend": "npm --prefix frontend run build",
-    "build": "npm --prefix frontend run build"
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "start:backend": "npm --prefix backend start"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.49.1",
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.475.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-router-dom": "^7.2.0",
+    "tailwind-merge": "^3.0.1"
   },
   "devDependencies": {
+    "@tailwindcss/vite": "^4.0.7",
+    "@types/react": "^19.0.10",
+    "@types/react-dom": "^19.0.4",
+    "@vitejs/plugin-react": "^4.3.4",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.5.2",
+    "tailwindcss": "^4.0.7",
     "vite": "^6.1.0"
   }
 }

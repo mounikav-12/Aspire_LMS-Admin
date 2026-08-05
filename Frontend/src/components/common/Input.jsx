@@ -1,0 +1,93 @@
+import React from 'react';
+
+export function Input({
+  label,
+  error,
+  icon: Icon,
+  helperText,
+  className = '',
+  id,
+  ...props
+}) {
+  const inputId = id || (label ? label.toLowerCase().replace(/\s+/g, '-') : undefined);
+
+  return (
+    <div className="w-full flex flex-col gap-1.5">
+      {label && (
+        <label htmlFor={inputId} className="text-[11px] font-extrabold text-slate-700 tracking-wider uppercase">
+          {label}
+        </label>
+      )}
+      <div className="relative flex items-center">
+        {Icon && (
+          <div className="absolute left-3.5 text-slate-400 pointer-events-none transition-colors group-focus-within:text-blue-600">
+            <Icon className="w-4 h-4" />
+          </div>
+        )}
+        <input
+          id={inputId}
+          className={`w-full px-3.5 py-2.5 bg-slate-50/60 hover:bg-white border rounded-xl text-sm text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none transition-all duration-200 ${
+            Icon ? 'pl-10' : ''
+          } ${
+            error
+              ? 'border-rose-300 focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10'
+              : 'border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 shadow-2xs'
+          } ${className}`}
+          {...props}
+        />
+      </div>
+      {error ? (
+        <span className="text-xs text-rose-500 font-semibold">{error}</span>
+      ) : helperText ? (
+        <span className="text-xs text-slate-500 font-medium">{helperText}</span>
+      ) : null}
+    </div>
+  );
+}
+
+export function Select({
+  label,
+  options = [],
+  error,
+  icon: Icon,
+  className = '',
+  id,
+  ...props
+}) {
+  const selectId = id || (label ? label.toLowerCase().replace(/\s+/g, '-') : undefined);
+
+  return (
+    <div className="w-full flex flex-col gap-1.5">
+      {label && (
+        <label htmlFor={selectId} className="text-[11px] font-extrabold text-slate-700 tracking-wider uppercase">
+          {label}
+        </label>
+      )}
+      <div className="relative flex items-center">
+        {Icon && (
+          <div className="absolute left-3.5 text-slate-400 pointer-events-none z-10">
+            <Icon className="w-4 h-4" />
+          </div>
+        )}
+        <select
+          id={selectId}
+          className={`w-full px-3.5 py-2.5 bg-slate-50/60 hover:bg-white border rounded-xl text-sm text-slate-800 focus:bg-white focus:outline-none transition-all duration-200 appearance-none ${
+            Icon ? 'pl-10' : ''
+          } ${
+            error
+              ? 'border-rose-300 focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10'
+              : 'border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 shadow-2xs'
+          } ${className}`}
+          {...props}
+        >
+          {options.map((opt) => (
+            <option key={opt.value} value={opt.value}>
+              {opt.label}
+            </option>
+          ))}
+        </select>
+      </div>
+      {error && <span className="text-xs text-rose-500 font-semibold">{error}</span>}
+    </div>
+  );
+}
