@@ -1,0 +1,16 @@
+{
+  "name": "aspire-lms-monorepo",
+  "version": "1.0.0",
+  "description": "Aspire LMS Full-Stack Application Monorepo with separated Frontend & Backend directories",
+  "private": true,
+  "scripts": {
+    "dev": "vite frontend",
+    "start:frontend": "vite frontend",
+    "start:backend": "npm --prefix backend start",
+    "build:frontend": "npm --prefix frontend run build",
+    "build": "npm --prefix frontend run build"
+  },
+  "devDependencies": {
+    "vite": "^6.1.0"
+  }
+}
