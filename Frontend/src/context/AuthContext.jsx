@@ -8,21 +8,21 @@ export function AuthProvider({ children }) {
   const [currentUser, setCurrentUser] = useState(() => {
     const saved = localStorage.getItem('aspire_lms_user');
     if (saved) {
-      const parsed = JSON.parse(saved);
-      return {
-        ...parsed,
-        originalRole: parsed.originalRole || parsed.role
-      };
+      try {
+        const parsed = JSON.parse(saved);
+        return {
+          ...parsed,
+          originalRole: parsed.originalRole || parsed.role
+        };
+      } catch (e) {
+        return null;
+      }
     }
-    return {
-      ...INITIAL_USERS[0],
-      originalRole: ROLES.SUPER_ADMIN,
-      phone: '+1 (555) 234-5678'
-    };
+    return null; // Default to unauthenticated so Login page opens first
   });
 
   const [currentRole, setCurrentRole] = useState(() => {
-    return currentUser?.role || ROLES.SUPER_ADMIN;
+    return currentUser?.role || null;
   });
 
   useEffect(() => {
@@ -31,6 +31,7 @@ export function AuthProvider({ children }) {
       setCurrentRole(currentUser.role);
     } else {
       localStorage.removeItem('aspire_lms_user');
+      setCurrentRole(null);
     }
   }, [currentUser]);
 
@@ -92,7 +93,6 @@ export function AuthProvider({ children }) {
       setCurrentUser(updated);
       localStorage.setItem('aspire_lms_user', JSON.stringify(updated));
 
-      // Sync to Supabase profiles table
       try {
         await supabase.from('profiles').update({
           name: updated.name,
