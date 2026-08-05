@@ -170,7 +170,7 @@ export function Sidebar({ isCollapsed, onToggle, isMobileOpen, onCloseMobile }) 
           </div>
         )}
 
-        {/* Navigation List with Logo Royal Blue Hover Colors */}
+        {/* Navigation List with Logo Blue Hover Colors */}
         <nav className="flex-1 py-3 px-2.5 space-y-1 overflow-y-auto">
           {navItems.map((item) => (
             <NavLink
@@ -184,7 +184,7 @@ export function Sidebar({ isCollapsed, onToggle, isMobileOpen, onCloseMobile }) 
                 } ${
                   isActive
                     ? 'bg-blue-600 text-white font-bold border-blue-600 shadow-md shadow-blue-500/25'
-                    : 'text-slate-700 border-transparent hover:bg-blue-50/90 hover:text-blue-700 hover:border-blue-200/70 font-semibold'
+                    : 'text-slate-700 border-transparent hover:bg-blue-50/90 hover:text-blue-600 hover:border-blue-200/70 font-semibold'
                 }`
               }
             >
