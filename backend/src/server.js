@@ -174,7 +174,11 @@ app.get('/api/v1/student-feed', async (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`🚀 Aspire LMS Backend API server running on port ${PORT}`);
-  console.log(`🔗 Connected to Supabase Project: ${process.env.SUPABASE_URL}`);
-});
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(PORT, () => {
+    console.log(`🚀 Aspire LMS Backend API server running on port ${PORT}`);
+    console.log(`🔗 Connected to Supabase Project: ${process.env.SUPABASE_URL}`);
+  });
+}
+
+module.exports = app;
