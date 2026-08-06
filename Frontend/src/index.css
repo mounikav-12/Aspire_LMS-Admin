@@ -1,5 +1,19 @@
 @import "tailwindcss";
 
+@theme {
+  --color-blue-50: #f5f3ff;
+  --color-blue-100: #ede9fe;
+  --color-blue-200: #ddd6fe;
+  --color-blue-300: #c4b5fd;
+  --color-blue-400: #a78bfa;
+  --color-blue-500: #8b5cf6;
+  --color-blue-600: #7c3aed;
+  --color-blue-700: #6d28d9;
+  --color-blue-800: #5b21b6;
+  --color-blue-900: #4c1d95;
+  --color-blue-950: #2e1065;
+}
+
 @layer base {
   html {
     font-size: 16px;
@@ -12,7 +26,7 @@
     font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
     font-size: 15px;
     line-height: 1.5;
-    @apply bg-slate-50 text-slate-900 antialiased selection:bg-blue-600 selection:text-white;
+    @apply bg-slate-50 text-slate-900 antialiased selection:bg-purple-600 selection:text-white;
   }
   h1, h2, h3, h4, h5, h6, input, button, select, textarea, span, p, a, div {
     font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;

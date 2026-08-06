@@ -4,16 +4,15 @@ import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { Button } from '../../components/common/Button';
 import { Input } from '../../components/common/Input';
-import { LogIn, Lock, Mail, ShieldCheck } from 'lucide-react';
+import { LogIn, Lock, Mail, ShieldCheck, UserPlus } from 'lucide-react';
 
 export function LoginPage() {
   const navigate = useNavigate();
   const { login } = useAuth();
   const { addToast } = useToast();
 
-  const [email, setEmail] = useState('sarah.admin@aspirelms.io');
-  const [password, setPassword] = useState('password123');
-  const [selectedRoleTitle, setSelectedRoleTitle] = useState('Super Admin');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = (e) => {
@@ -32,16 +31,9 @@ export function LoginPage() {
         addToast(`Welcome back, ${res.user.name}! Logged in as ${res.user.role}`, 'success');
         navigate('/dashboard');
       } else {
-        addToast('Invalid credentials. Please check and try again.', 'error');
+        addToast(res.message || 'Invalid credentials. Please check and try again.', 'error');
       }
     }, 400);
-  };
-
-  const fillDemoAccount = (roleEmail, roleTitle) => {
-    setEmail(roleEmail);
-    setPassword('password123');
-    setSelectedRoleTitle(roleTitle);
-    addToast(`Selected demo credentials for ${roleTitle}`, 'info');
   };
 
   return (
@@ -71,57 +63,12 @@ export function LoginPage() {
               </p>
             </div>
 
-            {/* Quick Demo Fill Buttons */}
-            <div className="pt-2">
-              <p className="text-[11px] font-extrabold uppercase text-blue-200 tracking-wider mb-2.5">
-                Staff Accounts (Click to Select):
-              </p>
-              <div className="grid grid-cols-2 gap-2">
-                <button
-                  type="button"
-                  onClick={() => fillDemoAccount('sarah.admin@aspirelms.io', 'Super Admin')}
-                  className={`px-3 py-2 border rounded-xl text-xs font-bold transition-all text-left truncate cursor-pointer ${
-                    selectedRoleTitle === 'Super Admin'
-                      ? 'bg-white text-blue-900 border-white shadow-md'
-                      : 'bg-white/10 hover:bg-white/20 border-white/15 text-white'
-                  }`}
-                >
-                  👑 Super Admin
-                </button>
-                <button
-                  type="button"
-                  onClick={() => fillDemoAccount('alex.rivera@aspirelms.io', 'Admin')}
-                  className={`px-3 py-2 border rounded-xl text-xs font-bold transition-all text-left truncate cursor-pointer ${
-                    selectedRoleTitle === 'Admin'
-                      ? 'bg-white text-blue-900 border-white shadow-md'
-                      : 'bg-white/10 hover:bg-white/20 border-white/15 text-white'
-                  }`}
-                >
-                  ⚙️ Admin
-                </button>
-                <button
-                  type="button"
-                  onClick={() => fillDemoAccount('priya.s@aspirelms.io', 'Manager')}
-                  className={`px-3 py-2 border rounded-xl text-xs font-bold transition-all text-left truncate cursor-pointer ${
-                    selectedRoleTitle === 'Manager'
-                      ? 'bg-white text-blue-900 border-white shadow-md'
-                      : 'bg-white/10 hover:bg-white/20 border-white/15 text-white'
-                  }`}
-                >
-                  📊 Manager
-                </button>
-                <button
-                  type="button"
-                  onClick={() => fillDemoAccount('david.chen@aspirelms.io', 'Instructor')}
-                  className={`px-3 py-2 border rounded-xl text-xs font-bold transition-all text-left truncate cursor-pointer ${
-                    selectedRoleTitle === 'Instructor'
-                      ? 'bg-white text-blue-900 border-white shadow-md'
-                      : 'bg-white/10 hover:bg-white/20 border-white/15 text-white'
-                  }`}
-                >
-                  💻 Instructor
-                </button>
-              </div>
+            <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/15 space-y-2 text-xs">
+              <span className="font-bold text-blue-200 uppercase tracking-wider block text-[10px]">Access Guidelines</span>
+              <ul className="text-blue-100/90 space-y-1.5 text-[11px] list-disc pl-3.5">
+                <li><strong className="text-white">Super Admin</strong>: Pre-seeded root credentials. Enter your email and password manually.</li>
+                <li><strong className="text-white">Staff Roles</strong> (Admin, Manager, Instructor): Log in with your registered account or click below to register.</li>
+              </ul>
             </div>
           </div>
 
@@ -136,10 +83,10 @@ export function LoginPage() {
           <div className="max-w-md w-full mx-auto space-y-6">
             <div>
               <h3 className="text-2xl font-black text-slate-900 tracking-tight">
-                {selectedRoleTitle ? `${selectedRoleTitle} Sign In` : 'Staff Console Sign In'}
+                Staff Console Sign In
               </h3>
               <p className="text-xs text-slate-500 font-medium mt-1">
-                Enter your staff credentials to access the console as {selectedRoleTitle || 'staff'}
+                Enter your staff credentials manually to access your management dashboard
               </p>
             </div>
 
@@ -185,6 +132,15 @@ export function LoginPage() {
                 {isLoading ? 'Signing in...' : 'Sign In to Console'}
               </Button>
             </form>
+
+            <div className="pt-4 border-t border-slate-100 text-center">
+              <p className="text-xs text-slate-500 font-medium">
+                Don't have a staff account?{' '}
+                <Link to="/register" className="text-blue-600 font-bold hover:underline inline-flex items-center gap-1">
+                  <UserPlus className="w-3.5 h-3.5" /> Register here
+                </Link>
+              </p>
+            </div>
           </div>
         </div>
       </div>

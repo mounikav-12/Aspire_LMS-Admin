@@ -6,6 +6,7 @@ import { DashboardLayout } from '../layouts/DashboardLayout';
 
 // Auth Pages
 import { LoginPage } from '../pages/auth/LoginPage';
+import { RegisterPage } from '../pages/auth/RegisterPage';
 import { ForgotPasswordPage } from '../pages/auth/ForgotPasswordPage';
 
 // Admin / Dashboard Pages
@@ -43,6 +44,7 @@ export function AppRoutes() {
 
       {/* Public Auth Routes */}
       <Route path="/login" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <LoginPage />} />
+      <Route path="/register" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <RegisterPage />} />
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
 
       {/* Protected Dashboard Layout Routes */}

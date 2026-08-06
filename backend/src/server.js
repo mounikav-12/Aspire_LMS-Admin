@@ -94,6 +94,39 @@ app.put('/api/auth/profile', (req, res) => {
   res.json({ success: true, profile: currentSessionUser });
 });
 
+app.post('/api/auth/register', async (req, res) => {
+  try {
+    const { name, email, role, department } = req.body;
+    if (!name || !email || !role) {
+      return res.status(400).json({ success: false, message: "Missing required fields" });
+    }
+
+    if (role === 'Super Admin') {
+      return res.status(403).json({ success: false, message: "Super Admin registration is prohibited." });
+    }
+
+    const newProfile = {
+      id: `usr-${Date.now()}`,
+      name,
+      email: email.toLowerCase(),
+      role,
+      department: department || 'General Staff',
+      status: 'Active',
+      created_at: new Date().toISOString()
+    };
+
+    const { data, error } = await supabase.from('profiles').insert([newProfile]).select();
+
+    res.status(201).json({
+      success: true,
+      message: "Staff user registered successfully",
+      profile: data ? data[0] : newProfile
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
 app.post('/api/auth/logout', (req, res) => {
   res.json({ success: true, message: "Logged out successfully" });
 });
