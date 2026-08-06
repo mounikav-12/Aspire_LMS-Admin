@@ -406,16 +406,21 @@ export function LmsDataProvider({ children }) {
 
   // --- ASSESSMENTS ---
   const addAssessment = async (asmData) => {
+    const mcqCount = asmData.mcqs?.length || asmData.mcqCount || 0;
+    const codingCount = asmData.codingQuestions?.length || asmData.codingCount || 0;
+    const totalQuestions = mcqCount + codingCount;
+
     const newAsm = {
       id: `asm-${Date.now()}`,
       status: 'Active',
       publishStatus: 'Published',
-      mcqCount: asmData.mcqs?.length || 5,
-      codingCount: asmData.codingQuestions?.length || 1,
+      mcqCount,
+      codingCount,
+      totalQuestions,
       ...asmData
     };
     setAssessments((prev) => [newAsm, ...prev]);
-    logActivity(`Published assessment evaluation: "${newAsm.title}"`, 'assessment');
+    logActivity(`Published assessment evaluation: "${newAsm.title}" (${totalQuestions} Questions)`, 'assessment');
 
     try {
       await supabase.from('assessments').upsert([{
@@ -436,7 +441,20 @@ export function LmsDataProvider({ children }) {
 
   const updateAssessment = async (id, updatedFields) => {
     setAssessments((prev) =>
-      prev.map((a) => (a.id === id ? { ...a, ...updatedFields } : a))
+      prev.map((a) => {
+        if (a.id !== id) return a;
+        const mcqCount = updatedFields.mcqs ? updatedFields.mcqs.length : (a.mcqs?.length || a.mcqCount || 0);
+        const codingCount = updatedFields.codingQuestions ? updatedFields.codingQuestions.length : (a.codingQuestions?.length || a.codingCount || 0);
+        const totalQuestions = mcqCount + codingCount;
+
+        return {
+          ...a,
+          ...updatedFields,
+          mcqCount,
+          codingCount,
+          totalQuestions
+        };
+      })
     );
     logActivity(`Updated assessment quiz ID ${id}`, 'assessment');
 

@@ -203,7 +203,7 @@ export const INITIAL_ASSESSMENTS = [
     topicName: 'React 18 Concurrent Features & Hooks',
     durationMinutes: 45,
     totalMarks: 100,
-    mcqCount: 5,
+    mcqCount: 3,
     codingCount: 1,
     status: 'Active',
     publishStatus: 'Published',
@@ -213,6 +213,16 @@ export const INITIAL_ASSESSMENTS = [
         question: 'Which React hook should be used to memoize expensive calculation values?',
         options: ['useCallback', 'useMemo', 'useEffect', 'useRef'],
         correctIndex: 1
+      },
+      {
+        question: 'What is the primary purpose of React.useCallback?',
+        options: ['Memoize function instances between renders', 'Create persistent DOM references', 'Manage async side-effects', 'Trigger synchronous re-renders'],
+        correctIndex: 0
+      },
+      {
+        question: 'Which hook should be used for imperative DOM manipulations that require layout measurement?',
+        options: ['useTransition', 'useDeferredValue', 'useLayoutEffect', 'useImperativeHandle'],
+        correctIndex: 2
       }
     ],
     codingQuestions: [
@@ -232,7 +242,7 @@ export const INITIAL_ASSESSMENTS = [
     topicName: 'Containerizing Apps with Docker Multi-Stage Builds',
     durationMinutes: 30,
     totalMarks: 50,
-    mcqCount: 4,
+    mcqCount: 2,
     codingCount: 1,
     status: 'Active',
     publishStatus: 'Published',
@@ -241,6 +251,11 @@ export const INITIAL_ASSESSMENTS = [
       {
         question: 'Which Docker command creates an image layer optimization?',
         options: ['docker build --no-cache', 'Multi-stage dockerfile FROM instructions', 'docker run -d', 'docker commit'],
+        correctIndex: 1
+      },
+      {
+        question: 'What is the default isolation mechanism used by Docker containers?',
+        options: ['Virtual Machines', 'Linux Namespaces and cgroups', 'Chroot Jail', 'Hyper-V Partition'],
         correctIndex: 1
       }
     ],
