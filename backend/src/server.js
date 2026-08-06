@@ -315,7 +315,29 @@ app.post('/api/projects', async (req, res) => {
 });
 
 // =========================================================
-// 6. STUDENT LMS FEED API BROADCAST
+// 6. DAILY SCHEDULE API
+// =========================================================
+app.get('/api/schedule', async (req, res) => {
+  try {
+    const { data, error } = await supabase.from('daily_schedules').select('*');
+    res.json({ success: true, data: data || [] });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+app.post('/api/schedule', async (req, res) => {
+  try {
+    const newTopic = { id: `top-sched-${Date.now()}`, ...req.body };
+    const { data, error } = await supabase.from('daily_schedules').upsert([newTopic]).select();
+    res.status(201).json({ success: true, data: data ? data[0] : newTopic });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// =========================================================
+// 7. STUDENT LMS FEED API BROADCAST
 // =========================================================
 app.get('/api/v1/student-feed', async (req, res) => {
   try {
@@ -323,6 +345,7 @@ app.get('/api/v1/student-feed', async (req, res) => {
     const { data: liveSessions } = await supabase.from('live_sessions').select('*');
     const { data: jobs } = await supabase.from('jobs').select('*');
     const { data: projects } = await supabase.from('projects').select('*');
+    const { data: dailySchedules } = await supabase.from('daily_schedules').select('*');
 
     res.json({
       status: 'Connected & Syncing',
@@ -330,6 +353,7 @@ app.get('/api/v1/student-feed', async (req, res) => {
       lastSynced: new Date().toISOString(),
       feedPayload: {
         courses: courses || [],
+        dailySchedule: dailySchedules || [],
         projects: projects || [],
         liveSessions: liveSessions || [],
         jobOpportunities: jobs || []

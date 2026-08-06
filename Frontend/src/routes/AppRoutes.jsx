@@ -19,6 +19,7 @@ import { CourseListPage } from '../pages/courses/CourseListPage';
 import { CourseDetailPage } from '../pages/courses/CourseDetailPage';
 import { AssessmentListPage } from '../pages/assessments/AssessmentListPage';
 import { ProjectManagementPage } from '../pages/projects/ProjectManagementPage';
+import { ScheduleManagementPage } from '../pages/schedule/ScheduleManagementPage';
 import { LiveSessionListPage } from '../pages/sessions/LiveSessionListPage';
 import { JobPortalPage } from '../pages/jobs/JobPortalPage';
 import { RecordingLibraryPage } from '../pages/library/RecordingLibraryPage';
@@ -69,6 +70,9 @@ export function AppRoutes() {
 
         {/* Project Routes */}
         <Route path="/projects" element={<ProjectManagementPage />} />
+
+        {/* Schedule Routes */}
+        <Route path="/schedule" element={<ScheduleManagementPage />} />
 
         {/* Live Session Routes */}
         <Route path="/live-sessions" element={<LiveSessionListPage />} />

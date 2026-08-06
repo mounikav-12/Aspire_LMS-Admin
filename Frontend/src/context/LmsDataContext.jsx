@@ -8,6 +8,7 @@ import {
   INITIAL_RECORDINGS,
   INITIAL_PLACEMENT_RESOURCES,
   INITIAL_PROJECTS,
+  INITIAL_DAILY_SCHEDULE,
   INITIAL_USERS,
   INITIAL_ROLE_PERMISSIONS,
   MOCK_ACTIVITIES,
@@ -27,6 +28,7 @@ export function LmsDataProvider({ children }) {
   const [recordings, setRecordings] = useState(INITIAL_RECORDINGS);
   const [placementResources, setPlacementResources] = useState(INITIAL_PLACEMENT_RESOURCES);
   const [projects, setProjects] = useState(INITIAL_PROJECTS);
+  const [dailySchedule, setDailySchedule] = useState(INITIAL_DAILY_SCHEDULE);
   const [activities, setActivities] = useState(MOCK_ACTIVITIES);
   const [isSupabaseConnected, setIsSupabaseConnected] = useState(false);
 
@@ -804,6 +806,94 @@ export function LmsDataProvider({ children }) {
     logActivity(`Graded submission ${submissionId} for project ${projectId}`, 'project');
   };
 
+  // --- DAILY SCHEDULE ---
+  const addScheduleTopic = async (dateStr, topicData) => {
+    setDailySchedule((prev) => {
+      const dayData = prev[dateStr] || {
+        dayLabel: `Day ${Object.keys(prev).length + 1} of 31`,
+        programName: 'AI & Machine Learning Program',
+        topics: []
+      };
+
+      const newTopic = {
+        id: `top-sched-${Date.now()}`,
+        topicIndex: `Topic ${dayData.topics.length + 1}`,
+        status: 'Scheduled',
+        ...topicData
+      };
+
+      return {
+        ...prev,
+        [dateStr]: {
+          ...dayData,
+          topics: [...dayData.topics, newTopic]
+        }
+      };
+    });
+    logActivity(`Added new schedule topic for ${dateStr}: "${topicData.title}"`, 'schedule');
+  };
+
+  const updateScheduleTopic = async (dateStr, topicId, updatedFields) => {
+    setDailySchedule((prev) => {
+      const dayData = prev[dateStr];
+      if (!dayData) return prev;
+
+      const updatedTopics = dayData.topics.map((t) =>
+        t.id === topicId ? { ...t, ...updatedFields } : t
+      );
+
+      return {
+        ...prev,
+        [dateStr]: {
+          ...dayData,
+          topics: updatedTopics
+        }
+      };
+    });
+    logActivity(`Updated schedule topic ID ${topicId} for date ${dateStr}`, 'schedule');
+  };
+
+  const deleteScheduleTopic = async (dateStr, topicId) => {
+    setDailySchedule((prev) => {
+      const dayData = prev[dateStr];
+      if (!dayData) return prev;
+
+      const filteredTopics = dayData.topics.filter((t) => t.id !== topicId);
+
+      return {
+        ...prev,
+        [dateStr]: {
+          ...dayData,
+          topics: filteredTopics
+        }
+      };
+    });
+    logActivity(`Removed schedule topic ${topicId} from date ${dateStr}`, 'schedule');
+  };
+
+  const toggleTopicStatus = async (dateStr, topicId) => {
+    setDailySchedule((prev) => {
+      const dayData = prev[dateStr];
+      if (!dayData) return prev;
+
+      const updatedTopics = dayData.topics.map((t) => {
+        if (t.id === topicId) {
+          const nextStatus = t.status === 'Completed' ? 'Scheduled' : 'Completed';
+          return { ...t, status: nextStatus };
+        }
+        return t;
+      });
+
+      return {
+        ...prev,
+        [dateStr]: {
+          ...dayData,
+          topics: updatedTopics
+        }
+      };
+    });
+  };
+
   return (
     <LmsDataContext.Provider
       value={{
@@ -842,6 +932,11 @@ export function LmsDataProvider({ children }) {
         updateProject,
         deleteProject,
         gradeSubmission,
+        dailySchedule,
+        addScheduleTopic,
+        updateScheduleTopic,
+        deleteScheduleTopic,
+        toggleTopicStatus,
         activities,
         isSupabaseConnected
       }}
