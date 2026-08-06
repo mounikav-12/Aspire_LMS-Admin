@@ -7,6 +7,7 @@ import {
   INITIAL_JOBS,
   INITIAL_RECORDINGS,
   INITIAL_PLACEMENT_RESOURCES,
+  INITIAL_PROJECTS,
   INITIAL_USERS,
   INITIAL_ROLE_PERMISSIONS,
   MOCK_ACTIVITIES,
@@ -25,6 +26,7 @@ export function LmsDataProvider({ children }) {
   const [jobs, setJobs] = useState(INITIAL_JOBS);
   const [recordings, setRecordings] = useState(INITIAL_RECORDINGS);
   const [placementResources, setPlacementResources] = useState(INITIAL_PLACEMENT_RESOURCES);
+  const [projects, setProjects] = useState(INITIAL_PROJECTS);
   const [activities, setActivities] = useState(MOCK_ACTIVITIES);
   const [isSupabaseConnected, setIsSupabaseConnected] = useState(false);
 
@@ -720,6 +722,88 @@ export function LmsDataProvider({ children }) {
     }
   };
 
+  // --- PROJECTS ---
+  const addProject = async (projectData) => {
+    const newProject = {
+      id: `proj-${Date.now()}`,
+      assignedCount: 0,
+      submittedCount: 0,
+      feedbackCount: 0,
+      avgGrade: 0,
+      status: 'Published',
+      submissions: [],
+      ...projectData
+    };
+    setProjects((prev) => [newProject, ...prev]);
+    logActivity(`Published new project: "${newProject.title}"`, 'project');
+
+    try {
+      await supabase.from('projects').upsert([{
+        id: newProject.id,
+        title: newProject.title,
+        category: newProject.category,
+        difficulty: newProject.difficulty,
+        description: newProject.description,
+        tech_stack: newProject.techStack,
+        due_date: newProject.dueDate,
+        status: newProject.status,
+        template_url: newProject.templateUrl
+      }]);
+    } catch (err) {
+      console.warn('Project insert handled:', err);
+    }
+  };
+
+  const updateProject = async (id, updatedFields) => {
+    setProjects((prev) =>
+      prev.map((p) => (p.id === id ? { ...p, ...updatedFields } : p))
+    );
+    logActivity(`Updated project listing ID ${id}`, 'project');
+
+    try {
+      await supabase.from('projects').update(updatedFields).eq('id', id);
+    } catch (err) {
+      console.warn('Project update handled:', err);
+    }
+  };
+
+  const deleteProject = async (id) => {
+    const p = projects.find((item) => item.id === id);
+    setProjects((prev) => prev.filter((item) => item.id !== id));
+    logActivity(`Deleted project: "${p?.title || id}"`, 'project');
+
+    try {
+      await supabase.from('projects').delete().eq('id', id);
+    } catch (err) {
+      console.warn('Project delete handled:', err);
+    }
+  };
+
+  const gradeSubmission = async (projectId, submissionId, grade, feedback) => {
+    setProjects((prev) =>
+      prev.map((p) => {
+        if (p.id !== projectId) return p;
+        const updatedSubmissions = p.submissions.map((sub) =>
+          sub.id === submissionId
+            ? { ...sub, grade: Number(grade), mentorFeedback: feedback, status: 'Graded' }
+            : sub
+        );
+        const gradedSubs = updatedSubmissions.filter((s) => s.status === 'Graded');
+        const avg = gradedSubs.length > 0
+          ? Math.round(gradedSubs.reduce((acc, cur) => acc + (cur.grade || 0), 0) / gradedSubs.length)
+          : p.avgGrade;
+
+        return {
+          ...p,
+          submissions: updatedSubmissions,
+          feedbackCount: gradedSubs.length,
+          avgGrade: avg
+        };
+      })
+    );
+    logActivity(`Graded submission ${submissionId} for project ${projectId}`, 'project');
+  };
+
   return (
     <LmsDataContext.Provider
       value={{
@@ -753,6 +837,11 @@ export function LmsDataProvider({ children }) {
         addPlacementResource,
         updatePlacementResource,
         deletePlacementResource,
+        projects,
+        addProject,
+        updateProject,
+        deleteProject,
+        gradeSubmission,
         activities,
         isSupabaseConnected
       }}

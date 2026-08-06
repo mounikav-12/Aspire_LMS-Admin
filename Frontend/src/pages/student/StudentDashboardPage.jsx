@@ -21,7 +21,7 @@ import {
 } from 'lucide-react';
 
 export function StudentDashboardPage() {
-  const { courses, liveSessions, jobs, recordings } = useLmsData();
+  const { courses, liveSessions, jobs, recordings, projects } = useLmsData();
   const { addToast } = useToast();
 
   const [isSyncing, setIsSyncing] = useState(false);
@@ -44,6 +44,7 @@ export function StudentDashboardPage() {
     sync_frequency: 'REALTIME_WEBHOOK',
     data: {
       courses: courses.map((c) => ({ id: c.id, title: c.title, category: c.category, topics_count: c.topics?.length || 0 })),
+      projects: (projects || []).map((p) => ({ id: p.id, title: p.title, category: p.category, difficulty: p.difficulty, due_date: p.dueDate, tech_stack: p.techStack })),
       live_sessions: liveSessions.map((s) => ({ id: s.id, title: s.sessionTitle, meeting_link: s.meetingLink, schedule: s.date })),
       job_openings: jobs.map((j) => ({ id: j.id, company: j.company, title: j.jobTitle, location: j.location })),
       recordings: recordings.map((r) => ({ id: r.id, title: r.title, video_url: r.videoUrl }))

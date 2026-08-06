@@ -293,6 +293,28 @@ app.get('/api/mcq/:subtopicId', (req, res) => {
 });
 
 // =========================================================
+// 5. PROJECTS API
+// =========================================================
+app.get('/api/projects', async (req, res) => {
+  try {
+    const { data, error } = await supabase.from('projects').select('*');
+    res.json({ success: true, data: data || [] });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+app.post('/api/projects', async (req, res) => {
+  try {
+    const newProj = { id: `proj-${Date.now()}`, ...req.body };
+    const { data, error } = await supabase.from('projects').upsert([newProj]).select();
+    res.status(201).json({ success: true, data: data ? data[0] : newProj });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// =========================================================
 // 6. STUDENT LMS FEED API BROADCAST
 // =========================================================
 app.get('/api/v1/student-feed', async (req, res) => {
@@ -300,6 +322,7 @@ app.get('/api/v1/student-feed', async (req, res) => {
     const { data: courses } = await supabase.from('courses').select('*');
     const { data: liveSessions } = await supabase.from('live_sessions').select('*');
     const { data: jobs } = await supabase.from('jobs').select('*');
+    const { data: projects } = await supabase.from('projects').select('*');
 
     res.json({
       status: 'Connected & Syncing',
@@ -307,6 +330,7 @@ app.get('/api/v1/student-feed', async (req, res) => {
       lastSynced: new Date().toISOString(),
       feedPayload: {
         courses: courses || [],
+        projects: projects || [],
         liveSessions: liveSessions || [],
         jobOpportunities: jobs || []
       }

@@ -12,6 +12,7 @@ export const PERMISSION_LIST = [
   { id: 'delete_course', name: 'Delete Courses', category: 'Course Management' },
   { id: 'create_assessment', name: 'Create & Publish Assessments', category: 'Assessments' },
   { id: 'delete_assessment', name: 'Delete Assessments', category: 'Assessments' },
+  { id: 'manage_projects', name: 'Manage Real-World Projects', category: 'Projects Portal' },
   { id: 'manage_live_sessions', name: 'Manage Live Class Links', category: 'Live Sessions' },
   { id: 'manage_jobs', name: 'Post & Sync Job Openings', category: 'Job Portal' },
   { id: 'manage_recordings', name: 'Upload Video Recordings', category: 'Library' },
@@ -26,6 +27,7 @@ export const INITIAL_ROLE_PERMISSIONS = {
     'delete_course',
     'create_assessment',
     'delete_assessment',
+    'manage_projects',
     'manage_live_sessions',
     'manage_jobs',
     'manage_recordings',
@@ -34,6 +36,7 @@ export const INITIAL_ROLE_PERMISSIONS = {
   ],
   [ROLES.MANAGER]: [
     'create_course',
+    'manage_projects',
     'manage_live_sessions',
     'manage_jobs',
     'manage_recordings',
@@ -42,6 +45,7 @@ export const INITIAL_ROLE_PERMISSIONS = {
   [ROLES.INSTRUCTOR]: [
     'create_course',
     'create_assessment',
+    'manage_projects',
     'manage_live_sessions',
     'manage_recordings',
     'inspect_api_feed'
@@ -397,3 +401,102 @@ export const API_FEED_STATUS = {
   jobPostingsLive: 3,
   recordingsPublished: 2
 };
+
+export const INITIAL_PROJECTS = [
+  {
+    id: 'proj-101',
+    title: 'E-commerce Platform',
+    category: 'Full-Stack Web Dev',
+    difficulty: 'Advanced',
+    description: 'Build a complete e-commerce platform with cart, checkout, and admin dashboard.',
+    techStack: ['React', 'Node.js', 'PostgreSQL', 'Stripe'],
+    dueDate: 'Due Aug 20',
+    dueDateRaw: '2026-08-20',
+    assignedCount: 1,
+    submittedCount: 1,
+    feedbackCount: 1,
+    avgGrade: 89,
+    status: 'Published',
+    templateUrl: 'https://github.com/aspire-lms/ecommerce-starter',
+    guidelines: 'Ensure unit test coverage is above 80%. Include deployment instructions in README.',
+    submissions: [
+      {
+        id: 'sub-101',
+        studentName: 'Aarav Sharma',
+        studentAvatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',
+        submittedAt: '2026-08-05',
+        repoUrl: 'https://github.com/aarav-sharma/ecommerce-capstone',
+        liveDemoUrl: 'https://ecommerce-aarav.vercel.app',
+        grade: 89,
+        status: 'Graded',
+        mentorFeedback: 'Great cart implementation, clean state management, and clear documentation!'
+      }
+    ]
+  },
+  {
+    id: 'proj-102',
+    title: 'AI Customer Support Chatbot',
+    category: 'AI & Machine Learning',
+    difficulty: 'Intermediate',
+    description: 'Develop an intelligent support agent powered by OpenAI GPT-4, vector embeddings, and React.',
+    techStack: ['Python', 'OpenAI', 'LangChain', 'React'],
+    dueDate: 'Due Aug 28',
+    dueDateRaw: '2026-08-28',
+    assignedCount: 42,
+    submittedCount: 28,
+    feedbackCount: 20,
+    avgGrade: 92,
+    status: 'Published',
+    templateUrl: 'https://github.com/aspire-lms/ai-chatbot-starter',
+    guidelines: 'Integrate pinecone vector database for context retrieval. Provide fallback responses.',
+    submissions: [
+      {
+        id: 'sub-102',
+        studentName: 'Priya Verma',
+        studentAvatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80',
+        submittedAt: '2026-08-04',
+        repoUrl: 'https://github.com/priya-v/ai-chatbot',
+        liveDemoUrl: 'https://ai-support-demo.vercel.app',
+        grade: 92,
+        status: 'Graded',
+        mentorFeedback: 'Excellent prompt engineering and error handling in edge cases.'
+      }
+    ]
+  },
+  {
+    id: 'proj-103',
+    title: 'Real-Time Financial Dashboard',
+    category: 'Frontend Systems',
+    difficulty: 'Intermediate',
+    description: 'Create a high-performance live trading & analytics dashboard with WebSockets and Tailwind CSS.',
+    techStack: ['React', 'TypeScript', 'WebSockets', 'Tailwind CSS'],
+    dueDate: 'Due Sep 05',
+    dueDateRaw: '2026-09-05',
+    assignedCount: 65,
+    submittedCount: 14,
+    feedbackCount: 10,
+    avgGrade: 85,
+    status: 'Published',
+    templateUrl: 'https://github.com/aspire-lms/analytics-starter',
+    guidelines: 'Implement smooth charting rendering without layout shifts during fast market data stream.',
+    submissions: []
+  },
+  {
+    id: 'proj-104',
+    title: 'Microservices Auth & API Gateway',
+    category: 'Backend & DevOps',
+    difficulty: 'Advanced',
+    description: 'Architect a scalable JWT auth service and rate-limited API Gateway using Redis, Docker, and Express.',
+    techStack: ['Node.js', 'Redis', 'Docker', 'JWT'],
+    dueDate: 'Due Sep 15',
+    dueDateRaw: '2026-09-15',
+    assignedCount: 30,
+    submittedCount: 5,
+    feedbackCount: 2,
+    avgGrade: 95,
+    status: 'Draft',
+    templateUrl: 'https://github.com/aspire-lms/microservices-starter',
+    guidelines: 'Provide docker-compose.yml file to spin up all services seamlessly with one command.',
+    submissions: []
+  }
+];
