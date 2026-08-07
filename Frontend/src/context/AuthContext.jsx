@@ -81,7 +81,7 @@ export function AuthProvider({ children }) {
       department: department || 'General Staff',
       status: 'Active',
       joinedDate: new Date().toISOString().split('T')[0],
-      phone: '+1 (555) 000-0000',
+      phone: '+91 98765-43210',
       avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(name.trim())}`
     };
 
@@ -131,16 +131,19 @@ export function AuthProvider({ children }) {
       return { success: true, user: userWithOriginalRole };
     }
 
-    // 2. Check in pre-seeded initial system users (e.g., Sarah Connor Super Admin)
+    // 2. Check in pre-seeded initial system users (e.g., Super Admin)
     const foundInitial = INITIAL_USERS.find(
       (u) => u.email.toLowerCase() === emailClean
     );
 
     if (foundInitial) {
+      if (foundInitial.password && foundInitial.password !== password) {
+        return { success: false, message: 'Invalid credentials. Password incorrect.' };
+      }
       const userWithOriginalRole = {
         ...foundInitial,
         originalRole: foundInitial.role,
-        phone: foundInitial.phone || '+1 (555) 234-5678'
+        phone: foundInitial.phone || '+91 98765-43210'
       };
       setCurrentUser(userWithOriginalRole);
       setCurrentRole(foundInitial.role);
@@ -158,7 +161,7 @@ export function AuthProvider({ children }) {
 
   const isSuperAdmin =
     currentUser?.originalRole === ROLES.SUPER_ADMIN ||
-    currentUser?.email === 'sarah.admin@aspirelms.io';
+    currentUser?.email?.toLowerCase() === 'aspireadmin@gmail.com';
 
   const switchRole = (newRole) => {
     if (currentUser && isSuperAdmin) {

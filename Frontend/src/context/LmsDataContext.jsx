@@ -47,7 +47,7 @@ export function LmsDataProvider({ children }) {
           department: u.department || 'Curriculum Operations',
           status: u.status || 'Active',
           joinedDate: u.joined_date || u.joinedDate || '',
-          phone: u.phone || '+1 (555) 234-5678',
+          phone: u.phone || '+91 98765-43210',
           avatar: u.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80'
         })));
         setIsSupabaseConnected(true);
@@ -214,7 +214,7 @@ export function LmsDataProvider({ children }) {
       status: 'Active',
       role: userData.role || ROLES.INSTRUCTOR,
       originalRole: userData.role || ROLES.INSTRUCTOR,
-      phone: userData.phone || '+1 (555) 234-5678',
+      phone: userData.phone || '+91 98765-43210',
       avatar: userData.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',
       ...userData
     };

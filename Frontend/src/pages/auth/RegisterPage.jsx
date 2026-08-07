@@ -25,7 +25,7 @@ export function RegisterPage() {
 
   // Exclude Super Admin from self-registration choices
   const roleOptions = [
-    { value: ROLES.ADMIN, label: '⚙️ Admin - Full Operational & Content Control' },
+    { value: ROLES.ADMIN, label: '⚙️ Admin - Operational & Content Control' },
     { value: ROLES.MANAGER, label: '📊 Manager - Course & Analytics Oversight' },
     { value: ROLES.INSTRUCTOR, label: '💻 Instructor - Courseware & Live Class Publishing' }
   ];
@@ -101,30 +101,30 @@ export function RegisterPage() {
               />
               <div>
                 <span className="font-black text-lg text-white tracking-tight">ASPIRE LMS</span>
-                <span className="text-[10px] block uppercase font-bold text-blue-200 tracking-wider">Staff Onboarding</span>
+                <span className="text-[10px] block uppercase font-bold text-blue-200 tracking-wider">Account Creation</span>
               </div>
             </div>
 
             <div>
               <h2 className="text-2xl font-black tracking-tight text-white leading-snug">
-                Join the Aspire LMS Staff Portal
+                Join Aspire LMS
               </h2>
               <p className="text-xs text-blue-100/80 mt-2 leading-relaxed">
-                Create your staff account to manage courses, host live sessions, publish assessments, and coordinate student learning pathways.
+                Create your account to design courses, manage live classes, assess student progress, and collaborate with your team.
               </p>
             </div>
 
             <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/15 space-y-2 text-xs">
-              <span className="font-bold text-blue-200 uppercase tracking-wider block text-[10px]">Security Notice</span>
+              <span className="font-bold text-blue-200 uppercase tracking-wider block text-[10px]">Security & Permissions</span>
               <p className="text-blue-100/90 leading-relaxed text-[11px]">
-                Registration is available for standard staff roles (Admin, Manager, Instructor). <strong className="text-white">Super Admin</strong> credentials are system-managed and cannot be self-registered.
+                Registration grants standard operational access (Admin, Manager, Instructor). <strong className="text-white">Super Admin</strong> privileges are enterprise-managed.
               </p>
             </div>
           </div>
 
           <div className="relative z-10 pt-6 mt-6 border-t border-white/10 flex items-center gap-2 text-[11px] text-blue-200 font-semibold">
             <ShieldCheck className="w-4 h-4 text-blue-300" />
-            <span>Role-Based Access Controlled</span>
+            <span>Enterprise Role-Based Access Control</span>
           </div>
         </div>
 
@@ -134,10 +134,10 @@ export function RegisterPage() {
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-2xl font-black text-slate-900 tracking-tight">
-                  Staff Registration
+                  Create Your Account
                 </h3>
                 <p className="text-xs text-slate-500 font-medium mt-1">
-                  Fill in your details to create your staff access profile
+                  Fill in your details below to register your account
                 </p>
               </div>
               <Link
@@ -162,7 +162,7 @@ export function RegisterPage() {
               />
 
               <Input
-                label="Staff Email Address"
+                label="Work Email Address"
                 icon={Mail}
                 name="email"
                 type="email"
@@ -185,7 +185,7 @@ export function RegisterPage() {
                 />
 
                 <Select
-                  label="Staff Role"
+                  label="Account Role"
                   icon={ShieldCheck}
                   name="role"
                   value={formData.role}
@@ -227,13 +227,13 @@ export function RegisterPage() {
                 icon={UserPlus}
                 disabled={isLoading}
               >
-                {isLoading ? 'Creating Account...' : 'Complete Registration'}
+                {isLoading ? 'Creating Account...' : 'Create Account'}
               </Button>
             </form>
 
             <div className="text-center pt-2 border-t border-slate-100">
               <p className="text-xs text-slate-500 font-medium">
-                Already have a staff account?{' '}
+                Already have an account?{' '}
                 <Link to="/login" className="text-blue-600 font-bold hover:underline">
                   Sign In here
                 </Link>

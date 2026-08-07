@@ -50,31 +50,31 @@ export function LoginPage() {
               />
               <div>
                 <span className="font-black text-lg text-white tracking-tight">ASPIRE LMS</span>
-                <span className="text-[10px] block uppercase font-bold text-blue-200 tracking-wider">Staff Console</span>
+                <span className="text-[10px] block uppercase font-bold text-blue-200 tracking-wider">Administration Portal</span>
               </div>
             </div>
 
             <div>
               <h2 className="text-2xl font-black tracking-tight text-white leading-snug">
-                Staff Publishing & Management Portal
+                Learning Management & Administration Platform
               </h2>
               <p className="text-xs text-blue-100/80 mt-2 leading-relaxed">
-                Sign in to manage courseware, schedule live classes, publish assessments, and broadcast data to the Student LMS.
+                Welcome to Aspire LMS. Manage courses, track student performance, schedule live sessions, and publish assessments seamlessly.
               </p>
             </div>
 
             <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/15 space-y-2 text-xs">
-              <span className="font-bold text-blue-200 uppercase tracking-wider block text-[10px]">Access Guidelines</span>
+              <span className="font-bold text-blue-200 uppercase tracking-wider block text-[10px]">Portal Access</span>
               <ul className="text-blue-100/90 space-y-1.5 text-[11px] list-disc pl-3.5">
-                <li><strong className="text-white">Super Admin</strong>: Pre-seeded root credentials. Enter your email and password manually.</li>
-                <li><strong className="text-white">Staff Roles</strong> (Admin, Manager, Instructor): Log in with your registered account or click below to register.</li>
+                <li><strong className="text-white">Super Admin</strong>: Full administrative control and platform settings.</li>
+                <li><strong className="text-white">Educators & Staff</strong>: Manage courseware, live classes, student progress, and grading.</li>
               </ul>
             </div>
           </div>
 
           <div className="relative z-10 pt-6 mt-6 border-t border-white/10 flex items-center gap-2 text-[11px] text-blue-200 font-semibold">
             <ShieldCheck className="w-4 h-4 text-blue-300" />
-            <span>Staff Authentication Protected</span>
+            <span>Secure 256-Bit Encrypted Authentication</span>
           </div>
         </div>
 
@@ -83,19 +83,19 @@ export function LoginPage() {
           <div className="max-w-md w-full mx-auto space-y-6">
             <div>
               <h3 className="text-2xl font-black text-slate-900 tracking-tight">
-                Staff Console Sign In
+                Sign In to Aspire LMS
               </h3>
               <p className="text-xs text-slate-500 font-medium mt-1">
-                Enter your staff credentials manually to access your management dashboard
+                Enter your account credentials to access your administrative dashboard
               </p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <Input
-                label="Staff Email Address"
+                label="Email Address"
                 icon={Mail}
                 type="email"
-                placeholder="staff@aspirelms.io"
+                placeholder="aspireAdmin@gmail.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -129,13 +129,13 @@ export function LoginPage() {
                 icon={LogIn}
                 disabled={isLoading}
               >
-                {isLoading ? 'Signing in...' : 'Sign In to Console'}
+                {isLoading ? 'Signing in...' : 'Sign In'}
               </Button>
             </form>
 
             <div className="pt-4 border-t border-slate-100 text-center">
               <p className="text-xs text-slate-500 font-medium">
-                Don't have a staff account?{' '}
+                Don't have an account?{' '}
                 <Link to="/register" className="text-blue-600 font-bold hover:underline inline-flex items-center gap-1">
                   <UserPlus className="w-3.5 h-3.5" /> Register here
                 </Link>

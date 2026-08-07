@@ -134,9 +134,6 @@ export function Sidebar({ isCollapsed, onToggle, isMobileOpen, onCloseMobile }) 
                 <span className="font-black text-sm text-slate-900 tracking-tight leading-none">
                   ASPIRE <span className="text-blue-600 font-black">LMS</span>
                 </span>
-                <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider mt-0.5">
-                  Admin Console
-                </span>
               </div>
             )}
           </div>

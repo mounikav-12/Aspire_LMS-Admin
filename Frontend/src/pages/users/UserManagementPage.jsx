@@ -38,7 +38,7 @@ export function UserManagementPage() {
     email: '',
     role: ROLES.INSTRUCTOR,
     department: 'Curriculum Operations',
-    phone: '+1 (555) 234-5678',
+    phone: '+91 98765-43210',
     avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80'
   });
 
@@ -48,7 +48,7 @@ export function UserManagementPage() {
       email: '',
       role: ROLES.INSTRUCTOR,
       department: 'Curriculum Operations',
-      phone: '+1 (555) 234-5678',
+      phone: '+91 98765-43210',
       avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80'
     });
     setIsAddModalOpen(true);
@@ -61,7 +61,7 @@ export function UserManagementPage() {
       email: user.email || '',
       role: user.role || ROLES.INSTRUCTOR,
       department: user.department || 'Curriculum Operations',
-      phone: user.phone || '+1 (555) 234-5678',
+      phone: user.phone || '+91 98765-43210',
       avatar: user.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80'
     });
   };
@@ -290,7 +290,7 @@ export function UserManagementPage() {
             <Input
               label="Contact Phone Number"
               icon={Phone}
-              placeholder="+1 (555) 234-5678"
+              placeholder="+91 98765-43210"
               value={formData.phone}
               onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
             />

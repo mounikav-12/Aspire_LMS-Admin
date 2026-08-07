@@ -59,8 +59,9 @@ export const INITIAL_ROLE_PERMISSIONS = {
 export const INITIAL_USERS = [
   {
     id: 'usr-1',
-    name: 'Sarah Connor',
-    email: 'sarah.admin@aspirelms.io',
+    name: 'Super Admin',
+    email: 'aspireAdmin@gmail.com',
+    password: 'password@123',
     role: ROLES.SUPER_ADMIN,
     department: 'Executive Leadership',
     status: 'Active',
