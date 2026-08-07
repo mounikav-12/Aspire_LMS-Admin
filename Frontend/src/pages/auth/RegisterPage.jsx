@@ -5,7 +5,7 @@ import { useToast } from '../../context/ToastContext';
 import { Button } from '../../components/common/Button';
 import { Input, Select } from '../../components/common/Input';
 import { ROLES } from '../../utils/mockData';
-import { UserPlus, Lock, Mail, User, Building, ShieldCheck, ArrowLeft } from 'lucide-react';
+import { UserPlus, Lock, Mail, User, ShieldCheck, ArrowLeft } from 'lucide-react';
 
 export function RegisterPage() {
   const navigate = useNavigate();
@@ -15,7 +15,6 @@ export function RegisterPage() {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    department: 'Engineering Training',
     role: ROLES.INSTRUCTOR,
     password: '',
     confirmPassword: ''
@@ -25,9 +24,9 @@ export function RegisterPage() {
 
   // Exclude Super Admin from self-registration choices
   const roleOptions = [
-    { value: ROLES.ADMIN, label: '⚙️ Admin - Operational & Content Control' },
-    { value: ROLES.MANAGER, label: '📊 Manager - Course & Analytics Oversight' },
-    { value: ROLES.INSTRUCTOR, label: '💻 Instructor - Courseware & Live Class Publishing' }
+    { value: ROLES.ADMIN, label: '⚙️ Admin (Operational & Content Control)' },
+    { value: ROLES.MANAGER, label: '📊 Manager (Course & Analytics Oversight)' },
+    { value: ROLES.INSTRUCTOR, label: '💻 Instructor (Courseware & Live Classes)' }
   ];
 
   const handleChange = (e) => {
@@ -69,8 +68,7 @@ export function RegisterPage() {
         name: formData.name,
         email: formData.email,
         password: formData.password,
-        role: formData.role,
-        department: formData.department
+        role: formData.role
       });
 
       setIsLoading(false);
@@ -173,27 +171,15 @@ export function RegisterPage() {
                 required
               />
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <Input
-                  label="Department"
-                  icon={Building}
-                  name="department"
-                  type="text"
-                  placeholder="e.g. Engineering"
-                  value={formData.department}
-                  onChange={handleChange}
-                />
-
-                <Select
-                  label="Account Role"
-                  icon={ShieldCheck}
-                  name="role"
-                  value={formData.role}
-                  onChange={handleChange}
-                  options={roleOptions}
-                  error={errors.role}
-                />
-              </div>
+              <Select
+                label="Account Role"
+                icon={ShieldCheck}
+                name="role"
+                value={formData.role}
+                onChange={handleChange}
+                options={roleOptions}
+                error={errors.role}
+              />
 
               <Input
                 label="Password"

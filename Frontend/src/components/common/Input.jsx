@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, ChevronDown } from 'lucide-react';
 
 export function Input({
   label,
@@ -95,7 +95,7 @@ export function Select({
         )}
         <select
           id={selectId}
-          className={`w-full px-3.5 py-2.5 bg-slate-50/60 hover:bg-white border rounded-xl text-sm text-slate-800 focus:bg-white focus:outline-none transition-all duration-200 appearance-none ${
+          className={`w-full px-3.5 py-2.5 pr-10 bg-slate-50/60 hover:bg-white border rounded-xl text-sm text-slate-800 focus:bg-white focus:outline-none transition-all duration-200 appearance-none cursor-pointer ${
             Icon ? 'pl-10' : ''
           } ${
             error
@@ -110,6 +110,9 @@ export function Select({
             </option>
           ))}
         </select>
+        <div className="absolute right-3.5 text-slate-400 pointer-events-none z-10">
+          <ChevronDown className="w-4 h-4 text-slate-500" />
+        </div>
       </div>
       {error && <span className="text-xs text-rose-500 font-semibold">{error}</span>}
     </div>
