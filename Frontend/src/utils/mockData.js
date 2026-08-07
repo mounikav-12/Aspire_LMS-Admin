@@ -13,7 +13,6 @@ export const PERMISSION_LIST = [
   { id: 'create_assessment', name: 'Create & Publish Assessments', category: 'Assessments' },
   { id: 'delete_assessment', name: 'Delete Assessments', category: 'Assessments' },
   { id: 'manage_projects', name: 'Manage Real-World Projects', category: 'Projects Portal' },
-  { id: 'manage_schedule', name: 'Daily Course Schedule Management', category: 'Course Management' },
   { id: 'manage_live_sessions', name: 'Manage Live Class Links', category: 'Live Sessions' },
   { id: 'manage_jobs', name: 'Post & Sync Job Openings', category: 'Job Portal' },
   { id: 'manage_recordings', name: 'Upload Video Recordings', category: 'Library' },
@@ -29,7 +28,6 @@ export const INITIAL_ROLE_PERMISSIONS = {
     'create_assessment',
     'delete_assessment',
     'manage_projects',
-    'manage_schedule',
     'manage_live_sessions',
     'manage_jobs',
     'manage_recordings',
@@ -39,7 +37,6 @@ export const INITIAL_ROLE_PERMISSIONS = {
   [ROLES.MANAGER]: [
     'create_course',
     'manage_projects',
-    'manage_schedule',
     'manage_live_sessions',
     'manage_jobs',
     'manage_recordings',
@@ -49,7 +46,6 @@ export const INITIAL_ROLE_PERMISSIONS = {
     'create_course',
     'create_assessment',
     'manage_projects',
-    'manage_schedule',
     'manage_live_sessions',
     'manage_recordings',
     'inspect_api_feed'
@@ -520,68 +516,3 @@ export const INITIAL_PROJECTS = [
     submissions: []
   }
 ];
-
-export const INITIAL_DAILY_SCHEDULE = {
-  '2026-08-07': {
-    dayLabel: 'Day 7 of 31',
-    programName: 'AI & Machine Learning Program',
-    topics: [
-      {
-        id: 'top-sched-101',
-        topicIndex: 'Topic 1',
-        categoryTag: 'Functions',
-        duration: '45 mins',
-        title: 'Python *args and **kwargs Variable Arguments',
-        description: 'Accepting dynamic positional and keyword arguments in reusable functions',
-        status: 'Completed', // matches checkmark in screenshot
-        lessonUrl: 'https://www.w3schools.com/python/python_functions.asp'
-      },
-      {
-        id: 'top-sched-102',
-        topicIndex: 'Topic 2',
-        categoryTag: 'Functional',
-        duration: '40 mins',
-        title: 'Lambda Expressions & Anonymous Functions',
-        description: 'Writing inline lambda functions with map(), filter(), and sorted() key',
-        status: 'Scheduled', // matches circle in screenshot
-        lessonUrl: 'https://www.w3schools.com/python/python_lambda.asp'
-      },
-      {
-        id: 'top-sched-103',
-        topicIndex: 'Topic 3',
-        categoryTag: 'OOP',
-        duration: '60 mins',
-        title: 'Object-Oriented Programming: Classes & __init__',
-        description: 'Creating blueprint classes, instance attributes, methods, and self keyword',
-        status: 'Scheduled', // matches circle in screenshot
-        lessonUrl: 'https://www.w3schools.com/python/python_classes.asp'
-      }
-    ]
-  },
-  '2026-08-08': {
-    dayLabel: 'Day 8 of 31',
-    programName: 'AI & Machine Learning Program',
-    topics: [
-      {
-        id: 'top-sched-104',
-        topicIndex: 'Topic 1',
-        categoryTag: 'OOP',
-        duration: '50 mins',
-        title: 'Inheritance & Method Overriding in Python',
-        description: 'Extending parent classes, super() calls, and polymorphism in domain models',
-        status: 'Scheduled',
-        lessonUrl: 'https://www.w3schools.com/python/python_inheritance.asp'
-      },
-      {
-        id: 'top-sched-105',
-        topicIndex: 'Topic 2',
-        categoryTag: 'OOP',
-        duration: '45 mins',
-        title: 'Encapsulation & Private Attributes',
-        description: 'Managing data hiding, getter/setter properties, and name mangling in OOP',
-        status: 'Scheduled',
-        lessonUrl: 'https://www.w3schools.com/python/python_classes.asp'
-      }
-    ]
-  }
-};
