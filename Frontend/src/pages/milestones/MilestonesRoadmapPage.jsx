@@ -582,9 +582,14 @@ export function MilestonesRoadmapPage() {
                   </div>
                 </div>
 
-                {/* Modules List directly inside Stage Card (Stage → Modules Hierarchy) */}
+                {/* Modules List directly nested inside Stage Card */}
                 {stage.subtopics && stage.subtopics.length > 0 ? (
-                  <div className="mt-4 space-y-3">
+                  <div className="mt-4 p-3.5 sm:p-4 bg-slate-50/80 rounded-2xl border border-slate-200/90 space-y-3">
+                    <div className="flex items-center justify-between text-[11px] font-bold text-slate-500 uppercase tracking-wider px-1 pb-1">
+                      <span>Curriculum Modules ({stage.subtopics.length})</span>
+                      <span>Click module to view learning path</span>
+                    </div>
+
                     {stage.subtopics.map((subtopic, mIdx) => {
                       const isFirstInStage1 = sIdx === 0 && mIdx === 0;
 

@@ -207,3 +207,15 @@ INSERT INTO public.jobs (id, company, job_title, job_type, salary, location, pos
 ('job-2', 'Datadog', 'Full-Stack Software Engineer', 'Full-Time', '₹14,00,000 - ₹18,00,000 / yr', 'Bengaluru, KA', '2026-08-02', 'Live Feed', 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=120&auto=format&fit=crop&q=80', 'Join our telemetry dashboard squad building real-time monitoring charts, distributed log visualizers, and node graph analytics.'),
 ('job-3', 'Vercel', 'Developer Relations & Educator', 'Contract / Remote', '₹12,00,000 - ₹16,00,000 / yr', 'Remote India', '2026-07-28', 'Live Feed', 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=120&auto=format&fit=crop&q=80', 'Create world-class technical guides, interactive sample applications, and conduct webinars on Next.js performance optimizations.')
 ON CONFLICT (id) DO NOTHING;
+
+-- 10. MILESTONES ROADMAP TABLE (JSONB STORAGE)
+CREATE TABLE IF NOT EXISTS public.milestones (
+  id VARCHAR(255) PRIMARY KEY DEFAULT 'milestone-curriculum',
+  data JSONB NOT NULL,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+ALTER TABLE public.milestones ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Public Read Milestones" ON public.milestones FOR SELECT USING (true);
+CREATE POLICY "Public Write Milestones" ON public.milestones FOR ALL USING (true);
+

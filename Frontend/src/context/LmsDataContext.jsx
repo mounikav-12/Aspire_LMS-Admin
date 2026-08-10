@@ -50,8 +50,17 @@ export function LmsDataProvider({ children }) {
   useEffect(() => {
     try {
       localStorage.setItem('aspire_lms_milestones', JSON.stringify(milestones));
+      if (isSupabaseConnected) {
+        supabase.from('milestones').upsert({
+          id: 'milestone-curriculum',
+          data: milestones,
+          updated_at: new Date().toISOString()
+        }).then(({ error }) => {
+          if (error) console.warn('Supabase milestone sync:', error.message);
+        });
+      }
     } catch (e) {}
-  }, [milestones]);
+  }, [milestones, isSupabaseConnected]);
   const [codingQuestions, setCodingQuestions] = useState(() => {
     const saved = localStorage.getItem('aspire_lms_coding_questions');
     if (saved) {
@@ -69,6 +78,17 @@ export function LmsDataProvider({ children }) {
   // Fetch Data from Supabase PostgreSQL
   const fetchSupabaseData = async () => {
     try {
+      // 0. Fetch Milestones JSON Data
+      const { data: milestoneRecord, error: milestoneErr } = await supabase
+        .from('milestones')
+        .select('*')
+        .eq('id', 'milestone-curriculum')
+        .maybeSingle();
+
+      if (!milestoneErr && milestoneRecord && milestoneRecord.data) {
+        setMilestones(milestoneRecord.data);
+      }
+
       // 1. Fetch Profiles
       const { data: profilesData, error: profilesErr } = await supabase.from('profiles').select('*');
       if (!profilesErr && profilesData && profilesData.length > 0) {
