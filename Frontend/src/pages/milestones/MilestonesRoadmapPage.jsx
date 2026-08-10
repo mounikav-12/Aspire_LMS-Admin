@@ -13,233 +13,473 @@ import {
   FileCheck,
   ExternalLink,
   Sparkles,
-  X
+  X,
+  Plus,
+  Edit2,
+  Trash2,
+  Eye,
+  Settings,
+  Book,
+  FileText
 } from 'lucide-react';
 import { useToast } from '../../context/ToastContext';
+import { useLmsData } from '../../context/LmsDataContext';
 
 export function MilestonesRoadmapPage() {
   const { addToast } = useToast();
-  const [selectedSubtopic, setSelectedSubtopic] = useState(null);
-  const [expandedModule, setExpandedModule] = useState('mod-1');
+  const {
+    milestones,
+    addStage,
+    updateStage,
+    deleteStage,
+    addSubtopic,
+    updateSubtopic,
+    deleteSubtopic,
+    addModule,
+    updateModule,
+    deleteModule,
+    addLearningItem,
+    updateLearningItem,
+    deleteLearningItem,
+    updateMilestonesOverview
+  } = useLmsData();
 
-  // Stages & Topics Data
-  const stages = [
-    {
-      id: 'stage-1',
-      stageNumber: 'STAGE 01',
-      phaseTag: 'Phase 1 • Core Mastery',
-      title: 'Stage 1: Python & Core Fundamentals',
-      status: 'IN PROGRESS',
-      statusType: 'in-progress', // 'in-progress', 'available', 'locked'
-      isLocked: false,
-      subtopics: [
-        {
-          id: 'python-basics',
-          title: 'Python Programming Basics',
-          description: 'Click to view subtopics',
-          duration: 'Master fundamental data structures, variable declarations, loops, and OOP concepts in Python 3.',
-          modulesCount: 2,
-          modules: [
-            {
-              id: 'mod-1',
-              title: 'Variables & Data Types',
-              items: [
-                {
-                  id: 'item-1',
-                  type: 'LIVE CLASS',
-                  typeColor: 'bg-purple-100 text-purple-700 border-purple-200',
-                  icon: Video,
-                  iconBg: 'bg-purple-600 text-white',
-                  title: 'Variables Live Workshop',
-                  actionText: 'JOIN',
-                  btnStyle: 'bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30'
-                },
-                {
-                  id: 'item-2',
-                  type: 'PRACTICAL LAB',
-                  typeColor: 'bg-amber-100 text-amber-700 border-amber-200',
-                  icon: Code,
-                  iconBg: 'bg-amber-500 text-white',
-                  title: 'Variables Practice Lab',
-                  actionText: 'VIEW',
-                  btnStyle: 'bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30'
-                },
-                {
-                  id: 'item-3',
-                  type: 'ASSESSMENT',
-                  typeColor: 'bg-blue-100 text-blue-700 border-blue-200',
-                  icon: FileCheck,
-                  iconBg: 'bg-blue-600 text-white',
-                  title: 'Variables Topic Quiz',
-                  actionText: 'TAKE',
-                  btnStyle: 'bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30'
-                }
-              ]
-            },
-            {
-              id: 'mod-2',
-              title: 'Functions & OOP Concepts',
-              items: [
-                {
-                  id: 'item-4',
-                  type: 'LIVE CLASS',
-                  typeColor: 'bg-purple-100 text-purple-700 border-purple-200',
-                  icon: Video,
-                  iconBg: 'bg-purple-600 text-white',
-                  title: 'Functions & Modules Live Workshop',
-                  actionText: 'JOIN',
-                  btnStyle: 'bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30'
-                },
-                {
-                  id: 'item-5',
-                  type: 'PRACTICAL LAB',
-                  typeColor: 'bg-amber-100 text-amber-700 border-amber-200',
-                  icon: Code,
-                  iconBg: 'bg-amber-500 text-white',
-                  title: 'OOP Concepts Practice Lab',
-                  actionText: 'VIEW',
-                  btnStyle: 'bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30'
-                },
-                {
-                  id: 'item-6',
-                  type: 'ASSESSMENT',
-                  typeColor: 'bg-blue-100 text-blue-700 border-blue-200',
-                  icon: FileCheck,
-                  iconBg: 'bg-blue-600 text-white',
-                  title: 'Functions & OOP Evaluation',
-                  actionText: 'TAKE',
-                  btnStyle: 'bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30'
-                }
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      id: 'stage-2',
-      stageNumber: 'STAGE 02',
-      phaseTag: 'Phase 2 • Core Mastery',
-      title: 'Stage 2: Machine Learning & AI Models',
-      status: 'AVAILABLE',
-      statusType: 'available',
-      isLocked: false,
-      subtopics: [
-        {
-          id: 'ml-fundamentals',
-          title: 'ML Fundamentals & Scikit-Learn',
-          description: 'Click to view subtopics',
-          duration: 'Explore regression models, classification metrics, decision trees, and model optimization.',
-          modulesCount: 2,
-          modules: [
-            {
-              id: 'mod-ml-1',
-              title: 'Supervised Learning & Regression',
-              items: [
-                {
-                  id: 'item-ml-1',
-                  type: 'LIVE CLASS',
-                  typeColor: 'bg-purple-100 text-purple-700 border-purple-200',
-                  icon: Video,
-                  iconBg: 'bg-purple-600 text-white',
-                  title: 'Scikit-Learn Live Masterclass',
-                  actionText: 'JOIN',
-                  btnStyle: 'bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30'
-                },
-                {
-                  id: 'item-ml-2',
-                  type: 'PRACTICAL LAB',
-                  typeColor: 'bg-amber-100 text-amber-700 border-amber-200',
-                  icon: Code,
-                  iconBg: 'bg-amber-500 text-white',
-                  title: 'House Price Prediction Lab',
-                  actionText: 'VIEW',
-                  btnStyle: 'bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30'
-                }
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      id: 'stage-3',
-      stageNumber: 'STAGE 03 • ADVANCED',
-      phaseTag: 'Phase 3 • Advanced Mastery',
-      title: 'Stage 3: Advanced AI & Cloud Deployment',
-      status: 'LOCKED',
-      statusType: 'locked',
-      isLocked: true,
-      subtopics: []
+  // Mode Toggle: 'admin' (CRUD management) vs 'user' (Student Portal View)
+  const [viewMode, setViewMode] = useState('admin');
+
+  // Selected subtopic for slide-over drawer
+  const [selectedSubtopicState, setSelectedSubtopicState] = useState(null); // { stageId, subtopic }
+  const [expandedModule, setExpandedModule] = useState(null);
+
+  // Modal States
+  const [isStageModalOpen, setIsStageModalOpen] = useState(false);
+  const [editingStage, setEditingStage] = useState(null); // null for new, stage object for edit
+  const [stageFormData, setStageFormData] = useState({
+    stageNumber: 'STAGE 01',
+    phaseTag: 'Phase 1 • Core Mastery',
+    title: '',
+    status: 'IN PROGRESS',
+    statusType: 'in-progress',
+    isLocked: false
+  });
+
+  const [isSubtopicModalOpen, setIsSubtopicModalOpen] = useState(false);
+  const [targetStageIdForSubtopic, setTargetStageIdForSubtopic] = useState(null);
+  const [editingSubtopic, setEditingSubtopic] = useState(null);
+  const [subtopicFormData, setSubtopicFormData] = useState({
+    title: '',
+    description: 'Click to view subtopics',
+    duration: ''
+  });
+
+  const [isModuleModalOpen, setIsModuleModalOpen] = useState(false);
+  const [editingModule, setEditingModule] = useState(null);
+  const [moduleFormData, setModuleFormData] = useState({ title: '' });
+
+  const [isItemModalOpen, setIsItemModalOpen] = useState(false);
+  const [targetModuleIdForItem, setTargetModuleIdForItem] = useState(null);
+  const [editingItem, setEditingItem] = useState(null);
+  const [itemFormData, setItemFormData] = useState({
+    type: 'LIVE CLASS',
+    title: '',
+    actionText: 'JOIN',
+    url: ''
+  });
+
+  const [isOverviewModalOpen, setIsOverviewModalOpen] = useState(false);
+  const [overviewFormData, setOverviewFormData] = useState({
+    headline: milestones?.overview?.headline || '',
+    completedCount: milestones?.overview?.completedCount || 4,
+    totalCount: milestones?.overview?.totalCount || 12,
+    unlockedLevel: milestones?.overview?.unlockedLevel || 3,
+    completionPercentage: milestones?.overview?.completionPercentage || 45
+  });
+
+  // Derived current active subtopic object from global state
+  const getActiveSubtopic = () => {
+    if (!selectedSubtopicState) return null;
+    const stage = milestones?.stages?.find((s) => s.id === selectedSubtopicState.stageId);
+    if (!stage) return null;
+    const sub = stage.subtopics?.find((st) => st.id === selectedSubtopicState.subtopicId);
+    return sub ? { stageId: stage.id, ...sub } : null;
+  };
+
+  const activeSubtopic = getActiveSubtopic();
+
+  // Helper for rendering icons dynamically
+  const renderItemIcon = (iconName, iconBg) => {
+    let IconComp = Video;
+    if (iconName === 'Code') IconComp = Code;
+    if (iconName === 'FileCheck') IconComp = FileCheck;
+    if (iconName === 'BookText' || iconName === 'Book') IconComp = BookText;
+
+    return (
+      <div className={`p-2 rounded-xl ${iconBg || 'bg-purple-600 text-white'}`}>
+        <IconComp className="w-4 h-4" />
+      </div>
+    );
+  };
+
+  // --- Handlers: Stage ---
+  const handleOpenStageModal = (stage = null) => {
+    if (stage) {
+      setEditingStage(stage);
+      setStageFormData({
+        stageNumber: stage.stageNumber,
+        phaseTag: stage.phaseTag,
+        title: stage.title,
+        status: stage.status,
+        statusType: stage.statusType,
+        isLocked: stage.isLocked
+      });
+    } else {
+      setEditingStage(null);
+      const nextNum = (milestones?.stages?.length || 0) + 1;
+      setStageFormData({
+        stageNumber: `STAGE 0${nextNum}`,
+        phaseTag: `Phase ${nextNum} • Core Mastery`,
+        title: '',
+        status: 'AVAILABLE',
+        statusType: 'available',
+        isLocked: false
+      });
     }
-  ];
+    setIsStageModalOpen(true);
+  };
 
-  const handleActionClick = (actionName, title) => {
-    addToast(`Launching ${actionName} for "${title}"...`, 'info');
+  const handleSaveStage = (e) => {
+    e.preventDefault();
+    if (!stageFormData.title.trim()) {
+      addToast('Please enter a stage title', 'error');
+      return;
+    }
+    if (editingStage) {
+      updateStage(editingStage.id, stageFormData);
+      addToast('Milestone stage updated successfully', 'success');
+    } else {
+      addStage(stageFormData);
+      addToast('New milestone stage created', 'success');
+    }
+    setIsStageModalOpen(false);
+  };
+
+  const handleDeleteStage = (stageId, title) => {
+    if (window.confirm(`Are you sure you want to delete "${title}"?`)) {
+      deleteStage(stageId);
+      if (selectedSubtopicState?.stageId === stageId) {
+        setSelectedSubtopicState(null);
+      }
+      addToast('Milestone stage deleted', 'info');
+    }
+  };
+
+  // --- Handlers: Subtopic ---
+  const handleOpenSubtopicModal = (stageId, subtopic = null) => {
+    setTargetStageIdForSubtopic(stageId);
+    if (subtopic) {
+      setEditingSubtopic(subtopic);
+      setSubtopicFormData({
+        title: subtopic.title,
+        description: subtopic.description,
+        duration: subtopic.duration
+      });
+    } else {
+      setEditingSubtopic(null);
+      setSubtopicFormData({
+        title: '',
+        description: 'Click to view subtopics',
+        duration: 'Master core concepts and practical workflows in this module.'
+      });
+    }
+    setIsSubtopicModalOpen(true);
+  };
+
+  const handleSaveSubtopic = (e) => {
+    e.preventDefault();
+    if (!subtopicFormData.title.trim()) {
+      addToast('Please enter a subtopic title', 'error');
+      return;
+    }
+    if (editingSubtopic) {
+      updateSubtopic(targetStageIdForSubtopic, editingSubtopic.id, subtopicFormData);
+      addToast('Subtopic updated', 'success');
+    } else {
+      addSubtopic(targetStageIdForSubtopic, subtopicFormData);
+      addToast('Subtopic added to stage', 'success');
+    }
+    setIsSubtopicModalOpen(false);
+  };
+
+  const handleDeleteSubtopic = (stageId, subtopicId, title) => {
+    if (window.confirm(`Delete subtopic "${title}"?`)) {
+      deleteSubtopic(stageId, subtopicId);
+      if (selectedSubtopicState?.subtopicId === subtopicId) {
+        setSelectedSubtopicState(null);
+      }
+      addToast('Subtopic removed', 'info');
+    }
+  };
+
+  // --- Handlers: Module ---
+  const handleOpenModuleModal = (module = null) => {
+    if (module) {
+      setEditingModule(module);
+      setModuleFormData({ title: module.title });
+    } else {
+      setEditingModule(null);
+      setModuleFormData({ title: '' });
+    }
+    setIsModuleModalOpen(true);
+  };
+
+  const handleSaveModule = (e) => {
+    e.preventDefault();
+    if (!moduleFormData.title.trim()) {
+      addToast('Please enter module title', 'error');
+      return;
+    }
+    if (!activeSubtopic) return;
+
+    if (editingModule) {
+      updateModule(activeSubtopic.stageId, activeSubtopic.id, editingModule.id, moduleFormData);
+      addToast('Module title updated', 'success');
+    } else {
+      addModule(activeSubtopic.stageId, activeSubtopic.id, moduleFormData);
+      addToast('New module added to learning path', 'success');
+    }
+    setIsModuleModalOpen(false);
+  };
+
+  const handleDeleteModule = (moduleId, title) => {
+    if (!activeSubtopic) return;
+    if (window.confirm(`Delete module "${title}" and all its resources?`)) {
+      deleteModule(activeSubtopic.stageId, activeSubtopic.id, moduleId);
+      addToast('Module deleted', 'info');
+    }
+  };
+
+  // --- Handlers: Item ---
+  const handleOpenItemModal = (moduleId, item = null) => {
+    setTargetModuleIdForItem(moduleId);
+    if (item) {
+      setEditingItem(item);
+      setItemFormData({
+        type: item.type,
+        title: item.title,
+        actionText: item.actionText,
+        url: item.url || ''
+      });
+    } else {
+      setEditingItem(null);
+      setItemFormData({
+        type: 'LIVE CLASS',
+        title: '',
+        actionText: 'JOIN',
+        url: ''
+      });
+    }
+    setIsItemModalOpen(true);
+  };
+
+  const handleSaveItem = (e) => {
+    e.preventDefault();
+    if (!itemFormData.title.trim()) {
+      addToast('Please enter resource title', 'error');
+      return;
+    }
+    if (!activeSubtopic || !targetModuleIdForItem) return;
+
+    let typeColor = 'bg-purple-100 text-purple-700 border-purple-200';
+    let iconName = 'Video';
+    let iconBg = 'bg-purple-600 text-white';
+    let btnStyle = 'bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30';
+
+    if (itemFormData.type === 'PRACTICAL LAB') {
+      typeColor = 'bg-amber-100 text-amber-700 border-amber-200';
+      iconName = 'Code';
+      iconBg = 'bg-amber-500 text-white';
+      btnStyle = 'bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30';
+    } else if (itemFormData.type === 'ASSESSMENT') {
+      typeColor = 'bg-blue-100 text-blue-700 border-blue-200';
+      iconName = 'FileCheck';
+      iconBg = 'bg-blue-600 text-white';
+      btnStyle = 'bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30';
+    }
+
+    const payload = {
+      ...itemFormData,
+      typeColor,
+      iconName,
+      iconBg,
+      btnStyle
+    };
+
+    if (editingItem) {
+      updateLearningItem(activeSubtopic.stageId, activeSubtopic.id, targetModuleIdForItem, editingItem.id, payload);
+      addToast('Resource item updated', 'success');
+    } else {
+      addLearningItem(activeSubtopic.stageId, activeSubtopic.id, targetModuleIdForItem, payload);
+      addToast('Resource item added to module', 'success');
+    }
+    setIsItemModalOpen(false);
+  };
+
+  const handleDeleteItem = (moduleId, itemId, title) => {
+    if (!activeSubtopic) return;
+    if (window.confirm(`Delete resource item "${title}"?`)) {
+      deleteLearningItem(activeSubtopic.stageId, activeSubtopic.id, moduleId, itemId);
+      addToast('Resource item deleted', 'info');
+    }
+  };
+
+  // Save Banner Overview
+  const handleSaveOverview = (e) => {
+    e.preventDefault();
+    updateMilestonesOverview(overviewFormData);
+    addToast('Roadmap banner settings updated', 'success');
+    setIsOverviewModalOpen(false);
+  };
+
+  const handleActionClick = (actionText, title, url) => {
+    if (url && url.startsWith('http')) {
+      window.open(url, '_blank');
+    } else {
+      addToast(`Executing ${actionText} for "${title}"`, 'info');
+    }
   };
 
   return (
     <div className="space-y-6 pb-12">
-      {/* Page Title & Header */}
-      <div>
-        <h1 className="text-2xl font-black text-slate-900 tracking-tight">Milestones Roadmap</h1>
-        <p className="text-sm text-slate-500 font-medium mt-1">
-          Track your journey and master core engineering fundamentals.
-        </p>
+      {/* Top Bar with Title & Admin/User View Mode Toggle */}
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-black text-slate-900 tracking-tight">Milestones Roadmap</h1>
+          <p className="text-sm text-slate-500 font-medium mt-1">
+            Track your journey and master core engineering fundamentals.
+          </p>
+        </div>
+
+        {/* Admin / Student View Toggle Pills */}
+        <div className="flex items-center gap-2 bg-slate-100 p-1 rounded-2xl border border-slate-200 shadow-2xs">
+          <button
+            onClick={() => setViewMode('admin')}
+            className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              viewMode === 'admin'
+                ? 'bg-purple-600 text-white shadow-md shadow-purple-600/30'
+                : 'text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            <Settings className="w-3.5 h-3.5" />
+            <span>⚙️ Admin Management Mode</span>
+          </button>
+
+          <button
+            onClick={() => setViewMode('user')}
+            className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              viewMode === 'user'
+                ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30'
+                : 'text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            <Eye className="w-3.5 h-3.5" />
+            <span>👁️ Student / User View</span>
+          </button>
+        </div>
       </div>
 
-      {/* Top Banner Card (Vibrant Purple Gradient) */}
+      {/* Admin Mode Controls Banner Banner */}
+      {viewMode === 'admin' && (
+        <div className="bg-purple-50 border border-purple-200/80 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-3 text-xs">
+          <div className="flex items-center gap-2 text-purple-950 font-medium">
+            <span className="flex h-2 w-2 rounded-full bg-purple-600 animate-pulse" />
+            <span>
+              <strong>Admin Portal Control Active:</strong> You can add/edit stages, manage subtopics, customize learning paths, and edit resource action links.
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => {
+                setOverviewFormData({
+                  headline: milestones?.overview?.headline || '',
+                  completedCount: milestones?.overview?.completedCount || 4,
+                  totalCount: milestones?.overview?.totalCount || 12,
+                  unlockedLevel: milestones?.overview?.unlockedLevel || 3,
+                  completionPercentage: milestones?.overview?.completionPercentage || 45
+                });
+                setIsOverviewModalOpen(true);
+              }}
+              className="px-3 py-1.5 rounded-xl bg-white border border-purple-300 text-purple-700 hover:bg-purple-100 font-bold flex items-center gap-1.5 shadow-2xs transition-colors cursor-pointer"
+            >
+              <Edit2 className="w-3.5 h-3.5" />
+              <span>Edit Banner Stats</span>
+            </button>
+
+            <button
+              onClick={() => handleOpenStageModal(null)}
+              className="px-3 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold flex items-center gap-1.5 shadow-md shadow-purple-600/25 transition-all cursor-pointer"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>+ Add Milestone Stage</span>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Top Banner Card (Vibrant Purple Gradient - Picture 1) */}
       <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-purple-700 via-violet-600 to-indigo-600 p-6 sm:p-8 text-white shadow-xl shadow-purple-600/20">
         <div className="relative z-10 space-y-6">
           {/* Banner Header Badges */}
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="inline-flex items-center gap-2 rounded-full bg-white/20 backdrop-blur-md px-3.5 py-1.5 text-xs font-bold uppercase tracking-wider text-purple-100 border border-white/20">
               <BookOpen className="w-4 h-4" />
-              <span>Milestone Curriculum Roadmap</span>
+              <span>{milestones?.overview?.trackTitle || 'Milestone Curriculum Roadmap'}</span>
             </div>
 
             <div className="flex items-center gap-3">
               <div className="inline-flex items-center gap-1.5 rounded-full bg-white/15 backdrop-blur-md px-3 py-1 text-xs font-semibold text-purple-100 border border-white/15">
                 <Trophy className="w-3.5 h-3.5 text-amber-300" />
-                <span>4 / 12 Completed</span>
+                <span>
+                  {milestones?.overview?.completedCount || 4} / {milestones?.overview?.totalCount || 12} Completed
+                </span>
               </div>
               <div className="inline-flex items-center gap-1.5 rounded-full bg-white/15 backdrop-blur-md px-3 py-1 text-xs font-semibold text-purple-100 border border-white/15">
                 <Zap className="w-3.5 h-3.5 text-cyan-300" />
-                <span>Level 3 Unlocked</span>
+                <span>Level {milestones?.overview?.unlockedLevel || 3} Unlocked</span>
               </div>
             </div>
           </div>
 
           {/* Banner Main Headline */}
           <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-white max-w-3xl leading-snug">
-            Master core engineering fundamentals, advanced AI models, and real-world project deployments.
+            {milestones?.overview?.headline || 'Master core engineering fundamentals, advanced AI models, and real-world project deployments.'}
           </h2>
 
-          {/* Banner Overall Track Completion Progress */}
+          {/* Banner Progress Bar */}
           <div className="space-y-2 pt-2">
             <div className="flex items-center justify-between text-xs font-semibold text-purple-100">
               <span>Overall Track Completion</span>
-              <span className="font-bold text-white">45%</span>
+              <span className="font-bold text-white">{milestones?.overview?.completionPercentage || 45}%</span>
             </div>
             <div className="h-2.5 w-full overflow-hidden rounded-full bg-white/20 backdrop-blur-sm p-0.5">
               <div
                 className="h-full rounded-full bg-white transition-all duration-500 shadow-sm"
-                style={{ width: '45%' }}
+                style={{ width: `${milestones?.overview?.completionPercentage || 45}%` }}
               />
             </div>
           </div>
         </div>
       </div>
 
-      {/* Stage Timeline */}
+      {/* Stage Timeline (Picture 1) */}
       <div className="relative pl-6 sm:pl-8 space-y-8 pt-4">
         {/* Timeline Vertical Line */}
         <div className="absolute left-3.5 sm:left-4 top-6 bottom-6 w-0.5 bg-slate-200" />
 
-        {stages.map((stage) => {
+        {milestones?.stages?.map((stage) => {
           const isCurrentInProgress = stage.statusType === 'in-progress';
           const isAvailable = stage.statusType === 'available';
-          const isLocked = stage.statusType === 'locked';
+          const isLocked = stage.statusType === 'locked' || stage.isLocked;
 
           return (
             <div key={stage.id} className="relative flex items-start gap-4 sm:gap-6 group">
@@ -295,8 +535,8 @@ export function MilestonesRoadmapPage() {
                     </div>
                   </div>
 
-                  {/* Status Badge */}
-                  <div>
+                  {/* Status Badge & Admin Edit Controls */}
+                  <div className="flex items-center gap-2">
                     {isCurrentInProgress && (
                       <span className="inline-flex items-center gap-1.5 rounded-full bg-purple-100 px-3 py-1 text-xs font-bold text-purple-700">
                         <span className="h-2 w-2 rounded-full bg-purple-600 animate-pulse" />
@@ -314,52 +554,130 @@ export function MilestonesRoadmapPage() {
                         LOCKED
                       </span>
                     )}
+
+                    {viewMode === 'admin' && (
+                      <div className="flex items-center gap-1 ml-2 border-l border-slate-200 pl-2">
+                        <button
+                          onClick={() => handleOpenSubtopicModal(stage.id, null)}
+                          title="Add Subtopic to Stage"
+                          className="p-1.5 text-purple-600 hover:bg-purple-50 rounded-lg transition-colors cursor-pointer"
+                        >
+                          <Plus className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => handleOpenStageModal(stage)}
+                          title="Edit Stage Details"
+                          className="p-1.5 text-slate-500 hover:text-purple-600 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
+                        >
+                          <Edit2 className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteStage(stage.id, stage.title)}
+                          title="Delete Stage"
+                          className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
 
-                {/* Subtopic Action Buttons */}
-                {!isLocked && stage.subtopics.length > 0 && (
+                {/* Subtopic Action Cards */}
+                {stage.subtopics && stage.subtopics.length > 0 ? (
                   <div className="mt-4 space-y-3">
                     {stage.subtopics.map((subtopic) => (
-                      <div key={subtopic.id}>
-                        {subtopic.id === 'python-basics' ? (
+                      <div key={subtopic.id} className="relative group/sub">
+                        {subtopic.id === 'python-basics' || subtopic.title.includes('Python') ? (
                           /* Highlighted Subtopic Button (Matching Picture 1) */
-                          <button
-                            onClick={() => setSelectedSubtopic(subtopic)}
-                            className="w-full text-left rounded-2xl bg-gradient-to-r from-purple-600 to-violet-600 p-4 text-white shadow-md shadow-purple-600/25 hover:shadow-lg hover:shadow-purple-600/35 hover:scale-[1.005] transition-all flex items-center justify-between group cursor-pointer"
-                          >
-                            <div className="flex items-center gap-3.5">
-                              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-white/20 backdrop-blur-md text-white">
-                                <Clock className="w-4 h-4" />
+                          <div className="relative flex items-center gap-2">
+                            <button
+                              onClick={() => setSelectedSubtopicState({ stageId: stage.id, subtopicId: subtopic.id })}
+                              className="w-full text-left rounded-2xl bg-gradient-to-r from-purple-600 to-violet-600 p-4 text-white shadow-md shadow-purple-600/25 hover:shadow-lg hover:shadow-purple-600/35 hover:scale-[1.005] transition-all flex items-center justify-between group cursor-pointer"
+                            >
+                              <div className="flex items-center gap-3.5">
+                                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-white/20 backdrop-blur-md text-white">
+                                  <Clock className="w-4 h-4" />
+                                </div>
+                                <div>
+                                  <p className="font-bold text-white text-sm sm:text-base leading-tight">
+                                    {subtopic.title}
+                                  </p>
+                                  <p className="text-xs text-purple-100/90 font-medium mt-0.5">
+                                    {subtopic.description}
+                                  </p>
+                                </div>
                               </div>
-                              <div>
-                                <p className="font-bold text-white text-sm sm:text-base leading-tight">
-                                  {subtopic.title}
-                                </p>
-                                <p className="text-xs text-purple-100/90 font-medium mt-0.5">
-                                  {subtopic.description}
-                                </p>
+                              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/20 group-hover:bg-white group-hover:text-purple-700 transition-all text-white">
+                                <ChevronRight className="w-4 h-4" />
                               </div>
-                            </div>
-                            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/20 group-hover:bg-white group-hover:text-purple-700 transition-all text-white">
-                              <ChevronRight className="w-4 h-4" />
-                            </div>
-                          </button>
+                            </button>
+
+                            {viewMode === 'admin' && (
+                              <div className="flex items-center gap-1 bg-white/90 p-1.5 rounded-xl border border-purple-200 shadow-sm flex-shrink-0">
+                                <button
+                                  onClick={() => handleOpenSubtopicModal(stage.id, subtopic)}
+                                  title="Edit Subtopic"
+                                  className="p-1 text-slate-600 hover:text-purple-600 hover:bg-purple-50 rounded-md cursor-pointer"
+                                >
+                                  <Edit2 className="w-3.5 h-3.5" />
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteSubtopic(stage.id, subtopic.id, subtopic.title)}
+                                  title="Delete Subtopic"
+                                  className="p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-md cursor-pointer"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
+                            )}
+                          </div>
                         ) : (
-                          /* Standard Subtopic Capsule Button */
-                          <button
-                            onClick={() => setSelectedSubtopic(subtopic)}
-                            className="w-full text-left rounded-2xl bg-slate-100/80 hover:bg-purple-50 hover:border-purple-200 border border-slate-200/80 px-4 py-3 text-slate-800 transition-all flex items-center justify-between group cursor-pointer"
-                          >
-                            <span className="font-bold text-xs sm:text-sm text-slate-800 group-hover:text-purple-700">
-                              {subtopic.title}
-                            </span>
-                            <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-purple-600 group-hover:translate-x-0.5 transition-all" />
-                          </button>
+                          /* Standard Subtopic Capsule Card */
+                          <div className="relative flex items-center gap-2">
+                            <button
+                              onClick={() => setSelectedSubtopicState({ stageId: stage.id, subtopicId: subtopic.id })}
+                              className="w-full text-left rounded-2xl bg-slate-100/80 hover:bg-purple-50 hover:border-purple-200 border border-slate-200/80 px-4 py-3 text-slate-800 transition-all flex items-center justify-between group cursor-pointer"
+                            >
+                              <span className="font-bold text-xs sm:text-sm text-slate-800 group-hover:text-purple-700">
+                                {subtopic.title}
+                              </span>
+                              <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-purple-600 group-hover:translate-x-0.5 transition-all" />
+                            </button>
+
+                            {viewMode === 'admin' && (
+                              <div className="flex items-center gap-1 bg-white p-1.5 rounded-xl border border-slate-200 shadow-sm flex-shrink-0">
+                                <button
+                                  onClick={() => handleOpenSubtopicModal(stage.id, subtopic)}
+                                  title="Edit Subtopic"
+                                  className="p-1 text-slate-600 hover:text-purple-600 hover:bg-purple-50 rounded-md cursor-pointer"
+                                >
+                                  <Edit2 className="w-3.5 h-3.5" />
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteSubtopic(stage.id, subtopic.id, subtopic.title)}
+                                  title="Delete Subtopic"
+                                  className="p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-md cursor-pointer"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
+                            )}
+                          </div>
                         )}
                       </div>
                     ))}
                   </div>
+                ) : (
+                  viewMode === 'admin' && (
+                    <button
+                      onClick={() => handleOpenSubtopicModal(stage.id, null)}
+                      className="mt-3 w-full border-2 border-dashed border-slate-200 hover:border-purple-400 p-3 rounded-2xl text-xs font-bold text-slate-500 hover:text-purple-600 transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                    >
+                      <Plus className="w-4 h-4" />
+                      <span>Add First Subtopic to {stage.stageNumber}</span>
+                    </button>
+                  )
                 )}
               </div>
             </div>
@@ -368,11 +686,11 @@ export function MilestonesRoadmapPage() {
       </div>
 
       {/* Slide-Over Right Drawer (Picture 2 Content) */}
-      {selectedSubtopic && (
+      {activeSubtopic && (
         <div className="fixed inset-0 z-50 overflow-hidden">
           {/* Backdrop Overlay with Blur */}
           <div
-            onClick={() => setSelectedSubtopic(null)}
+            onClick={() => setSelectedSubtopicState(null)}
             className="fixed inset-0 bg-slate-950/60 backdrop-blur-xs transition-opacity animate-in fade-in duration-200"
           />
 
@@ -380,114 +698,222 @@ export function MilestonesRoadmapPage() {
           <div className="fixed inset-y-0 right-0 max-w-full flex pl-10">
             <div className="w-screen max-w-md bg-white shadow-2xl flex flex-col justify-between overflow-hidden animate-in slide-in-from-right duration-300 border-l border-slate-200">
               
-              {/* Drawer Scrollable Content */}
+              {/* Drawer Content */}
               <div className="flex-1 overflow-y-auto p-6 space-y-6">
                 {/* Header */}
                 <div className="flex items-start justify-between gap-4 border-b border-slate-100 pb-5">
                   <div>
                     <h2 className="text-2xl font-black text-slate-900 tracking-tight leading-tight">
-                      {selectedSubtopic.title}
+                      {activeSubtopic.title}
                     </h2>
-                    <div className="mt-2">
+                    <div className="mt-2 flex items-center gap-2">
                       <span className="inline-block bg-purple-100 text-purple-700 text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full border border-purple-200">
                         TOPIC CATALOG
                       </span>
                     </div>
                     <p className="text-xs text-slate-500 font-medium mt-3 leading-relaxed">
-                      {selectedSubtopic.duration}
+                      {activeSubtopic.duration || activeSubtopic.description}
                     </p>
                   </div>
                   <button
-                    onClick={() => setSelectedSubtopic(null)}
+                    onClick={() => setSelectedSubtopicState(null)}
                     className="p-1.5 text-slate-400 hover:text-slate-600 rounded-full hover:bg-slate-100 transition-colors cursor-pointer flex-shrink-0"
                   >
                     <X className="w-5 h-5" />
                   </button>
                 </div>
 
-                {/* Section Header: LEARNING PATH */}
-                <div className="flex items-center justify-between text-xs font-bold tracking-wider text-slate-400 uppercase">
-                  <span>LEARNING PATH</span>
-                  <span>{selectedSubtopic.modulesCount} modules</span>
+                {/* Section Header: LEARNING PATH & Add Module Button */}
+                <div className="flex items-center justify-between text-xs font-bold tracking-wider uppercase text-slate-400">
+                  <div className="flex items-center gap-2">
+                    <span>LEARNING PATH</span>
+                    <span className="text-[10px] text-slate-500 font-normal">
+                      ({activeSubtopic.modules?.length || 0} modules)
+                    </span>
+                  </div>
+
+                  {viewMode === 'admin' && (
+                    <button
+                      onClick={() => handleOpenModuleModal(null)}
+                      className="px-2.5 py-1 rounded-lg bg-purple-50 hover:bg-purple-100 text-purple-700 font-bold text-[11px] flex items-center gap-1 border border-purple-200 transition-colors cursor-pointer"
+                    >
+                      <Plus className="w-3 h-3" />
+                      <span>+ Add Module</span>
+                    </button>
+                  )}
                 </div>
 
                 {/* Modules Accordion List */}
                 <div className="space-y-4">
-                  {selectedSubtopic.modules.map((module) => {
-                    const isExpanded = expandedModule === module.id;
+                  {activeSubtopic.modules && activeSubtopic.modules.length > 0 ? (
+                    activeSubtopic.modules.map((module) => {
+                      const isExpanded = expandedModule === module.id || activeSubtopic.modules.length === 1;
 
-                    return (
-                      <div
-                        key={module.id}
-                        className="rounded-2xl border border-slate-200/90 overflow-hidden shadow-xs"
-                      >
-                        {/* Module Header Bar */}
-                        <button
-                          onClick={() => setExpandedModule(isExpanded ? null : module.id)}
-                          className={`w-full p-4 flex items-center justify-between text-left font-bold text-sm transition-all cursor-pointer ${
-                            isExpanded
-                              ? 'bg-gradient-to-r from-purple-600 to-violet-600 text-white'
-                              : 'bg-slate-50 hover:bg-slate-100 text-slate-800'
-                          }`}
+                      return (
+                        <div
+                          key={module.id}
+                          className="rounded-2xl border border-slate-200/90 overflow-hidden shadow-xs"
                         >
-                          <div className="flex items-center gap-2.5">
-                            <span
-                              className={`flex h-6 w-6 items-center justify-center rounded-md text-xs font-black ${
-                                isExpanded ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700'
-                              }`}
+                          {/* Module Header Bar */}
+                          <div
+                            className={`w-full p-4 flex items-center justify-between text-left font-bold text-sm transition-all ${
+                              isExpanded
+                                ? 'bg-gradient-to-r from-purple-600 to-violet-600 text-white'
+                                : 'bg-slate-50 hover:bg-slate-100 text-slate-800'
+                            }`}
+                          >
+                            <div
+                              onClick={() => setExpandedModule(isExpanded ? null : module.id)}
+                              className="flex items-center gap-2.5 flex-1 cursor-pointer"
                             >
-                              {module.title.startsWith('Variables') ? 'V' : 'F'}
-                            </span>
-                            <span>{module.title}</span>
-                          </div>
-                          {isExpanded ? (
-                            <ChevronDown className="w-4 h-4 text-white" />
-                          ) : (
-                            <ChevronRight className="w-4 h-4 text-slate-400" />
-                          )}
-                        </button>
-
-                        {/* Module Expanded Item Cards */}
-                        {isExpanded && (
-                          <div className="p-4 space-y-3 bg-white">
-                            {module.items.map((item) => (
-                              <div
-                                key={item.id}
-                                className="p-3.5 rounded-xl border border-slate-100 bg-slate-50/50 hover:bg-slate-50 flex items-center justify-between gap-3 transition-colors"
+                              <span
+                                className={`flex h-6 w-6 items-center justify-center rounded-md text-xs font-black ${
+                                  isExpanded ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700'
+                                }`}
                               >
-                                <div className="flex items-center gap-3">
-                                  <div className={`p-2 rounded-xl ${item.iconBg}`}>
-                                    <item.icon className="w-4 h-4" />
-                                  </div>
-                                  <div>
-                                    <span className={`text-[9px] font-black tracking-wider uppercase px-2 py-0.5 rounded border inline-block mb-0.5 ${item.typeColor}`}>
-                                      {item.type}
-                                    </span>
-                                    <h4 className="text-xs font-bold text-slate-800 leading-tight">
-                                      {item.title}
-                                    </h4>
-                                  </div>
-                                </div>
+                                {module.title.charAt(0).toUpperCase()}
+                              </span>
+                              <span>{module.title}</span>
+                            </div>
 
-                                {/* Action Button */}
-                                <button
-                                  onClick={() => handleActionClick(item.actionText, item.title)}
-                                  className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 transition-all cursor-pointer ${item.btnStyle}`}
-                                >
-                                  <span>{item.actionText}</span>
-                                  <ExternalLink className="w-3 h-3" />
-                                </button>
-                              </div>
-                            ))}
+                            <div className="flex items-center gap-2">
+                              {viewMode === 'admin' && (
+                                <div className="flex items-center gap-1 border-r border-white/20 pr-2 mr-1">
+                                  <button
+                                    onClick={() => handleOpenItemModal(module.id, null)}
+                                    title="Add Resource Item"
+                                    className="p-1 hover:bg-white/20 rounded cursor-pointer text-white"
+                                  >
+                                    <Plus className="w-3.5 h-3.5" />
+                                  </button>
+                                  <button
+                                    onClick={() => handleOpenModuleModal(module)}
+                                    title="Edit Module"
+                                    className="p-1 hover:bg-white/20 rounded cursor-pointer text-white"
+                                  >
+                                    <Edit2 className="w-3.5 h-3.5" />
+                                  </button>
+                                  <button
+                                    onClick={() => handleDeleteModule(module.id, module.title)}
+                                    title="Delete Module"
+                                    className="p-1 hover:bg-white/20 rounded cursor-pointer text-rose-200"
+                                  >
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                  </button>
+                                </div>
+                              )}
+
+                              <button
+                                onClick={() => setExpandedModule(isExpanded ? null : module.id)}
+                                className="cursor-pointer"
+                              >
+                                {isExpanded ? (
+                                  <ChevronDown className="w-4 h-4 text-white" />
+                                ) : (
+                                  <ChevronRight className="w-4 h-4 text-slate-400" />
+                                )}
+                              </button>
+                            </div>
                           </div>
-                        )}
-                      </div>
-                    );
-                  })}
+
+                          {/* Module Expanded Content */}
+                          {isExpanded && (
+                            <div className="p-4 space-y-3 bg-white">
+                              {module.items && module.items.length > 0 ? (
+                                module.items.map((item) => (
+                                  <div
+                                    key={item.id}
+                                    className="p-3.5 rounded-xl border border-slate-100 bg-slate-50/50 hover:bg-slate-50 flex items-center justify-between gap-3 transition-colors group/item"
+                                  >
+                                    <div className="flex items-center gap-3">
+                                      {renderItemIcon(item.iconName, item.iconBg)}
+                                      <div>
+                                        <span className={`text-[9px] font-black tracking-wider uppercase px-2 py-0.5 rounded border inline-block mb-0.5 ${item.typeColor}`}>
+                                          {item.type}
+                                        </span>
+                                        <h4 className="text-xs font-bold text-slate-800 leading-tight">
+                                          {item.title}
+                                        </h4>
+                                      </div>
+                                    </div>
+
+                                    <div className="flex items-center gap-1.5">
+                                      <button
+                                        onClick={() => handleActionClick(item.actionText, item.title, item.url)}
+                                        className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 transition-all cursor-pointer ${item.btnStyle}`}
+                                      >
+                                        <span>{item.actionText}</span>
+                                        <ExternalLink className="w-3 h-3" />
+                                      </button>
+
+                                      {viewMode === 'admin' && (
+                                        <div className="flex items-center gap-0.5 border-l border-slate-200 pl-1">
+                                          <button
+                                            onClick={() => handleOpenItemModal(module.id, item)}
+                                            title="Edit Item"
+                                            className="p-1 text-slate-400 hover:text-purple-600 rounded cursor-pointer"
+                                          >
+                                            <Edit2 className="w-3 h-3" />
+                                          </button>
+                                          <button
+                                            onClick={() => handleDeleteItem(module.id, item.id, item.title)}
+                                            title="Delete Item"
+                                            className="p-1 text-slate-400 hover:text-rose-600 rounded cursor-pointer"
+                                          >
+                                            <Trash2 className="w-3 h-3" />
+                                          </button>
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+                                ))
+                              ) : (
+                                <div className="text-center py-4 text-xs text-slate-400 space-y-2">
+                                  <p>No learning items added yet to this module.</p>
+                                  {viewMode === 'admin' && (
+                                    <button
+                                      onClick={() => handleOpenItemModal(module.id, null)}
+                                      className="px-3 py-1.5 bg-purple-50 text-purple-700 font-bold rounded-lg hover:bg-purple-100 text-xs inline-flex items-center gap-1 cursor-pointer"
+                                    >
+                                      <Plus className="w-3.5 h-3.5" />
+                                      <span>Add Learning Resource</span>
+                                    </button>
+                                  )}
+                                </div>
+                              )}
+
+                              {viewMode === 'admin' && module.items && module.items.length > 0 && (
+                                <button
+                                  onClick={() => handleOpenItemModal(module.id, null)}
+                                  className="w-full py-2 border border-dashed border-purple-200 text-purple-700 hover:bg-purple-50 rounded-xl text-xs font-bold flex items-center justify-center gap-1 transition-colors cursor-pointer"
+                                >
+                                  <Plus className="w-3.5 h-3.5" />
+                                  <span>+ Add Resource to {module.title}</span>
+                                </button>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })
+                  ) : (
+                    <div className="text-center py-8 text-slate-400 text-xs bg-slate-50 rounded-2xl border border-dashed border-slate-200 space-y-3">
+                      <p>No modules created for this subtopic yet.</p>
+                      {viewMode === 'admin' && (
+                        <button
+                          onClick={() => handleOpenModuleModal(null)}
+                          className="px-4 py-2 bg-purple-600 text-white font-bold rounded-xl hover:bg-purple-700 inline-flex items-center gap-1.5 cursor-pointer shadow-sm"
+                        >
+                          <Plus className="w-4 h-4" />
+                          <span>Create First Module</span>
+                        </button>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
 
-              {/* Drawer Bottom Action Bar: Ask AI Tutor PRO */}
+              {/* Bottom Action Bar: Ask AI Tutor PRO */}
               <div className="p-4 border-t border-slate-100 bg-slate-50">
                 <button
                   onClick={() => addToast('AI Tutor PRO assistant connected!', 'success')}
@@ -502,6 +928,410 @@ export function MilestonesRoadmapPage() {
               </div>
 
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* --- MODAL 1: Create / Edit Stage Modal --- */}
+      {isStageModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs">
+          <div className="w-full max-w-md bg-white rounded-3xl p-6 shadow-2xl space-y-5 animate-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <h3 className="text-lg font-bold text-slate-900">
+                {editingStage ? 'Edit Milestone Stage' : 'Create New Milestone Stage'}
+              </h3>
+              <button onClick={() => setIsStageModalOpen(false)} className="text-slate-400 hover:text-slate-600">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveStage} className="space-y-4 text-xs">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">Stage Number Badge</label>
+                  <input
+                    type="text"
+                    required
+                    value={stageFormData.stageNumber}
+                    onChange={(e) => setStageFormData({ ...stageFormData, stageNumber: e.target.value })}
+                    placeholder="e.g. STAGE 04"
+                    className="w-full px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 font-semibold"
+                  />
+                </div>
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">Phase Sub-tag</label>
+                  <input
+                    type="text"
+                    required
+                    value={stageFormData.phaseTag}
+                    onChange={(e) => setStageFormData({ ...stageFormData, phaseTag: e.target.value })}
+                    placeholder="e.g. Phase 4 • Cloud & DevOps"
+                    className="w-full px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 font-semibold"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">Stage Headline Title</label>
+                <input
+                  type="text"
+                  required
+                  value={stageFormData.title}
+                  onChange={(e) => setStageFormData({ ...stageFormData, title: e.target.value })}
+                  placeholder="e.g. Stage 4: Microservices & Distributed Architectures"
+                  className="w-full px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 font-semibold text-sm"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">Stage Availability Status</label>
+                  <select
+                    value={stageFormData.statusType}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      let statusText = 'AVAILABLE';
+                      let isLocked = false;
+                      if (val === 'in-progress') statusText = 'IN PROGRESS';
+                      if (val === 'locked') {
+                        statusText = 'LOCKED';
+                        isLocked = true;
+                      }
+                      setStageFormData({
+                        ...stageFormData,
+                        statusType: val,
+                        status: statusText,
+                        isLocked
+                      });
+                    }}
+                    className="w-full px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 font-semibold bg-white"
+                  >
+                    <option value="in-progress">IN PROGRESS</option>
+                    <option value="available">AVAILABLE</option>
+                    <option value="locked">LOCKED</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">Lock Icon Overlay</label>
+                  <select
+                    value={stageFormData.isLocked ? 'true' : 'false'}
+                    onChange={(e) => setStageFormData({ ...stageFormData, isLocked: e.target.value === 'true' })}
+                    className="w-full px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 font-semibold bg-white"
+                  >
+                    <option value="false">Unlocked</option>
+                    <option value="true">Locked (Requires prerequisite completion)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setIsStageModalOpen(false)}
+                  className="px-4 py-2 rounded-xl text-slate-600 font-bold hover:bg-slate-100 cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold shadow-md cursor-pointer"
+                >
+                  {editingStage ? 'Save Changes' : 'Create Stage'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* --- MODAL 2: Create / Edit Subtopic Modal --- */}
+      {isSubtopicModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs">
+          <div className="w-full max-w-md bg-white rounded-3xl p-6 shadow-2xl space-y-5 animate-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <h3 className="text-lg font-bold text-slate-900">
+                {editingSubtopic ? 'Edit Subtopic' : 'Add Subtopic Card'}
+              </h3>
+              <button onClick={() => setIsSubtopicModalOpen(false)} className="text-slate-400 hover:text-slate-600">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveSubtopic} className="space-y-4 text-xs">
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">Subtopic Title</label>
+                <input
+                  type="text"
+                  required
+                  value={subtopicFormData.title}
+                  onChange={(e) => setSubtopicFormData({ ...subtopicFormData, title: e.target.value })}
+                  placeholder="e.g. Docker Containers & Multi-stage Builds"
+                  className="w-full px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 font-semibold text-sm"
+                />
+              </div>
+
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">Card Subtext Note</label>
+                <input
+                  type="text"
+                  value={subtopicFormData.description}
+                  onChange={(e) => setSubtopicFormData({ ...subtopicFormData, description: e.target.value })}
+                  placeholder="e.g. Click to view subtopics"
+                  className="w-full px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 font-medium"
+                />
+              </div>
+
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">Topic Overview Description (Drawer Header)</label>
+                <textarea
+                  rows={3}
+                  value={subtopicFormData.duration}
+                  onChange={(e) => setSubtopicFormData({ ...subtopicFormData, duration: e.target.value })}
+                  placeholder="Master containerization fundamentals, Dockerfiles, docker-compose, and environment orchestration."
+                  className="w-full px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 font-medium"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setIsSubtopicModalOpen(false)}
+                  className="px-4 py-2 rounded-xl text-slate-600 font-bold hover:bg-slate-100 cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold shadow-md cursor-pointer"
+                >
+                  {editingSubtopic ? 'Save Subtopic' : 'Add Subtopic'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* --- MODAL 3: Module Modal --- */}
+      {isModuleModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs">
+          <div className="w-full max-w-sm bg-white rounded-3xl p-6 shadow-2xl space-y-4 animate-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <h3 className="text-base font-bold text-slate-900">
+                {editingModule ? 'Edit Module Name' : 'Create New Learning Path Module'}
+              </h3>
+              <button onClick={() => setIsModuleModalOpen(false)} className="text-slate-400 hover:text-slate-600">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveModule} className="space-y-4 text-xs">
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">Module Title</label>
+                <input
+                  type="text"
+                  required
+                  value={moduleFormData.title}
+                  onChange={(e) => setModuleFormData({ title: e.target.value })}
+                  placeholder="e.g. Variables & Data Types or Docker Networking"
+                  className="w-full px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 font-semibold"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setIsModuleModalOpen(false)}
+                  className="px-4 py-2 rounded-xl text-slate-600 font-bold hover:bg-slate-100 cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold shadow-md cursor-pointer"
+                >
+                  Save Module
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* --- MODAL 4: Item Modal --- */}
+      {isItemModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs">
+          <div className="w-full max-w-md bg-white rounded-3xl p-6 shadow-2xl space-y-5 animate-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <h3 className="text-base font-bold text-slate-900">
+                {editingItem ? 'Edit Resource Item' : 'Add Resource Item to Module'}
+              </h3>
+              <button onClick={() => setIsItemModalOpen(false)} className="text-slate-400 hover:text-slate-600">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveItem} className="space-y-4 text-xs">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">Resource Category</label>
+                  <select
+                    value={itemFormData.type}
+                    onChange={(e) => {
+                      const typeVal = e.target.value;
+                      let act = 'JOIN';
+                      if (typeVal === 'PRACTICAL LAB') act = 'VIEW';
+                      if (typeVal === 'ASSESSMENT') act = 'TAKE';
+                      setItemFormData({ ...itemFormData, type: typeVal, actionText: act });
+                    }}
+                    className="w-full px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 font-semibold bg-white"
+                  >
+                    <option value="LIVE CLASS">LIVE CLASS</option>
+                    <option value="PRACTICAL LAB">PRACTICAL LAB</option>
+                    <option value="ASSESSMENT">ASSESSMENT</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">Action Button Text</label>
+                  <input
+                    type="text"
+                    required
+                    value={itemFormData.actionText}
+                    onChange={(e) => setItemFormData({ ...itemFormData, actionText: e.target.value })}
+                    placeholder="JOIN, VIEW, TAKE, OPEN"
+                    className="w-full px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 font-bold uppercase"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">Resource Item Name</label>
+                <input
+                  type="text"
+                  required
+                  value={itemFormData.title}
+                  onChange={(e) => setItemFormData({ ...itemFormData, title: e.target.value })}
+                  placeholder="e.g. Variables Live Workshop or Dockerfile Hands-on Lab"
+                  className="w-full px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 font-semibold"
+                />
+              </div>
+
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">Target Action Link / URL (Optional)</label>
+                <input
+                  type="url"
+                  value={itemFormData.url}
+                  onChange={(e) => setItemFormData({ ...itemFormData, url: e.target.value })}
+                  placeholder="https://zoom.us/... or https://lab.aspirelms.io/..."
+                  className="w-full px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 font-medium"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setIsItemModalOpen(false)}
+                  className="px-4 py-2 rounded-xl text-slate-600 font-bold hover:bg-slate-100 cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold shadow-md cursor-pointer"
+                >
+                  Save Resource Item
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* --- MODAL 5: Overview Banner Modal --- */}
+      {isOverviewModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs">
+          <div className="w-full max-w-md bg-white rounded-3xl p-6 shadow-2xl space-y-4 animate-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <h3 className="text-lg font-bold text-slate-900">Edit Banner Stats & Headline</h3>
+              <button onClick={() => setIsOverviewModalOpen(false)} className="text-slate-400 hover:text-slate-600">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveOverview} className="space-y-4 text-xs">
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">Banner Headline</label>
+                <textarea
+                  rows={2}
+                  required
+                  value={overviewFormData.headline}
+                  onChange={(e) => setOverviewFormData({ ...overviewFormData, headline: e.target.value })}
+                  className="w-full px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 font-medium"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">Completed Items</label>
+                  <input
+                    type="number"
+                    value={overviewFormData.completedCount}
+                    onChange={(e) => setOverviewFormData({ ...overviewFormData, completedCount: parseInt(e.target.value) || 0 })}
+                    className="w-full px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 font-semibold"
+                  />
+                </div>
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">Total Items</label>
+                  <input
+                    type="number"
+                    value={overviewFormData.totalCount}
+                    onChange={(e) => setOverviewFormData({ ...overviewFormData, totalCount: parseInt(e.target.value) || 0 })}
+                    className="w-full px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 font-semibold"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">Unlocked Level</label>
+                  <input
+                    type="number"
+                    value={overviewFormData.unlockedLevel}
+                    onChange={(e) => setOverviewFormData({ ...overviewFormData, unlockedLevel: parseInt(e.target.value) || 0 })}
+                    className="w-full px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 font-semibold"
+                  />
+                </div>
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">Overall Progress (%)</label>
+                  <input
+                    type="number"
+                    min="0"
+                    max="100"
+                    value={overviewFormData.completionPercentage}
+                    onChange={(e) => setOverviewFormData({ ...overviewFormData, completionPercentage: parseInt(e.target.value) || 0 })}
+                    className="w-full px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 font-semibold"
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setIsOverviewModalOpen(false)}
+                  className="px-4 py-2 rounded-xl text-slate-600 font-bold hover:bg-slate-100 cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold shadow-md cursor-pointer"
+                >
+                  Update Banner Overview
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

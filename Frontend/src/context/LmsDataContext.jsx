@@ -9,6 +9,7 @@ import {
   INITIAL_PLACEMENT_RESOURCES,
   INITIAL_PROJECTS,
   INITIAL_CODING_QUESTIONS,
+  INITIAL_MILESTONES,
   INITIAL_USERS,
   INITIAL_ROLE_PERMISSIONS,
   MOCK_ACTIVITIES,
@@ -28,6 +29,23 @@ export function LmsDataProvider({ children }) {
   const [recordings, setRecordings] = useState(INITIAL_RECORDINGS);
   const [placementResources, setPlacementResources] = useState(INITIAL_PLACEMENT_RESOURCES);
   const [projects, setProjects] = useState(INITIAL_PROJECTS);
+  const [milestones, setMilestones] = useState(() => {
+    const saved = localStorage.getItem('aspire_lms_milestones');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        return INITIAL_MILESTONES;
+      }
+    }
+    return INITIAL_MILESTONES;
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('aspire_lms_milestones', JSON.stringify(milestones));
+    } catch (e) {}
+  }, [milestones]);
   const [codingQuestions, setCodingQuestions] = useState(() => {
     const saved = localStorage.getItem('aspire_lms_coding_questions');
     if (saved) {
@@ -885,6 +903,246 @@ export function LmsDataProvider({ children }) {
     logActivity(`Deleted coding question: "${cq?.title || id}"`, 'coding');
   };
 
+  // Milestones Dynamic Management Functions
+  const addStage = (newStageData) => {
+    setMilestones((prev) => {
+      const newStage = {
+        id: `stage-${Date.now()}`,
+        stageNumber: newStageData.stageNumber || `STAGE 0${prev.stages.length + 1}`,
+        phaseTag: newStageData.phaseTag || 'Phase Mastery',
+        title: newStageData.title || 'New Milestone Stage',
+        status: newStageData.status || 'AVAILABLE',
+        statusType: newStageData.statusType || 'available',
+        isLocked: newStageData.isLocked || false,
+        subtopics: newStageData.subtopics || []
+      };
+      return {
+        ...prev,
+        stages: [...prev.stages, newStage]
+      };
+    });
+  };
+
+  const updateStage = (stageId, updatedData) => {
+    setMilestones((prev) => ({
+      ...prev,
+      stages: prev.stages.map((stg) => (stg.id === stageId ? { ...stg, ...updatedData } : stg))
+    }));
+  };
+
+  const deleteStage = (stageId) => {
+    setMilestones((prev) => ({
+      ...prev,
+      stages: prev.stages.filter((stg) => stg.id !== stageId)
+    }));
+  };
+
+  const addSubtopic = (stageId, newSubtopicData) => {
+    setMilestones((prev) => ({
+      ...prev,
+      stages: prev.stages.map((stg) => {
+        if (stg.id !== stageId) return stg;
+        const newSub = {
+          id: `subtopic-${Date.now()}`,
+          title: newSubtopicData.title || 'New Subtopic',
+          description: newSubtopicData.description || 'Click to view subtopics',
+          duration: newSubtopicData.duration || 'Topic overview description.',
+          modulesCount: 0,
+          modules: []
+        };
+        return {
+          ...stg,
+          subtopics: [...stg.subtopics, newSub]
+        };
+      })
+    }));
+  };
+
+  const updateSubtopic = (stageId, subtopicId, updatedData) => {
+    setMilestones((prev) => ({
+      ...prev,
+      stages: prev.stages.map((stg) => {
+        if (stg.id !== stageId) return stg;
+        return {
+          ...stg,
+          subtopics: stg.subtopics.map((sub) => (sub.id === subtopicId ? { ...sub, ...updatedData } : sub))
+        };
+      })
+    }));
+  };
+
+  const deleteSubtopic = (stageId, subtopicId) => {
+    setMilestones((prev) => ({
+      ...prev,
+      stages: prev.stages.map((stg) => {
+        if (stg.id !== stageId) return stg;
+        return {
+          ...stg,
+          subtopics: stg.subtopics.filter((sub) => sub.id !== subtopicId)
+        };
+      })
+    }));
+  };
+
+  const addModule = (stageId, subtopicId, newModuleData) => {
+    setMilestones((prev) => ({
+      ...prev,
+      stages: prev.stages.map((stg) => {
+        if (stg.id !== stageId) return stg;
+        return {
+          ...stg,
+          subtopics: stg.subtopics.map((sub) => {
+            if (sub.id !== subtopicId) return sub;
+            const newMod = {
+              id: `mod-${Date.now()}`,
+              title: newModuleData.title || 'New Module',
+              items: []
+            };
+            const updatedMods = [...sub.modules, newMod];
+            return {
+              ...sub,
+              modulesCount: updatedMods.length,
+              modules: updatedMods
+            };
+          })
+        };
+      })
+    }));
+  };
+
+  const updateModule = (stageId, subtopicId, moduleId, updatedData) => {
+    setMilestones((prev) => ({
+      ...prev,
+      stages: prev.stages.map((stg) => {
+        if (stg.id !== stageId) return stg;
+        return {
+          ...stg,
+          subtopics: stg.subtopics.map((sub) => {
+            if (sub.id !== subtopicId) return sub;
+            return {
+              ...sub,
+              modules: sub.modules.map((mod) => (mod.id === moduleId ? { ...mod, ...updatedData } : mod))
+            };
+          })
+        };
+      })
+    }));
+  };
+
+  const deleteModule = (stageId, subtopicId, moduleId) => {
+    setMilestones((prev) => ({
+      ...prev,
+      stages: prev.stages.map((stg) => {
+        if (stg.id !== stageId) return stg;
+        return {
+          ...stg,
+          subtopics: stg.subtopics.map((sub) => {
+            if (sub.id !== subtopicId) return sub;
+            const updatedMods = sub.modules.filter((mod) => mod.id !== moduleId);
+            return {
+              ...sub,
+              modulesCount: updatedMods.length,
+              modules: updatedMods
+            };
+          })
+        };
+      })
+    }));
+  };
+
+  const addLearningItem = (stageId, subtopicId, moduleId, newItemData) => {
+    setMilestones((prev) => ({
+      ...prev,
+      stages: prev.stages.map((stg) => {
+        if (stg.id !== stageId) return stg;
+        return {
+          ...stg,
+          subtopics: stg.subtopics.map((sub) => {
+            if (sub.id !== subtopicId) return sub;
+            return {
+              ...sub,
+              modules: sub.modules.map((mod) => {
+                if (mod.id !== moduleId) return mod;
+                const newItem = {
+                  id: `item-${Date.now()}`,
+                  type: newItemData.type || 'LIVE CLASS',
+                  typeColor: newItemData.typeColor || 'bg-purple-100 text-purple-700 border-purple-200',
+                  iconName: newItemData.iconName || 'Video',
+                  iconBg: newItemData.iconBg || 'bg-purple-600 text-white',
+                  title: newItemData.title || 'New Resource',
+                  actionText: newItemData.actionText || 'JOIN',
+                  url: newItemData.url || '#',
+                  btnStyle: newItemData.btnStyle || 'bg-purple-600 hover:bg-purple-700 text-white shadow-sm'
+                };
+                return {
+                  ...mod,
+                  items: [...mod.items, newItem]
+                };
+              })
+            };
+          })
+        };
+      })
+    }));
+  };
+
+  const updateLearningItem = (stageId, subtopicId, moduleId, itemId, updatedData) => {
+    setMilestones((prev) => ({
+      ...prev,
+      stages: prev.stages.map((stg) => {
+        if (stg.id !== stageId) return stg;
+        return {
+          ...stg,
+          subtopics: stg.subtopics.map((sub) => {
+            if (sub.id !== subtopicId) return sub;
+            return {
+              ...sub,
+              modules: sub.modules.map((mod) => {
+                if (mod.id !== moduleId) return mod;
+                return {
+                  ...mod,
+                  items: mod.items.map((itm) => (itm.id === itemId ? { ...itm, ...updatedData } : itm))
+                };
+              })
+            };
+          })
+        };
+      })
+    }));
+  };
+
+  const deleteLearningItem = (stageId, subtopicId, moduleId, itemId) => {
+    setMilestones((prev) => ({
+      ...prev,
+      stages: prev.stages.map((stg) => {
+        if (stg.id !== stageId) return stg;
+        return {
+          ...stg,
+          subtopics: stg.subtopics.map((sub) => {
+            if (sub.id !== subtopicId) return sub;
+            return {
+              ...sub,
+              modules: sub.modules.map((mod) => {
+                if (mod.id !== moduleId) return mod;
+                return {
+                  ...mod,
+                  items: mod.items.filter((itm) => itm.id !== itemId)
+                };
+              })
+            };
+          })
+        };
+      })
+    }));
+  };
+
+  const updateMilestonesOverview = (updatedOverview) => {
+    setMilestones((prev) => ({
+      ...prev,
+      overview: { ...prev.overview, ...updatedOverview }
+    }));
+  };
+
   return (
     <LmsDataContext.Provider
       value={{
@@ -926,6 +1184,20 @@ export function LmsDataProvider({ children }) {
         addProject,
         updateProject,
         deleteProject,
+        milestones,
+        addStage,
+        updateStage,
+        deleteStage,
+        addSubtopic,
+        updateSubtopic,
+        deleteSubtopic,
+        addModule,
+        updateModule,
+        deleteModule,
+        addLearningItem,
+        updateLearningItem,
+        deleteLearningItem,
+        updateMilestonesOverview,
         gradeSubmission,
         activities,
         isSupabaseConnected

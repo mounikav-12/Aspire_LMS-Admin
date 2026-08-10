@@ -603,3 +603,173 @@ export const INITIAL_CODING_QUESTIONS = [
     postedBy: 'David Chen'
   }
 ];
+
+export const INITIAL_MILESTONES = {
+  overview: {
+    trackTitle: 'Milestone Curriculum Roadmap',
+    headline: 'Master core engineering fundamentals, advanced AI models, and real-world project deployments.',
+    completedCount: 4,
+    totalCount: 12,
+    unlockedLevel: 3,
+    completionPercentage: 45
+  },
+  stages: [
+    {
+      id: 'stage-1',
+      stageNumber: 'STAGE 01',
+      phaseTag: 'Phase 1 • Core Mastery',
+      title: 'Stage 1: Python & Core Fundamentals',
+      status: 'IN PROGRESS',
+      statusType: 'in-progress',
+      isLocked: false,
+      subtopics: [
+        {
+          id: 'python-basics',
+          title: 'Python Programming Basics',
+          description: 'Click to view subtopics',
+          duration: 'Master fundamental data structures, variable declarations, loops, and OOP concepts in Python 3.',
+          modulesCount: 2,
+          modules: [
+            {
+              id: 'mod-1',
+              title: 'Variables & Data Types',
+              items: [
+                {
+                  id: 'item-1',
+                  type: 'LIVE CLASS',
+                  typeColor: 'bg-purple-100 text-purple-700 border-purple-200',
+                  iconName: 'Video',
+                  iconBg: 'bg-purple-600 text-white',
+                  title: 'Variables Live Workshop',
+                  actionText: 'JOIN',
+                  url: 'https://zoom.us/live-workshop-variables',
+                  btnStyle: 'bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30'
+                },
+                {
+                  id: 'item-2',
+                  type: 'PRACTICAL LAB',
+                  typeColor: 'bg-amber-100 text-amber-700 border-amber-200',
+                  iconName: 'Code',
+                  iconBg: 'bg-amber-500 text-white',
+                  title: 'Variables Practice Lab',
+                  actionText: 'VIEW',
+                  url: 'https://lab.aspirelms.io/python-variables',
+                  btnStyle: 'bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30'
+                },
+                {
+                  id: 'item-3',
+                  type: 'ASSESSMENT',
+                  typeColor: 'bg-blue-100 text-blue-700 border-blue-200',
+                  iconName: 'FileCheck',
+                  iconBg: 'bg-blue-600 text-white',
+                  title: 'Variables Topic Quiz',
+                  actionText: 'TAKE',
+                  url: '/assessments',
+                  btnStyle: 'bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30'
+                }
+              ]
+            },
+            {
+              id: 'mod-2',
+              title: 'Functions & OOP Concepts',
+              items: [
+                {
+                  id: 'item-4',
+                  type: 'LIVE CLASS',
+                  typeColor: 'bg-purple-100 text-purple-700 border-purple-200',
+                  iconName: 'Video',
+                  iconBg: 'bg-purple-600 text-white',
+                  title: 'Functions & Modules Live Workshop',
+                  actionText: 'JOIN',
+                  url: 'https://zoom.us/live-workshop-functions',
+                  btnStyle: 'bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30'
+                },
+                {
+                  id: 'item-5',
+                  type: 'PRACTICAL LAB',
+                  typeColor: 'bg-amber-100 text-amber-700 border-amber-200',
+                  iconName: 'Code',
+                  iconBg: 'bg-amber-500 text-white',
+                  title: 'OOP Concepts Practice Lab',
+                  actionText: 'VIEW',
+                  url: 'https://lab.aspirelms.io/python-oop',
+                  btnStyle: 'bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30'
+                },
+                {
+                  id: 'item-6',
+                  type: 'ASSESSMENT',
+                  typeColor: 'bg-blue-100 text-blue-700 border-blue-200',
+                  iconName: 'FileCheck',
+                  iconBg: 'bg-blue-600 text-white',
+                  title: 'Functions & OOP Evaluation',
+                  actionText: 'TAKE',
+                  url: '/assessments',
+                  btnStyle: 'bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30'
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      id: 'stage-2',
+      stageNumber: 'STAGE 02',
+      phaseTag: 'Phase 2 • Core Mastery',
+      title: 'Stage 2: Machine Learning & AI Models',
+      status: 'AVAILABLE',
+      statusType: 'available',
+      isLocked: false,
+      subtopics: [
+        {
+          id: 'ml-fundamentals',
+          title: 'ML Fundamentals & Scikit-Learn',
+          description: 'Click to view subtopics',
+          duration: 'Explore regression models, classification metrics, decision trees, and model optimization.',
+          modulesCount: 1,
+          modules: [
+            {
+              id: 'mod-ml-1',
+              title: 'Supervised Learning & Regression',
+              items: [
+                {
+                  id: 'item-ml-1',
+                  type: 'LIVE CLASS',
+                  typeColor: 'bg-purple-100 text-purple-700 border-purple-200',
+                  iconName: 'Video',
+                  iconBg: 'bg-purple-600 text-white',
+                  title: 'Scikit-Learn Live Masterclass',
+                  actionText: 'JOIN',
+                  url: 'https://zoom.us/live-ml-masterclass',
+                  btnStyle: 'bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30'
+                },
+                {
+                  id: 'item-ml-2',
+                  type: 'PRACTICAL LAB',
+                  typeColor: 'bg-amber-100 text-amber-700 border-amber-200',
+                  iconName: 'Code',
+                  iconBg: 'bg-amber-500 text-white',
+                  title: 'House Price Prediction Lab',
+                  actionText: 'VIEW',
+                  url: 'https://lab.aspirelms.io/ml-house-price',
+                  btnStyle: 'bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30'
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      id: 'stage-3',
+      stageNumber: 'STAGE 03 • ADVANCED',
+      phaseTag: 'Phase 3 • Advanced Mastery',
+      title: 'Stage 3: Advanced AI & Cloud Deployment',
+      status: 'LOCKED',
+      statusType: 'locked',
+      isLocked: true,
+      subtopics: []
+    }
+  ]
+};
+
