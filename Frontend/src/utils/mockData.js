@@ -607,9 +607,9 @@ export const INITIAL_CODING_QUESTIONS = [
 export const INITIAL_MILESTONES = {
   overview: {
     trackTitle: 'Milestone Curriculum Roadmap',
-    headline: 'Master core engineering fundamentals, advanced AI models, and real-world project deployments.',
-    completedCount: 4,
-    totalCount: 12,
+    headline: 'Master core engineering fundamentals, advanced AI models, full-stack frameworks, and real-world project deployments.',
+    completedCount: 6,
+    totalCount: 31,
     unlockedLevel: 3,
     completionPercentage: 45
   },
@@ -617,91 +617,315 @@ export const INITIAL_MILESTONES = {
     {
       id: 'stage-1',
       stageNumber: 'STAGE 01',
-      phaseTag: 'Phase 1 • Core Mastery',
-      title: 'Stage 1: Python & Core Fundamentals',
+      phaseTag: 'Phase 1 • Frontend & Version Control',
+      title: 'Stage 1: Front End + Repository',
       status: 'IN PROGRESS',
       statusType: 'in-progress',
       isLocked: false,
       subtopics: [
         {
-          id: 'python-basics',
-          title: 'Python Programming Basics',
+          id: 'git-github',
+          title: 'Git & GitHub Version Control',
           description: 'Click to view subtopics',
-          duration: 'Master fundamental data structures, variable declarations, loops, and OOP concepts in Python 3.',
-          modulesCount: 2,
+          duration: 'Master Git commits, branching strategies, pull requests, merge conflict resolution, and GitHub Actions workflows.',
+          modulesCount: 1,
           modules: [
             {
-              id: 'mod-1',
-              title: 'Variables & Data Types',
+              id: 'mod-git-1',
+              title: 'Git Core Concepts & Branching',
               items: [
                 {
-                  id: 'item-1',
+                  id: 'git-item-1',
                   type: 'LIVE CLASS',
                   typeColor: 'bg-purple-100 text-purple-700 border-purple-200',
                   iconName: 'Video',
                   iconBg: 'bg-purple-600 text-white',
-                  title: 'Variables Live Workshop',
+                  title: 'Git & GitHub Essentials Live Workshop',
                   actionText: 'JOIN',
-                  url: 'https://zoom.us/live-workshop-variables',
+                  url: 'https://zoom.us/live-git-github',
                   btnStyle: 'bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30'
                 },
                 {
-                  id: 'item-2',
+                  id: 'git-item-2',
                   type: 'PRACTICAL LAB',
                   typeColor: 'bg-amber-100 text-amber-700 border-amber-200',
                   iconName: 'Code',
                   iconBg: 'bg-amber-500 text-white',
-                  title: 'Variables Practice Lab',
+                  title: 'Git Branching & Merge Conflicts Practice Lab',
                   actionText: 'VIEW',
-                  url: 'https://lab.aspirelms.io/python-variables',
+                  url: 'https://lab.aspirelms.io/git-branching',
                   btnStyle: 'bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30'
                 },
                 {
-                  id: 'item-3',
+                  id: 'git-item-3',
                   type: 'ASSESSMENT',
                   typeColor: 'bg-blue-100 text-blue-700 border-blue-200',
                   iconName: 'FileCheck',
                   iconBg: 'bg-blue-600 text-white',
-                  title: 'Variables Topic Quiz',
+                  title: 'Git & GitHub Knowledge Evaluation',
                   actionText: 'TAKE',
                   url: '/assessments',
                   btnStyle: 'bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30'
                 }
               ]
-            },
+            }
+          ]
+        },
+        {
+          id: 'html5-web-arch',
+          title: 'HTML5 & Web Architecture',
+          description: 'Click to view subtopics',
+          duration: 'Semantic HTML5, DOM structure, browser rendering pipeline, web accessibility (a11y), and SEO best practices.',
+          modulesCount: 1,
+          modules: [
             {
-              id: 'mod-2',
-              title: 'Functions & OOP Concepts',
+              id: 'mod-html-1',
+              title: 'Semantic HTML5 & Accessibility',
               items: [
                 {
-                  id: 'item-4',
+                  id: 'html-item-1',
                   type: 'LIVE CLASS',
                   typeColor: 'bg-purple-100 text-purple-700 border-purple-200',
                   iconName: 'Video',
                   iconBg: 'bg-purple-600 text-white',
-                  title: 'Functions & Modules Live Workshop',
+                  title: 'HTML5 Semantic Web Masterclass',
                   actionText: 'JOIN',
-                  url: 'https://zoom.us/live-workshop-functions',
+                  url: 'https://zoom.us/live-html5-masterclass',
                   btnStyle: 'bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30'
                 },
                 {
-                  id: 'item-5',
+                  id: 'html-item-2',
                   type: 'PRACTICAL LAB',
                   typeColor: 'bg-amber-100 text-amber-700 border-amber-200',
                   iconName: 'Code',
                   iconBg: 'bg-amber-500 text-white',
-                  title: 'OOP Concepts Practice Lab',
+                  title: 'Building Accessible HTML5 Landing Page',
                   actionText: 'VIEW',
-                  url: 'https://lab.aspirelms.io/python-oop',
+                  url: 'https://lab.aspirelms.io/html5-lab',
                   btnStyle: 'bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30'
+                }
+              ]
+            }
+          ]
+        },
+        {
+          id: 'css3-box-model',
+          title: 'CSS3 Fundamentals & Box Model',
+          description: 'Click to view subtopics',
+          duration: 'CSS selectors, box model, margins, padding, borders, typography, position property, and specificity rules.',
+          modulesCount: 1,
+          modules: [
+            {
+              id: 'mod-css-1',
+              title: 'CSS Box Model & Styling',
+              items: [
+                {
+                  id: 'css-item-1',
+                  type: 'LIVE CLASS',
+                  typeColor: 'bg-purple-100 text-purple-700 border-purple-200',
+                  iconName: 'Video',
+                  iconBg: 'bg-purple-600 text-white',
+                  title: 'CSS Box Model Workshop',
+                  actionText: 'JOIN',
+                  url: 'https://zoom.us/live-css-boxmodel',
+                  btnStyle: 'bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30'
                 },
                 {
-                  id: 'item-6',
+                  id: 'css-item-2',
+                  type: 'PRACTICAL LAB',
+                  typeColor: 'bg-amber-100 text-amber-700 border-amber-200',
+                  iconName: 'Code',
+                  iconBg: 'bg-amber-500 text-white',
+                  title: 'CSS Layout Styling Lab',
+                  actionText: 'VIEW',
+                  url: 'https://lab.aspirelms.io/css-boxmodel',
+                  btnStyle: 'bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30'
+                }
+              ]
+            }
+          ]
+        },
+        {
+          id: 'advanced-css-responsive',
+          title: 'Advanced CSS Layouts & Responsive Design',
+          description: 'Click to view subtopics',
+          duration: 'Flexbox, CSS Grid, media queries, mobile-first design, CSS custom properties, and animations.',
+          modulesCount: 1,
+          modules: [
+            {
+              id: 'mod-advcss-1',
+              title: 'Flexbox & CSS Grid Mastery',
+              items: [
+                {
+                  id: 'advcss-item-1',
+                  type: 'LIVE CLASS',
+                  typeColor: 'bg-purple-100 text-purple-700 border-purple-200',
+                  iconName: 'Video',
+                  iconBg: 'bg-purple-600 text-white',
+                  title: 'Responsive Design & Grid Masterclass',
+                  actionText: 'JOIN',
+                  url: 'https://zoom.us/live-flexbox-grid',
+                  btnStyle: 'bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30'
+                },
+                {
+                  id: 'advcss-item-2',
+                  type: 'PRACTICAL LAB',
+                  typeColor: 'bg-amber-100 text-amber-700 border-amber-200',
+                  iconName: 'Code',
+                  iconBg: 'bg-amber-500 text-white',
+                  title: 'Responsive Dashboard Grid Lab',
+                  actionText: 'VIEW',
+                  url: 'https://lab.aspirelms.io/css-grid',
+                  btnStyle: 'bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30'
+                }
+              ]
+            }
+          ]
+        },
+        {
+          id: 'bootstrap-5',
+          title: 'Bootstrap 5 Framework',
+          description: 'Click to view subtopics',
+          duration: 'Bootstrap 5 grid system, component library, utility classes, forms, modals, and customization.',
+          modulesCount: 1,
+          modules: [
+            {
+              id: 'mod-bs-1',
+              title: 'Bootstrap Components & Utility Classes',
+              items: [
+                {
+                  id: 'bs-item-1',
+                  type: 'LIVE CLASS',
+                  typeColor: 'bg-purple-100 text-purple-700 border-purple-200',
+                  iconName: 'Video',
+                  iconBg: 'bg-purple-600 text-white',
+                  title: 'Bootstrap 5 Live UI Workshop',
+                  actionText: 'JOIN',
+                  url: 'https://zoom.us/live-bootstrap5',
+                  btnStyle: 'bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30'
+                }
+              ]
+            }
+          ]
+        },
+        {
+          id: 'js-essentials',
+          title: 'JavaScript Essentials & Control Flow',
+          description: 'Click to view subtopics',
+          duration: 'Variables, data types, type coercion, operators, conditional logic, loops, and debugging techniques.',
+          modulesCount: 1,
+          modules: [
+            {
+              id: 'mod-js-1',
+              title: 'JS Basics & Control Statements',
+              items: [
+                {
+                  id: 'js-item-1',
+                  type: 'LIVE CLASS',
+                  typeColor: 'bg-purple-100 text-purple-700 border-purple-200',
+                  iconName: 'Video',
+                  iconBg: 'bg-purple-600 text-white',
+                  title: 'JavaScript Fundamentals Workshop',
+                  actionText: 'JOIN',
+                  url: 'https://zoom.us/live-js-basics',
+                  btnStyle: 'bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30'
+                },
+                {
+                  id: 'js-item-2',
+                  type: 'PRACTICAL LAB',
+                  typeColor: 'bg-amber-100 text-amber-700 border-amber-200',
+                  iconName: 'Code',
+                  iconBg: 'bg-amber-500 text-white',
+                  title: 'Control Flow & Logic Exercises Lab',
+                  actionText: 'VIEW',
+                  url: 'https://lab.aspirelms.io/js-controlflow',
+                  btnStyle: 'bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30'
+                }
+              ]
+            }
+          ]
+        },
+        {
+          id: 'js-functions-objects',
+          title: 'JavaScript Functions, Objects & Arrays',
+          description: 'Click to view subtopics',
+          duration: 'Function expressions, arrow functions, scope, closures, object manipulation, and array methods (map, filter, reduce).',
+          modulesCount: 1,
+          modules: [
+            {
+              id: 'mod-js-2',
+              title: 'Arrays, Objects & Functional Methods',
+              items: [
+                {
+                  id: 'jsfn-item-1',
+                  type: 'LIVE CLASS',
+                  typeColor: 'bg-purple-100 text-purple-700 border-purple-200',
+                  iconName: 'Video',
+                  iconBg: 'bg-purple-600 text-white',
+                  title: 'JS Higher-Order Functions Masterclass',
+                  actionText: 'JOIN',
+                  url: 'https://zoom.us/live-js-functions',
+                  btnStyle: 'bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30'
+                }
+              ]
+            }
+          ]
+        },
+        {
+          id: 'dom-events',
+          title: 'DOM Manipulation & Event Handling',
+          description: 'Click to view subtopics',
+          duration: 'Document Object Model, element selection, event listeners, bubbling, delegation, and dynamic UI updates.',
+          modulesCount: 1,
+          modules: [
+            {
+              id: 'mod-dom-1',
+              title: 'DOM Tree & Event Propagation',
+              items: [
+                {
+                  id: 'dom-item-1',
+                  type: 'LIVE CLASS',
+                  typeColor: 'bg-purple-100 text-purple-700 border-purple-200',
+                  iconName: 'Video',
+                  iconBg: 'bg-purple-600 text-white',
+                  title: 'Interactive DOM & Events Workshop',
+                  actionText: 'JOIN',
+                  url: 'https://zoom.us/live-dom-events',
+                  btnStyle: 'bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30'
+                }
+              ]
+            }
+          ]
+        },
+        {
+          id: 'es6-async-js',
+          title: 'Modern ES6+ & Asynchronous JS',
+          description: 'Click to view subtopics',
+          duration: 'Destructuring, spread/rest, Promises, async/await, Fetch API, and Event Loop internals.',
+          modulesCount: 1,
+          modules: [
+            {
+              id: 'mod-es6-1',
+              title: 'Promises & Async/Await',
+              items: [
+                {
+                  id: 'es6-item-1',
+                  type: 'LIVE CLASS',
+                  typeColor: 'bg-purple-100 text-purple-700 border-purple-200',
+                  iconName: 'Video',
+                  iconBg: 'bg-purple-600 text-white',
+                  title: 'Asynchronous JavaScript Masterclass',
+                  actionText: 'JOIN',
+                  url: 'https://zoom.us/live-async-js',
+                  btnStyle: 'bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30'
+                },
+                {
+                  id: 'es6-item-2',
                   type: 'ASSESSMENT',
                   typeColor: 'bg-blue-100 text-blue-700 border-blue-200',
                   iconName: 'FileCheck',
                   iconBg: 'bg-blue-600 text-white',
-                  title: 'Functions & OOP Evaluation',
+                  title: 'ES6+ & Async JS Evaluation Quiz',
                   actionText: 'TAKE',
                   url: '/assessments',
                   btnStyle: 'bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30'
@@ -715,44 +939,371 @@ export const INITIAL_MILESTONES = {
     {
       id: 'stage-2',
       stageNumber: 'STAGE 02',
-      phaseTag: 'Phase 2 • Core Mastery',
-      title: 'Stage 2: Machine Learning & AI Models',
+      phaseTag: 'Phase 2 • Backend Systems & DSA',
+      title: 'Stage 2: Backend + DSA',
       status: 'AVAILABLE',
       statusType: 'available',
       isLocked: false,
       subtopics: [
         {
-          id: 'ml-fundamentals',
-          title: 'ML Fundamentals & Scikit-Learn',
+          id: 'py-fundamentals',
+          title: 'Python Programming Fundamentals',
           description: 'Click to view subtopics',
-          duration: 'Explore regression models, classification metrics, decision trees, and model optimization.',
+          duration: 'Python syntax, variables, data structures (lists, tuples, dicts, sets), control flow, and functions.',
           modulesCount: 1,
           modules: [
             {
-              id: 'mod-ml-1',
-              title: 'Supervised Learning & Regression',
+              id: 'mod-py-1',
+              title: 'Variables & Data Structures',
               items: [
                 {
-                  id: 'item-ml-1',
+                  id: 'py-item-1',
                   type: 'LIVE CLASS',
                   typeColor: 'bg-purple-100 text-purple-700 border-purple-200',
                   iconName: 'Video',
                   iconBg: 'bg-purple-600 text-white',
-                  title: 'Scikit-Learn Live Masterclass',
+                  title: 'Python Core Fundamentals Workshop',
                   actionText: 'JOIN',
-                  url: 'https://zoom.us/live-ml-masterclass',
+                  url: 'https://zoom.us/live-python-fundamentals',
                   btnStyle: 'bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30'
-                },
+                }
+              ]
+            }
+          ]
+        },
+        {
+          id: 'py-advanced-exceptions',
+          title: 'Advanced Python & Exception Handling',
+          description: 'Click to view subtopics',
+          duration: 'Decorators, generators, context managers, list comprehensions, try-except blocks, and custom errors.',
+          modulesCount: 1,
+          modules: [
+            {
+              id: 'mod-pyadv-1',
+              title: 'Decorators & Error Handling',
+              items: [
                 {
-                  id: 'item-ml-2',
-                  type: 'PRACTICAL LAB',
-                  typeColor: 'bg-amber-100 text-amber-700 border-amber-200',
-                  iconName: 'Code',
-                  iconBg: 'bg-amber-500 text-white',
-                  title: 'House Price Prediction Lab',
-                  actionText: 'VIEW',
-                  url: 'https://lab.aspirelms.io/ml-house-price',
-                  btnStyle: 'bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30'
+                  id: 'pyadv-item-1',
+                  type: 'LIVE CLASS',
+                  typeColor: 'bg-purple-100 text-purple-700 border-purple-200',
+                  iconName: 'Video',
+                  iconBg: 'bg-purple-600 text-white',
+                  title: 'Advanced Python Patterns Masterclass',
+                  actionText: 'JOIN',
+                  url: 'https://zoom.us/live-adv-python',
+                  btnStyle: 'bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30'
+                }
+              ]
+            }
+          ]
+        },
+        {
+          id: 'py-oop',
+          title: 'Object-Oriented Programming (OOP)',
+          description: 'Click to view subtopics',
+          duration: 'Classes, objects, inheritance, polymorphism, encapsulation, abstraction, and magic methods in Python.',
+          modulesCount: 1,
+          modules: [
+            {
+              id: 'mod-oop-1',
+              title: 'Classes & Inheritance',
+              items: [
+                {
+                  id: 'oop-item-1',
+                  type: 'LIVE CLASS',
+                  typeColor: 'bg-purple-100 text-purple-700 border-purple-200',
+                  iconName: 'Video',
+                  iconBg: 'bg-purple-600 text-white',
+                  title: 'OOP Architecture Workshop',
+                  actionText: 'JOIN',
+                  url: 'https://zoom.us/live-python-oop',
+                  btnStyle: 'bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30'
+                }
+              ]
+            }
+          ]
+        },
+        {
+          id: 'sql-mysql',
+          title: 'SQL & Relational Databases (MySQL)',
+          description: 'Click to view subtopics',
+          duration: 'RDBMS concepts, DDL/DML queries, SELECT filters, JOINs, group by, indexing, and MySQL workbench.',
+          modulesCount: 1,
+          modules: [
+            {
+              id: 'mod-sql-1',
+              title: 'SQL Queries & Table Design',
+              items: [
+                {
+                  id: 'sql-item-1',
+                  type: 'LIVE CLASS',
+                  typeColor: 'bg-purple-100 text-purple-700 border-purple-200',
+                  iconName: 'Video',
+                  iconBg: 'bg-purple-600 text-white',
+                  title: 'Relational Database & SQL Live Class',
+                  actionText: 'JOIN',
+                  url: 'https://zoom.us/live-sql-mysql',
+                  btnStyle: 'bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30'
+                }
+              ]
+            }
+          ]
+        },
+        {
+          id: 'adv-sql-postgres',
+          title: 'Advanced SQL & PostgreSQL Integration',
+          description: 'Click to view subtopics',
+          duration: 'Subqueries, window functions, CTEs, transactions, ACID properties, and PostgreSQL features.',
+          modulesCount: 1,
+          modules: [
+            {
+              id: 'mod-pg-1',
+              title: 'PostgreSQL & Window Functions',
+              items: [
+                {
+                  id: 'pg-item-1',
+                  type: 'LIVE CLASS',
+                  typeColor: 'bg-purple-100 text-purple-700 border-purple-200',
+                  iconName: 'Video',
+                  iconBg: 'bg-purple-600 text-white',
+                  title: 'Advanced PostgreSQL Queries Workshop',
+                  actionText: 'JOIN',
+                  url: 'https://zoom.us/live-adv-sql',
+                  btnStyle: 'bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30'
+                }
+              ]
+            }
+          ]
+        },
+        {
+          id: 'django-setup-arch',
+          title: 'Django Framework Setup & Architecture',
+          description: 'Click to view subtopics',
+          duration: 'MVT (Model-View-Template) pattern, Django project initialization, settings configuration, and URLs routing.',
+          modulesCount: 1,
+          modules: [
+            {
+              id: 'mod-dj-1',
+              title: 'Django Project & MVT Basics',
+              items: [
+                {
+                  id: 'dj-item-1',
+                  type: 'LIVE CLASS',
+                  typeColor: 'bg-purple-100 text-purple-700 border-purple-200',
+                  iconName: 'Video',
+                  iconBg: 'bg-purple-600 text-white',
+                  title: 'Django MVT Architecture Live Workshop',
+                  actionText: 'JOIN',
+                  url: 'https://zoom.us/live-django-setup',
+                  btnStyle: 'bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30'
+                }
+              ]
+            }
+          ]
+        },
+        {
+          id: 'django-templates-static',
+          title: 'Django Templates & Static Files Setup',
+          description: 'Click to view subtopics',
+          duration: 'Template inheritance, DTL tags & filters, static files collection, and dynamic HTML rendering.',
+          modulesCount: 1,
+          modules: [
+            {
+              id: 'mod-djt-1',
+              title: 'Django Templates Engine',
+              items: [
+                {
+                  id: 'djt-item-1',
+                  type: 'LIVE CLASS',
+                  typeColor: 'bg-purple-100 text-purple-700 border-purple-200',
+                  iconName: 'Video',
+                  iconBg: 'bg-purple-600 text-white',
+                  title: 'Django Templates Masterclass',
+                  actionText: 'JOIN',
+                  url: 'https://zoom.us/live-django-templates',
+                  btnStyle: 'bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30'
+                }
+              ]
+            }
+          ]
+        },
+        {
+          id: 'django-models-orm',
+          title: 'Django Models & Database ORM',
+          description: 'Click to view subtopics',
+          duration: 'Django ORM, model fields, foreign keys, many-to-many relationships, database migrations, and QuerySets.',
+          modulesCount: 1,
+          modules: [
+            {
+              id: 'mod-orm-1',
+              title: 'Django ORM & QuerySets',
+              items: [
+                {
+                  id: 'orm-item-1',
+                  type: 'LIVE CLASS',
+                  typeColor: 'bg-purple-100 text-purple-700 border-purple-200',
+                  iconName: 'Video',
+                  iconBg: 'bg-purple-600 text-white',
+                  title: 'Django ORM & Migrations Workshop',
+                  actionText: 'JOIN',
+                  url: 'https://zoom.us/live-django-orm',
+                  btnStyle: 'bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30'
+                }
+              ]
+            }
+          ]
+        },
+        {
+          id: 'django-forms-auth',
+          title: 'Django Forms, Authentication & Auth',
+          description: 'Click to view subtopics',
+          duration: 'Django ModelForms, CSRF protection, built-in user auth system, permissions, and custom user models.',
+          modulesCount: 1,
+          modules: [
+            {
+              id: 'mod-djauth-1',
+              title: 'Authentication & Forms Security',
+              items: [
+                {
+                  id: 'djauth-item-1',
+                  type: 'LIVE CLASS',
+                  typeColor: 'bg-purple-100 text-purple-700 border-purple-200',
+                  iconName: 'Video',
+                  iconBg: 'bg-purple-600 text-white',
+                  title: 'Django Auth & User Management Workshop',
+                  actionText: 'JOIN',
+                  url: 'https://zoom.us/live-django-auth',
+                  btnStyle: 'bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30'
+                }
+              ]
+            }
+          ]
+        },
+        {
+          id: 'drf-core',
+          title: 'Django REST Framework (DRF) Core',
+          description: 'Click to view subtopics',
+          duration: 'RESTful API principles, DRF serializers, APIView, Generic views, status codes, and response formats.',
+          modulesCount: 1,
+          modules: [
+            {
+              id: 'mod-drf-1',
+              title: 'Serializers & API Views',
+              items: [
+                {
+                  id: 'drf-item-1',
+                  type: 'LIVE CLASS',
+                  typeColor: 'bg-purple-100 text-purple-700 border-purple-200',
+                  iconName: 'Video',
+                  iconBg: 'bg-purple-600 text-white',
+                  title: 'Django REST Framework Fundamentals',
+                  actionText: 'JOIN',
+                  url: 'https://zoom.us/live-drf-core',
+                  btnStyle: 'bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30'
+                }
+              ]
+            }
+          ]
+        },
+        {
+          id: 'drf-advanced',
+          title: 'DRF Advanced: ViewSets, JWT Auth & Testing',
+          description: 'Click to view subtopics',
+          duration: 'ModelViewSets, Routers, JWT authentication (SimpleJWT), API throttling, filtering, and pytest integration.',
+          modulesCount: 1,
+          modules: [
+            {
+              id: 'mod-drfadv-1',
+              title: 'ViewSets & JWT Security',
+              items: [
+                {
+                  id: 'drfadv-item-1',
+                  type: 'LIVE CLASS',
+                  typeColor: 'bg-purple-100 text-purple-700 border-purple-200',
+                  iconName: 'Video',
+                  iconBg: 'bg-purple-600 text-white',
+                  title: 'DRF JWT Auth & API Testing Workshop',
+                  actionText: 'JOIN',
+                  url: 'https://zoom.us/live-drf-advanced',
+                  btnStyle: 'bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30'
+                }
+              ]
+            }
+          ]
+        },
+        {
+          id: 'redis-aws-s3',
+          title: 'Redis Caching & AWS S3 Cloud Storage',
+          description: 'Click to view subtopics',
+          duration: 'Redis in-memory caching, django-redis, AWS S3 bucket configuration, and django-storages media upload.',
+          modulesCount: 1,
+          modules: [
+            {
+              id: 'mod-cloud-1',
+              title: 'Caching & Cloud Media Storage',
+              items: [
+                {
+                  id: 'cloud-item-1',
+                  type: 'LIVE CLASS',
+                  typeColor: 'bg-purple-100 text-purple-700 border-purple-200',
+                  iconName: 'Video',
+                  iconBg: 'bg-purple-600 text-white',
+                  title: 'Redis Caching & AWS S3 Live Masterclass',
+                  actionText: 'JOIN',
+                  url: 'https://zoom.us/live-redis-s3',
+                  btnStyle: 'bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30'
+                }
+              ]
+            }
+          ]
+        },
+        {
+          id: 'dsa-python-1',
+          title: 'Data Structures using Python - Part 1',
+          description: 'Click to view subtopics',
+          duration: 'Big-O notation, Time & Space complexity, Arrays, Linked Lists, Stacks, Queues, and Hash Tables.',
+          modulesCount: 1,
+          modules: [
+            {
+              id: 'mod-dsa1-1',
+              title: 'Linear Data Structures',
+              items: [
+                {
+                  id: 'dsa1-item-1',
+                  type: 'LIVE CLASS',
+                  typeColor: 'bg-purple-100 text-purple-700 border-purple-200',
+                  iconName: 'Video',
+                  iconBg: 'bg-purple-600 text-white',
+                  title: 'DSA Part 1: Stacks & Queues Workshop',
+                  actionText: 'JOIN',
+                  url: 'https://zoom.us/live-dsa-part1',
+                  btnStyle: 'bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30'
+                }
+              ]
+            }
+          ]
+        },
+        {
+          id: 'dsa-python-2',
+          title: 'Data Structures & Algorithms - Part 2',
+          description: 'Click to view subtopics',
+          duration: 'Binary Trees, BST, Graphs (BFS/DFS), Recursion, Backtracking, Dynamic Programming, and Greedy Algorithms.',
+          modulesCount: 1,
+          modules: [
+            {
+              id: 'mod-dsa2-1',
+              title: 'Trees, Graphs & Dynamic Programming',
+              items: [
+                {
+                  id: 'dsa2-item-1',
+                  type: 'LIVE CLASS',
+                  typeColor: 'bg-purple-100 text-purple-700 border-purple-200',
+                  iconName: 'Video',
+                  iconBg: 'bg-purple-600 text-white',
+                  title: 'DSA Part 2: Trees & Graphs Masterclass',
+                  actionText: 'JOIN',
+                  url: 'https://zoom.us/live-dsa-part2',
+                  btnStyle: 'bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30'
                 }
               ]
             }
@@ -762,14 +1313,235 @@ export const INITIAL_MILESTONES = {
     },
     {
       id: 'stage-3',
-      stageNumber: 'STAGE 03 • ADVANCED',
-      phaseTag: 'Phase 3 • Advanced Mastery',
-      title: 'Stage 3: Advanced AI & Cloud Deployment',
+      stageNumber: 'STAGE 03',
+      phaseTag: 'Phase 3 • Artificial Intelligence & Cloud',
+      title: 'Stage 3: AI',
+      status: 'AVAILABLE',
+      statusType: 'available',
+      isLocked: false,
+      subtopics: [
+        {
+          id: 'ai-prompt-llm',
+          title: 'Introduction to AI, Prompt Engineering & LLMs',
+          description: 'Click to view subtopics',
+          duration: 'AI paradigms, Large Language Models (LLMs), OpenAI API, zero-shot/few-shot prompting, and tokenization.',
+          modulesCount: 1,
+          modules: [
+            {
+              id: 'mod-ai-1',
+              title: 'LLM Architectures & Prompt Engineering',
+              items: [
+                {
+                  id: 'ai-item-1',
+                  type: 'LIVE CLASS',
+                  typeColor: 'bg-purple-100 text-purple-700 border-purple-200',
+                  iconName: 'Video',
+                  iconBg: 'bg-purple-600 text-white',
+                  title: 'Prompt Engineering & LLMs Workshop',
+                  actionText: 'JOIN',
+                  url: 'https://zoom.us/live-ai-prompt',
+                  btnStyle: 'bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30'
+                }
+              ]
+            }
+          ]
+        },
+        {
+          id: 'ai-python-langchain',
+          title: 'AI Integration with Python & LangChain',
+          description: 'Click to view subtopics',
+          duration: 'LangChain framework, vector databases (ChromaDB / Pinecone), RAG (Retrieval-Augmented Generation), and AI Agents.',
+          modulesCount: 1,
+          modules: [
+            {
+              id: 'mod-lang-1',
+              title: 'LangChain RAG Pipelines & Vector DBs',
+              items: [
+                {
+                  id: 'lang-item-1',
+                  type: 'LIVE CLASS',
+                  typeColor: 'bg-purple-100 text-purple-700 border-purple-200',
+                  iconName: 'Video',
+                  iconBg: 'bg-purple-600 text-white',
+                  title: 'LangChain & RAG Integration Masterclass',
+                  actionText: 'JOIN',
+                  url: 'https://zoom.us/live-langchain',
+                  btnStyle: 'bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30'
+                }
+              ]
+            }
+          ]
+        },
+        {
+          id: 'docker-cloud-deploy',
+          title: 'Docker Containerization & Cloud Deployment',
+          description: 'Click to view subtopics',
+          duration: 'Dockerfiles, docker-compose, container networking, production deployment on Render / AWS EC2 / Vercel.',
+          modulesCount: 1,
+          modules: [
+            {
+              id: 'mod-dock-1',
+              title: 'Docker & Cloud Deployment',
+              items: [
+                {
+                  id: 'dock-item-1',
+                  type: 'LIVE CLASS',
+                  typeColor: 'bg-purple-100 text-purple-700 border-purple-200',
+                  iconName: 'Video',
+                  iconBg: 'bg-purple-600 text-white',
+                  title: 'Docker Containerization & Deployment Workshop',
+                  actionText: 'JOIN',
+                  url: 'https://zoom.us/live-docker-deploy',
+                  btnStyle: 'bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30'
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      id: 'stage-4',
+      stageNumber: 'STAGE 04',
+      phaseTag: 'Phase 4 • Industry Placement & Portfolio',
+      title: 'Stage 4: Career Launchpad',
       status: 'LOCKED',
       statusType: 'locked',
       isLocked: true,
-      subtopics: []
+      subtopics: [
+        {
+          id: 'sys-design-arch',
+          title: 'System Design & Software Architecture',
+          description: 'Click to view subtopics',
+          duration: 'High-Level Design (HLD), Low-Level Design (LLD), load balancing, microservices, and database sharding.',
+          modulesCount: 1,
+          modules: [
+            {
+              id: 'mod-sd-1',
+              title: 'Scalable System Architecture',
+              items: [
+                {
+                  id: 'sd-item-1',
+                  type: 'LIVE CLASS',
+                  typeColor: 'bg-purple-100 text-purple-700 border-purple-200',
+                  iconName: 'Video',
+                  iconBg: 'bg-purple-600 text-white',
+                  title: 'System Design Masterclass for Tech Interviews',
+                  actionText: 'JOIN',
+                  url: 'https://zoom.us/live-system-design',
+                  btnStyle: 'bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30'
+                }
+              ]
+            }
+          ]
+        },
+        {
+          id: 'capstone-review-1',
+          title: 'Capstone Project Mentoring & Review - 1',
+          description: 'Click to view subtopics',
+          duration: 'Industry Capstone proposal presentation, architecture design feedback, schema approval, and milestone 1 evaluation.',
+          modulesCount: 1,
+          modules: [
+            {
+              id: 'mod-cap1-1',
+              title: 'Project Architecture Review',
+              items: [
+                {
+                  id: 'cap1-item-1',
+                  type: 'LIVE CLASS',
+                  typeColor: 'bg-purple-100 text-purple-700 border-purple-200',
+                  iconName: 'Video',
+                  iconBg: 'bg-purple-600 text-white',
+                  title: 'Capstone Project Review Session 1',
+                  actionText: 'JOIN',
+                  url: 'https://zoom.us/live-capstone-1',
+                  btnStyle: 'bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30'
+                }
+              ]
+            }
+          ]
+        },
+        {
+          id: 'capstone-review-2',
+          title: 'Capstone Project Development & Mentoring - 2',
+          description: 'Click to view subtopics',
+          duration: 'Final full-stack application deployment, code quality audit, live demo presentation, and engineering sign-off.',
+          modulesCount: 1,
+          modules: [
+            {
+              id: 'mod-cap2-1',
+              title: 'Final Deployment & Presentation',
+              items: [
+                {
+                  id: 'cap2-item-1',
+                  type: 'LIVE CLASS',
+                  typeColor: 'bg-purple-100 text-purple-700 border-purple-200',
+                  iconName: 'Video',
+                  iconBg: 'bg-purple-600 text-white',
+                  title: 'Capstone Demo Day & Evaluation',
+                  actionText: 'JOIN',
+                  url: 'https://zoom.us/live-capstone-2',
+                  btnStyle: 'bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30'
+                }
+              ]
+            }
+          ]
+        },
+        {
+          id: 'resume-portfolio',
+          title: 'Resume Building, LinkedIn & GitHub Portfolio',
+          description: 'Click to view subtopics',
+          duration: 'ATS-friendly resume creation, LinkedIn profile optimization, GitHub README branding, and project showcases.',
+          modulesCount: 1,
+          modules: [
+            {
+              id: 'mod-port-1',
+              title: 'Portfolio & Personal Branding',
+              items: [
+                {
+                  id: 'port-item-1',
+                  type: 'LIVE CLASS',
+                  typeColor: 'bg-purple-100 text-purple-700 border-purple-200',
+                  iconName: 'Video',
+                  iconBg: 'bg-purple-600 text-white',
+                  title: 'Resume & Portfolio Building Masterclass',
+                  actionText: 'JOIN',
+                  url: 'https://zoom.us/live-portfolio',
+                  btnStyle: 'bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30'
+                }
+              ]
+            }
+          ]
+        },
+        {
+          id: 'mock-interviews',
+          title: 'Mock Technical Interviews & Valedictory',
+          description: 'Click to view subtopics',
+          duration: '1-on-1 mock technical interviews, behavioural questions, salary negotiation strategies, and graduation ceremony.',
+          modulesCount: 1,
+          modules: [
+            {
+              id: 'mod-mock-1',
+              title: '1-on-1 Technical Mock Interviews',
+              items: [
+                {
+                  id: 'mock-item-1',
+                  type: 'LIVE CLASS',
+                  typeColor: 'bg-purple-100 text-purple-700 border-purple-200',
+                  iconName: 'Video',
+                  iconBg: 'bg-purple-600 text-white',
+                  title: 'Mock Technical Interview Session',
+                  actionText: 'JOIN',
+                  url: 'https://zoom.us/live-mock-interviews',
+                  btnStyle: 'bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30'
+                }
+              ]
+            }
+          ]
+        }
+      ]
     }
   ]
 };
+
 

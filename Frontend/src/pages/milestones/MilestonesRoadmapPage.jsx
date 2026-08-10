@@ -586,9 +586,9 @@ export function MilestonesRoadmapPage() {
                 {/* Subtopic Action Cards */}
                 {stage.subtopics && stage.subtopics.length > 0 ? (
                   <div className="mt-4 space-y-3">
-                    {stage.subtopics.map((subtopic) => (
+                    {stage.subtopics.map((subtopic, subtopicIndex) => (
                       <div key={subtopic.id} className="relative group/sub">
-                        {subtopic.id === 'python-basics' || subtopic.title.includes('Python') ? (
+                        {subtopicIndex === 0 ? (
                           /* Highlighted Subtopic Button (Matching Picture 1) */
                           <div className="relative flex items-center gap-2">
                             <button
