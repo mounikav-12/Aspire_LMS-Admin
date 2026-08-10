@@ -33,7 +33,13 @@ export function LmsDataProvider({ children }) {
     const saved = localStorage.getItem('aspire_lms_milestones');
     if (saved) {
       try {
-        return JSON.parse(saved);
+        const parsed = JSON.parse(saved);
+        // Check if parsed data has new 4 stages and 10 modules
+        if (!parsed.stages || parsed.stages.length < 4 || !parsed.overview?.totalHours || parsed.stages[0]?.subtopics?.[0]?.id === 'python-basics') {
+          localStorage.setItem('aspire_lms_milestones', JSON.stringify(INITIAL_MILESTONES));
+          return INITIAL_MILESTONES;
+        }
+        return parsed;
       } catch (e) {
         return INITIAL_MILESTONES;
       }

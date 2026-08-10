@@ -608,100 +608,158 @@ export const INITIAL_MILESTONES = {
   overview: {
     trackTitle: 'Milestone Curriculum Roadmap',
     headline: 'Master core engineering fundamentals, advanced AI models, and real-world project deployments.',
-    completedCount: 4,
-    totalCount: 12,
-    unlockedLevel: 3,
-    completionPercentage: 45
+    completedCount: 3,
+    totalCount: 10,
+    unlockedLevel: 2,
+    completionPercentage: 30,
+    totalHours: 163
   },
   stages: [
     {
       id: 'stage-1',
       stageNumber: 'STAGE 01',
-      phaseTag: 'Phase 1 • Core Mastery',
-      title: 'Stage 1: Python & Core Fundamentals',
+      phaseTag: 'Phase 1 • Foundations',
+      title: 'STAGE 01 — Programming Foundations',
       status: 'IN PROGRESS',
       statusType: 'in-progress',
       isLocked: false,
       subtopics: [
         {
-          id: 'python-basics',
-          title: 'Python Programming Basics',
-          description: 'Click to view subtopics',
-          duration: 'Master fundamental data structures, variable declarations, loops, and OOP concepts in Python 3.',
-          modulesCount: 2,
+          id: 'mod-01',
+          title: 'MOD-01 — Git & GitHub Version Control',
+          duration: '5 hrs',
+          description: '5 hrs • Git workflows, branching, pull requests & repository management',
+          modulesCount: 1,
           modules: [
             {
-              id: 'mod-1',
-              title: 'Variables & Data Types',
+              id: 'mod-01-sec-1',
+              title: 'MOD-01 — Version Control Learning Path',
               items: [
                 {
-                  id: 'item-1',
+                  id: 'item-01-1',
                   type: 'LIVE CLASS',
                   typeColor: 'bg-purple-100 text-purple-700 border-purple-200',
                   iconName: 'Video',
                   iconBg: 'bg-purple-600 text-white',
-                  title: 'Variables Live Workshop',
+                  title: 'Git & GitHub Live Workshop',
                   actionText: 'JOIN',
-                  url: 'https://zoom.us/live-workshop-variables',
+                  url: 'https://zoom.us/live-git-workshop',
                   btnStyle: 'bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30'
                 },
                 {
-                  id: 'item-2',
+                  id: 'item-01-2',
                   type: 'PRACTICAL LAB',
                   typeColor: 'bg-amber-100 text-amber-700 border-amber-200',
                   iconName: 'Code',
                   iconBg: 'bg-amber-500 text-white',
-                  title: 'Variables Practice Lab',
+                  title: 'Git Branching & PR Practice Lab',
                   actionText: 'VIEW',
-                  url: 'https://lab.aspirelms.io/python-variables',
+                  url: 'https://lab.aspirelms.io/git-lab',
                   btnStyle: 'bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30'
                 },
                 {
-                  id: 'item-3',
+                  id: 'item-01-3',
                   type: 'ASSESSMENT',
                   typeColor: 'bg-blue-100 text-blue-700 border-blue-200',
                   iconName: 'FileCheck',
                   iconBg: 'bg-blue-600 text-white',
-                  title: 'Variables Topic Quiz',
+                  title: 'Git & GitHub Topic Assessment',
                   actionText: 'TAKE',
                   url: '/assessments',
                   btnStyle: 'bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30'
                 }
               ]
-            },
+            }
+          ]
+        },
+        {
+          id: 'mod-02',
+          title: 'MOD-02 — Frontend Fundamentals (HTML5, CSS3 & Bootstrap)',
+          duration: '20 hrs',
+          description: '20 hrs • Semantic HTML, CSS Flexbox/Grid, responsive layouts & Bootstrap 5',
+          modulesCount: 1,
+          modules: [
             {
-              id: 'mod-2',
-              title: 'Functions & OOP Concepts',
+              id: 'mod-02-sec-1',
+              title: 'MOD-02 — Frontend Fundamentals Learning Path',
               items: [
                 {
-                  id: 'item-4',
+                  id: 'item-02-1',
                   type: 'LIVE CLASS',
                   typeColor: 'bg-purple-100 text-purple-700 border-purple-200',
                   iconName: 'Video',
                   iconBg: 'bg-purple-600 text-white',
-                  title: 'Functions & Modules Live Workshop',
+                  title: 'Frontend Layouts & Bootstrap Workshop',
                   actionText: 'JOIN',
-                  url: 'https://zoom.us/live-workshop-functions',
+                  url: 'https://zoom.us/live-frontend-workshop',
                   btnStyle: 'bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30'
                 },
                 {
-                  id: 'item-5',
+                  id: 'item-02-2',
                   type: 'PRACTICAL LAB',
                   typeColor: 'bg-amber-100 text-amber-700 border-amber-200',
                   iconName: 'Code',
                   iconBg: 'bg-amber-500 text-white',
-                  title: 'OOP Concepts Practice Lab',
+                  title: 'Responsive Portfolio Page Lab',
                   actionText: 'VIEW',
-                  url: 'https://lab.aspirelms.io/python-oop',
+                  url: 'https://lab.aspirelms.io/frontend-lab',
                   btnStyle: 'bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30'
                 },
                 {
-                  id: 'item-6',
+                  id: 'item-02-3',
                   type: 'ASSESSMENT',
                   typeColor: 'bg-blue-100 text-blue-700 border-blue-200',
                   iconName: 'FileCheck',
                   iconBg: 'bg-blue-600 text-white',
-                  title: 'Functions & OOP Evaluation',
+                  title: 'HTML5, CSS3 & Bootstrap Quiz',
+                  actionText: 'TAKE',
+                  url: '/assessments',
+                  btnStyle: 'bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30'
+                }
+              ]
+            }
+          ]
+        },
+        {
+          id: 'mod-03',
+          title: 'MOD-03 — JavaScript & Web DOM Architecture',
+          duration: '21 hrs',
+          description: '21 hrs • ES6+, async/await, DOM manipulation, events & API integration',
+          modulesCount: 1,
+          modules: [
+            {
+              id: 'mod-03-sec-1',
+              title: 'MOD-03 — JavaScript & DOM Learning Path',
+              items: [
+                {
+                  id: 'item-03-1',
+                  type: 'LIVE CLASS',
+                  typeColor: 'bg-purple-100 text-purple-700 border-purple-200',
+                  iconName: 'Video',
+                  iconBg: 'bg-purple-600 text-white',
+                  title: 'JS Async & DOM Masterclass',
+                  actionText: 'JOIN',
+                  url: 'https://zoom.us/live-js-workshop',
+                  btnStyle: 'bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30'
+                },
+                {
+                  id: 'item-03-2',
+                  type: 'PRACTICAL LAB',
+                  typeColor: 'bg-amber-100 text-amber-700 border-amber-200',
+                  iconName: 'Code',
+                  iconBg: 'bg-amber-500 text-white',
+                  title: 'Interactive Web App & DOM Lab',
+                  actionText: 'VIEW',
+                  url: 'https://lab.aspirelms.io/js-lab',
+                  btnStyle: 'bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30'
+                },
+                {
+                  id: 'item-03-3',
+                  type: 'ASSESSMENT',
+                  typeColor: 'bg-blue-100 text-blue-700 border-blue-200',
+                  iconName: 'FileCheck',
+                  iconBg: 'bg-blue-600 text-white',
+                  title: 'JavaScript & Web DOM Evaluation',
                   actionText: 'TAKE',
                   url: '/assessments',
                   btnStyle: 'bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30'
@@ -715,44 +773,247 @@ export const INITIAL_MILESTONES = {
     {
       id: 'stage-2',
       stageNumber: 'STAGE 02',
-      phaseTag: 'Phase 2 • Core Mastery',
-      title: 'Stage 2: Machine Learning & AI Models',
+      phaseTag: 'Phase 2 • Backend & DSA',
+      title: 'STAGE 02 — Python Backend Development + DSA',
       status: 'AVAILABLE',
       statusType: 'available',
       isLocked: false,
       subtopics: [
         {
-          id: 'ml-fundamentals',
-          title: 'ML Fundamentals & Scikit-Learn',
-          description: 'Click to view subtopics',
-          duration: 'Explore regression models, classification metrics, decision trees, and model optimization.',
+          id: 'mod-04',
+          title: 'MOD-04 — Python Core, Advanced Python & OOP',
+          duration: '17 hrs',
+          description: '17 hrs • Data types, control flow, functions, OOP concepts, decorators & generators',
           modulesCount: 1,
           modules: [
             {
-              id: 'mod-ml-1',
-              title: 'Supervised Learning & Regression',
+              id: 'mod-04-sec-1',
+              title: 'MOD-04 — Python Core & OOP Learning Path',
               items: [
                 {
-                  id: 'item-ml-1',
+                  id: 'item-04-1',
                   type: 'LIVE CLASS',
                   typeColor: 'bg-purple-100 text-purple-700 border-purple-200',
                   iconName: 'Video',
                   iconBg: 'bg-purple-600 text-white',
-                  title: 'Scikit-Learn Live Masterclass',
+                  title: 'Python Core & OOP Live Workshop',
                   actionText: 'JOIN',
-                  url: 'https://zoom.us/live-ml-masterclass',
+                  url: 'https://zoom.us/live-python-workshop',
                   btnStyle: 'bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30'
                 },
                 {
-                  id: 'item-ml-2',
+                  id: 'item-04-2',
                   type: 'PRACTICAL LAB',
                   typeColor: 'bg-amber-100 text-amber-700 border-amber-200',
                   iconName: 'Code',
                   iconBg: 'bg-amber-500 text-white',
-                  title: 'House Price Prediction Lab',
+                  title: 'Advanced OOP Practice Lab',
                   actionText: 'VIEW',
-                  url: 'https://lab.aspirelms.io/ml-house-price',
+                  url: 'https://lab.aspirelms.io/python-lab',
                   btnStyle: 'bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30'
+                },
+                {
+                  id: 'item-04-3',
+                  type: 'ASSESSMENT',
+                  typeColor: 'bg-blue-100 text-blue-700 border-blue-200',
+                  iconName: 'FileCheck',
+                  iconBg: 'bg-blue-600 text-white',
+                  title: 'Python Core & OOP Assessment',
+                  actionText: 'TAKE',
+                  url: '/assessments',
+                  btnStyle: 'bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30'
+                }
+              ]
+            }
+          ]
+        },
+        {
+          id: 'mod-05',
+          title: 'MOD-05 — SQL & Relational Databases',
+          duration: '11 hrs',
+          description: '11 hrs • Relational DB design, SQL queries, joins, indexes & normalization',
+          modulesCount: 1,
+          modules: [
+            {
+              id: 'mod-05-sec-1',
+              title: 'MOD-05 — SQL & Relational DB Learning Path',
+              items: [
+                {
+                  id: 'item-05-1',
+                  type: 'LIVE CLASS',
+                  typeColor: 'bg-purple-100 text-purple-700 border-purple-200',
+                  iconName: 'Video',
+                  iconBg: 'bg-purple-600 text-white',
+                  title: 'SQL & Database Design Workshop',
+                  actionText: 'JOIN',
+                  url: 'https://zoom.us/live-sql-workshop',
+                  btnStyle: 'bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30'
+                },
+                {
+                  id: 'item-05-2',
+                  type: 'PRACTICAL LAB',
+                  typeColor: 'bg-amber-100 text-amber-700 border-amber-200',
+                  iconName: 'Code',
+                  iconBg: 'bg-amber-500 text-white',
+                  title: 'Complex Queries & DB Lab',
+                  actionText: 'VIEW',
+                  url: 'https://lab.aspirelms.io/sql-lab',
+                  btnStyle: 'bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30'
+                },
+                {
+                  id: 'item-05-3',
+                  type: 'ASSESSMENT',
+                  typeColor: 'bg-blue-100 text-blue-700 border-blue-200',
+                  iconName: 'FileCheck',
+                  iconBg: 'bg-blue-600 text-white',
+                  title: 'SQL & Relational Databases Quiz',
+                  actionText: 'TAKE',
+                  url: '/assessments',
+                  btnStyle: 'bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30'
+                }
+              ]
+            }
+          ]
+        },
+        {
+          id: 'mod-06',
+          title: 'MOD-06 — Django Framework & Web Architecture',
+          duration: '22 hrs',
+          description: '22 hrs • MVT pattern, Django ORM, authentication, forms & middleware',
+          modulesCount: 1,
+          modules: [
+            {
+              id: 'mod-06-sec-1',
+              title: 'MOD-06 — Django Framework Learning Path',
+              items: [
+                {
+                  id: 'item-06-1',
+                  type: 'LIVE CLASS',
+                  typeColor: 'bg-purple-100 text-purple-700 border-purple-200',
+                  iconName: 'Video',
+                  iconBg: 'bg-purple-600 text-white',
+                  title: 'Django Web App Masterclass',
+                  actionText: 'JOIN',
+                  url: 'https://zoom.us/live-django-workshop',
+                  btnStyle: 'bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30'
+                },
+                {
+                  id: 'item-06-2',
+                  type: 'PRACTICAL LAB',
+                  typeColor: 'bg-amber-100 text-amber-700 border-amber-200',
+                  iconName: 'Code',
+                  iconBg: 'bg-amber-500 text-white',
+                  title: 'Fullstack Django App Lab',
+                  actionText: 'VIEW',
+                  url: 'https://lab.aspirelms.io/django-lab',
+                  btnStyle: 'bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30'
+                },
+                {
+                  id: 'item-06-3',
+                  type: 'ASSESSMENT',
+                  typeColor: 'bg-blue-100 text-blue-700 border-blue-200',
+                  iconName: 'FileCheck',
+                  iconBg: 'bg-blue-600 text-white',
+                  title: 'Django Framework Evaluation',
+                  actionText: 'TAKE',
+                  url: '/assessments',
+                  btnStyle: 'bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30'
+                }
+              ]
+            }
+          ]
+        },
+        {
+          id: 'mod-07',
+          title: 'MOD-07 — Django REST Framework & Security',
+          duration: '17 hrs',
+          description: '17 hrs • REST APIs, serializers, JWT authentication & API security',
+          modulesCount: 1,
+          modules: [
+            {
+              id: 'mod-07-sec-1',
+              title: 'MOD-07 — Django REST Framework Learning Path',
+              items: [
+                {
+                  id: 'item-07-1',
+                  type: 'LIVE CLASS',
+                  typeColor: 'bg-purple-100 text-purple-700 border-purple-200',
+                  iconName: 'Video',
+                  iconBg: 'bg-purple-600 text-white',
+                  title: 'DRF & JWT Security Workshop',
+                  actionText: 'JOIN',
+                  url: 'https://zoom.us/live-drf-workshop',
+                  btnStyle: 'bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30'
+                },
+                {
+                  id: 'item-07-2',
+                  type: 'PRACTICAL LAB',
+                  typeColor: 'bg-amber-100 text-amber-700 border-amber-200',
+                  iconName: 'Code',
+                  iconBg: 'bg-amber-500 text-white',
+                  title: 'REST API & Authentication Lab',
+                  actionText: 'VIEW',
+                  url: 'https://lab.aspirelms.io/drf-lab',
+                  btnStyle: 'bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30'
+                },
+                {
+                  id: 'item-07-3',
+                  type: 'ASSESSMENT',
+                  typeColor: 'bg-blue-100 text-blue-700 border-blue-200',
+                  iconName: 'FileCheck',
+                  iconBg: 'bg-blue-600 text-white',
+                  title: 'Django REST Framework Quiz',
+                  actionText: 'TAKE',
+                  url: '/assessments',
+                  btnStyle: 'bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30'
+                }
+              ]
+            }
+          ]
+        },
+        {
+          id: 'mod-08',
+          title: 'MOD-08 — Data Structures & Algorithms (DSA)',
+          duration: '12 hrs',
+          description: '12 hrs • Arrays, linked lists, trees, graphs, sorting & dynamic programming',
+          modulesCount: 1,
+          modules: [
+            {
+              id: 'mod-08-sec-1',
+              title: 'MOD-08 — Data Structures & Algorithms Learning Path',
+              items: [
+                {
+                  id: 'item-08-1',
+                  type: 'LIVE CLASS',
+                  typeColor: 'bg-purple-100 text-purple-700 border-purple-200',
+                  iconName: 'Video',
+                  iconBg: 'bg-purple-600 text-white',
+                  title: 'DSA Masterclass & Problem Solving',
+                  actionText: 'JOIN',
+                  url: 'https://zoom.us/live-dsa-workshop',
+                  btnStyle: 'bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30'
+                },
+                {
+                  id: 'item-08-2',
+                  type: 'PRACTICAL LAB',
+                  typeColor: 'bg-amber-100 text-amber-700 border-amber-200',
+                  iconName: 'Code',
+                  iconBg: 'bg-amber-500 text-white',
+                  title: 'Algorithmic Practice Lab',
+                  actionText: 'VIEW',
+                  url: 'https://lab.aspirelms.io/dsa-lab',
+                  btnStyle: 'bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30'
+                },
+                {
+                  id: 'item-08-3',
+                  type: 'ASSESSMENT',
+                  typeColor: 'bg-blue-100 text-blue-700 border-blue-200',
+                  iconName: 'FileCheck',
+                  iconBg: 'bg-blue-600 text-white',
+                  title: 'DSA Evaluation Assessment',
+                  actionText: 'TAKE',
+                  url: '/assessments',
+                  btnStyle: 'bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30'
                 }
               ]
             }
@@ -762,14 +1023,121 @@ export const INITIAL_MILESTONES = {
     },
     {
       id: 'stage-3',
-      stageNumber: 'STAGE 03 • ADVANCED',
-      phaseTag: 'Phase 3 • Advanced Mastery',
-      title: 'Stage 3: Advanced AI & Cloud Deployment',
-      status: 'LOCKED',
-      statusType: 'locked',
-      isLocked: true,
-      subtopics: []
+      stageNumber: 'STAGE 03',
+      phaseTag: 'Phase 3 • AI Integration',
+      title: 'STAGE 03 — AI Integration',
+      status: 'AVAILABLE',
+      statusType: 'available',
+      isLocked: false,
+      subtopics: [
+        {
+          id: 'mod-09',
+          title: 'MOD-09 — AI Integration, LangChain & Cloud Deployment',
+          duration: '16 hrs',
+          description: '16 hrs • LLM APIs, LangChain agents, RAG pipelines & Docker cloud deployment',
+          modulesCount: 1,
+          modules: [
+            {
+              id: 'mod-09-sec-1',
+              title: 'MOD-09 — AI Integration & Cloud Learning Path',
+              items: [
+                {
+                  id: 'item-09-1',
+                  type: 'LIVE CLASS',
+                  typeColor: 'bg-purple-100 text-purple-700 border-purple-200',
+                  iconName: 'Video',
+                  iconBg: 'bg-purple-600 text-white',
+                  title: 'LangChain & AI Cloud Workshop',
+                  actionText: 'JOIN',
+                  url: 'https://zoom.us/live-ai-workshop',
+                  btnStyle: 'bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30'
+                },
+                {
+                  id: 'item-09-2',
+                  type: 'PRACTICAL LAB',
+                  typeColor: 'bg-amber-100 text-amber-700 border-amber-200',
+                  iconName: 'Code',
+                  iconBg: 'bg-amber-500 text-white',
+                  title: 'RAG Pipeline & Deployment Lab',
+                  actionText: 'VIEW',
+                  url: 'https://lab.aspirelms.io/ai-lab',
+                  btnStyle: 'bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30'
+                },
+                {
+                  id: 'item-09-3',
+                  type: 'ASSESSMENT',
+                  typeColor: 'bg-blue-100 text-blue-700 border-blue-200',
+                  iconName: 'FileCheck',
+                  iconBg: 'bg-blue-600 text-white',
+                  title: 'AI & Cloud Integration Quiz',
+                  actionText: 'TAKE',
+                  url: '/assessments',
+                  btnStyle: 'bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30'
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      id: 'stage-4',
+      stageNumber: 'STAGE 04',
+      phaseTag: 'Phase 4 • Career Launchpad',
+      title: 'STAGE 04 — Career Launchpad',
+      status: 'AVAILABLE',
+      statusType: 'available',
+      isLocked: false,
+      subtopics: [
+        {
+          id: 'mod-10',
+          title: 'MOD-10 — System Design, Capstone & Career Placement',
+          duration: '22 hrs',
+          description: '22 hrs • High-level system design, production capstone project & mock interviews',
+          modulesCount: 1,
+          modules: [
+            {
+              id: 'mod-10-sec-1',
+              title: 'MOD-10 — System Design & Capstone Learning Path',
+              items: [
+                {
+                  id: 'item-10-1',
+                  type: 'LIVE CLASS',
+                  typeColor: 'bg-purple-100 text-purple-700 border-purple-200',
+                  iconName: 'Video',
+                  iconBg: 'bg-purple-600 text-white',
+                  title: 'System Design Masterclass & Interview Prep',
+                  actionText: 'JOIN',
+                  url: 'https://zoom.us/live-system-design-workshop',
+                  btnStyle: 'bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30'
+                },
+                {
+                  id: 'item-10-2',
+                  type: 'PRACTICAL LAB',
+                  typeColor: 'bg-amber-100 text-amber-700 border-amber-200',
+                  iconName: 'Code',
+                  iconBg: 'bg-amber-500 text-white',
+                  title: 'Production Capstone Project Lab',
+                  actionText: 'VIEW',
+                  url: 'https://lab.aspirelms.io/capstone-lab',
+                  btnStyle: 'bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30'
+                },
+                {
+                  id: 'item-10-3',
+                  type: 'ASSESSMENT',
+                  typeColor: 'bg-blue-100 text-blue-700 border-blue-200',
+                  iconName: 'FileCheck',
+                  iconBg: 'bg-blue-600 text-white',
+                  title: 'System Design & Placement Evaluation',
+                  actionText: 'TAKE',
+                  url: '/assessments',
+                  btnStyle: 'bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30'
+                }
+              ]
+            }
+          ]
+        }
+      ]
     }
   ]
 };
-
