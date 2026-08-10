@@ -16,7 +16,8 @@ import {
   LogOut,
   Radio,
   Settings,
-  X
+  X,
+  Flag
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { ROLES } from '../../utils/mockData';
@@ -32,6 +33,7 @@ export function Sidebar({ isCollapsed, onToggle, isMobileOpen, onCloseMobile }) 
       case ROLES.INSTRUCTOR:
         return [
           { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
+          { label: 'Milestones', path: '/milestones', icon: Flag },
           { label: 'Course Management', path: '/courses', icon: BookOpen },
           { label: 'Assessments', path: '/assessments', icon: FileCheck2 },
           { label: 'Coding Questions', path: '/coding-questions', icon: Code2 },
@@ -44,6 +46,7 @@ export function Sidebar({ isCollapsed, onToggle, isMobileOpen, onCloseMobile }) 
       case ROLES.MANAGER:
         return [
           { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
+          { label: 'Milestones', path: '/milestones', icon: Flag },
           { label: 'Courses', path: '/courses', icon: BookOpen },
           { label: 'Coding Questions', path: '/coding-questions', icon: Code2 },
           { label: 'Projects Portal', path: '/projects', icon: FolderGit2 },
@@ -56,6 +59,7 @@ export function Sidebar({ isCollapsed, onToggle, isMobileOpen, onCloseMobile }) 
       case ROLES.ADMIN:
         return [
           { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
+          { label: 'Milestones', path: '/milestones', icon: Flag },
           { label: 'User Directory', path: '/users', icon: Users },
           { label: 'Course Management', path: '/courses', icon: BookOpen },
           { label: 'Assessments', path: '/assessments', icon: FileCheck2 },
@@ -72,6 +76,7 @@ export function Sidebar({ isCollapsed, onToggle, isMobileOpen, onCloseMobile }) 
       default:
         return [
           { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
+          { label: 'Milestones', path: '/milestones', icon: Flag },
           { label: 'User Directory', path: '/users', icon: Users },
           { label: 'Permission Matrix', path: '/permissions', icon: ShieldCheck },
           { label: 'Course Management', path: '/courses', icon: BookOpen },
