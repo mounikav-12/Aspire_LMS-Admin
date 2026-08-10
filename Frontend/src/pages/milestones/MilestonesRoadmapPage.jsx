@@ -527,7 +527,7 @@ export function MilestonesRoadmapPage() {
           return (
             <div key={stage.id} className={`relative flex items-start gap-4 sm:gap-6 group ${isLastStage ? '' : 'mb-8'}`}>
               {/* Timeline Node Icon Column & Unbroken Connecting Line */}
-              <div className="relative flex flex-col items-center flex-shrink-0 w-9">
+              <div className="relative flex flex-col items-center flex-shrink-0 w-9 self-stretch">
                 {/* Continuous Vertical Line Segment */}
                 <div
                   className={`absolute left-1/2 -translate-x-1/2 w-0.5 bg-purple-300 pointer-events-none z-0 ${
