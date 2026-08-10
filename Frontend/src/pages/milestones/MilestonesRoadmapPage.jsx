@@ -511,10 +511,10 @@ export function MilestonesRoadmapPage() {
         </div>
       </div>
 
-      {/* Stage Timeline (Picture 1) */}
-      <div className="relative pl-6 sm:pl-8 space-y-8 pt-4">
-        {/* Timeline Vertical Line */}
-        <div className="absolute left-3.5 sm:left-4 top-6 bottom-6 w-0.5 bg-slate-200" />
+      {/* Stage Timeline */}
+      <div className="relative space-y-8 pt-4">
+        {/* Timeline Vertical Line (Passes straight through center of all 4 Stage Icons from 1st to Last) */}
+        <div className="absolute left-5 top-9 bottom-9 w-0.5 -translate-x-1/2 bg-purple-300 z-0 pointer-events-none" />
 
         {milestones?.stages?.map((stage, stageIndex) => {
           const unlockedForUser = isStageUnlockedForUser(stageIndex, stage);
@@ -525,25 +525,25 @@ export function MilestonesRoadmapPage() {
 
           return (
             <div key={stage.id} className="relative flex items-start gap-4 sm:gap-6 group">
-              {/* Timeline Node Circle */}
-              <div
-                className={`relative z-10 flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-full border-2 transition-all ${
-                  isCompleted
-                    ? 'border-emerald-600 bg-emerald-600 text-white'
-                    : isCurrentInProgress
-                    ? 'border-purple-600 bg-white text-purple-600 ring-4 ring-purple-100'
-                    : isAvailable
-                    ? 'border-purple-400 bg-white text-purple-500'
-                    : 'border-slate-300 bg-slate-100 text-slate-400'
-                }`}
-              >
-                {isLocked ? (
-                  <Lock className="w-3.5 h-3.5" />
-                ) : (
-                  <div className="flex items-center justify-center rounded-full bg-purple-600 text-white p-1">
-                    <Brain className="w-3 h-3" />
-                  </div>
-                )}
+              {/* Timeline Node Icon (Centered on Timeline Line) */}
+              <div className="relative z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white flex-shrink-0">
+                <div
+                  className={`flex h-9 w-9 items-center justify-center rounded-full border-2 transition-all shadow-sm ${
+                    isCompleted
+                      ? 'border-emerald-600 bg-emerald-600 text-white'
+                      : isCurrentInProgress
+                      ? 'border-purple-600 bg-purple-600 text-white ring-4 ring-purple-100 shadow-purple-600/30'
+                      : isAvailable
+                      ? 'border-purple-500 bg-white text-purple-600 ring-2 ring-purple-200'
+                      : 'border-slate-300 bg-slate-100 text-slate-400'
+                  }`}
+                >
+                  {isLocked ? (
+                    <Lock className="w-4 h-4" />
+                  ) : (
+                    <Brain className="w-4 h-4" />
+                  )}
+                </div>
               </div>
 
               {/* Stage Card */}
