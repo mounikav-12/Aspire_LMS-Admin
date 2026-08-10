@@ -398,7 +398,7 @@ export function MilestonesRoadmapPage() {
             }`}
           >
             <Settings className="w-3.5 h-3.5" />
-            <span>⚙️ Admin Management Mode</span>
+            <span>Admin Management Mode</span>
           </button>
 
           <button
@@ -410,7 +410,7 @@ export function MilestonesRoadmapPage() {
             }`}
           >
             <Eye className="w-3.5 h-3.5" />
-            <span>👁️ Student / User View</span>
+            <span>Student / User View</span>
           </button>
         </div>
       </div>
