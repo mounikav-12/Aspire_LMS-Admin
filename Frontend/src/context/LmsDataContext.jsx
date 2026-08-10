@@ -33,13 +33,7 @@ export function LmsDataProvider({ children }) {
     const saved = localStorage.getItem('aspire_lms_milestones');
     if (saved) {
       try {
-        const parsed = JSON.parse(saved);
-        // Check if parsed data has new 4 stages and 10 modules
-        if (!parsed.stages || parsed.stages.length < 4 || !parsed.overview?.totalHours || parsed.stages[0]?.subtopics?.[0]?.id === 'python-basics') {
-          localStorage.setItem('aspire_lms_milestones', JSON.stringify(INITIAL_MILESTONES));
-          return INITIAL_MILESTONES;
-        }
-        return parsed;
+        return JSON.parse(saved);
       } catch (e) {
         return INITIAL_MILESTONES;
       }
@@ -50,17 +44,8 @@ export function LmsDataProvider({ children }) {
   useEffect(() => {
     try {
       localStorage.setItem('aspire_lms_milestones', JSON.stringify(milestones));
-      if (isSupabaseConnected) {
-        supabase.from('milestones').upsert({
-          id: 'milestone-curriculum',
-          data: milestones,
-          updated_at: new Date().toISOString()
-        }).then(({ error }) => {
-          if (error) console.warn('Supabase milestone sync:', error.message);
-        });
-      }
     } catch (e) {}
-  }, [milestones, isSupabaseConnected]);
+  }, [milestones]);
   const [codingQuestions, setCodingQuestions] = useState(() => {
     const saved = localStorage.getItem('aspire_lms_coding_questions');
     if (saved) {
@@ -78,17 +63,6 @@ export function LmsDataProvider({ children }) {
   // Fetch Data from Supabase PostgreSQL
   const fetchSupabaseData = async () => {
     try {
-      // 0. Fetch Milestones JSON Data
-      const { data: milestoneRecord, error: milestoneErr } = await supabase
-        .from('milestones')
-        .select('*')
-        .eq('id', 'milestone-curriculum')
-        .maybeSingle();
-
-      if (!milestoneErr && milestoneRecord && milestoneRecord.data) {
-        setMilestones(milestoneRecord.data);
-      }
-
       // 1. Fetch Profiles
       const { data: profilesData, error: profilesErr } = await supabase.from('profiles').select('*');
       if (!profilesErr && profilesData && profilesData.length > 0) {

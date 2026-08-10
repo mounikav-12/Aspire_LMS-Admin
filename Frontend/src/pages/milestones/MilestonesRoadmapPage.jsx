@@ -18,7 +18,9 @@ import {
   Edit2,
   Trash2,
   Eye,
-  Settings
+  Settings,
+  Book,
+  FileText
 } from 'lucide-react';
 import { useToast } from '../../context/ToastContext';
 import { useLmsData } from '../../context/LmsDataContext';
@@ -42,19 +44,19 @@ export function MilestonesRoadmapPage() {
     updateMilestonesOverview
   } = useLmsData();
 
-  // Mode Toggle: 'admin' (CRUD management) vs 'user' (Student View)
+  // Mode Toggle: 'admin' (CRUD management) vs 'user' (Student Portal View)
   const [viewMode, setViewMode] = useState('admin');
 
   // Selected subtopic for slide-over drawer
-  const [selectedSubtopicState, setSelectedSubtopicState] = useState(null); // { stageId, subtopicId }
+  const [selectedSubtopicState, setSelectedSubtopicState] = useState(null); // { stageId, subtopic }
   const [expandedModule, setExpandedModule] = useState(null);
 
   // Modal States
   const [isStageModalOpen, setIsStageModalOpen] = useState(false);
-  const [editingStage, setEditingStage] = useState(null);
+  const [editingStage, setEditingStage] = useState(null); // null for new, stage object for edit
   const [stageFormData, setStageFormData] = useState({
     stageNumber: 'STAGE 01',
-    phaseTag: 'Phase 1 • Foundations',
+    phaseTag: 'Phase 1 • Core Mastery',
     title: '',
     status: 'IN PROGRESS',
     statusType: 'in-progress',
@@ -66,8 +68,8 @@ export function MilestonesRoadmapPage() {
   const [editingSubtopic, setEditingSubtopic] = useState(null);
   const [subtopicFormData, setSubtopicFormData] = useState({
     title: '',
-    duration: '',
-    description: ''
+    description: 'Click to view subtopics',
+    duration: ''
   });
 
   const [isModuleModalOpen, setIsModuleModalOpen] = useState(false);
@@ -87,14 +89,13 @@ export function MilestonesRoadmapPage() {
   const [isOverviewModalOpen, setIsOverviewModalOpen] = useState(false);
   const [overviewFormData, setOverviewFormData] = useState({
     headline: milestones?.overview?.headline || '',
-    completedCount: milestones?.overview?.completedCount || 3,
-    totalCount: milestones?.overview?.totalCount || 10,
-    unlockedLevel: milestones?.overview?.unlockedLevel || 2,
-    completionPercentage: milestones?.overview?.completionPercentage || 30,
-    totalHours: milestones?.overview?.totalHours || 163
+    completedCount: milestones?.overview?.completedCount || 4,
+    totalCount: milestones?.overview?.totalCount || 12,
+    unlockedLevel: milestones?.overview?.unlockedLevel || 3,
+    completionPercentage: milestones?.overview?.completionPercentage || 45
   });
 
-  // Get current active module/subtopic for side drawer
+  // Derived current active subtopic object from global state
   const getActiveSubtopic = () => {
     if (!selectedSubtopicState) return null;
     const stage = milestones?.stages?.find((s) => s.id === selectedSubtopicState.stageId);
@@ -105,11 +106,12 @@ export function MilestonesRoadmapPage() {
 
   const activeSubtopic = getActiveSubtopic();
 
-  // Helper to render resource icon
+  // Helper for rendering icons dynamically
   const renderItemIcon = (iconName, iconBg) => {
     let IconComp = Video;
     if (iconName === 'Code') IconComp = Code;
     if (iconName === 'FileCheck') IconComp = FileCheck;
+    if (iconName === 'BookText' || iconName === 'Book') IconComp = BookText;
 
     return (
       <div className={`p-2 rounded-xl ${iconBg || 'bg-purple-600 text-white'}`}>
@@ -153,10 +155,10 @@ export function MilestonesRoadmapPage() {
     }
     if (editingStage) {
       updateStage(editingStage.id, stageFormData);
-      addToast('Stage updated successfully', 'success');
+      addToast('Milestone stage updated successfully', 'success');
     } else {
       addStage(stageFormData);
-      addToast('New stage created', 'success');
+      addToast('New milestone stage created', 'success');
     }
     setIsStageModalOpen(false);
   };
@@ -167,26 +169,26 @@ export function MilestonesRoadmapPage() {
       if (selectedSubtopicState?.stageId === stageId) {
         setSelectedSubtopicState(null);
       }
-      addToast('Stage deleted', 'info');
+      addToast('Milestone stage deleted', 'info');
     }
   };
 
-  // --- Handlers: Module / Subtopic ---
+  // --- Handlers: Subtopic ---
   const handleOpenSubtopicModal = (stageId, subtopic = null) => {
     setTargetStageIdForSubtopic(stageId);
     if (subtopic) {
       setEditingSubtopic(subtopic);
       setSubtopicFormData({
         title: subtopic.title,
-        duration: subtopic.duration || '',
-        description: subtopic.description || ''
+        description: subtopic.description,
+        duration: subtopic.duration
       });
     } else {
       setEditingSubtopic(null);
       setSubtopicFormData({
         title: '',
-        duration: '10 hrs',
-        description: 'Module topics and practical evaluation'
+        description: 'Click to view subtopics',
+        duration: 'Master core concepts and practical workflows in this module.'
       });
     }
     setIsSubtopicModalOpen(true);
@@ -195,30 +197,30 @@ export function MilestonesRoadmapPage() {
   const handleSaveSubtopic = (e) => {
     e.preventDefault();
     if (!subtopicFormData.title.trim()) {
-      addToast('Please enter a module title', 'error');
+      addToast('Please enter a subtopic title', 'error');
       return;
     }
     if (editingSubtopic) {
       updateSubtopic(targetStageIdForSubtopic, editingSubtopic.id, subtopicFormData);
-      addToast('Module updated', 'success');
+      addToast('Subtopic updated', 'success');
     } else {
       addSubtopic(targetStageIdForSubtopic, subtopicFormData);
-      addToast('Module added to stage', 'success');
+      addToast('Subtopic added to stage', 'success');
     }
     setIsSubtopicModalOpen(false);
   };
 
   const handleDeleteSubtopic = (stageId, subtopicId, title) => {
-    if (window.confirm(`Delete module "${title}"?`)) {
+    if (window.confirm(`Delete subtopic "${title}"?`)) {
       deleteSubtopic(stageId, subtopicId);
       if (selectedSubtopicState?.subtopicId === subtopicId) {
         setSelectedSubtopicState(null);
       }
-      addToast('Module removed', 'info');
+      addToast('Subtopic removed', 'info');
     }
   };
 
-  // --- Handlers: Inner Learning Path Section ---
+  // --- Handlers: Module ---
   const handleOpenModuleModal = (module = null) => {
     if (module) {
       setEditingModule(module);
@@ -233,30 +235,30 @@ export function MilestonesRoadmapPage() {
   const handleSaveModule = (e) => {
     e.preventDefault();
     if (!moduleFormData.title.trim()) {
-      addToast('Please enter section title', 'error');
+      addToast('Please enter module title', 'error');
       return;
     }
     if (!activeSubtopic) return;
 
     if (editingModule) {
       updateModule(activeSubtopic.stageId, activeSubtopic.id, editingModule.id, moduleFormData);
-      addToast('Learning section title updated', 'success');
+      addToast('Module title updated', 'success');
     } else {
       addModule(activeSubtopic.stageId, activeSubtopic.id, moduleFormData);
-      addToast('New section added to learning path', 'success');
+      addToast('New module added to learning path', 'success');
     }
     setIsModuleModalOpen(false);
   };
 
   const handleDeleteModule = (moduleId, title) => {
     if (!activeSubtopic) return;
-    if (window.confirm(`Delete section "${title}" and all its resources?`)) {
+    if (window.confirm(`Delete module "${title}" and all its resources?`)) {
       deleteModule(activeSubtopic.stageId, activeSubtopic.id, moduleId);
-      addToast('Section deleted', 'info');
+      addToast('Module deleted', 'info');
     }
   };
 
-  // --- Handlers: Learning Resource Item ---
+  // --- Handlers: Item ---
   const handleOpenItemModal = (moduleId, item = null) => {
     setTargetModuleIdForItem(moduleId);
     if (item) {
@@ -317,7 +319,7 @@ export function MilestonesRoadmapPage() {
       addToast('Resource item updated', 'success');
     } else {
       addLearningItem(activeSubtopic.stageId, activeSubtopic.id, targetModuleIdForItem, payload);
-      addToast('Resource item added', 'success');
+      addToast('Resource item added to module', 'success');
     }
     setIsItemModalOpen(false);
   };
@@ -342,22 +344,22 @@ export function MilestonesRoadmapPage() {
     if (url && url.startsWith('http')) {
       window.open(url, '_blank');
     } else {
-      addToast(`Opening ${actionText} for "${title}"`, 'info');
+      addToast(`Executing ${actionText} for "${title}"`, 'info');
     }
   };
 
   return (
     <div className="space-y-6 pb-12">
-      {/* Top Header & Admin / Student View Toggle */}
+      {/* Top Bar with Title & Admin/User View Mode Toggle */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-black text-slate-900 tracking-tight">Milestones Roadmap</h1>
           <p className="text-sm text-slate-500 font-medium mt-1">
-            Track your journey and master core engineering fundamentals (4 Stages • 10 Modules • 163 Hours).
+            Track your journey and master core engineering fundamentals.
           </p>
         </div>
 
-        {/* View Mode Toggle */}
+        {/* Admin / Student View Toggle Pills */}
         <div className="flex items-center gap-2 bg-slate-100 p-1 rounded-2xl border border-slate-200 shadow-2xs">
           <button
             onClick={() => setViewMode('admin')}
@@ -385,13 +387,13 @@ export function MilestonesRoadmapPage() {
         </div>
       </div>
 
-      {/* Admin Mode Control Bar */}
+      {/* Admin Mode Controls Banner Banner */}
       {viewMode === 'admin' && (
         <div className="bg-purple-50 border border-purple-200/80 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-3 text-xs">
           <div className="flex items-center gap-2 text-purple-950 font-medium">
             <span className="flex h-2 w-2 rounded-full bg-purple-600 animate-pulse" />
             <span>
-              <strong>Admin Control Active:</strong> Manage Stages, Modules, Resource items, and metadata links directly.
+              <strong>Admin Portal Control Active:</strong> You can add/edit stages, manage subtopics, customize learning paths, and edit resource action links.
             </span>
           </div>
 
@@ -400,11 +402,10 @@ export function MilestonesRoadmapPage() {
               onClick={() => {
                 setOverviewFormData({
                   headline: milestones?.overview?.headline || '',
-                  completedCount: milestones?.overview?.completedCount || 3,
-                  totalCount: milestones?.overview?.totalCount || 10,
-                  unlockedLevel: milestones?.overview?.unlockedLevel || 2,
-                  completionPercentage: milestones?.overview?.completionPercentage || 30,
-                  totalHours: milestones?.overview?.totalHours || 163
+                  completedCount: milestones?.overview?.completedCount || 4,
+                  totalCount: milestones?.overview?.totalCount || 12,
+                  unlockedLevel: milestones?.overview?.unlockedLevel || 3,
+                  completionPercentage: milestones?.overview?.completionPercentage || 45
                 });
                 setIsOverviewModalOpen(true);
               }}
@@ -419,32 +420,32 @@ export function MilestonesRoadmapPage() {
               className="px-3 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold flex items-center gap-1.5 shadow-md shadow-purple-600/25 transition-all cursor-pointer"
             >
               <Plus className="w-3.5 h-3.5" />
-              <span>+ Add Stage</span>
+              <span>+ Add Milestone Stage</span>
             </button>
           </div>
         </div>
       )}
 
-      {/* Top Banner Card (Purple Gradient - Picture 1) */}
+      {/* Top Banner Card (Vibrant Purple Gradient - Picture 1) */}
       <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-purple-700 via-violet-600 to-indigo-600 p-6 sm:p-8 text-white shadow-xl shadow-purple-600/20">
         <div className="relative z-10 space-y-6">
-          {/* Banner Badges */}
+          {/* Banner Header Badges */}
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="inline-flex items-center gap-2 rounded-full bg-white/20 backdrop-blur-md px-3.5 py-1.5 text-xs font-bold uppercase tracking-wider text-purple-100 border border-white/20">
               <BookOpen className="w-4 h-4" />
-              <span>Milestone Curriculum Roadmap • {milestones?.overview?.totalHours || 163} Hours Total</span>
+              <span>{milestones?.overview?.trackTitle || 'Milestone Curriculum Roadmap'}</span>
             </div>
 
             <div className="flex items-center gap-3">
               <div className="inline-flex items-center gap-1.5 rounded-full bg-white/15 backdrop-blur-md px-3 py-1 text-xs font-semibold text-purple-100 border border-white/15">
                 <Trophy className="w-3.5 h-3.5 text-amber-300" />
                 <span>
-                  {milestones?.overview?.completedCount || 3} / {milestones?.overview?.totalCount || 10} Modules Completed
+                  {milestones?.overview?.completedCount || 4} / {milestones?.overview?.totalCount || 12} Completed
                 </span>
               </div>
               <div className="inline-flex items-center gap-1.5 rounded-full bg-white/15 backdrop-blur-md px-3 py-1 text-xs font-semibold text-purple-100 border border-white/15">
                 <Zap className="w-3.5 h-3.5 text-cyan-300" />
-                <span>Level {milestones?.overview?.unlockedLevel || 2} Unlocked</span>
+                <span>Level {milestones?.overview?.unlockedLevel || 3} Unlocked</span>
               </div>
             </div>
           </div>
@@ -458,27 +459,27 @@ export function MilestonesRoadmapPage() {
           <div className="space-y-2 pt-2">
             <div className="flex items-center justify-between text-xs font-semibold text-purple-100">
               <span>Overall Track Completion</span>
-              <span className="font-bold text-white">{milestones?.overview?.completionPercentage || 30}%</span>
+              <span className="font-bold text-white">{milestones?.overview?.completionPercentage || 45}%</span>
             </div>
             <div className="h-2.5 w-full overflow-hidden rounded-full bg-white/20 backdrop-blur-sm p-0.5">
               <div
                 className="h-full rounded-full bg-white transition-all duration-500 shadow-sm"
-                style={{ width: `${milestones?.overview?.completionPercentage || 30}%` }}
+                style={{ width: `${milestones?.overview?.completionPercentage || 45}%` }}
               />
             </div>
           </div>
         </div>
       </div>
 
-      {/* Stage Timeline (4 Stages) */}
+      {/* Stage Timeline (Picture 1) */}
       <div className="relative pl-6 sm:pl-8 space-y-8 pt-4">
         {/* Timeline Vertical Line */}
         <div className="absolute left-3.5 sm:left-4 top-6 bottom-6 w-0.5 bg-slate-200" />
 
-        {milestones?.stages?.map((stage, sIdx) => {
-          const isCurrentInProgress = stage.statusType === 'in-progress' || sIdx === 0;
-          const isAvailable = stage.statusType === 'available' || (!stage.isLocked && sIdx > 0);
-          const isLocked = stage.isLocked;
+        {milestones?.stages?.map((stage) => {
+          const isCurrentInProgress = stage.statusType === 'in-progress';
+          const isAvailable = stage.statusType === 'available';
+          const isLocked = stage.statusType === 'locked' || stage.isLocked;
 
           return (
             <div key={stage.id} className="relative flex items-start gap-4 sm:gap-6 group">
@@ -542,7 +543,7 @@ export function MilestonesRoadmapPage() {
                         IN PROGRESS
                       </span>
                     )}
-                    {isAvailable && !isCurrentInProgress && (
+                    {isAvailable && (
                       <span className="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-600">
                         AVAILABLE
                       </span>
@@ -558,14 +559,14 @@ export function MilestonesRoadmapPage() {
                       <div className="flex items-center gap-1 ml-2 border-l border-slate-200 pl-2">
                         <button
                           onClick={() => handleOpenSubtopicModal(stage.id, null)}
-                          title="Add Module to Stage"
+                          title="Add Subtopic to Stage"
                           className="p-1.5 text-purple-600 hover:bg-purple-50 rounded-lg transition-colors cursor-pointer"
                         >
                           <Plus className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => handleOpenStageModal(stage)}
-                          title="Edit Stage"
+                          title="Edit Stage Details"
                           className="p-1.5 text-slate-500 hover:text-purple-600 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
                         >
                           <Edit2 className="w-4 h-4" />
@@ -582,42 +583,28 @@ export function MilestonesRoadmapPage() {
                   </div>
                 </div>
 
-                {/* Modules List directly nested inside Stage Card */}
+                {/* Subtopic Action Cards */}
                 {stage.subtopics && stage.subtopics.length > 0 ? (
-                  <div className="mt-4 p-3.5 sm:p-4 bg-slate-50/80 rounded-2xl border border-slate-200/90 space-y-3">
-                    <div className="flex items-center justify-between text-[11px] font-bold text-slate-500 uppercase tracking-wider px-1 pb-1">
-                      <span>Curriculum Modules ({stage.subtopics.length})</span>
-                      <span>Click module to view learning path</span>
-                    </div>
-
-                    {stage.subtopics.map((subtopic, mIdx) => {
-                      const isFirstInStage1 = sIdx === 0 && mIdx === 0;
-
-                      return (
-                        <div key={subtopic.id} className="relative group/sub flex items-center gap-2">
-                          {isFirstInStage1 ? (
-                            /* Highlighted Gradient Button Card for MOD-01 */
+                  <div className="mt-4 space-y-3">
+                    {stage.subtopics.map((subtopic) => (
+                      <div key={subtopic.id} className="relative group/sub">
+                        {subtopic.id === 'python-basics' || subtopic.title.includes('Python') ? (
+                          /* Highlighted Subtopic Button (Matching Picture 1) */
+                          <div className="relative flex items-center gap-2">
                             <button
                               onClick={() => setSelectedSubtopicState({ stageId: stage.id, subtopicId: subtopic.id })}
-                              className="w-full text-left rounded-2xl bg-gradient-to-r from-purple-600 to-violet-600 p-4 text-white shadow-md shadow-purple-600/25 hover:shadow-lg hover:shadow-purple-600/35 hover:scale-[1.003] transition-all flex items-center justify-between group cursor-pointer"
+                              className="w-full text-left rounded-2xl bg-gradient-to-r from-purple-600 to-violet-600 p-4 text-white shadow-md shadow-purple-600/25 hover:shadow-lg hover:shadow-purple-600/35 hover:scale-[1.005] transition-all flex items-center justify-between group cursor-pointer"
                             >
                               <div className="flex items-center gap-3.5">
                                 <div className="flex h-9 w-9 items-center justify-center rounded-full bg-white/20 backdrop-blur-md text-white">
                                   <Clock className="w-4 h-4" />
                                 </div>
                                 <div>
-                                  <div className="flex items-center gap-2">
-                                    <p className="font-bold text-white text-sm sm:text-base leading-tight">
-                                      {subtopic.title}
-                                    </p>
-                                    {subtopic.duration && (
-                                      <span className="bg-white/20 backdrop-blur-md text-white text-[10px] font-bold px-2 py-0.5 rounded-full border border-white/20">
-                                        {subtopic.duration}
-                                      </span>
-                                    )}
-                                  </div>
+                                  <p className="font-bold text-white text-sm sm:text-base leading-tight">
+                                    {subtopic.title}
+                                  </p>
                                   <p className="text-xs text-purple-100/90 font-medium mt-0.5">
-                                    {subtopic.description || 'Click to view subtopics and resource cards'}
+                                    {subtopic.description}
                                   </p>
                                 </div>
                               </div>
@@ -625,62 +612,61 @@ export function MilestonesRoadmapPage() {
                                 <ChevronRight className="w-4 h-4" />
                               </div>
                             </button>
-                          ) : (
-                            /* Standard Capsule Card for Modules MOD-02 through MOD-10 */
+
+                            {viewMode === 'admin' && (
+                              <div className="flex items-center gap-1 bg-white/90 p-1.5 rounded-xl border border-purple-200 shadow-sm flex-shrink-0">
+                                <button
+                                  onClick={() => handleOpenSubtopicModal(stage.id, subtopic)}
+                                  title="Edit Subtopic"
+                                  className="p-1 text-slate-600 hover:text-purple-600 hover:bg-purple-50 rounded-md cursor-pointer"
+                                >
+                                  <Edit2 className="w-3.5 h-3.5" />
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteSubtopic(stage.id, subtopic.id, subtopic.title)}
+                                  title="Delete Subtopic"
+                                  className="p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-md cursor-pointer"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        ) : (
+                          /* Standard Subtopic Capsule Card */
+                          <div className="relative flex items-center gap-2">
                             <button
                               onClick={() => setSelectedSubtopicState({ stageId: stage.id, subtopicId: subtopic.id })}
-                              className="w-full text-left rounded-2xl bg-slate-50 hover:bg-purple-50/80 hover:border-purple-200 border border-slate-200/90 px-4 py-3.5 text-slate-800 transition-all flex items-center justify-between group cursor-pointer shadow-2xs"
+                              className="w-full text-left rounded-2xl bg-slate-100/80 hover:bg-purple-50 hover:border-purple-200 border border-slate-200/80 px-4 py-3 text-slate-800 transition-all flex items-center justify-between group cursor-pointer"
                             >
-                              <div className="flex items-center gap-3">
-                                <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-purple-100 text-purple-700 font-bold text-xs">
-                                  <Clock className="w-3.5 h-3.5" />
-                                </div>
-                                <div>
-                                  <div className="flex items-center gap-2">
-                                    <span className="font-bold text-xs sm:text-sm text-slate-800 group-hover:text-purple-700">
-                                      {subtopic.title}
-                                    </span>
-                                    {subtopic.duration && (
-                                      <span className="bg-purple-100 text-purple-700 text-[10px] font-bold px-2 py-0.5 rounded-md border border-purple-200">
-                                        {subtopic.duration}
-                                      </span>
-                                    )}
-                                  </div>
-                                  <p className="text-[11px] text-slate-500 font-medium mt-0.5">
-                                    {subtopic.description}
-                                  </p>
-                                </div>
-                              </div>
-
-                              <div className="flex items-center gap-1.5 text-slate-400 group-hover:text-purple-600">
-                                <span className="text-[10px] font-semibold hidden sm:inline">View Resources</span>
-                                <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
-                              </div>
+                              <span className="font-bold text-xs sm:text-sm text-slate-800 group-hover:text-purple-700">
+                                {subtopic.title}
+                              </span>
+                              <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-purple-600 group-hover:translate-x-0.5 transition-all" />
                             </button>
-                          )}
 
-                          {/* Admin Edit/Delete Controls for Module */}
-                          {viewMode === 'admin' && (
-                            <div className="flex items-center gap-1 bg-white p-1.5 rounded-xl border border-slate-200 shadow-2xs flex-shrink-0">
-                              <button
-                                onClick={() => handleOpenSubtopicModal(stage.id, subtopic)}
-                                title="Edit Module"
-                                className="p-1 text-slate-500 hover:text-purple-600 hover:bg-purple-50 rounded-md cursor-pointer"
-                              >
-                                <Edit2 className="w-3.5 h-3.5" />
-                              </button>
-                              <button
-                                onClick={() => handleDeleteSubtopic(stage.id, subtopic.id, subtopic.title)}
-                                title="Delete Module"
-                                className="p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-md cursor-pointer"
-                              >
-                                <Trash2 className="w-3.5 h-3.5" />
-                              </button>
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
+                            {viewMode === 'admin' && (
+                              <div className="flex items-center gap-1 bg-white p-1.5 rounded-xl border border-slate-200 shadow-sm flex-shrink-0">
+                                <button
+                                  onClick={() => handleOpenSubtopicModal(stage.id, subtopic)}
+                                  title="Edit Subtopic"
+                                  className="p-1 text-slate-600 hover:text-purple-600 hover:bg-purple-50 rounded-md cursor-pointer"
+                                >
+                                  <Edit2 className="w-3.5 h-3.5" />
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteSubtopic(stage.id, subtopic.id, subtopic.title)}
+                                  title="Delete Subtopic"
+                                  className="p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-md cursor-pointer"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    ))}
                   </div>
                 ) : (
                   viewMode === 'admin' && (
@@ -689,7 +675,7 @@ export function MilestonesRoadmapPage() {
                       className="mt-3 w-full border-2 border-dashed border-slate-200 hover:border-purple-400 p-3 rounded-2xl text-xs font-bold text-slate-500 hover:text-purple-600 transition-colors flex items-center justify-center gap-2 cursor-pointer"
                     >
                       <Plus className="w-4 h-4" />
-                      <span>Add Module to {stage.stageNumber}</span>
+                      <span>Add First Subtopic to {stage.stageNumber}</span>
                     </button>
                   )
                 )}
@@ -699,10 +685,10 @@ export function MilestonesRoadmapPage() {
         })}
       </div>
 
-      {/* Right Slide-Over Topic Catalog Drawer (Picture 2 Content) */}
+      {/* Slide-Over Right Drawer (Picture 2 Content) */}
       {activeSubtopic && (
         <div className="fixed inset-0 z-50 overflow-hidden">
-          {/* Backdrop Overlay */}
+          {/* Backdrop Overlay with Blur */}
           <div
             onClick={() => setSelectedSubtopicState(null)}
             className="fixed inset-0 bg-slate-950/60 backdrop-blur-xs transition-opacity animate-in fade-in duration-200"
@@ -712,7 +698,7 @@ export function MilestonesRoadmapPage() {
           <div className="fixed inset-y-0 right-0 max-w-full flex pl-10">
             <div className="w-screen max-w-md bg-white shadow-2xl flex flex-col justify-between overflow-hidden animate-in slide-in-from-right duration-300 border-l border-slate-200">
               
-              {/* Drawer Scrollable Body */}
+              {/* Drawer Content */}
               <div className="flex-1 overflow-y-auto p-6 space-y-6">
                 {/* Header */}
                 <div className="flex items-start justify-between gap-4 border-b border-slate-100 pb-5">
@@ -724,14 +710,9 @@ export function MilestonesRoadmapPage() {
                       <span className="inline-block bg-purple-100 text-purple-700 text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full border border-purple-200">
                         TOPIC CATALOG
                       </span>
-                      {activeSubtopic.duration && (
-                        <span className="inline-block bg-slate-100 text-slate-700 text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-slate-200">
-                          ⏱ {activeSubtopic.duration}
-                        </span>
-                      )}
                     </div>
                     <p className="text-xs text-slate-500 font-medium mt-3 leading-relaxed">
-                      {activeSubtopic.description || 'Master fundamental concepts and complete all practical labs and topic evaluations.'}
+                      {activeSubtopic.duration || activeSubtopic.description}
                     </p>
                   </div>
                   <button
@@ -742,10 +723,13 @@ export function MilestonesRoadmapPage() {
                   </button>
                 </div>
 
-                {/* Section Header */}
+                {/* Section Header: LEARNING PATH & Add Module Button */}
                 <div className="flex items-center justify-between text-xs font-bold tracking-wider uppercase text-slate-400">
                   <div className="flex items-center gap-2">
-                    <span>LEARNING PATH & RESOURCES</span>
+                    <span>LEARNING PATH</span>
+                    <span className="text-[10px] text-slate-500 font-normal">
+                      ({activeSubtopic.modules?.length || 0} modules)
+                    </span>
                   </div>
 
                   {viewMode === 'admin' && (
@@ -754,23 +738,23 @@ export function MilestonesRoadmapPage() {
                       className="px-2.5 py-1 rounded-lg bg-purple-50 hover:bg-purple-100 text-purple-700 font-bold text-[11px] flex items-center gap-1 border border-purple-200 transition-colors cursor-pointer"
                     >
                       <Plus className="w-3 h-3" />
-                      <span>+ Add Section</span>
+                      <span>+ Add Module</span>
                     </button>
                   )}
                 </div>
 
-                {/* Module Learning Sections & Standard 3 Resource Cards */}
+                {/* Modules Accordion List */}
                 <div className="space-y-4">
                   {activeSubtopic.modules && activeSubtopic.modules.length > 0 ? (
                     activeSubtopic.modules.map((module) => {
-                      const isExpanded = expandedModule === module.id || activeSubtopic.modules.length === 1 || !expandedModule;
+                      const isExpanded = expandedModule === module.id || activeSubtopic.modules.length === 1;
 
                       return (
                         <div
                           key={module.id}
                           className="rounded-2xl border border-slate-200/90 overflow-hidden shadow-xs"
                         >
-                          {/* Section Header Bar */}
+                          {/* Module Header Bar */}
                           <div
                             className={`w-full p-4 flex items-center justify-between text-left font-bold text-sm transition-all ${
                               isExpanded
@@ -804,14 +788,14 @@ export function MilestonesRoadmapPage() {
                                   </button>
                                   <button
                                     onClick={() => handleOpenModuleModal(module)}
-                                    title="Edit Section"
+                                    title="Edit Module"
                                     className="p-1 hover:bg-white/20 rounded cursor-pointer text-white"
                                   >
                                     <Edit2 className="w-3.5 h-3.5" />
                                   </button>
                                   <button
                                     onClick={() => handleDeleteModule(module.id, module.title)}
-                                    title="Delete Section"
+                                    title="Delete Module"
                                     className="p-1 hover:bg-white/20 rounded cursor-pointer text-rose-200"
                                   >
                                     <Trash2 className="w-3.5 h-3.5" />
@@ -832,7 +816,7 @@ export function MilestonesRoadmapPage() {
                             </div>
                           </div>
 
-                          {/* 3 Resource Cards (LIVE CLASS, PRACTICAL LAB, ASSESSMENT) */}
+                          {/* Module Expanded Content */}
                           {isExpanded && (
                             <div className="p-4 space-y-3 bg-white">
                               {module.items && module.items.length > 0 ? (
@@ -866,14 +850,14 @@ export function MilestonesRoadmapPage() {
                                         <div className="flex items-center gap-0.5 border-l border-slate-200 pl-1">
                                           <button
                                             onClick={() => handleOpenItemModal(module.id, item)}
-                                            title="Edit Resource"
+                                            title="Edit Item"
                                             className="p-1 text-slate-400 hover:text-purple-600 rounded cursor-pointer"
                                           >
                                             <Edit2 className="w-3 h-3" />
                                           </button>
                                           <button
                                             onClick={() => handleDeleteItem(module.id, item.id, item.title)}
-                                            title="Delete Resource"
+                                            title="Delete Item"
                                             className="p-1 text-slate-400 hover:text-rose-600 rounded cursor-pointer"
                                           >
                                             <Trash2 className="w-3 h-3" />
@@ -885,14 +869,14 @@ export function MilestonesRoadmapPage() {
                                 ))
                               ) : (
                                 <div className="text-center py-4 text-xs text-slate-400 space-y-2">
-                                  <p>No learning items added yet.</p>
+                                  <p>No learning items added yet to this module.</p>
                                   {viewMode === 'admin' && (
                                     <button
                                       onClick={() => handleOpenItemModal(module.id, null)}
                                       className="px-3 py-1.5 bg-purple-50 text-purple-700 font-bold rounded-lg hover:bg-purple-100 text-xs inline-flex items-center gap-1 cursor-pointer"
                                     >
                                       <Plus className="w-3.5 h-3.5" />
-                                      <span>Add Resource</span>
+                                      <span>Add Learning Resource</span>
                                     </button>
                                   )}
                                 </div>
@@ -904,7 +888,7 @@ export function MilestonesRoadmapPage() {
                                   className="w-full py-2 border border-dashed border-purple-200 text-purple-700 hover:bg-purple-50 rounded-xl text-xs font-bold flex items-center justify-center gap-1 transition-colors cursor-pointer"
                                 >
                                   <Plus className="w-3.5 h-3.5" />
-                                  <span>+ Add Resource Item</span>
+                                  <span>+ Add Resource to {module.title}</span>
                                 </button>
                               )}
                             </div>
@@ -914,14 +898,14 @@ export function MilestonesRoadmapPage() {
                     })
                   ) : (
                     <div className="text-center py-8 text-slate-400 text-xs bg-slate-50 rounded-2xl border border-dashed border-slate-200 space-y-3">
-                      <p>No module section configured yet.</p>
+                      <p>No modules created for this subtopic yet.</p>
                       {viewMode === 'admin' && (
                         <button
                           onClick={() => handleOpenModuleModal(null)}
                           className="px-4 py-2 bg-purple-600 text-white font-bold rounded-xl hover:bg-purple-700 inline-flex items-center gap-1.5 cursor-pointer shadow-sm"
                         >
                           <Plus className="w-4 h-4" />
-                          <span>Create Learning Section</span>
+                          <span>Create First Module</span>
                         </button>
                       )}
                     </div>
@@ -948,7 +932,7 @@ export function MilestonesRoadmapPage() {
         </div>
       )}
 
-      {/* --- MODAL 1: Create / Edit Stage --- */}
+      {/* --- MODAL 1: Create / Edit Stage Modal --- */}
       {isStageModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs">
           <div className="w-full max-w-md bg-white rounded-3xl p-6 shadow-2xl space-y-5 animate-in zoom-in-95 duration-200">
@@ -964,13 +948,13 @@ export function MilestonesRoadmapPage() {
             <form onSubmit={handleSaveStage} className="space-y-4 text-xs">
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">Stage Badge Number</label>
+                  <label className="block font-bold text-slate-700 mb-1">Stage Number Badge</label>
                   <input
                     type="text"
                     required
                     value={stageFormData.stageNumber}
                     onChange={(e) => setStageFormData({ ...stageFormData, stageNumber: e.target.value })}
-                    placeholder="e.g. STAGE 05"
+                    placeholder="e.g. STAGE 04"
                     className="w-full px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 font-semibold"
                   />
                 </div>
@@ -981,27 +965,27 @@ export function MilestonesRoadmapPage() {
                     required
                     value={stageFormData.phaseTag}
                     onChange={(e) => setStageFormData({ ...stageFormData, phaseTag: e.target.value })}
-                    placeholder="e.g. Phase 5 • Cloud & DevOps"
+                    placeholder="e.g. Phase 4 • Cloud & DevOps"
                     className="w-full px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 font-semibold"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block font-bold text-slate-700 mb-1">Stage Title</label>
+                <label className="block font-bold text-slate-700 mb-1">Stage Headline Title</label>
                 <input
                   type="text"
                   required
                   value={stageFormData.title}
                   onChange={(e) => setStageFormData({ ...stageFormData, title: e.target.value })}
-                  placeholder="e.g. STAGE 05 — Advanced Cloud Architecture"
+                  placeholder="e.g. Stage 4: Microservices & Distributed Architectures"
                   className="w-full px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 font-semibold text-sm"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">Status</label>
+                  <label className="block font-bold text-slate-700 mb-1">Stage Availability Status</label>
                   <select
                     value={stageFormData.statusType}
                     onChange={(e) => {
@@ -1029,14 +1013,14 @@ export function MilestonesRoadmapPage() {
                 </div>
 
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">Lock Mode</label>
+                  <label className="block font-bold text-slate-700 mb-1">Lock Icon Overlay</label>
                   <select
                     value={stageFormData.isLocked ? 'true' : 'false'}
                     onChange={(e) => setStageFormData({ ...stageFormData, isLocked: e.target.value === 'true' })}
                     className="w-full px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 font-semibold bg-white"
                   >
                     <option value="false">Unlocked</option>
-                    <option value="true">Locked</option>
+                    <option value="true">Locked (Requires prerequisite completion)</option>
                   </select>
                 </div>
               </div>
@@ -1061,13 +1045,13 @@ export function MilestonesRoadmapPage() {
         </div>
       )}
 
-      {/* --- MODAL 2: Create / Edit Module --- */}
+      {/* --- MODAL 2: Create / Edit Subtopic Modal --- */}
       {isSubtopicModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs">
           <div className="w-full max-w-md bg-white rounded-3xl p-6 shadow-2xl space-y-5 animate-in zoom-in-95 duration-200">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <h3 className="text-lg font-bold text-slate-900">
-                {editingSubtopic ? 'Edit Module' : 'Add Module to Stage'}
+                {editingSubtopic ? 'Edit Subtopic' : 'Add Subtopic Card'}
               </h3>
               <button onClick={() => setIsSubtopicModalOpen(false)} className="text-slate-400 hover:text-slate-600">
                 <X className="w-5 h-5" />
@@ -1076,36 +1060,35 @@ export function MilestonesRoadmapPage() {
 
             <form onSubmit={handleSaveSubtopic} className="space-y-4 text-xs">
               <div>
-                <label className="block font-bold text-slate-700 mb-1">Module Title</label>
+                <label className="block font-bold text-slate-700 mb-1">Subtopic Title</label>
                 <input
                   type="text"
                   required
                   value={subtopicFormData.title}
                   onChange={(e) => setSubtopicFormData({ ...subtopicFormData, title: e.target.value })}
-                  placeholder="e.g. MOD-11 — Microservices & Event Architecture"
+                  placeholder="e.g. Docker Containers & Multi-stage Builds"
                   className="w-full px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 font-semibold text-sm"
                 />
               </div>
 
               <div>
-                <label className="block font-bold text-slate-700 mb-1">Duration Badge (e.g. 5 hrs, 20 hrs)</label>
+                <label className="block font-bold text-slate-700 mb-1">Card Subtext Note</label>
                 <input
                   type="text"
-                  required
-                  value={subtopicFormData.duration}
-                  onChange={(e) => setSubtopicFormData({ ...subtopicFormData, duration: e.target.value })}
-                  placeholder="e.g. 20 hrs"
-                  className="w-full px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 font-semibold"
+                  value={subtopicFormData.description}
+                  onChange={(e) => setSubtopicFormData({ ...subtopicFormData, description: e.target.value })}
+                  placeholder="e.g. Click to view subtopics"
+                  className="w-full px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 font-medium"
                 />
               </div>
 
               <div>
-                <label className="block font-bold text-slate-700 mb-1">Description Note</label>
+                <label className="block font-bold text-slate-700 mb-1">Topic Overview Description (Drawer Header)</label>
                 <textarea
-                  rows={2}
-                  value={subtopicFormData.description}
-                  onChange={(e) => setSubtopicFormData({ ...subtopicFormData, description: e.target.value })}
-                  placeholder="Module topic coverage and key takeaways"
+                  rows={3}
+                  value={subtopicFormData.duration}
+                  onChange={(e) => setSubtopicFormData({ ...subtopicFormData, duration: e.target.value })}
+                  placeholder="Master containerization fundamentals, Dockerfiles, docker-compose, and environment orchestration."
                   className="w-full px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 font-medium"
                 />
               </div>
@@ -1122,7 +1105,7 @@ export function MilestonesRoadmapPage() {
                   type="submit"
                   className="px-5 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold shadow-md cursor-pointer"
                 >
-                  {editingSubtopic ? 'Save Module' : 'Add Module'}
+                  {editingSubtopic ? 'Save Subtopic' : 'Add Subtopic'}
                 </button>
               </div>
             </form>
@@ -1130,13 +1113,13 @@ export function MilestonesRoadmapPage() {
         </div>
       )}
 
-      {/* --- MODAL 3: Section Modal --- */}
+      {/* --- MODAL 3: Module Modal --- */}
       {isModuleModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs">
           <div className="w-full max-w-sm bg-white rounded-3xl p-6 shadow-2xl space-y-4 animate-in zoom-in-95 duration-200">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <h3 className="text-base font-bold text-slate-900">
-                {editingModule ? 'Edit Section Name' : 'Add Learning Path Section'}
+                {editingModule ? 'Edit Module Name' : 'Create New Learning Path Module'}
               </h3>
               <button onClick={() => setIsModuleModalOpen(false)} className="text-slate-400 hover:text-slate-600">
                 <X className="w-5 h-5" />
@@ -1145,13 +1128,13 @@ export function MilestonesRoadmapPage() {
 
             <form onSubmit={handleSaveModule} className="space-y-4 text-xs">
               <div>
-                <label className="block font-bold text-slate-700 mb-1">Section Title</label>
+                <label className="block font-bold text-slate-700 mb-1">Module Title</label>
                 <input
                   type="text"
                   required
                   value={moduleFormData.title}
                   onChange={(e) => setModuleFormData({ title: e.target.value })}
-                  placeholder="e.g. Core Learning Path"
+                  placeholder="e.g. Variables & Data Types or Docker Networking"
                   className="w-full px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 font-semibold"
                 />
               </div>
@@ -1168,7 +1151,7 @@ export function MilestonesRoadmapPage() {
                   type="submit"
                   className="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold shadow-md cursor-pointer"
                 >
-                  Save Section
+                  Save Module
                 </button>
               </div>
             </form>
@@ -1182,7 +1165,7 @@ export function MilestonesRoadmapPage() {
           <div className="w-full max-w-md bg-white rounded-3xl p-6 shadow-2xl space-y-5 animate-in zoom-in-95 duration-200">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <h3 className="text-base font-bold text-slate-900">
-                {editingItem ? 'Edit Resource Item' : 'Add Resource Item'}
+                {editingItem ? 'Edit Resource Item' : 'Add Resource Item to Module'}
               </h3>
               <button onClick={() => setIsItemModalOpen(false)} className="text-slate-400 hover:text-slate-600">
                 <X className="w-5 h-5" />
@@ -1217,26 +1200,26 @@ export function MilestonesRoadmapPage() {
                     required
                     value={itemFormData.actionText}
                     onChange={(e) => setItemFormData({ ...itemFormData, actionText: e.target.value })}
-                    placeholder="JOIN, VIEW, TAKE"
+                    placeholder="JOIN, VIEW, TAKE, OPEN"
                     className="w-full px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 font-bold uppercase"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block font-bold text-slate-700 mb-1">Resource Title</label>
+                <label className="block font-bold text-slate-700 mb-1">Resource Item Name</label>
                 <input
                   type="text"
                   required
                   value={itemFormData.title}
                   onChange={(e) => setItemFormData({ ...itemFormData, title: e.target.value })}
-                  placeholder="e.g. Git Branching Practice Lab"
+                  placeholder="e.g. Variables Live Workshop or Dockerfile Hands-on Lab"
                   className="w-full px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 font-semibold"
                 />
               </div>
 
               <div>
-                <label className="block font-bold text-slate-700 mb-1">Target Resource URL (Optional)</label>
+                <label className="block font-bold text-slate-700 mb-1">Target Action Link / URL (Optional)</label>
                 <input
                   type="url"
                   value={itemFormData.url}
@@ -1266,12 +1249,12 @@ export function MilestonesRoadmapPage() {
         </div>
       )}
 
-      {/* --- MODAL 5: Banner Overview Modal --- */}
+      {/* --- MODAL 5: Overview Banner Modal --- */}
       {isOverviewModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs">
           <div className="w-full max-w-md bg-white rounded-3xl p-6 shadow-2xl space-y-4 animate-in zoom-in-95 duration-200">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <h3 className="text-lg font-bold text-slate-900">Edit Banner Stats & Overview</h3>
+              <h3 className="text-lg font-bold text-slate-900">Edit Banner Stats & Headline</h3>
               <button onClick={() => setIsOverviewModalOpen(false)} className="text-slate-400 hover:text-slate-600">
                 <X className="w-5 h-5" />
               </button>
@@ -1291,7 +1274,7 @@ export function MilestonesRoadmapPage() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">Completed Modules</label>
+                  <label className="block font-bold text-slate-700 mb-1">Completed Items</label>
                   <input
                     type="number"
                     value={overviewFormData.completedCount}
@@ -1300,7 +1283,7 @@ export function MilestonesRoadmapPage() {
                   />
                 </div>
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">Total Modules</label>
+                  <label className="block font-bold text-slate-700 mb-1">Total Items</label>
                   <input
                     type="number"
                     value={overviewFormData.totalCount}
@@ -1312,11 +1295,11 @@ export function MilestonesRoadmapPage() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">Total Hours</label>
+                  <label className="block font-bold text-slate-700 mb-1">Unlocked Level</label>
                   <input
                     type="number"
-                    value={overviewFormData.totalHours}
-                    onChange={(e) => setOverviewFormData({ ...overviewFormData, totalHours: parseInt(e.target.value) || 163 })}
+                    value={overviewFormData.unlockedLevel}
+                    onChange={(e) => setOverviewFormData({ ...overviewFormData, unlockedLevel: parseInt(e.target.value) || 0 })}
                     className="w-full px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 font-semibold"
                   />
                 </div>
