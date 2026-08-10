@@ -1,3 +1,4 @@
+import React, { useState } from 'react';
 import {
   BookOpen,
   Trophy,
@@ -7,7 +8,6 @@ import {
   ChevronRight,
   ChevronDown,
   Lock,
-  Unlock,
   Video,
   Code,
   FileCheck,
@@ -111,7 +111,7 @@ export function MilestonesRoadmapPage() {
     let IconComp = Video;
     if (iconName === 'Code') IconComp = Code;
     if (iconName === 'FileCheck') IconComp = FileCheck;
-    if (iconName === 'BookText' || iconName === 'Book') IconComp = BookText;
+    if (iconName === 'BookText' || iconName === 'Book' || iconName === 'FileText') IconComp = Book;
 
     return (
       <div className={`p-2 rounded-xl ${iconBg || 'bg-purple-600 text-white'}`}>
@@ -171,33 +171,6 @@ export function MilestonesRoadmapPage() {
       }
       addToast('Milestone stage deleted', 'info');
     }
-  };
-
-  const handleToggleStageLock = (stage) => {
-    const nextLockedState = !stage.isLocked;
-    const nextStatus = nextLockedState ? 'LOCKED' : (stage.status === 'LOCKED' ? 'AVAILABLE' : stage.status);
-    const nextStatusType = nextLockedState ? 'locked' : (stage.statusType === 'locked' ? 'available' : stage.statusType);
-
-    updateStage(stage.id, {
-      isLocked: nextLockedState,
-      status: nextStatus,
-      statusType: nextStatusType
-    });
-
-    if (nextLockedState) {
-      addToast(`🔒 Locked "${stage.title}". Content is now locked for students.`, 'warning');
-    } else {
-      addToast(`🔓 Unlocked "${stage.title}". Students can now access all subtopics.`, 'success');
-    }
-  };
-
-  const handleSubtopicClick = (stage, subtopicId) => {
-    const isLocked = stage.isLocked || stage.statusType === 'locked';
-    if (isLocked && viewMode === 'user') {
-      addToast(`🔒 "${stage.title}" is currently locked. Complete Stage ${parseInt(stage.stageNumber.replace(/\D/g, '')) - 1 || 1} or request admin unlock to access.`, 'error');
-      return;
-    }
-    setSelectedSubtopicState({ stageId: stage.id, subtopicId });
   };
 
   // --- Handlers: Subtopic ---
@@ -583,29 +556,7 @@ export function MilestonesRoadmapPage() {
                     )}
 
                     {viewMode === 'admin' && (
-                      <div className="flex items-center gap-1.5 ml-2 border-l border-slate-200 pl-2">
-                        <button
-                          onClick={() => handleToggleStageLock(stage)}
-                          title={stage.isLocked ? "Unlock Stage for Students" : "Lock Stage for Students"}
-                          className={`px-2.5 py-1.5 rounded-xl font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer border ${
-                            stage.isLocked
-                              ? 'bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border-emerald-300 shadow-2xs'
-                              : 'bg-amber-50 hover:bg-amber-100 text-amber-800 border-amber-300 shadow-2xs'
-                          }`}
-                        >
-                          {stage.isLocked ? (
-                            <>
-                              <Unlock className="w-3.5 h-3.5 text-emerald-600" />
-                              <span>Unlock</span>
-                            </>
-                          ) : (
-                            <>
-                              <Lock className="w-3.5 h-3.5 text-amber-600" />
-                              <span>Lock</span>
-                            </>
-                          )}
-                        </button>
-
+                      <div className="flex items-center gap-1 ml-2 border-l border-slate-200 pl-2">
                         <button
                           onClick={() => handleOpenSubtopicModal(stage.id, null)}
                           title="Add Subtopic to Stage"
@@ -641,7 +592,7 @@ export function MilestonesRoadmapPage() {
                           /* Highlighted Subtopic Button (Matching Picture 1) */
                           <div className="relative flex items-center gap-2">
                             <button
-                              onClick={() => handleSubtopicClick(stage, subtopic.id)}
+                              onClick={() => setSelectedSubtopicState({ stageId: stage.id, subtopicId: subtopic.id })}
                               className="w-full text-left rounded-2xl bg-gradient-to-r from-purple-600 to-violet-600 p-4 text-white shadow-md shadow-purple-600/25 hover:shadow-lg hover:shadow-purple-600/35 hover:scale-[1.005] transition-all flex items-center justify-between group cursor-pointer"
                             >
                               <div className="flex items-center gap-3.5">
@@ -685,7 +636,7 @@ export function MilestonesRoadmapPage() {
                           /* Standard Subtopic Capsule Card */
                           <div className="relative flex items-center gap-2">
                             <button
-                              onClick={() => handleSubtopicClick(stage, subtopic.id)}
+                              onClick={() => setSelectedSubtopicState({ stageId: stage.id, subtopicId: subtopic.id })}
                               className="w-full text-left rounded-2xl bg-slate-100/80 hover:bg-purple-50 hover:border-purple-200 border border-slate-200/80 px-4 py-3 text-slate-800 transition-all flex items-center justify-between group cursor-pointer"
                             >
                               <span className="font-bold text-xs sm:text-sm text-slate-800 group-hover:text-purple-700">
