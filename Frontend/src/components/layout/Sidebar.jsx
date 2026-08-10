@@ -34,9 +34,10 @@ export function Sidebar({ isCollapsed, onToggle, isMobileOpen, onCloseMobile }) 
           { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
           { label: 'Course Management', path: '/courses', icon: BookOpen },
           { label: 'Assessments', path: '/assessments', icon: FileCheck2 },
+          { label: 'Coding Questions', path: '/coding-questions', icon: Code2 },
           { label: 'Projects Portal', path: '/projects', icon: FolderGit2 },
           { label: 'Live Sessions', path: '/live-sessions', icon: Video },
-          { label: 'Recording Library', path: '/library', icon: Code2 },
+          { label: 'Recording Library', path: '/library', icon: Sparkles },
           { label: 'LMS Feed Sync', path: '/student-dashboard', icon: Radio }
         ];
 
@@ -44,10 +45,11 @@ export function Sidebar({ isCollapsed, onToggle, isMobileOpen, onCloseMobile }) 
         return [
           { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
           { label: 'Courses', path: '/courses', icon: BookOpen },
+          { label: 'Coding Questions', path: '/coding-questions', icon: Code2 },
           { label: 'Projects Portal', path: '/projects', icon: FolderGit2 },
           { label: 'Live Sessions', path: '/live-sessions', icon: Video },
           { label: 'Job Portal', path: '/jobs', icon: Briefcase },
-          { label: 'Recording Library', path: '/library', icon: Code2 },
+          { label: 'Recording Library', path: '/library', icon: Sparkles },
           { label: 'LMS Feed Sync', path: '/student-dashboard', icon: Radio }
         ];
 
@@ -57,10 +59,11 @@ export function Sidebar({ isCollapsed, onToggle, isMobileOpen, onCloseMobile }) 
           { label: 'User Directory', path: '/users', icon: Users },
           { label: 'Course Management', path: '/courses', icon: BookOpen },
           { label: 'Assessments', path: '/assessments', icon: FileCheck2 },
+          { label: 'Coding Questions', path: '/coding-questions', icon: Code2 },
           { label: 'Projects Portal', path: '/projects', icon: FolderGit2 },
           { label: 'Live Sessions', path: '/live-sessions', icon: Video },
           { label: 'Job Portal', path: '/jobs', icon: Briefcase },
-          { label: 'Recording Library', path: '/library', icon: Code2 },
+          { label: 'Recording Library', path: '/library', icon: Sparkles },
           { label: 'Placement Prep', path: '/placement', icon: Sparkles },
           { label: 'LMS Feed Sync', path: '/student-dashboard', icon: Radio }
         ];
@@ -73,10 +76,11 @@ export function Sidebar({ isCollapsed, onToggle, isMobileOpen, onCloseMobile }) 
           { label: 'Permission Matrix', path: '/permissions', icon: ShieldCheck },
           { label: 'Course Management', path: '/courses', icon: BookOpen },
           { label: 'Assessments', path: '/assessments', icon: FileCheck2 },
+          { label: 'Coding Questions', path: '/coding-questions', icon: Code2 },
           { label: 'Projects Portal', path: '/projects', icon: FolderGit2 },
           { label: 'Live Sessions', path: '/live-sessions', icon: Video },
           { label: 'Job Portal', path: '/jobs', icon: Briefcase },
-          { label: 'Recording Library', path: '/library', icon: Code2 },
+          { label: 'Recording Library', path: '/library', icon: Sparkles },
           { label: 'Placement Prep', path: '/placement', icon: Sparkles },
           { label: 'LMS Feed Sync', path: '/student-dashboard', icon: Radio }
         ];

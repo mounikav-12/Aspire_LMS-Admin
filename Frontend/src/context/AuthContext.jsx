@@ -2,7 +2,20 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { ROLES, INITIAL_USERS } from '../utils/mockData';
 import { supabase } from '../lib/supabaseClient';
 
-const AuthContext = createContext(null);
+const defaultAuthContext = {
+  currentUser: null,
+  currentRole: null,
+  isSuperAdmin: false,
+  isAuthenticated: false,
+  registeredUsers: [],
+  register: async () => ({ success: false, message: 'Auth provider not ready' }),
+  login: () => ({ success: false, message: 'Auth provider not ready' }),
+  logout: () => {},
+  switchRole: () => {},
+  updateUserProfile: async () => ({ success: false })
+};
+
+const AuthContext = createContext(defaultAuthContext);
 
 export function AuthProvider({ children }) {
   const [currentUser, setCurrentUser] = useState(() => {
@@ -216,8 +229,5 @@ export function AuthProvider({ children }) {
 
 export function useAuth() {
   const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within AuthProvider');
-  }
-  return context;
+  return context || defaultAuthContext;
 }

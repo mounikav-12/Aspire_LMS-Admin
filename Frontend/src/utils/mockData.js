@@ -422,6 +422,7 @@ export const INITIAL_PROJECTS = [
   {
     id: 'proj-101',
     title: 'E-commerce Platform',
+    type: 'Capstone',
     category: 'Full-Stack Web Dev',
     difficulty: 'Advanced',
     description: 'Build a complete e-commerce platform with cart, checkout, and admin dashboard.',
@@ -452,6 +453,7 @@ export const INITIAL_PROJECTS = [
   {
     id: 'proj-102',
     title: 'AI Customer Support Chatbot',
+    type: 'Major',
     category: 'AI & Machine Learning',
     difficulty: 'Intermediate',
     description: 'Develop an intelligent support agent powered by OpenAI GPT-4, vector embeddings, and React.',
@@ -482,6 +484,7 @@ export const INITIAL_PROJECTS = [
   {
     id: 'proj-103',
     title: 'Real-Time Financial Dashboard',
+    type: 'Mini',
     category: 'Frontend Systems',
     difficulty: 'Intermediate',
     description: 'Create a high-performance live trading & analytics dashboard with WebSockets and Tailwind CSS.',
@@ -500,6 +503,7 @@ export const INITIAL_PROJECTS = [
   {
     id: 'proj-104',
     title: 'Microservices Auth & API Gateway',
+    type: 'Major',
     category: 'Backend & DevOps',
     difficulty: 'Advanced',
     description: 'Architect a scalable JWT auth service and rate-limited API Gateway using Redis, Docker, and Express.',
@@ -514,5 +518,88 @@ export const INITIAL_PROJECTS = [
     templateUrl: 'https://github.com/aspire-lms/microservices-starter',
     guidelines: 'Provide docker-compose.yml file to spin up all services seamlessly with one command.',
     submissions: []
+  }
+];
+
+export const INITIAL_CODING_QUESTIONS = [
+  {
+    id: 'cq-101',
+    title: 'Two Sum Algorithm',
+    category: 'Algorithms & Data Structures',
+    difficulty: 'Easy',
+    marks: 20,
+    timeLimitMinutes: 15,
+    language: 'JavaScript',
+    courseId: 'course-101',
+    tags: ['Arrays', 'Hash Map', 'LeetCode'],
+    problemStatement: 'Given an array of integers `nums` and an integer `target`, return indices of the two numbers such that they add up to `target`. You may assume that each input would have exactly one solution.',
+    inputFormat: 'nums = [2, 7, 11, 15], target = 9',
+    outputFormat: '[0, 1]',
+    sampleTestCases: [
+      {
+        input: 'nums = [2, 7, 11, 15], target = 9',
+        output: '[0, 1]',
+        explanation: 'Because nums[0] + nums[1] == 9, we return [0, 1].'
+      },
+      {
+        input: 'nums = [3, 2, 4], target = 6',
+        output: '[1, 2]',
+        explanation: 'Because nums[1] + nums[2] == 6, we return [1, 2].'
+      }
+    ],
+    starterCode: `function twoSum(nums, target) {\n  // Write your solution here\n  return [];\n}`,
+    solutionCode: `function twoSum(nums, target) {\n  const map = new Map();\n  for (let i = 0; i < nums.length; i++) {\n    const diff = target - nums[i];\n    if (map.has(diff)) return [map.get(diff), i];\n    map.set(nums[i], i);\n  }\n  return [];\n}`,
+    createdDate: '2026-08-01',
+    postedBy: 'Admin Console'
+  },
+  {
+    id: 'cq-102',
+    title: 'Custom useLocalStorage React Hook',
+    category: 'React & Frontend Engineering',
+    difficulty: 'Medium',
+    marks: 30,
+    timeLimitMinutes: 25,
+    language: 'TypeScript',
+    courseId: 'course-101',
+    tags: ['React', 'Hooks', 'Web Storage'],
+    problemStatement: 'Create a custom React hook named `useLocalStorage<T>(key: string, initialValue: T)` that persists state to `window.localStorage` and gracefully handles JSON serialization errors.',
+    inputFormat: 'key = "user_theme", initialValue = "dark"',
+    outputFormat: '[storedValue, setValue]',
+    sampleTestCases: [
+      {
+        input: 'useLocalStorage("theme", "light")',
+        output: '["light", Function]',
+        explanation: 'Returns stored value or initial value if key does not exist.'
+      }
+    ],
+    starterCode: `import { useState, useEffect } from 'react';\n\nexport function useLocalStorage<T>(key: string, initialValue: T) {\n  // Implement custom hook\n}`,
+    solutionCode: `import { useState, useEffect } from 'react';\n\nexport function useLocalStorage<T>(key: string, initialValue: T) {\n  const [value, setValue] = useState<T>(() => {\n    try {\n      const item = localStorage.getItem(key);\n      return item ? JSON.parse(item) : initialValue;\n    } catch (e) {\n      return initialValue;\n    }\n  });\n\n  useEffect(() => {\n    try {\n      localStorage.setItem(key, JSON.stringify(value));\n    } catch (e) {}\n  }, [key, value]);\n\n  return [value, setValue] as const;\n}`,
+    createdDate: '2026-08-03',
+    postedBy: 'Alex Rivera'
+  },
+  {
+    id: 'cq-103',
+    title: 'LRU Cache Design',
+    category: 'Backend & System Design',
+    difficulty: 'Hard',
+    marks: 50,
+    timeLimitMinutes: 40,
+    language: 'JavaScript',
+    courseId: 'course-102',
+    tags: ['Data Structures', 'HashMap', 'Doubly LinkedList'],
+    problemStatement: 'Design and implement a data structure for Least Recently Used (LRU) cache. It should support get and put operations in O(1) time complexity.',
+    inputFormat: 'LRUCache(capacity = 2)',
+    outputFormat: 'get(key) returns value or -1',
+    sampleTestCases: [
+      {
+        input: 'put(1, 1), put(2, 2), get(1), put(3, 3), get(2)',
+        output: '1, -1',
+        explanation: 'get(2) returns -1 because key 2 was evicted when key 3 was inserted.'
+      }
+    ],
+    starterCode: `class LRUCache {\n  constructor(capacity) {\n    this.capacity = capacity;\n    this.map = new Map();\n  }\n\n  get(key) {\n    // Implement get\n  }\n\n  put(key, value) {\n    // Implement put\n  }\n}`,
+    solutionCode: `class LRUCache {\n  constructor(capacity) {\n    this.capacity = capacity;\n    this.map = new Map();\n  }\n  get(key) {\n    if (!this.map.has(key)) return -1;\n    const val = this.map.get(key);\n    this.map.delete(key);\n    this.map.set(key, val);\n    return val;\n  }\n  put(key, value) {\n    if (this.map.has(key)) {\n      this.map.delete(key);\n    } else if (this.map.size >= this.capacity) {\n      const firstKey = this.map.keys().next().value;\n      this.map.delete(firstKey);\n    }\n    this.map.set(key, value);\n  }\n}`,
+    createdDate: '2026-08-05',
+    postedBy: 'David Chen'
   }
 ];

@@ -18,6 +18,7 @@ import { PermissionManagementPage } from '../pages/users/PermissionManagementPag
 import { CourseListPage } from '../pages/courses/CourseListPage';
 import { CourseDetailPage } from '../pages/courses/CourseDetailPage';
 import { AssessmentListPage } from '../pages/assessments/AssessmentListPage';
+import { CodingQuestionsPage } from '../pages/coding/CodingQuestionsPage';
 import { ProjectManagementPage } from '../pages/projects/ProjectManagementPage';
 import { LiveSessionListPage } from '../pages/sessions/LiveSessionListPage';
 import { JobPortalPage } from '../pages/jobs/JobPortalPage';
@@ -64,8 +65,9 @@ export function AppRoutes() {
         <Route path="/courses" element={<CourseListPage />} />
         <Route path="/courses/:courseId" element={<CourseDetailPage />} />
 
-        {/* Assessment Routes */}
+        {/* Assessment & Coding Routes */}
         <Route path="/assessments" element={<AssessmentListPage />} />
+        <Route path="/coding-questions" element={<CodingQuestionsPage />} />
 
         {/* Project Routes */}
         <Route path="/projects" element={<ProjectManagementPage />} />

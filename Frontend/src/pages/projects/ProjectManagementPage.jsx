@@ -33,6 +33,7 @@ export function ProjectManagementPage() {
 
   const [activeTab, setActiveTab] = useState('assigned'); // 'assigned' | 'submitted' | 'feedback' | 'templates'
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedType, setSelectedType] = useState('All');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [selectedDifficulty, setSelectedDifficulty] = useState('All');
   const [selectedStatus, setSelectedStatus] = useState('All');
@@ -50,6 +51,7 @@ export function ProjectManagementPage() {
   // Form State
   const [formData, setFormData] = useState({
     title: '',
+    type: 'Mini',
     category: 'Full-Stack Web Dev',
     difficulty: 'Intermediate',
     description: '',
@@ -75,17 +77,19 @@ export function ProjectManagementPage() {
       proj.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
       proj.techStack.some((t) => t.toLowerCase().includes(searchTerm.toLowerCase()));
 
+    const matchesType = selectedType === 'All' || (proj.type || 'Mini') === selectedType;
     const matchesCategory = selectedCategory === 'All' || proj.category === selectedCategory;
     const matchesDifficulty = selectedDifficulty === 'All' || proj.difficulty === selectedDifficulty;
     const matchesStatus = selectedStatus === 'All' || proj.status === selectedStatus;
 
-    return matchesSearch && matchesCategory && matchesDifficulty && matchesStatus;
+    return matchesSearch && matchesType && matchesCategory && matchesDifficulty && matchesStatus;
   });
 
   const handleOpenCreateModal = () => {
     setEditingProject(null);
     setFormData({
       title: '',
+      type: 'Mini',
       category: 'Full-Stack Web Dev',
       difficulty: 'Intermediate',
       description: '',
@@ -101,6 +105,7 @@ export function ProjectManagementPage() {
     setEditingProject(proj);
     setFormData({
       title: proj.title,
+      type: proj.type || 'Mini',
       category: proj.category,
       difficulty: proj.difficulty,
       description: proj.description,
@@ -127,6 +132,7 @@ export function ProjectManagementPage() {
     if (editingProject) {
       await updateProject(editingProject.id, {
         title: formData.title,
+        type: formData.type,
         category: formData.category,
         difficulty: formData.difficulty,
         description: formData.description,
@@ -139,6 +145,7 @@ export function ProjectManagementPage() {
     } else {
       await addProject({
         title: formData.title,
+        type: formData.type,
         category: formData.category,
         difficulty: formData.difficulty,
         description: formData.description,
@@ -179,6 +186,31 @@ export function ProjectManagementPage() {
     );
     addToast(`Saved feedback & grade for ${gradingSubmission.submission.studentName}`, 'success');
     setGradingSubmission(null);
+  };
+
+  // Helper for project type badge
+  const getTypeBadge = (type) => {
+    switch (type) {
+      case 'Capstone':
+        return (
+          <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-purple-100 text-purple-700 border border-purple-200/60">
+            Capstone
+          </span>
+        );
+      case 'Major':
+        return (
+          <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-700 border border-amber-200/60">
+            Major
+          </span>
+        );
+      case 'Mini':
+      default:
+        return (
+          <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-indigo-100 text-indigo-700 border border-indigo-200/60">
+            Mini
+          </span>
+        );
+    }
   };
 
   // Helper for difficulty badge styling matching screenshot
@@ -323,8 +355,19 @@ export function ProjectManagementPage() {
         </div>
 
         {/* Filter & Search */}
-        <div className="flex items-center gap-2.5 w-full sm:w-auto">
-          <div className="relative flex-1 sm:w-64">
+        <div className="flex flex-wrap items-center gap-2.5 w-full sm:w-auto">
+          <Select
+            value={selectedType}
+            onChange={(e) => setSelectedType(e.target.value)}
+            options={[
+              { value: 'All', label: 'All Types' },
+              { value: 'Mini', label: 'Mini' },
+              { value: 'Major', label: 'Major' },
+              { value: 'Capstone', label: 'Capstone' }
+            ]}
+            className="w-32 text-xs"
+          />
+          <div className="relative flex-1 sm:w-56">
             <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type="text"
@@ -346,7 +389,7 @@ export function ProjectManagementPage() {
               className="bg-white rounded-3xl border border-slate-200/80 shadow-2xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300 p-6 flex flex-col justify-between space-y-4"
             >
               <div>
-                {/* Header & Difficulty Tag */}
+                {/* Header & Badges (Type & Difficulty) */}
                 <div className="flex items-start justify-between gap-3 mb-3">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-2xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 flex-shrink-0">
@@ -361,7 +404,10 @@ export function ProjectManagementPage() {
                       </p>
                     </div>
                   </div>
-                  {getDifficultyBadge(proj.difficulty)}
+                  <div className="flex flex-col items-end gap-1">
+                    {getTypeBadge(proj.type || 'Mini')}
+                    {getDifficultyBadge(proj.difficulty)}
+                  </div>
                 </div>
 
                 {/* Description */}
@@ -588,7 +634,18 @@ export function ProjectManagementPage() {
             required
           />
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <Select
+              label="Project Type"
+              value={formData.type}
+              onChange={(e) => setFormData({ ...formData, type: e.target.value })}
+              options={[
+                { value: 'Mini', label: 'Mini' },
+                { value: 'Major', label: 'Major' },
+                { value: 'Capstone', label: 'Capstone' }
+              ]}
+            />
+
             <Select
               label="Track / Category"
               value={formData.category}

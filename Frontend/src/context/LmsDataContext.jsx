@@ -8,6 +8,7 @@ import {
   INITIAL_RECORDINGS,
   INITIAL_PLACEMENT_RESOURCES,
   INITIAL_PROJECTS,
+  INITIAL_CODING_QUESTIONS,
   INITIAL_USERS,
   INITIAL_ROLE_PERMISSIONS,
   MOCK_ACTIVITIES,
@@ -27,6 +28,17 @@ export function LmsDataProvider({ children }) {
   const [recordings, setRecordings] = useState(INITIAL_RECORDINGS);
   const [placementResources, setPlacementResources] = useState(INITIAL_PLACEMENT_RESOURCES);
   const [projects, setProjects] = useState(INITIAL_PROJECTS);
+  const [codingQuestions, setCodingQuestions] = useState(() => {
+    const saved = localStorage.getItem('aspire_lms_coding_questions');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        return INITIAL_CODING_QUESTIONS;
+      }
+    }
+    return INITIAL_CODING_QUESTIONS;
+  });
   const [activities, setActivities] = useState(MOCK_ACTIVITIES);
   const [isSupabaseConnected, setIsSupabaseConnected] = useState(false);
 
@@ -759,6 +771,7 @@ export function LmsDataProvider({ children }) {
       await supabase.from('projects').upsert([{
         id: newProject.id,
         title: newProject.title,
+        type: newProject.type || 'Mini',
         category: newProject.category,
         difficulty: newProject.difficulty,
         description: newProject.description,
@@ -822,6 +835,56 @@ export function LmsDataProvider({ children }) {
     logActivity(`Graded submission ${submissionId} for project ${projectId}`, 'project');
   };
 
+  // --- CODING QUESTIONS BANK ---
+  const addCodingQuestion = async (cqData) => {
+    const newCq = {
+      id: `cq-${Date.now()}`,
+      createdDate: new Date().toISOString().split('T')[0],
+      postedBy: 'Admin Portal',
+      ...cqData
+    };
+    const updated = [newCq, ...codingQuestions];
+    setCodingQuestions(updated);
+    localStorage.setItem('aspire_lms_coding_questions', JSON.stringify(updated));
+    logActivity(`Posted new coding question: "${newCq.title}" (${newCq.difficulty})`, 'coding');
+
+    try {
+      await supabase.from('coding_questions').upsert([{
+        id: newCq.id,
+        title: newCq.title,
+        category: newCq.category,
+        difficulty: newCq.difficulty,
+        marks: newCq.marks,
+        language: newCq.language,
+        problem_statement: newCq.problemStatement,
+        starter_code: newCq.starterCode,
+        solution_code: newCq.solutionCode,
+        created_date: newCq.createdDate
+      }]);
+    } catch (err) {
+      console.warn('Supabase coding question insert notice:', err);
+    }
+  };
+
+  const updateCodingQuestion = async (id, updatedFields) => {
+    setCodingQuestions((prev) => {
+      const updated = prev.map((cq) => (cq.id === id ? { ...cq, ...updatedFields } : cq));
+      localStorage.setItem('aspire_lms_coding_questions', JSON.stringify(updated));
+      return updated;
+    });
+    logActivity(`Updated coding question ID ${id}`, 'coding');
+  };
+
+  const deleteCodingQuestion = async (id) => {
+    const cq = codingQuestions.find((q) => q.id === id);
+    setCodingQuestions((prev) => {
+      const updated = prev.filter((q) => q.id !== id);
+      localStorage.setItem('aspire_lms_coding_questions', JSON.stringify(updated));
+      return updated;
+    });
+    logActivity(`Deleted coding question: "${cq?.title || id}"`, 'coding');
+  };
+
   return (
     <LmsDataContext.Provider
       value={{
@@ -839,6 +902,10 @@ export function LmsDataProvider({ children }) {
         addAssessment,
         updateAssessment,
         deleteAssessment,
+        codingQuestions,
+        addCodingQuestion,
+        updateCodingQuestion,
+        deleteCodingQuestion,
         liveSessions,
         addLiveSession,
         updateLiveSession,
@@ -869,10 +936,41 @@ export function LmsDataProvider({ children }) {
   );
 }
 
+const defaultLmsDataContext = {
+  courses: [],
+  schedules: [],
+  liveSessions: [],
+  jobs: [],
+  recordings: [],
+  projects: [],
+  codingQuestions: [],
+  activities: [],
+  isSupabaseConnected: false,
+  addCourse: async () => {},
+  updateCourse: async () => {},
+  deleteCourse: async () => {},
+  addScheduleTopic: async () => {},
+  updateScheduleTopic: async () => {},
+  deleteScheduleTopic: async () => {},
+  addLiveSession: async () => {},
+  updateLiveSession: async () => {},
+  deleteLiveSession: async () => {},
+  addJob: async () => {},
+  updateJob: async () => {},
+  deleteJob: async () => {},
+  addRecording: async () => {},
+  updateRecording: async () => {},
+  deleteRecording: async () => {},
+  addProject: async () => {},
+  updateProject: async () => {},
+  deleteProject: async () => {},
+  gradeSubmission: async () => {},
+  addCodingQuestion: async () => {},
+  updateCodingQuestion: async () => {},
+  deleteCodingQuestion: async () => {}
+};
+
 export function useLmsData() {
   const context = useContext(LmsDataContext);
-  if (!context) {
-    throw new Error('useLmsData must be used within LmsDataProvider');
-  }
-  return context;
+  return context || defaultLmsDataContext;
 }

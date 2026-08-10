@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { NavLink } from 'react-router-dom';
 import { useLmsData } from '../../context/LmsDataContext';
 import { useToast } from '../../context/ToastContext';
 import { Button } from '../../components/common/Button';
@@ -284,9 +285,16 @@ export function AssessmentListPage() {
             Author MCQ tests, code challenge prompts, and publish graded evaluations for enrolled students.
           </p>
         </div>
-        <Button variant="primary" size="md" icon={Plus} onClick={handleOpenAddModal}>
-          Create Assessment
-        </Button>
+        <div className="flex items-center gap-2.5">
+          <NavLink to="/coding-questions">
+            <Button variant="outline" size="md" icon={Code2} className="border-emerald-200 text-emerald-700 hover:bg-emerald-50 font-bold">
+              Coding Question Bank
+            </Button>
+          </NavLink>
+          <Button variant="primary" size="md" icon={Plus} onClick={handleOpenAddModal}>
+            Create Assessment
+          </Button>
+        </div>
       </div>
 
       {/* Overview Metric Bar */}

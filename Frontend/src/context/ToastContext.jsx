@@ -1,7 +1,12 @@
 import React, { createContext, useContext, useState } from 'react';
 import { CheckCircle2, AlertCircle, Info, X } from 'lucide-react';
 
-const ToastContext = createContext(null);
+const defaultToastContext = {
+  addToast: () => {},
+  removeToast: () => {}
+};
+
+const ToastContext = createContext(defaultToastContext);
 
 export function ToastProvider({ children }) {
   const [toasts, setToasts] = useState([]);
@@ -56,8 +61,5 @@ export function ToastProvider({ children }) {
 
 export function useToast() {
   const context = useContext(ToastContext);
-  if (!context) {
-    throw new Error('useToast must be used within ToastProvider');
-  }
-  return context;
+  return context || defaultToastContext;
 }

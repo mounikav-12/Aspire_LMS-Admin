@@ -95,7 +95,7 @@ export function LoginPage() {
                 label="Email Address"
                 icon={Mail}
                 type="email"
-                placeholder="aspireAdmin@gmail.com"
+                placeholder="name@company.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
