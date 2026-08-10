@@ -606,7 +606,7 @@ export const INITIAL_CODING_QUESTIONS = [
 
 export const INITIAL_MILESTONES = {
   "overview": {
-    "trackTitle": "Fullstack Python + DSA",
+    "trackTitle": "Python Full Stack+ DSA with AI",
     "headline": "Master core engineering fundamentals, advanced AI models, full-stack frameworks, and real-world project deployments.",
     "completedCount": 6,
     "totalCount": 31,

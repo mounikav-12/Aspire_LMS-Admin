@@ -55,6 +55,7 @@ export function MilestonesRoadmapPage() {
   // Selected subtopic for slide-over drawer
   const [selectedSubtopicState, setSelectedSubtopicState] = useState(null); // { stageId, subtopic }
   const [expandedModule, setExpandedModule] = useState(null);
+  const [expandedStageAccordion, setExpandedStageAccordion] = useState({});
 
   const isStageUnlockedForUser = (stageIndex, stage) => {
     if (viewMode === 'admin') return true; // Admin can view everything
@@ -64,6 +65,22 @@ export function MilestonesRoadmapPage() {
     const prevCompleted = prevStage?.status === 'COMPLETED' || prevStage?.statusType === 'completed';
     return prevCompleted;
   };
+
+  // Automatic Real-Time Banner Calculations
+  const autoTotalCount = milestones?.stages?.reduce((acc, stg) => acc + (stg.subtopics?.length || 0), 0) || 31;
+  const autoCompletedCount = milestones?.stages?.reduce((acc, stg) => {
+    if (stg.status === 'COMPLETED' || stg.statusType === 'completed') {
+      return acc + (stg.subtopics?.length || 0);
+    }
+    const doneInStage = stg.subtopics?.filter((sub) => sub.isCompleted || sub.status === 'COMPLETED')?.length || 0;
+    return acc + doneInStage;
+  }, 0) || 0;
+
+  const autoCompletionPercentage = autoTotalCount > 0
+    ? Math.round((autoCompletedCount / autoTotalCount) * 100)
+    : 0;
+
+  const autoUnlockedLevel = milestones?.stages?.filter((stg, idx) => isStageUnlockedForUser(idx, stg))?.length || 1;
 
   const handleSubtopicClick = (stageIndex, stage, subtopic) => {
     const unlocked = isStageUnlockedForUser(stageIndex, stage);
@@ -461,38 +478,38 @@ export function MilestonesRoadmapPage() {
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="inline-flex items-center gap-2 rounded-full bg-white/20 backdrop-blur-md px-3.5 py-1.5 text-xs font-bold uppercase tracking-wider text-purple-100 border border-white/20">
               <BookOpen className="w-4 h-4" />
-              <span>{milestones?.overview?.trackTitle || 'Milestone Curriculum Roadmap'}</span>
+              <span>{milestones?.overview?.trackTitle || 'Python Full Stack+ DSA with AI'}</span>
             </div>
 
             <div className="flex items-center gap-3">
               <div className="inline-flex items-center gap-1.5 rounded-full bg-white/15 backdrop-blur-md px-3 py-1 text-xs font-semibold text-purple-100 border border-white/15">
                 <Trophy className="w-3.5 h-3.5 text-amber-300" />
                 <span>
-                  {milestones?.overview?.completedCount || 4} / {milestones?.overview?.totalCount || 12} Completed
+                  {autoCompletedCount} / {autoTotalCount} Completed
                 </span>
               </div>
               <div className="inline-flex items-center gap-1.5 rounded-full bg-white/15 backdrop-blur-md px-3 py-1 text-xs font-semibold text-purple-100 border border-white/15">
                 <Zap className="w-3.5 h-3.5 text-cyan-300" />
-                <span>Level {milestones?.overview?.unlockedLevel || 3} Unlocked</span>
+                <span>Level {autoUnlockedLevel} Unlocked</span>
               </div>
             </div>
           </div>
 
           {/* Banner Main Headline */}
           <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-white max-w-3xl leading-snug">
-            {milestones?.overview?.headline || 'Master core engineering fundamentals, advanced AI models, and real-world project deployments.'}
+            {milestones?.overview?.headline || 'Master core engineering fundamentals, advanced AI models, full-stack frameworks, and real-world project deployments.'}
           </h2>
 
           {/* Banner Progress Bar */}
           <div className="space-y-2 pt-2">
             <div className="flex items-center justify-between text-xs font-semibold text-purple-100">
               <span>Overall Track Completion</span>
-              <span className="font-bold text-white">{milestones?.overview?.completionPercentage || 45}%</span>
+              <span className="font-bold text-white">{autoCompletionPercentage}%</span>
             </div>
             <div className="h-2.5 w-full overflow-hidden rounded-full bg-white/20 backdrop-blur-sm p-0.5">
               <div
                 className="h-full rounded-full bg-white transition-all duration-500 shadow-sm"
-                style={{ width: `${milestones?.overview?.completionPercentage || 45}%` }}
+                style={{ width: `${autoCompletionPercentage}%` }}
               />
             </div>
           </div>
@@ -773,6 +790,94 @@ export function MilestonesRoadmapPage() {
                         )}
                       </div>
                     ))}
+
+                    {/* Stage Dropdown Accordion for Modules & Resources */}
+                    <div className="mt-4 border-t border-slate-100 pt-3">
+                      <button
+                        onClick={() =>
+                          setExpandedStageAccordion((prev) => ({
+                            ...prev,
+                            [stage.id]: !prev[stage.id]
+                          }))
+                        }
+                        className="w-full flex items-center justify-between text-xs font-bold text-slate-700 bg-slate-100/90 hover:bg-purple-50 hover:text-purple-700 px-4 py-2.5 rounded-2xl border border-slate-200/80 transition-all cursor-pointer"
+                      >
+                        <span className="flex items-center gap-2">
+                          <BookOpen className="w-4 h-4 text-purple-600" />
+                          <span>
+                            {expandedStageAccordion[stage.id]
+                              ? 'Hide Stage Modules & Resources'
+                              : 'Explore All Modules & Resources in Stage'}
+                          </span>
+                        </span>
+                        <ChevronDown
+                          className={`w-4 h-4 transition-transform duration-200 ${
+                            expandedStageAccordion[stage.id] ? 'rotate-180 text-purple-600' : 'text-slate-400'
+                          }`}
+                        />
+                      </button>
+
+                      {expandedStageAccordion[stage.id] && (
+                        <div className="mt-3 space-y-3 pl-2 border-l-2 border-purple-200 animate-in fade-in duration-200">
+                          {stage.subtopics?.map((subtopic) => (
+                            <div key={`exp-${subtopic.id}`} className="bg-slate-50 p-3.5 rounded-2xl border border-slate-200/80 space-y-2">
+                              <div className="flex items-center justify-between">
+                                <span className="font-bold text-xs text-purple-900 flex items-center gap-1.5">
+                                  <span className="h-1.5 w-1.5 rounded-full bg-purple-600" />
+                                  {subtopic.title}
+                                </span>
+                                <button
+                                  onClick={() => handleSubtopicClick(stageIndex, stage, subtopic)}
+                                  className="text-[11px] font-bold text-purple-600 hover:text-purple-800 flex items-center gap-0.5 cursor-pointer"
+                                >
+                                  <span>Open Topic Drawer</span>
+                                  <ChevronRight className="w-3 h-3" />
+                                </button>
+                              </div>
+                              <p className="text-[11px] text-slate-500 font-medium leading-relaxed">
+                                {subtopic.duration}
+                              </p>
+
+                              {/* Subtopic Modules & Resource Cards Inline */}
+                              {subtopic.modules && subtopic.modules.length > 0 && (
+                                <div className="space-y-2 pt-1">
+                                  {subtopic.modules.map((mod) => (
+                                    <div key={`exp-mod-${mod.id}`} className="bg-white p-2.5 rounded-xl border border-slate-200 text-xs">
+                                      <span className="font-bold text-slate-800">{mod.title}</span>
+                                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mt-2">
+                                        {mod.items?.map((item) => (
+                                          <a
+                                            key={`exp-item-${item.id}`}
+                                            href={item.url || '#'}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className={`flex items-center justify-between p-2 rounded-lg border font-medium text-[11px] transition-all ${
+                                              item.type === 'LIVE CLASS'
+                                                ? 'bg-purple-50 text-purple-800 border-purple-200 hover:bg-purple-100'
+                                                : item.type === 'PRACTICAL LAB'
+                                                ? 'bg-amber-50 text-amber-800 border-amber-200 hover:bg-amber-100'
+                                                : 'bg-blue-50 text-blue-800 border-blue-200 hover:bg-blue-100'
+                                            }`}
+                                          >
+                                            <div className="flex items-center gap-1.5 truncate">
+                                              {renderItemIcon(item.iconName, item.iconBg)}
+                                              <span className="truncate">{item.title}</span>
+                                            </div>
+                                            <span className="font-bold text-[10px] uppercase ml-1 flex-shrink-0 px-1.5 py-0.5 rounded bg-white/70">
+                                              {item.actionText} ↗
+                                            </span>
+                                          </a>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 ) : (
                   viewMode === 'admin' && (
