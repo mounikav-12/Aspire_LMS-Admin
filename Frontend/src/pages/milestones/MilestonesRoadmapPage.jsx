@@ -586,87 +586,100 @@ export function MilestonesRoadmapPage() {
                 {/* Subtopic Action Cards */}
                 {stage.subtopics && stage.subtopics.length > 0 ? (
                   <div className="mt-4 space-y-3">
-                    {stage.subtopics.map((subtopic, subtopicIndex) => (
-                      <div key={subtopic.id} className="relative group/sub">
-                        {subtopicIndex === 0 ? (
-                          /* Highlighted Subtopic Button (Matching Picture 1) */
-                          <div className="relative flex items-center gap-2">
-                            <button
-                              onClick={() => setSelectedSubtopicState({ stageId: stage.id, subtopicId: subtopic.id })}
-                              className="w-full text-left rounded-2xl bg-gradient-to-r from-purple-600 to-violet-600 p-4 text-white shadow-md shadow-purple-600/25 hover:shadow-lg hover:shadow-purple-600/35 hover:scale-[1.005] transition-all flex items-center justify-between group cursor-pointer"
-                            >
-                              <div className="flex items-center gap-3.5">
-                                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-white/20 backdrop-blur-md text-white">
-                                  <Clock className="w-4 h-4" />
+                    {stage.subtopics.map((subtopic, subtopicIndex) => {
+                      const isSelected = selectedSubtopicState
+                        ? (selectedSubtopicState.stageId === stage.id && selectedSubtopicState.subtopicId === subtopic.id)
+                        : (stage.id === 'stage-1' && subtopicIndex === 0);
+
+                      return (
+                        <div key={subtopic.id} className="relative group/sub">
+                          {isSelected ? (
+                            /* Highlighted Selected Subtopic Card */
+                            <div className="relative flex items-center gap-2">
+                              <button
+                                onClick={() => setSelectedSubtopicState({ stageId: stage.id, subtopicId: subtopic.id })}
+                                className="w-full text-left rounded-2xl bg-gradient-to-r from-purple-600 to-violet-600 p-4 text-white shadow-md shadow-purple-600/25 hover:shadow-lg hover:shadow-purple-600/35 hover:scale-[1.005] transition-all flex items-center justify-between group cursor-pointer ring-2 ring-purple-500/30"
+                              >
+                                <div className="flex items-center gap-3.5">
+                                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-white/20 backdrop-blur-md text-white">
+                                    <Clock className="w-4 h-4" />
+                                  </div>
+                                  <div>
+                                    <p className="font-bold text-white text-sm sm:text-base leading-tight">
+                                      {subtopic.title}
+                                    </p>
+                                    <p className="text-xs text-purple-100/90 font-medium mt-0.5 line-clamp-1">
+                                      {subtopic.duration || subtopic.description || 'Click to view subtopics'}
+                                    </p>
+                                  </div>
                                 </div>
-                                <div>
-                                  <p className="font-bold text-white text-sm sm:text-base leading-tight">
+                                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/20 group-hover:bg-white group-hover:text-purple-700 transition-all text-white flex-shrink-0 ml-2">
+                                  <ChevronRight className="w-4 h-4" />
+                                </div>
+                              </button>
+
+                              {viewMode === 'admin' && (
+                                <div className="flex items-center gap-1 bg-white/90 p-1.5 rounded-xl border border-purple-200 shadow-sm flex-shrink-0">
+                                  <button
+                                    onClick={() => handleOpenSubtopicModal(stage.id, subtopic)}
+                                    title="Edit Subtopic"
+                                    className="p-1 text-slate-600 hover:text-purple-600 hover:bg-purple-50 rounded-md cursor-pointer"
+                                  >
+                                    <Edit2 className="w-3.5 h-3.5" />
+                                  </button>
+                                  <button
+                                    onClick={() => handleDeleteSubtopic(stage.id, subtopic.id, subtopic.title)}
+                                    title="Delete Subtopic"
+                                    className="p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-md cursor-pointer"
+                                  >
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                  </button>
+                                </div>
+                              )}
+                            </div>
+                          ) : (
+                            /* Standard Interactive Subtopic Card with Rich Hover */
+                            <div className="relative flex items-center gap-2">
+                              <button
+                                onClick={() => setSelectedSubtopicState({ stageId: stage.id, subtopicId: subtopic.id })}
+                                className="w-full text-left rounded-2xl bg-slate-50/90 hover:bg-gradient-to-r hover:from-purple-600 hover:to-violet-600 hover:text-white border border-slate-200/80 px-4 py-3.5 text-slate-800 shadow-xs hover:shadow-md hover:shadow-purple-600/20 hover:scale-[1.005] transition-all duration-200 flex items-center justify-between group cursor-pointer"
+                              >
+                                <div className="flex items-center gap-3">
+                                  <div className="flex h-7 w-7 items-center justify-center rounded-full bg-purple-100 text-purple-600 group-hover:bg-white/20 group-hover:text-white transition-colors">
+                                    <BookOpen className="w-3.5 h-3.5" />
+                                  </div>
+                                  <span className="font-bold text-xs sm:text-sm text-slate-800 group-hover:text-white transition-colors">
                                     {subtopic.title}
-                                  </p>
-                                  <p className="text-xs text-purple-100/90 font-medium mt-0.5">
-                                    {subtopic.description}
-                                  </p>
+                                  </span>
                                 </div>
-                              </div>
-                              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/20 group-hover:bg-white group-hover:text-purple-700 transition-all text-white">
-                                <ChevronRight className="w-4 h-4" />
-                              </div>
-                            </button>
+                                <div className="flex h-7 w-7 items-center justify-center rounded-full bg-slate-200/50 group-hover:bg-white/20 text-slate-400 group-hover:text-white transition-all flex-shrink-0 ml-2">
+                                  <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                                </div>
+                              </button>
 
-                            {viewMode === 'admin' && (
-                              <div className="flex items-center gap-1 bg-white/90 p-1.5 rounded-xl border border-purple-200 shadow-sm flex-shrink-0">
-                                <button
-                                  onClick={() => handleOpenSubtopicModal(stage.id, subtopic)}
-                                  title="Edit Subtopic"
-                                  className="p-1 text-slate-600 hover:text-purple-600 hover:bg-purple-50 rounded-md cursor-pointer"
-                                >
-                                  <Edit2 className="w-3.5 h-3.5" />
-                                </button>
-                                <button
-                                  onClick={() => handleDeleteSubtopic(stage.id, subtopic.id, subtopic.title)}
-                                  title="Delete Subtopic"
-                                  className="p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-md cursor-pointer"
-                                >
-                                  <Trash2 className="w-3.5 h-3.5" />
-                                </button>
-                              </div>
-                            )}
-                          </div>
-                        ) : (
-                          /* Standard Subtopic Capsule Card */
-                          <div className="relative flex items-center gap-2">
-                            <button
-                              onClick={() => setSelectedSubtopicState({ stageId: stage.id, subtopicId: subtopic.id })}
-                              className="w-full text-left rounded-2xl bg-slate-100/80 hover:bg-purple-50 hover:border-purple-200 border border-slate-200/80 px-4 py-3 text-slate-800 transition-all flex items-center justify-between group cursor-pointer"
-                            >
-                              <span className="font-bold text-xs sm:text-sm text-slate-800 group-hover:text-purple-700">
-                                {subtopic.title}
-                              </span>
-                              <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-purple-600 group-hover:translate-x-0.5 transition-all" />
-                            </button>
-
-                            {viewMode === 'admin' && (
-                              <div className="flex items-center gap-1 bg-white p-1.5 rounded-xl border border-slate-200 shadow-sm flex-shrink-0">
-                                <button
-                                  onClick={() => handleOpenSubtopicModal(stage.id, subtopic)}
-                                  title="Edit Subtopic"
-                                  className="p-1 text-slate-600 hover:text-purple-600 hover:bg-purple-50 rounded-md cursor-pointer"
-                                >
-                                  <Edit2 className="w-3.5 h-3.5" />
-                                </button>
-                                <button
-                                  onClick={() => handleDeleteSubtopic(stage.id, subtopic.id, subtopic.title)}
-                                  title="Delete Subtopic"
-                                  className="p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-md cursor-pointer"
-                                >
-                                  <Trash2 className="w-3.5 h-3.5" />
-                                </button>
-                              </div>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    ))}
+                              {viewMode === 'admin' && (
+                                <div className="flex items-center gap-1 bg-white p-1.5 rounded-xl border border-slate-200 shadow-sm flex-shrink-0">
+                                  <button
+                                    onClick={() => handleOpenSubtopicModal(stage.id, subtopic)}
+                                    title="Edit Subtopic"
+                                    className="p-1 text-slate-600 hover:text-purple-600 hover:bg-purple-50 rounded-md cursor-pointer"
+                                  >
+                                    <Edit2 className="w-3.5 h-3.5" />
+                                  </button>
+                                  <button
+                                    onClick={() => handleDeleteSubtopic(stage.id, subtopic.id, subtopic.title)}
+                                    title="Delete Subtopic"
+                                    className="p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-md cursor-pointer"
+                                  >
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                  </button>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
                 ) : (
                   viewMode === 'admin' && (
