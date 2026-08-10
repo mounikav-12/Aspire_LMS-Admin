@@ -34,7 +34,7 @@ export function LmsDataProvider({ children }) {
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        if (parsed && parsed.stages && parsed.stages.length === 4 && parsed.stages[0]?.subtopics?.[0]?.duration?.includes('Git Architecture')) {
+        if (parsed && parsed.stages && parsed.stages.length === 4 && parsed.stages[0]?.subtopics?.[0]?.modules?.length === 2) {
           return parsed;
         }
       } catch (e) {
