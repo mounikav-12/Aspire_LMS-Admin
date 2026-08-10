@@ -35,6 +35,9 @@ export function LmsDataProvider({ children }) {
       try {
         const parsed = JSON.parse(saved);
         if (parsed && parsed.stages && parsed.stages.length === 4 && parsed.stages[0]?.subtopics?.[0]?.modules?.length === 2) {
+          if (parsed.overview) {
+            parsed.overview.trackTitle = "Python full stack + DSA with AI";
+          }
           return parsed;
         }
       } catch (e) {

@@ -55,7 +55,8 @@ export function MilestonesRoadmapPage() {
   // Selected subtopic for slide-over drawer
   const [selectedSubtopicState, setSelectedSubtopicState] = useState(null); // { stageId, subtopic }
   const [expandedModule, setExpandedModule] = useState(null);
-  const [expandedStageAccordion, setExpandedStageAccordion] = useState({ 'stage-1': true });
+  const [expandedStageAccordion, setExpandedStageAccordion] = useState({});
+  const [expandedStages, setExpandedStages] = useState({ 'stage-1': true });
 
   const isStageUnlockedForUser = (stageIndex, stage) => {
     if (viewMode === 'admin') return true; // Admin can view everything
@@ -432,15 +433,9 @@ export function MilestonesRoadmapPage() {
         </div>
       </div>
 
-      {/* Admin Mode Controls Banner Banner */}
+      {/* Admin Mode Controls Banner */}
       {viewMode === 'admin' && (
-        <div className="bg-purple-50 border border-purple-200/80 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-3 text-xs">
-          <div className="flex items-center gap-2 text-purple-950 font-medium">
-            <span className="flex h-2 w-2 rounded-full bg-purple-600 animate-pulse" />
-            <span>
-              <strong>Admin Portal Control Active:</strong> You can add/edit stages, manage subtopics, customize learning paths, and edit resource action links.
-            </span>
-          </div>
+        <div className="bg-purple-50 border border-purple-200/80 rounded-2xl p-4 flex flex-wrap items-center justify-end gap-3 text-xs">
 
           <div className="flex items-center gap-2">
             <button
@@ -457,7 +452,7 @@ export function MilestonesRoadmapPage() {
               className="px-3 py-1.5 rounded-xl bg-white border border-purple-300 text-purple-700 hover:bg-purple-100 font-bold flex items-center gap-1.5 shadow-2xs transition-colors cursor-pointer"
             >
               <Edit2 className="w-3.5 h-3.5" />
-              <span>Edit Banner Stats</span>
+              <span>Edit Banner Headline</span>
             </button>
 
             <button
@@ -465,7 +460,7 @@ export function MilestonesRoadmapPage() {
               className="px-3 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold flex items-center gap-1.5 shadow-md shadow-purple-600/25 transition-all cursor-pointer"
             >
               <Plus className="w-3.5 h-3.5" />
-              <span>+ Add Milestone Stage</span>
+              <span>Add Milestone Stage</span>
             </button>
           </div>
         </div>
@@ -478,7 +473,7 @@ export function MilestonesRoadmapPage() {
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="inline-flex items-center gap-2 rounded-full bg-white/20 backdrop-blur-md px-3.5 py-1.5 text-xs font-bold uppercase tracking-wider text-purple-100 border border-white/20">
               <BookOpen className="w-4 h-4" />
-              <span>{milestones?.overview?.trackTitle || 'Python Full Stack+ DSA with AI'}</span>
+              <span>{milestones?.overview?.trackTitle || 'Python full stack + DSA with AI'}</span>
             </div>
 
             <div className="flex items-center gap-3">
@@ -552,362 +547,230 @@ export function MilestonesRoadmapPage() {
               </div>
 
               {/* Stage Card */}
-              <div
-                className={`flex-1 rounded-3xl border p-5 sm:p-6 transition-all duration-200 shadow-xs ${
-                  isCompleted
-                    ? 'bg-emerald-50/30 border-emerald-200'
-                    : isCurrentInProgress
-                    ? 'bg-white border-slate-200'
-                    : isAvailable
-                    ? 'bg-white border-slate-200'
-                    : 'bg-slate-50/70 border-slate-200/80 opacity-75'
-                }`}
-              >
-                {/* Stage Header Info */}
-                <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
-                  <div className="flex items-center gap-2.5">
-                    <div
-                      className={`flex h-10 w-10 items-center justify-center rounded-2xl ${
-                        isLocked
-                          ? 'bg-slate-200 text-slate-500'
-                          : isCompleted
-                          ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20'
-                          : 'bg-purple-600 text-white shadow-md shadow-purple-600/20'
-                      }`}
-                    >
-                      {isLocked ? <Lock className="w-5 h-5" /> : <Brain className="w-5 h-5" />}
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-[10px] font-black uppercase tracking-wider text-purple-600 bg-purple-50 px-2 py-0.5 rounded-md border border-purple-100">
-                          {stage.stageNumber}
-                        </span>
-                        <span className="text-xs font-semibold text-slate-500">{stage.phaseTag}</span>
+              <div className="flex-1 rounded-3xl border border-purple-200/80 shadow-md shadow-purple-600/10 overflow-hidden transition-all duration-300 bg-white">
+                {/* Main Purple Card Header (Clickable Dropdown Banner) */}
+                <div
+                  onClick={() =>
+                    setExpandedStages((prev) => ({
+                      ...prev,
+                      [stage.id]: prev[stage.id] === undefined ? false : !prev[stage.id]
+                    }))
+                  }
+                  className="bg-gradient-to-r from-purple-700 via-purple-600 to-indigo-700 text-white p-5 sm:p-6 cursor-pointer select-none transition-all hover:brightness-105 group relative overflow-hidden"
+                >
+                  {/* Decorative Glow */}
+                  <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-white/10 rounded-full blur-2xl pointer-events-none" />
+
+                  <div className="flex flex-wrap items-center justify-between gap-4 relative z-10">
+                    <div className="flex items-center gap-3.5">
+                      <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-md text-white shadow-inner flex-shrink-0">
+                        {isLocked ? <Lock className="w-6 h-6" /> : <Brain className="w-6 h-6" />}
                       </div>
-                      <div className="flex flex-wrap items-center gap-2 mt-0.5">
-                        <h3 className="text-base sm:text-lg font-bold text-slate-900">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-[10px] font-black uppercase tracking-wider text-purple-900 bg-purple-100 px-2 py-0.5 rounded-md border border-purple-200 shadow-xs">
+                            {stage.stageNumber}
+                          </span>
+                          <span className="text-xs font-medium text-purple-200">{stage.phaseTag}</span>
+                        </div>
+                        <h3 className="text-lg sm:text-xl font-bold text-white mt-1 leading-snug">
                           {stage.title}
                         </h3>
-                        <button
-                          onClick={() =>
-                            setExpandedStageAccordion((prev) => ({
-                              ...prev,
-                              [stage.id]: !prev[stage.id]
-                            }))
-                          }
-                          className="inline-flex items-center gap-1.5 text-xs font-bold text-purple-700 bg-purple-50 hover:bg-purple-100 border border-purple-200/90 px-3 py-1 rounded-full transition-all cursor-pointer shadow-2xs"
-                          title="Toggle Modules Dropdown"
-                        >
-                          <span>{stage.subtopics?.length || 0} Modules</span>
-                          <ChevronDown
-                            className={`w-3.5 h-3.5 text-purple-600 transition-transform duration-200 ${
-                              expandedStageAccordion[stage.id] ? 'rotate-180' : ''
-                            }`}
-                          />
-                        </button>
+                        <p className="text-xs text-purple-200/90 font-medium mt-1 flex items-center gap-1.5">
+                          <span>{stage.subtopics?.length || 0} Modules Included</span>
+                          <span>•</span>
+                          <span>{expandedStages[stage.id] !== false ? 'Click card to hide modules' : 'Click card to view modules'}</span>
+                        </p>
                       </div>
                     </div>
-                  </div>
 
-                  {/* Status Badge & Admin Edit Controls */}
-                  <div className="flex flex-wrap items-center gap-2">
-                    {isCompleted && (
-                      <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-800">
-                        ✅ COMPLETED
-                      </span>
-                    )}
-                    {isCurrentInProgress && !isCompleted && (
-                      <span className="inline-flex items-center gap-1.5 rounded-full bg-purple-100 px-3 py-1 text-xs font-bold text-purple-700">
-                        <span className="h-2 w-2 rounded-full bg-purple-600 animate-pulse" />
-                        IN PROGRESS
-                      </span>
-                    )}
-                    {isAvailable && !isCompleted && !isCurrentInProgress && (
-                      <span className="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-600">
-                        AVAILABLE
-                      </span>
-                    )}
-                    {isLocked && !isCompleted && (
-                      <span className="inline-flex items-center gap-1 rounded-full bg-slate-200/80 px-3 py-1 text-xs font-bold text-slate-500">
-                        <Lock className="w-3 h-3" />
-                        LOCKED
-                      </span>
-                    )}
-
-                    {viewMode === 'admin' && (
-                      <div className="flex items-center gap-1.5 ml-2 border-l border-slate-200 pl-2">
-                        {/* Admin Lock/Unlock Toggle Button */}
-                        <button
-                          onClick={() => {
-                            toggleStageLock(stage.id);
-                            addToast(stage.isLocked ? `🔓 Stage "${stage.title}" unlocked` : `🔒 Stage "${stage.title}" locked`, 'info');
-                          }}
-                          title={stage.isLocked ? "Click to Unlock Stage" : "Click to Lock Stage"}
-                          className={`px-2.5 py-1 text-xs font-bold rounded-lg border transition-all flex items-center gap-1 cursor-pointer ${
-                            stage.isLocked
-                              ? 'bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100'
-                              : 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'
-                          }`}
-                        >
-                          {stage.isLocked ? <Lock className="w-3 h-3 text-rose-600" /> : <Unlock className="w-3 h-3 text-emerald-600" />}
-                          <span>{stage.isLocked ? 'Locked' : 'Unlocked'}</span>
-                        </button>
-
-                        {/* Admin Status Dropdown Selector */}
-                        <select
-                          value={stage.status || (stage.isLocked ? 'LOCKED' : 'AVAILABLE')}
-                          onChange={(e) => {
-                            updateStageStatus(stage.id, e.target.value);
-                            addToast(`Stage status set to ${e.target.value}`, 'success');
-                          }}
-                          className="text-xs font-bold bg-white border border-slate-200 text-slate-700 rounded-lg px-2 py-1 cursor-pointer hover:border-purple-300 focus:ring-2 focus:ring-purple-500"
-                        >
-                          <option value="IN PROGRESS">⚡ IN PROGRESS</option>
-                          <option value="AVAILABLE">🔓 AVAILABLE</option>
-                          <option value="COMPLETED">✅ COMPLETED</option>
-                          <option value="LOCKED">🔒 LOCKED</option>
-                        </select>
-
-                        <button
-                          onClick={() => handleOpenSubtopicModal(stage.id, null)}
-                          title="Add Subtopic to Stage"
-                          className="p-1.5 text-purple-600 hover:bg-purple-50 rounded-lg transition-colors cursor-pointer"
-                        >
-                          <Plus className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => handleOpenStageModal(stage)}
-                          title="Edit Stage Details"
-                          className="p-1.5 text-slate-500 hover:text-purple-600 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
-                        >
-                          <Edit2 className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => handleDeleteStage(stage.id, stage.title)}
-                          title="Delete Stage"
-                          className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Subtopic Action Cards */}
-                {stage.subtopics && stage.subtopics.length > 0 ? (
-                  <div className="mt-4 space-y-3">
-                    {stage.subtopics.map((subtopic, subtopicIndex) => (
-                      <div key={subtopic.id} className="relative group/sub">
-                        {subtopicIndex === 0 ? (
-                          /* Highlighted Subtopic Button (Matching Picture 1) */
-                          <div className="relative flex items-center gap-2">
-                            <button
-                              onClick={() => handleSubtopicClick(stageIndex, stage, subtopic)}
-                              className={`w-full text-left rounded-2xl p-4 text-white shadow-md transition-all flex items-center justify-between group cursor-pointer ${
-                                isLocked
-                                  ? 'bg-slate-300 opacity-75 shadow-none cursor-not-allowed'
-                                  : 'bg-gradient-to-r from-purple-600 to-violet-600 shadow-purple-600/25 hover:shadow-lg hover:shadow-purple-600/35 hover:scale-[1.005]'
-                              }`}
-                            >
-                              <div className="flex items-center gap-3.5">
-                                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-white/20 backdrop-blur-md text-white">
-                                  {isLocked ? <Lock className="w-4 h-4" /> : <Clock className="w-4 h-4" />}
-                                </div>
-                                <div>
-                                  <p className="font-bold text-white text-sm sm:text-base leading-tight">
-                                    {subtopic.title}
-                                  </p>
-                                  <p className="text-xs text-purple-100/90 font-medium mt-0.5">
-                                    {subtopic.description}
-                                  </p>
-                                </div>
-                              </div>
-                              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/20 group-hover:bg-white group-hover:text-purple-700 transition-all text-white">
-                                {isLocked ? <Lock className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
-                              </div>
-                            </button>
-
-                            {viewMode === 'admin' && (
-                              <div className="flex items-center gap-1 bg-white/90 p-1.5 rounded-xl border border-purple-200 shadow-sm flex-shrink-0">
-                                <button
-                                  onClick={() => {
-                                    toggleSubtopicLock(stage.id, subtopic.id);
-                                    addToast(subtopic.isLocked ? `🔓 Subtopic "${subtopic.title}" unlocked` : `🔒 Subtopic "${subtopic.title}" locked`, 'info');
-                                  }}
-                                  title={subtopic.isLocked ? "Unlock Subtopic" : "Lock Subtopic"}
-                                  className="p-1 text-slate-600 hover:text-purple-600 hover:bg-purple-50 rounded-md cursor-pointer"
-                                >
-                                  {subtopic.isLocked ? <Lock className="w-3.5 h-3.5 text-rose-600" /> : <Unlock className="w-3.5 h-3.5 text-emerald-600" />}
-                                </button>
-                                <button
-                                  onClick={() => handleOpenSubtopicModal(stage.id, subtopic)}
-                                  title="Edit Subtopic"
-                                  className="p-1 text-slate-600 hover:text-purple-600 hover:bg-purple-50 rounded-md cursor-pointer"
-                                >
-                                  <Edit2 className="w-3.5 h-3.5" />
-                                </button>
-                                <button
-                                  onClick={() => handleDeleteSubtopic(stage.id, subtopic.id, subtopic.title)}
-                                  title="Delete Subtopic"
-                                  className="p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-md cursor-pointer"
-                                >
-                                  <Trash2 className="w-3.5 h-3.5" />
-                                </button>
-                              </div>
-                            )}
-                          </div>
-                        ) : (
-                          /* Standard Subtopic Capsule Card */
-                          <div className="relative flex items-center gap-2">
-                            <button
-                              onClick={() => handleSubtopicClick(stageIndex, stage, subtopic)}
-                              className={`w-full text-left rounded-2xl px-4 py-3 text-slate-800 transition-all flex items-center justify-between group cursor-pointer border ${
-                                isLocked
-                                  ? 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed'
-                                  : 'bg-slate-100/80 hover:bg-purple-50 hover:border-purple-200 border-slate-200/80'
-                              }`}
-                            >
-                              <div className="flex items-center gap-2">
-                                {isLocked ? <Lock className="w-3.5 h-3.5 text-slate-400" /> : subtopic.isLocked ? <Lock className="w-3.5 h-3.5 text-amber-600" /> : null}
-                                <span className="font-bold text-xs sm:text-sm text-slate-800 group-hover:text-purple-700">
-                                  {subtopic.title}
-                                </span>
-                              </div>
-                              <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-purple-600 group-hover:translate-x-0.5 transition-all" />
-                            </button>
-
-                            {viewMode === 'admin' && (
-                              <div className="flex items-center gap-1 bg-white p-1.5 rounded-xl border border-slate-200 shadow-sm flex-shrink-0">
-                                <button
-                                  onClick={() => {
-                                    toggleSubtopicLock(stage.id, subtopic.id);
-                                    addToast(subtopic.isLocked ? `🔓 Subtopic "${subtopic.title}" unlocked` : `🔒 Subtopic "${subtopic.title}" locked`, 'info');
-                                  }}
-                                  title={subtopic.isLocked ? "Unlock Subtopic" : "Lock Subtopic"}
-                                  className="p-1 text-slate-600 hover:text-purple-600 hover:bg-purple-50 rounded-md cursor-pointer"
-                                >
-                                  {subtopic.isLocked ? <Lock className="w-3.5 h-3.5 text-rose-600" /> : <Unlock className="w-3.5 h-3.5 text-emerald-600" />}
-                                </button>
-                                <button
-                                  onClick={() => handleOpenSubtopicModal(stage.id, subtopic)}
-                                  title="Edit Subtopic"
-                                  className="p-1 text-slate-600 hover:text-purple-600 hover:bg-purple-50 rounded-md cursor-pointer"
-                                >
-                                  <Edit2 className="w-3.5 h-3.5" />
-                                </button>
-                                <button
-                                  onClick={() => handleDeleteSubtopic(stage.id, subtopic.id, subtopic.title)}
-                                  title="Delete Subtopic"
-                                  className="p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-md cursor-pointer"
-                                >
-                                  <Trash2 className="w-3.5 h-3.5" />
-                                </button>
-                              </div>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    ))}
-
-                    {/* Stage Dropdown Accordion for Modules & Resources */}
-                    <div className="mt-4 border-t border-slate-100 pt-3">
-                      <button
-                        onClick={() =>
-                          setExpandedStageAccordion((prev) => ({
-                            ...prev,
-                            [stage.id]: !prev[stage.id]
-                          }))
-                        }
-                        className="w-full flex items-center justify-between text-xs font-bold text-slate-700 bg-slate-100/90 hover:bg-purple-50 hover:text-purple-700 px-4 py-2.5 rounded-2xl border border-slate-200/80 transition-all cursor-pointer"
-                      >
-                        <span className="flex items-center gap-2">
-                          <BookOpen className="w-4 h-4 text-purple-600" />
-                          <span>
-                            {expandedStageAccordion[stage.id]
-                              ? 'Hide Stage Modules & Resources'
-                              : 'Explore All Modules & Resources in Stage'}
-                          </span>
+                    {/* Right Actions: Status Badges, Admin Controls & Dropdown Arrow */}
+                    <div className="flex flex-wrap items-center gap-2.5" onClick={(e) => e.stopPropagation()}>
+                      {isCompleted && (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-400/20 backdrop-blur-md border border-emerald-300/40 px-3 py-1 text-xs font-bold text-emerald-200">
+                          ✅ COMPLETED
                         </span>
+                      )}
+                      {isCurrentInProgress && !isCompleted && (
+                        <span className="inline-flex items-center gap-1.5 rounded-full bg-purple-400/30 backdrop-blur-md border border-purple-300/40 px-3 py-1 text-xs font-bold text-white">
+                          <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+                          IN PROGRESS
+                        </span>
+                      )}
+                      {isAvailable && !isCompleted && !isCurrentInProgress && (
+                        <span className="inline-flex items-center rounded-full bg-white/20 backdrop-blur-md border border-white/30 px-3 py-1 text-xs font-bold text-white">
+                          AVAILABLE
+                        </span>
+                      )}
+                      {isLocked && !isCompleted && (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-white/20 backdrop-blur-md border border-white/30 px-3 py-1 text-xs font-bold text-slate-200">
+                          <Lock className="w-3 h-3" />
+                          LOCKED
+                        </span>
+                      )}
+
+                      {viewMode === 'admin' && (
+                        <div className="flex items-center gap-1.5 bg-white/10 backdrop-blur-md p-1.5 rounded-xl border border-white/20">
+                          {/* Admin Lock/Unlock Toggle Button */}
+                          <button
+                            onClick={() => {
+                              toggleStageLock(stage.id);
+                              addToast(stage.isLocked ? `🔓 Stage "${stage.title}" unlocked` : `🔒 Stage "${stage.title}" locked`, 'info');
+                            }}
+                            title={stage.isLocked ? "Click to Unlock Stage" : "Click to Lock Stage"}
+                            className={`px-2.5 py-1 text-xs font-bold rounded-lg transition-all flex items-center gap-1 cursor-pointer ${
+                              stage.isLocked
+                                ? 'bg-rose-500/30 text-rose-100 border border-rose-400/40 hover:bg-rose-500/50'
+                                : 'bg-emerald-500/30 text-emerald-100 border border-emerald-400/40 hover:bg-emerald-500/50'
+                            }`}
+                          >
+                            {stage.isLocked ? <Lock className="w-3.5 h-3.5 text-rose-200" /> : <Unlock className="w-3.5 h-3.5 text-emerald-200" />}
+                            <span>{stage.isLocked ? 'Locked' : 'Unlocked'}</span>
+                          </button>
+
+                          {/* Admin Status Dropdown Selector */}
+                          <select
+                            value={stage.status || (stage.isLocked ? 'LOCKED' : 'AVAILABLE')}
+                            onChange={(e) => {
+                              updateStageStatus(stage.id, e.target.value);
+                              addToast(`Stage status set to ${e.target.value}`, 'success');
+                            }}
+                            className="text-xs font-bold bg-purple-950/80 border border-purple-400/40 text-white rounded-lg px-2 py-1 cursor-pointer hover:bg-purple-900 focus:ring-2 focus:ring-purple-300"
+                          >
+                            <option value="IN PROGRESS" className="bg-purple-900 text-white">⚡ IN PROGRESS</option>
+                            <option value="AVAILABLE" className="bg-purple-900 text-white">🔓 AVAILABLE</option>
+                            <option value="COMPLETED" className="bg-purple-900 text-white">✅ COMPLETED</option>
+                            <option value="LOCKED" className="bg-purple-900 text-white">🔒 LOCKED</option>
+                          </select>
+
+                          <button
+                            onClick={() => handleOpenSubtopicModal(stage.id, null)}
+                            title="Add Subtopic to Stage"
+                            className="p-1.5 text-white hover:bg-white/20 rounded-lg transition-colors cursor-pointer"
+                          >
+                            <Plus className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => handleOpenStageModal(stage)}
+                            title="Edit Stage Details"
+                            className="p-1.5 text-white hover:bg-white/20 rounded-lg transition-colors cursor-pointer"
+                          >
+                            <Edit2 className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteStage(stage.id, stage.title)}
+                            title="Delete Stage"
+                            className="p-1.5 text-rose-200 hover:text-white hover:bg-rose-500/30 rounded-lg transition-colors cursor-pointer"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      )}
+
+                      {/* Interactive Chevron Toggle Button */}
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setExpandedStages((prev) => ({
+                            ...prev,
+                            [stage.id]: prev[stage.id] === undefined ? false : !prev[stage.id]
+                          }));
+                        }}
+                        className="flex h-9 w-9 items-center justify-center rounded-full bg-white/20 backdrop-blur-md text-white hover:bg-white hover:text-purple-700 transition-all cursor-pointer shadow-sm ml-1"
+                        title={expandedStages[stage.id] !== false ? "Collapse Modules" : "Expand Modules"}
+                      >
                         <ChevronDown
-                          className={`w-4 h-4 transition-transform duration-200 ${
-                            expandedStageAccordion[stage.id] ? 'rotate-180 text-purple-600' : 'text-slate-400'
+                          className={`w-5 h-5 transition-transform duration-300 ${
+                            expandedStages[stage.id] !== false ? 'rotate-180' : ''
                           }`}
                         />
                       </button>
-
-                      {expandedStageAccordion[stage.id] && (
-                        <div className="mt-3 space-y-3 pl-2 border-l-2 border-purple-200 animate-in fade-in duration-200">
-                          {stage.subtopics?.map((subtopic) => (
-                            <div key={`exp-${subtopic.id}`} className="bg-slate-50 p-3.5 rounded-2xl border border-slate-200/80 space-y-2">
-                              <div className="flex items-center justify-between">
-                                <span className="font-bold text-xs text-purple-900 flex items-center gap-1.5">
-                                  <span className="h-1.5 w-1.5 rounded-full bg-purple-600" />
-                                  {subtopic.title}
-                                </span>
-                                <button
-                                  onClick={() => handleSubtopicClick(stageIndex, stage, subtopic)}
-                                  className="text-[11px] font-bold text-purple-600 hover:text-purple-800 flex items-center gap-0.5 cursor-pointer"
-                                >
-                                  <span>Open Topic Drawer</span>
-                                  <ChevronRight className="w-3 h-3" />
-                                </button>
-                              </div>
-                              <p className="text-[11px] text-slate-500 font-medium leading-relaxed">
-                                {subtopic.duration}
-                              </p>
-
-                              {/* Subtopic Modules & Resource Cards Inline */}
-                              {subtopic.modules && subtopic.modules.length > 0 && (
-                                <div className="space-y-2 pt-1">
-                                  {subtopic.modules.map((mod) => (
-                                    <div key={`exp-mod-${mod.id}`} className="bg-white p-2.5 rounded-xl border border-slate-200 text-xs">
-                                      <span className="font-bold text-slate-800">{mod.title}</span>
-                                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mt-2">
-                                        {mod.items?.map((item) => (
-                                          <a
-                                            key={`exp-item-${item.id}`}
-                                            href={item.url || '#'}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className={`flex items-center justify-between p-2 rounded-lg border font-medium text-[11px] transition-all ${
-                                              item.type === 'LIVE CLASS'
-                                                ? 'bg-purple-50 text-purple-800 border-purple-200 hover:bg-purple-100'
-                                                : item.type === 'PRACTICAL LAB'
-                                                ? 'bg-amber-50 text-amber-800 border-amber-200 hover:bg-amber-100'
-                                                : 'bg-blue-50 text-blue-800 border-blue-200 hover:bg-blue-100'
-                                            }`}
-                                          >
-                                            <div className="flex items-center gap-1.5 truncate">
-                                              {renderItemIcon(item.iconName, item.iconBg)}
-                                              <span className="truncate">{item.title}</span>
-                                            </div>
-                                            <span className="font-bold text-[10px] uppercase ml-1 flex-shrink-0 px-1.5 py-0.5 rounded bg-white/70">
-                                              {item.actionText} ↗
-                                            </span>
-                                          </a>
-                                        ))}
-                                      </div>
-                                    </div>
-                                  ))}
-                                </div>
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                      )}
                     </div>
                   </div>
-                ) : (
-                  viewMode === 'admin' && (
-                    <button
-                      onClick={() => handleOpenSubtopicModal(stage.id, null)}
-                      className="mt-3 w-full border-2 border-dashed border-slate-200 hover:border-purple-400 p-3 rounded-2xl text-xs font-bold text-slate-500 hover:text-purple-600 transition-colors flex items-center justify-center gap-2 cursor-pointer"
-                    >
-                      <Plus className="w-4 h-4" />
-                      <span>Add First Subtopic to {stage.stageNumber}</span>
-                    </button>
-                  )
+                </div>
+
+                {/* Subtopic / Modules Dropdown Content */}
+                {expandedStages[stage.id] !== false && (
+                  <div className="p-4 sm:p-5 bg-slate-50/70 border-t border-slate-200/80 space-y-3 animate-in fade-in slide-in-from-top-2 duration-300">
+                    {stage.subtopics && stage.subtopics.length > 0 ? (
+                      stage.subtopics.map((subtopic, subtopicIndex) => (
+                        <div key={subtopic.id} className="relative group/sub">
+                          <div className="relative flex items-center gap-2">
+                            <button
+                              onClick={() => handleSubtopicClick(stageIndex, stage, subtopic)}
+                              className={`w-full text-left rounded-2xl px-4 py-3.5 transition-all flex items-center justify-between group cursor-pointer border shadow-xs ${
+                                isLocked
+                                  ? 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed'
+                                  : 'bg-white hover:bg-purple-50/80 hover:border-purple-300 border-slate-200/90 text-slate-800'
+                              }`}
+                            >
+                              <div className="flex items-center gap-3">
+                                <div className="flex h-7 w-7 items-center justify-center rounded-xl bg-purple-100 text-purple-700 font-bold text-xs flex-shrink-0">
+                                  {subtopicIndex + 1}
+                                </div>
+                                <div>
+                                  <span className="font-bold text-xs sm:text-sm text-slate-900 group-hover:text-purple-700 block">
+                                    {subtopic.title}
+                                  </span>
+                                  {subtopic.duration && (
+                                    <span className="text-[11px] font-medium text-slate-500 block mt-0.5">
+                                      {subtopic.duration}
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-2 flex-shrink-0">
+                                {subtopic.isLocked && <Lock className="w-3.5 h-3.5 text-amber-600" />}
+                                <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-purple-600 group-hover:translate-x-0.5 transition-all" />
+                              </div>
+                            </button>
+
+                            {viewMode === 'admin' && (
+                              <div className="flex items-center gap-1 bg-white p-1.5 rounded-xl border border-slate-200 shadow-xs flex-shrink-0">
+                                <button
+                                  onClick={() => {
+                                    toggleSubtopicLock(stage.id, subtopic.id);
+                                    addToast(subtopic.isLocked ? `🔓 Subtopic "${subtopic.title}" unlocked` : `🔒 Subtopic "${subtopic.title}" locked`, 'info');
+                                  }}
+                                  title={subtopic.isLocked ? "Unlock Subtopic" : "Lock Subtopic"}
+                                  className="p-1 text-slate-600 hover:text-purple-600 hover:bg-purple-50 rounded-md cursor-pointer"
+                                >
+                                  {subtopic.isLocked ? <Lock className="w-3.5 h-3.5 text-rose-600" /> : <Unlock className="w-3.5 h-3.5 text-emerald-600" />}
+                                </button>
+                                <button
+                                  onClick={() => handleOpenSubtopicModal(stage.id, subtopic)}
+                                  title="Edit Subtopic"
+                                  className="p-1 text-slate-600 hover:text-purple-600 hover:bg-purple-50 rounded-md cursor-pointer"
+                                >
+                                  <Edit2 className="w-3.5 h-3.5" />
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteSubtopic(stage.id, subtopic.id, subtopic.title)}
+                                  title="Delete Subtopic"
+                                  className="p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-md cursor-pointer"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="text-center py-6 text-slate-500 text-xs font-medium">
+                        No modules added to this stage yet.
+                        {viewMode === 'admin' && (
+                          <button
+                            onClick={() => handleOpenSubtopicModal(stage.id, null)}
+                            className="mt-3 block mx-auto border-2 border-dashed border-purple-200 hover:border-purple-400 px-4 py-2 rounded-xl text-xs font-bold text-purple-600 hover:bg-purple-50 transition-colors cursor-pointer"
+                          >
+                            + Add First Module
+                          </button>
+                        )}
+                      </div>
+                    )}
+                  </div>
                 )}
               </div>
             </div>
@@ -1500,7 +1363,7 @@ export function MilestonesRoadmapPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs">
           <div className="w-full max-w-md bg-white rounded-3xl p-6 shadow-2xl space-y-4 animate-in zoom-in-95 duration-200">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <h3 className="text-lg font-bold text-slate-900">Edit Banner Stats & Headline</h3>
+              <h3 className="text-lg font-bold text-slate-900">Edit Banner Headline</h3>
               <button onClick={() => setIsOverviewModalOpen(false)} className="text-slate-400 hover:text-slate-600">
                 <X className="w-5 h-5" />
               </button>
@@ -1510,56 +1373,12 @@ export function MilestonesRoadmapPage() {
               <div>
                 <label className="block font-bold text-slate-700 mb-1">Banner Headline</label>
                 <textarea
-                  rows={2}
+                  rows={3}
                   required
                   value={overviewFormData.headline}
                   onChange={(e) => setOverviewFormData({ ...overviewFormData, headline: e.target.value })}
                   className="w-full px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 font-medium"
                 />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block font-bold text-slate-700 mb-1">Completed Items</label>
-                  <input
-                    type="number"
-                    value={overviewFormData.completedCount}
-                    onChange={(e) => setOverviewFormData({ ...overviewFormData, completedCount: parseInt(e.target.value) || 0 })}
-                    className="w-full px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 font-semibold"
-                  />
-                </div>
-                <div>
-                  <label className="block font-bold text-slate-700 mb-1">Total Items</label>
-                  <input
-                    type="number"
-                    value={overviewFormData.totalCount}
-                    onChange={(e) => setOverviewFormData({ ...overviewFormData, totalCount: parseInt(e.target.value) || 0 })}
-                    className="w-full px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 font-semibold"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block font-bold text-slate-700 mb-1">Unlocked Level</label>
-                  <input
-                    type="number"
-                    value={overviewFormData.unlockedLevel}
-                    onChange={(e) => setOverviewFormData({ ...overviewFormData, unlockedLevel: parseInt(e.target.value) || 0 })}
-                    className="w-full px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 font-semibold"
-                  />
-                </div>
-                <div>
-                  <label className="block font-bold text-slate-700 mb-1">Overall Progress (%)</label>
-                  <input
-                    type="number"
-                    min="0"
-                    max="100"
-                    value={overviewFormData.completionPercentage}
-                    onChange={(e) => setOverviewFormData({ ...overviewFormData, completionPercentage: parseInt(e.target.value) || 0 })}
-                    className="w-full px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 font-semibold"
-                  />
-                </div>
               </div>
 
               <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
