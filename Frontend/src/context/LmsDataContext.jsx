@@ -44,6 +44,19 @@ export function LmsDataProvider({ children }) {
   useEffect(() => {
     try {
       localStorage.setItem('aspire_lms_milestones', JSON.stringify(milestones));
+      // Sync to Supabase PostgreSQL database
+      if (milestones && milestones.stages) {
+        supabase
+          .from('milestones_data')
+          .upsert({
+            id: 'default',
+            overview: milestones.overview || {},
+            stages: milestones.stages || [],
+            updated_at: new Date().toISOString()
+          })
+          .then(() => {})
+          .catch((e) => console.warn('Supabase milestones sync error:', e));
+      }
     } catch (e) {}
   }, [milestones]);
   const [codingQuestions, setCodingQuestions] = useState(() => {
@@ -182,6 +195,18 @@ export function LmsDataProvider({ children }) {
           snippet: p.snippet || '',
           linkUrl: p.link_url || p.linkUrl || ''
         })));
+      }
+
+      // 8. Fetch Milestones Roadmap Data
+      const { data: milestonesData, error: milestonesErr } = await supabase.from('milestones_data').select('*');
+      if (!milestonesErr && milestonesData && milestonesData.length > 0) {
+        const defaultRow = milestonesData.find(m => m.id === 'default') || milestonesData[0];
+        if (defaultRow && defaultRow.stages) {
+          setMilestones({
+            overview: defaultRow.overview || INITIAL_MILESTONES.overview,
+            stages: defaultRow.stages || INITIAL_MILESTONES.stages
+          });
+        }
       }
     } catch (err) {
       console.warn('Supabase initial fetch using fallback mock data:', err);

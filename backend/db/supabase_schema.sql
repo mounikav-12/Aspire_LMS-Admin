@@ -146,6 +146,14 @@ CREATE TABLE IF NOT EXISTS public.audit_activities (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- 11. MILESTONES ROADMAP TABLE
+CREATE TABLE IF NOT EXISTS public.milestones_data (
+  id VARCHAR(100) PRIMARY KEY DEFAULT 'default',
+  overview JSONB NOT NULL DEFAULT '{}'::jsonb,
+  stages JSONB NOT NULL DEFAULT '[]'::jsonb,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
 -- ROW LEVEL SECURITY (RLS) POLICIES
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.role_permissions ENABLE ROW LEVEL SECURITY;
@@ -157,6 +165,7 @@ ALTER TABLE public.jobs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.recordings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.placement_resources ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.audit_activities ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.milestones_data ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "Public Read Profiles" ON public.profiles FOR SELECT USING (true);
 CREATE POLICY "Public Write Profiles" ON public.profiles FOR ALL USING (true);
@@ -187,6 +196,9 @@ CREATE POLICY "Public Write Placement" ON public.placement_resources FOR ALL USI
 
 CREATE POLICY "Public Read Audit" ON public.audit_activities FOR SELECT USING (true);
 CREATE POLICY "Public Write Audit" ON public.audit_activities FOR ALL USING (true);
+
+CREATE POLICY "Public Read Milestones Data" ON public.milestones_data FOR SELECT USING (true);
+CREATE POLICY "Public Write Milestones Data" ON public.milestones_data FOR ALL USING (true);
 
 -- INITIAL SEED DATA
 INSERT INTO public.profiles (id, name, email, role, original_role, department, status, joined_date, phone, avatar) VALUES
