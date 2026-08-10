@@ -523,7 +523,7 @@ export function MilestonesRoadmapPage() {
           return (
             <div key={stage.id} className="relative flex items-start gap-4 sm:gap-6 group">
               {/* Timeline Node Icon Column & Connecting Line */}
-              <div className="relative flex flex-col items-center flex-shrink-0 self-stretch">
+              <div className="relative flex-shrink-0">
                 <div
                   className={`relative z-10 flex h-9 w-9 items-center justify-center rounded-full border-2 transition-all shadow-sm ${
                     isCompleted
@@ -542,9 +542,9 @@ export function MilestonesRoadmapPage() {
                   )}
                 </div>
 
-                {/* Vertical Segment Line connecting to next stage icon (Only rendered for stages before the last one) */}
+                {/* Vertical Line extending from this icon through the 32px gap into the next stage icon */}
                 {stageIndex < (milestones?.stages?.length || 0) - 1 && (
-                  <div className="w-0.5 bg-purple-300 flex-1 my-1 pointer-events-none" />
+                  <div className="absolute top-4 left-1/2 -translate-x-1/2 w-0.5 h-[calc(100%+2rem)] bg-purple-300/80 z-0 pointer-events-none" />
                 )}
               </div>
 
