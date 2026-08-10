@@ -55,7 +55,7 @@ export function MilestonesRoadmapPage() {
   // Selected subtopic for slide-over drawer
   const [selectedSubtopicState, setSelectedSubtopicState] = useState(null); // { stageId, subtopic }
   const [expandedModule, setExpandedModule] = useState(null);
-  const [expandedStageAccordion, setExpandedStageAccordion] = useState({});
+  const [expandedStageAccordion, setExpandedStageAccordion] = useState({ 'stage-1': true });
 
   const isStageUnlockedForUser = (stageIndex, stage) => {
     if (viewMode === 'admin') return true; // Admin can view everything
@@ -584,9 +584,28 @@ export function MilestonesRoadmapPage() {
                         </span>
                         <span className="text-xs font-semibold text-slate-500">{stage.phaseTag}</span>
                       </div>
-                      <h3 className="text-base sm:text-lg font-bold text-slate-900 mt-0.5">
-                        {stage.title}
-                      </h3>
+                      <div className="flex flex-wrap items-center gap-2 mt-0.5">
+                        <h3 className="text-base sm:text-lg font-bold text-slate-900">
+                          {stage.title}
+                        </h3>
+                        <button
+                          onClick={() =>
+                            setExpandedStageAccordion((prev) => ({
+                              ...prev,
+                              [stage.id]: !prev[stage.id]
+                            }))
+                          }
+                          className="inline-flex items-center gap-1.5 text-xs font-bold text-purple-700 bg-purple-50 hover:bg-purple-100 border border-purple-200/90 px-3 py-1 rounded-full transition-all cursor-pointer shadow-2xs"
+                          title="Toggle Modules Dropdown"
+                        >
+                          <span>{stage.subtopics?.length || 0} Modules</span>
+                          <ChevronDown
+                            className={`w-3.5 h-3.5 text-purple-600 transition-transform duration-200 ${
+                              expandedStageAccordion[stage.id] ? 'rotate-180' : ''
+                            }`}
+                          />
+                        </button>
+                      </div>
                     </div>
                   </div>
 
