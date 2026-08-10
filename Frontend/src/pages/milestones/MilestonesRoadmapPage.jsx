@@ -8,6 +8,7 @@ import {
   ChevronRight,
   ChevronDown,
   Lock,
+  Unlock,
   Video,
   Code,
   FileCheck,
@@ -31,12 +32,16 @@ export function MilestonesRoadmapPage() {
     milestones,
     addStage,
     updateStage,
+    toggleStageLock,
+    updateStageStatus,
     deleteStage,
     addSubtopic,
     updateSubtopic,
+    toggleSubtopicLock,
     deleteSubtopic,
     addModule,
     updateModule,
+    toggleModuleLock,
     deleteModule,
     addLearningItem,
     updateLearningItem,
@@ -50,6 +55,29 @@ export function MilestonesRoadmapPage() {
   // Selected subtopic for slide-over drawer
   const [selectedSubtopicState, setSelectedSubtopicState] = useState(null); // { stageId, subtopic }
   const [expandedModule, setExpandedModule] = useState(null);
+
+  const isStageUnlockedForUser = (stageIndex, stage) => {
+    if (viewMode === 'admin') return true; // Admin can view everything
+    if (stage.isLocked || stage.statusType === 'locked' || stage.status === 'LOCKED') return false;
+    if (stageIndex === 0) return true; // Stage 1 unlocked initially
+    const prevStage = milestones?.stages?.[stageIndex - 1];
+    const prevCompleted = prevStage?.status === 'COMPLETED' || prevStage?.statusType === 'completed';
+    return prevCompleted;
+  };
+
+  const handleSubtopicClick = (stageIndex, stage, subtopic) => {
+    const unlocked = isStageUnlockedForUser(stageIndex, stage);
+    if (!unlocked) {
+      const prevStageName = milestones?.stages?.[stageIndex - 1]?.title || 'previous stage';
+      addToast(`🔒 Stage is locked! Complete ${prevStageName} first to unlock.`, 'warning');
+      return;
+    }
+    if (subtopic.isLocked && viewMode !== 'admin') {
+      addToast(`🔒 Subtopic "${subtopic.title}" has been locked by admin.`, 'warning');
+      return;
+    }
+    setSelectedSubtopicState({ stageId: stage.id, subtopicId: subtopic.id });
+  };
 
   // Modal States
   const [isStageModalOpen, setIsStageModalOpen] = useState(false);
@@ -476,17 +504,21 @@ export function MilestonesRoadmapPage() {
         {/* Timeline Vertical Line */}
         <div className="absolute left-3.5 sm:left-4 top-6 bottom-6 w-0.5 bg-slate-200" />
 
-        {milestones?.stages?.map((stage) => {
-          const isCurrentInProgress = stage.statusType === 'in-progress';
-          const isAvailable = stage.statusType === 'available';
-          const isLocked = stage.statusType === 'locked' || stage.isLocked;
+        {milestones?.stages?.map((stage, stageIndex) => {
+          const unlockedForUser = isStageUnlockedForUser(stageIndex, stage);
+          const isCurrentInProgress = stage.statusType === 'in-progress' || stage.status === 'IN PROGRESS';
+          const isCompleted = stage.statusType === 'completed' || stage.status === 'COMPLETED';
+          const isAvailable = (stage.statusType === 'available' || stage.status === 'AVAILABLE') && unlockedForUser;
+          const isLocked = !unlockedForUser || stage.statusType === 'locked' || stage.status === 'LOCKED' || stage.isLocked;
 
           return (
             <div key={stage.id} className="relative flex items-start gap-4 sm:gap-6 group">
               {/* Timeline Node Circle */}
               <div
                 className={`relative z-10 flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-full border-2 transition-all ${
-                  isCurrentInProgress
+                  isCompleted
+                    ? 'border-emerald-600 bg-emerald-600 text-white'
+                    : isCurrentInProgress
                     ? 'border-purple-600 bg-white text-purple-600 ring-4 ring-purple-100'
                     : isAvailable
                     ? 'border-purple-400 bg-white text-purple-500'
@@ -505,7 +537,9 @@ export function MilestonesRoadmapPage() {
               {/* Stage Card */}
               <div
                 className={`flex-1 rounded-3xl border p-5 sm:p-6 transition-all duration-200 shadow-xs ${
-                  isCurrentInProgress
+                  isCompleted
+                    ? 'bg-emerald-50/30 border-emerald-200'
+                    : isCurrentInProgress
                     ? 'bg-white border-slate-200'
                     : isAvailable
                     ? 'bg-white border-slate-200'
@@ -517,7 +551,11 @@ export function MilestonesRoadmapPage() {
                   <div className="flex items-center gap-2.5">
                     <div
                       className={`flex h-10 w-10 items-center justify-center rounded-2xl ${
-                        isLocked ? 'bg-slate-200 text-slate-500' : 'bg-purple-600 text-white shadow-md shadow-purple-600/20'
+                        isLocked
+                          ? 'bg-slate-200 text-slate-500'
+                          : isCompleted
+                          ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20'
+                          : 'bg-purple-600 text-white shadow-md shadow-purple-600/20'
                       }`}
                     >
                       {isLocked ? <Lock className="w-5 h-5" /> : <Brain className="w-5 h-5" />}
@@ -536,19 +574,24 @@ export function MilestonesRoadmapPage() {
                   </div>
 
                   {/* Status Badge & Admin Edit Controls */}
-                  <div className="flex items-center gap-2">
-                    {isCurrentInProgress && (
+                  <div className="flex flex-wrap items-center gap-2">
+                    {isCompleted && (
+                      <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-800">
+                        ✅ COMPLETED
+                      </span>
+                    )}
+                    {isCurrentInProgress && !isCompleted && (
                       <span className="inline-flex items-center gap-1.5 rounded-full bg-purple-100 px-3 py-1 text-xs font-bold text-purple-700">
                         <span className="h-2 w-2 rounded-full bg-purple-600 animate-pulse" />
                         IN PROGRESS
                       </span>
                     )}
-                    {isAvailable && (
+                    {isAvailable && !isCompleted && !isCurrentInProgress && (
                       <span className="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-600">
                         AVAILABLE
                       </span>
                     )}
-                    {isLocked && (
+                    {isLocked && !isCompleted && (
                       <span className="inline-flex items-center gap-1 rounded-full bg-slate-200/80 px-3 py-1 text-xs font-bold text-slate-500">
                         <Lock className="w-3 h-3" />
                         LOCKED
@@ -556,7 +599,39 @@ export function MilestonesRoadmapPage() {
                     )}
 
                     {viewMode === 'admin' && (
-                      <div className="flex items-center gap-1 ml-2 border-l border-slate-200 pl-2">
+                      <div className="flex items-center gap-1.5 ml-2 border-l border-slate-200 pl-2">
+                        {/* Admin Lock/Unlock Toggle Button */}
+                        <button
+                          onClick={() => {
+                            toggleStageLock(stage.id);
+                            addToast(stage.isLocked ? `🔓 Stage "${stage.title}" unlocked` : `🔒 Stage "${stage.title}" locked`, 'info');
+                          }}
+                          title={stage.isLocked ? "Click to Unlock Stage" : "Click to Lock Stage"}
+                          className={`px-2.5 py-1 text-xs font-bold rounded-lg border transition-all flex items-center gap-1 cursor-pointer ${
+                            stage.isLocked
+                              ? 'bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100'
+                              : 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'
+                          }`}
+                        >
+                          {stage.isLocked ? <Lock className="w-3 h-3 text-rose-600" /> : <Unlock className="w-3 h-3 text-emerald-600" />}
+                          <span>{stage.isLocked ? 'Locked' : 'Unlocked'}</span>
+                        </button>
+
+                        {/* Admin Status Dropdown Selector */}
+                        <select
+                          value={stage.status || (stage.isLocked ? 'LOCKED' : 'AVAILABLE')}
+                          onChange={(e) => {
+                            updateStageStatus(stage.id, e.target.value);
+                            addToast(`Stage status set to ${e.target.value}`, 'success');
+                          }}
+                          className="text-xs font-bold bg-white border border-slate-200 text-slate-700 rounded-lg px-2 py-1 cursor-pointer hover:border-purple-300 focus:ring-2 focus:ring-purple-500"
+                        >
+                          <option value="IN PROGRESS">⚡ IN PROGRESS</option>
+                          <option value="AVAILABLE">🔓 AVAILABLE</option>
+                          <option value="COMPLETED">✅ COMPLETED</option>
+                          <option value="LOCKED">🔒 LOCKED</option>
+                        </select>
+
                         <button
                           onClick={() => handleOpenSubtopicModal(stage.id, null)}
                           title="Add Subtopic to Stage"
@@ -592,12 +667,16 @@ export function MilestonesRoadmapPage() {
                           /* Highlighted Subtopic Button (Matching Picture 1) */
                           <div className="relative flex items-center gap-2">
                             <button
-                              onClick={() => setSelectedSubtopicState({ stageId: stage.id, subtopicId: subtopic.id })}
-                              className="w-full text-left rounded-2xl bg-gradient-to-r from-purple-600 to-violet-600 p-4 text-white shadow-md shadow-purple-600/25 hover:shadow-lg hover:shadow-purple-600/35 hover:scale-[1.005] transition-all flex items-center justify-between group cursor-pointer"
+                              onClick={() => handleSubtopicClick(stageIndex, stage, subtopic)}
+                              className={`w-full text-left rounded-2xl p-4 text-white shadow-md transition-all flex items-center justify-between group cursor-pointer ${
+                                isLocked
+                                  ? 'bg-slate-300 opacity-75 shadow-none cursor-not-allowed'
+                                  : 'bg-gradient-to-r from-purple-600 to-violet-600 shadow-purple-600/25 hover:shadow-lg hover:shadow-purple-600/35 hover:scale-[1.005]'
+                              }`}
                             >
                               <div className="flex items-center gap-3.5">
                                 <div className="flex h-9 w-9 items-center justify-center rounded-full bg-white/20 backdrop-blur-md text-white">
-                                  <Clock className="w-4 h-4" />
+                                  {isLocked ? <Lock className="w-4 h-4" /> : <Clock className="w-4 h-4" />}
                                 </div>
                                 <div>
                                   <p className="font-bold text-white text-sm sm:text-base leading-tight">
@@ -609,12 +688,22 @@ export function MilestonesRoadmapPage() {
                                 </div>
                               </div>
                               <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/20 group-hover:bg-white group-hover:text-purple-700 transition-all text-white">
-                                <ChevronRight className="w-4 h-4" />
+                                {isLocked ? <Lock className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
                               </div>
                             </button>
 
                             {viewMode === 'admin' && (
                               <div className="flex items-center gap-1 bg-white/90 p-1.5 rounded-xl border border-purple-200 shadow-sm flex-shrink-0">
+                                <button
+                                  onClick={() => {
+                                    toggleSubtopicLock(stage.id, subtopic.id);
+                                    addToast(subtopic.isLocked ? `🔓 Subtopic "${subtopic.title}" unlocked` : `🔒 Subtopic "${subtopic.title}" locked`, 'info');
+                                  }}
+                                  title={subtopic.isLocked ? "Unlock Subtopic" : "Lock Subtopic"}
+                                  className="p-1 text-slate-600 hover:text-purple-600 hover:bg-purple-50 rounded-md cursor-pointer"
+                                >
+                                  {subtopic.isLocked ? <Lock className="w-3.5 h-3.5 text-rose-600" /> : <Unlock className="w-3.5 h-3.5 text-emerald-600" />}
+                                </button>
                                 <button
                                   onClick={() => handleOpenSubtopicModal(stage.id, subtopic)}
                                   title="Edit Subtopic"
@@ -636,17 +725,34 @@ export function MilestonesRoadmapPage() {
                           /* Standard Subtopic Capsule Card */
                           <div className="relative flex items-center gap-2">
                             <button
-                              onClick={() => setSelectedSubtopicState({ stageId: stage.id, subtopicId: subtopic.id })}
-                              className="w-full text-left rounded-2xl bg-slate-100/80 hover:bg-purple-50 hover:border-purple-200 border border-slate-200/80 px-4 py-3 text-slate-800 transition-all flex items-center justify-between group cursor-pointer"
+                              onClick={() => handleSubtopicClick(stageIndex, stage, subtopic)}
+                              className={`w-full text-left rounded-2xl px-4 py-3 text-slate-800 transition-all flex items-center justify-between group cursor-pointer border ${
+                                isLocked
+                                  ? 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed'
+                                  : 'bg-slate-100/80 hover:bg-purple-50 hover:border-purple-200 border-slate-200/80'
+                              }`}
                             >
-                              <span className="font-bold text-xs sm:text-sm text-slate-800 group-hover:text-purple-700">
-                                {subtopic.title}
-                              </span>
+                              <div className="flex items-center gap-2">
+                                {isLocked ? <Lock className="w-3.5 h-3.5 text-slate-400" /> : subtopic.isLocked ? <Lock className="w-3.5 h-3.5 text-amber-600" /> : null}
+                                <span className="font-bold text-xs sm:text-sm text-slate-800 group-hover:text-purple-700">
+                                  {subtopic.title}
+                                </span>
+                              </div>
                               <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-purple-600 group-hover:translate-x-0.5 transition-all" />
                             </button>
 
                             {viewMode === 'admin' && (
                               <div className="flex items-center gap-1 bg-white p-1.5 rounded-xl border border-slate-200 shadow-sm flex-shrink-0">
+                                <button
+                                  onClick={() => {
+                                    toggleSubtopicLock(stage.id, subtopic.id);
+                                    addToast(subtopic.isLocked ? `🔓 Subtopic "${subtopic.title}" unlocked` : `🔒 Subtopic "${subtopic.title}" locked`, 'info');
+                                  }}
+                                  title={subtopic.isLocked ? "Unlock Subtopic" : "Lock Subtopic"}
+                                  className="p-1 text-slate-600 hover:text-purple-600 hover:bg-purple-50 rounded-md cursor-pointer"
+                                >
+                                  {subtopic.isLocked ? <Lock className="w-3.5 h-3.5 text-rose-600" /> : <Unlock className="w-3.5 h-3.5 text-emerald-600" />}
+                                </button>
                                 <button
                                   onClick={() => handleOpenSubtopicModal(stage.id, subtopic)}
                                   title="Edit Subtopic"
@@ -774,11 +880,27 @@ export function MilestonesRoadmapPage() {
                                 {module.title.charAt(0).toUpperCase()}
                               </span>
                               <span>{module.title}</span>
+                              {module.isLocked && (
+                                <span className="text-[10px] bg-rose-100 text-rose-700 font-bold px-2 py-0.5 rounded-full border border-rose-200 flex items-center gap-1">
+                                  <Lock className="w-3 h-3" />
+                                  Locked
+                                </span>
+                              )}
                             </div>
 
                             <div className="flex items-center gap-2">
                               {viewMode === 'admin' && (
                                 <div className="flex items-center gap-1 border-r border-white/20 pr-2 mr-1">
+                                  <button
+                                    onClick={() => {
+                                      toggleModuleLock(activeSubtopic.stageId, activeSubtopic.id, module.id);
+                                      addToast(module.isLocked ? `🔓 Module "${module.title}" unlocked` : `🔒 Module "${module.title}" locked`, 'info');
+                                    }}
+                                    title={module.isLocked ? "Unlock Module" : "Lock Module"}
+                                    className="p-1 hover:bg-white/20 rounded cursor-pointer text-white"
+                                  >
+                                    {module.isLocked ? <Lock className="w-3.5 h-3.5 text-rose-200" /> : <Unlock className="w-3.5 h-3.5 text-emerald-200" />}
+                                  </button>
                                   <button
                                     onClick={() => handleOpenItemModal(module.id, null)}
                                     title="Add Resource Item"

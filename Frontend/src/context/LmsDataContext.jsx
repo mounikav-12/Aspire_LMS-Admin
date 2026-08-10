@@ -958,6 +958,88 @@ export function LmsDataProvider({ children }) {
     }));
   };
 
+  const toggleStageLock = (stageId) => {
+    setMilestones((prev) => ({
+      ...prev,
+      stages: prev.stages.map((stg) => {
+        if (stg.id !== stageId) return stg;
+        const currentlyLocked = stg.isLocked || stg.statusType === 'locked';
+        const newIsLocked = !currentlyLocked;
+        return {
+          ...stg,
+          isLocked: newIsLocked,
+          statusType: newIsLocked ? 'locked' : 'available',
+          status: newIsLocked ? 'LOCKED' : 'AVAILABLE'
+        };
+      })
+    }));
+  };
+
+  const updateStageStatus = (stageId, newStatus) => {
+    setMilestones((prev) => ({
+      ...prev,
+      stages: prev.stages.map((stg) => {
+        if (stg.id !== stageId) return stg;
+        let statusType = 'available';
+        let isLocked = false;
+        if (newStatus === 'COMPLETED') {
+          statusType = 'completed';
+        } else if (newStatus === 'IN PROGRESS') {
+          statusType = 'in-progress';
+        } else if (newStatus === 'LOCKED') {
+          statusType = 'locked';
+          isLocked = true;
+        } else {
+          statusType = 'available';
+        }
+        return {
+          ...stg,
+          status: newStatus,
+          statusType,
+          isLocked
+        };
+      })
+    }));
+  };
+
+  const toggleSubtopicLock = (stageId, subtopicId) => {
+    setMilestones((prev) => ({
+      ...prev,
+      stages: prev.stages.map((stg) => {
+        if (stg.id !== stageId) return stg;
+        return {
+          ...stg,
+          subtopics: stg.subtopics.map((sub) => {
+            if (sub.id !== subtopicId) return sub;
+            return { ...sub, isLocked: !sub.isLocked };
+          })
+        };
+      })
+    }));
+  };
+
+  const toggleModuleLock = (stageId, subtopicId, moduleId) => {
+    setMilestones((prev) => ({
+      ...prev,
+      stages: prev.stages.map((stg) => {
+        if (stg.id !== stageId) return stg;
+        return {
+          ...stg,
+          subtopics: stg.subtopics.map((sub) => {
+            if (sub.id !== subtopicId) return sub;
+            return {
+              ...sub,
+              modules: sub.modules.map((mod) => {
+                if (mod.id !== moduleId) return mod;
+                return { ...mod, isLocked: !mod.isLocked };
+              })
+            };
+          })
+        };
+      })
+    }));
+  };
+
   const deleteStage = (stageId) => {
     setMilestones((prev) => ({
       ...prev,
@@ -1215,12 +1297,16 @@ export function LmsDataProvider({ children }) {
         milestones,
         addStage,
         updateStage,
+        toggleStageLock,
+        updateStageStatus,
         deleteStage,
         addSubtopic,
         updateSubtopic,
+        toggleSubtopicLock,
         deleteSubtopic,
         addModule,
         updateModule,
+        toggleModuleLock,
         deleteModule,
         addLearningItem,
         updateLearningItem,
