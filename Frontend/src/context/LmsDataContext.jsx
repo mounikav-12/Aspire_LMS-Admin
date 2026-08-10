@@ -33,7 +33,10 @@ export function LmsDataProvider({ children }) {
     const saved = localStorage.getItem('aspire_lms_milestones');
     if (saved) {
       try {
-        return JSON.parse(saved);
+        const parsed = JSON.parse(saved);
+        if (parsed && parsed.stages && parsed.stages.length === 4 && parsed.stages[0]?.subtopics?.[0]?.duration?.includes('Git Architecture')) {
+          return parsed;
+        }
       } catch (e) {
         return INITIAL_MILESTONES;
       }

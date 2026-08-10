@@ -606,7 +606,7 @@ export const INITIAL_CODING_QUESTIONS = [
 
 export const INITIAL_MILESTONES = {
   overview: {
-    trackTitle: 'Milestone Curriculum Roadmap',
+    trackTitle: 'Fullstack Python + DSA',
     headline: 'Master core engineering fundamentals, advanced AI models, full-stack frameworks, and real-world project deployments.',
     completedCount: 6,
     totalCount: 31,
@@ -627,12 +627,12 @@ export const INITIAL_MILESTONES = {
           id: 'git-github',
           title: 'Git & GitHub Version Control',
           description: 'Click to view subtopics',
-          duration: 'Master Git commits, branching strategies, pull requests, merge conflict resolution, and GitHub Actions workflows.',
+          duration: 'Git Architecture, Commands (init, add, commit, push, pull), Branching Strategy, Merge Conflicts, GitHub Pull Requests & Collaboration',
           modulesCount: 1,
           modules: [
             {
               id: 'mod-git-1',
-              title: 'Git Core Concepts & Branching',
+              title: 'Git Architecture & Commands',
               items: [
                 {
                   id: 'git-item-1',
@@ -675,12 +675,12 @@ export const INITIAL_MILESTONES = {
           id: 'html5-web-arch',
           title: 'HTML5 & Web Architecture',
           description: 'Click to view subtopics',
-          duration: 'Semantic HTML5, DOM structure, browser rendering pipeline, web accessibility (a11y), and SEO best practices.',
+          duration: 'Web Architecture, Client-Server Model, HTML5 Document Structure, Semantic Elements, Forms, Input Types, Validation, Tables, Media Tags',
           modulesCount: 1,
           modules: [
             {
               id: 'mod-html-1',
-              title: 'Semantic HTML5 & Accessibility',
+              title: 'Semantic HTML5 & Architecture',
               items: [
                 {
                   id: 'html-item-1',
@@ -712,7 +712,7 @@ export const INITIAL_MILESTONES = {
           id: 'css3-box-model',
           title: 'CSS3 Fundamentals & Box Model',
           description: 'Click to view subtopics',
-          duration: 'CSS selectors, box model, margins, padding, borders, typography, position property, and specificity rules.',
+          duration: 'CSS Syntax, Selectors (Element, Class, ID, Pseudo), Box Model (Margin, Padding, Border, Content), Colors, Typography, Backgrounds',
           modulesCount: 1,
           modules: [
             {
@@ -749,7 +749,7 @@ export const INITIAL_MILESTONES = {
           id: 'advanced-css-responsive',
           title: 'Advanced CSS Layouts & Responsive Design',
           description: 'Click to view subtopics',
-          duration: 'Flexbox, CSS Grid, media queries, mobile-first design, CSS custom properties, and animations.',
+          duration: 'Flexbox Architecture, CSS Grid System, Positioning (Relative, Absolute, Fixed, Sticky), Media Queries, Responsive UI Patterns',
           modulesCount: 1,
           modules: [
             {
@@ -786,12 +786,12 @@ export const INITIAL_MILESTONES = {
           id: 'bootstrap-5',
           title: 'Bootstrap 5 Framework',
           description: 'Click to view subtopics',
-          duration: 'Bootstrap 5 grid system, component library, utility classes, forms, modals, and customization.',
+          duration: 'Bootstrap Grid System, Responsive Utilities, Components (Navbar, Modals, Cards, Forms), Customizing Bootstrap',
           modulesCount: 1,
           modules: [
             {
               id: 'mod-bs-1',
-              title: 'Bootstrap Components & Utility Classes',
+              title: 'Bootstrap Components & Utilities',
               items: [
                 {
                   id: 'bs-item-1',
@@ -812,12 +812,12 @@ export const INITIAL_MILESTONES = {
           id: 'js-essentials',
           title: 'JavaScript Essentials & Control Flow',
           description: 'Click to view subtopics',
-          duration: 'Variables, data types, type coercion, operators, conditional logic, loops, and debugging techniques.',
+          duration: 'Variables (var, let, const), Data Types, Operators, Conditional Statements (if-else, switch), Loops (for, while, forEach)',
           modulesCount: 1,
           modules: [
             {
               id: 'mod-js-1',
-              title: 'JS Basics & Control Statements',
+              title: 'JS Syntax & Control Flow',
               items: [
                 {
                   id: 'js-item-1',
@@ -849,12 +849,12 @@ export const INITIAL_MILESTONES = {
           id: 'js-functions-objects',
           title: 'JavaScript Functions, Objects & Arrays',
           description: 'Click to view subtopics',
-          duration: 'Function expressions, arrow functions, scope, closures, object manipulation, and array methods (map, filter, reduce).',
+          duration: 'Function Declarations, Expressions, Arrow Functions, Array Methods (map, filter, reduce), Object Manipulation, Higher-Order Functions',
           modulesCount: 1,
           modules: [
             {
               id: 'mod-js-2',
-              title: 'Arrays, Objects & Functional Methods',
+              title: 'Functions & Data Structures',
               items: [
                 {
                   id: 'jsfn-item-1',
@@ -875,12 +875,12 @@ export const INITIAL_MILESTONES = {
           id: 'dom-events',
           title: 'DOM Manipulation & Event Handling',
           description: 'Click to view subtopics',
-          duration: 'Document Object Model, element selection, event listeners, bubbling, delegation, and dynamic UI updates.',
+          duration: 'Selecting Elements, Modifying DOM, Event Listeners, Form Validation, Event Bubbling & Delegation, Dynamic HTML Creation',
           modulesCount: 1,
           modules: [
             {
               id: 'mod-dom-1',
-              title: 'DOM Tree & Event Propagation',
+              title: 'DOM Manipulation & Events',
               items: [
                 {
                   id: 'dom-item-1',
@@ -901,12 +901,12 @@ export const INITIAL_MILESTONES = {
           id: 'es6-async-js',
           title: 'Modern ES6+ & Asynchronous JS',
           description: 'Click to view subtopics',
-          duration: 'Destructuring, spread/rest, Promises, async/await, Fetch API, and Event Loop internals.',
+          duration: 'Destructuring, Spread/Rest Operators, Modules, Promises, Async/Await, Fetch API, Handling JSON Data',
           modulesCount: 1,
           modules: [
             {
               id: 'mod-es6-1',
-              title: 'Promises & Async/Await',
+              title: 'Modern ES6 & Async Flow',
               items: [
                 {
                   id: 'es6-item-1',
@@ -949,12 +949,12 @@ export const INITIAL_MILESTONES = {
           id: 'py-fundamentals',
           title: 'Python Programming Fundamentals',
           description: 'Click to view subtopics',
-          duration: 'Python syntax, variables, data structures (lists, tuples, dicts, sets), control flow, and functions.',
+          duration: 'Python Setup, Variables, Data Types, Control Flow, Functions, Variable Scope, Built-in Data Structures (Lists, Tuples, Sets, Dicts)',
           modulesCount: 1,
           modules: [
             {
               id: 'mod-py-1',
-              title: 'Variables & Data Structures',
+              title: 'Python Setup & Data Structures',
               items: [
                 {
                   id: 'py-item-1',
@@ -975,12 +975,12 @@ export const INITIAL_MILESTONES = {
           id: 'py-advanced-exceptions',
           title: 'Advanced Python & Exception Handling',
           description: 'Click to view subtopics',
-          duration: 'Decorators, generators, context managers, list comprehensions, try-except blocks, and custom errors.',
+          duration: 'Decorators, Generators, Iterators, File I/O, Error Handling (try-except-finally), Context Managers, Custom Exceptions',
           modulesCount: 1,
           modules: [
             {
               id: 'mod-pyadv-1',
-              title: 'Decorators & Error Handling',
+              title: 'Decorators & Context Managers',
               items: [
                 {
                   id: 'pyadv-item-1',
@@ -1001,12 +1001,12 @@ export const INITIAL_MILESTONES = {
           id: 'py-oop',
           title: 'Object-Oriented Programming (OOP)',
           description: 'Click to view subtopics',
-          duration: 'Classes, objects, inheritance, polymorphism, encapsulation, abstraction, and magic methods in Python.',
+          duration: 'Classes, Objects, Constructors (__init__), Inheritance, Polymorphism, Encapsulation, Abstraction, Dunder Methods',
           modulesCount: 1,
           modules: [
             {
               id: 'mod-oop-1',
-              title: 'Classes & Inheritance',
+              title: 'Classes, Inheritance & Dunder Methods',
               items: [
                 {
                   id: 'oop-item-1',
@@ -1027,12 +1027,12 @@ export const INITIAL_MILESTONES = {
           id: 'sql-mysql',
           title: 'SQL & Relational Databases (MySQL)',
           description: 'Click to view subtopics',
-          duration: 'RDBMS concepts, DDL/DML queries, SELECT filters, JOINs, group by, indexing, and MySQL workbench.',
+          duration: 'RDBMS Concepts, SQL DDL (CREATE, ALTER), DML (INSERT, UPDATE, DELETE), Select Queries, Filtering, Aggregations, GROUP BY',
           modulesCount: 1,
           modules: [
             {
               id: 'mod-sql-1',
-              title: 'SQL Queries & Table Design',
+              title: 'SQL DDL/DML & Aggregations',
               items: [
                 {
                   id: 'sql-item-1',
@@ -1053,12 +1053,12 @@ export const INITIAL_MILESTONES = {
           id: 'adv-sql-postgres',
           title: 'Advanced SQL & PostgreSQL Integration',
           description: 'Click to view subtopics',
-          duration: 'Subqueries, window functions, CTEs, transactions, ACID properties, and PostgreSQL features.',
+          duration: 'SQL Joins (Inner, Left, Right, Full), Subqueries, Indexing, Transactions (ACID), Foreign Keys, PostgreSQL Setup & Commands',
           modulesCount: 1,
           modules: [
             {
               id: 'mod-pg-1',
-              title: 'PostgreSQL & Window Functions',
+              title: 'SQL Joins & PostgreSQL Transactions',
               items: [
                 {
                   id: 'pg-item-1',
@@ -1079,12 +1079,12 @@ export const INITIAL_MILESTONES = {
           id: 'django-setup-arch',
           title: 'Django Framework Setup & Architecture',
           description: 'Click to view subtopics',
-          duration: 'MVT (Model-View-Template) pattern, Django project initialization, settings configuration, and URLs routing.',
+          duration: 'MVT Architecture, Creating Django Projects/Apps, Directory Structure, Settings Configuration, Request-Response Lifecycle, Views & Routing',
           modulesCount: 1,
           modules: [
             {
               id: 'mod-dj-1',
-              title: 'Django Project & MVT Basics',
+              title: 'Django MVT Architecture & Routing',
               items: [
                 {
                   id: 'dj-item-1',
@@ -1105,12 +1105,12 @@ export const INITIAL_MILESTONES = {
           id: 'django-templates-static',
           title: 'Django Templates & Static Files Setup',
           description: 'Click to view subtopics',
-          duration: 'Template inheritance, DTL tags & filters, static files collection, and dynamic HTML rendering.',
+          duration: 'Django Template Language (DTL), Filters, Tags, Template Inheritance, Handling Static Files & Media Uploads',
           modulesCount: 1,
           modules: [
             {
               id: 'mod-djt-1',
-              title: 'Django Templates Engine',
+              title: 'Django Template Language & Media',
               items: [
                 {
                   id: 'djt-item-1',
@@ -1131,12 +1131,12 @@ export const INITIAL_MILESTONES = {
           id: 'django-models-orm',
           title: 'Django Models & Database ORM',
           description: 'Click to view subtopics',
-          duration: 'Django ORM, model fields, foreign keys, many-to-many relationships, database migrations, and QuerySets.',
+          duration: 'Model Fields, Relationships (OneToOne, ForeignKey, ManyToMany), Django ORM Queries, Migrations Management, Admin Interface Customization',
           modulesCount: 1,
           modules: [
             {
               id: 'mod-orm-1',
-              title: 'Django ORM & QuerySets',
+              title: 'Django ORM & Admin Customization',
               items: [
                 {
                   id: 'orm-item-1',
@@ -1157,12 +1157,12 @@ export const INITIAL_MILESTONES = {
           id: 'django-forms-auth',
           title: 'Django Forms, Authentication & Auth',
           description: 'Click to view subtopics',
-          duration: 'Django ModelForms, CSRF protection, built-in user auth system, permissions, and custom user models.',
+          duration: 'Django Forms, ModelForms, CSRF Protection, User Authentication System (Login, Logout, Register), Permission Management',
           modulesCount: 1,
           modules: [
             {
               id: 'mod-djauth-1',
-              title: 'Authentication & Forms Security',
+              title: 'Django Auth & CSRF Protection',
               items: [
                 {
                   id: 'djauth-item-1',
@@ -1183,12 +1183,12 @@ export const INITIAL_MILESTONES = {
           id: 'drf-core',
           title: 'Django REST Framework (DRF) Core',
           description: 'Click to view subtopics',
-          duration: 'RESTful API principles, DRF serializers, APIView, Generic views, status codes, and response formats.',
+          duration: 'REST API Architecture, DRF Setup, Serializers, ModelSerializers, Function & Class-Based Views (APIView, Generic Views)',
           modulesCount: 1,
           modules: [
             {
               id: 'mod-drf-1',
-              title: 'Serializers & API Views',
+              title: 'DRF Serializers & API Views',
               items: [
                 {
                   id: 'drf-item-1',
@@ -1209,12 +1209,12 @@ export const INITIAL_MILESTONES = {
           id: 'drf-advanced',
           title: 'DRF Advanced: ViewSets, JWT Auth & Testing',
           description: 'Click to view subtopics',
-          duration: 'ModelViewSets, Routers, JWT authentication (SimpleJWT), API throttling, filtering, and pytest integration.',
+          duration: 'ViewSets, Routers, JWT Authentication (SimpleJWT), Permissions, Filtering, Pagination, API Testing with Postman & pytest',
           modulesCount: 1,
           modules: [
             {
               id: 'mod-drfadv-1',
-              title: 'ViewSets & JWT Security',
+              title: 'ViewSets & JWT Token Authentication',
               items: [
                 {
                   id: 'drfadv-item-1',
@@ -1235,12 +1235,12 @@ export const INITIAL_MILESTONES = {
           id: 'redis-aws-s3',
           title: 'Redis Caching & AWS S3 Cloud Storage',
           description: 'Click to view subtopics',
-          duration: 'Redis in-memory caching, django-redis, AWS S3 bucket configuration, and django-storages media upload.',
+          duration: 'Redis Installation, Caching Django Views/Queries, File Uploads, Cloud Storage Integration (AWS S3 / Cloudinary)',
           modulesCount: 1,
           modules: [
             {
               id: 'mod-cloud-1',
-              title: 'Caching & Cloud Media Storage',
+              title: 'Redis Cache & Cloud Storage',
               items: [
                 {
                   id: 'cloud-item-1',
@@ -1261,12 +1261,12 @@ export const INITIAL_MILESTONES = {
           id: 'dsa-python-1',
           title: 'Data Structures using Python - Part 1',
           description: 'Click to view subtopics',
-          duration: 'Big-O notation, Time & Space complexity, Arrays, Linked Lists, Stacks, Queues, and Hash Tables.',
+          duration: 'Arrays, Matrix Operations, Linked Lists (Singly & Doubly), Stacks & Queues, Time & Space Complexity (Big-O Notation)',
           modulesCount: 1,
           modules: [
             {
               id: 'mod-dsa1-1',
-              title: 'Linear Data Structures',
+              title: 'Linear DSA & Big-O Complexity',
               items: [
                 {
                   id: 'dsa1-item-1',
@@ -1287,12 +1287,12 @@ export const INITIAL_MILESTONES = {
           id: 'dsa-python-2',
           title: 'Data Structures & Algorithms - Part 2',
           description: 'Click to view subtopics',
-          duration: 'Binary Trees, BST, Graphs (BFS/DFS), Recursion, Backtracking, Dynamic Programming, and Greedy Algorithms.',
+          duration: 'Trees (Binary Trees, BST Traversals), Recursion, Searching (Linear, Binary Search), Sorting Algorithms (Bubble, Quick, Merge Sort)',
           modulesCount: 1,
           modules: [
             {
               id: 'mod-dsa2-1',
-              title: 'Trees, Graphs & Dynamic Programming',
+              title: 'Non-Linear DSA & Searching/Sorting',
               items: [
                 {
                   id: 'dsa2-item-1',
@@ -1324,12 +1324,12 @@ export const INITIAL_MILESTONES = {
           id: 'ai-prompt-llm',
           title: 'Introduction to AI, Prompt Engineering & LLMs',
           description: 'Click to view subtopics',
-          duration: 'AI paradigms, Large Language Models (LLMs), OpenAI API, zero-shot/few-shot prompting, and tokenization.',
+          duration: 'What is AI/ML/DL/LLM, Generative AI Ecosystem, Google Gemini & OpenAI API Setup, Prompt Engineering Strategies & Few-Shot Prompting',
           modulesCount: 1,
           modules: [
             {
               id: 'mod-ai-1',
-              title: 'LLM Architectures & Prompt Engineering',
+              title: 'Generative AI & Prompt Strategies',
               items: [
                 {
                   id: 'ai-item-1',
@@ -1350,12 +1350,12 @@ export const INITIAL_MILESTONES = {
           id: 'ai-python-langchain',
           title: 'AI Integration with Python & LangChain',
           description: 'Click to view subtopics',
-          duration: 'LangChain framework, vector databases (ChromaDB / Pinecone), RAG (Retrieval-Augmented Generation), and AI Agents.',
+          duration: 'LangChain Framework Basics, Prompt Templates, Chains, Integrating OpenAI/Gemini APIs in Django Backend, Building Chatbots',
           modulesCount: 1,
           modules: [
             {
               id: 'mod-lang-1',
-              title: 'LangChain RAG Pipelines & Vector DBs',
+              title: 'LangChain & Vector DB Integration',
               items: [
                 {
                   id: 'lang-item-1',
@@ -1376,12 +1376,12 @@ export const INITIAL_MILESTONES = {
           id: 'docker-cloud-deploy',
           title: 'Docker Containerization & Cloud Deployment',
           description: 'Click to view subtopics',
-          duration: 'Dockerfiles, docker-compose, container networking, production deployment on Render / AWS EC2 / Vercel.',
+          duration: 'Docker Concepts, Dockerfile, Containerizing Django & Apps, Docker Compose, Deploying Full Stack App to Cloud (Render/AWS/Vercel)',
           modulesCount: 1,
           modules: [
             {
               id: 'mod-dock-1',
-              title: 'Docker & Cloud Deployment',
+              title: 'Docker Containerization & Cloud',
               items: [
                 {
                   id: 'dock-item-1',
@@ -1413,12 +1413,12 @@ export const INITIAL_MILESTONES = {
           id: 'sys-design-arch',
           title: 'System Design & Software Architecture',
           description: 'Click to view subtopics',
-          duration: 'High-Level Design (HLD), Low-Level Design (LLD), load balancing, microservices, and database sharding.',
+          duration: 'System Design Fundamentals, High-Level vs Low-Level Design, Load Balancing, Database Sharding, Caching Strategies, Scalable Web Architecture',
           modulesCount: 1,
           modules: [
             {
               id: 'mod-sd-1',
-              title: 'Scalable System Architecture',
+              title: 'System Design & HLD/LLD',
               items: [
                 {
                   id: 'sd-item-1',
@@ -1439,12 +1439,12 @@ export const INITIAL_MILESTONES = {
           id: 'capstone-review-1',
           title: 'Capstone Project Mentoring & Review - 1',
           description: 'Click to view subtopics',
-          duration: 'Industry Capstone proposal presentation, architecture design feedback, schema approval, and milestone 1 evaluation.',
+          duration: 'Project Scope Finalization, Architecture Validation, Database Design Review, API Contract Definition',
           modulesCount: 1,
           modules: [
             {
               id: 'mod-cap1-1',
-              title: 'Project Architecture Review',
+              title: 'Capstone Architecture Review',
               items: [
                 {
                   id: 'cap1-item-1',
@@ -1465,12 +1465,12 @@ export const INITIAL_MILESTONES = {
           id: 'capstone-review-2',
           title: 'Capstone Project Development & Mentoring - 2',
           description: 'Click to view subtopics',
-          duration: 'Final full-stack application deployment, code quality audit, live demo presentation, and engineering sign-off.',
+          duration: 'Frontend-Backend Integration, AI Feature Tuning, Bug Fixing, Security Auditing, Performance Optimization',
           modulesCount: 1,
           modules: [
             {
               id: 'mod-cap2-1',
-              title: 'Final Deployment & Presentation',
+              title: 'Capstone Development & Audit',
               items: [
                 {
                   id: 'cap2-item-1',
@@ -1491,12 +1491,12 @@ export const INITIAL_MILESTONES = {
           id: 'resume-portfolio',
           title: 'Resume Building, LinkedIn & GitHub Portfolio',
           description: 'Click to view subtopics',
-          duration: 'ATS-friendly resume creation, LinkedIn profile optimization, GitHub README branding, and project showcases.',
+          duration: 'Creating ATS-Compliant Resume, GitHub Repository Presentation, README Design, LinkedIn Profile Optimization & Branding',
           modulesCount: 1,
           modules: [
             {
               id: 'mod-port-1',
-              title: 'Portfolio & Personal Branding',
+              title: 'ATS Resume & GitHub Branding',
               items: [
                 {
                   id: 'port-item-1',
@@ -1517,12 +1517,12 @@ export const INITIAL_MILESTONES = {
           id: 'mock-interviews',
           title: 'Mock Technical Interviews & Valedictory',
           description: 'Click to view subtopics',
-          duration: '1-on-1 mock technical interviews, behavioural questions, salary negotiation strategies, and graduation ceremony.',
+          duration: 'Technical Coding Practice, DSA Live Problem Solving, HR Interview Prep, Capstone Project Demonstrations & Certification',
           modulesCount: 1,
           modules: [
             {
               id: 'mod-mock-1',
-              title: '1-on-1 Technical Mock Interviews',
+              title: 'Technical Practice & Certification',
               items: [
                 {
                   id: 'mock-item-1',
