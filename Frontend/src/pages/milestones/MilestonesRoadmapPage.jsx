@@ -512,7 +512,7 @@ export function MilestonesRoadmapPage() {
       </div>
 
       {/* Stage Timeline */}
-      <div className="relative space-y-8 pt-4">
+      <div className="relative pt-4">
         {milestones?.stages?.map((stage, stageIndex) => {
           const unlockedForUser = isStageUnlockedForUser(stageIndex, stage);
           const isCurrentInProgress = stage.statusType === 'in-progress' || stage.status === 'IN PROGRESS';
@@ -520,10 +520,26 @@ export function MilestonesRoadmapPage() {
           const isAvailable = (stage.statusType === 'available' || stage.status === 'AVAILABLE') && unlockedForUser;
           const isLocked = !unlockedForUser || stage.statusType === 'locked' || stage.status === 'LOCKED' || stage.isLocked;
 
+          const totalStages = milestones?.stages?.length || 0;
+          const isFirstStage = stageIndex === 0;
+          const isLastStage = stageIndex === totalStages - 1;
+
           return (
-            <div key={stage.id} className="relative flex items-start gap-4 sm:gap-6 group">
-              {/* Timeline Node Icon Column & Connecting Line */}
-              <div className="relative flex-shrink-0">
+            <div key={stage.id} className={`relative flex items-start gap-4 sm:gap-6 group ${isLastStage ? '' : 'mb-8'}`}>
+              {/* Timeline Node Icon Column & Unbroken Connecting Line */}
+              <div className="relative flex flex-col items-center flex-shrink-0 w-9">
+                {/* Continuous Vertical Line Segment */}
+                <div
+                  className={`absolute left-1/2 -translate-x-1/2 w-0.5 bg-purple-300 pointer-events-none z-0 ${
+                    isFirstStage
+                      ? 'top-[18px]'
+                      : isLastStage
+                      ? 'top-0 h-[18px]'
+                      : 'top-0'
+                  }`}
+                  style={!isLastStage ? { bottom: '-2rem' } : {}}
+                />
+
                 <div
                   className={`relative z-10 flex h-9 w-9 items-center justify-center rounded-full border-2 transition-all shadow-sm ${
                     isCompleted
@@ -541,11 +557,6 @@ export function MilestonesRoadmapPage() {
                     <Brain className="w-4 h-4" />
                   )}
                 </div>
-
-                {/* Vertical Line extending from this icon through the 32px gap into the next stage icon */}
-                {stageIndex < (milestones?.stages?.length || 0) - 1 && (
-                  <div className="absolute top-4 left-1/2 -translate-x-1/2 w-0.5 h-[calc(100%+2rem)] bg-purple-300/80 z-0 pointer-events-none" />
-                )}
               </div>
 
               {/* Stage Card */}
