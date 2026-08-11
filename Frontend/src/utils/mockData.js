@@ -644,28 +644,6 @@ export const INITIAL_MILESTONES = {
                   "actionText": "JOIN",
                   "url": "https://zoom.us/live-git-github-1",
                   "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
-                },
-                {
-                  "id": "git-github-m1-lab",
-                  "type": "PRACTICAL LAB",
-                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
-                  "iconName": "Code",
-                  "iconBg": "bg-amber-500 text-white",
-                  "title": "Git Repository Init, Commits & Push Lab",
-                  "actionText": "VIEW",
-                  "url": "https://lab.aspirelms.io/git-github-1",
-                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
-                },
-                {
-                  "id": "git-github-m1-quiz",
-                  "type": "ASSESSMENT",
-                  "typeColor": "bg-blue-100 text-blue-700 border-blue-200",
-                  "iconName": "FileCheck",
-                  "iconBg": "bg-blue-600 text-white",
-                  "title": "Git Core Commands Evaluation Quiz",
-                  "actionText": "TAKE",
-                  "url": "/assessments",
-                  "btnStyle": "bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30"
                 }
               ]
             },
@@ -683,28 +661,6 @@ export const INITIAL_MILESTONES = {
                   "actionText": "JOIN",
                   "url": "https://zoom.us/live-git-github-2",
                   "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
-                },
-                {
-                  "id": "git-github-m2-lab",
-                  "type": "PRACTICAL LAB",
-                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
-                  "iconName": "Code",
-                  "iconBg": "bg-amber-500 text-white",
-                  "title": "GitHub PR & Team Collaboration Practice",
-                  "actionText": "VIEW",
-                  "url": "https://lab.aspirelms.io/git-github-2",
-                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
-                },
-                {
-                  "id": "git-github-m2-quiz",
-                  "type": "ASSESSMENT",
-                  "typeColor": "bg-blue-100 text-blue-700 border-blue-200",
-                  "iconName": "FileCheck",
-                  "iconBg": "bg-blue-600 text-white",
-                  "title": "Git Branching & PR Assessment",
-                  "actionText": "TAKE",
-                  "url": "/assessments",
-                  "btnStyle": "bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30"
                 }
               ]
             }

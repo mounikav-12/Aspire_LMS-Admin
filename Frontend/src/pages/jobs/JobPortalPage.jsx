@@ -18,15 +18,18 @@ import {
   Send,
   Edit2,
   Trash2,
+  Lock,
+  Unlock,
   Image as ImageIcon
 } from 'lucide-react';
 
 export function JobPortalPage() {
-  const { jobs = [], addJob, updateJob, deleteJob } = useLmsData();
+  const { jobs = [], addJob, updateJob, toggleJobLock, deleteJob } = useLmsData();
   const { addToast } = useToast();
 
   const [searchTerm, setSearchTerm] = useState('');
   const [jobTypeFilter, setJobTypeFilter] = useState('ALL');
+  const [statusFilter, setStatusFilter] = useState('ALL');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [editingJob, setEditingJob] = useState(null);
   const [deletingJob, setDeletingJob] = useState(null);
@@ -40,7 +43,8 @@ export function JobPortalPage() {
     salary: '₹14,00,000 - ₹18,00,000 / yr',
     location: 'Bengaluru / Remote',
     logo: 'https://images.unsplash.com/photo-1572021335469-31706a17aaef?w=120&auto=format&fit=crop&q=80',
-    description: ''
+    description: '',
+    isLocked: false
   });
 
   const handleOpenAddModal = () => {
@@ -51,7 +55,8 @@ export function JobPortalPage() {
       salary: '₹14,00,000 - ₹18,00,000 / yr',
       location: 'Bengaluru / Remote',
       logo: 'https://images.unsplash.com/photo-1572021335469-31706a17aaef?w=120&auto=format&fit=crop&q=80',
-      description: ''
+      description: '',
+      isLocked: false
     });
     setIsAddModalOpen(true);
   };
@@ -65,7 +70,8 @@ export function JobPortalPage() {
       salary: job.salary || '₹14,00,000 - ₹18,00,000 / yr',
       location: job.location || '',
       logo: job.logo || 'https://images.unsplash.com/photo-1572021335469-31706a17aaef?w=120&auto=format&fit=crop&q=80',
-      description: job.description || ''
+      description: job.description || '',
+      isLocked: !!job.isLocked
     });
   };
 
@@ -116,7 +122,12 @@ export function JobPortalPage() {
 
     const matchesSearch = title.includes(query) || company.includes(query) || location.includes(query);
     const matchesType = jobTypeFilter === 'ALL' || jobType.includes(jobTypeFilter.toLowerCase());
-    return matchesSearch && matchesType;
+    const matchesStatus =
+      statusFilter === 'ALL' ||
+      (statusFilter === 'UNLOCKED' && !j.isLocked) ||
+      (statusFilter === 'LOCKED' && !!j.isLocked);
+
+    return matchesSearch && matchesType && matchesStatus;
   });
 
   return (
@@ -149,7 +160,7 @@ export function JobPortalPage() {
           />
         </div>
 
-        <div className="w-full md:w-56">
+        <div className="w-full md:w-48">
           <Select
             value={jobTypeFilter}
             onChange={(e) => setJobTypeFilter(e.target.value)}
@@ -158,6 +169,18 @@ export function JobPortalPage() {
               { value: 'Full-Time', label: 'Full-Time' },
               { value: 'Remote', label: 'Remote Only' },
               { value: 'Contract', label: 'Contract' }
+            ]}
+          />
+        </div>
+
+        <div className="w-full md:w-48">
+          <Select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            options={[
+              { value: 'ALL', label: 'All Statuses' },
+              { value: 'UNLOCKED', label: '🔓 Unlocked Only' },
+              { value: 'LOCKED', label: '🔒 Locked Only' }
             ]}
           />
         </div>
@@ -182,13 +205,43 @@ export function JobPortalPage() {
                     />
                     <div>
                       <h4 className="font-extrabold text-slate-900 text-sm">{job.company || 'Corporate Partner'}</h4>
-                      <Badge variant="blue" className="mt-0.5">
-                        {job.jobType || 'Full-Time'}
-                      </Badge>
+                      <div className="flex flex-wrap items-center gap-1.5 mt-0.5">
+                        <Badge variant="blue">
+                          {job.jobType || 'Full-Time'}
+                        </Badge>
+                        {job.isLocked ? (
+                          <span className="inline-flex items-center gap-1 bg-rose-100 text-rose-700 border border-rose-200 text-[10px] font-extrabold px-2 py-0.5 rounded-md">
+                            <Lock className="w-3 h-3" /> Locked
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 bg-emerald-100 text-emerald-700 border border-emerald-200 text-[10px] font-extrabold px-2 py-0.5 rounded-md">
+                            <Unlock className="w-3 h-3" /> Unlocked
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-1 bg-slate-50 p-1 rounded-xl">
+                    <button
+                      onClick={() => {
+                        toggleJobLock(job.id);
+                        addToast(
+                          job.isLocked
+                            ? `🔓 Position for "${job.company}" unlocked`
+                            : `🔒 Position for "${job.company}" locked`,
+                          'info'
+                        );
+                      }}
+                      className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
+                        job.isLocked
+                          ? 'text-rose-600 hover:bg-rose-100/80 bg-rose-50 border border-rose-200'
+                          : 'text-emerald-600 hover:bg-emerald-100/80 bg-emerald-50 border border-emerald-200'
+                      }`}
+                      title={job.isLocked ? "Click to Unlock Job Position" : "Click to Lock Job Position"}
+                    >
+                      {job.isLocked ? <Lock className="w-3.5 h-3.5" /> : <Unlock className="w-3.5 h-3.5" />}
+                    </button>
                     <button
                       onClick={() => handleOpenEditModal(job)}
                       className="p-1.5 text-slate-400 hover:text-blue-600 rounded-lg hover:bg-white transition-colors cursor-pointer"
@@ -238,15 +291,27 @@ export function JobPortalPage() {
 
               {/* Apply Button Action */}
               <div className="mt-6 pt-4 border-t border-slate-100">
-                <Button
-                  variant="primary"
-                  size="md"
-                  className="w-full"
-                  icon={Send}
-                  onClick={() => handleApplyNow(job)}
-                >
-                  Apply Now
-                </Button>
+                {job.isLocked ? (
+                  <Button
+                    variant="secondary"
+                    size="md"
+                    className="w-full bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed hover:bg-slate-100 shadow-none"
+                    icon={Lock}
+                    onClick={() => addToast('🔒 This job position is locked for applications.', 'warning')}
+                  >
+                    Applications Locked
+                  </Button>
+                ) : (
+                  <Button
+                    variant="primary"
+                    size="md"
+                    className="w-full"
+                    icon={Send}
+                    onClick={() => handleApplyNow(job)}
+                  >
+                    Apply Now
+                  </Button>
+                )}
               </div>
             </div>
           ))}
@@ -322,15 +387,25 @@ export function JobPortalPage() {
               onChange={(e) => setFormData({ ...formData, location: e.target.value })}
             />
 
-            <Input
-              label="Company Logo Image URL"
-              icon={ImageIcon}
-              placeholder="https://images.unsplash.com/photo-xxx"
-              value={formData.logo}
-              onChange={(e) => setFormData({ ...formData, logo: e.target.value })}
-              helperText="Optional image URL for company logo icon"
+            <Select
+              label="Lock Status (Access Control)"
+              value={formData.isLocked ? 'locked' : 'unlocked'}
+              onChange={(e) => setFormData({ ...formData, isLocked: e.target.value === 'locked' })}
+              options={[
+                { value: 'unlocked', label: '🔓 Unlocked (Open for Applications)' },
+                { value: 'locked', label: '🔒 Locked (Applications Closed)' }
+              ]}
             />
           </div>
+
+          <Input
+            label="Company Logo Image URL"
+            icon={ImageIcon}
+            placeholder="https://images.unsplash.com/photo-xxx"
+            value={formData.logo}
+            onChange={(e) => setFormData({ ...formData, logo: e.target.value })}
+            helperText="Optional image URL for company logo icon"
+          />
 
           <div className="flex flex-col gap-1.5">
             <label className="text-[11px] font-extrabold text-slate-700 tracking-wider uppercase">

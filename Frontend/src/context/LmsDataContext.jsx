@@ -19,22 +19,89 @@ import {
 const LmsDataContext = createContext(null);
 
 export function LmsDataProvider({ children }) {
-  // State Initialization
+  // Helper to load array state from localStorage or fallback
+  const loadLocalState = (key, fallback) => {
+    try {
+      const saved = localStorage.getItem(key);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch (e) {}
+    return fallback;
+  };
+
+  // State Initialization with localStorage Persistence
   const [users, setUsers] = useState(INITIAL_USERS);
   const [rolePermissions, setRolePermissions] = useState(INITIAL_ROLE_PERMISSIONS);
-  const [courses, setCourses] = useState(INITIAL_COURSES);
-  const [assessments, setAssessments] = useState(INITIAL_ASSESSMENTS);
-  const [liveSessions, setLiveSessions] = useState(INITIAL_LIVE_SESSIONS);
-  const [jobs, setJobs] = useState(INITIAL_JOBS);
-  const [recordings, setRecordings] = useState(INITIAL_RECORDINGS);
-  const [placementResources, setPlacementResources] = useState(INITIAL_PLACEMENT_RESOURCES);
-  const [projects, setProjects] = useState(INITIAL_PROJECTS);
+  const [courses, setCourses] = useState(() => loadLocalState('aspire_lms_courses', INITIAL_COURSES));
+  const [assessments, setAssessments] = useState(() => loadLocalState('aspire_lms_assessments', INITIAL_ASSESSMENTS));
+  const [liveSessions, setLiveSessions] = useState(() => loadLocalState('aspire_lms_live_sessions', INITIAL_LIVE_SESSIONS));
+  const [jobs, setJobs] = useState(() => loadLocalState('aspire_lms_jobs', INITIAL_JOBS));
+  const [recordings, setRecordings] = useState(() => loadLocalState('aspire_lms_recordings', INITIAL_RECORDINGS));
+  const [placementResources, setPlacementResources] = useState(() => loadLocalState('aspire_lms_placement_resources', INITIAL_PLACEMENT_RESOURCES));
+  const [projects, setProjects] = useState(() => loadLocalState('aspire_lms_projects', INITIAL_PROJECTS));
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('aspire_lms_courses', JSON.stringify(courses));
+    } catch (e) {}
+  }, [courses]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('aspire_lms_assessments', JSON.stringify(assessments));
+    } catch (e) {}
+  }, [assessments]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('aspire_lms_live_sessions', JSON.stringify(liveSessions));
+    } catch (e) {}
+  }, [liveSessions]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('aspire_lms_jobs', JSON.stringify(jobs));
+    } catch (e) {}
+  }, [jobs]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('aspire_lms_recordings', JSON.stringify(recordings));
+    } catch (e) {}
+  }, [recordings]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('aspire_lms_placement_resources', JSON.stringify(placementResources));
+    } catch (e) {}
+  }, [placementResources]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('aspire_lms_projects', JSON.stringify(projects));
+    } catch (e) {}
+  }, [projects]);
   const [milestones, setMilestones] = useState(() => {
     const saved = localStorage.getItem('aspire_lms_milestones');
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        if (parsed && parsed.stages && parsed.stages.length === 4 && parsed.stages[0]?.subtopics?.[0]?.modules?.length === 2) {
+        if (parsed && parsed.stages && parsed.stages.length === 4) {
+          parsed.stages.forEach((stg) => {
+            stg.subtopics?.forEach((sub) => {
+              if (sub.id === 'git-github' && sub.modules) {
+                sub.modules.forEach((mod) => {
+                  if (mod.items) {
+                    mod.items = mod.items.filter(
+                      (item) => item.type !== 'PRACTICAL LAB' && item.type !== 'ASSESSMENT'
+                    );
+                  }
+                });
+              }
+            });
+          });
           if (parsed.overview) {
             parsed.overview.trackTitle = "Python full stack + DSA with AI";
           }
@@ -164,6 +231,7 @@ export function LmsDataProvider({ children }) {
           location: j.location || '',
           postedDate: j.posted_date || j.postedDate || '',
           publishStatus: j.publish_status || j.publishStatus || 'Live Feed',
+          isLocked: j.is_locked !== undefined ? j.is_locked : (j.isLocked || false),
           logo: j.logo || '',
           description: j.description || ''
         })));
@@ -213,6 +281,36 @@ export function LmsDataProvider({ children }) {
             stages: defaultRow.stages || INITIAL_MILESTONES.stages
           });
         }
+      }
+
+      // 9. Fetch Projects Catalog
+      const { data: projectsData, error: projectsErr } = await supabase.from('projects').select('*');
+      if (!projectsErr && projectsData && projectsData.length > 0) {
+        setProjects(projectsData.map(p => ({
+          id: p.id,
+          title: p.title || '',
+          type: p.type || 'Mini',
+          category: p.category || 'Full-Stack Web Dev',
+          difficulty: p.difficulty || 'Intermediate',
+          description: p.description || '',
+          techStack: Array.isArray(p.tech_stack)
+            ? p.tech_stack
+            : (typeof p.tech_stack === 'string'
+                ? p.tech_stack.split(',').map((s) => s.trim())
+                : (p.techStack || ['React', 'Node.js', 'PostgreSQL'])),
+          dueDate: p.due_date || p.dueDate || 'Due Aug 30',
+          status: p.status || 'Published',
+          templateUrl: p.template_url || p.templateUrl || 'https://github.com/aspire-lms/starter-repo',
+          guidelines: p.guidelines || 'Include clean setup instructions and unit tests.',
+          assignedCount: p.assigned_count !== undefined ? p.assigned_count : (p.assignedCount || 1),
+          submittedCount: p.submitted_count !== undefined ? p.submitted_count : (p.submittedCount || 0),
+          feedbackCount: p.feedback_count !== undefined ? p.feedback_count : (p.feedbackCount || 0),
+          avgGrade: p.avg_grade !== undefined ? p.avg_grade : (p.avgGrade || 0),
+          isLocked: p.is_locked !== undefined ? p.is_locked : (p.isLocked || false),
+          submissions: Array.isArray(p.submissions)
+            ? p.submissions
+            : (typeof p.submissions === 'string' ? JSON.parse(p.submissions) : (p.submissions || []))
+        })));
       }
     } catch (err) {
       console.warn('Supabase initial fetch using fallback mock data:', err);
@@ -617,6 +715,7 @@ export function LmsDataProvider({ children }) {
       id: `job-${Date.now()}`,
       postedDate: new Date().toISOString().split('T')[0],
       publishStatus: 'Live Feed',
+      isLocked: jobData.isLocked || false,
       logo: 'https://images.unsplash.com/photo-1572021335469-31706a17aaef?w=120&auto=format&fit=crop&q=80',
       ...jobData
     };
@@ -632,7 +731,8 @@ export function LmsDataProvider({ children }) {
         salary: newJob.salary,
         location: newJob.location,
         logo: newJob.logo,
-        description: newJob.description
+        description: newJob.description,
+        is_locked: newJob.isLocked
       }]);
     } catch (err) {
       console.warn('Job insert handled:', err);
@@ -653,6 +753,7 @@ export function LmsDataProvider({ children }) {
     if (updatedFields.location !== undefined) dbFields.location = updatedFields.location;
     if (updatedFields.logo !== undefined) dbFields.logo = updatedFields.logo;
     if (updatedFields.description !== undefined) dbFields.description = updatedFields.description;
+    if (updatedFields.isLocked !== undefined) dbFields.is_locked = updatedFields.isLocked;
 
     try {
       const { error } = await supabase.from('jobs').update(dbFields).eq('id', id);
@@ -660,6 +761,13 @@ export function LmsDataProvider({ children }) {
     } catch (err) {
       console.warn('Job update handled:', err);
     }
+  };
+
+  const toggleJobLock = async (id) => {
+    const targetJob = jobs.find((j) => j.id === id);
+    if (!targetJob) return;
+    const updatedState = !targetJob.isLocked;
+    await updateJob(id, { isLocked: updatedState });
   };
 
   const deleteJob = async (id) => {
@@ -803,16 +911,25 @@ export function LmsDataProvider({ children }) {
 
   // --- PROJECTS ---
   const addProject = async (projectData) => {
+    const techStackArray = Array.isArray(projectData.techStack)
+      ? projectData.techStack
+      : (typeof projectData.techStack === 'string'
+          ? projectData.techStack.split(',').map((s) => s.trim())
+          : ['React', 'Node.js', 'PostgreSQL']);
+
     const newProject = {
       id: `proj-${Date.now()}`,
-      assignedCount: 0,
-      submittedCount: 0,
-      feedbackCount: 0,
-      avgGrade: 0,
-      status: 'Published',
-      submissions: [],
-      ...projectData
+      assignedCount: projectData.assignedCount || 1,
+      submittedCount: projectData.submittedCount || 0,
+      feedbackCount: projectData.feedbackCount || 0,
+      avgGrade: projectData.avgGrade || 0,
+      status: projectData.status || 'Published',
+      submissions: projectData.submissions || [],
+      isLocked: projectData.isLocked || false,
+      ...projectData,
+      techStack: techStackArray
     };
+
     setProjects((prev) => [newProject, ...prev]);
     logActivity(`Published new project: "${newProject.title}"`, 'project');
 
@@ -827,7 +944,14 @@ export function LmsDataProvider({ children }) {
         tech_stack: newProject.techStack,
         due_date: newProject.dueDate,
         status: newProject.status,
-        template_url: newProject.templateUrl
+        template_url: newProject.templateUrl,
+        guidelines: newProject.guidelines || 'Include clean setup instructions and unit tests.',
+        assigned_count: newProject.assignedCount,
+        submitted_count: newProject.submittedCount,
+        feedback_count: newProject.feedbackCount,
+        avg_grade: newProject.avgGrade,
+        is_locked: newProject.isLocked,
+        submissions: newProject.submissions
       }]);
     } catch (err) {
       console.warn('Project insert handled:', err);
@@ -835,13 +959,44 @@ export function LmsDataProvider({ children }) {
   };
 
   const updateProject = async (id, updatedFields) => {
+    let techStackArray = updatedFields.techStack;
+    if (techStackArray && typeof techStackArray === 'string') {
+      techStackArray = techStackArray.split(',').map((s) => s.trim());
+    }
+
+    const fieldsToApply = {
+      ...updatedFields,
+      ...(techStackArray !== undefined ? { techStack: techStackArray } : {})
+    };
+
     setProjects((prev) =>
-      prev.map((p) => (p.id === id ? { ...p, ...updatedFields } : p))
+      prev.map((p) => (p.id === id ? { ...p, ...fieldsToApply } : p))
     );
     logActivity(`Updated project listing ID ${id}`, 'project');
 
+    const dbFields = {};
+    if (updatedFields.title !== undefined) dbFields.title = updatedFields.title;
+    if (updatedFields.type !== undefined) dbFields.type = updatedFields.type;
+    if (updatedFields.category !== undefined) dbFields.category = updatedFields.category;
+    if (updatedFields.difficulty !== undefined) dbFields.difficulty = updatedFields.difficulty;
+    if (updatedFields.description !== undefined) dbFields.description = updatedFields.description;
+    if (techStackArray !== undefined) dbFields.tech_stack = techStackArray;
+    if (updatedFields.dueDate !== undefined) dbFields.due_date = updatedFields.dueDate;
+    if (updatedFields.status !== undefined) dbFields.status = updatedFields.status;
+    if (updatedFields.templateUrl !== undefined) dbFields.template_url = updatedFields.templateUrl;
+    if (updatedFields.guidelines !== undefined) dbFields.guidelines = updatedFields.guidelines;
+    if (updatedFields.assignedCount !== undefined) dbFields.assigned_count = updatedFields.assignedCount;
+    if (updatedFields.submittedCount !== undefined) dbFields.submitted_count = updatedFields.submittedCount;
+    if (updatedFields.feedbackCount !== undefined) dbFields.feedback_count = updatedFields.feedbackCount;
+    if (updatedFields.avgGrade !== undefined) dbFields.avg_grade = updatedFields.avgGrade;
+    if (updatedFields.isLocked !== undefined) dbFields.is_locked = updatedFields.isLocked;
+    if (updatedFields.submissions !== undefined) dbFields.submissions = updatedFields.submissions;
+
     try {
-      await supabase.from('projects').update(updatedFields).eq('id', id);
+      if (Object.keys(dbFields).length > 0) {
+        const { error } = await supabase.from('projects').update(dbFields).eq('id', id);
+        if (error) console.error('Supabase project update error:', error.message);
+      }
     } catch (err) {
       console.warn('Project update handled:', err);
     }
@@ -860,6 +1015,7 @@ export function LmsDataProvider({ children }) {
   };
 
   const gradeSubmission = async (projectId, submissionId, grade, feedback) => {
+    let updatedProjFields = null;
     setProjects((prev) =>
       prev.map((p) => {
         if (p.id !== projectId) return p;
@@ -873,15 +1029,31 @@ export function LmsDataProvider({ children }) {
           ? Math.round(gradedSubs.reduce((acc, cur) => acc + (cur.grade || 0), 0) / gradedSubs.length)
           : p.avgGrade;
 
-        return {
-          ...p,
+        updatedProjFields = {
           submissions: updatedSubmissions,
           feedbackCount: gradedSubs.length,
           avgGrade: avg
         };
+
+        return {
+          ...p,
+          ...updatedProjFields
+        };
       })
     );
     logActivity(`Graded submission ${submissionId} for project ${projectId}`, 'project');
+
+    if (updatedProjFields) {
+      try {
+        await supabase.from('projects').update({
+          submissions: updatedProjFields.submissions,
+          feedback_count: updatedProjFields.feedbackCount,
+          avg_grade: updatedProjFields.avgGrade
+        }).eq('id', projectId);
+      } catch (err) {
+        console.warn('Grade submission DB sync handled:', err);
+      }
+    }
   };
 
   // --- CODING QUESTIONS BANK ---
@@ -1284,6 +1456,7 @@ export function LmsDataProvider({ children }) {
         jobs,
         addJob,
         updateJob,
+        toggleJobLock,
         deleteJob,
         recordings,
         addRecording,
@@ -1346,6 +1519,7 @@ const defaultLmsDataContext = {
   deleteLiveSession: async () => {},
   addJob: async () => {},
   updateJob: async () => {},
+  toggleJobLock: async () => {},
   deleteJob: async () => {},
   addRecording: async () => {},
   updateRecording: async () => {},

@@ -55,8 +55,7 @@ export function MilestonesRoadmapPage() {
   // Selected subtopic for slide-over drawer
   const [selectedSubtopicState, setSelectedSubtopicState] = useState(null); // { stageId, subtopic }
   const [expandedModule, setExpandedModule] = useState(null);
-  const [expandedStageAccordion, setExpandedStageAccordion] = useState({});
-  const [expandedStages, setExpandedStages] = useState({ 'stage-1': true });
+  const [expandedStages, setExpandedStages] = useState({});
 
   const isStageUnlockedForUser = (stageIndex, stage) => {
     if (viewMode === 'admin') return true; // Admin can view everything
@@ -566,7 +565,7 @@ export function MilestonesRoadmapPage() {
                   onClick={() =>
                     setExpandedStages((prev) => ({
                       ...prev,
-                      [stage.id]: prev[stage.id] === undefined ? false : !prev[stage.id]
+                      [stage.id]: !prev[stage.id]
                     }))
                   }
                   className="bg-gradient-to-r from-purple-700 via-purple-600 to-indigo-700 text-white p-5 sm:p-6 cursor-pointer select-none transition-all hover:brightness-105 group relative overflow-hidden"
@@ -592,7 +591,7 @@ export function MilestonesRoadmapPage() {
                         <p className="text-xs text-purple-200/90 font-medium mt-1 flex items-center gap-1.5">
                           <span>{stage.subtopics?.length || 0} Modules Included</span>
                           <span>•</span>
-                          <span>{expandedStages[stage.id] !== false ? 'Click card to hide modules' : 'Click card to view modules'}</span>
+                          <span>{expandedStages[stage.id] ? 'Click card to hide modules' : 'Click card to view modules'}</span>
                         </p>
                       </div>
                     </div>
@@ -687,15 +686,15 @@ export function MilestonesRoadmapPage() {
                           e.stopPropagation();
                           setExpandedStages((prev) => ({
                             ...prev,
-                            [stage.id]: prev[stage.id] === undefined ? false : !prev[stage.id]
+                            [stage.id]: !prev[stage.id]
                           }));
                         }}
                         className="flex h-9 w-9 items-center justify-center rounded-full bg-white/20 backdrop-blur-md text-white hover:bg-white hover:text-purple-700 transition-all cursor-pointer shadow-sm ml-1"
-                        title={expandedStages[stage.id] !== false ? "Collapse Modules" : "Expand Modules"}
+                        title={expandedStages[stage.id] ? "Collapse Modules" : "Expand Modules"}
                       >
                         <ChevronDown
                           className={`w-5 h-5 transition-transform duration-300 ${
-                            expandedStages[stage.id] !== false ? 'rotate-180' : ''
+                            expandedStages[stage.id] ? 'rotate-180' : ''
                           }`}
                         />
                       </button>
@@ -704,7 +703,7 @@ export function MilestonesRoadmapPage() {
                 </div>
 
                 {/* Subtopic / Modules Dropdown Content */}
-                {expandedStages[stage.id] !== false && (
+                {expandedStages[stage.id] && (
                   <div className="p-4 sm:p-5 bg-slate-50/70 border-t border-slate-200/80 space-y-3 animate-in fade-in slide-in-from-top-2 duration-300">
                     {stage.subtopics && stage.subtopics.length > 0 ? (
                       stage.subtopics.map((subtopic, subtopicIndex) => (
