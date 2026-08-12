@@ -622,7 +622,7 @@ export function MilestonesRoadmapPage() {
 
               {/* Stage Card */}
               <div className="flex-1 rounded-3xl border border-purple-200/80 shadow-md shadow-purple-600/10 overflow-hidden transition-all duration-300 bg-white">
-                {/* Main Purple Card Header (Clickable Dropdown Banner) */}
+                {/* Main Card Header (Clickable Dropdown Banner) */}
                 <div
                   onClick={() =>
                     setExpandedStages((prev) => ({
@@ -630,27 +630,27 @@ export function MilestonesRoadmapPage() {
                       [stage.id]: !prev[stage.id]
                     }))
                   }
-                  className="bg-gradient-to-r from-purple-700 via-purple-600 to-indigo-700 text-white p-5 sm:p-6 cursor-pointer select-none transition-all hover:brightness-105 group relative overflow-hidden"
+                  className="group bg-white text-slate-900 hover:bg-gradient-to-r hover:from-purple-700 hover:via-purple-600 hover:to-indigo-700 hover:text-white p-5 sm:p-6 cursor-pointer select-none transition-all duration-300 relative overflow-hidden border-b border-slate-100 hover:border-transparent"
                 >
-                  {/* Decorative Glow */}
-                  <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-white/10 rounded-full blur-2xl pointer-events-none" />
+                  {/* Decorative Glow (visible on hover) */}
+                  <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-white/10 rounded-full blur-2xl pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
                   <div className="flex flex-wrap items-center justify-between gap-4 relative z-10">
                     <div className="flex items-center gap-3.5">
-                      <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-md text-white shadow-inner flex-shrink-0">
+                      <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-purple-100 group-hover:bg-white/20 group-hover:backdrop-blur-md text-purple-600 group-hover:text-white shadow-inner flex-shrink-0 transition-all duration-300">
                         {isLocked ? <Lock className="w-6 h-6" /> : <Brain className="w-6 h-6" />}
                       </div>
                       <div>
                         <div className="flex items-center gap-2 flex-wrap">
-                          <span className="text-[10px] font-black uppercase tracking-wider text-purple-900 bg-purple-100 px-2 py-0.5 rounded-md border border-purple-200 shadow-xs">
+                          <span className="text-[10px] font-black uppercase tracking-wider text-purple-700 group-hover:text-purple-900 bg-purple-100 px-2 py-0.5 rounded-md border border-purple-200 shadow-xs transition-colors duration-300">
                             {stage.stageNumber}
                           </span>
-                          <span className="text-xs font-medium text-purple-200">{stage.phaseTag}</span>
+                          <span className="text-xs font-medium text-slate-400 group-hover:text-purple-200 transition-colors duration-300">{stage.phaseTag}</span>
                         </div>
-                        <h3 className="text-lg sm:text-xl font-bold text-white mt-1 leading-snug">
+                        <h3 className="text-lg sm:text-xl font-bold text-slate-900 group-hover:text-white mt-1 leading-snug transition-colors duration-300">
                           {stage.title}
                         </h3>
-                        <p className="text-xs text-purple-200/90 font-medium mt-1 flex items-center gap-1.5">
+                        <p className="text-xs text-slate-400 group-hover:text-purple-200/90 font-medium mt-1 flex items-center gap-1.5 transition-colors duration-300">
                           <span>{visibleSubtopics.length} Modules Included</span>
                           <span>•</span>
                           <span>{expandedStages[stage.id] ? 'Click card to hide modules' : 'Click card to view modules'}</span>
@@ -658,33 +658,34 @@ export function MilestonesRoadmapPage() {
                       </div>
                     </div>
 
+
                     {/* Right Actions: Status Badges, Admin Controls & Dropdown Arrow */}
                     <div className="flex flex-wrap items-center gap-2.5" onClick={(e) => e.stopPropagation()}>
                       {isCompleted && (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-400/20 backdrop-blur-md border border-emerald-300/40 px-3 py-1 text-xs font-bold text-emerald-200">
+                        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 group-hover:bg-emerald-400/20 group-hover:backdrop-blur-md border border-emerald-300 group-hover:border-emerald-300/40 px-3 py-1 text-xs font-bold text-emerald-700 group-hover:text-emerald-200 transition-all duration-300">
                           ✅ COMPLETED
                         </span>
                       )}
                       {isCurrentInProgress && !isCompleted && (
-                        <span className="inline-flex items-center gap-1.5 rounded-full bg-purple-400/30 backdrop-blur-md border border-purple-300/40 px-3 py-1 text-xs font-bold text-white">
+                        <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-100 group-hover:bg-purple-400/30 group-hover:backdrop-blur-md border border-blue-300 group-hover:border-purple-300/40 px-3 py-1 text-xs font-bold text-blue-700 group-hover:text-white transition-all duration-300">
                           <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
                           IN PROGRESS
                         </span>
                       )}
                       {isAvailable && !isCompleted && !isCurrentInProgress && (
-                        <span className="inline-flex items-center rounded-full bg-white/20 backdrop-blur-md border border-white/30 px-3 py-1 text-xs font-bold text-white">
+                        <span className="inline-flex items-center rounded-full bg-purple-100 group-hover:bg-white/20 group-hover:backdrop-blur-md border border-purple-300 group-hover:border-white/30 px-3 py-1 text-xs font-bold text-purple-700 group-hover:text-white transition-all duration-300">
                           AVAILABLE
                         </span>
                       )}
                       {isLocked && !isCompleted && (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-white/20 backdrop-blur-md border border-white/30 px-3 py-1 text-xs font-bold text-slate-200">
+                        <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 group-hover:bg-white/20 group-hover:backdrop-blur-md border border-slate-300 group-hover:border-white/30 px-3 py-1 text-xs font-bold text-slate-600 group-hover:text-slate-200 transition-all duration-300">
                           <Lock className="w-3 h-3" />
                           LOCKED
                         </span>
                       )}
 
                       {viewMode === 'admin' && (
-                        <div className="flex items-center gap-1.5 bg-white/10 backdrop-blur-md p-1.5 rounded-xl border border-white/20">
+                        <div className="flex items-center gap-1.5 bg-slate-100 group-hover:bg-white/10 group-hover:backdrop-blur-md p-1.5 rounded-xl border border-slate-200 group-hover:border-white/20 transition-all duration-300">
                           {/* Admin Lock/Unlock Toggle Button */}
                           <button
                             onClick={() => {
@@ -694,11 +695,11 @@ export function MilestonesRoadmapPage() {
                             title={stage.isLocked ? "Click to Unlock Stage" : "Click to Lock Stage"}
                             className={`px-2.5 py-1 text-xs font-bold rounded-lg transition-all flex items-center gap-1 cursor-pointer ${
                               stage.isLocked
-                                ? 'bg-rose-500/30 text-rose-100 border border-rose-400/40 hover:bg-rose-500/50'
-                                : 'bg-emerald-500/30 text-emerald-100 border border-emerald-400/40 hover:bg-emerald-500/50'
+                                ? 'bg-rose-100 group-hover:bg-rose-500/30 text-rose-600 group-hover:text-rose-100 border border-rose-300 group-hover:border-rose-400/40 hover:bg-rose-200 group-hover:hover:bg-rose-500/50'
+                                : 'bg-emerald-100 group-hover:bg-emerald-500/30 text-emerald-700 group-hover:text-emerald-100 border border-emerald-300 group-hover:border-emerald-400/40 hover:bg-emerald-200 group-hover:hover:bg-emerald-500/50'
                             }`}
                           >
-                            {stage.isLocked ? <Lock className="w-3.5 h-3.5 text-rose-200" /> : <Unlock className="w-3.5 h-3.5 text-emerald-200" />}
+                            {stage.isLocked ? <Lock className="w-3.5 h-3.5" /> : <Unlock className="w-3.5 h-3.5" />}
                             <span>{stage.isLocked ? 'Locked' : 'Unlocked'}</span>
                           </button>
 
@@ -709,32 +710,32 @@ export function MilestonesRoadmapPage() {
                               updateStageStatus(stage.id, e.target.value);
                               addToast(`Stage status set to ${e.target.value}`, 'success');
                             }}
-                            className="text-xs font-bold bg-purple-950/80 border border-purple-400/40 text-white rounded-lg px-2 py-1 cursor-pointer hover:bg-purple-900 focus:ring-2 focus:ring-purple-300"
+                            className="text-xs font-bold bg-white group-hover:bg-purple-950/80 border border-slate-300 group-hover:border-purple-400/40 text-slate-700 group-hover:text-white rounded-lg px-2 py-1 cursor-pointer hover:bg-slate-50 group-hover:hover:bg-purple-900 focus:ring-2 focus:ring-purple-300 transition-all duration-300"
                           >
-                            <option value="IN PROGRESS" className="bg-purple-900 text-white">⚡ IN PROGRESS</option>
-                            <option value="AVAILABLE" className="bg-purple-900 text-white">🔓 AVAILABLE</option>
-                            <option value="COMPLETED" className="bg-purple-900 text-white">✅ COMPLETED</option>
-                            <option value="LOCKED" className="bg-purple-900 text-white">🔒 LOCKED</option>
+                            <option value="IN PROGRESS" className="bg-white text-slate-900">⚡ IN PROGRESS</option>
+                            <option value="AVAILABLE" className="bg-white text-slate-900">🔓 AVAILABLE</option>
+                            <option value="COMPLETED" className="bg-white text-slate-900">✅ COMPLETED</option>
+                            <option value="LOCKED" className="bg-white text-slate-900">🔒 LOCKED</option>
                           </select>
 
                           <button
                             onClick={() => handleOpenSubtopicModal(stage.id, null)}
                             title="Add Subtopic to Stage"
-                            className="p-1.5 text-white hover:bg-white/20 rounded-lg transition-colors cursor-pointer"
+                            className="p-1.5 text-slate-500 group-hover:text-white hover:bg-slate-200 group-hover:hover:bg-white/20 rounded-lg transition-all cursor-pointer"
                           >
                             <Plus className="w-4 h-4" />
                           </button>
                           <button
                             onClick={() => handleOpenStageModal(stage)}
                             title="Edit Stage Details"
-                            className="p-1.5 text-white hover:bg-white/20 rounded-lg transition-colors cursor-pointer"
+                            className="p-1.5 text-slate-500 group-hover:text-white hover:bg-slate-200 group-hover:hover:bg-white/20 rounded-lg transition-all cursor-pointer"
                           >
                             <Edit2 className="w-4 h-4" />
                           </button>
                           <button
                             onClick={() => handleDeleteStage(stage.id, stage.title)}
                             title="Delete Stage"
-                            className="p-1.5 text-rose-200 hover:text-white hover:bg-rose-500/30 rounded-lg transition-colors cursor-pointer"
+                            className="p-1.5 text-rose-400 group-hover:text-rose-200 hover:bg-rose-50 group-hover:hover:bg-rose-500/30 rounded-lg transition-all cursor-pointer"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
@@ -751,7 +752,7 @@ export function MilestonesRoadmapPage() {
                             [stage.id]: !prev[stage.id]
                           }));
                         }}
-                        className="flex h-9 w-9 items-center justify-center rounded-full bg-white/20 backdrop-blur-md text-white hover:bg-white hover:text-purple-700 transition-all cursor-pointer shadow-sm ml-1"
+                        className="flex h-9 w-9 items-center justify-center rounded-full bg-purple-100 group-hover:bg-white/20 group-hover:backdrop-blur-md text-purple-600 group-hover:text-white hover:bg-purple-200 group-hover:hover:bg-white group-hover:hover:text-purple-700 transition-all cursor-pointer shadow-sm ml-1"
                         title={expandedStages[stage.id] ? "Collapse Modules" : "Expand Modules"}
                       >
                         <ChevronDown
