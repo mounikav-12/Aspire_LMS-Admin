@@ -22,11 +22,23 @@ import {
 } from 'lucide-react';
 
 export function CourseListPage() {
-  const { courses, addCourse, updateCourse, deleteCourse } = useLmsData();
+  const { courses, addCourse, updateCourse, deleteCourse, activeBatchFilter, setActiveBatchFilter } = useLmsData();
   const { addToast } = useToast();
 
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('ALL');
+  const [batchFilter, setBatchFilterState] = useState(activeBatchFilter || 'ALL');
+
+  React.useEffect(() => {
+    if (activeBatchFilter && activeBatchFilter !== batchFilter) {
+      setBatchFilterState(activeBatchFilter);
+    }
+  }, [activeBatchFilter]);
+
+  const setBatchFilter = (val) => {
+    setBatchFilterState(val);
+    if (setActiveBatchFilter) setActiveBatchFilter(val);
+  };
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [editingCourse, setEditingCourse] = useState(null);
   const [deletingCourse, setDeletingCourse] = useState(null);
@@ -36,6 +48,7 @@ export function CourseListPage() {
     title: '',
     category: 'Web Development',
     level: 'Intermediate',
+    targetBatch: 'All Batches',
     instructor: 'David Chen',
     thumbnail: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=600&auto=format&fit=crop&q=80',
     description: ''
@@ -46,6 +59,7 @@ export function CourseListPage() {
       title: '',
       category: 'Web Development',
       level: 'Intermediate',
+      targetBatch: 'All Batches',
       instructor: 'David Chen',
       thumbnail: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=600&auto=format&fit=crop&q=80',
       description: ''
@@ -59,6 +73,7 @@ export function CourseListPage() {
       title: course.title,
       category: course.category,
       level: course.level,
+      targetBatch: course.targetBatch || 'All Batches',
       instructor: course.instructor,
       thumbnail: course.thumbnail || 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=600&auto=format&fit=crop&q=80',
       description: course.description
@@ -79,7 +94,8 @@ export function CourseListPage() {
     } else {
       addCourse({
         ...formData,
-        topics: [
+        targetBatch: batchFilter || activeBatchFilter || 'Weekday Batch',
+        topics: (formData.topics && formData.topics.length > 0) ? formData.topics : [
           {
             id: `top-${Date.now()}-1`,
             title: 'Module 1: Core Fundamentals & Setup',
@@ -115,7 +131,8 @@ export function CourseListPage() {
       c.instructor.toLowerCase().includes(searchTerm.toLowerCase()) ||
       c.description.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = categoryFilter === 'ALL' || c.category === categoryFilter;
-    return matchesSearch && matchesCategory;
+    const matchesBatch = batchFilter === 'ALL' || !c.targetBatch || c.targetBatch === 'All Batches' || c.targetBatch === batchFilter || c.targetBatch === activeBatchFilter;
+    return matchesSearch && matchesCategory && matchesBatch;
   });
 
   return (
@@ -130,9 +147,35 @@ export function CourseListPage() {
             Manage curriculum tracks, author topics, and organize live classes, practice sets, and assessments.
           </p>
         </div>
-        <Button variant="primary" size="md" icon={Plus} onClick={handleOpenAddModal}>
-          Create New Course
-        </Button>
+        <div className="flex items-center gap-3">
+          {/* Batch Selector Pills */}
+          <div className="flex items-center gap-1 p-1 bg-slate-100/80 rounded-xl border border-slate-200/80">
+            <button
+              onClick={() => setBatchFilter('Weekday Batch')}
+              className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                (batchFilter === 'Weekday Batch' || (!batchFilter && activeBatchFilter === 'Weekday Batch'))
+                  ? 'bg-blue-600 text-white shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+              }`}
+            >
+              Weekday (A26W)
+            </button>
+            <button
+              onClick={() => setBatchFilter('Weekend Batch')}
+              className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                batchFilter === 'Weekend Batch'
+                  ? 'bg-purple-600 text-white shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+              }`}
+            >
+              Weekend (A26S)
+            </button>
+          </div>
+
+          <Button variant="primary" size="md" icon={Plus} onClick={handleOpenAddModal}>
+            Create New Course
+          </Button>
+        </div>
       </div>
 
       {/* Toolbar */}
@@ -160,6 +203,18 @@ export function CourseListPage() {
             ]}
           />
         </div>
+
+        <div className="w-full md:w-56">
+          <Select
+            value={batchFilter}
+            onChange={(e) => setBatchFilter(e.target.value)}
+            options={[
+              { value: 'ALL', label: 'All Batches' },
+              { value: 'Weekday Batch', label: 'Weekday Batch' },
+              { value: 'Weekend Batch', label: 'Weekend Batch' }
+            ]}
+          />
+        </div>
       </div>
 
       {/* Structured Course Grid Cards */}
@@ -179,10 +234,19 @@ export function CourseListPage() {
                     alt={course.title}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-90 group-hover:opacity-100"
                   />
-                  {/* Category Pill Top Left */}
-                  <div className="absolute top-3 left-3">
+                  {/* Category & Batch Pills Top Left */}
+                  <div className="absolute top-3 left-3 flex flex-col gap-1 items-start">
                     <span className="bg-slate-950/80 text-white text-[11px] font-bold px-3 py-1 rounded-lg backdrop-blur-md border border-white/10 shadow-sm">
                       {course.category}
+                    </span>
+                    <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-md shadow-xs ${
+                      course.targetBatch === 'Weekday Batch'
+                        ? 'bg-blue-600 text-white'
+                        : course.targetBatch === 'Weekend Batch'
+                        ? 'bg-purple-600 text-white'
+                        : 'bg-emerald-600 text-white'
+                    }`}>
+                      {course.targetBatch || 'All Batches'}
                     </span>
                   </div>
 
@@ -283,7 +347,7 @@ export function CourseListPage() {
             required
           />
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-3 gap-4">
             <Select
               label="Category"
               value={formData.category}
@@ -304,6 +368,17 @@ export function CourseListPage() {
                 { value: 'Intermediate', label: 'Intermediate' },
                 { value: 'Advanced', label: 'Advanced' },
                 { value: 'All Levels', label: 'All Levels' }
+              ]}
+            />
+
+            <Select
+              label="Target Batch Access"
+              value={formData.targetBatch}
+              onChange={(e) => setFormData({ ...formData, targetBatch: e.target.value })}
+              options={[
+                { value: 'All Batches', label: 'All Batches' },
+                { value: 'Weekday Batch', label: 'Weekday Batch' },
+                { value: 'Weekend Batch', label: 'Weekend Batch' }
               ]}
             />
           </div>

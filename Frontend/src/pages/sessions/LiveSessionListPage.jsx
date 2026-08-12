@@ -17,11 +17,13 @@ import {
   UserCheck,
   Edit2,
   Trash2,
-  Tv2
+  Tv2,
+  Lock,
+  Unlock
 } from 'lucide-react';
 
 export function LiveSessionListPage() {
-  const { liveSessions, addLiveSession, updateLiveSession, deleteLiveSession } = useLmsData();
+  const { liveSessions, addLiveSession, updateLiveSession, deleteLiveSession, toggleLiveSessionLock, activeBatchFilter, setActiveBatchFilter } = useLmsData();
   const { addToast } = useToast();
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -117,9 +119,35 @@ export function LiveSessionListPage() {
             Schedule live webinars, broadcast Google Meet / Zoom links, and manage instructor class calendars.
           </p>
         </div>
-        <Button variant="primary" size="md" icon={Plus} onClick={handleOpenAddModal}>
-          Schedule Live Class
-        </Button>
+        <div className="flex items-center gap-3">
+          {/* Batch Selector Pills */}
+          <div className="flex items-center gap-1 p-1 bg-slate-100/80 rounded-xl border border-slate-200/80">
+            <button
+              onClick={() => setActiveBatchFilter && setActiveBatchFilter('Weekday Batch')}
+              className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                activeBatchFilter === 'Weekday Batch' || activeBatchFilter === 'ALL'
+                  ? 'bg-blue-600 text-white shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+              }`}
+            >
+              Weekday (A26W)
+            </button>
+            <button
+              onClick={() => setActiveBatchFilter && setActiveBatchFilter('Weekend Batch')}
+              className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                activeBatchFilter === 'Weekend Batch'
+                  ? 'bg-purple-600 text-white shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+              }`}
+            >
+              Weekend (A26S)
+            </button>
+          </div>
+
+          <Button variant="primary" size="md" icon={Plus} onClick={handleOpenAddModal}>
+            Schedule Live Class
+          </Button>
+        </div>
       </div>
 
       {/* Toolbar */}
@@ -165,12 +193,33 @@ export function LiveSessionListPage() {
                   </Badge>
 
                   <div className="flex items-center gap-2">
-                    <Badge variant={sess.status === 'Live Soon' ? 'rose' : sess.status === 'Completed' ? 'slate' : 'sky'}>
-                      {sess.status === 'Live Soon' && <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping mr-1 inline-block" />}
-                      {sess.status}
-                    </Badge>
+                    {sess.isLocked ? (
+                      <Badge variant="amber" className="px-3 py-1 bg-amber-50 text-amber-700 border-amber-200">
+                        <Lock className="w-3 h-3 mr-1 inline" /> Locked
+                      </Badge>
+                    ) : (
+                      <Badge variant={sess.status === 'Live Soon' ? 'rose' : sess.status === 'Completed' ? 'slate' : 'sky'}>
+                        {sess.status === 'Live Soon' && <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping mr-1 inline-block" />}
+                        {sess.status}
+                      </Badge>
+                    )}
 
                     <div className="flex items-center gap-1 bg-slate-50 p-1 rounded-xl">
+                      <button
+                        onClick={() => {
+                          toggleLiveSessionLock(sess.id);
+                          addToast(sess.isLocked ? `Unlocked session: "${sess.sessionTitle}"` : `Locked session: "${sess.sessionTitle}"`, 'info');
+                        }}
+                        className={`p-1 rounded-lg transition-colors cursor-pointer ${
+                          sess.isLocked
+                            ? 'text-amber-600 bg-amber-50 hover:bg-amber-100'
+                            : 'text-slate-400 hover:text-amber-600 hover:bg-white'
+                        }`}
+                        title={sess.isLocked ? "Unlock Session" : "Lock Session"}
+                      >
+                        {sess.isLocked ? <Lock className="w-3.5 h-3.5" /> : <Unlock className="w-3.5 h-3.5" />}
+                      </button>
+
                       <button
                         onClick={() => handleOpenEditModal(sess)}
                         className="p-1 text-slate-400 hover:text-blue-600 rounded-lg hover:bg-white transition-colors cursor-pointer"
@@ -222,14 +271,23 @@ export function LiveSessionListPage() {
 
               {/* Meeting Room Button */}
               <div className="mt-6 pt-4 border-t border-slate-100">
-                <a
-                  href={sess.meetingLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs shadow-md shadow-blue-500/20 hover:shadow-lg transition-all"
-                >
-                  <Tv2 className="w-4 h-4" /> Open Meeting Room <ExternalLink className="w-3.5 h-3.5 opacity-80" />
-                </a>
+                {sess.isLocked ? (
+                  <button
+                    disabled
+                    className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-100 text-slate-400 font-bold rounded-xl text-xs border border-slate-200 cursor-not-allowed"
+                  >
+                    <Lock className="w-4 h-4 text-amber-500" /> Meeting Room Locked
+                  </button>
+                ) : (
+                  <a
+                    href={sess.meetingLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs shadow-md shadow-blue-500/20 hover:shadow-lg transition-all"
+                  >
+                    <Tv2 className="w-4 h-4" /> Open Meeting Room <ExternalLink className="w-3.5 h-3.5 opacity-80" />
+                  </a>
+                )}
               </div>
             </div>
           ))}

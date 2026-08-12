@@ -27,7 +27,7 @@ import {
 } from 'lucide-react';
 
 export function CodingQuestionsPage() {
-  const { codingQuestions, courses, addCodingQuestion, updateCodingQuestion, deleteCodingQuestion } = useLmsData();
+  const { codingQuestions, courses, addCodingQuestion, updateCodingQuestion, deleteCodingQuestion, activeBatchFilter, setActiveBatchFilter } = useLmsData();
   const { addToast } = useToast();
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -232,15 +232,41 @@ export function CodingQuestionsPage() {
           </p>
         </div>
 
-        <Button
-          variant="primary"
-          size="md"
-          icon={Plus}
-          onClick={handleOpenAddModal}
-          className="shadow-md bg-emerald-600 hover:bg-emerald-700 text-white"
-        >
-          Post Coding Question
-        </Button>
+        <div className="flex items-center gap-3">
+          {/* Batch Selector Pills */}
+          <div className="flex items-center gap-1 p-1 bg-slate-100/80 rounded-xl border border-slate-200/80">
+            <button
+              onClick={() => setActiveBatchFilter && setActiveBatchFilter('Weekday Batch')}
+              className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                activeBatchFilter === 'Weekday Batch' || activeBatchFilter === 'ALL'
+                  ? 'bg-blue-600 text-white shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+              }`}
+            >
+              Weekday (A26W)
+            </button>
+            <button
+              onClick={() => setActiveBatchFilter && setActiveBatchFilter('Weekend Batch')}
+              className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                activeBatchFilter === 'Weekend Batch'
+                  ? 'bg-purple-600 text-white shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+              }`}
+            >
+              Weekend (A26S)
+            </button>
+          </div>
+
+          <Button
+            variant="primary"
+            size="md"
+            icon={Plus}
+            onClick={handleOpenAddModal}
+            className="shadow-md bg-emerald-600 hover:bg-emerald-700 text-white"
+          >
+            Post New Question
+          </Button>
+        </div>
       </div>
 
       {/* Metrics Bar */}

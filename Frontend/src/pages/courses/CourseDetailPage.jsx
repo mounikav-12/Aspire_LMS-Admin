@@ -19,16 +19,19 @@ import {
   Edit2,
   Users,
   Star,
-  Layers
+  Layers,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 
 export function CourseDetailPage() {
   const { courseId } = useParams();
-  const { courses, updateCourse } = useLmsData();
+  const { courses, updateCourse, milestones } = useLmsData();
   const { addToast } = useToast();
 
   const course = courses.find((c) => c.id === courseId);
 
+  const [expandedTopicIds, setExpandedTopicIds] = useState(['top-p1', 'top-1']); // default first topic open
   const [isAddTopicModalOpen, setIsAddTopicModalOpen] = useState(false);
   const [editingTopic, setEditingTopic] = useState(null);
   const [topicFormData, setTopicFormData] = useState({
@@ -37,6 +40,12 @@ export function CourseDetailPage() {
     practice: 3,
     assessments: 1
   });
+
+  const toggleExpandTopic = (topicId) => {
+    setExpandedTopicIds((prev) =>
+      prev.includes(topicId) ? prev.filter((id) => id !== topicId) : [...prev, topicId]
+    );
+  };
 
   if (!course) {
     return (
@@ -117,9 +126,18 @@ export function CourseDetailPage() {
       <div className="bg-white rounded-3xl border border-slate-200/80 p-8 shadow-2xs relative overflow-hidden">
         <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
           <div className="space-y-3 flex-1">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               <Badge variant="blue">{course.category}</Badge>
               <Badge variant="purple">{course.level}</Badge>
+              <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-lg border ${
+                course.targetBatch === 'Weekday Batch'
+                  ? 'bg-blue-50 text-blue-700 border-blue-200'
+                  : course.targetBatch === 'Weekend Batch'
+                  ? 'bg-purple-50 text-purple-700 border-purple-200'
+                  : 'bg-slate-100 text-slate-700 border-slate-200'
+              }`}>
+                {course.targetBatch || 'All Batches'}
+              </span>
             </div>
 
             <h1 className="text-2xl lg:text-3xl font-black text-slate-900 tracking-tight leading-snug">
@@ -165,52 +183,134 @@ export function CourseDetailPage() {
 
         {course.topics && course.topics.length > 0 ? (
           <div className="grid grid-cols-1 gap-4">
-            {course.topics.map((topic, index) => (
-              <div
-                key={topic.id}
-                className="bg-white rounded-3xl border border-slate-200/80 p-6 shadow-2xs hover:shadow-xl hover:border-blue-300 transition-all duration-300 flex flex-col md:flex-row md:items-center justify-between gap-4 group"
-              >
-                <div className="space-y-2 flex-1">
-                  <div className="flex items-center gap-2">
-                    <span className="w-7 h-7 rounded-xl bg-blue-50 text-blue-700 text-xs font-black flex items-center justify-center border border-blue-100">
-                      #{index + 1}
-                    </span>
-                    <h3 className="font-extrabold text-slate-900 text-base group-hover:text-blue-600 transition-colors">
-                      {topic.title}
-                    </h3>
+            {course.topics.map((topic, index) => {
+              const isExpanded = expandedTopicIds.includes(topic.id);
+              const matchingStage = milestones?.stages?.[index];
+
+              return (
+                <div
+                  key={topic.id}
+                  className="bg-white rounded-3xl border border-slate-200/80 p-6 shadow-2xs hover:shadow-xl hover:border-blue-300 transition-all duration-300 group"
+                >
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div
+                      onClick={() => toggleExpandTopic(topic.id)}
+                      className="space-y-2 flex-1 cursor-pointer"
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className="w-7 h-7 rounded-xl bg-blue-50 text-blue-700 text-xs font-black flex items-center justify-center border border-blue-100">
+                          #{index + 1}
+                        </span>
+                        <h3 className="font-extrabold text-slate-900 text-base group-hover:text-blue-600 transition-colors">
+                          {topic.title}
+                        </h3>
+                      </div>
+
+                      <div className="flex flex-wrap items-center gap-2 pt-1">
+                        <Badge variant="emerald">
+                          <Video className="w-3 h-3 mr-1" /> {topic.liveClasses} Live Classes
+                        </Badge>
+                        <Badge variant="sky">
+                          <Code2 className="w-3 h-3 mr-1" /> {topic.practice} Practice Tasks
+                        </Badge>
+                        <Badge variant="purple">
+                          <FileCheck2 className="w-3 h-3 mr-1" /> {topic.assessments} Assessments
+                        </Badge>
+                        <span className="text-[11px] font-bold text-blue-600 underline decoration-blue-300 underline-offset-4 ml-1">
+                          {isExpanded ? 'Hide Modules' : 'Click to view modules'}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 self-end md:self-center">
+                      <button
+                        onClick={() => toggleExpandTopic(topic.id)}
+                        className="p-2 text-slate-500 hover:text-blue-600 rounded-xl hover:bg-slate-100 transition-colors cursor-pointer flex items-center gap-1 text-xs font-bold"
+                        title={isExpanded ? "Collapse Modules" : "Expand Modules"}
+                      >
+                        {isExpanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleOpenEditModal(topic);
+                        }}
+                        className="p-2 text-slate-400 hover:text-blue-600 rounded-xl hover:bg-slate-100 transition-colors cursor-pointer"
+                        title="Edit Topic"
+                      >
+                        <Edit2 className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteTopic(topic.id, topic.title);
+                        }}
+                        className="p-2 text-slate-400 hover:text-rose-600 rounded-xl hover:bg-slate-100 transition-colors cursor-pointer"
+                        title="Delete Topic"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
 
-                  <div className="flex flex-wrap items-center gap-2 pt-1">
-                    <Badge variant="emerald">
-                      <Video className="w-3 h-3 mr-1" /> {topic.liveClasses} Live Classes
-                    </Badge>
-                    <Badge variant="sky">
-                      <Code2 className="w-3 h-3 mr-1" /> {topic.practice} Practice Tasks
-                    </Badge>
-                    <Badge variant="purple">
-                      <FileCheck2 className="w-3 h-3 mr-1" /> {topic.assessments} Assessments
-                    </Badge>
-                  </div>
-                </div>
+                  {/* Expanded Stage Modules Drawer */}
+                  {isExpanded && (
+                    <div className="mt-5 pt-4 border-t border-slate-100 bg-slate-50/60 p-5 rounded-2xl space-y-4 animate-in fade-in slide-in-from-top-2 duration-200">
+                      <div className="flex items-center justify-between">
+                        <h4 className="text-xs font-black uppercase tracking-wider text-slate-600 flex items-center gap-2">
+                          <Layers className="w-4 h-4 text-blue-600" /> Stage Subtopics & Curriculum Topics
+                        </h4>
+                        <span className="text-[11px] font-bold text-slate-400">
+                          {matchingStage?.subtopics?.length || 0} Subtopics Configured
+                        </span>
+                      </div>
 
-                <div className="flex items-center gap-2 self-end md:self-center">
-                  <button
-                    onClick={() => handleOpenEditModal(topic)}
-                    className="p-2 text-slate-400 hover:text-blue-600 rounded-xl hover:bg-slate-100 transition-colors cursor-pointer"
-                    title="Edit Topic"
-                  >
-                    <Edit2 className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={() => handleDeleteTopic(topic.id, topic.title)}
-                    className="p-2 text-slate-400 hover:text-rose-600 rounded-xl hover:bg-slate-100 transition-colors cursor-pointer"
-                    title="Delete Topic"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
+                      {matchingStage?.subtopics && matchingStage.subtopics.length > 0 ? (
+                        <div className="space-y-4">
+                          {matchingStage.subtopics.map((subtopic, sIdx) => (
+                            <div key={subtopic.id || sIdx} className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-2xs space-y-3">
+                              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                                <div>
+                                  <h5 className="font-bold text-slate-900 text-sm flex items-center gap-2">
+                                    <span className="w-5 h-5 rounded-md bg-blue-100 text-blue-700 text-[10px] font-black flex items-center justify-center">
+                                      {sIdx + 1}
+                                    </span>
+                                    {subtopic.title}
+                                  </h5>
+                                  {subtopic.duration && (
+                                    <p className="text-xs text-slate-500 mt-1 font-medium pl-7 leading-relaxed">
+                                      {subtopic.duration}
+                                    </p>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="bg-white p-4 rounded-xl border border-slate-200/80 space-y-2">
+                          <p className="text-xs font-bold text-slate-700">Topic Module Summary:</p>
+                          <div className="grid grid-cols-3 gap-2 text-center text-xs">
+                            <div className="p-2.5 bg-emerald-50 rounded-xl border border-emerald-100">
+                              <span className="block font-black text-emerald-700 text-sm">{topic.liveClasses}</span>
+                              <span className="text-[10px] text-emerald-600 font-bold">Live Classes</span>
+                            </div>
+                            <div className="p-2.5 bg-sky-50 rounded-xl border border-sky-100">
+                              <span className="block font-black text-sky-700 text-sm">{topic.practice}</span>
+                              <span className="text-[10px] text-sky-600 font-bold">Practice Tasks</span>
+                            </div>
+                            <div className="p-2.5 bg-purple-50 rounded-xl border border-purple-100">
+                              <span className="block font-black text-purple-700 text-sm">{topic.assessments}</span>
+                              <span className="text-[10px] text-purple-600 font-bold">Assessments</span>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         ) : (
           <EmptyState

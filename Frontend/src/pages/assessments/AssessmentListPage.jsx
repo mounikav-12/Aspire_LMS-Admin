@@ -28,8 +28,15 @@ import {
 } from 'lucide-react';
 
 export function AssessmentListPage() {
-  const { assessments, courses, addAssessment, updateAssessment, deleteAssessment } = useLmsData();
+  const { assessments, courses, addAssessment, updateAssessment, deleteAssessment, activeBatchFilter, setActiveBatchFilter } = useLmsData();
   const { addToast } = useToast();
+
+  const [selectedBatch, setSelectedBatch] = useState(activeBatchFilter || 'Weekday Batch');
+
+  const handleSelectBatch = (bVal) => {
+    setSelectedBatch(bVal);
+    if (setActiveBatchFilter) setActiveBatchFilter(bVal);
+  };
 
   const [searchTerm, setSearchTerm] = useState('');
   const [courseFilter, setCourseFilter] = useState('ALL');
@@ -286,9 +293,33 @@ export function AssessmentListPage() {
           </p>
         </div>
         <div className="flex items-center gap-2.5">
+          {/* Batch Selector Pills */}
+          <div className="flex items-center gap-1 p-1 bg-slate-100/80 rounded-xl border border-slate-200/80">
+            <button
+              onClick={() => handleSelectBatch('Weekday Batch')}
+              className={`px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                (selectedBatch === 'Weekday Batch' || activeBatchFilter === 'Weekday Batch')
+                  ? 'bg-blue-600 text-white shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+              }`}
+            >
+              Weekday (A26W)
+            </button>
+            <button
+              onClick={() => handleSelectBatch('Weekend Batch')}
+              className={`px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                selectedBatch === 'Weekend Batch'
+                  ? 'bg-purple-600 text-white shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+              }`}
+            >
+              Weekend (A26S)
+            </button>
+          </div>
+
           <NavLink to="/coding-questions">
             <Button variant="outline" size="md" icon={Code2} className="border-emerald-200 text-emerald-700 hover:bg-emerald-50 font-bold">
-              Coding Question Bank
+              Coding Bank
             </Button>
           </NavLink>
           <Button variant="primary" size="md" icon={Plus} onClick={handleOpenAddModal}>

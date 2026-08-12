@@ -96,7 +96,176 @@ export const INITIAL_USERS = [
   }
 ];
 
+export const INITIAL_STUDENTS = [
+  // 5 Weekday Batch Students (Registration IDs: A26WXXXX)
+  {
+    id: 'std-w1',
+    registrationId: 'A26W0001',
+    name: 'Rahul Sharma',
+    email: 'rahul.sharma@gmail.com',
+    batch: 'Weekday Batch',
+    status: 'Active',
+    joinedDate: '2026-01-10',
+    avatar: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150&auto=format&fit=crop&q=80',
+    enrolledCourses: ['crs-101', 'crs-103'],
+    unlockedStages: ['stg-1', 'stg-2']
+  },
+  {
+    id: 'std-w2',
+    registrationId: 'A26W0002',
+    name: 'Ananya Verma',
+    email: 'ananya.verma@gmail.com',
+    batch: 'Weekday Batch',
+    status: 'Active',
+    joinedDate: '2026-01-12',
+    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+    enrolledCourses: ['crs-101'],
+    unlockedStages: ['stg-1', 'stg-2', 'stg-3']
+  },
+  {
+    id: 'std-w3',
+    registrationId: 'A26W0003',
+    name: 'Vikram Patel',
+    email: 'vikram.patel@gmail.com',
+    batch: 'Weekday Batch',
+    status: 'Active',
+    joinedDate: '2026-01-15',
+    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
+    enrolledCourses: ['crs-101', 'crs-102'],
+    unlockedStages: ['stg-1']
+  },
+  {
+    id: 'std-w4',
+    registrationId: 'A26W0004',
+    name: 'Sneha Reddy',
+    email: 'sneha.reddy@gmail.com',
+    batch: 'Weekday Batch',
+    status: 'Active',
+    joinedDate: '2026-01-18',
+    avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80',
+    enrolledCourses: ['crs-101'],
+    unlockedStages: ['stg-1', 'stg-2']
+  },
+  {
+    id: 'std-w5',
+    registrationId: 'A26W0005',
+    name: 'Rohan Gupta',
+    email: 'rohan.gupta@gmail.com',
+    batch: 'Weekday Batch',
+    status: 'Active',
+    joinedDate: '2026-01-20',
+    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80',
+    enrolledCourses: ['crs-101', 'crs-103'],
+    unlockedStages: ['stg-1']
+  },
+
+  // 5 Weekend Batch Students (Registration IDs: A26SXXXX)
+  {
+    id: 'std-s1',
+    registrationId: 'A26S0001',
+    name: 'Karthik Nair',
+    email: 'karthik.nair@gmail.com',
+    batch: 'Weekend Batch',
+    status: 'Active',
+    joinedDate: '2026-01-11',
+    avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150&auto=format&fit=crop&q=80',
+    enrolledCourses: ['crs-102'],
+    unlockedStages: ['stg-1', 'stg-2']
+  },
+  {
+    id: 'std-s2',
+    registrationId: 'A26S0002',
+    name: 'Meera Iyer',
+    email: 'meera.iyer@gmail.com',
+    batch: 'Weekend Batch',
+    status: 'Active',
+    joinedDate: '2026-01-14',
+    avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&auto=format&fit=crop&q=80',
+    enrolledCourses: ['crs-102', 'crs-103'],
+    unlockedStages: ['stg-1']
+  },
+  {
+    id: 'std-s3',
+    registrationId: 'A26S0003',
+    name: 'Aditya Kulkarni',
+    email: 'aditya.kulkarni@gmail.com',
+    batch: 'Weekend Batch',
+    status: 'Active',
+    joinedDate: '2026-01-16',
+    avatar: 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=150&auto=format&fit=crop&q=80',
+    enrolledCourses: ['crs-102'],
+    unlockedStages: ['stg-1', 'stg-2']
+  },
+  {
+    id: 'std-s4',
+    registrationId: 'A26S0004',
+    name: 'Pooja Hegde',
+    email: 'pooja.hegde@gmail.com',
+    batch: 'Weekend Batch',
+    status: 'Active',
+    joinedDate: '2026-01-19',
+    avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&auto=format&fit=crop&q=80',
+    enrolledCourses: ['crs-102', 'crs-101'],
+    unlockedStages: ['stg-1']
+  },
+  {
+    id: 'std-s5',
+    registrationId: 'A26S0005',
+    name: 'Siddharth Joshi',
+    email: 'siddharth.joshi@gmail.com',
+    batch: 'Weekend Batch',
+    status: 'Active',
+    joinedDate: '2026-01-22',
+    avatar: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=150&auto=format&fit=crop&q=80',
+    enrolledCourses: ['crs-102'],
+    unlockedStages: ['stg-1']
+  }
+];
+
 export const INITIAL_COURSES = [
+  {
+    id: 'crs-python-ai',
+    title: 'Python Full Stack + DSA with AI',
+    category: 'Web Development',
+    level: 'Comprehensive',
+    instructor: 'Senior Engineering Team',
+    publishStatus: 'Published',
+    targetBatch: 'All Batches',
+    thumbnail: 'https://images.unsplash.com/photo-1526379095098-d400fd0bf935?w=600&auto=format&fit=crop&q=80',
+    enrolledCount: 480,
+    rating: 4.95,
+    description: 'Master core engineering fundamentals, Python backend with Django & FastAPI, Data Structures & Algorithms, modern frontend, and real-world AI integrations.',
+    topics: [
+      {
+        id: 'top-p1',
+        title: 'Stage 1: Front End + Repository (Git & Web Architecture)',
+        liveClasses: 31,
+        practice: 45,
+        assessments: 12
+      },
+      {
+        id: 'top-p2',
+        title: 'Stage 2: Backend + DSA (Python, SQL, Django & Algorithms)',
+        liveClasses: 81,
+        practice: 110,
+        assessments: 25
+      },
+      {
+        id: 'top-p3',
+        title: 'Stage 3: AI & Cloud Integration (LangChain, Prompt Engineering & Docker)',
+        liveClasses: 17,
+        practice: 25,
+        assessments: 8
+      },
+      {
+        id: 'top-p4',
+        title: 'Stage 4: Career Launchpad (System Design, Capstone & Mock Interviews)',
+        liveClasses: 23,
+        practice: 30,
+        assessments: 10
+      }
+    ]
+  },
   {
     id: 'crs-101',
     title: 'Full-Stack React & Node.js Mastery',
@@ -104,6 +273,7 @@ export const INITIAL_COURSES = [
     level: 'Intermediate',
     instructor: 'David Chen',
     publishStatus: 'Published',
+    targetBatch: 'All Batches',
     thumbnail: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=600&auto=format&fit=crop&q=80',
     enrolledCount: 342,
     rating: 4.9,
@@ -617,7 +787,7 @@ export const INITIAL_MILESTONES = {
     {
       "id": "stage-1",
       "stageNumber": "STAGE 01",
-      "phaseTag": "Phase 1 • Frontend & Version Control",
+      "phaseTag": "Phase 1 \u2022 Frontend & Version Control",
       "title": "Stage 1: Front End + Repository",
       "status": "IN PROGRESS",
       "statusType": "in-progress",
@@ -628,39 +798,145 @@ export const INITIAL_MILESTONES = {
           "title": "Git & GitHub Version Control",
           "description": "Click to view subtopics",
           "duration": "Git Architecture, Commands (init, add, commit, push, pull), Branching Strategy, Merge Conflicts, GitHub Pull Requests & Collaboration",
-          "modulesCount": 2,
+          "modulesCount": 5,
           "modules": [
             {
               "id": "mod-git-github-1",
-              "title": "Git Architecture & Core Commands",
+              "title": "Session 1: Git Architecture & Core Concepts",
               "items": [
                 {
-                  "id": "git-github-m1-live",
+                  "id": "git-github-s1-live",
                   "type": "LIVE CLASS",
                   "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
                   "iconName": "Video",
                   "iconBg": "bg-purple-600 text-white",
-                  "title": "Git Architecture & Commands Masterclass",
+                  "title": "Git Architecture & Core Concepts Masterclass",
                   "actionText": "JOIN",
-                  "url": "https://zoom.us/live-git-github-1",
+                  "url": "https://zoom.us/live-git-github-s1",
                   "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
+                },
+                {
+                  "id": "git-github-s1-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: Git Architecture & Core Concepts",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/git-github-s1",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
                 }
               ]
             },
             {
               "id": "mod-git-github-2",
-              "title": "Branching Strategies & Conflict Resolution",
+              "title": "Session 2: Core Git Commands & Three-Tree State",
               "items": [
                 {
-                  "id": "git-github-m2-live",
+                  "id": "git-github-s2-live",
                   "type": "LIVE CLASS",
                   "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
                   "iconName": "Video",
                   "iconBg": "bg-purple-600 text-white",
-                  "title": "Branching, PRs & Merge Conflicts Workshop",
+                  "title": "Core Git Commands & Three-Tree State Masterclass",
                   "actionText": "JOIN",
-                  "url": "https://zoom.us/live-git-github-2",
+                  "url": "https://zoom.us/live-git-github-s2",
                   "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
+                },
+                {
+                  "id": "git-github-s2-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: Core Git Commands & Three-Tree State",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/git-github-s2",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-git-github-3",
+              "title": "Session 3: Remote Repositories & Syncing",
+              "items": [
+                {
+                  "id": "git-github-s3-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "Remote Repositories & Syncing Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-git-github-s3",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
+                },
+                {
+                  "id": "git-github-s3-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: Remote Repositories & Syncing",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/git-github-s3",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-git-github-4",
+              "title": "Session 4: Branching Strategies & Merging",
+              "items": [
+                {
+                  "id": "git-github-s4-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "Branching Strategies & Merging Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-git-github-s4",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
+                },
+                {
+                  "id": "git-github-s4-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: Branching Strategies & Merging",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/git-github-s4",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-git-github-5",
+              "title": "Session 5: Merge Conflicts, PRs & Collaboration",
+              "items": [
+                {
+                  "id": "git-github-s5-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "Merge Conflicts, PRs & Collaboration Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-git-github-s5",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
+                },
+                {
+                  "id": "git-github-s5-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: Merge Conflicts, PRs & Collaboration",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/git-github-s5",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
                 }
               ]
             }
@@ -671,83 +947,173 @@ export const INITIAL_MILESTONES = {
           "title": "HTML5 & Web Architecture",
           "description": "Click to view subtopics",
           "duration": "Web Architecture, Client-Server Model, HTML5 Document Structure, Semantic Elements, Forms, Input Types, Validation, Tables, Media Tags",
-          "modulesCount": 2,
+          "modulesCount": 6,
           "modules": [
             {
               "id": "mod-html5-web-arch-1",
-              "title": "Web Architecture & Document Structure",
+              "title": "Session 1: Web Architecture & Client-Server Model",
               "items": [
                 {
-                  "id": "html5-web-arch-m1-live",
+                  "id": "html5-web-arch-s1-live",
                   "type": "LIVE CLASS",
                   "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
                   "iconName": "Video",
                   "iconBg": "bg-purple-600 text-white",
-                  "title": "Web Architecture & Client-Server Model",
+                  "title": "Web Architecture & Client-Server Model Masterclass",
                   "actionText": "JOIN",
-                  "url": "https://zoom.us/live-html5-web-arch-1",
+                  "url": "https://zoom.us/live-html5-web-arch-s1",
                   "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "html5-web-arch-m1-lab",
+                  "id": "html5-web-arch-s1-lab",
                   "type": "PRACTICAL LAB",
                   "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
                   "iconName": "Code",
                   "iconBg": "bg-amber-500 text-white",
-                  "title": "HTML5 Semantic Layout & Document Structure",
+                  "title": "Hands-on Lab: Web Architecture & Client-Server Model",
                   "actionText": "VIEW",
-                  "url": "https://lab.aspirelms.io/html5-web-arch-1",
+                  "url": "https://lab.aspirelms.io/html5-web-arch-s1",
                   "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
-                },
-                {
-                  "id": "html5-web-arch-m1-quiz",
-                  "type": "ASSESSMENT",
-                  "typeColor": "bg-blue-100 text-blue-700 border-blue-200",
-                  "iconName": "FileCheck",
-                  "iconBg": "bg-blue-600 text-white",
-                  "title": "HTML5 Structure Quiz",
-                  "actionText": "TAKE",
-                  "url": "/assessments",
-                  "btnStyle": "bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30"
                 }
               ]
             },
             {
               "id": "mod-html5-web-arch-2",
-              "title": "HTML5 Forms, Validation & Media Tags",
+              "title": "Session 2: HTML5 Document Structure & Meta Tags",
               "items": [
                 {
-                  "id": "html5-web-arch-m2-live",
+                  "id": "html5-web-arch-s2-live",
                   "type": "LIVE CLASS",
                   "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
                   "iconName": "Video",
                   "iconBg": "bg-purple-600 text-white",
-                  "title": "HTML5 Forms, Validation & Media Workshop",
+                  "title": "HTML5 Document Structure & Meta Tags Masterclass",
                   "actionText": "JOIN",
-                  "url": "https://zoom.us/live-html5-web-arch-2",
+                  "url": "https://zoom.us/live-html5-web-arch-s2",
                   "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "html5-web-arch-m2-lab",
+                  "id": "html5-web-arch-s2-lab",
                   "type": "PRACTICAL LAB",
                   "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
                   "iconName": "Code",
                   "iconBg": "bg-amber-500 text-white",
-                  "title": "Building Validated Forms & Media Gallery",
+                  "title": "Hands-on Lab: HTML5 Document Structure & Meta Tags",
                   "actionText": "VIEW",
-                  "url": "https://lab.aspirelms.io/html5-web-arch-2",
+                  "url": "https://lab.aspirelms.io/html5-web-arch-s2",
                   "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-html5-web-arch-3",
+              "title": "Session 3: Text Formatting, Lists & Hyperlinks",
+              "items": [
+                {
+                  "id": "html5-web-arch-s3-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "Text Formatting, Lists & Hyperlinks Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-html5-web-arch-s3",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "html5-web-arch-m2-quiz",
-                  "type": "ASSESSMENT",
-                  "typeColor": "bg-blue-100 text-blue-700 border-blue-200",
-                  "iconName": "FileCheck",
-                  "iconBg": "bg-blue-600 text-white",
-                  "title": "Forms & Accessibility Evaluation",
-                  "actionText": "TAKE",
-                  "url": "/assessments",
-                  "btnStyle": "bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30"
+                  "id": "html5-web-arch-s3-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: Text Formatting, Lists & Hyperlinks",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/html5-web-arch-s3",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-html5-web-arch-4",
+              "title": "Session 4: Working with Media & Embedded Elements",
+              "items": [
+                {
+                  "id": "html5-web-arch-s4-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "Working with Media & Embedded Elements Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-html5-web-arch-s4",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
+                },
+                {
+                  "id": "html5-web-arch-s4-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: Working with Media & Embedded Elements",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/html5-web-arch-s4",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-html5-web-arch-5",
+              "title": "Session 5: Semantic HTML5 Layouts & Tables",
+              "items": [
+                {
+                  "id": "html5-web-arch-s5-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "Semantic HTML5 Layouts & Tables Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-html5-web-arch-s5",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
+                },
+                {
+                  "id": "html5-web-arch-s5-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: Semantic HTML5 Layouts & Tables",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/html5-web-arch-s5",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-html5-web-arch-6",
+              "title": "Session 6: HTML5 Forms, Validation & Accessibility",
+              "items": [
+                {
+                  "id": "html5-web-arch-s6-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "HTML5 Forms, Validation & Accessibility Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-html5-web-arch-s6",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
+                },
+                {
+                  "id": "html5-web-arch-s6-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: HTML5 Forms, Validation & Accessibility",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/html5-web-arch-s6",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
                 }
               ]
             }
@@ -758,83 +1124,145 @@ export const INITIAL_MILESTONES = {
           "title": "CSS3 Fundamentals & Box Model",
           "description": "Click to view subtopics",
           "duration": "CSS Syntax, Selectors (Element, Class, ID, Pseudo), Box Model (Margin, Padding, Border, Content), Colors, Typography, Backgrounds",
-          "modulesCount": 2,
+          "modulesCount": 5,
           "modules": [
             {
               "id": "mod-css3-box-model-1",
-              "title": "CSS Selectors & Styling Rules",
+              "title": "Session 1: CSS3 Syntax & Inclusion Methods",
               "items": [
                 {
-                  "id": "css3-box-model-m1-live",
+                  "id": "css3-box-model-s1-live",
                   "type": "LIVE CLASS",
                   "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
                   "iconName": "Video",
                   "iconBg": "bg-purple-600 text-white",
-                  "title": "CSS Syntax & Selectors Masterclass",
+                  "title": "CSS3 Syntax & Inclusion Methods Masterclass",
                   "actionText": "JOIN",
-                  "url": "https://zoom.us/live-css3-box-model-1",
+                  "url": "https://zoom.us/live-css3-box-model-s1",
                   "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "css3-box-model-m1-lab",
+                  "id": "css3-box-model-s1-lab",
                   "type": "PRACTICAL LAB",
                   "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
                   "iconName": "Code",
                   "iconBg": "bg-amber-500 text-white",
-                  "title": "Styling Text & Backgrounds Exercises",
+                  "title": "Hands-on Lab: CSS3 Syntax & Inclusion Methods",
                   "actionText": "VIEW",
-                  "url": "https://lab.aspirelms.io/css3-box-model-1",
+                  "url": "https://lab.aspirelms.io/css3-box-model-s1",
                   "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
-                },
-                {
-                  "id": "css3-box-model-m1-quiz",
-                  "type": "ASSESSMENT",
-                  "typeColor": "bg-blue-100 text-blue-700 border-blue-200",
-                  "iconName": "FileCheck",
-                  "iconBg": "bg-blue-600 text-white",
-                  "title": "CSS Selectors Knowledge Check",
-                  "actionText": "TAKE",
-                  "url": "/assessments",
-                  "btnStyle": "bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30"
                 }
               ]
             },
             {
               "id": "mod-css3-box-model-2",
-              "title": "CSS Box Model & Typography",
+              "title": "Session 2: Selectors, Combinators & Specificity Rules",
               "items": [
                 {
-                  "id": "css3-box-model-m2-live",
+                  "id": "css3-box-model-s2-live",
                   "type": "LIVE CLASS",
                   "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
                   "iconName": "Video",
                   "iconBg": "bg-purple-600 text-white",
-                  "title": "CSS Box Model & Spacing Workshop",
+                  "title": "Selectors, Combinators & Specificity Rules Masterclass",
                   "actionText": "JOIN",
-                  "url": "https://zoom.us/live-css3-box-model-2",
+                  "url": "https://zoom.us/live-css3-box-model-s2",
                   "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "css3-box-model-m2-lab",
+                  "id": "css3-box-model-s2-lab",
                   "type": "PRACTICAL LAB",
                   "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
                   "iconName": "Code",
                   "iconBg": "bg-amber-500 text-white",
-                  "title": "Card Layout & Box Model Styling Lab",
+                  "title": "Hands-on Lab: Selectors, Combinators & Specificity Rules",
                   "actionText": "VIEW",
-                  "url": "https://lab.aspirelms.io/css3-box-model-2",
+                  "url": "https://lab.aspirelms.io/css3-box-model-s2",
                   "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-css3-box-model-3",
+              "title": "Session 3: Pseudo-Classes & Pseudo-Elements",
+              "items": [
+                {
+                  "id": "css3-box-model-s3-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "Pseudo-Classes & Pseudo-Elements Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-css3-box-model-s3",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "css3-box-model-m2-quiz",
-                  "type": "ASSESSMENT",
-                  "typeColor": "bg-blue-100 text-blue-700 border-blue-200",
-                  "iconName": "FileCheck",
-                  "iconBg": "bg-blue-600 text-white",
-                  "title": "CSS Box Model Evaluation Quiz",
-                  "actionText": "TAKE",
-                  "url": "/assessments",
-                  "btnStyle": "bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30"
+                  "id": "css3-box-model-s3-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: Pseudo-Classes & Pseudo-Elements",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/css3-box-model-s3",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-css3-box-model-4",
+              "title": "Session 4: CSS Box Model & Sizing Mechanics",
+              "items": [
+                {
+                  "id": "css3-box-model-s4-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "CSS Box Model & Sizing Mechanics Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-css3-box-model-s4",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
+                },
+                {
+                  "id": "css3-box-model-s4-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: CSS Box Model & Sizing Mechanics",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/css3-box-model-s4",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-css3-box-model-5",
+              "title": "Session 5: Typography & Background Styling",
+              "items": [
+                {
+                  "id": "css3-box-model-s5-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "Typography & Background Styling Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-css3-box-model-s5",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
+                },
+                {
+                  "id": "css3-box-model-s5-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: Typography & Background Styling",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/css3-box-model-s5",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
                 }
               ]
             }
@@ -845,83 +1273,145 @@ export const INITIAL_MILESTONES = {
           "title": "Advanced CSS Layouts & Responsive Design",
           "description": "Click to view subtopics",
           "duration": "Flexbox Architecture, CSS Grid System, Positioning (Relative, Absolute, Fixed, Sticky), Media Queries, Responsive UI Patterns",
-          "modulesCount": 2,
+          "modulesCount": 5,
           "modules": [
             {
               "id": "mod-advanced-css-responsive-1",
-              "title": "Flexbox & CSS Grid Layouts",
+              "title": "Session 1: CSS Display, Positioning & Stacking Context",
               "items": [
                 {
-                  "id": "advanced-css-responsive-m1-live",
+                  "id": "advanced-css-responsive-s1-live",
                   "type": "LIVE CLASS",
                   "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
                   "iconName": "Video",
                   "iconBg": "bg-purple-600 text-white",
-                  "title": "Flexbox & CSS Grid Architecture Live Class",
+                  "title": "CSS Display, Positioning & Stacking Context Masterclass",
                   "actionText": "JOIN",
-                  "url": "https://zoom.us/live-advanced-css-responsive-1",
+                  "url": "https://zoom.us/live-advanced-css-responsive-s1",
                   "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "advanced-css-responsive-m1-lab",
+                  "id": "advanced-css-responsive-s1-lab",
                   "type": "PRACTICAL LAB",
                   "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
                   "iconName": "Code",
                   "iconBg": "bg-amber-500 text-white",
-                  "title": "Grid Dashboard & Flexbox Navigation Lab",
+                  "title": "Hands-on Lab: CSS Display, Positioning & Stacking Context",
                   "actionText": "VIEW",
-                  "url": "https://lab.aspirelms.io/advanced-css-responsive-1",
+                  "url": "https://lab.aspirelms.io/advanced-css-responsive-s1",
                   "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
-                },
-                {
-                  "id": "advanced-css-responsive-m1-quiz",
-                  "type": "ASSESSMENT",
-                  "typeColor": "bg-blue-100 text-blue-700 border-blue-200",
-                  "iconName": "FileCheck",
-                  "iconBg": "bg-blue-600 text-white",
-                  "title": "CSS Layout Systems Quiz",
-                  "actionText": "TAKE",
-                  "url": "/assessments",
-                  "btnStyle": "bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30"
                 }
               ]
             },
             {
               "id": "mod-advanced-css-responsive-2",
-              "title": "Positioning & Media Queries",
+              "title": "Session 2: Flexbox Container Properties & Alignment",
               "items": [
                 {
-                  "id": "advanced-css-responsive-m2-live",
+                  "id": "advanced-css-responsive-s2-live",
                   "type": "LIVE CLASS",
                   "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
                   "iconName": "Video",
                   "iconBg": "bg-purple-600 text-white",
-                  "title": "Responsive Media Queries & Mobile-First Design",
+                  "title": "Flexbox Container Properties & Alignment Masterclass",
                   "actionText": "JOIN",
-                  "url": "https://zoom.us/live-advanced-css-responsive-2",
+                  "url": "https://zoom.us/live-advanced-css-responsive-s2",
                   "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "advanced-css-responsive-m2-lab",
+                  "id": "advanced-css-responsive-s2-lab",
                   "type": "PRACTICAL LAB",
                   "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
                   "iconName": "Code",
                   "iconBg": "bg-amber-500 text-white",
-                  "title": "Responsive Web Page Layout Lab",
+                  "title": "Hands-on Lab: Flexbox Container Properties & Alignment",
                   "actionText": "VIEW",
-                  "url": "https://lab.aspirelms.io/advanced-css-responsive-2",
+                  "url": "https://lab.aspirelms.io/advanced-css-responsive-s2",
                   "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-advanced-css-responsive-3",
+              "title": "Session 3: Flexbox Item Properties & Layout Patterns",
+              "items": [
+                {
+                  "id": "advanced-css-responsive-s3-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "Flexbox Item Properties & Layout Patterns Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-advanced-css-responsive-s3",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "advanced-css-responsive-m2-quiz",
-                  "type": "ASSESSMENT",
-                  "typeColor": "bg-blue-100 text-blue-700 border-blue-200",
-                  "iconName": "FileCheck",
-                  "iconBg": "bg-blue-600 text-white",
-                  "title": "Responsive CSS Assessment",
-                  "actionText": "TAKE",
-                  "url": "/assessments",
-                  "btnStyle": "bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30"
+                  "id": "advanced-css-responsive-s3-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: Flexbox Item Properties & Layout Patterns",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/advanced-css-responsive-s3",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-advanced-css-responsive-4",
+              "title": "Session 4: CSS Grid System & Template Areas",
+              "items": [
+                {
+                  "id": "advanced-css-responsive-s4-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "CSS Grid System & Template Areas Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-advanced-css-responsive-s4",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
+                },
+                {
+                  "id": "advanced-css-responsive-s4-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: CSS Grid System & Template Areas",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/advanced-css-responsive-s4",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-advanced-css-responsive-5",
+              "title": "Session 5: Mobile-First Responsive Design & Media Queries",
+              "items": [
+                {
+                  "id": "advanced-css-responsive-s5-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "Mobile-First Responsive Design & Media Queries Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-advanced-css-responsive-s5",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
+                },
+                {
+                  "id": "advanced-css-responsive-s5-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: Mobile-First Responsive Design & Media Queries",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/advanced-css-responsive-s5",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
                 }
               ]
             }
@@ -932,83 +1422,117 @@ export const INITIAL_MILESTONES = {
           "title": "Bootstrap 5 Framework",
           "description": "Click to view subtopics",
           "duration": "Bootstrap Grid System, Responsive Utilities, Components (Navbar, Modals, Cards, Forms), Customizing Bootstrap",
-          "modulesCount": 2,
+          "modulesCount": 4,
           "modules": [
             {
               "id": "mod-bootstrap-5-1",
-              "title": "Bootstrap Grid & Responsive Utilities",
+              "title": "Session 1: Bootstrap 5 Setup & Grid Architecture",
               "items": [
                 {
-                  "id": "bootstrap-5-m1-live",
+                  "id": "bootstrap-5-s1-live",
                   "type": "LIVE CLASS",
                   "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
                   "iconName": "Video",
                   "iconBg": "bg-purple-600 text-white",
-                  "title": "Bootstrap 5 Grid System Workshop",
+                  "title": "Bootstrap 5 Setup & Grid Architecture Masterclass",
                   "actionText": "JOIN",
-                  "url": "https://zoom.us/live-bootstrap-5-1",
+                  "url": "https://zoom.us/live-bootstrap-5-s1",
                   "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "bootstrap-5-m1-lab",
+                  "id": "bootstrap-5-s1-lab",
                   "type": "PRACTICAL LAB",
                   "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
                   "iconName": "Code",
                   "iconBg": "bg-amber-500 text-white",
-                  "title": "Building Layouts with Bootstrap Grid",
+                  "title": "Hands-on Lab: Bootstrap 5 Setup & Grid Architecture",
                   "actionText": "VIEW",
-                  "url": "https://lab.aspirelms.io/bootstrap-5-1",
+                  "url": "https://lab.aspirelms.io/bootstrap-5-s1",
                   "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
-                },
-                {
-                  "id": "bootstrap-5-m1-quiz",
-                  "type": "ASSESSMENT",
-                  "typeColor": "bg-blue-100 text-blue-700 border-blue-200",
-                  "iconName": "FileCheck",
-                  "iconBg": "bg-blue-600 text-white",
-                  "title": "Bootstrap Grid Quiz",
-                  "actionText": "TAKE",
-                  "url": "/assessments",
-                  "btnStyle": "bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30"
                 }
               ]
             },
             {
               "id": "mod-bootstrap-5-2",
-              "title": "Bootstrap Components & Customization",
+              "title": "Session 2: Utility Classes & Responsive Spacing",
               "items": [
                 {
-                  "id": "bootstrap-5-m2-live",
+                  "id": "bootstrap-5-s2-live",
                   "type": "LIVE CLASS",
                   "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
                   "iconName": "Video",
                   "iconBg": "bg-purple-600 text-white",
-                  "title": "Bootstrap UI Components Masterclass",
+                  "title": "Utility Classes & Responsive Spacing Masterclass",
                   "actionText": "JOIN",
-                  "url": "https://zoom.us/live-bootstrap-5-2",
+                  "url": "https://zoom.us/live-bootstrap-5-s2",
                   "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "bootstrap-5-m2-lab",
+                  "id": "bootstrap-5-s2-lab",
                   "type": "PRACTICAL LAB",
                   "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
                   "iconName": "Code",
                   "iconBg": "bg-amber-500 text-white",
-                  "title": "Interactive Modal & Card Component Lab",
+                  "title": "Hands-on Lab: Utility Classes & Responsive Spacing",
                   "actionText": "VIEW",
-                  "url": "https://lab.aspirelms.io/bootstrap-5-2",
+                  "url": "https://lab.aspirelms.io/bootstrap-5-s2",
                   "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-bootstrap-5-3",
+              "title": "Session 3: Core UI Components (Navbar, Cards, Modals)",
+              "items": [
+                {
+                  "id": "bootstrap-5-s3-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "Core UI Components (Navbar, Cards, Modals) Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-bootstrap-5-s3",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "bootstrap-5-m2-quiz",
-                  "type": "ASSESSMENT",
-                  "typeColor": "bg-blue-100 text-blue-700 border-blue-200",
-                  "iconName": "FileCheck",
-                  "iconBg": "bg-blue-600 text-white",
-                  "title": "Bootstrap 5 Framework Evaluation",
-                  "actionText": "TAKE",
-                  "url": "/assessments",
-                  "btnStyle": "bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30"
+                  "id": "bootstrap-5-s3-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: Core UI Components (Navbar, Cards, Modals)",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/bootstrap-5-s3",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-bootstrap-5-4",
+              "title": "Session 4: Interactive JS Components & Customization",
+              "items": [
+                {
+                  "id": "bootstrap-5-s4-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "Interactive JS Components & Customization Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-bootstrap-5-s4",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
+                },
+                {
+                  "id": "bootstrap-5-s4-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: Interactive JS Components & Customization",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/bootstrap-5-s4",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
                 }
               ]
             }
@@ -1019,83 +1543,145 @@ export const INITIAL_MILESTONES = {
           "title": "JavaScript Essentials & Control Flow",
           "description": "Click to view subtopics",
           "duration": "Variables (var, let, const), Data Types, Operators, Conditional Statements (if-else, switch), Loops (for, while, forEach)",
-          "modulesCount": 2,
+          "modulesCount": 5,
           "modules": [
             {
               "id": "mod-js-essentials-1",
-              "title": "Variables & Data Types",
+              "title": "Session 1: JS Execution Context, Variables & Hoisting",
               "items": [
                 {
-                  "id": "js-essentials-m1-live",
+                  "id": "js-essentials-s1-live",
                   "type": "LIVE CLASS",
                   "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
                   "iconName": "Video",
                   "iconBg": "bg-purple-600 text-white",
-                  "title": "JavaScript Variables & Data Types Workshop",
+                  "title": "JS Execution Context, Variables & Hoisting Masterclass",
                   "actionText": "JOIN",
-                  "url": "https://zoom.us/live-js-essentials-1",
+                  "url": "https://zoom.us/live-js-essentials-s1",
                   "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "js-essentials-m1-lab",
+                  "id": "js-essentials-s1-lab",
                   "type": "PRACTICAL LAB",
                   "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
                   "iconName": "Code",
                   "iconBg": "bg-amber-500 text-white",
-                  "title": "Variables & Primitive Types Practice Lab",
+                  "title": "Hands-on Lab: JS Execution Context, Variables & Hoisting",
                   "actionText": "VIEW",
-                  "url": "https://lab.aspirelms.io/js-essentials-1",
+                  "url": "https://lab.aspirelms.io/js-essentials-s1",
                   "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
-                },
-                {
-                  "id": "js-essentials-m1-quiz",
-                  "type": "ASSESSMENT",
-                  "typeColor": "bg-blue-100 text-blue-700 border-blue-200",
-                  "iconName": "FileCheck",
-                  "iconBg": "bg-blue-600 text-white",
-                  "title": "JS Variables & Types Quiz",
-                  "actionText": "TAKE",
-                  "url": "/assessments",
-                  "btnStyle": "bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30"
                 }
               ]
             },
             {
               "id": "mod-js-essentials-2",
-              "title": "Control Statements & Loops",
+              "title": "Session 2: Primitive Data Types & Type Conversion",
               "items": [
                 {
-                  "id": "js-essentials-m2-live",
+                  "id": "js-essentials-s2-live",
                   "type": "LIVE CLASS",
                   "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
                   "iconName": "Video",
                   "iconBg": "bg-purple-600 text-white",
-                  "title": "Conditional Statements & Iteration Masterclass",
+                  "title": "Primitive Data Types & Type Conversion Masterclass",
                   "actionText": "JOIN",
-                  "url": "https://zoom.us/live-js-essentials-2",
+                  "url": "https://zoom.us/live-js-essentials-s2",
                   "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "js-essentials-m2-lab",
+                  "id": "js-essentials-s2-lab",
                   "type": "PRACTICAL LAB",
                   "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
                   "iconName": "Code",
                   "iconBg": "bg-amber-500 text-white",
-                  "title": "Loops & Decision Logic Exercises",
+                  "title": "Hands-on Lab: Primitive Data Types & Type Conversion",
                   "actionText": "VIEW",
-                  "url": "https://lab.aspirelms.io/js-essentials-2",
+                  "url": "https://lab.aspirelms.io/js-essentials-s2",
                   "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-js-essentials-3",
+              "title": "Session 3: Operators & Expressions",
+              "items": [
+                {
+                  "id": "js-essentials-s3-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "Operators & Expressions Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-js-essentials-s3",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "js-essentials-m2-quiz",
-                  "type": "ASSESSMENT",
-                  "typeColor": "bg-blue-100 text-blue-700 border-blue-200",
-                  "iconName": "FileCheck",
-                  "iconBg": "bg-blue-600 text-white",
-                  "title": "Control Flow Evaluation Quiz",
-                  "actionText": "TAKE",
-                  "url": "/assessments",
-                  "btnStyle": "bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30"
+                  "id": "js-essentials-s3-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: Operators & Expressions",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/js-essentials-s3",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-js-essentials-4",
+              "title": "Session 4: Control Flow (if-else, switch & Guard Clauses)",
+              "items": [
+                {
+                  "id": "js-essentials-s4-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "Control Flow (if-else, switch & Guard Clauses) Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-js-essentials-s4",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
+                },
+                {
+                  "id": "js-essentials-s4-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: Control Flow (if-else, switch & Guard Clauses)",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/js-essentials-s4",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-js-essentials-5",
+              "title": "Session 5: Iteration & Loop Structures",
+              "items": [
+                {
+                  "id": "js-essentials-s5-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "Iteration & Loop Structures Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-js-essentials-s5",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
+                },
+                {
+                  "id": "js-essentials-s5-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: Iteration & Loop Structures",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/js-essentials-s5",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
                 }
               ]
             }
@@ -1106,83 +1692,173 @@ export const INITIAL_MILESTONES = {
           "title": "JavaScript Functions, Objects & Arrays",
           "description": "Click to view subtopics",
           "duration": "Function Declarations, Expressions, Arrow Functions, Array Methods (map, filter, reduce), Object Manipulation, Higher-Order Functions",
-          "modulesCount": 2,
+          "modulesCount": 6,
           "modules": [
             {
               "id": "mod-js-functions-objects-1",
-              "title": "Function Expressions & Arrow Syntax",
+              "title": "Session 1: Function Declarations, Expressions & Scope",
               "items": [
                 {
-                  "id": "js-functions-objects-m1-live",
+                  "id": "js-functions-objects-s1-live",
                   "type": "LIVE CLASS",
                   "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
                   "iconName": "Video",
                   "iconBg": "bg-purple-600 text-white",
-                  "title": "Functions & Arrow Syntax Live Workshop",
+                  "title": "Function Declarations, Expressions & Scope Masterclass",
                   "actionText": "JOIN",
-                  "url": "https://zoom.us/live-js-functions-objects-1",
+                  "url": "https://zoom.us/live-js-functions-objects-s1",
                   "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "js-functions-objects-m1-lab",
+                  "id": "js-functions-objects-s1-lab",
                   "type": "PRACTICAL LAB",
                   "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
                   "iconName": "Code",
                   "iconBg": "bg-amber-500 text-white",
-                  "title": "Functional Logic Exercises Lab",
+                  "title": "Hands-on Lab: Function Declarations, Expressions & Scope",
                   "actionText": "VIEW",
-                  "url": "https://lab.aspirelms.io/js-functions-objects-1",
+                  "url": "https://lab.aspirelms.io/js-functions-objects-s1",
                   "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
-                },
-                {
-                  "id": "js-functions-objects-m1-quiz",
-                  "type": "ASSESSMENT",
-                  "typeColor": "bg-blue-100 text-blue-700 border-blue-200",
-                  "iconName": "FileCheck",
-                  "iconBg": "bg-blue-600 text-white",
-                  "title": "JS Functions Knowledge Quiz",
-                  "actionText": "TAKE",
-                  "url": "/assessments",
-                  "btnStyle": "bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30"
                 }
               ]
             },
             {
               "id": "mod-js-functions-objects-2",
-              "title": "Array Methods & Object Manipulation",
+              "title": "Session 2: Arrow Functions & Lexical Scope",
               "items": [
                 {
-                  "id": "js-functions-objects-m2-live",
+                  "id": "js-functions-objects-s2-live",
                   "type": "LIVE CLASS",
                   "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
                   "iconName": "Video",
                   "iconBg": "bg-purple-600 text-white",
-                  "title": "Array Methods (map, filter, reduce) Workshop",
+                  "title": "Arrow Functions & Lexical Scope Masterclass",
                   "actionText": "JOIN",
-                  "url": "https://zoom.us/live-js-functions-objects-2",
+                  "url": "https://zoom.us/live-js-functions-objects-s2",
                   "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "js-functions-objects-m2-lab",
+                  "id": "js-functions-objects-s2-lab",
                   "type": "PRACTICAL LAB",
                   "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
                   "iconName": "Code",
                   "iconBg": "bg-amber-500 text-white",
-                  "title": "Data Transformation & Object Manipulation Lab",
+                  "title": "Hands-on Lab: Arrow Functions & Lexical Scope",
                   "actionText": "VIEW",
-                  "url": "https://lab.aspirelms.io/js-functions-objects-2",
+                  "url": "https://lab.aspirelms.io/js-functions-objects-s2",
                   "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-js-functions-objects-3",
+              "title": "Session 3: Array Fundamentals & Mutating Methods",
+              "items": [
+                {
+                  "id": "js-functions-objects-s3-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "Array Fundamentals & Mutating Methods Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-js-functions-objects-s3",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "js-functions-objects-m2-quiz",
-                  "type": "ASSESSMENT",
-                  "typeColor": "bg-blue-100 text-blue-700 border-blue-200",
-                  "iconName": "FileCheck",
-                  "iconBg": "bg-blue-600 text-white",
-                  "title": "Array Methods & Objects Assessment",
-                  "actionText": "TAKE",
-                  "url": "/assessments",
-                  "btnStyle": "bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30"
+                  "id": "js-functions-objects-s3-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: Array Fundamentals & Mutating Methods",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/js-functions-objects-s3",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-js-functions-objects-4",
+              "title": "Session 4: Advanced Array Higher-Order Functions",
+              "items": [
+                {
+                  "id": "js-functions-objects-s4-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "Advanced Array Higher-Order Functions Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-js-functions-objects-s4",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
+                },
+                {
+                  "id": "js-functions-objects-s4-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: Advanced Array Higher-Order Functions",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/js-functions-objects-s4",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-js-functions-objects-5",
+              "title": "Session 5: Object Literals & Property Access",
+              "items": [
+                {
+                  "id": "js-functions-objects-s5-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "Object Literals & Property Access Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-js-functions-objects-s5",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
+                },
+                {
+                  "id": "js-functions-objects-s5-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: Object Literals & Property Access",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/js-functions-objects-s5",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-js-functions-objects-6",
+              "title": "Session 6: Advanced Object Manipulation & Cloning",
+              "items": [
+                {
+                  "id": "js-functions-objects-s6-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "Advanced Object Manipulation & Cloning Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-js-functions-objects-s6",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
+                },
+                {
+                  "id": "js-functions-objects-s6-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: Advanced Object Manipulation & Cloning",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/js-functions-objects-s6",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
                 }
               ]
             }
@@ -1193,83 +1869,145 @@ export const INITIAL_MILESTONES = {
           "title": "DOM Manipulation & Event Handling",
           "description": "Click to view subtopics",
           "duration": "Selecting Elements, Modifying DOM, Event Listeners, Form Validation, Event Bubbling & Delegation, Dynamic HTML Creation",
-          "modulesCount": 2,
+          "modulesCount": 5,
           "modules": [
             {
               "id": "mod-dom-events-1",
-              "title": "DOM Selection & Element Manipulation",
+              "title": "Session 1: DOM Tree & Element Selection",
               "items": [
                 {
-                  "id": "dom-events-m1-live",
+                  "id": "dom-events-s1-live",
                   "type": "LIVE CLASS",
                   "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
                   "iconName": "Video",
                   "iconBg": "bg-purple-600 text-white",
-                  "title": "DOM Selection & Dynamic Styling Masterclass",
+                  "title": "DOM Tree & Element Selection Masterclass",
                   "actionText": "JOIN",
-                  "url": "https://zoom.us/live-dom-events-1",
+                  "url": "https://zoom.us/live-dom-events-s1",
                   "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "dom-events-m1-lab",
+                  "id": "dom-events-s1-lab",
                   "type": "PRACTICAL LAB",
                   "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
                   "iconName": "Code",
                   "iconBg": "bg-amber-500 text-white",
-                  "title": "Interactive DOM Element Editor Lab",
+                  "title": "Hands-on Lab: DOM Tree & Element Selection",
                   "actionText": "VIEW",
-                  "url": "https://lab.aspirelms.io/dom-events-1",
+                  "url": "https://lab.aspirelms.io/dom-events-s1",
                   "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
-                },
-                {
-                  "id": "dom-events-m1-quiz",
-                  "type": "ASSESSMENT",
-                  "typeColor": "bg-blue-100 text-blue-700 border-blue-200",
-                  "iconName": "FileCheck",
-                  "iconBg": "bg-blue-600 text-white",
-                  "title": "DOM Selection Quiz",
-                  "actionText": "TAKE",
-                  "url": "/assessments",
-                  "btnStyle": "bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30"
                 }
               ]
             },
             {
               "id": "mod-dom-events-2",
-              "title": "Event Listeners & Form Validation",
+              "title": "Session 2: Modifying Content, Styles & Attributes",
               "items": [
                 {
-                  "id": "dom-events-m2-live",
+                  "id": "dom-events-s2-live",
                   "type": "LIVE CLASS",
                   "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
                   "iconName": "Video",
                   "iconBg": "bg-purple-600 text-white",
-                  "title": "Event Bubbling & Form Validation Workshop",
+                  "title": "Modifying Content, Styles & Attributes Masterclass",
                   "actionText": "JOIN",
-                  "url": "https://zoom.us/live-dom-events-2",
+                  "url": "https://zoom.us/live-dom-events-s2",
                   "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "dom-events-m2-lab",
+                  "id": "dom-events-s2-lab",
                   "type": "PRACTICAL LAB",
                   "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
                   "iconName": "Code",
                   "iconBg": "bg-amber-500 text-white",
-                  "title": "Interactive Event-Driven UI Project",
+                  "title": "Hands-on Lab: Modifying Content, Styles & Attributes",
                   "actionText": "VIEW",
-                  "url": "https://lab.aspirelms.io/dom-events-2",
+                  "url": "https://lab.aspirelms.io/dom-events-s2",
                   "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-dom-events-3",
+              "title": "Session 3: Creating & Removing Nodes",
+              "items": [
+                {
+                  "id": "dom-events-s3-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "Creating & Removing Nodes Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-dom-events-s3",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "dom-events-m2-quiz",
-                  "type": "ASSESSMENT",
-                  "typeColor": "bg-blue-100 text-blue-700 border-blue-200",
-                  "iconName": "FileCheck",
-                  "iconBg": "bg-blue-600 text-white",
-                  "title": "DOM & Events Evaluation Quiz",
-                  "actionText": "TAKE",
-                  "url": "/assessments",
-                  "btnStyle": "bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30"
+                  "id": "dom-events-s3-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: Creating & Removing Nodes",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/dom-events-s3",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-dom-events-4",
+              "title": "Session 4: Event Listeners & Common Event Handling",
+              "items": [
+                {
+                  "id": "dom-events-s4-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "Event Listeners & Common Event Handling Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-dom-events-s4",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
+                },
+                {
+                  "id": "dom-events-s4-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: Event Listeners & Common Event Handling",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/dom-events-s4",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-dom-events-5",
+              "title": "Session 5: Event Propagation & Event Delegation",
+              "items": [
+                {
+                  "id": "dom-events-s5-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "Event Propagation & Event Delegation Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-dom-events-s5",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
+                },
+                {
+                  "id": "dom-events-s5-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: Event Propagation & Event Delegation",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/dom-events-s5",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
                 }
               ]
             }
@@ -1280,83 +2018,145 @@ export const INITIAL_MILESTONES = {
           "title": "Modern ES6+ & Asynchronous JS",
           "description": "Click to view subtopics",
           "duration": "Destructuring, Spread/Rest Operators, Modules, Promises, Async/Await, Fetch API, Handling JSON Data",
-          "modulesCount": 2,
+          "modulesCount": 5,
           "modules": [
             {
               "id": "mod-es6-async-js-1",
-              "title": "ES6+ Syntax & Modules",
+              "title": "Session 1: ES6 Destructuring & Spread/Rest Operators",
               "items": [
                 {
-                  "id": "es6-async-js-m1-live",
+                  "id": "es6-async-js-s1-live",
                   "type": "LIVE CLASS",
                   "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
                   "iconName": "Video",
                   "iconBg": "bg-purple-600 text-white",
-                  "title": "Modern ES6+ Features & Destructuring",
+                  "title": "ES6 Destructuring & Spread/Rest Operators Masterclass",
                   "actionText": "JOIN",
-                  "url": "https://zoom.us/live-es6-async-js-1",
+                  "url": "https://zoom.us/live-es6-async-js-s1",
                   "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "es6-async-js-m1-lab",
+                  "id": "es6-async-js-s1-lab",
                   "type": "PRACTICAL LAB",
                   "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
                   "iconName": "Code",
                   "iconBg": "bg-amber-500 text-white",
-                  "title": "ES6 Spread/Rest & Modules Practice",
+                  "title": "Hands-on Lab: ES6 Destructuring & Spread/Rest Operators",
                   "actionText": "VIEW",
-                  "url": "https://lab.aspirelms.io/es6-async-js-1",
+                  "url": "https://lab.aspirelms.io/es6-async-js-s1",
                   "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
-                },
-                {
-                  "id": "es6-async-js-m1-quiz",
-                  "type": "ASSESSMENT",
-                  "typeColor": "bg-blue-100 text-blue-700 border-blue-200",
-                  "iconName": "FileCheck",
-                  "iconBg": "bg-blue-600 text-white",
-                  "title": "ES6 Syntax Knowledge Check",
-                  "actionText": "TAKE",
-                  "url": "/assessments",
-                  "btnStyle": "bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30"
                 }
               ]
             },
             {
               "id": "mod-es6-async-js-2",
-              "title": "Promises & Async/Await",
+              "title": "Session 2: ES Modules (Import / Export)",
               "items": [
                 {
-                  "id": "es6-async-js-m2-live",
+                  "id": "es6-async-js-s2-live",
                   "type": "LIVE CLASS",
                   "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
                   "iconName": "Video",
                   "iconBg": "bg-purple-600 text-white",
-                  "title": "Asynchronous JS & Fetch API Masterclass",
+                  "title": "ES Modules (Import / Export) Masterclass",
                   "actionText": "JOIN",
-                  "url": "https://zoom.us/live-es6-async-js-2",
+                  "url": "https://zoom.us/live-es6-async-js-s2",
                   "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "es6-async-js-m2-lab",
+                  "id": "es6-async-js-s2-lab",
                   "type": "PRACTICAL LAB",
                   "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
                   "iconName": "Code",
                   "iconBg": "bg-amber-500 text-white",
-                  "title": "REST API Fetch & JSON Rendering Lab",
+                  "title": "Hands-on Lab: ES Modules (Import / Export)",
                   "actionText": "VIEW",
-                  "url": "https://lab.aspirelms.io/es6-async-js-2",
+                  "url": "https://lab.aspirelms.io/es6-async-js-s2",
                   "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-es6-async-js-3",
+              "title": "Session 3: Asynchronous JS & Event Loop",
+              "items": [
+                {
+                  "id": "es6-async-js-s3-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "Asynchronous JS & Event Loop Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-es6-async-js-s3",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "es6-async-js-m2-quiz",
-                  "type": "ASSESSMENT",
-                  "typeColor": "bg-blue-100 text-blue-700 border-blue-200",
-                  "iconName": "FileCheck",
-                  "iconBg": "bg-blue-600 text-white",
-                  "title": "Async JS & Promises Evaluation",
-                  "actionText": "TAKE",
-                  "url": "/assessments",
-                  "btnStyle": "bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30"
+                  "id": "es6-async-js-s3-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: Asynchronous JS & Event Loop",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/es6-async-js-s3",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-es6-async-js-4",
+              "title": "Session 4: JavaScript Promises & Error Handling",
+              "items": [
+                {
+                  "id": "es6-async-js-s4-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "JavaScript Promises & Error Handling Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-es6-async-js-s4",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
+                },
+                {
+                  "id": "es6-async-js-s4-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: JavaScript Promises & Error Handling",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/es6-async-js-s4",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-es6-async-js-5",
+              "title": "Session 5: Async/Await & Fetch API Integration",
+              "items": [
+                {
+                  "id": "es6-async-js-s5-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "Async/Await & Fetch API Integration Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-es6-async-js-s5",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
+                },
+                {
+                  "id": "es6-async-js-s5-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: Async/Await & Fetch API Integration",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/es6-async-js-s5",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
                 }
               ]
             }
@@ -1367,529 +2167,985 @@ export const INITIAL_MILESTONES = {
     {
       "id": "stage-2",
       "stageNumber": "STAGE 02",
-      "phaseTag": "Phase 2 • Backend Systems & DSA",
+      "phaseTag": "Phase 2 \u2022 Backend Systems & DSA",
       "title": "Stage 2: Backend + DSA",
-      "status": "AVAILABLE",
-      "statusType": "available",
-      "isLocked": false,
+      "status": "LOCKED",
+      "statusType": "locked",
+      "isLocked": true,
       "subtopics": [
         {
-          "id": "py-fundamentals",
+          "id": "python-fundamentals",
           "title": "Python Programming Fundamentals",
           "description": "Click to view subtopics",
           "duration": "Python Setup, Variables, Data Types, Control Flow, Functions, Variable Scope, Built-in Data Structures (Lists, Tuples, Sets, Dicts)",
-          "modulesCount": 2,
+          "modulesCount": 6,
           "modules": [
             {
-              "id": "mod-py-fundamentals-1",
-              "title": "Python Syntax & Data Types",
+              "id": "mod-python-fundamentals-1",
+              "title": "Session 1: Python Setup, Interpreter & Syntax Rules",
               "items": [
                 {
-                  "id": "py-fundamentals-m1-live",
+                  "id": "python-fundamentals-s1-live",
                   "type": "LIVE CLASS",
                   "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
                   "iconName": "Video",
                   "iconBg": "bg-purple-600 text-white",
-                  "title": "Python Basics & Built-in Types Workshop",
+                  "title": "Python Setup, Interpreter & Syntax Rules Masterclass",
                   "actionText": "JOIN",
-                  "url": "https://zoom.us/live-py-fundamentals-1",
+                  "url": "https://zoom.us/live-python-fundamentals-s1",
                   "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "py-fundamentals-m1-lab",
+                  "id": "python-fundamentals-s1-lab",
                   "type": "PRACTICAL LAB",
                   "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
                   "iconName": "Code",
                   "iconBg": "bg-amber-500 text-white",
-                  "title": "Python Environment Setup & Syntax Lab",
+                  "title": "Hands-on Lab: Python Setup, Interpreter & Syntax Rules",
                   "actionText": "VIEW",
-                  "url": "https://lab.aspirelms.io/py-fundamentals-1",
+                  "url": "https://lab.aspirelms.io/python-fundamentals-s1",
                   "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
-                },
-                {
-                  "id": "py-fundamentals-m1-quiz",
-                  "type": "ASSESSMENT",
-                  "typeColor": "bg-blue-100 text-blue-700 border-blue-200",
-                  "iconName": "FileCheck",
-                  "iconBg": "bg-blue-600 text-white",
-                  "title": "Python Fundamentals Quiz",
-                  "actionText": "TAKE",
-                  "url": "/assessments",
-                  "btnStyle": "bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30"
                 }
               ]
             },
             {
-              "id": "mod-py-fundamentals-2",
-              "title": "Functions & Data Structures",
+              "id": "mod-python-fundamentals-2",
+              "title": "Session 2: Variables, Data Types & Type Casting",
               "items": [
                 {
-                  "id": "py-fundamentals-m2-live",
+                  "id": "python-fundamentals-s2-live",
                   "type": "LIVE CLASS",
                   "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
                   "iconName": "Video",
                   "iconBg": "bg-purple-600 text-white",
-                  "title": "Lists, Tuples, Sets & Dicts Masterclass",
+                  "title": "Variables, Data Types & Type Casting Masterclass",
                   "actionText": "JOIN",
-                  "url": "https://zoom.us/live-py-fundamentals-2",
+                  "url": "https://zoom.us/live-python-fundamentals-s2",
                   "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "py-fundamentals-m2-lab",
+                  "id": "python-fundamentals-s2-lab",
                   "type": "PRACTICAL LAB",
                   "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
                   "iconName": "Code",
                   "iconBg": "bg-amber-500 text-white",
-                  "title": "Data Structure Manipulation Lab",
+                  "title": "Hands-on Lab: Variables, Data Types & Type Casting",
                   "actionText": "VIEW",
-                  "url": "https://lab.aspirelms.io/py-fundamentals-2",
+                  "url": "https://lab.aspirelms.io/python-fundamentals-s2",
                   "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-python-fundamentals-3",
+              "title": "Session 3: Operators & Expressions",
+              "items": [
+                {
+                  "id": "python-fundamentals-s3-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "Operators & Expressions Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-python-fundamentals-s3",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "py-fundamentals-m2-quiz",
-                  "type": "ASSESSMENT",
-                  "typeColor": "bg-blue-100 text-blue-700 border-blue-200",
-                  "iconName": "FileCheck",
-                  "iconBg": "bg-blue-600 text-white",
-                  "title": "Python Data Structures Evaluation",
-                  "actionText": "TAKE",
-                  "url": "/assessments",
-                  "btnStyle": "bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30"
+                  "id": "python-fundamentals-s3-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: Operators & Expressions",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/python-fundamentals-s3",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-python-fundamentals-4",
+              "title": "Session 4: Control Flow & Loop Structures",
+              "items": [
+                {
+                  "id": "python-fundamentals-s4-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "Control Flow & Loop Structures Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-python-fundamentals-s4",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
+                },
+                {
+                  "id": "python-fundamentals-s4-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: Control Flow & Loop Structures",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/python-fundamentals-s4",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-python-fundamentals-5",
+              "title": "Session 5: Functions, Arguments & Scope Rules",
+              "items": [
+                {
+                  "id": "python-fundamentals-s5-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "Functions, Arguments & Scope Rules Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-python-fundamentals-s5",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
+                },
+                {
+                  "id": "python-fundamentals-s5-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: Functions, Arguments & Scope Rules",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/python-fundamentals-s5",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-python-fundamentals-6",
+              "title": "Session 6: Built-in Data Structures (Lists, Tuples, Sets, Dicts)",
+              "items": [
+                {
+                  "id": "python-fundamentals-s6-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "Built-in Data Structures (Lists, Tuples, Sets, Dicts) Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-python-fundamentals-s6",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
+                },
+                {
+                  "id": "python-fundamentals-s6-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: Built-in Data Structures (Lists, Tuples, Sets, Dicts)",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/python-fundamentals-s6",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
                 }
               ]
             }
           ]
         },
         {
-          "id": "py-advanced-exceptions",
+          "id": "advanced-python-exceptions",
           "title": "Advanced Python & Exception Handling",
           "description": "Click to view subtopics",
           "duration": "Decorators, Generators, Iterators, File I/O, Error Handling (try-except-finally), Context Managers, Custom Exceptions",
-          "modulesCount": 2,
+          "modulesCount": 5,
           "modules": [
             {
-              "id": "mod-py-advanced-exceptions-1",
-              "title": "Decorators & Generators",
+              "id": "mod-advanced-python-exceptions-1",
+              "title": "Session 1: Advanced Functions, Lambda & HOFs",
               "items": [
                 {
-                  "id": "py-advanced-exceptions-m1-live",
+                  "id": "advanced-python-exceptions-s1-live",
                   "type": "LIVE CLASS",
                   "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
                   "iconName": "Video",
                   "iconBg": "bg-purple-600 text-white",
-                  "title": "Python Decorators & Generators Masterclass",
+                  "title": "Advanced Functions, Lambda & HOFs Masterclass",
                   "actionText": "JOIN",
-                  "url": "https://zoom.us/live-py-advanced-exceptions-1",
+                  "url": "https://zoom.us/live-advanced-python-exceptions-s1",
                   "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "py-advanced-exceptions-m1-lab",
+                  "id": "advanced-python-exceptions-s1-lab",
                   "type": "PRACTICAL LAB",
                   "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
                   "iconName": "Code",
                   "iconBg": "bg-amber-500 text-white",
-                  "title": "Custom Decorator Implementation Lab",
+                  "title": "Hands-on Lab: Advanced Functions, Lambda & HOFs",
                   "actionText": "VIEW",
-                  "url": "https://lab.aspirelms.io/py-advanced-exceptions-1",
+                  "url": "https://lab.aspirelms.io/advanced-python-exceptions-s1",
                   "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
-                },
-                {
-                  "id": "py-advanced-exceptions-m1-quiz",
-                  "type": "ASSESSMENT",
-                  "typeColor": "bg-blue-100 text-blue-700 border-blue-200",
-                  "iconName": "FileCheck",
-                  "iconBg": "bg-blue-600 text-white",
-                  "title": "Decorators & Iterators Quiz",
-                  "actionText": "TAKE",
-                  "url": "/assessments",
-                  "btnStyle": "bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30"
                 }
               ]
             },
             {
-              "id": "mod-py-advanced-exceptions-2",
-              "title": "Exception Handling & File I/O",
+              "id": "mod-advanced-python-exceptions-2",
+              "title": "Session 2: Python Decorators & Metaprogramming",
               "items": [
                 {
-                  "id": "py-advanced-exceptions-m2-live",
+                  "id": "advanced-python-exceptions-s2-live",
                   "type": "LIVE CLASS",
                   "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
                   "iconName": "Video",
                   "iconBg": "bg-purple-600 text-white",
-                  "title": "Error Handling (try-except) & Context Managers",
+                  "title": "Python Decorators & Metaprogramming Masterclass",
                   "actionText": "JOIN",
-                  "url": "https://zoom.us/live-py-advanced-exceptions-2",
+                  "url": "https://zoom.us/live-advanced-python-exceptions-s2",
                   "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "py-advanced-exceptions-m2-lab",
+                  "id": "advanced-python-exceptions-s2-lab",
                   "type": "PRACTICAL LAB",
                   "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
                   "iconName": "Code",
                   "iconBg": "bg-amber-500 text-white",
-                  "title": "File Processing & Custom Exception Lab",
+                  "title": "Hands-on Lab: Python Decorators & Metaprogramming",
                   "actionText": "VIEW",
-                  "url": "https://lab.aspirelms.io/py-advanced-exceptions-2",
+                  "url": "https://lab.aspirelms.io/advanced-python-exceptions-s2",
                   "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-advanced-python-exceptions-3",
+              "title": "Session 3: Generators & Iterators",
+              "items": [
+                {
+                  "id": "advanced-python-exceptions-s3-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "Generators & Iterators Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-advanced-python-exceptions-s3",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "py-advanced-exceptions-m2-quiz",
-                  "type": "ASSESSMENT",
-                  "typeColor": "bg-blue-100 text-blue-700 border-blue-200",
-                  "iconName": "FileCheck",
-                  "iconBg": "bg-blue-600 text-white",
-                  "title": "Exception Handling Evaluation",
-                  "actionText": "TAKE",
-                  "url": "/assessments",
-                  "btnStyle": "bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30"
+                  "id": "advanced-python-exceptions-s3-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: Generators & Iterators",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/advanced-python-exceptions-s3",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-advanced-python-exceptions-4",
+              "title": "Session 4: Exception Handling & Custom Exceptions",
+              "items": [
+                {
+                  "id": "advanced-python-exceptions-s4-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "Exception Handling & Custom Exceptions Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-advanced-python-exceptions-s4",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
+                },
+                {
+                  "id": "advanced-python-exceptions-s4-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: Exception Handling & Custom Exceptions",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/advanced-python-exceptions-s4",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-advanced-python-exceptions-5",
+              "title": "Session 5: File I/O & Context Managers",
+              "items": [
+                {
+                  "id": "advanced-python-exceptions-s5-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "File I/O & Context Managers Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-advanced-python-exceptions-s5",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
+                },
+                {
+                  "id": "advanced-python-exceptions-s5-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: File I/O & Context Managers",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/advanced-python-exceptions-s5",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
                 }
               ]
             }
           ]
         },
         {
-          "id": "py-oop",
+          "id": "python-oop",
           "title": "Object-Oriented Programming (OOP)",
           "description": "Click to view subtopics",
           "duration": "Classes, Objects, Constructors (__init__), Inheritance, Polymorphism, Encapsulation, Abstraction, Dunder Methods",
-          "modulesCount": 2,
+          "modulesCount": 6,
           "modules": [
             {
-              "id": "mod-py-oop-1",
-              "title": "Classes & Inheritance",
+              "id": "mod-python-oop-1",
+              "title": "Session 1: OOP Principles, Classes & Instance Creation",
               "items": [
                 {
-                  "id": "py-oop-m1-live",
+                  "id": "python-oop-s1-live",
                   "type": "LIVE CLASS",
                   "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
                   "iconName": "Video",
                   "iconBg": "bg-purple-600 text-white",
-                  "title": "OOP Principles: Classes & Inheritance",
+                  "title": "OOP Principles, Classes & Instance Creation Masterclass",
                   "actionText": "JOIN",
-                  "url": "https://zoom.us/live-py-oop-1",
+                  "url": "https://zoom.us/live-python-oop-s1",
                   "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "py-oop-m1-lab",
+                  "id": "python-oop-s1-lab",
                   "type": "PRACTICAL LAB",
                   "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
                   "iconName": "Code",
                   "iconBg": "bg-amber-500 text-white",
-                  "title": "Building Class Hierarchies Lab",
+                  "title": "Hands-on Lab: OOP Principles, Classes & Instance Creation",
                   "actionText": "VIEW",
-                  "url": "https://lab.aspirelms.io/py-oop-1",
+                  "url": "https://lab.aspirelms.io/python-oop-s1",
                   "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
-                },
-                {
-                  "id": "py-oop-m1-quiz",
-                  "type": "ASSESSMENT",
-                  "typeColor": "bg-blue-100 text-blue-700 border-blue-200",
-                  "iconName": "FileCheck",
-                  "iconBg": "bg-blue-600 text-white",
-                  "title": "OOP Concepts Quiz",
-                  "actionText": "TAKE",
-                  "url": "/assessments",
-                  "btnStyle": "bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30"
                 }
               ]
             },
             {
-              "id": "mod-py-oop-2",
-              "title": "Encapsulation & Dunder Methods",
+              "id": "mod-python-oop-2",
+              "title": "Session 2: Attributes, Methods & Dunder Methods",
               "items": [
                 {
-                  "id": "py-oop-m2-live",
+                  "id": "python-oop-s2-live",
                   "type": "LIVE CLASS",
                   "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
                   "iconName": "Video",
                   "iconBg": "bg-purple-600 text-white",
-                  "title": "Polymorphism, Abstraction & Magic Methods",
+                  "title": "Attributes, Methods & Dunder Methods Masterclass",
                   "actionText": "JOIN",
-                  "url": "https://zoom.us/live-py-oop-2",
+                  "url": "https://zoom.us/live-python-oop-s2",
                   "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "py-oop-m2-lab",
+                  "id": "python-oop-s2-lab",
                   "type": "PRACTICAL LAB",
                   "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
                   "iconName": "Code",
                   "iconBg": "bg-amber-500 text-white",
-                  "title": "Bank Account OOP Simulation Lab",
+                  "title": "Hands-on Lab: Attributes, Methods & Dunder Methods",
                   "actionText": "VIEW",
-                  "url": "https://lab.aspirelms.io/py-oop-2",
+                  "url": "https://lab.aspirelms.io/python-oop-s2",
                   "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-python-oop-3",
+              "title": "Session 3: Encapsulation & Property Decorators",
+              "items": [
+                {
+                  "id": "python-oop-s3-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "Encapsulation & Property Decorators Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-python-oop-s3",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "py-oop-m2-quiz",
-                  "type": "ASSESSMENT",
-                  "typeColor": "bg-blue-100 text-blue-700 border-blue-200",
-                  "iconName": "FileCheck",
-                  "iconBg": "bg-blue-600 text-white",
-                  "title": "Advanced OOP Evaluation",
-                  "actionText": "TAKE",
-                  "url": "/assessments",
-                  "btnStyle": "bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30"
+                  "id": "python-oop-s3-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: Encapsulation & Property Decorators",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/python-oop-s3",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-python-oop-4",
+              "title": "Session 4: Inheritance & Super Function",
+              "items": [
+                {
+                  "id": "python-oop-s4-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "Inheritance & Super Function Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-python-oop-s4",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
+                },
+                {
+                  "id": "python-oop-s4-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: Inheritance & Super Function",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/python-oop-s4",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-python-oop-5",
+              "title": "Session 5: Polymorphism & Operator Overloading",
+              "items": [
+                {
+                  "id": "python-oop-s5-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "Polymorphism & Operator Overloading Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-python-oop-s5",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
+                },
+                {
+                  "id": "python-oop-s5-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: Polymorphism & Operator Overloading",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/python-oop-s5",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-python-oop-6",
+              "title": "Session 6: Abstraction & Abstract Base Classes",
+              "items": [
+                {
+                  "id": "python-oop-s6-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "Abstraction & Abstract Base Classes Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-python-oop-s6",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
+                },
+                {
+                  "id": "python-oop-s6-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: Abstraction & Abstract Base Classes",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/python-oop-s6",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
                 }
               ]
             }
           ]
         },
         {
-          "id": "sql-mysql",
+          "id": "sql-mysql-relational",
           "title": "SQL & Relational Databases (MySQL)",
           "description": "Click to view subtopics",
           "duration": "RDBMS Concepts, SQL DDL (CREATE, ALTER), DML (INSERT, UPDATE, DELETE), Select Queries, Filtering, Aggregations, GROUP BY",
-          "modulesCount": 2,
+          "modulesCount": 6,
           "modules": [
             {
-              "id": "mod-sql-mysql-1",
-              "title": "SQL DDL & Basic Queries",
+              "id": "mod-sql-mysql-relational-1",
+              "title": "Session 1: RDBMS Concepts & Database Setup",
               "items": [
                 {
-                  "id": "sql-mysql-m1-live",
+                  "id": "sql-mysql-relational-s1-live",
                   "type": "LIVE CLASS",
                   "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
                   "iconName": "Video",
                   "iconBg": "bg-purple-600 text-white",
-                  "title": "RDBMS Concepts & SQL DDL Commands",
+                  "title": "RDBMS Concepts & Database Setup Masterclass",
                   "actionText": "JOIN",
-                  "url": "https://zoom.us/live-sql-mysql-1",
+                  "url": "https://zoom.us/live-sql-mysql-relational-s1",
                   "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "sql-mysql-m1-lab",
+                  "id": "sql-mysql-relational-s1-lab",
                   "type": "PRACTICAL LAB",
                   "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
                   "iconName": "Code",
                   "iconBg": "bg-amber-500 text-white",
-                  "title": "Table Creation & Schema Design Lab",
+                  "title": "Hands-on Lab: RDBMS Concepts & Database Setup",
                   "actionText": "VIEW",
-                  "url": "https://lab.aspirelms.io/sql-mysql-1",
+                  "url": "https://lab.aspirelms.io/sql-mysql-relational-s1",
                   "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
-                },
-                {
-                  "id": "sql-mysql-m1-quiz",
-                  "type": "ASSESSMENT",
-                  "typeColor": "bg-blue-100 text-blue-700 border-blue-200",
-                  "iconName": "FileCheck",
-                  "iconBg": "bg-blue-600 text-white",
-                  "title": "SQL DDL & DML Quiz",
-                  "actionText": "TAKE",
-                  "url": "/assessments",
-                  "btnStyle": "bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30"
                 }
               ]
             },
             {
-              "id": "mod-sql-mysql-2",
-              "title": "Filtering, Aggregations & GROUP BY",
+              "id": "mod-sql-mysql-relational-2",
+              "title": "Session 2: Data Definition Language (DDL Commands)",
               "items": [
                 {
-                  "id": "sql-mysql-m2-live",
+                  "id": "sql-mysql-relational-s2-live",
                   "type": "LIVE CLASS",
                   "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
                   "iconName": "Video",
                   "iconBg": "bg-purple-600 text-white",
-                  "title": "SQL Aggregations & GROUP BY Queries",
+                  "title": "Data Definition Language (DDL Commands) Masterclass",
                   "actionText": "JOIN",
-                  "url": "https://zoom.us/live-sql-mysql-2",
+                  "url": "https://zoom.us/live-sql-mysql-relational-s2",
                   "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "sql-mysql-m2-lab",
+                  "id": "sql-mysql-relational-s2-lab",
                   "type": "PRACTICAL LAB",
                   "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
                   "iconName": "Code",
                   "iconBg": "bg-amber-500 text-white",
-                  "title": "Sales Data Querying & Filtering Lab",
+                  "title": "Hands-on Lab: Data Definition Language (DDL Commands)",
                   "actionText": "VIEW",
-                  "url": "https://lab.aspirelms.io/sql-mysql-2",
+                  "url": "https://lab.aspirelms.io/sql-mysql-relational-s2",
                   "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-sql-mysql-relational-3",
+              "title": "Session 3: Table Constraints & Foreign Key Rules",
+              "items": [
+                {
+                  "id": "sql-mysql-relational-s3-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "Table Constraints & Foreign Key Rules Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-sql-mysql-relational-s3",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "sql-mysql-m2-quiz",
-                  "type": "ASSESSMENT",
-                  "typeColor": "bg-blue-100 text-blue-700 border-blue-200",
-                  "iconName": "FileCheck",
-                  "iconBg": "bg-blue-600 text-white",
-                  "title": "SQL Queries Evaluation",
-                  "actionText": "TAKE",
-                  "url": "/assessments",
-                  "btnStyle": "bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30"
+                  "id": "sql-mysql-relational-s3-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: Table Constraints & Foreign Key Rules",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/sql-mysql-relational-s3",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-sql-mysql-relational-4",
+              "title": "Session 4: Data Manipulation Language (DML Commands)",
+              "items": [
+                {
+                  "id": "sql-mysql-relational-s4-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "Data Manipulation Language (DML Commands) Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-sql-mysql-relational-s4",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
+                },
+                {
+                  "id": "sql-mysql-relational-s4-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: Data Manipulation Language (DML Commands)",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/sql-mysql-relational-s4",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-sql-mysql-relational-5",
+              "title": "Session 5: Filtering, Sorting & Pattern Matching",
+              "items": [
+                {
+                  "id": "sql-mysql-relational-s5-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "Filtering, Sorting & Pattern Matching Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-sql-mysql-relational-s5",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
+                },
+                {
+                  "id": "sql-mysql-relational-s5-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: Filtering, Sorting & Pattern Matching",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/sql-mysql-relational-s5",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-sql-mysql-relational-6",
+              "title": "Session 6: SQL Aggregations & Grouping",
+              "items": [
+                {
+                  "id": "sql-mysql-relational-s6-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "SQL Aggregations & Grouping Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-sql-mysql-relational-s6",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
+                },
+                {
+                  "id": "sql-mysql-relational-s6-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: SQL Aggregations & Grouping",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/sql-mysql-relational-s6",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
                 }
               ]
             }
           ]
         },
         {
-          "id": "adv-sql-postgres",
+          "id": "advanced-sql-postgresql",
           "title": "Advanced SQL & PostgreSQL Integration",
           "description": "Click to view subtopics",
           "duration": "SQL Joins (Inner, Left, Right, Full), Subqueries, Indexing, Transactions (ACID), Foreign Keys, PostgreSQL Setup & Commands",
-          "modulesCount": 2,
+          "modulesCount": 5,
           "modules": [
             {
-              "id": "mod-adv-sql-postgres-1",
-              "title": "SQL Joins & Subqueries",
+              "id": "mod-advanced-sql-postgresql-1",
+              "title": "Session 1: SQL Joins (Inner, Outer, Self Joins)",
               "items": [
                 {
-                  "id": "adv-sql-postgres-m1-live",
+                  "id": "advanced-sql-postgresql-s1-live",
                   "type": "LIVE CLASS",
                   "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
                   "iconName": "Video",
                   "iconBg": "bg-purple-600 text-white",
-                  "title": "Mastering SQL Joins & Subqueries",
+                  "title": "SQL Joins (Inner, Outer, Self Joins) Masterclass",
                   "actionText": "JOIN",
-                  "url": "https://zoom.us/live-adv-sql-postgres-1",
+                  "url": "https://zoom.us/live-advanced-sql-postgresql-s1",
                   "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "adv-sql-postgres-m1-lab",
+                  "id": "advanced-sql-postgresql-s1-lab",
                   "type": "PRACTICAL LAB",
                   "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
                   "iconName": "Code",
                   "iconBg": "bg-amber-500 text-white",
-                  "title": "Multi-Table Relational Query Lab",
+                  "title": "Hands-on Lab: SQL Joins (Inner, Outer, Self Joins)",
                   "actionText": "VIEW",
-                  "url": "https://lab.aspirelms.io/adv-sql-postgres-1",
+                  "url": "https://lab.aspirelms.io/advanced-sql-postgresql-s1",
                   "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
-                },
-                {
-                  "id": "adv-sql-postgres-m1-quiz",
-                  "type": "ASSESSMENT",
-                  "typeColor": "bg-blue-100 text-blue-700 border-blue-200",
-                  "iconName": "FileCheck",
-                  "iconBg": "bg-blue-600 text-white",
-                  "title": "SQL Joins Knowledge Check",
-                  "actionText": "TAKE",
-                  "url": "/assessments",
-                  "btnStyle": "bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30"
                 }
               ]
             },
             {
-              "id": "mod-adv-sql-postgres-2",
-              "title": "PostgreSQL Transactions & Indexing",
+              "id": "mod-advanced-sql-postgresql-2",
+              "title": "Session 2: Subqueries & Common Table Expressions",
               "items": [
                 {
-                  "id": "adv-sql-postgres-m2-live",
+                  "id": "advanced-sql-postgresql-s2-live",
                   "type": "LIVE CLASS",
                   "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
                   "iconName": "Video",
                   "iconBg": "bg-purple-600 text-white",
-                  "title": "ACID Transactions & Database Indexing",
+                  "title": "Subqueries & Common Table Expressions Masterclass",
                   "actionText": "JOIN",
-                  "url": "https://zoom.us/live-adv-sql-postgres-2",
+                  "url": "https://zoom.us/live-advanced-sql-postgresql-s2",
                   "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "adv-sql-postgres-m2-lab",
+                  "id": "advanced-sql-postgresql-s2-lab",
                   "type": "PRACTICAL LAB",
                   "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
                   "iconName": "Code",
                   "iconBg": "bg-amber-500 text-white",
-                  "title": "PostgreSQL Database Performance Tuning",
+                  "title": "Hands-on Lab: Subqueries & Common Table Expressions",
                   "actionText": "VIEW",
-                  "url": "https://lab.aspirelms.io/adv-sql-postgres-2",
+                  "url": "https://lab.aspirelms.io/advanced-sql-postgresql-s2",
                   "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-advanced-sql-postgresql-3",
+              "title": "Session 3: Database Indexing & Query Optimization",
+              "items": [
+                {
+                  "id": "advanced-sql-postgresql-s3-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "Database Indexing & Query Optimization Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-advanced-sql-postgresql-s3",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "adv-sql-postgres-m2-quiz",
-                  "type": "ASSESSMENT",
-                  "typeColor": "bg-blue-100 text-blue-700 border-blue-200",
-                  "iconName": "FileCheck",
-                  "iconBg": "bg-blue-600 text-white",
-                  "title": "PostgreSQL & Transactions Quiz",
-                  "actionText": "TAKE",
-                  "url": "/assessments",
-                  "btnStyle": "bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30"
+                  "id": "advanced-sql-postgresql-s3-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: Database Indexing & Query Optimization",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/advanced-sql-postgresql-s3",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-advanced-sql-postgresql-4",
+              "title": "Session 4: Database Transactions & ACID Compliance",
+              "items": [
+                {
+                  "id": "advanced-sql-postgresql-s4-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "Database Transactions & ACID Compliance Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-advanced-sql-postgresql-s4",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
+                },
+                {
+                  "id": "advanced-sql-postgresql-s4-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: Database Transactions & ACID Compliance",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/advanced-sql-postgresql-s4",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-advanced-sql-postgresql-5",
+              "title": "Session 5: PostgreSQL Setup & Python Integration",
+              "items": [
+                {
+                  "id": "advanced-sql-postgresql-s5-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "PostgreSQL Setup & Python Integration Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-advanced-sql-postgresql-s5",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
+                },
+                {
+                  "id": "advanced-sql-postgresql-s5-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: PostgreSQL Setup & Python Integration",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/advanced-sql-postgresql-s5",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
                 }
               ]
             }
           ]
         },
         {
-          "id": "django-setup-arch",
+          "id": "django-architecture",
           "title": "Django Framework Setup & Architecture",
           "description": "Click to view subtopics",
           "duration": "MVT Architecture, Creating Django Projects/Apps, Directory Structure, Settings Configuration, Request-Response Lifecycle, Views & Routing",
-          "modulesCount": 2,
+          "modulesCount": 5,
           "modules": [
             {
-              "id": "mod-django-setup-arch-1",
-              "title": "Django MVT & Project Initialization",
+              "id": "mod-django-architecture-1",
+              "title": "Session 1: Web Frameworks & MVT Architecture",
               "items": [
                 {
-                  "id": "django-setup-arch-m1-live",
+                  "id": "django-architecture-s1-live",
                   "type": "LIVE CLASS",
                   "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
                   "iconName": "Video",
                   "iconBg": "bg-purple-600 text-white",
-                  "title": "Django MVT Architecture Live Workshop",
+                  "title": "Web Frameworks & MVT Architecture Masterclass",
                   "actionText": "JOIN",
-                  "url": "https://zoom.us/live-django-setup-arch-1",
+                  "url": "https://zoom.us/live-django-architecture-s1",
                   "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "django-setup-arch-m1-lab",
+                  "id": "django-architecture-s1-lab",
                   "type": "PRACTICAL LAB",
                   "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
                   "iconName": "Code",
                   "iconBg": "bg-amber-500 text-white",
-                  "title": "Creating Django Project & App Setup",
+                  "title": "Hands-on Lab: Web Frameworks & MVT Architecture",
                   "actionText": "VIEW",
-                  "url": "https://lab.aspirelms.io/django-setup-arch-1",
+                  "url": "https://lab.aspirelms.io/django-architecture-s1",
                   "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
-                },
-                {
-                  "id": "django-setup-arch-m1-quiz",
-                  "type": "ASSESSMENT",
-                  "typeColor": "bg-blue-100 text-blue-700 border-blue-200",
-                  "iconName": "FileCheck",
-                  "iconBg": "bg-blue-600 text-white",
-                  "title": "Django Architecture Quiz",
-                  "actionText": "TAKE",
-                  "url": "/assessments",
-                  "btnStyle": "bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30"
                 }
               ]
             },
             {
-              "id": "mod-django-setup-arch-2",
-              "title": "URL Routing & View Handlers",
+              "id": "mod-django-architecture-2",
+              "title": "Session 2: Creating Django Projects & Directory Analysis",
               "items": [
                 {
-                  "id": "django-setup-arch-m2-live",
+                  "id": "django-architecture-s2-live",
                   "type": "LIVE CLASS",
                   "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
                   "iconName": "Video",
                   "iconBg": "bg-purple-600 text-white",
-                  "title": "Django Request-Response Lifecycle & Views",
+                  "title": "Creating Django Projects & Directory Analysis Masterclass",
                   "actionText": "JOIN",
-                  "url": "https://zoom.us/live-django-setup-arch-2",
+                  "url": "https://zoom.us/live-django-architecture-s2",
                   "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "django-setup-arch-m2-lab",
+                  "id": "django-architecture-s2-lab",
                   "type": "PRACTICAL LAB",
                   "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
                   "iconName": "Code",
                   "iconBg": "bg-amber-500 text-white",
-                  "title": "Building URL Routes & View Controllers",
+                  "title": "Hands-on Lab: Creating Django Projects & Directory Analysis",
                   "actionText": "VIEW",
-                  "url": "https://lab.aspirelms.io/django-setup-arch-2",
+                  "url": "https://lab.aspirelms.io/django-architecture-s2",
                   "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-django-architecture-3",
+              "title": "Session 3: Creating & Registering Django Apps",
+              "items": [
+                {
+                  "id": "django-architecture-s3-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "Creating & Registering Django Apps Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-django-architecture-s3",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "django-setup-arch-m2-quiz",
-                  "type": "ASSESSMENT",
-                  "typeColor": "bg-blue-100 text-blue-700 border-blue-200",
-                  "iconName": "FileCheck",
-                  "iconBg": "bg-blue-600 text-white",
-                  "title": "Django Views & Routing Assessment",
-                  "actionText": "TAKE",
-                  "url": "/assessments",
-                  "btnStyle": "bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30"
+                  "id": "django-architecture-s3-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: Creating & Registering Django Apps",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/django-architecture-s3",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-django-architecture-4",
+              "title": "Session 4: URL Routing & Request-Response Lifecycle",
+              "items": [
+                {
+                  "id": "django-architecture-s4-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "URL Routing & Request-Response Lifecycle Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-django-architecture-s4",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
+                },
+                {
+                  "id": "django-architecture-s4-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: URL Routing & Request-Response Lifecycle",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/django-architecture-s4",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-django-architecture-5",
+              "title": "Session 5: Function-Based Views (FBVs) & Responses",
+              "items": [
+                {
+                  "id": "django-architecture-s5-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "Function-Based Views (FBVs) & Responses Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-django-architecture-s5",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
+                },
+                {
+                  "id": "django-architecture-s5-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: Function-Based Views (FBVs) & Responses",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/django-architecture-s5",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
                 }
               ]
             }
@@ -1900,83 +3156,145 @@ export const INITIAL_MILESTONES = {
           "title": "Django Templates & Static Files Setup",
           "description": "Click to view subtopics",
           "duration": "Django Template Language (DTL), Filters, Tags, Template Inheritance, Handling Static Files & Media Uploads",
-          "modulesCount": 2,
+          "modulesCount": 5,
           "modules": [
             {
               "id": "mod-django-templates-static-1",
-              "title": "DTL & Template Inheritance",
+              "title": "Session 1: Django Template Engine Configuration",
               "items": [
                 {
-                  "id": "django-templates-static-m1-live",
+                  "id": "django-templates-static-s1-live",
                   "type": "LIVE CLASS",
                   "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
                   "iconName": "Video",
                   "iconBg": "bg-purple-600 text-white",
-                  "title": "Django Template Language Masterclass",
+                  "title": "Django Template Engine Configuration Masterclass",
                   "actionText": "JOIN",
-                  "url": "https://zoom.us/live-django-templates-static-1",
+                  "url": "https://zoom.us/live-django-templates-static-s1",
                   "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "django-templates-static-m1-lab",
+                  "id": "django-templates-static-s1-lab",
                   "type": "PRACTICAL LAB",
                   "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
                   "iconName": "Code",
                   "iconBg": "bg-amber-500 text-white",
-                  "title": "Building Base Layout & Dynamic Templates",
+                  "title": "Hands-on Lab: Django Template Engine Configuration",
                   "actionText": "VIEW",
-                  "url": "https://lab.aspirelms.io/django-templates-static-1",
+                  "url": "https://lab.aspirelms.io/django-templates-static-s1",
                   "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
-                },
-                {
-                  "id": "django-templates-static-m1-quiz",
-                  "type": "ASSESSMENT",
-                  "typeColor": "bg-blue-100 text-blue-700 border-blue-200",
-                  "iconName": "FileCheck",
-                  "iconBg": "bg-blue-600 text-white",
-                  "title": "DTL Syntax & Tags Quiz",
-                  "actionText": "TAKE",
-                  "url": "/assessments",
-                  "btnStyle": "bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30"
                 }
               ]
             },
             {
               "id": "mod-django-templates-static-2",
-              "title": "Static & Media Files Configuration",
+              "title": "Session 2: DTL Syntax, Variables & Tags",
               "items": [
                 {
-                  "id": "django-templates-static-m2-live",
+                  "id": "django-templates-static-s2-live",
                   "type": "LIVE CLASS",
                   "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
                   "iconName": "Video",
                   "iconBg": "bg-purple-600 text-white",
-                  "title": "Handling Static Assets & User Media Uploads",
+                  "title": "DTL Syntax, Variables & Tags Masterclass",
                   "actionText": "JOIN",
-                  "url": "https://zoom.us/live-django-templates-static-2",
+                  "url": "https://zoom.us/live-django-templates-static-s2",
                   "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "django-templates-static-m2-lab",
+                  "id": "django-templates-static-s2-lab",
                   "type": "PRACTICAL LAB",
                   "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
                   "iconName": "Code",
                   "iconBg": "bg-amber-500 text-white",
-                  "title": "Image Upload & Media Files Gallery Lab",
+                  "title": "Hands-on Lab: DTL Syntax, Variables & Tags",
                   "actionText": "VIEW",
-                  "url": "https://lab.aspirelms.io/django-templates-static-2",
+                  "url": "https://lab.aspirelms.io/django-templates-static-s2",
                   "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-django-templates-static-3",
+              "title": "Session 3: DTL Control Flow & Loops",
+              "items": [
+                {
+                  "id": "django-templates-static-s3-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "DTL Control Flow & Loops Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-django-templates-static-s3",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "django-templates-static-m2-quiz",
-                  "type": "ASSESSMENT",
-                  "typeColor": "bg-blue-100 text-blue-700 border-blue-200",
-                  "iconName": "FileCheck",
-                  "iconBg": "bg-blue-600 text-white",
-                  "title": "Django Static Files Assessment",
-                  "actionText": "TAKE",
-                  "url": "/assessments",
-                  "btnStyle": "bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30"
+                  "id": "django-templates-static-s3-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: DTL Control Flow & Loops",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/django-templates-static-s3",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-django-templates-static-4",
+              "title": "Session 4: Template Filters & Custom Filters",
+              "items": [
+                {
+                  "id": "django-templates-static-s4-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "Template Filters & Custom Filters Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-django-templates-static-s4",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
+                },
+                {
+                  "id": "django-templates-static-s4-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: Template Filters & Custom Filters",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/django-templates-static-s4",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-django-templates-static-5",
+              "title": "Session 5: Template Inheritance & Static/Media Setup",
+              "items": [
+                {
+                  "id": "django-templates-static-s5-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "Template Inheritance & Static/Media Setup Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-django-templates-static-s5",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
+                },
+                {
+                  "id": "django-templates-static-s5-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: Template Inheritance & Static/Media Setup",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/django-templates-static-s5",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
                 }
               ]
             }
@@ -1987,83 +3305,173 @@ export const INITIAL_MILESTONES = {
           "title": "Django Models & Database ORM",
           "description": "Click to view subtopics",
           "duration": "Model Fields, Relationships (OneToOne, ForeignKey, ManyToMany), Django ORM Queries, Migrations Management, Admin Interface Customization",
-          "modulesCount": 2,
+          "modulesCount": 6,
           "modules": [
             {
               "id": "mod-django-models-orm-1",
-              "title": "Model Fields & Relationships",
+              "title": "Session 1: Defining Models & Field Types",
               "items": [
                 {
-                  "id": "django-models-orm-m1-live",
+                  "id": "django-models-orm-s1-live",
                   "type": "LIVE CLASS",
                   "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
                   "iconName": "Video",
                   "iconBg": "bg-purple-600 text-white",
-                  "title": "Django ORM Models & Relationships Workshop",
+                  "title": "Defining Models & Field Types Masterclass",
                   "actionText": "JOIN",
-                  "url": "https://zoom.us/live-django-models-orm-1",
+                  "url": "https://zoom.us/live-django-models-orm-s1",
                   "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "django-models-orm-m1-lab",
+                  "id": "django-models-orm-s1-lab",
                   "type": "PRACTICAL LAB",
                   "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
                   "iconName": "Code",
                   "iconBg": "bg-amber-500 text-white",
-                  "title": "Designing E-Commerce Data Models",
+                  "title": "Hands-on Lab: Defining Models & Field Types",
                   "actionText": "VIEW",
-                  "url": "https://lab.aspirelms.io/django-models-orm-1",
+                  "url": "https://lab.aspirelms.io/django-models-orm-s1",
                   "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
-                },
-                {
-                  "id": "django-models-orm-m1-quiz",
-                  "type": "ASSESSMENT",
-                  "typeColor": "bg-blue-100 text-blue-700 border-blue-200",
-                  "iconName": "FileCheck",
-                  "iconBg": "bg-blue-600 text-white",
-                  "title": "Django Models & Relationships Quiz",
-                  "actionText": "TAKE",
-                  "url": "/assessments",
-                  "btnStyle": "bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30"
                 }
               ]
             },
             {
               "id": "mod-django-models-orm-2",
-              "title": "ORM Queries & Admin Customization",
+              "title": "Session 2: Field Options & Model String Representation",
               "items": [
                 {
-                  "id": "django-models-orm-m2-live",
+                  "id": "django-models-orm-s2-live",
                   "type": "LIVE CLASS",
                   "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
                   "iconName": "Video",
                   "iconBg": "bg-purple-600 text-white",
-                  "title": "Django ORM QuerySets & Admin Customization",
+                  "title": "Field Options & Model String Representation Masterclass",
                   "actionText": "JOIN",
-                  "url": "https://zoom.us/live-django-models-orm-2",
+                  "url": "https://zoom.us/live-django-models-orm-s2",
                   "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "django-models-orm-m2-lab",
+                  "id": "django-models-orm-s2-lab",
                   "type": "PRACTICAL LAB",
                   "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
                   "iconName": "Code",
                   "iconBg": "bg-amber-500 text-white",
-                  "title": "Advanced Database Queries & Admin Dashboard",
+                  "title": "Hands-on Lab: Field Options & Model String Representation",
                   "actionText": "VIEW",
-                  "url": "https://lab.aspirelms.io/django-models-orm-2",
+                  "url": "https://lab.aspirelms.io/django-models-orm-s2",
                   "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-django-models-orm-3",
+              "title": "Session 3: Model Relationships (ForeignKey, OneToOne, ManyToMany)",
+              "items": [
+                {
+                  "id": "django-models-orm-s3-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "Model Relationships (ForeignKey, OneToOne, ManyToMany) Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-django-models-orm-s3",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "django-models-orm-m2-quiz",
-                  "type": "ASSESSMENT",
-                  "typeColor": "bg-blue-100 text-blue-700 border-blue-200",
-                  "iconName": "FileCheck",
-                  "iconBg": "bg-blue-600 text-white",
-                  "title": "Django ORM Evaluation",
-                  "actionText": "TAKE",
-                  "url": "/assessments",
-                  "btnStyle": "bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30"
+                  "id": "django-models-orm-s3-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: Model Relationships (ForeignKey, OneToOne, ManyToMany)",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/django-models-orm-s3",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-django-models-orm-4",
+              "title": "Session 4: Django Migrations Management",
+              "items": [
+                {
+                  "id": "django-models-orm-s4-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "Django Migrations Management Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-django-models-orm-s4",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
+                },
+                {
+                  "id": "django-models-orm-s4-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: Django Migrations Management",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/django-models-orm-s4",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-django-models-orm-5",
+              "title": "Session 5: Django ORM QuerySet API Basics",
+              "items": [
+                {
+                  "id": "django-models-orm-s5-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "Django ORM QuerySet API Basics Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-django-models-orm-s5",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
+                },
+                {
+                  "id": "django-models-orm-s5-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: Django ORM QuerySet API Basics",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/django-models-orm-s5",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-django-models-orm-6",
+              "title": "Session 6: Advanced ORM Lookups, Aggregations & Admin",
+              "items": [
+                {
+                  "id": "django-models-orm-s6-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "Advanced ORM Lookups, Aggregations & Admin Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-django-models-orm-s6",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
+                },
+                {
+                  "id": "django-models-orm-s6-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: Advanced ORM Lookups, Aggregations & Admin",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/django-models-orm-s6",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
                 }
               ]
             }
@@ -2074,83 +3482,173 @@ export const INITIAL_MILESTONES = {
           "title": "Django Forms, Authentication & Auth",
           "description": "Click to view subtopics",
           "duration": "Django Forms, ModelForms, CSRF Protection, User Authentication System (Login, Logout, Register), Permission Management",
-          "modulesCount": 2,
+          "modulesCount": 6,
           "modules": [
             {
               "id": "mod-django-forms-auth-1",
-              "title": "Django Forms & ModelForms",
+              "title": "Session 1: Django Forms & Validation",
               "items": [
                 {
-                  "id": "django-forms-auth-m1-live",
+                  "id": "django-forms-auth-s1-live",
                   "type": "LIVE CLASS",
                   "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
                   "iconName": "Video",
                   "iconBg": "bg-purple-600 text-white",
-                  "title": "Django Forms & CSRF Protection Workshop",
+                  "title": "Django Forms & Validation Masterclass",
                   "actionText": "JOIN",
-                  "url": "https://zoom.us/live-django-forms-auth-1",
+                  "url": "https://zoom.us/live-django-forms-auth-s1",
                   "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "django-forms-auth-m1-lab",
+                  "id": "django-forms-auth-s1-lab",
                   "type": "PRACTICAL LAB",
                   "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
                   "iconName": "Code",
                   "iconBg": "bg-amber-500 text-white",
-                  "title": "Building Validated User Input Forms",
+                  "title": "Hands-on Lab: Django Forms & Validation",
                   "actionText": "VIEW",
-                  "url": "https://lab.aspirelms.io/django-forms-auth-1",
+                  "url": "https://lab.aspirelms.io/django-forms-auth-s1",
                   "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
-                },
-                {
-                  "id": "django-forms-auth-m1-quiz",
-                  "type": "ASSESSMENT",
-                  "typeColor": "bg-blue-100 text-blue-700 border-blue-200",
-                  "iconName": "FileCheck",
-                  "iconBg": "bg-blue-600 text-white",
-                  "title": "Django Forms Quiz",
-                  "actionText": "TAKE",
-                  "url": "/assessments",
-                  "btnStyle": "bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30"
                 }
               ]
             },
             {
               "id": "mod-django-forms-auth-2",
-              "title": "User Authentication & Permissions",
+              "title": "Session 2: ModelForms & Data Binding",
               "items": [
                 {
-                  "id": "django-forms-auth-m2-live",
+                  "id": "django-forms-auth-s2-live",
                   "type": "LIVE CLASS",
                   "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
                   "iconName": "Video",
                   "iconBg": "bg-purple-600 text-white",
-                  "title": "User Auth System: Login, Logout & Register",
+                  "title": "ModelForms & Data Binding Masterclass",
                   "actionText": "JOIN",
-                  "url": "https://zoom.us/live-django-forms-auth-2",
+                  "url": "https://zoom.us/live-django-forms-auth-s2",
                   "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "django-forms-auth-m2-lab",
+                  "id": "django-forms-auth-s2-lab",
                   "type": "PRACTICAL LAB",
                   "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
                   "iconName": "Code",
                   "iconBg": "bg-amber-500 text-white",
-                  "title": "Role-Based User Permissions System",
+                  "title": "Hands-on Lab: ModelForms & Data Binding",
                   "actionText": "VIEW",
-                  "url": "https://lab.aspirelms.io/django-forms-auth-2",
+                  "url": "https://lab.aspirelms.io/django-forms-auth-s2",
                   "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-django-forms-auth-3",
+              "title": "Session 3: Custom Form Validation & CSRF Protection",
+              "items": [
+                {
+                  "id": "django-forms-auth-s3-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "Custom Form Validation & CSRF Protection Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-django-forms-auth-s3",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "django-forms-auth-m2-quiz",
-                  "type": "ASSESSMENT",
-                  "typeColor": "bg-blue-100 text-blue-700 border-blue-200",
-                  "iconName": "FileCheck",
-                  "iconBg": "bg-blue-600 text-white",
-                  "title": "Django Auth Evaluation",
-                  "actionText": "TAKE",
-                  "url": "/assessments",
-                  "btnStyle": "bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30"
+                  "id": "django-forms-auth-s3-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: Custom Form Validation & CSRF Protection",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/django-forms-auth-s3",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-django-forms-auth-4",
+              "title": "Session 4: Django Built-in User Authentication",
+              "items": [
+                {
+                  "id": "django-forms-auth-s4-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "Django Built-in User Authentication Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-django-forms-auth-s4",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
+                },
+                {
+                  "id": "django-forms-auth-s4-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: Django Built-in User Authentication",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/django-forms-auth-s4",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-django-forms-auth-5",
+              "title": "Session 5: Authentication Views & Password Reset",
+              "items": [
+                {
+                  "id": "django-forms-auth-s5-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "Authentication Views & Password Reset Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-django-forms-auth-s5",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
+                },
+                {
+                  "id": "django-forms-auth-s5-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: Authentication Views & Password Reset",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/django-forms-auth-s5",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-django-forms-auth-6",
+              "title": "Session 6: User Permissions, Groups & Custom User Models",
+              "items": [
+                {
+                  "id": "django-forms-auth-s6-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "User Permissions, Groups & Custom User Models Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-django-forms-auth-s6",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
+                },
+                {
+                  "id": "django-forms-auth-s6-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: User Permissions, Groups & Custom User Models",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/django-forms-auth-s6",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
                 }
               ]
             }
@@ -2161,170 +3659,350 @@ export const INITIAL_MILESTONES = {
           "title": "Django REST Framework (DRF) Core",
           "description": "Click to view subtopics",
           "duration": "REST API Architecture, DRF Setup, Serializers, ModelSerializers, Function & Class-Based Views (APIView, Generic Views)",
-          "modulesCount": 2,
+          "modulesCount": 6,
           "modules": [
             {
               "id": "mod-drf-core-1",
-              "title": "REST Principles & Serializers",
+              "title": "Session 1: REST API Principles & HTTP Methods",
               "items": [
                 {
-                  "id": "drf-core-m1-live",
+                  "id": "drf-core-s1-live",
                   "type": "LIVE CLASS",
                   "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
                   "iconName": "Video",
                   "iconBg": "bg-purple-600 text-white",
-                  "title": "RESTful API Architecture & DRF Serializers",
+                  "title": "REST API Principles & HTTP Methods Masterclass",
                   "actionText": "JOIN",
-                  "url": "https://zoom.us/live-drf-core-1",
+                  "url": "https://zoom.us/live-drf-core-s1",
                   "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "drf-core-m1-lab",
+                  "id": "drf-core-s1-lab",
                   "type": "PRACTICAL LAB",
                   "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
                   "iconName": "Code",
                   "iconBg": "bg-amber-500 text-white",
-                  "title": "Building ModelSerializers for CRUD Operations",
+                  "title": "Hands-on Lab: REST API Principles & HTTP Methods",
                   "actionText": "VIEW",
-                  "url": "https://lab.aspirelms.io/drf-core-1",
+                  "url": "https://lab.aspirelms.io/drf-core-s1",
                   "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
-                },
-                {
-                  "id": "drf-core-m1-quiz",
-                  "type": "ASSESSMENT",
-                  "typeColor": "bg-blue-100 text-blue-700 border-blue-200",
-                  "iconName": "FileCheck",
-                  "iconBg": "bg-blue-600 text-white",
-                  "title": "DRF Serializers Quiz",
-                  "actionText": "TAKE",
-                  "url": "/assessments",
-                  "btnStyle": "bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30"
                 }
               ]
             },
             {
               "id": "mod-drf-core-2",
-              "title": "API Views & Generic Endpoints",
+              "title": "Session 2: DRF Serializers & Data Conversion",
               "items": [
                 {
-                  "id": "drf-core-m2-live",
+                  "id": "drf-core-s2-live",
                   "type": "LIVE CLASS",
                   "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
                   "iconName": "Video",
                   "iconBg": "bg-purple-600 text-white",
-                  "title": "APIView & Generic Class-Based Views",
+                  "title": "DRF Serializers & Data Conversion Masterclass",
                   "actionText": "JOIN",
-                  "url": "https://zoom.us/live-drf-core-2",
+                  "url": "https://zoom.us/live-drf-core-s2",
                   "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "drf-core-m2-lab",
+                  "id": "drf-core-s2-lab",
                   "type": "PRACTICAL LAB",
                   "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
                   "iconName": "Code",
                   "iconBg": "bg-amber-500 text-white",
-                  "title": "Creating RESTful API Endpoints Lab",
+                  "title": "Hands-on Lab: DRF Serializers & Data Conversion",
                   "actionText": "VIEW",
-                  "url": "https://lab.aspirelms.io/drf-core-2",
+                  "url": "https://lab.aspirelms.io/drf-core-s2",
                   "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-drf-core-3",
+              "title": "Session 3: DRF ModelSerializers & Nested Serialization",
+              "items": [
+                {
+                  "id": "drf-core-s3-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "DRF ModelSerializers & Nested Serialization Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-drf-core-s3",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "drf-core-m2-quiz",
-                  "type": "ASSESSMENT",
-                  "typeColor": "bg-blue-100 text-blue-700 border-blue-200",
-                  "iconName": "FileCheck",
-                  "iconBg": "bg-blue-600 text-white",
-                  "title": "DRF Core Architecture Assessment",
-                  "actionText": "TAKE",
-                  "url": "/assessments",
-                  "btnStyle": "bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30"
+                  "id": "drf-core-s3-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: DRF ModelSerializers & Nested Serialization",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/drf-core-s3",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-drf-core-4",
+              "title": "Session 4: Function-Based API Views (@api_view)",
+              "items": [
+                {
+                  "id": "drf-core-s4-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "Function-Based API Views (@api_view) Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-drf-core-s4",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
+                },
+                {
+                  "id": "drf-core-s4-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: Function-Based API Views (@api_view)",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/drf-core-s4",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-drf-core-5",
+              "title": "Session 5: Class-Based API Views (APIView)",
+              "items": [
+                {
+                  "id": "drf-core-s5-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "Class-Based API Views (APIView) Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-drf-core-s5",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
+                },
+                {
+                  "id": "drf-core-s5-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: Class-Based API Views (APIView)",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/drf-core-s5",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-drf-core-6",
+              "title": "Session 6: Generic Views & DRF Mixins",
+              "items": [
+                {
+                  "id": "drf-core-s6-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "Generic Views & DRF Mixins Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-drf-core-s6",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
+                },
+                {
+                  "id": "drf-core-s6-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: Generic Views & DRF Mixins",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/drf-core-s6",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
                 }
               ]
             }
           ]
         },
         {
-          "id": "drf-advanced",
+          "id": "drf-advanced-jwt-testing",
           "title": "DRF Advanced: ViewSets, JWT Auth & Testing",
           "description": "Click to view subtopics",
           "duration": "ViewSets, Routers, JWT Authentication (SimpleJWT), Permissions, Filtering, Pagination, API Testing with Postman & pytest",
-          "modulesCount": 2,
+          "modulesCount": 6,
           "modules": [
             {
-              "id": "mod-drf-advanced-1",
-              "title": "ViewSets & JWT Authentication",
+              "id": "mod-drf-advanced-jwt-testing-1",
+              "title": "Session 1: ViewSets & Routers Architecture",
               "items": [
                 {
-                  "id": "drf-advanced-m1-live",
+                  "id": "drf-advanced-jwt-testing-s1-live",
                   "type": "LIVE CLASS",
                   "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
                   "iconName": "Video",
                   "iconBg": "bg-purple-600 text-white",
-                  "title": "ModelViewSets & SimpleJWT Auth Workshop",
+                  "title": "ViewSets & Routers Architecture Masterclass",
                   "actionText": "JOIN",
-                  "url": "https://zoom.us/live-drf-advanced-1",
+                  "url": "https://zoom.us/live-drf-advanced-jwt-testing-s1",
                   "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "drf-advanced-m1-lab",
+                  "id": "drf-advanced-jwt-testing-s1-lab",
                   "type": "PRACTICAL LAB",
                   "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
                   "iconName": "Code",
                   "iconBg": "bg-amber-500 text-white",
-                  "title": "JWT Authentication API Integration Lab",
+                  "title": "Hands-on Lab: ViewSets & Routers Architecture",
                   "actionText": "VIEW",
-                  "url": "https://lab.aspirelms.io/drf-advanced-1",
+                  "url": "https://lab.aspirelms.io/drf-advanced-jwt-testing-s1",
                   "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
-                },
-                {
-                  "id": "drf-advanced-m1-quiz",
-                  "type": "ASSESSMENT",
-                  "typeColor": "bg-blue-100 text-blue-700 border-blue-200",
-                  "iconName": "FileCheck",
-                  "iconBg": "bg-blue-600 text-white",
-                  "title": "JWT & ViewSets Quiz",
-                  "actionText": "TAKE",
-                  "url": "/assessments",
-                  "btnStyle": "bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30"
                 }
               ]
             },
             {
-              "id": "mod-drf-advanced-2",
-              "title": "Pagination, Filtering & Testing",
+              "id": "mod-drf-advanced-jwt-testing-2",
+              "title": "Session 2: DRF Token Authentication",
               "items": [
                 {
-                  "id": "drf-advanced-m2-live",
+                  "id": "drf-advanced-jwt-testing-s2-live",
                   "type": "LIVE CLASS",
                   "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
                   "iconName": "Video",
                   "iconBg": "bg-purple-600 text-white",
-                  "title": "Filtering, Pagination & API Testing with pytest",
+                  "title": "DRF Token Authentication Masterclass",
                   "actionText": "JOIN",
-                  "url": "https://zoom.us/live-drf-advanced-2",
+                  "url": "https://zoom.us/live-drf-advanced-jwt-testing-s2",
                   "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "drf-advanced-m2-lab",
+                  "id": "drf-advanced-jwt-testing-s2-lab",
                   "type": "PRACTICAL LAB",
                   "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
                   "iconName": "Code",
                   "iconBg": "bg-amber-500 text-white",
-                  "title": "Postman & pytest Automated API Suite",
+                  "title": "Hands-on Lab: DRF Token Authentication",
                   "actionText": "VIEW",
-                  "url": "https://lab.aspirelms.io/drf-advanced-2",
+                  "url": "https://lab.aspirelms.io/drf-advanced-jwt-testing-s2",
                   "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-drf-advanced-jwt-testing-3",
+              "title": "Session 3: JWT Authentication & Token Refresh",
+              "items": [
+                {
+                  "id": "drf-advanced-jwt-testing-s3-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "JWT Authentication & Token Refresh Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-drf-advanced-jwt-testing-s3",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "drf-advanced-m2-quiz",
-                  "type": "ASSESSMENT",
-                  "typeColor": "bg-blue-100 text-blue-700 border-blue-200",
-                  "iconName": "FileCheck",
-                  "iconBg": "bg-blue-600 text-white",
-                  "title": "DRF Advanced Testing Assessment",
-                  "actionText": "TAKE",
-                  "url": "/assessments",
-                  "btnStyle": "bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30"
+                  "id": "drf-advanced-jwt-testing-s3-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: JWT Authentication & Token Refresh",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/drf-advanced-jwt-testing-s3",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-drf-advanced-jwt-testing-4",
+              "title": "Session 4: DRF Permissions & Custom Permission Classes",
+              "items": [
+                {
+                  "id": "drf-advanced-jwt-testing-s4-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "DRF Permissions & Custom Permission Classes Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-drf-advanced-jwt-testing-s4",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
+                },
+                {
+                  "id": "drf-advanced-jwt-testing-s4-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: DRF Permissions & Custom Permission Classes",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/drf-advanced-jwt-testing-s4",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-drf-advanced-jwt-testing-5",
+              "title": "Session 5: API Filtering, Search, Ordering & Pagination",
+              "items": [
+                {
+                  "id": "drf-advanced-jwt-testing-s5-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "API Filtering, Search, Ordering & Pagination Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-drf-advanced-jwt-testing-s5",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
+                },
+                {
+                  "id": "drf-advanced-jwt-testing-s5-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: API Filtering, Search, Ordering & Pagination",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/drf-advanced-jwt-testing-s5",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-drf-advanced-jwt-testing-6",
+              "title": "Session 6: Automated API Testing & Postman Documentation",
+              "items": [
+                {
+                  "id": "drf-advanced-jwt-testing-s6-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "Automated API Testing & Postman Documentation Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-drf-advanced-jwt-testing-s6",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
+                },
+                {
+                  "id": "drf-advanced-jwt-testing-s6-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: Automated API Testing & Postman Documentation",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/drf-advanced-jwt-testing-s6",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
                 }
               ]
             }
@@ -2335,257 +4013,499 @@ export const INITIAL_MILESTONES = {
           "title": "Redis Caching & AWS S3 Cloud Storage",
           "description": "Click to view subtopics",
           "duration": "Redis Installation, Caching Django Views/Queries, File Uploads, Cloud Storage Integration (AWS S3 / Cloudinary)",
-          "modulesCount": 2,
+          "modulesCount": 5,
           "modules": [
             {
               "id": "mod-redis-aws-s3-1",
-              "title": "Redis Caching Integration",
+              "title": "Session 1: Caching Fundamentals & Redis Setup",
               "items": [
                 {
-                  "id": "redis-aws-s3-m1-live",
+                  "id": "redis-aws-s3-s1-live",
                   "type": "LIVE CLASS",
                   "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
                   "iconName": "Video",
                   "iconBg": "bg-purple-600 text-white",
-                  "title": "Redis In-Memory Caching for High Performance",
+                  "title": "Caching Fundamentals & Redis Setup Masterclass",
                   "actionText": "JOIN",
-                  "url": "https://zoom.us/live-redis-aws-s3-1",
+                  "url": "https://zoom.us/live-redis-aws-s3-s1",
                   "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "redis-aws-s3-m1-lab",
+                  "id": "redis-aws-s3-s1-lab",
                   "type": "PRACTICAL LAB",
                   "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
                   "iconName": "Code",
                   "iconBg": "bg-amber-500 text-white",
-                  "title": "Django View Caching with Redis Lab",
+                  "title": "Hands-on Lab: Caching Fundamentals & Redis Setup",
                   "actionText": "VIEW",
-                  "url": "https://lab.aspirelms.io/redis-aws-s3-1",
+                  "url": "https://lab.aspirelms.io/redis-aws-s3-s1",
                   "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
-                },
-                {
-                  "id": "redis-aws-s3-m1-quiz",
-                  "type": "ASSESSMENT",
-                  "typeColor": "bg-blue-100 text-blue-700 border-blue-200",
-                  "iconName": "FileCheck",
-                  "iconBg": "bg-blue-600 text-white",
-                  "title": "Redis Caching Quiz",
-                  "actionText": "TAKE",
-                  "url": "/assessments",
-                  "btnStyle": "bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30"
                 }
               ]
             },
             {
               "id": "mod-redis-aws-s3-2",
-              "title": "AWS S3 & Cloud Storage Uploads",
+              "title": "Session 2: Connecting Django to Redis Cache",
               "items": [
                 {
-                  "id": "redis-aws-s3-m2-live",
+                  "id": "redis-aws-s3-s2-live",
                   "type": "LIVE CLASS",
                   "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
                   "iconName": "Video",
                   "iconBg": "bg-purple-600 text-white",
-                  "title": "AWS S3 Cloud Bucket Configuration",
+                  "title": "Connecting Django to Redis Cache Masterclass",
                   "actionText": "JOIN",
-                  "url": "https://zoom.us/live-redis-aws-s3-2",
+                  "url": "https://zoom.us/live-redis-aws-s3-s2",
                   "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "redis-aws-s3-m2-lab",
+                  "id": "redis-aws-s3-s2-lab",
                   "type": "PRACTICAL LAB",
                   "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
                   "iconName": "Code",
                   "iconBg": "bg-amber-500 text-white",
-                  "title": "S3 Media Storage Integration Lab",
+                  "title": "Hands-on Lab: Connecting Django to Redis Cache",
                   "actionText": "VIEW",
-                  "url": "https://lab.aspirelms.io/redis-aws-s3-2",
+                  "url": "https://lab.aspirelms.io/redis-aws-s3-s2",
                   "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-redis-aws-s3-3",
+              "title": "Session 3: View Caching & Low-Level Cache API",
+              "items": [
+                {
+                  "id": "redis-aws-s3-s3-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "View Caching & Low-Level Cache API Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-redis-aws-s3-s3",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "redis-aws-s3-m2-quiz",
-                  "type": "ASSESSMENT",
-                  "typeColor": "bg-blue-100 text-blue-700 border-blue-200",
-                  "iconName": "FileCheck",
-                  "iconBg": "bg-blue-600 text-white",
-                  "title": "Cloud Storage & Uploads Assessment",
-                  "actionText": "TAKE",
-                  "url": "/assessments",
-                  "btnStyle": "bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30"
+                  "id": "redis-aws-s3-s3-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: View Caching & Low-Level Cache API",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/redis-aws-s3-s3",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-redis-aws-s3-4",
+              "title": "Session 4: AWS S3 Cloud Storage Configuration",
+              "items": [
+                {
+                  "id": "redis-aws-s3-s4-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "AWS S3 Cloud Storage Configuration Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-redis-aws-s3-s4",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
+                },
+                {
+                  "id": "redis-aws-s3-s4-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: AWS S3 Cloud Storage Configuration",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/redis-aws-s3-s4",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-redis-aws-s3-5",
+              "title": "Session 5: Integrating AWS S3 for Django Media Uploads",
+              "items": [
+                {
+                  "id": "redis-aws-s3-s5-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "Integrating AWS S3 for Django Media Uploads Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-redis-aws-s3-s5",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
+                },
+                {
+                  "id": "redis-aws-s3-s5-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: Integrating AWS S3 for Django Media Uploads",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/redis-aws-s3-s5",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
                 }
               ]
             }
           ]
         },
         {
-          "id": "dsa-python-1",
+          "id": "dsa-python-part1",
           "title": "Data Structures using Python - Part 1",
           "description": "Click to view subtopics",
           "duration": "Arrays, Matrix Operations, Linked Lists (Singly & Doubly), Stacks & Queues, Time & Space Complexity (Big-O Notation)",
-          "modulesCount": 2,
+          "modulesCount": 6,
           "modules": [
             {
-              "id": "mod-dsa-python-1-1",
-              "title": "Complexity & Linear Data Structures",
+              "id": "mod-dsa-python-part1-1",
+              "title": "Session 1: Algorithm Analysis & Big-O Complexity",
               "items": [
                 {
-                  "id": "dsa-python-1-m1-live",
+                  "id": "dsa-python-part1-s1-live",
                   "type": "LIVE CLASS",
                   "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
                   "iconName": "Video",
                   "iconBg": "bg-purple-600 text-white",
-                  "title": "Big-O Analysis & Arrays vs Linked Lists",
+                  "title": "Algorithm Analysis & Big-O Complexity Masterclass",
                   "actionText": "JOIN",
-                  "url": "https://zoom.us/live-dsa-python-1-1",
+                  "url": "https://zoom.us/live-dsa-python-part1-s1",
                   "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "dsa-python-1-m1-lab",
+                  "id": "dsa-python-part1-s1-lab",
                   "type": "PRACTICAL LAB",
                   "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
                   "iconName": "Code",
                   "iconBg": "bg-amber-500 text-white",
-                  "title": "Singly & Doubly Linked List Implementation",
+                  "title": "Hands-on Lab: Algorithm Analysis & Big-O Complexity",
                   "actionText": "VIEW",
-                  "url": "https://lab.aspirelms.io/dsa-python-1-1",
+                  "url": "https://lab.aspirelms.io/dsa-python-part1-s1",
                   "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
-                },
-                {
-                  "id": "dsa-python-1-m1-quiz",
-                  "type": "ASSESSMENT",
-                  "typeColor": "bg-blue-100 text-blue-700 border-blue-200",
-                  "iconName": "FileCheck",
-                  "iconBg": "bg-blue-600 text-white",
-                  "title": "Big-O & Linked Lists Quiz",
-                  "actionText": "TAKE",
-                  "url": "/assessments",
-                  "btnStyle": "bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30"
                 }
               ]
             },
             {
-              "id": "mod-dsa-python-1-2",
-              "title": "Stacks & Queue Implementations",
+              "id": "mod-dsa-python-part1-2",
+              "title": "Session 2: Dynamic Arrays & Memory Allocation",
               "items": [
                 {
-                  "id": "dsa-python-1-m2-live",
+                  "id": "dsa-python-part1-s2-live",
                   "type": "LIVE CLASS",
                   "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
                   "iconName": "Video",
                   "iconBg": "bg-purple-600 text-white",
-                  "title": "Stacks & Queues Data Structures Workshop",
+                  "title": "Dynamic Arrays & Memory Allocation Masterclass",
                   "actionText": "JOIN",
-                  "url": "https://zoom.us/live-dsa-python-1-2",
+                  "url": "https://zoom.us/live-dsa-python-part1-s2",
                   "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "dsa-python-1-m2-lab",
+                  "id": "dsa-python-part1-s2-lab",
                   "type": "PRACTICAL LAB",
                   "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
                   "iconName": "Code",
                   "iconBg": "bg-amber-500 text-white",
-                  "title": "Stack-Based Expression Evaluation Lab",
+                  "title": "Hands-on Lab: Dynamic Arrays & Memory Allocation",
                   "actionText": "VIEW",
-                  "url": "https://lab.aspirelms.io/dsa-python-1-2",
+                  "url": "https://lab.aspirelms.io/dsa-python-part1-s2",
                   "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-dsa-python-part1-3",
+              "title": "Session 3: 2D Arrays & Matrix Manipulation",
+              "items": [
+                {
+                  "id": "dsa-python-part1-s3-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "2D Arrays & Matrix Manipulation Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-dsa-python-part1-s3",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "dsa-python-1-m2-quiz",
-                  "type": "ASSESSMENT",
-                  "typeColor": "bg-blue-100 text-blue-700 border-blue-200",
-                  "iconName": "FileCheck",
-                  "iconBg": "bg-blue-600 text-white",
-                  "title": "Linear Data Structures Evaluation",
-                  "actionText": "TAKE",
-                  "url": "/assessments",
-                  "btnStyle": "bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30"
+                  "id": "dsa-python-part1-s3-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: 2D Arrays & Matrix Manipulation",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/dsa-python-part1-s3",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-dsa-python-part1-4",
+              "title": "Session 4: Singly Linked Lists Implementation",
+              "items": [
+                {
+                  "id": "dsa-python-part1-s4-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "Singly Linked Lists Implementation Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-dsa-python-part1-s4",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
+                },
+                {
+                  "id": "dsa-python-part1-s4-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: Singly Linked Lists Implementation",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/dsa-python-part1-s4",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-dsa-python-part1-5",
+              "title": "Session 5: Doubly & Circular Linked Lists",
+              "items": [
+                {
+                  "id": "dsa-python-part1-s5-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "Doubly & Circular Linked Lists Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-dsa-python-part1-s5",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
+                },
+                {
+                  "id": "dsa-python-part1-s5-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: Doubly & Circular Linked Lists",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/dsa-python-part1-s5",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-dsa-python-part1-6",
+              "title": "Session 6: Stacks & Queues Implementation",
+              "items": [
+                {
+                  "id": "dsa-python-part1-s6-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "Stacks & Queues Implementation Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-dsa-python-part1-s6",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
+                },
+                {
+                  "id": "dsa-python-part1-s6-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: Stacks & Queues Implementation",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/dsa-python-part1-s6",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
                 }
               ]
             }
           ]
         },
         {
-          "id": "dsa-python-2",
+          "id": "dsa-python-part2",
           "title": "Data Structures & Algorithms - Part 2",
           "description": "Click to view subtopics",
           "duration": "Trees (Binary Trees, BST Traversals), Recursion, Searching (Linear, Binary Search), Sorting Algorithms (Bubble, Quick, Merge Sort)",
-          "modulesCount": 2,
+          "modulesCount": 6,
           "modules": [
             {
-              "id": "mod-dsa-python-2-1",
-              "title": "Trees & BST Traversals",
+              "id": "mod-dsa-python-part2-1",
+              "title": "Session 1: Recursion & Call Stack Analysis",
               "items": [
                 {
-                  "id": "dsa-python-2-m1-live",
+                  "id": "dsa-python-part2-s1-live",
                   "type": "LIVE CLASS",
                   "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
                   "iconName": "Video",
                   "iconBg": "bg-purple-600 text-white",
-                  "title": "Binary Search Trees & Traversal Algorithms",
+                  "title": "Recursion & Call Stack Analysis Masterclass",
                   "actionText": "JOIN",
-                  "url": "https://zoom.us/live-dsa-python-2-1",
+                  "url": "https://zoom.us/live-dsa-python-part2-s1",
                   "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "dsa-python-2-m1-lab",
+                  "id": "dsa-python-part2-s1-lab",
                   "type": "PRACTICAL LAB",
                   "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
                   "iconName": "Code",
                   "iconBg": "bg-amber-500 text-white",
-                  "title": "BST Search & Insertion Lab",
+                  "title": "Hands-on Lab: Recursion & Call Stack Analysis",
                   "actionText": "VIEW",
-                  "url": "https://lab.aspirelms.io/dsa-python-2-1",
+                  "url": "https://lab.aspirelms.io/dsa-python-part2-s1",
                   "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
-                },
-                {
-                  "id": "dsa-python-2-m1-quiz",
-                  "type": "ASSESSMENT",
-                  "typeColor": "bg-blue-100 text-blue-700 border-blue-200",
-                  "iconName": "FileCheck",
-                  "iconBg": "bg-blue-600 text-white",
-                  "title": "Binary Trees Quiz",
-                  "actionText": "TAKE",
-                  "url": "/assessments",
-                  "btnStyle": "bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30"
                 }
               ]
             },
             {
-              "id": "mod-dsa-python-2-2",
-              "title": "Sorting & Searching Algorithms",
+              "id": "mod-dsa-python-part2-2",
+              "title": "Session 2: Searching Algorithms (Linear & Binary Search)",
               "items": [
                 {
-                  "id": "dsa-python-2-m2-live",
+                  "id": "dsa-python-part2-s2-live",
                   "type": "LIVE CLASS",
                   "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
                   "iconName": "Video",
                   "iconBg": "bg-purple-600 text-white",
-                  "title": "Quick Sort, Merge Sort & Binary Search",
+                  "title": "Searching Algorithms (Linear & Binary Search) Masterclass",
                   "actionText": "JOIN",
-                  "url": "https://zoom.us/live-dsa-python-2-2",
+                  "url": "https://zoom.us/live-dsa-python-part2-s2",
                   "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "dsa-python-2-m2-lab",
+                  "id": "dsa-python-part2-s2-lab",
                   "type": "PRACTICAL LAB",
                   "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
                   "iconName": "Code",
                   "iconBg": "bg-amber-500 text-white",
-                  "title": "Algorithmic Efficiency & Sorting Suite",
+                  "title": "Hands-on Lab: Searching Algorithms (Linear & Binary Search)",
                   "actionText": "VIEW",
-                  "url": "https://lab.aspirelms.io/dsa-python-2-2",
+                  "url": "https://lab.aspirelms.io/dsa-python-part2-s2",
                   "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-dsa-python-part2-3",
+              "title": "Session 3: Elementary Sorting (Bubble, Selection, Insertion)",
+              "items": [
+                {
+                  "id": "dsa-python-part2-s3-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "Elementary Sorting (Bubble, Selection, Insertion) Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-dsa-python-part2-s3",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "dsa-python-2-m2-quiz",
-                  "type": "ASSESSMENT",
-                  "typeColor": "bg-blue-100 text-blue-700 border-blue-200",
-                  "iconName": "FileCheck",
-                  "iconBg": "bg-blue-600 text-white",
-                  "title": "DSA Part 2 Comprehensive Assessment",
-                  "actionText": "TAKE",
-                  "url": "/assessments",
-                  "btnStyle": "bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30"
+                  "id": "dsa-python-part2-s3-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: Elementary Sorting (Bubble, Selection, Insertion)",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/dsa-python-part2-s3",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-dsa-python-part2-4",
+              "title": "Session 4: Divide-and-Conquer Sorting (Merge & Quick Sort)",
+              "items": [
+                {
+                  "id": "dsa-python-part2-s4-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "Divide-and-Conquer Sorting (Merge & Quick Sort) Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-dsa-python-part2-s4",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
+                },
+                {
+                  "id": "dsa-python-part2-s4-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: Divide-and-Conquer Sorting (Merge & Quick Sort)",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/dsa-python-part2-s4",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-dsa-python-part2-5",
+              "title": "Session 5: Binary Trees & Tree Traversals",
+              "items": [
+                {
+                  "id": "dsa-python-part2-s5-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "Binary Trees & Tree Traversals Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-dsa-python-part2-s5",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
+                },
+                {
+                  "id": "dsa-python-part2-s5-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: Binary Trees & Tree Traversals",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/dsa-python-part2-s5",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-dsa-python-part2-6",
+              "title": "Session 6: Binary Search Trees (BST) Operations",
+              "items": [
+                {
+                  "id": "dsa-python-part2-s6-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "Binary Search Trees (BST) Operations Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-dsa-python-part2-s6",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
+                },
+                {
+                  "id": "dsa-python-part2-s6-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: Binary Search Trees (BST) Operations",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/dsa-python-part2-s6",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
                 }
               ]
             }
@@ -2596,94 +4516,156 @@ export const INITIAL_MILESTONES = {
     {
       "id": "stage-3",
       "stageNumber": "STAGE 03",
-      "phaseTag": "Phase 3 • Artificial Intelligence & Cloud",
+      "phaseTag": "Phase 3 \u2022 Artificial Intelligence & Cloud",
       "title": "Stage 3: AI",
-      "status": "AVAILABLE",
-      "statusType": "available",
-      "isLocked": false,
+      "status": "LOCKED",
+      "statusType": "locked",
+      "isLocked": true,
       "subtopics": [
         {
-          "id": "ai-prompt-llm",
+          "id": "intro-ai-llms",
           "title": "Introduction to AI, Prompt Engineering & LLMs",
           "description": "Click to view subtopics",
           "duration": "What is AI/ML/DL/LLM, Generative AI Ecosystem, Google Gemini & OpenAI API Setup, Prompt Engineering Strategies & Few-Shot Prompting",
-          "modulesCount": 2,
+          "modulesCount": 5,
           "modules": [
             {
-              "id": "mod-ai-prompt-llm-1",
-              "title": "Generative AI & LLM Ecosystem",
+              "id": "mod-intro-ai-llms-1",
+              "title": "Session 1: AI, ML, DL & LLM Fundamentals",
               "items": [
                 {
-                  "id": "ai-prompt-llm-m1-live",
+                  "id": "intro-ai-llms-s1-live",
                   "type": "LIVE CLASS",
                   "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
                   "iconName": "Video",
                   "iconBg": "bg-purple-600 text-white",
-                  "title": "Intro to Generative AI & OpenAI/Gemini APIs",
+                  "title": "AI, ML, DL & LLM Fundamentals Masterclass",
                   "actionText": "JOIN",
-                  "url": "https://zoom.us/live-ai-prompt-llm-1",
+                  "url": "https://zoom.us/live-intro-ai-llms-s1",
                   "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "ai-prompt-llm-m1-lab",
+                  "id": "intro-ai-llms-s1-lab",
                   "type": "PRACTICAL LAB",
                   "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
                   "iconName": "Code",
                   "iconBg": "bg-amber-500 text-white",
-                  "title": "Connecting Python to Gemini API Lab",
+                  "title": "Hands-on Lab: AI, ML, DL & LLM Fundamentals",
                   "actionText": "VIEW",
-                  "url": "https://lab.aspirelms.io/ai-prompt-llm-1",
+                  "url": "https://lab.aspirelms.io/intro-ai-llms-s1",
                   "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
-                },
-                {
-                  "id": "ai-prompt-llm-m1-quiz",
-                  "type": "ASSESSMENT",
-                  "typeColor": "bg-blue-100 text-blue-700 border-blue-200",
-                  "iconName": "FileCheck",
-                  "iconBg": "bg-blue-600 text-white",
-                  "title": "Generative AI Ecosystem Quiz",
-                  "actionText": "TAKE",
-                  "url": "/assessments",
-                  "btnStyle": "bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30"
                 }
               ]
             },
             {
-              "id": "mod-ai-prompt-llm-2",
-              "title": "Prompt Engineering Strategies",
+              "id": "mod-intro-ai-llms-2",
+              "title": "Session 2: Generative AI Ecosystem & Model Selection",
               "items": [
                 {
-                  "id": "ai-prompt-llm-m2-live",
+                  "id": "intro-ai-llms-s2-live",
                   "type": "LIVE CLASS",
                   "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
                   "iconName": "Video",
                   "iconBg": "bg-purple-600 text-white",
-                  "title": "Zero-Shot, Few-Shot & Chain-of-Thought Prompting",
+                  "title": "Generative AI Ecosystem & Model Selection Masterclass",
                   "actionText": "JOIN",
-                  "url": "https://zoom.us/live-ai-prompt-llm-2",
+                  "url": "https://zoom.us/live-intro-ai-llms-s2",
                   "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "ai-prompt-llm-m2-lab",
+                  "id": "intro-ai-llms-s2-lab",
                   "type": "PRACTICAL LAB",
                   "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
                   "iconName": "Code",
                   "iconBg": "bg-amber-500 text-white",
-                  "title": "Prompt Engineering Optimization Lab",
+                  "title": "Hands-on Lab: Generative AI Ecosystem & Model Selection",
                   "actionText": "VIEW",
-                  "url": "https://lab.aspirelms.io/ai-prompt-llm-2",
+                  "url": "https://lab.aspirelms.io/intro-ai-llms-s2",
                   "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-intro-ai-llms-3",
+              "title": "Session 3: Gemini & OpenAI API Setup",
+              "items": [
+                {
+                  "id": "intro-ai-llms-s3-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "Gemini & OpenAI API Setup Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-intro-ai-llms-s3",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "ai-prompt-llm-m2-quiz",
-                  "type": "ASSESSMENT",
-                  "typeColor": "bg-blue-100 text-blue-700 border-blue-200",
-                  "iconName": "FileCheck",
-                  "iconBg": "bg-blue-600 text-white",
-                  "title": "Prompt Engineering Assessment",
-                  "actionText": "TAKE",
-                  "url": "/assessments",
-                  "btnStyle": "bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30"
+                  "id": "intro-ai-llms-s3-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: Gemini & OpenAI API Setup",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/intro-ai-llms-s3",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-intro-ai-llms-4",
+              "title": "Session 4: Prompt Engineering Core Principles",
+              "items": [
+                {
+                  "id": "intro-ai-llms-s4-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "Prompt Engineering Core Principles Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-intro-ai-llms-s4",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
+                },
+                {
+                  "id": "intro-ai-llms-s4-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: Prompt Engineering Core Principles",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/intro-ai-llms-s4",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-intro-ai-llms-5",
+              "title": "Session 5: Advanced Prompting (Few-Shot & Chain-of-Thought)",
+              "items": [
+                {
+                  "id": "intro-ai-llms-s5-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "Advanced Prompting (Few-Shot & Chain-of-Thought) Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-intro-ai-llms-s5",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
+                },
+                {
+                  "id": "intro-ai-llms-s5-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: Advanced Prompting (Few-Shot & Chain-of-Thought)",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/intro-ai-llms-s5",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
                 }
               ]
             }
@@ -2694,83 +4676,173 @@ export const INITIAL_MILESTONES = {
           "title": "AI Integration with Python & LangChain",
           "description": "Click to view subtopics",
           "duration": "LangChain Framework Basics, Prompt Templates, Chains, Integrating OpenAI/Gemini APIs in Django Backend, Building Chatbots",
-          "modulesCount": 2,
+          "modulesCount": 6,
           "modules": [
             {
               "id": "mod-ai-python-langchain-1",
-              "title": "LangChain Basics & Prompt Templates",
+              "title": "Session 1: LangChain Framework Architecture",
               "items": [
                 {
-                  "id": "ai-python-langchain-m1-live",
+                  "id": "ai-python-langchain-s1-live",
                   "type": "LIVE CLASS",
                   "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
                   "iconName": "Video",
                   "iconBg": "bg-purple-600 text-white",
-                  "title": "LangChain Framework & Prompt Pipelines",
+                  "title": "LangChain Framework Architecture Masterclass",
                   "actionText": "JOIN",
-                  "url": "https://zoom.us/live-ai-python-langchain-1",
+                  "url": "https://zoom.us/live-ai-python-langchain-s1",
                   "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "ai-python-langchain-m1-lab",
+                  "id": "ai-python-langchain-s1-lab",
                   "type": "PRACTICAL LAB",
                   "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
                   "iconName": "Code",
                   "iconBg": "bg-amber-500 text-white",
-                  "title": "LangChain Chains Implementation Lab",
+                  "title": "Hands-on Lab: LangChain Framework Architecture",
                   "actionText": "VIEW",
-                  "url": "https://lab.aspirelms.io/ai-python-langchain-1",
+                  "url": "https://lab.aspirelms.io/ai-python-langchain-s1",
                   "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
-                },
-                {
-                  "id": "ai-python-langchain-m1-quiz",
-                  "type": "ASSESSMENT",
-                  "typeColor": "bg-blue-100 text-blue-700 border-blue-200",
-                  "iconName": "FileCheck",
-                  "iconBg": "bg-blue-600 text-white",
-                  "title": "LangChain Core Quiz",
-                  "actionText": "TAKE",
-                  "url": "/assessments",
-                  "btnStyle": "bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30"
                 }
               ]
             },
             {
               "id": "mod-ai-python-langchain-2",
-              "title": "RAG Pipelines & AI Chatbots",
+              "title": "Session 2: LangChain Prompt Templates & Parsers",
               "items": [
                 {
-                  "id": "ai-python-langchain-m2-live",
+                  "id": "ai-python-langchain-s2-live",
                   "type": "LIVE CLASS",
                   "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
                   "iconName": "Video",
                   "iconBg": "bg-purple-600 text-white",
-                  "title": "Building RAG Chatbots with Django & Vector DBs",
+                  "title": "LangChain Prompt Templates & Parsers Masterclass",
                   "actionText": "JOIN",
-                  "url": "https://zoom.us/live-ai-python-langchain-2",
+                  "url": "https://zoom.us/live-ai-python-langchain-s2",
                   "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "ai-python-langchain-m2-lab",
+                  "id": "ai-python-langchain-s2-lab",
                   "type": "PRACTICAL LAB",
                   "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
                   "iconName": "Code",
                   "iconBg": "bg-amber-500 text-white",
-                  "title": "Full-Stack AI Assistant Integration",
+                  "title": "Hands-on Lab: LangChain Prompt Templates & Parsers",
                   "actionText": "VIEW",
-                  "url": "https://lab.aspirelms.io/ai-python-langchain-2",
+                  "url": "https://lab.aspirelms.io/ai-python-langchain-s2",
                   "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-ai-python-langchain-3",
+              "title": "Session 3: LangChain Expression Language (LCEL)",
+              "items": [
+                {
+                  "id": "ai-python-langchain-s3-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "LangChain Expression Language (LCEL) Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-ai-python-langchain-s3",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "ai-python-langchain-m2-quiz",
-                  "type": "ASSESSMENT",
-                  "typeColor": "bg-blue-100 text-blue-700 border-blue-200",
-                  "iconName": "FileCheck",
-                  "iconBg": "bg-blue-600 text-white",
-                  "title": "LangChain & RAG Assessment",
-                  "actionText": "TAKE",
-                  "url": "/assessments",
-                  "btnStyle": "bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30"
+                  "id": "ai-python-langchain-s3-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: LangChain Expression Language (LCEL)",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/ai-python-langchain-s3",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-ai-python-langchain-4",
+              "title": "Session 4: Conversation Memory Systems",
+              "items": [
+                {
+                  "id": "ai-python-langchain-s4-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "Conversation Memory Systems Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-ai-python-langchain-s4",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
+                },
+                {
+                  "id": "ai-python-langchain-s4-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: Conversation Memory Systems",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/ai-python-langchain-s4",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-ai-python-langchain-5",
+              "title": "Session 5: Django REST Framework AI Endpoint Integration",
+              "items": [
+                {
+                  "id": "ai-python-langchain-s5-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "Django REST Framework AI Endpoint Integration Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-ai-python-langchain-s5",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
+                },
+                {
+                  "id": "ai-python-langchain-s5-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: Django REST Framework AI Endpoint Integration",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/ai-python-langchain-s5",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-ai-python-langchain-6",
+              "title": "Session 6: Building Real-Time AI Chatbot Interface",
+              "items": [
+                {
+                  "id": "ai-python-langchain-s6-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "Building Real-Time AI Chatbot Interface Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-ai-python-langchain-s6",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
+                },
+                {
+                  "id": "ai-python-langchain-s6-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: Building Real-Time AI Chatbot Interface",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/ai-python-langchain-s6",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
                 }
               ]
             }
@@ -2781,83 +4853,145 @@ export const INITIAL_MILESTONES = {
           "title": "Docker Containerization & Cloud Deployment",
           "description": "Click to view subtopics",
           "duration": "Docker Concepts, Dockerfile, Containerizing Django & Apps, Docker Compose, Deploying Full Stack App to Cloud (Render/AWS/Vercel)",
-          "modulesCount": 2,
+          "modulesCount": 5,
           "modules": [
             {
               "id": "mod-docker-cloud-deploy-1",
-              "title": "Docker Concepts & Dockerfiles",
+              "title": "Session 1: Containerization vs Virtualization Fundamentals",
               "items": [
                 {
-                  "id": "docker-cloud-deploy-m1-live",
+                  "id": "docker-cloud-deploy-s1-live",
                   "type": "LIVE CLASS",
                   "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
                   "iconName": "Video",
                   "iconBg": "bg-purple-600 text-white",
-                  "title": "Docker Fundamentals & Containerization",
+                  "title": "Containerization vs Virtualization Fundamentals Masterclass",
                   "actionText": "JOIN",
-                  "url": "https://zoom.us/live-docker-cloud-deploy-1",
+                  "url": "https://zoom.us/live-docker-cloud-deploy-s1",
                   "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "docker-cloud-deploy-m1-lab",
+                  "id": "docker-cloud-deploy-s1-lab",
                   "type": "PRACTICAL LAB",
                   "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
                   "iconName": "Code",
                   "iconBg": "bg-amber-500 text-white",
-                  "title": "Dockerizing Full-Stack Python App Lab",
+                  "title": "Hands-on Lab: Containerization vs Virtualization Fundamentals",
                   "actionText": "VIEW",
-                  "url": "https://lab.aspirelms.io/docker-cloud-deploy-1",
+                  "url": "https://lab.aspirelms.io/docker-cloud-deploy-s1",
                   "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
-                },
-                {
-                  "id": "docker-cloud-deploy-m1-quiz",
-                  "type": "ASSESSMENT",
-                  "typeColor": "bg-blue-100 text-blue-700 border-blue-200",
-                  "iconName": "FileCheck",
-                  "iconBg": "bg-blue-600 text-white",
-                  "title": "Docker Core Concepts Quiz",
-                  "actionText": "TAKE",
-                  "url": "/assessments",
-                  "btnStyle": "bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30"
                 }
               ]
             },
             {
               "id": "mod-docker-cloud-deploy-2",
-              "title": "Docker Compose & Production Cloud Deploy",
+              "title": "Session 2: Writing Dockerfiles for Django Apps",
               "items": [
                 {
-                  "id": "docker-cloud-deploy-m2-live",
+                  "id": "docker-cloud-deploy-s2-live",
                   "type": "LIVE CLASS",
                   "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
                   "iconName": "Video",
                   "iconBg": "bg-purple-600 text-white",
-                  "title": "Docker Compose & Cloud Deployment Masterclass",
+                  "title": "Writing Dockerfiles for Django Apps Masterclass",
                   "actionText": "JOIN",
-                  "url": "https://zoom.us/live-docker-cloud-deploy-2",
+                  "url": "https://zoom.us/live-docker-cloud-deploy-s2",
                   "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "docker-cloud-deploy-m2-lab",
+                  "id": "docker-cloud-deploy-s2-lab",
                   "type": "PRACTICAL LAB",
                   "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
                   "iconName": "Code",
                   "iconBg": "bg-amber-500 text-white",
-                  "title": "Deploying Full Stack App to Render/AWS",
+                  "title": "Hands-on Lab: Writing Dockerfiles for Django Apps",
                   "actionText": "VIEW",
-                  "url": "https://lab.aspirelms.io/docker-cloud-deploy-2",
+                  "url": "https://lab.aspirelms.io/docker-cloud-deploy-s2",
                   "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-docker-cloud-deploy-3",
+              "title": "Session 3: Building & Running Docker Containers",
+              "items": [
+                {
+                  "id": "docker-cloud-deploy-s3-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "Building & Running Docker Containers Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-docker-cloud-deploy-s3",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "docker-cloud-deploy-m2-quiz",
-                  "type": "ASSESSMENT",
-                  "typeColor": "bg-blue-100 text-blue-700 border-blue-200",
-                  "iconName": "FileCheck",
-                  "iconBg": "bg-blue-600 text-white",
-                  "title": "Cloud Container Deployment Assessment",
-                  "actionText": "TAKE",
-                  "url": "/assessments",
-                  "btnStyle": "bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30"
+                  "id": "docker-cloud-deploy-s3-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: Building & Running Docker Containers",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/docker-cloud-deploy-s3",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-docker-cloud-deploy-4",
+              "title": "Session 4: Multi-Container Orchestration with Docker Compose",
+              "items": [
+                {
+                  "id": "docker-cloud-deploy-s4-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "Multi-Container Orchestration with Docker Compose Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-docker-cloud-deploy-s4",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
+                },
+                {
+                  "id": "docker-cloud-deploy-s4-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: Multi-Container Orchestration with Docker Compose",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/docker-cloud-deploy-s4",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-docker-cloud-deploy-5",
+              "title": "Session 5: Cloud Deployment to Render / AWS / Vercel",
+              "items": [
+                {
+                  "id": "docker-cloud-deploy-s5-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "Cloud Deployment to Render / AWS / Vercel Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-docker-cloud-deploy-s5",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
+                },
+                {
+                  "id": "docker-cloud-deploy-s5-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: Cloud Deployment to Render / AWS / Vercel",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/docker-cloud-deploy-s5",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
                 }
               ]
             }
@@ -2868,268 +5002,426 @@ export const INITIAL_MILESTONES = {
     {
       "id": "stage-4",
       "stageNumber": "STAGE 04",
-      "phaseTag": "Phase 4 • Industry Placement & Portfolio",
+      "phaseTag": "Phase 4 \u2022 Capstone & Career Placement",
       "title": "Stage 4: Career Launchpad",
       "status": "LOCKED",
       "statusType": "locked",
       "isLocked": true,
       "subtopics": [
         {
-          "id": "sys-design-arch",
+          "id": "system-design-architecture",
           "title": "System Design & Software Architecture",
           "description": "Click to view subtopics",
           "duration": "System Design Fundamentals, High-Level vs Low-Level Design, Load Balancing, Database Sharding, Caching Strategies, Scalable Web Architecture",
-          "modulesCount": 2,
+          "modulesCount": 5,
           "modules": [
             {
-              "id": "mod-sys-design-arch-1",
-              "title": "High-Level Design (HLD) Principles",
+              "id": "mod-system-design-architecture-1",
+              "title": "Session 1: Scalability & High Availability Fundamentals",
               "items": [
                 {
-                  "id": "sys-design-arch-m1-live",
+                  "id": "system-design-architecture-s1-live",
                   "type": "LIVE CLASS",
                   "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
                   "iconName": "Video",
                   "iconBg": "bg-purple-600 text-white",
-                  "title": "System Design Fundamentals & HLD Architecture",
+                  "title": "Scalability & High Availability Fundamentals Masterclass",
                   "actionText": "JOIN",
-                  "url": "https://zoom.us/live-sys-design-arch-1",
+                  "url": "https://zoom.us/live-system-design-architecture-s1",
                   "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "sys-design-arch-m1-lab",
+                  "id": "system-design-architecture-s1-lab",
                   "type": "PRACTICAL LAB",
                   "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
                   "iconName": "Code",
                   "iconBg": "bg-amber-500 text-white",
-                  "title": "Designing Scalable System Architecture Lab",
+                  "title": "Hands-on Lab: Scalability & High Availability Fundamentals",
                   "actionText": "VIEW",
-                  "url": "https://lab.aspirelms.io/sys-design-arch-1",
+                  "url": "https://lab.aspirelms.io/system-design-architecture-s1",
                   "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
-                },
-                {
-                  "id": "sys-design-arch-m1-quiz",
-                  "type": "ASSESSMENT",
-                  "typeColor": "bg-blue-100 text-blue-700 border-blue-200",
-                  "iconName": "FileCheck",
-                  "iconBg": "bg-blue-600 text-white",
-                  "title": "System Design HLD Quiz",
-                  "actionText": "TAKE",
-                  "url": "/assessments",
-                  "btnStyle": "bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30"
                 }
               ]
             },
             {
-              "id": "mod-sys-design-arch-2",
-              "title": "Low-Level Design & Caching",
+              "id": "mod-system-design-architecture-2",
+              "title": "Session 2: Load Balancing & API Gateways",
               "items": [
                 {
-                  "id": "sys-design-arch-m2-live",
+                  "id": "system-design-architecture-s2-live",
                   "type": "LIVE CLASS",
                   "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
                   "iconName": "Video",
                   "iconBg": "bg-purple-600 text-white",
-                  "title": "Load Balancing, Database Sharding & Caching",
+                  "title": "Load Balancing & API Gateways Masterclass",
                   "actionText": "JOIN",
-                  "url": "https://zoom.us/live-sys-design-arch-2",
+                  "url": "https://zoom.us/live-system-design-architecture-s2",
                   "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "sys-design-arch-m2-lab",
+                  "id": "system-design-architecture-s2-lab",
                   "type": "PRACTICAL LAB",
                   "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
                   "iconName": "Code",
                   "iconBg": "bg-amber-500 text-white",
-                  "title": "Microservices & Database Sharding Simulation",
+                  "title": "Hands-on Lab: Load Balancing & API Gateways",
                   "actionText": "VIEW",
-                  "url": "https://lab.aspirelms.io/sys-design-arch-2",
+                  "url": "https://lab.aspirelms.io/system-design-architecture-s2",
                   "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-system-design-architecture-3",
+              "title": "Session 3: Database Scaling & Sharding Strategies",
+              "items": [
+                {
+                  "id": "system-design-architecture-s3-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "Database Scaling & Sharding Strategies Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-system-design-architecture-s3",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "sys-design-arch-m2-quiz",
-                  "type": "ASSESSMENT",
-                  "typeColor": "bg-blue-100 text-blue-700 border-blue-200",
-                  "iconName": "FileCheck",
-                  "iconBg": "bg-blue-600 text-white",
-                  "title": "Scalable Software Architecture Evaluation",
-                  "actionText": "TAKE",
-                  "url": "/assessments",
-                  "btnStyle": "bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30"
+                  "id": "system-design-architecture-s3-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: Database Scaling & Sharding Strategies",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/system-design-architecture-s3",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-system-design-architecture-4",
+              "title": "Session 4: Distributed Caching & Message Queues",
+              "items": [
+                {
+                  "id": "system-design-architecture-s4-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "Distributed Caching & Message Queues Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-system-design-architecture-s4",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
+                },
+                {
+                  "id": "system-design-architecture-s4-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: Distributed Caching & Message Queues",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/system-design-architecture-s4",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-system-design-architecture-5",
+              "title": "Session 5: Object-Oriented Low-Level Design (LLD)",
+              "items": [
+                {
+                  "id": "system-design-architecture-s5-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "Object-Oriented Low-Level Design (LLD) Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-system-design-architecture-s5",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
+                },
+                {
+                  "id": "system-design-architecture-s5-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: Object-Oriented Low-Level Design (LLD)",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/system-design-architecture-s5",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
                 }
               ]
             }
           ]
         },
         {
-          "id": "capstone-review-1",
+          "id": "capstone-mentoring-1",
           "title": "Capstone Project Mentoring & Review - 1",
           "description": "Click to view subtopics",
           "duration": "Project Scope Finalization, Architecture Validation, Database Design Review, API Contract Definition",
-          "modulesCount": 2,
+          "modulesCount": 4,
           "modules": [
             {
-              "id": "mod-capstone-review-1-1",
-              "title": "Project Scope & Database Design",
+              "id": "mod-capstone-mentoring-1-1",
+              "title": "Session 1: Project Scope & PRD Finalization",
               "items": [
                 {
-                  "id": "capstone-review-1-m1-live",
+                  "id": "capstone-mentoring-1-s1-live",
                   "type": "LIVE CLASS",
                   "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
                   "iconName": "Video",
                   "iconBg": "bg-purple-600 text-white",
-                  "title": "Capstone Proposal & Schema Design Review",
+                  "title": "Project Scope & PRD Finalization Masterclass",
                   "actionText": "JOIN",
-                  "url": "https://zoom.us/live-capstone-review-1-1",
+                  "url": "https://zoom.us/live-capstone-mentoring-1-s1",
                   "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "capstone-review-1-m1-lab",
+                  "id": "capstone-mentoring-1-s1-lab",
                   "type": "PRACTICAL LAB",
                   "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
                   "iconName": "Code",
                   "iconBg": "bg-amber-500 text-white",
-                  "title": "Database ER Diagram & Architecture Specs",
+                  "title": "Hands-on Lab: Project Scope & PRD Finalization",
                   "actionText": "VIEW",
-                  "url": "https://lab.aspirelms.io/capstone-review-1-1",
+                  "url": "https://lab.aspirelms.io/capstone-mentoring-1-s1",
                   "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
-                },
-                {
-                  "id": "capstone-review-1-m1-quiz",
-                  "type": "ASSESSMENT",
-                  "typeColor": "bg-blue-100 text-blue-700 border-blue-200",
-                  "iconName": "FileCheck",
-                  "iconBg": "bg-blue-600 text-white",
-                  "title": "Capstone Phase 1 Milestones Check",
-                  "actionText": "TAKE",
-                  "url": "/assessments",
-                  "btnStyle": "bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30"
                 }
               ]
             },
             {
-              "id": "mod-capstone-review-1-2",
-              "title": "API Contracts & Setup Validation",
+              "id": "mod-capstone-mentoring-1-2",
+              "title": "Session 2: Database Schema & ER Diagram Review",
               "items": [
                 {
-                  "id": "capstone-review-1-m2-live",
+                  "id": "capstone-mentoring-1-s2-live",
                   "type": "LIVE CLASS",
                   "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
                   "iconName": "Video",
                   "iconBg": "bg-purple-600 text-white",
-                  "title": "API Contracts & Backend Architecture Sign-off",
+                  "title": "Database Schema & ER Diagram Review Masterclass",
                   "actionText": "JOIN",
-                  "url": "https://zoom.us/live-capstone-review-1-2",
+                  "url": "https://zoom.us/live-capstone-mentoring-1-s2",
                   "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "capstone-review-1-m2-lab",
+                  "id": "capstone-mentoring-1-s2-lab",
                   "type": "PRACTICAL LAB",
                   "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
                   "iconName": "Code",
                   "iconBg": "bg-amber-500 text-white",
-                  "title": "API Endpoints Mocking & Contract Testing",
+                  "title": "Hands-on Lab: Database Schema & ER Diagram Review",
                   "actionText": "VIEW",
-                  "url": "https://lab.aspirelms.io/capstone-review-1-2",
+                  "url": "https://lab.aspirelms.io/capstone-mentoring-1-s2",
                   "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-capstone-mentoring-1-3",
+              "title": "Session 3: REST API Contract & Tech Stack Definition",
+              "items": [
+                {
+                  "id": "capstone-mentoring-1-s3-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "REST API Contract & Tech Stack Definition Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-capstone-mentoring-1-s3",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "capstone-review-1-m2-quiz",
-                  "type": "ASSESSMENT",
-                  "typeColor": "bg-blue-100 text-blue-700 border-blue-200",
-                  "iconName": "FileCheck",
-                  "iconBg": "bg-blue-600 text-white",
-                  "title": "Capstone Architecture Readiness Quiz",
-                  "actionText": "TAKE",
-                  "url": "/assessments",
-                  "btnStyle": "bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30"
+                  "id": "capstone-mentoring-1-s3-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: REST API Contract & Tech Stack Definition",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/capstone-mentoring-1-s3",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-capstone-mentoring-1-4",
+              "title": "Session 4: Sprint 1 MVP Development Review",
+              "items": [
+                {
+                  "id": "capstone-mentoring-1-s4-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "Sprint 1 MVP Development Review Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-capstone-mentoring-1-s4",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
+                },
+                {
+                  "id": "capstone-mentoring-1-s4-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: Sprint 1 MVP Development Review",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/capstone-mentoring-1-s4",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
                 }
               ]
             }
           ]
         },
         {
-          "id": "capstone-review-2",
+          "id": "capstone-mentoring-2",
           "title": "Capstone Project Development & Mentoring - 2",
           "description": "Click to view subtopics",
           "duration": "Frontend-Backend Integration, AI Feature Tuning, Bug Fixing, Security Auditing, Performance Optimization",
-          "modulesCount": 2,
+          "modulesCount": 5,
           "modules": [
             {
-              "id": "mod-capstone-review-2-1",
-              "title": "Full-Stack Integration & AI Tuning",
+              "id": "mod-capstone-mentoring-2-1",
+              "title": "Session 1: Backend API & Authentication Mentoring",
               "items": [
                 {
-                  "id": "capstone-review-2-m1-live",
+                  "id": "capstone-mentoring-2-s1-live",
                   "type": "LIVE CLASS",
                   "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
                   "iconName": "Video",
                   "iconBg": "bg-purple-600 text-white",
-                  "title": "Frontend-Backend Integration & AI Mentoring",
+                  "title": "Backend API & Authentication Mentoring Masterclass",
                   "actionText": "JOIN",
-                  "url": "https://zoom.us/live-capstone-review-2-1",
+                  "url": "https://zoom.us/live-capstone-mentoring-2-s1",
                   "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "capstone-review-2-m1-lab",
+                  "id": "capstone-mentoring-2-s1-lab",
                   "type": "PRACTICAL LAB",
                   "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
                   "iconName": "Code",
                   "iconBg": "bg-amber-500 text-white",
-                  "title": "Connecting React UI with DRF APIs & Gemini AI",
+                  "title": "Hands-on Lab: Backend API & Authentication Mentoring",
                   "actionText": "VIEW",
-                  "url": "https://lab.aspirelms.io/capstone-review-2-1",
+                  "url": "https://lab.aspirelms.io/capstone-mentoring-2-s1",
                   "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
-                },
-                {
-                  "id": "capstone-review-2-m1-quiz",
-                  "type": "ASSESSMENT",
-                  "typeColor": "bg-blue-100 text-blue-700 border-blue-200",
-                  "iconName": "FileCheck",
-                  "iconBg": "bg-blue-600 text-white",
-                  "title": "Integration & AI Verification Quiz",
-                  "actionText": "TAKE",
-                  "url": "/assessments",
-                  "btnStyle": "bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30"
                 }
               ]
             },
             {
-              "id": "mod-capstone-review-2-2",
-              "title": "Security Audit & Live Demo",
+              "id": "mod-capstone-mentoring-2-2",
+              "title": "Session 2: AI Feature Integration & Prompt Tuning",
               "items": [
                 {
-                  "id": "capstone-review-2-m2-live",
+                  "id": "capstone-mentoring-2-s2-live",
                   "type": "LIVE CLASS",
                   "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
                   "iconName": "Video",
                   "iconBg": "bg-purple-600 text-white",
-                  "title": "Security Audit, Bug Fixing & Code Refactoring",
+                  "title": "AI Feature Integration & Prompt Tuning Masterclass",
                   "actionText": "JOIN",
-                  "url": "https://zoom.us/live-capstone-review-2-2",
+                  "url": "https://zoom.us/live-capstone-mentoring-2-s2",
                   "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "capstone-review-2-m2-lab",
+                  "id": "capstone-mentoring-2-s2-lab",
                   "type": "PRACTICAL LAB",
                   "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
                   "iconName": "Code",
                   "iconBg": "bg-amber-500 text-white",
-                  "title": "Production Build & Final Demo Recording",
+                  "title": "Hands-on Lab: AI Feature Integration & Prompt Tuning",
                   "actionText": "VIEW",
-                  "url": "https://lab.aspirelms.io/capstone-review-2-2",
+                  "url": "https://lab.aspirelms.io/capstone-mentoring-2-s2",
                   "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-capstone-mentoring-2-3",
+              "title": "Session 3: Full-Stack Integration & State Debugging",
+              "items": [
+                {
+                  "id": "capstone-mentoring-2-s3-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "Full-Stack Integration & State Debugging Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-capstone-mentoring-2-s3",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "capstone-review-2-m2-quiz",
-                  "type": "ASSESSMENT",
-                  "typeColor": "bg-blue-100 text-blue-700 border-blue-200",
-                  "iconName": "FileCheck",
-                  "iconBg": "bg-blue-600 text-white",
-                  "title": "Capstone Completion Audit",
-                  "actionText": "TAKE",
-                  "url": "/assessments",
-                  "btnStyle": "bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30"
+                  "id": "capstone-mentoring-2-s3-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: Full-Stack Integration & State Debugging",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/capstone-mentoring-2-s3",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-capstone-mentoring-2-4",
+              "title": "Session 4: Security Audit & Code Refactoring",
+              "items": [
+                {
+                  "id": "capstone-mentoring-2-s4-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "Security Audit & Code Refactoring Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-capstone-mentoring-2-s4",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
+                },
+                {
+                  "id": "capstone-mentoring-2-s4-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: Security Audit & Code Refactoring",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/capstone-mentoring-2-s4",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-capstone-mentoring-2-5",
+              "title": "Session 5: Cloud Deployment & Final Project Review",
+              "items": [
+                {
+                  "id": "capstone-mentoring-2-s5-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "Cloud Deployment & Final Project Review Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-capstone-mentoring-2-s5",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
+                },
+                {
+                  "id": "capstone-mentoring-2-s5-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: Cloud Deployment & Final Project Review",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/capstone-mentoring-2-s5",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
                 }
               ]
             }
@@ -3140,83 +5432,117 @@ export const INITIAL_MILESTONES = {
           "title": "Resume Building, LinkedIn & GitHub Portfolio",
           "description": "Click to view subtopics",
           "duration": "Creating ATS-Compliant Resume, GitHub Repository Presentation, README Design, LinkedIn Profile Optimization & Branding",
-          "modulesCount": 2,
+          "modulesCount": 4,
           "modules": [
             {
               "id": "mod-resume-portfolio-1",
-              "title": "ATS Resume & GitHub Branding",
+              "title": "Session 1: ATS Technical Resume Creation",
               "items": [
                 {
-                  "id": "resume-portfolio-m1-live",
+                  "id": "resume-portfolio-s1-live",
                   "type": "LIVE CLASS",
                   "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
                   "iconName": "Video",
                   "iconBg": "bg-purple-600 text-white",
-                  "title": "ATS-Compliant Resume & GitHub Presentation",
+                  "title": "ATS Technical Resume Creation Masterclass",
                   "actionText": "JOIN",
-                  "url": "https://zoom.us/live-resume-portfolio-1",
+                  "url": "https://zoom.us/live-resume-portfolio-s1",
                   "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "resume-portfolio-m1-lab",
+                  "id": "resume-portfolio-s1-lab",
                   "type": "PRACTICAL LAB",
                   "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
                   "iconName": "Code",
                   "iconBg": "bg-amber-500 text-white",
-                  "title": "Crafting Developer Resume & README Showcase",
+                  "title": "Hands-on Lab: ATS Technical Resume Creation",
                   "actionText": "VIEW",
-                  "url": "https://lab.aspirelms.io/resume-portfolio-1",
+                  "url": "https://lab.aspirelms.io/resume-portfolio-s1",
                   "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
-                },
-                {
-                  "id": "resume-portfolio-m1-quiz",
-                  "type": "ASSESSMENT",
-                  "typeColor": "bg-blue-100 text-blue-700 border-blue-200",
-                  "iconName": "FileCheck",
-                  "iconBg": "bg-blue-600 text-white",
-                  "title": "ATS Resume Best Practices Check",
-                  "actionText": "TAKE",
-                  "url": "/assessments",
-                  "btnStyle": "bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30"
                 }
               ]
             },
             {
               "id": "mod-resume-portfolio-2",
-              "title": "LinkedIn Optimization & Personal Branding",
+              "title": "Session 2: GitHub Portfolio & README Documentation",
               "items": [
                 {
-                  "id": "resume-portfolio-m2-live",
+                  "id": "resume-portfolio-s2-live",
                   "type": "LIVE CLASS",
                   "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
                   "iconName": "Video",
                   "iconBg": "bg-purple-600 text-white",
-                  "title": "LinkedIn Branding & Portfolio Showcase Workshop",
+                  "title": "GitHub Portfolio & README Documentation Masterclass",
                   "actionText": "JOIN",
-                  "url": "https://zoom.us/live-resume-portfolio-2",
+                  "url": "https://zoom.us/live-resume-portfolio-s2",
                   "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "resume-portfolio-m2-lab",
+                  "id": "resume-portfolio-s2-lab",
                   "type": "PRACTICAL LAB",
                   "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
                   "iconName": "Code",
                   "iconBg": "bg-amber-500 text-white",
-                  "title": "Publishing Developer Portfolio & Profile",
+                  "title": "Hands-on Lab: GitHub Portfolio & README Documentation",
                   "actionText": "VIEW",
-                  "url": "https://lab.aspirelms.io/resume-portfolio-2",
+                  "url": "https://lab.aspirelms.io/resume-portfolio-s2",
                   "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-resume-portfolio-3",
+              "title": "Session 3: LinkedIn Profile Optimization & Branding",
+              "items": [
+                {
+                  "id": "resume-portfolio-s3-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "LinkedIn Profile Optimization & Branding Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-resume-portfolio-s3",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "resume-portfolio-m2-quiz",
-                  "type": "ASSESSMENT",
-                  "typeColor": "bg-blue-100 text-blue-700 border-blue-200",
-                  "iconName": "FileCheck",
-                  "iconBg": "bg-blue-600 text-white",
-                  "title": "Personal Branding Assessment",
-                  "actionText": "TAKE",
-                  "url": "/assessments",
-                  "btnStyle": "bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30"
+                  "id": "resume-portfolio-s3-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: LinkedIn Profile Optimization & Branding",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/resume-portfolio-s3",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-resume-portfolio-4",
+              "title": "Session 4: Tech Job Application Strategies & Outreach",
+              "items": [
+                {
+                  "id": "resume-portfolio-s4-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "Tech Job Application Strategies & Outreach Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-resume-portfolio-s4",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
+                },
+                {
+                  "id": "resume-portfolio-s4-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: Tech Job Application Strategies & Outreach",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/resume-portfolio-s4",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
                 }
               ]
             }
@@ -3227,83 +5553,117 @@ export const INITIAL_MILESTONES = {
           "title": "Mock Technical Interviews & Valedictory",
           "description": "Click to view subtopics",
           "duration": "Technical Coding Practice, DSA Live Problem Solving, HR Interview Prep, Capstone Project Demonstrations & Certification",
-          "modulesCount": 2,
+          "modulesCount": 4,
           "modules": [
             {
               "id": "mod-mock-interviews-1",
-              "title": "DSA Coding & System Design Interviews",
+              "title": "Session 1: Data Structures & Live Coding Practice",
               "items": [
                 {
-                  "id": "mock-interviews-m1-live",
+                  "id": "mock-interviews-s1-live",
                   "type": "LIVE CLASS",
                   "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
                   "iconName": "Video",
                   "iconBg": "bg-purple-600 text-white",
-                  "title": "1-on-1 Mock Technical Coding Interview",
+                  "title": "Data Structures & Live Coding Practice Masterclass",
                   "actionText": "JOIN",
-                  "url": "https://zoom.us/live-mock-interviews-1",
+                  "url": "https://zoom.us/live-mock-interviews-s1",
                   "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "mock-interviews-m1-lab",
+                  "id": "mock-interviews-s1-lab",
                   "type": "PRACTICAL LAB",
                   "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
                   "iconName": "Code",
                   "iconBg": "bg-amber-500 text-white",
-                  "title": "Live Problem Solving & Whiteboarding",
+                  "title": "Hands-on Lab: Data Structures & Live Coding Practice",
                   "actionText": "VIEW",
-                  "url": "https://lab.aspirelms.io/mock-interviews-1",
+                  "url": "https://lab.aspirelms.io/mock-interviews-s1",
                   "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
-                },
-                {
-                  "id": "mock-interviews-m1-quiz",
-                  "type": "ASSESSMENT",
-                  "typeColor": "bg-blue-100 text-blue-700 border-blue-200",
-                  "iconName": "FileCheck",
-                  "iconBg": "bg-blue-600 text-white",
-                  "title": "Technical Interview Readiness Check",
-                  "actionText": "TAKE",
-                  "url": "/assessments",
-                  "btnStyle": "bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30"
                 }
               ]
             },
             {
               "id": "mod-mock-interviews-2",
-              "title": "HR Interview & Valedictory Ceremony",
+              "title": "Session 2: Full-Stack Tech Stack Mock Interview",
               "items": [
                 {
-                  "id": "mock-interviews-m2-live",
+                  "id": "mock-interviews-s2-live",
                   "type": "LIVE CLASS",
                   "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
                   "iconName": "Video",
                   "iconBg": "bg-purple-600 text-white",
-                  "title": "HR Interview Prep & Graduation Ceremony",
+                  "title": "Full-Stack Tech Stack Mock Interview Masterclass",
                   "actionText": "JOIN",
-                  "url": "https://zoom.us/live-mock-interviews-2",
+                  "url": "https://zoom.us/live-mock-interviews-s2",
                   "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "mock-interviews-m2-lab",
+                  "id": "mock-interviews-s2-lab",
                   "type": "PRACTICAL LAB",
                   "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
                   "iconName": "Code",
                   "iconBg": "bg-amber-500 text-white",
-                  "title": "Capstone Project Final Presentation",
+                  "title": "Hands-on Lab: Full-Stack Tech Stack Mock Interview",
                   "actionText": "VIEW",
-                  "url": "https://lab.aspirelms.io/mock-interviews-2",
+                  "url": "https://lab.aspirelms.io/mock-interviews-s2",
                   "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-mock-interviews-3",
+              "title": "Session 3: HR & Behavioral Interview Preparation",
+              "items": [
+                {
+                  "id": "mock-interviews-s3-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "HR & Behavioral Interview Preparation Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-mock-interviews-s3",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "mock-interviews-m2-quiz",
-                  "type": "ASSESSMENT",
-                  "typeColor": "bg-blue-100 text-blue-700 border-blue-200",
-                  "iconName": "FileCheck",
-                  "iconBg": "bg-blue-600 text-white",
-                  "title": "Full-Stack Certification Award",
-                  "actionText": "TAKE",
-                  "url": "/assessments",
-                  "btnStyle": "bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30"
+                  "id": "mock-interviews-s3-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: HR & Behavioral Interview Preparation",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/mock-interviews-s3",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-mock-interviews-4",
+              "title": "Session 4: Capstone Demonstrations & Certification Ceremony",
+              "items": [
+                {
+                  "id": "mock-interviews-s4-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "Capstone Demonstrations & Certification Ceremony Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-mock-interviews-s4",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
+                },
+                {
+                  "id": "mock-interviews-s4-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Hands-on Lab: Capstone Demonstrations & Certification Ceremony",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/mock-interviews-s4",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
                 }
               ]
             }

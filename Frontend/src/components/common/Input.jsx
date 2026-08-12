@@ -72,6 +72,7 @@ export function Input({
 export function Select({
   label,
   options = [],
+  children,
   error,
   icon: Icon,
   className = '',
@@ -104,11 +105,13 @@ export function Select({
           } ${className}`}
           {...props}
         >
-          {options.map((opt) => (
-            <option key={opt.value} value={opt.value}>
-              {opt.label}
-            </option>
-          ))}
+          {options.length > 0
+            ? options.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))
+            : children}
         </select>
         <div className="absolute right-3.5 text-slate-400 pointer-events-none z-10">
           <ChevronDown className="w-4 h-4 text-slate-500" />

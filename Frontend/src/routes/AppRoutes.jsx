@@ -26,6 +26,7 @@ import { RecordingLibraryPage } from '../pages/library/RecordingLibraryPage';
 import { RecordingDetailPage } from '../pages/library/RecordingDetailPage';
 import { PlacementPrepPage } from '../pages/placement/PlacementPrepPage';
 import { StudentDashboardPage } from '../pages/student/StudentDashboardPage';
+import { StudentManagementPage } from '../pages/student/StudentManagementPage';
 import { MilestonesRoadmapPage } from '../pages/milestones/MilestonesRoadmapPage';
 
 export function AppRoutes() {
@@ -60,6 +61,7 @@ export function AppRoutes() {
       >
         <Route path="/dashboard" element={<SuperAdminDashboard />} />
         <Route path="/milestones" element={<MilestonesRoadmapPage />} />
+        <Route path="/students" element={<StudentManagementPage />} />
         <Route path="/users" element={<UserManagementPage />} />
         <Route path="/permissions" element={<PermissionManagementPage />} />
         
