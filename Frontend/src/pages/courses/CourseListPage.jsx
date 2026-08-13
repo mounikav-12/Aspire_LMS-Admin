@@ -40,26 +40,35 @@ function CourseCardItem({ course, onViewBatches, onEdit, onDelete }) {
     const hasWd = Array.isArray(wdList) && wdList.length > 0;
     const hasWe = Array.isArray(weList) && weList.length > 0;
 
+    let rawLabel = course.targetBatch || 'All';
+
     if (hasWd && hasWe) {
-      return { label: 'All', color: 'bg-emerald-600 text-white' };
-    }
-    if (hasWd && !hasWe) {
-      return { label: 'Weekday', color: 'bg-blue-600 text-white' };
-    }
-    if (hasWe && !hasWd) {
-      return { label: 'Weekend', color: 'bg-indigo-600 text-white' };
+      rawLabel = 'All';
+    } else if (hasWd && !hasWe) {
+      rawLabel = 'Weekday';
+    } else if (hasWe && !hasWd) {
+      rawLabel = 'Weekend';
     }
 
-    if (!course.targetBatch || course.targetBatch === 'All Batches' || course.targetBatch === 'ALL' || course.targetBatch === 'Weekday & Weekend' || course.targetBatch === 'All') {
-      return { label: 'All', color: 'bg-emerald-600 text-white' };
+    let cleanLabel = 'All';
+    let color = 'bg-emerald-600 text-white';
+
+    const upper = String(rawLabel).toUpperCase();
+    if (upper.includes('WEEKDAY') && upper.includes('WEEKEND')) {
+      cleanLabel = 'All';
+      color = 'bg-emerald-600 text-white';
+    } else if (upper.includes('WEEKDAY') || upper.startsWith('A26W')) {
+      cleanLabel = 'Weekday';
+      color = 'bg-blue-600 text-white';
+    } else if (upper.includes('WEEKEND') || upper.startsWith('A26S')) {
+      cleanLabel = 'Weekend';
+      color = 'bg-indigo-600 text-white';
+    } else {
+      cleanLabel = 'All';
+      color = 'bg-emerald-600 text-white';
     }
-    if (course.targetBatch?.startsWith('A26S') || course.targetBatch === 'Weekend Batch' || course.targetBatch === 'Weekend') {
-      return { label: 'Weekend', color: 'bg-indigo-600 text-white' };
-    }
-    if (course.targetBatch?.startsWith('A26W') || course.targetBatch === 'Weekday Batch' || course.targetBatch === 'Weekday') {
-      return { label: 'Weekday', color: 'bg-blue-600 text-white' };
-    }
-    return { label: course.targetBatch === 'All Batches' ? 'All' : course.targetBatch === 'Weekday Batch' ? 'Weekday' : course.targetBatch === 'Weekend Batch' ? 'Weekend' : course.targetBatch, color: 'bg-emerald-600 text-white' };
+
+    return { label: cleanLabel, color };
   };
 
   const batchBadge = getEffectiveBatchBadge();
@@ -548,13 +557,16 @@ export function CourseListPage() {
               size="md"
               onClick={() => {
                 if (viewingBatchesCourse) {
-                  let newTargetBatch = 'All Batches';
-                  if (selectedWeekdayBatches.length > 0 && selectedWeekendBatches.length === 0) {
-                    newTargetBatch = 'Weekday Batch';
-                  } else if (selectedWeekendBatches.length > 0 && selectedWeekdayBatches.length === 0) {
-                    newTargetBatch = 'Weekend Batch';
-                  } else if (selectedWeekdayBatches.length > 0 && selectedWeekendBatches.length > 0) {
-                    newTargetBatch = 'All Batches';
+                  let newTargetBatch = 'All';
+                  const hasWd = selectedWeekdayBatches.length > 0;
+                  const hasWe = selectedWeekendBatches.length > 0;
+
+                  if (hasWd && !hasWe) {
+                    newTargetBatch = 'Weekday';
+                  } else if (hasWe && !hasWd) {
+                    newTargetBatch = 'Weekend';
+                  } else {
+                    newTargetBatch = 'All';
                   }
 
                   try {
