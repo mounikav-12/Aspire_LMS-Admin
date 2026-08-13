@@ -28,32 +28,38 @@ import {
 
 function CourseCardItem({ course, onViewBatches, onEdit, onDelete }) {
   const getEffectiveBatchBadge = () => {
-    let wdList = [];
-    let weList = [];
+    let wdList = null;
+    let weList = null;
     try {
       const savedWd = localStorage.getItem(`aspire_lms_card_wd_${course.id}`);
-      if (savedWd) wdList = JSON.parse(savedWd) || [];
+      if (savedWd) wdList = JSON.parse(savedWd);
       const savedWe = localStorage.getItem(`aspire_lms_card_we_${course.id}`);
-      if (savedWe) weList = JSON.parse(savedWe) || [];
+      if (savedWe) weList = JSON.parse(savedWe);
     } catch (e) {}
 
-    if (wdList.length > 0 && weList.length === 0) {
-      return { label: 'Weekday Batch', color: 'bg-blue-600 text-white' };
-    }
-    if (weList.length > 0 && wdList.length === 0) {
-      return { label: 'Weekend Batch', color: 'bg-indigo-600 text-white' };
-    }
-    if (wdList.length > 0 && weList.length > 0) {
+    const hasWd = Array.isArray(wdList) && wdList.length > 0;
+    const hasWe = Array.isArray(weList) && weList.length > 0;
+
+    if (hasWd && hasWe) {
       return { label: 'All Batches', color: 'bg-emerald-600 text-white' };
     }
+    if (hasWd && !hasWe) {
+      return { label: 'Weekday Batch', color: 'bg-blue-600 text-white' };
+    }
+    if (hasWe && !hasWd) {
+      return { label: 'Weekend Batch', color: 'bg-indigo-600 text-white' };
+    }
 
+    if (!course.targetBatch || course.targetBatch === 'All Batches' || course.targetBatch === 'ALL' || course.targetBatch === 'Weekday & Weekend') {
+      return { label: 'All Batches', color: 'bg-emerald-600 text-white' };
+    }
     if (course.targetBatch?.startsWith('A26S') || course.targetBatch === 'Weekend Batch') {
       return { label: 'Weekend Batch', color: 'bg-indigo-600 text-white' };
     }
     if (course.targetBatch?.startsWith('A26W') || course.targetBatch === 'Weekday Batch') {
       return { label: 'Weekday Batch', color: 'bg-blue-600 text-white' };
     }
-    return { label: course.targetBatch || 'All Batches', color: 'bg-emerald-600 text-white' };
+    return { label: course.targetBatch, color: 'bg-emerald-600 text-white' };
   };
 
   const batchBadge = getEffectiveBatchBadge();
@@ -550,6 +556,12 @@ export function CourseListPage() {
                   } else if (selectedWeekdayBatches.length > 0 && selectedWeekendBatches.length > 0) {
                     newTargetBatch = 'All Batches';
                   }
+
+                  try {
+                    localStorage.setItem(`aspire_lms_card_wd_${viewingBatchesCourse.id}`, JSON.stringify(selectedWeekdayBatches));
+                    localStorage.setItem(`aspire_lms_card_we_${viewingBatchesCourse.id}`, JSON.stringify(selectedWeekendBatches));
+                  } catch (e) {}
+
                   updateCourse(viewingBatchesCourse.id, { targetBatch: newTargetBatch });
                   addToast(`Updated batch allocation for "${viewingBatchesCourse.title}"`, 'success');
                 }

@@ -317,6 +317,7 @@ export const INITIAL_COURSES = [
     level: 'Advanced',
     instructor: 'Alex Rivera',
     publishStatus: 'Published',
+    targetBatch: 'All Batches',
     thumbnail: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=600&auto=format&fit=crop&q=80',
     enrolledCount: 218,
     rating: 4.8,
