@@ -14,23 +14,27 @@ export function Breadcrumbs({ items }) {
 
   return (
     <nav className="flex items-center gap-2 text-xs text-slate-500 mb-4">
-      <Link to="/" className="hover:text-indigo-600 flex items-center gap-1 transition-colors">
+      <Link to="/dashboard" className="hover:text-blue-600 flex items-center gap-1 font-medium transition-colors">
         <Home className="w-3.5 h-3.5" />
         <span>Dashboard</span>
       </Link>
 
-      {paths.map((item, idx) => (
-        <React.Fragment key={idx}>
-          <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
-          {idx === paths.length - 1 ? (
-            <span className="font-semibold text-slate-800">{item.label}</span>
-          ) : (
-            <Link to={item.url} className="hover:text-indigo-600 transition-colors">
-              {item.label}
-            </Link>
-          )}
-        </React.Fragment>
-      ))}
+      {paths.map((item, idx) => {
+        const targetUrl = item.url || item.path || '/courses';
+
+        return (
+          <React.Fragment key={idx}>
+            <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
+            {idx === paths.length - 1 ? (
+              <span className="font-bold text-slate-800">{item.label}</span>
+            ) : (
+              <Link to={targetUrl} className="hover:text-blue-600 font-semibold transition-colors">
+                {item.label}
+              </Link>
+            )}
+          </React.Fragment>
+        );
+      })}
     </nav>
   );
 }

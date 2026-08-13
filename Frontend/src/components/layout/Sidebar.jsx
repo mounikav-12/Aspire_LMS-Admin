@@ -18,7 +18,8 @@ import {
   Radio,
   Settings,
   X,
-  Flag
+  Flag,
+  Layers
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { ROLES } from '../../utils/mockData';
@@ -34,6 +35,7 @@ export function Sidebar({ isCollapsed, onToggle, isMobileOpen, onCloseMobile }) 
       case ROLES.INSTRUCTOR:
         return [
           { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
+          { label: 'Batches', path: '/batches', icon: Layers },
           { label: 'Milestones', path: '/milestones', icon: Flag },
           { label: 'Students', path: '/students', icon: GraduationCap },
           { label: 'Course Management', path: '/courses', icon: BookOpen },
@@ -48,6 +50,7 @@ export function Sidebar({ isCollapsed, onToggle, isMobileOpen, onCloseMobile }) 
       case ROLES.MANAGER:
         return [
           { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
+          { label: 'Batches', path: '/batches', icon: Layers },
           { label: 'Milestones', path: '/milestones', icon: Flag },
           { label: 'Students', path: '/students', icon: GraduationCap },
           { label: 'Courses', path: '/courses', icon: BookOpen },
@@ -62,6 +65,7 @@ export function Sidebar({ isCollapsed, onToggle, isMobileOpen, onCloseMobile }) 
       case ROLES.ADMIN:
         return [
           { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
+          { label: 'Batches', path: '/batches', icon: Layers },
           { label: 'Milestones', path: '/milestones', icon: Flag },
           { label: 'Students', path: '/students', icon: GraduationCap },
           { label: 'User Directory', path: '/users', icon: Users },
@@ -80,6 +84,7 @@ export function Sidebar({ isCollapsed, onToggle, isMobileOpen, onCloseMobile }) 
       default:
         return [
           { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
+          { label: 'Batches', path: '/batches', icon: Layers },
           { label: 'Milestones', path: '/milestones', icon: Flag },
           { label: 'Students', path: '/students', icon: GraduationCap },
           { label: 'User Directory', path: '/users', icon: Users },

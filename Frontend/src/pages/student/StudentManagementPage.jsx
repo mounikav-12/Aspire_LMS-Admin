@@ -24,41 +24,49 @@ import {
   Sparkles,
   Award,
   Zap,
-  ArrowRight
+  ArrowRight,
+  Plus
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 export function StudentManagementPage() {
-  const { students = [], addStudent, updateStudent, deleteStudent, courses = [], setActiveBatchFilter } = useLmsData();
+  const { students = [], addStudent, updateStudent, deleteStudent, courses = [], setActiveBatchFilter, availableBatches } = useLmsData();
   const { addToast } = useToast();
   const navigate = useNavigate();
 
+  const batchList = availableBatches && availableBatches.length > 0
+    ? availableBatches
+    : ['A26W1', 'A26W2', 'A26W3', 'A26W4', 'A26S1', 'A26S2', 'A26S3'];
+
   const [searchTerm, setSearchTerm] = useState('');
-  const [batchFilter, setBatchFilter] = useState('ALL'); // 'ALL', 'Weekday Batch', 'Weekend Batch'
+  const [batchFilter, setBatchFilter] = useState('ALL');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [editingStudent, setEditingStudent] = useState(null);
   const [deletingStudent, setDeletingStudent] = useState(null);
   const [testingStudent, setTestingStudent] = useState(null);
+
+  const defaultBatch = batchList[0] || 'A26W1';
 
   // Form State
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     registrationId: '',
-    batch: 'Weekday Batch',
+    batch: defaultBatch,
     enrolledCourses: ['crs-101'],
     avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80'
   });
 
   const handleOpenAddModal = () => {
-    // Default Registration ID suggestion based on selected batch
     const count = students.length + 1;
-    const defaultRegId = `A26W${String(count).padStart(4, '0')}`;
+    const isWeekend = defaultBatch.startsWith('A26S') || defaultBatch.startsWith('A26WE');
+    const prefix = isWeekend ? 'A26S' : 'A26W';
+    const defaultRegId = `${prefix}${String(count).padStart(4, '0')}`;
     setFormData({
       name: '',
       email: '',
       registrationId: defaultRegId,
-      batch: 'Weekday Batch',
+      batch: defaultBatch,
       enrolledCourses: ['crs-101'],
       avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80'
     });
@@ -67,8 +75,8 @@ export function StudentManagementPage() {
 
   const handleBatchSelectChange = (e) => {
     const selectedBatch = e.target.value;
-    const isWeekday = selectedBatch === 'Weekday Batch';
-    const prefix = isWeekday ? 'A26W' : 'A26S';
+    const isWeekend = selectedBatch.startsWith('A26S') || selectedBatch.startsWith('A26WE');
+    const prefix = isWeekend ? 'A26S' : 'A26W';
     const batchCount = students.filter(s => s.batch === selectedBatch).length + 1;
     const autoRegId = `${prefix}${String(batchCount).padStart(4, '0')}`;
     setFormData(prev => ({
@@ -84,7 +92,7 @@ export function StudentManagementPage() {
       name: student.name || '',
       email: student.email || '',
       registrationId: student.registrationId || '',
-      batch: student.batch || 'Weekday Batch',
+      batch: student.batch || defaultBatch,
       enrolledCourses: student.enrolledCourses || ['crs-101'],
       avatar: student.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80'
     });
@@ -121,7 +129,7 @@ export function StudentManagementPage() {
     if (setActiveBatchFilter && student?.batch) {
       setActiveBatchFilter(student.batch);
     }
-    addToast(`Testing active session as ${student.name} (${student.registrationId} - ${student.batch})`, 'info');
+    addToast(`Testing active session as ${student.name} (${student.registrationId} - Batch ${student.batch})`, 'info');
   };
 
   // Filter Logic
@@ -130,38 +138,45 @@ export function StudentManagementPage() {
     const name = (s.name || '').toLowerCase();
     const email = (s.email || '').toLowerCase();
     const regId = (s.registrationId || '').toLowerCase();
+    const batch = (s.batch || '').toLowerCase();
     const query = searchTerm.toLowerCase();
 
-    const matchesSearch = name.includes(query) || email.includes(query) || regId.includes(query);
-    const matchesBatch = batchFilter === 'ALL' || s.batch === batchFilter;
+    const matchesSearch = name.includes(query) || email.includes(query) || regId.includes(query) || batch.includes(query);
+    
+    let matchesBatch = batchFilter === 'ALL' || s.batch === batchFilter;
+    const isWeekdayFilter = batchFilter === 'WEEKDAY' || batchFilter === 'Weekday Batch';
+    const isWeekendFilter = batchFilter === 'WEEKEND' || batchFilter === 'Weekend Batch';
+
+    if (isWeekdayFilter) {
+      matchesBatch = s.batch?.startsWith('A26W') && !s.batch?.startsWith('A26S');
+    } else if (isWeekendFilter) {
+      matchesBatch = s.batch?.startsWith('A26S') || s.batch?.startsWith('A26WE');
+    }
 
     return matchesSearch && matchesBatch;
   });
 
-  const weekdayCount = students.filter(s => s.batch === 'Weekday Batch').length;
-  const weekendCount = students.filter(s => s.batch === 'Weekend Batch').length;
+  const weekdayCount = students.filter(s => s.batch?.startsWith('A26W') && !s.batch?.startsWith('A26S')).length;
+  const weekendCount = students.filter(s => s.batch?.startsWith('A26S') || s.batch?.startsWith('A26WE')).length;
 
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
-      {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2.5">
-            <div className="p-2 bg-blue-50 border border-blue-200 rounded-xl text-blue-600">
-              <GraduationCap className="w-6 h-6" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-black text-slate-900 tracking-tight">Student Management</h1>
-              <p className="text-slate-500 text-sm mt-0.5">
-                Real-time batch allocation & course access for Weekday (`A26WXXXX`) and Weekend (`A26SXXXX`) batches.
-              </p>
-            </div>
-          </div>
+          <h1 className="text-xl md:text-2xl font-bold tracking-normal text-slate-900 flex items-center gap-2.5">
+            <GraduationCap className="w-6 h-6 text-blue-600" /> Student Management
+          </h1>
+          <p className="text-xs text-slate-500 font-medium mt-1">
+            Real-time batch allocation & course access for Weekday (`A26WXXXX`) and Weekend (`A26SXXXX`) batches.
+          </p>
         </div>
-        <Button onClick={handleOpenAddModal} className="flex items-center gap-2 shadow-md shadow-blue-500/20">
-          <UserPlus className="w-4 h-4" />
-          <span>Register New Student</span>
-        </Button>
+
+        <div className="flex items-center gap-2">
+          <Button variant="primary" onClick={handleOpenAddModal} icon={Plus}>
+            Add Student
+          </Button>
+        </div>
       </div>
 
 
@@ -290,11 +305,17 @@ export function StudentManagementPage() {
                       {/* Name & Email */}
                       <td className="py-3.5 px-4">
                         <div className="flex items-center gap-3">
-                          <img
-                            src={student.avatar}
-                            alt={student.name}
-                            className="w-9 h-9 rounded-full object-cover border border-slate-200/80 ring-2 ring-slate-100"
-                          />
+                          {student.avatar && !student.avatar.includes('unsplash.com') ? (
+                            <img
+                              src={student.avatar}
+                              alt={student.name}
+                              className="w-9 h-9 rounded-full object-cover border border-slate-200/80 ring-2 ring-slate-100 bg-slate-100 flex-shrink-0"
+                            />
+                          ) : (
+                            <div className="w-9 h-9 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200/80 flex items-center justify-center font-black text-xs shadow-2xs flex-shrink-0">
+                              {student.name ? student.name.charAt(0).toUpperCase() : 'S'}
+                            </div>
+                          )}
                           <div>
                             <p className="font-bold text-slate-900 group-hover:text-blue-600 transition-colors">
                               {student.name}
@@ -438,10 +459,10 @@ export function StudentManagementPage() {
               label="Batch Allocation"
               value={formData.batch}
               onChange={handleBatchSelectChange}
-              options={[
-                { value: 'Weekday Batch', label: 'Weekday Batch (Mon - Fri)' },
-                { value: 'Weekend Batch', label: 'Weekend Batch (Sat - Sun)' }
-              ]}
+              options={batchList.map((b) => ({
+                value: b,
+                label: b.startsWith('A26W') ? `${b} (Weekday)` : `${b} (Weekend)`
+              }))}
             />
 
             <Input

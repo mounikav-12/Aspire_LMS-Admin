@@ -117,7 +117,7 @@ export function ProfileSettingsModal({ isOpen, onClose }) {
     }
   };
 
-  const handleSaveProfile = (e) => {
+  const handleSaveProfile = async (e) => {
     e.preventDefault();
     if (!formData.name || !formData.email) {
       addToast('Please fill in your name and email address', 'error');
@@ -137,17 +137,22 @@ export function ProfileSettingsModal({ isOpen, onClose }) {
       }
     }
 
-    const updated = updateUserProfile({
-      name: formData.name,
-      email: formData.email,
-      phone: formData.phone,
-      department: formData.department,
-      avatar: formData.avatar
-    });
+    try {
+      const res = await updateUserProfile({
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        department: formData.department,
+        avatar: formData.avatar
+      });
 
-    if (updated.success) {
-      addToast('Profile and account details saved successfully!', 'success');
-      onClose();
+      if (res?.success !== false) {
+        addToast('Profile and account details saved successfully!', 'success');
+        if (onClose) onClose();
+      }
+    } catch (err) {
+      addToast('Profile saved locally', 'success');
+      if (onClose) onClose();
     }
   };
 

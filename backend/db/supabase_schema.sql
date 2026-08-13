@@ -1,6 +1,6 @@
 -- ========================================================
 -- ASPIRE LMS ADMIN - SUPABASE POSTGRESQL SCHEMA & SEED DATA
--- Project Ref: iaeldznsedqjedyetmnv
+-- Project Ref: maahwymvereyofrhrytx
 -- ========================================================
 
 -- Enable extensions

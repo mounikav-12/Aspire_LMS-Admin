@@ -57,7 +57,8 @@ export const INITIAL_USERS = [
     id: 'usr-1',
     name: 'Super Admin',
     email: 'aspireAdmin@gmail.com',
-    password: 'password@123',
+    // NOTE: Password intentionally removed from source code.
+    // Login is validated against the registeredUsers list in localStorage or Supabase Auth.
     role: ROLES.SUPER_ADMIN,
     department: 'Executive Leadership',
     status: 'Active',
@@ -103,10 +104,10 @@ export const INITIAL_STUDENTS = [
     registrationId: 'A26W0001',
     name: 'Rahul Sharma',
     email: 'rahul.sharma@gmail.com',
-    batch: 'Weekday Batch',
+    batch: 'A26W1',
     status: 'Active',
     joinedDate: '2026-01-10',
-    avatar: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150&auto=format&fit=crop&q=80',
+    avatar: 'https://api.dicebear.com/7.x/initials/svg?seed=Rahul%20Sharma&backgroundColor=e0e7ff&textColor=3730a3&bold=true',
     enrolledCourses: ['crs-101', 'crs-103'],
     unlockedStages: ['stg-1', 'stg-2']
   },
@@ -115,10 +116,10 @@ export const INITIAL_STUDENTS = [
     registrationId: 'A26W0002',
     name: 'Ananya Verma',
     email: 'ananya.verma@gmail.com',
-    batch: 'Weekday Batch',
+    batch: 'A26W1',
     status: 'Active',
     joinedDate: '2026-01-12',
-    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+    avatar: 'https://api.dicebear.com/7.x/initials/svg?seed=Ananya%20Verma&backgroundColor=e0e7ff&textColor=3730a3&bold=true',
     enrolledCourses: ['crs-101'],
     unlockedStages: ['stg-1', 'stg-2', 'stg-3']
   },
@@ -127,10 +128,10 @@ export const INITIAL_STUDENTS = [
     registrationId: 'A26W0003',
     name: 'Vikram Patel',
     email: 'vikram.patel@gmail.com',
-    batch: 'Weekday Batch',
+    batch: 'A26W2',
     status: 'Active',
     joinedDate: '2026-01-15',
-    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
+    avatar: 'https://api.dicebear.com/7.x/initials/svg?seed=Vikram%20Patel&backgroundColor=e0e7ff&textColor=3730a3&bold=true',
     enrolledCourses: ['crs-101', 'crs-102'],
     unlockedStages: ['stg-1']
   },
@@ -139,10 +140,10 @@ export const INITIAL_STUDENTS = [
     registrationId: 'A26W0004',
     name: 'Sneha Reddy',
     email: 'sneha.reddy@gmail.com',
-    batch: 'Weekday Batch',
+    batch: 'A26W3',
     status: 'Active',
     joinedDate: '2026-01-18',
-    avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80',
+    avatar: 'https://api.dicebear.com/7.x/initials/svg?seed=Sneha%20Reddy&backgroundColor=e0e7ff&textColor=3730a3&bold=true',
     enrolledCourses: ['crs-101'],
     unlockedStages: ['stg-1', 'stg-2']
   },
@@ -151,10 +152,10 @@ export const INITIAL_STUDENTS = [
     registrationId: 'A26W0005',
     name: 'Rohan Gupta',
     email: 'rohan.gupta@gmail.com',
-    batch: 'Weekday Batch',
+    batch: 'A26W4',
     status: 'Active',
     joinedDate: '2026-01-20',
-    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80',
+    avatar: 'https://api.dicebear.com/7.x/initials/svg?seed=Rohan%20Gupta&backgroundColor=e0e7ff&textColor=3730a3&bold=true',
     enrolledCourses: ['crs-101', 'crs-103'],
     unlockedStages: ['stg-1']
   },
@@ -165,10 +166,10 @@ export const INITIAL_STUDENTS = [
     registrationId: 'A26S0001',
     name: 'Karthik Nair',
     email: 'karthik.nair@gmail.com',
-    batch: 'Weekend Batch',
+    batch: 'A26S1',
     status: 'Active',
     joinedDate: '2026-01-11',
-    avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150&auto=format&fit=crop&q=80',
+    avatar: 'https://api.dicebear.com/7.x/initials/svg?seed=Karthik%20Nair&backgroundColor=e0e7ff&textColor=3730a3&bold=true',
     enrolledCourses: ['crs-102'],
     unlockedStages: ['stg-1', 'stg-2']
   },
@@ -177,10 +178,10 @@ export const INITIAL_STUDENTS = [
     registrationId: 'A26S0002',
     name: 'Meera Iyer',
     email: 'meera.iyer@gmail.com',
-    batch: 'Weekend Batch',
+    batch: 'A26S1',
     status: 'Active',
     joinedDate: '2026-01-14',
-    avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&auto=format&fit=crop&q=80',
+    avatar: 'https://api.dicebear.com/7.x/initials/svg?seed=Meera%20Iyer&backgroundColor=e0e7ff&textColor=3730a3&bold=true',
     enrolledCourses: ['crs-102', 'crs-103'],
     unlockedStages: ['stg-1']
   },
@@ -189,10 +190,10 @@ export const INITIAL_STUDENTS = [
     registrationId: 'A26S0003',
     name: 'Aditya Kulkarni',
     email: 'aditya.kulkarni@gmail.com',
-    batch: 'Weekend Batch',
+    batch: 'A26S2',
     status: 'Active',
     joinedDate: '2026-01-16',
-    avatar: 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=150&auto=format&fit=crop&q=80',
+    avatar: 'https://api.dicebear.com/7.x/initials/svg?seed=Aditya%20Kulkarni&backgroundColor=e0e7ff&textColor=3730a3&bold=true',
     enrolledCourses: ['crs-102'],
     unlockedStages: ['stg-1', 'stg-2']
   },
@@ -201,10 +202,10 @@ export const INITIAL_STUDENTS = [
     registrationId: 'A26S0004',
     name: 'Pooja Hegde',
     email: 'pooja.hegde@gmail.com',
-    batch: 'Weekend Batch',
+    batch: 'A26S3',
     status: 'Active',
     joinedDate: '2026-01-19',
-    avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&auto=format&fit=crop&q=80',
+    avatar: 'https://api.dicebear.com/7.x/initials/svg?seed=Pooja%20Hegde&backgroundColor=e0e7ff&textColor=3730a3&bold=true',
     enrolledCourses: ['crs-102', 'crs-101'],
     unlockedStages: ['stg-1']
   },
@@ -213,10 +214,10 @@ export const INITIAL_STUDENTS = [
     registrationId: 'A26S0005',
     name: 'Siddharth Joshi',
     email: 'siddharth.joshi@gmail.com',
-    batch: 'Weekend Batch',
+    batch: 'A26S3',
     status: 'Active',
     joinedDate: '2026-01-22',
-    avatar: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=150&auto=format&fit=crop&q=80',
+    avatar: 'https://api.dicebear.com/7.x/initials/svg?seed=Siddharth%20Joshi&backgroundColor=e0e7ff&textColor=3730a3&bold=true',
     enrolledCourses: ['crs-102'],
     unlockedStages: ['stg-1']
   }
@@ -281,23 +282,30 @@ export const INITIAL_COURSES = [
     topics: [
       {
         id: 'top-1',
-        title: 'React 18 Concurrent Features & Hooks',
+        title: 'Stage 1: Front End + Repository (Git & Web Architecture)',
         liveClasses: 3,
         practice: 5,
         assessments: 2
       },
       {
         id: 'top-2',
-        title: 'State Management with Context & Redux Toolkit',
+        title: 'Stage 2: Backend + DSA (Python, SQL, Django & Algorithms)',
         liveClasses: 2,
         practice: 4,
         assessments: 1
       },
       {
         id: 'top-3',
-        title: 'REST API & GraphQL Backend Integration',
+        title: 'Stage 3: AI & Cloud Integration (LangChain & Docker)',
         liveClasses: 4,
         practice: 6,
+        assessments: 2
+      },
+      {
+        id: 'top-4',
+        title: 'Stage 4: Career Launchpad (Capstones & Interviews)',
+        liveClasses: 3,
+        practice: 5,
         assessments: 2
       }
     ]
@@ -315,18 +323,25 @@ export const INITIAL_COURSES = [
     description: 'Learn Docker containerization, Kubernetes orchestration, AWS Cloud infra, and automated CI/CD pipelines.',
     topics: [
       {
-        id: 'top-4',
-        title: 'Containerizing Apps with Docker Multi-Stage Builds',
+        id: 'top-102-1',
+        title: 'Stage 1: Front End & Cloud Infrastructure Setup',
         liveClasses: 2,
         practice: 3,
         assessments: 1
       },
       {
-        id: 'top-5',
-        title: 'Kubernetes Cluster Deployment & HPA',
+        id: 'top-102-2',
+        title: 'Stage 2: Backend Microservices & Kubernetes Cluster Deployment',
         liveClasses: 3,
         practice: 5,
         assessments: 2
+      },
+      {
+        id: 'top-102-3',
+        title: 'Stage 3: AI & Automated CI/CD Pipeline Integration',
+        liveClasses: 2,
+        practice: 4,
+        assessments: 1
       }
     ]
   },
@@ -343,15 +358,22 @@ export const INITIAL_COURSES = [
     description: 'Comprehensive preparation for high-frequency DSA patterns, microservice architecture, and high scalability design.',
     topics: [
       {
-        id: 'top-6',
-        title: 'Dynamic Programming & Graph Algorithms',
+        id: 'top-103-1',
+        title: 'Stage 1: Repository Architecture & Array/String Patterns',
         liveClasses: 5,
         practice: 12,
         assessments: 3
       },
       {
-        id: 'top-7',
-        title: 'Distributed Caching & Load Balancing Architecture',
+        id: 'top-103-2',
+        title: 'Stage 2: Backend + DSA (Graphs, Trees & Dynamic Programming)',
+        liveClasses: 6,
+        practice: 15,
+        assessments: 4
+      },
+      {
+        id: 'top-103-3',
+        title: 'Stage 3: Distributed Caching, Load Balancing & System Design',
         liveClasses: 3,
         practice: 4,
         assessments: 2

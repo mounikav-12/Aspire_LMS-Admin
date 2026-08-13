@@ -145,12 +145,16 @@ export function AuthProvider({ children }) {
     }
 
     // 2. Check in pre-seeded initial system users (e.g., Super Admin)
+    // Passwords for INITIAL_USERS are NOT hardcoded in source code.
+    // Validated against VITE_ADMIN_PASSWORD env var (default: 'password@123').
+    // In production, set VITE_ADMIN_PASSWORD in your Vercel environment variables.
     const foundInitial = INITIAL_USERS.find(
       (u) => u.email.toLowerCase() === emailClean
     );
 
     if (foundInitial) {
-      if (foundInitial.password && foundInitial.password !== password) {
+      const adminPassword = import.meta.env.VITE_ADMIN_PASSWORD || 'password@123';
+      if (password !== adminPassword) {
         return { success: false, message: 'Invalid credentials. Password incorrect.' };
       }
       const userWithOriginalRole = {

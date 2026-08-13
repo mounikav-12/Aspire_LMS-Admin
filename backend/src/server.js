@@ -6,8 +6,17 @@ const { supabase } = require('./config/supabase');
 const app = express();
 const PORT = process.env.PORT || 5001;
 
+// CORS — restrict to known origins. Add your deployed frontend URL here.
+const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || 'http://localhost:3000,http://localhost:5173').split(',');
 app.use(cors({
-  origin: '*',
+  origin: (origin, callback) => {
+    // Allow requests with no origin (e.g. mobile apps, curl, Vercel SSR)
+    if (!origin) return callback(null, true);
+    if (ALLOWED_ORIGINS.includes(origin) || process.env.NODE_ENV !== 'production') {
+      return callback(null, true);
+    }
+    callback(new Error(`CORS policy: Origin ${origin} not allowed`));
+  },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
@@ -58,40 +67,45 @@ app.get('/api/db-status', async (req, res) => {
 // =========================================================
 // 2. AUTHENTICATION & PROFILE APIS (STUDENT + ADMIN)
 // =========================================================
-let currentSessionUser = {
-  user: { username: "Student", mobile: "9876543210", role: "student" },
-  fullName: "Student",
-  bio: "Aspire LMS Student",
-  email: "student@aspire.edu",
-  phone: "9876543210"
-};
+// NOTE: The previous global `currentSessionUser` variable has been removed.
+// It was a critical bug — a server-level shared variable meant every
+// HTTP request read/wrote the same object, leaking data between users.
+// Auth state must be per-request (via JWT/session tokens).
+// These endpoints now return stateless, request-scoped responses.
 
 app.post('/api/auth/direct-login', async (req, res) => {
   try {
     const { mobile } = req.body;
-    if (!mobile) return res.status(400).json({ msg: "Mobile number is required" });
+    if (!mobile) return res.status(400).json({ success: false, msg: 'Mobile number is required' });
 
-    currentSessionUser = {
-      user: { username: `Student_${mobile.slice(-4)}`, mobile, role: "student" },
+    // Build a request-scoped profile — NOT stored in server memory
+    const profile = {
+      user: { username: `Student_${mobile.slice(-4)}`, mobile, role: 'student' },
       fullName: `Student ${mobile.slice(-4)}`,
-      bio: "Active Aspire LMS Student",
+      bio: 'Active Aspire LMS Student',
       phone: mobile,
       email: `student_${mobile}@aspire.edu`
     };
 
-    res.json({ success: true, profile: currentSessionUser });
+    res.json({ success: true, profile });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
 });
 
+// Profile fetch — requires the client to send their own profile data.
+// In a real implementation this should validate a JWT and fetch from DB.
 app.get('/api/auth/profile', (req, res) => {
-  res.json(currentSessionUser);
+  res.status(200).json({
+    success: true,
+    message: 'Use the Supabase client directly for profile management.',
+    note: 'This endpoint requires JWT-based auth — see AuthContext.jsx'
+  });
 });
 
 app.put('/api/auth/profile', (req, res) => {
-  currentSessionUser = { ...currentSessionUser, ...req.body };
-  res.json({ success: true, profile: currentSessionUser });
+  // Stateless: no server-side session to update. Client manages profile via Supabase SDK.
+  res.json({ success: true, message: 'Profile update should be done via Supabase client.' });
 });
 
 app.post('/api/auth/register', async (req, res) => {

@@ -17,6 +17,10 @@ import {
   ROLES
 } from '../utils/mockData';
 
+export const DEFAULT_WEEKDAY_BATCHES = ['A26W1', 'A26W2', 'A26W3'];
+export const DEFAULT_WEEKEND_BATCHES = ['A26S1', 'A26S2', 'A26S3'];
+export const INITIAL_BATCH_LIST = [...DEFAULT_WEEKDAY_BATCHES, ...DEFAULT_WEEKEND_BATCHES];
+
 const LmsDataContext = createContext(null);
 
 function cloneMilestoneData(milestoneData, batchSuffix) {
@@ -114,16 +118,29 @@ export function LmsDataProvider({ children }) {
   const [users, setUsers] = useState(INITIAL_USERS);
   const [students, setStudents] = useState(() => {
     const loaded = loadLocalState('aspire_lms_students', INITIAL_STUDENTS);
-    return loaded.map(s => {
+    return loaded.map((s, idx) => {
       const formattedEmail = `${s.name.toLowerCase().replace(/\s+/g, '.')}@gmail.com`;
-      if (!s.email || s.email.includes('@aspirestudent.io')) {
-        return { ...s, email: formattedEmail };
+      let bCode = s.batch;
+      if (!bCode || bCode === 'Weekday Batch') {
+        bCode = `A26W${(idx % 4) + 1}`;
+      } else if (bCode === 'Weekend Batch') {
+        bCode = `A26S${(idx % 3) + 1}`;
+      } else if (bCode.startsWith('A26WE')) {
+        bCode = bCode.replace('A26WE', 'A26S');
       }
-      return s;
+      const defaultAvatar = `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(s.name || 'Student')}&backgroundColor=e0e7ff&textColor=3730a3&bold=true`;
+      const cleanAvatar = (!s.avatar || s.avatar.includes('unsplash.com')) ? defaultAvatar : s.avatar;
+
+      return {
+        ...s,
+        email: (!s.email || s.email.includes('@aspirestudent.io')) ? formattedEmail : s.email,
+        batch: bCode,
+        avatar: cleanAvatar
+      };
     });
   });
   const [rolePermissions, setRolePermissions] = useState(INITIAL_ROLE_PERMISSIONS);
-  const [coursesByBatch, setCoursesByBatch] = useState(() => loadBatchDictState('aspire_lms_courses_by_batch', INITIAL_COURSES, 'aspire_lms_courses_version', 'v3_python_fullstack'));
+  const [coursesByBatch, setCoursesByBatch] = useState(() => loadBatchDictState('aspire_lms_courses_by_batch', INITIAL_COURSES, 'aspire_lms_courses_version', 'v4_stage_topics'));
   const [assessmentsByBatch, setAssessmentsByBatch] = useState(() => loadBatchDictState('aspire_lms_assessments_by_batch', INITIAL_ASSESSMENTS, 'aspire_lms_assessments_version', 'v2_batch_decoupled'));
   const [liveSessionsByBatch, setLiveSessionsByBatch] = useState(() => loadBatchDictState('aspire_lms_live_sessions_by_batch', INITIAL_LIVE_SESSIONS, 'aspire_lms_sessions_version', 'v2_batch_decoupled'));
   const [jobsByBatch, setJobsByBatch] = useState(() => loadBatchDictState('aspire_lms_jobs_by_batch', INITIAL_JOBS, 'aspire_lms_jobs_version', 'v2_batch_decoupled'));
@@ -162,6 +179,31 @@ export function LmsDataProvider({ children }) {
   useEffect(() => {
     try { localStorage.setItem('aspire_lms_projects_by_batch', JSON.stringify(projectsByBatch)); } catch (e) {}
   }, [projectsByBatch]);
+
+  const [availableBatches, setAvailableBatches] = useState(() => {
+    try {
+      const saved = localStorage.getItem('aspire_lms_available_batches');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed.map((b) => (b.startsWith('A26WE') ? b.replace('A26WE', 'A26S') : b));
+        }
+      }
+    } catch (e) {}
+    return INITIAL_BATCH_LIST;
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('aspire_lms_available_batches', JSON.stringify(availableBatches));
+    } catch (e) {}
+  }, [availableBatches]);
+
+  const addBatch = (newCode, category) => {
+    if (!newCode || availableBatches.includes(newCode)) return;
+    setAvailableBatches((prev) => [...prev, newCode]);
+    logActivity(`Created new batch code: "${newCode}" (${category || 'General'})`, 'batch');
+  };
 
   const [activeBatchFilter, setActiveBatchFilter] = useState(() => {
     return localStorage.getItem('aspire_lms_active_batch_filter') || 'ALL';
@@ -228,18 +270,86 @@ export function LmsDataProvider({ children }) {
   }, [codingQuestionsByBatch]);
 
   const resolveBatchKey = (batchName) => {
-    if (batchName && batchName !== 'ALL') return batchName;
-    if (activeBatchFilter && activeBatchFilter !== 'ALL') return activeBatchFilter;
+    const b = batchName && batchName !== 'ALL' ? batchName : activeBatchFilter;
+    if (b && (b.startsWith('A26S') || b === 'Weekend Batch')) return 'Weekend Batch';
     return 'Weekday Batch';
   };
 
-  const getCoursesForBatch = (batchName) => coursesByBatch[resolveBatchKey(batchName)] || [];
-  const getAssessmentsForBatch = (batchName) => assessmentsByBatch[resolveBatchKey(batchName)] || [];
-  const getLiveSessionsForBatch = (batchName) => liveSessionsByBatch[resolveBatchKey(batchName)] || [];
-  const getJobsForBatch = (batchName) => jobsByBatch[resolveBatchKey(batchName)] || [];
-  const getRecordingsForBatch = (batchName) => recordingsByBatch[resolveBatchKey(batchName)] || [];
-  const getProjectsForBatch = (batchName) => projectsByBatch[resolveBatchKey(batchName)] || [];
-  const getCodingQuestionsForBatch = (batchName) => codingQuestionsByBatch[resolveBatchKey(batchName)] || [];
+  const getBatchItems = (dict, batchName) => {
+    if (!dict) return [];
+    const target = batchName || activeBatchFilter || 'ALL';
+
+    if (target === 'ALL') {
+      const allItems = [];
+      const seenIds = new Set();
+      Object.values(dict).forEach((arr) => {
+        if (Array.isArray(arr)) {
+          arr.forEach((item) => {
+            if (item && item.id && !seenIds.has(item.id)) {
+              seenIds.add(item.id);
+              allItems.push(item);
+            }
+          });
+        }
+      });
+      return allItems;
+    }
+
+    if (dict[target] && Array.isArray(dict[target]) && dict[target].length > 0) {
+      return dict[target];
+    }
+
+    if (target.startsWith('A26S') || target === 'Weekend Batch') {
+      const weItems = dict['Weekend Batch'] || [];
+      const wdItems = dict['Weekday Batch'] || [];
+      const combined = [...weItems];
+      const seenIds = new Set(weItems.map((i) => i.id));
+      wdItems.forEach((item) => {
+        if (item && item.id && !seenIds.has(item.id)) {
+          seenIds.add(item.id);
+          combined.push(item);
+        }
+      });
+      return combined;
+    }
+
+    if (target.startsWith('A26W') || target === 'Weekday Batch') {
+      const wdItems = dict['Weekday Batch'] || [];
+      const weItems = dict['Weekend Batch'] || [];
+      const combined = [...wdItems];
+      const seenIds = new Set(wdItems.map((i) => i.id));
+      weItems.forEach((item) => {
+        if (item && item.id && !seenIds.has(item.id)) {
+          seenIds.add(item.id);
+          combined.push(item);
+        }
+      });
+      return combined;
+    }
+
+    // Fallback combine all
+    const fallbackItems = [];
+    const seenIds = new Set();
+    Object.values(dict).forEach((arr) => {
+      if (Array.isArray(arr)) {
+        arr.forEach((item) => {
+          if (item && item.id && !seenIds.has(item.id)) {
+            seenIds.add(item.id);
+            fallbackItems.push(item);
+          }
+        });
+      }
+    });
+    return fallbackItems;
+  };
+
+  const getCoursesForBatch = (batchName) => getBatchItems(coursesByBatch, batchName);
+  const getAssessmentsForBatch = (batchName) => getBatchItems(assessmentsByBatch, batchName);
+  const getLiveSessionsForBatch = (batchName) => getBatchItems(liveSessionsByBatch, batchName);
+  const getJobsForBatch = (batchName) => getBatchItems(jobsByBatch, batchName);
+  const getRecordingsForBatch = (batchName) => getBatchItems(recordingsByBatch, batchName);
+  const getProjectsForBatch = (batchName) => getBatchItems(projectsByBatch, batchName);
+  const getCodingQuestionsForBatch = (batchName) => getBatchItems(codingQuestionsByBatch, batchName);
 
   const courses = getCoursesForBatch(activeBatchFilter);
   const assessments = getAssessmentsForBatch(activeBatchFilter);
@@ -251,9 +361,13 @@ export function LmsDataProvider({ children }) {
 
   const [activities, setActivities] = useState(MOCK_ACTIVITIES);
   const [isSupabaseConnected, setIsSupabaseConnected] = useState(false);
+  // Guard against concurrent or self-triggered Realtime fetches
+  const isRefetchingRef = React.useRef(false);
 
   // Fetch Data from Supabase PostgreSQL
   const fetchSupabaseData = async () => {
+    if (isRefetchingRef.current) return; // prevent concurrent fetches
+    isRefetchingRef.current = true;
     try {
       // 1. Fetch Profiles
       const { data: profilesData, error: profilesErr } = await supabase.from('profiles').select('*');
@@ -324,12 +438,12 @@ export function LmsDataProvider({ children }) {
             topics: dbTopics && dbTopics.length > 0 ? dbTopics : (defaultCourse?.topics || [])
           };
         });
-        // Merge into batch buckets
-        setCoursesByBatch(prev => {
-          const next = { 'Weekday Batch': [...(prev['Weekday Batch'] || [])], 'Weekend Batch': [...(prev['Weekend Batch'] || [])] };
+        // REPLACE batch buckets entirely (prevents duplicates from append-merge)
+        setCoursesByBatch(() => {
+          const next = { 'Weekday Batch': [], 'Weekend Batch': [] };
           mappedCourses.forEach(c => {
             const bKey = c.targetBatch === 'Weekend Batch' ? 'Weekend Batch' : 'Weekday Batch';
-            if (!next[bKey].find(x => x.id === c.id)) next[bKey].push(c);
+            next[bKey].push(c);
           });
           return next;
         });
@@ -352,11 +466,12 @@ export function LmsDataProvider({ children }) {
           description: j.description || '',
           targetBatch: j.target_batch || 'Weekday Batch'
         }));
-        setJobsByBatch(prev => {
-          const next = { 'Weekday Batch': [...(prev['Weekday Batch'] || [])], 'Weekend Batch': [...(prev['Weekend Batch'] || [])] };
+        // REPLACE (not append) to prevent duplicates
+        setJobsByBatch(() => {
+          const next = { 'Weekday Batch': [], 'Weekend Batch': [] };
           mappedJobs.forEach(j => {
             const bKey = j.targetBatch === 'Weekend Batch' ? 'Weekend Batch' : 'Weekday Batch';
-            if (!next[bKey].find(x => x.id === j.id)) next[bKey].push(j);
+            next[bKey].push(j);
           });
           return next;
         });
@@ -379,11 +494,12 @@ export function LmsDataProvider({ children }) {
           description: s.description || '',
           targetBatch: s.target_batch || 'Weekday Batch'
         }));
-        setLiveSessionsByBatch(prev => {
-          const next = { 'Weekday Batch': [...(prev['Weekday Batch'] || [])], 'Weekend Batch': [...(prev['Weekend Batch'] || [])] };
+        // REPLACE (not append) to prevent duplicates
+        setLiveSessionsByBatch(() => {
+          const next = { 'Weekday Batch': [], 'Weekend Batch': [] };
           mappedSessions.forEach(s => {
             const bKey = s.targetBatch === 'Weekend Batch' ? 'Weekend Batch' : 'Weekday Batch';
-            if (!next[bKey].find(x => x.id === s.id)) next[bKey].push(s);
+            next[bKey].push(s);
           });
           return next;
         });
@@ -437,46 +553,144 @@ export function LmsDataProvider({ children }) {
             : (typeof p.submissions === 'string' ? JSON.parse(p.submissions) : (p.submissions || [])),
           targetBatch: p.target_batch || 'Weekday Batch'
         }));
-        setProjectsByBatch(prev => {
-          const next = { 'Weekday Batch': [...(prev['Weekday Batch'] || [])], 'Weekend Batch': [...(prev['Weekend Batch'] || [])] };
+        // REPLACE (not append) to prevent duplicates
+        setProjectsByBatch(() => {
+          const next = { 'Weekday Batch': [], 'Weekend Batch': [] };
           mappedProjects.forEach(p => {
             const bKey = p.targetBatch === 'Weekend Batch' ? 'Weekend Batch' : 'Weekday Batch';
-            if (!next[bKey].find(x => x.id === p.id)) next[bKey].push(p);
+            next[bKey].push(p);
           });
           return next;
         });
       }
     } catch (err) {
       console.warn('Supabase initial fetch using fallback mock data:', err);
+    } finally {
+      isRefetchingRef.current = false;
     }
   };
 
   useEffect(() => {
     fetchSupabaseData();
 
-    // Set up Realtime Sync Channel
-    let channel;
+    // Targeted Realtime channels — one per table, applying delta updates directly.
+    // This avoids the self-triggering loop caused by a schema-wide subscription
+    // (audit_activities inserts would trigger full re-fetches of all 8 tables).
+    const channels = [];
     try {
-      channel = supabase
-        .channel('schema-db-changes')
-        .on(
-          'postgres_changes',
-          { event: '*', schema: 'public' },
-          () => {
-            fetchSupabaseData();
+      const makeChannel = (table, handler) => {
+        const ch = supabase
+          .channel(`${table}-changes`)
+          .on('postgres_changes', { event: '*', schema: 'public', table }, handler)
+          .subscribe();
+        channels.push(ch);
+      };
+
+      // Profiles — trigger full refetch (small table, important)
+      makeChannel('profiles', () => fetchSupabaseData());
+
+      // Courses — delta update
+      makeChannel('courses', (payload) => {
+        setCoursesByBatch(prev => {
+          const next = { ...prev };
+          const getBKey = (row) => row?.target_batch === 'Weekend Batch' ? 'Weekend Batch' : 'Weekday Batch';
+          if (payload.eventType === 'INSERT') {
+            const bKey = getBKey(payload.new);
+            if (!next[bKey].find(x => x.id === payload.new.id)) {
+              next[bKey] = [payload.new, ...next[bKey]];
+            }
+          } else if (payload.eventType === 'UPDATE') {
+            const bKey = getBKey(payload.new);
+            next[bKey] = next[bKey].map(x => x.id === payload.new.id ? { ...x, ...payload.new } : x);
+          } else if (payload.eventType === 'DELETE') {
+            ['Weekday Batch', 'Weekend Batch'].forEach(k => {
+              next[k] = next[k].filter(x => x.id !== payload.old.id);
+            });
           }
-        )
-        .subscribe();
+          return next;
+        });
+      });
+
+      // Live Sessions — delta update
+      makeChannel('live_sessions', (payload) => {
+        setLiveSessionsByBatch(prev => {
+          const next = { ...prev };
+          const getBKey = (row) => row?.target_batch === 'Weekend Batch' ? 'Weekend Batch' : 'Weekday Batch';
+          if (payload.eventType === 'INSERT') {
+            const bKey = getBKey(payload.new);
+            if (!next[bKey].find(x => x.id === payload.new.id))
+              next[bKey] = [payload.new, ...next[bKey]];
+          } else if (payload.eventType === 'UPDATE') {
+            const bKey = getBKey(payload.new);
+            next[bKey] = next[bKey].map(x => x.id === payload.new.id ? { ...x, ...payload.new } : x);
+          } else if (payload.eventType === 'DELETE') {
+            ['Weekday Batch', 'Weekend Batch'].forEach(k => {
+              next[k] = next[k].filter(x => x.id !== payload.old.id);
+            });
+          }
+          return next;
+        });
+      });
+
+      // Jobs — delta update
+      makeChannel('jobs', (payload) => {
+        setJobsByBatch(prev => {
+          const next = { ...prev };
+          const getBKey = (row) => row?.target_batch === 'Weekend Batch' ? 'Weekend Batch' : 'Weekday Batch';
+          if (payload.eventType === 'INSERT') {
+            const bKey = getBKey(payload.new);
+            if (!next[bKey].find(x => x.id === payload.new.id))
+              next[bKey] = [payload.new, ...next[bKey]];
+          } else if (payload.eventType === 'UPDATE') {
+            const bKey = getBKey(payload.new);
+            next[bKey] = next[bKey].map(x => x.id === payload.new.id ? { ...x, ...payload.new } : x);
+          } else if (payload.eventType === 'DELETE') {
+            ['Weekday Batch', 'Weekend Batch'].forEach(k => {
+              next[k] = next[k].filter(x => x.id !== payload.old.id);
+            });
+          }
+          return next;
+        });
+      });
+
+      // Projects — delta update
+      makeChannel('projects', (payload) => {
+        setProjectsByBatch(prev => {
+          const next = { ...prev };
+          const getBKey = (row) => row?.target_batch === 'Weekend Batch' ? 'Weekend Batch' : 'Weekday Batch';
+          if (payload.eventType === 'INSERT') {
+            const bKey = getBKey(payload.new);
+            if (!next[bKey].find(x => x.id === payload.new.id))
+              next[bKey] = [payload.new, ...next[bKey]];
+          } else if (payload.eventType === 'UPDATE') {
+            const bKey = getBKey(payload.new);
+            next[bKey] = next[bKey].map(x => x.id === payload.new.id ? { ...x, ...payload.new } : x);
+          } else if (payload.eventType === 'DELETE') {
+            ['Weekday Batch', 'Weekend Batch'].forEach(k => {
+              next[k] = next[k].filter(x => x.id !== payload.old.id);
+            });
+          }
+          return next;
+        });
+      });
+
+      // Placement resources — full refetch (small table)
+      makeChannel('placement_resources', () => fetchSupabaseData());
+
+      // Role permissions — full refetch
+      makeChannel('role_permissions', () => fetchSupabaseData());
+
+      // audit_activities intentionally NOT subscribed — it was the source of
+      // the self-triggering loop (every CRUD -> logActivity -> insert -> Realtime -> full refetch).
+
     } catch (err) {
       console.warn('Supabase Realtime channel subscription skipped:', err);
     }
 
     return () => {
-      if (channel) {
-        try {
-          supabase.removeChannel(channel);
-        } catch (e) {}
-      }
+      channels.forEach(ch => {
+        try { supabase.removeChannel(ch); } catch (e) {}
+      });
     };
   }, []);
 
@@ -615,11 +829,29 @@ export function LmsDataProvider({ children }) {
       topics: courseData.topics || [],
       ...courseData
     };
+    // Optimistic UI update
     setCoursesByBatch((prev) => ({
       ...prev,
       [bKey]: [newCourse, ...(prev[bKey] || [])]
     }));
     logActivity(`Created new course: "${newCourse.title}" (${bKey})`, 'course');
+    // Persist to Supabase
+    try {
+      const { error } = await supabase.from('courses').upsert([{
+        id: newCourse.id,
+        title: newCourse.title,
+        category: newCourse.category,
+        level: newCourse.level,
+        instructor: newCourse.instructor,
+        publish_status: newCourse.publishStatus,
+        thumbnail: newCourse.thumbnail,
+        enrolled_count: newCourse.enrolledCount,
+        rating: newCourse.rating,
+        description: newCourse.description,
+        target_batch: newCourse.targetBatch
+      }]);
+      if (error) console.error('Supabase course insert error:', error.message);
+    } catch (err) { console.warn('Course insert handled:', err); }
   };
 
   const updateCourse = async (id, updatedFields, targetBatch = activeBatchFilter) => {
@@ -629,6 +861,22 @@ export function LmsDataProvider({ children }) {
       [bKey]: (prev[bKey] || []).map((c) => (c.id === id ? { ...c, ...updatedFields } : c))
     }));
     logActivity(`Updated course properties for ID ${id} (${bKey})`, 'course');
+    // Persist update to Supabase
+    try {
+      const dbFields = {};
+      if (updatedFields.title !== undefined) dbFields.title = updatedFields.title;
+      if (updatedFields.category !== undefined) dbFields.category = updatedFields.category;
+      if (updatedFields.level !== undefined) dbFields.level = updatedFields.level;
+      if (updatedFields.instructor !== undefined) dbFields.instructor = updatedFields.instructor;
+      if (updatedFields.publishStatus !== undefined) dbFields.publish_status = updatedFields.publishStatus;
+      if (updatedFields.thumbnail !== undefined) dbFields.thumbnail = updatedFields.thumbnail;
+      if (updatedFields.description !== undefined) dbFields.description = updatedFields.description;
+      if (updatedFields.targetBatch !== undefined) dbFields.target_batch = updatedFields.targetBatch;
+      if (Object.keys(dbFields).length > 0) {
+        const { error } = await supabase.from('courses').update(dbFields).eq('id', id);
+        if (error) console.error('Supabase course update error:', error.message);
+      }
+    } catch (err) { console.warn('Course update handled:', err); }
   };
 
   const deleteCourse = async (id, targetBatch = activeBatchFilter) => {
@@ -638,6 +886,11 @@ export function LmsDataProvider({ children }) {
       [bKey]: (prev[bKey] || []).filter((c) => c.id !== id)
     }));
     logActivity(`Deleted course track ID ${id} (${bKey})`, 'course');
+    // Delete from Supabase
+    try {
+      const { error } = await supabase.from('courses').delete().eq('id', id);
+      if (error) console.error('Supabase course delete error:', error.message);
+    } catch (err) { console.warn('Course delete handled:', err); }
   };
 
     // --- ASSESSMENTS ---
@@ -658,6 +911,26 @@ export function LmsDataProvider({ children }) {
       [bKey]: [newAsmnt, ...(prev[bKey] || [])]
     }));
     logActivity(`Created assessment: "${newAsmnt.title}" (${bKey})`, 'assessment');
+    try {
+      const { error } = await supabase.from('assessments').upsert([{
+        id: newAsmnt.id,
+        title: newAsmnt.title,
+        course_id: newAsmnt.courseId || null,
+        course_name: newAsmnt.courseName || '',
+        topic_name: newAsmnt.topicName || '',
+        duration_minutes: newAsmnt.durationMinutes || 45,
+        total_marks: newAsmnt.totalMarks || 100,
+        mcq_count: newAsmnt.mcqCount || 5,
+        coding_count: newAsmnt.codingCount || 1,
+        status: newAsmnt.status || 'Active',
+        publish_status: newAsmnt.publishStatus || 'Published',
+        due_date: newAsmnt.dueDate || null,
+        mcqs: newAsmnt.mcqs || [],
+        coding_questions: newAsmnt.codingQuestions || [],
+        target_batch: newAsmnt.targetBatch
+      }]);
+      if (error) console.error('Supabase assessment insert error:', error.message);
+    } catch (err) { console.warn('Assessment insert handled:', err); }
   };
 
   const updateAssessment = async (id, updatedFields, targetBatch = activeBatchFilter) => {
@@ -667,6 +940,17 @@ export function LmsDataProvider({ children }) {
       [bKey]: (prev[bKey] || []).map((a) => (a.id === id ? { ...a, ...updatedFields } : a))
     }));
     logActivity(`Updated assessment ID ${id} (${bKey})`, 'assessment');
+    try {
+      const dbFields = {};
+      if (updatedFields.title !== undefined) dbFields.title = updatedFields.title;
+      if (updatedFields.status !== undefined) dbFields.status = updatedFields.status;
+      if (updatedFields.publishStatus !== undefined) dbFields.publish_status = updatedFields.publishStatus;
+      if (updatedFields.dueDate !== undefined) dbFields.due_date = updatedFields.dueDate;
+      if (Object.keys(dbFields).length > 0) {
+        const { error } = await supabase.from('assessments').update(dbFields).eq('id', id);
+        if (error) console.error('Supabase assessment update error:', error.message);
+      }
+    } catch (err) { console.warn('Assessment update handled:', err); }
   };
 
   const deleteAssessment = async (id, targetBatch = activeBatchFilter) => {
@@ -676,6 +960,10 @@ export function LmsDataProvider({ children }) {
       [bKey]: (prev[bKey] || []).filter((a) => a.id !== id)
     }));
     logActivity(`Deleted assessment ID ${id} (${bKey})`, 'assessment');
+    try {
+      const { error } = await supabase.from('assessments').delete().eq('id', id);
+      if (error) console.error('Supabase assessment delete error:', error.message);
+    } catch (err) { console.warn('Assessment delete handled:', err); }
   };
 
 
@@ -694,7 +982,24 @@ export function LmsDataProvider({ children }) {
       ...prev,
       [bKey]: [newSession, ...(prev[bKey] || [])]
     }));
-    logActivity(`Scheduled live session: "${newSession.title}" (${bKey})`, 'session');
+    logActivity(`Scheduled live session: "${newSession.sessionTitle || newSession.title}" (${bKey})`, 'session');
+    try {
+      const { error } = await supabase.from('live_sessions').upsert([{
+        id: newSession.id,
+        program_name: newSession.programName || '',
+        technology: newSession.technology || '',
+        session_title: newSession.sessionTitle || newSession.title || '',
+        date: newSession.date || '',
+        time: newSession.time || '',
+        meeting_link: newSession.meetingLink || '',
+        status: newSession.status || 'Scheduled',
+        publish_status: newSession.publishStatus || 'Published to Student LMS',
+        instructor: newSession.instructor || '',
+        description: newSession.description || '',
+        target_batch: newSession.targetBatch
+      }]);
+      if (error) console.error('Supabase live session insert error:', error.message);
+    } catch (err) { console.warn('Live session insert handled:', err); }
   };
 
   const updateLiveSession = async (id, updatedFields, targetBatch = activeBatchFilter) => {
@@ -704,6 +1009,21 @@ export function LmsDataProvider({ children }) {
       [bKey]: (prev[bKey] || []).map((s) => (s.id === id ? { ...s, ...updatedFields } : s))
     }));
     logActivity(`Updated live session ID ${id} (${bKey})`, 'session');
+    try {
+      const dbFields = {};
+      if (updatedFields.sessionTitle !== undefined) dbFields.session_title = updatedFields.sessionTitle;
+      if (updatedFields.date !== undefined) dbFields.date = updatedFields.date;
+      if (updatedFields.time !== undefined) dbFields.time = updatedFields.time;
+      if (updatedFields.meetingLink !== undefined) dbFields.meeting_link = updatedFields.meetingLink;
+      if (updatedFields.status !== undefined) dbFields.status = updatedFields.status;
+      if (updatedFields.publishStatus !== undefined) dbFields.publish_status = updatedFields.publishStatus;
+      if (updatedFields.instructor !== undefined) dbFields.instructor = updatedFields.instructor;
+      if (updatedFields.description !== undefined) dbFields.description = updatedFields.description;
+      if (Object.keys(dbFields).length > 0) {
+        const { error } = await supabase.from('live_sessions').update(dbFields).eq('id', id);
+        if (error) console.error('Supabase live session update error:', error.message);
+      }
+    } catch (err) { console.warn('Live session update handled:', err); }
   };
 
   const deleteLiveSession = async (id, targetBatch = activeBatchFilter) => {
@@ -713,13 +1033,22 @@ export function LmsDataProvider({ children }) {
       [bKey]: (prev[bKey] || []).filter((s) => s.id !== id)
     }));
     logActivity(`Deleted live session ID ${id} (${bKey})`, 'session');
+    try {
+      const { error } = await supabase.from('live_sessions').delete().eq('id', id);
+      if (error) console.error('Supabase live session delete error:', error.message);
+    } catch (err) { console.warn('Live session delete handled:', err); }
   };
 
   const toggleLiveSessionLock = async (id, targetBatch = activeBatchFilter) => {
     const bKey = resolveBatchKey(targetBatch);
+    let newLocked;
     setLiveSessionsByBatch((prev) => ({
       ...prev,
-      [bKey]: (prev[bKey] || []).map((s) => (s.id === id ? { ...s, isLocked: !s.isLocked } : s))
+      [bKey]: (prev[bKey] || []).map((s) => {
+        if (s.id !== id) return s;
+        newLocked = !s.isLocked;
+        return { ...s, isLocked: newLocked };
+      })
     }));
     logActivity(`Toggled lock on live session ID ${id} (${bKey})`, 'session');
   };
@@ -743,6 +1072,23 @@ export function LmsDataProvider({ children }) {
       [bKey]: [newJob, ...(prev[bKey] || [])]
     }));
     logActivity(`Posted job opening for ${newJob.company}: "${newJob.jobTitle}" (${bKey})`, 'job');
+    try {
+      const { error } = await supabase.from('jobs').upsert([{
+        id: newJob.id,
+        company: newJob.company,
+        job_title: newJob.jobTitle,
+        job_type: newJob.jobType || 'Full-Time',
+        salary: newJob.salary || '',
+        location: newJob.location || '',
+        posted_date: newJob.postedDate,
+        publish_status: newJob.publishStatus,
+        is_locked: newJob.isLocked,
+        logo: newJob.logo,
+        description: newJob.description || '',
+        target_batch: newJob.targetBatch
+      }]);
+      if (error) console.error('Supabase job insert error:', error.message);
+    } catch (err) { console.warn('Job insert handled:', err); }
   };
 
   const updateJob = async (id, updatedFields, targetBatch = activeBatchFilter) => {
@@ -752,15 +1098,38 @@ export function LmsDataProvider({ children }) {
       [bKey]: (prev[bKey] || []).map((j) => (j.id === id ? { ...j, ...updatedFields } : j))
     }));
     logActivity(`Updated job listing ID ${id} (${bKey})`, 'job');
+    try {
+      const dbFields = {};
+      if (updatedFields.company !== undefined) dbFields.company = updatedFields.company;
+      if (updatedFields.jobTitle !== undefined) dbFields.job_title = updatedFields.jobTitle;
+      if (updatedFields.jobType !== undefined) dbFields.job_type = updatedFields.jobType;
+      if (updatedFields.salary !== undefined) dbFields.salary = updatedFields.salary;
+      if (updatedFields.location !== undefined) dbFields.location = updatedFields.location;
+      if (updatedFields.publishStatus !== undefined) dbFields.publish_status = updatedFields.publishStatus;
+      if (updatedFields.isLocked !== undefined) dbFields.is_locked = updatedFields.isLocked;
+      if (updatedFields.description !== undefined) dbFields.description = updatedFields.description;
+      if (Object.keys(dbFields).length > 0) {
+        const { error } = await supabase.from('jobs').update(dbFields).eq('id', id);
+        if (error) console.error('Supabase job update error:', error.message);
+      }
+    } catch (err) { console.warn('Job update handled:', err); }
   };
 
   const toggleJobLock = async (id, targetBatch = activeBatchFilter) => {
     const bKey = resolveBatchKey(targetBatch);
+    let newLocked;
     setJobsByBatch((prev) => ({
       ...prev,
-      [bKey]: (prev[bKey] || []).map((j) => (j.id === id ? { ...j, isLocked: !j.isLocked } : j))
+      [bKey]: (prev[bKey] || []).map((j) => {
+        if (j.id !== id) return j;
+        newLocked = !j.isLocked;
+        return { ...j, isLocked: newLocked };
+      })
     }));
     logActivity(`Toggled lock on job ID ${id} (${bKey})`, 'job');
+    try {
+      await supabase.from('jobs').update({ is_locked: newLocked }).eq('id', id);
+    } catch (err) { console.warn('Job lock toggle handled:', err); }
   };
 
   const deleteJob = async (id, targetBatch = activeBatchFilter) => {
@@ -770,6 +1139,10 @@ export function LmsDataProvider({ children }) {
       [bKey]: (prev[bKey] || []).filter((j) => j.id !== id)
     }));
     logActivity(`Removed job opening ID ${id} (${bKey})`, 'job');
+    try {
+      const { error } = await supabase.from('jobs').delete().eq('id', id);
+      if (error) console.error('Supabase job delete error:', error.message);
+    } catch (err) { console.warn('Job delete handled:', err); }
   };
 
     // --- RECORDINGS ---
@@ -788,6 +1161,23 @@ export function LmsDataProvider({ children }) {
       [bKey]: [newRec, ...(prev[bKey] || [])]
     }));
     logActivity(`Uploaded lecture video: "${newRec.title}" (${bKey})`, 'library');
+    try {
+      const { error } = await supabase.from('recordings').upsert([{
+        id: newRec.id,
+        title: newRec.title,
+        concept_name: newRec.conceptName || '',
+        duration: newRec.duration || '1h 30m',
+        instructor: newRec.instructor || 'Staff',
+        publish_status: newRec.publishStatus,
+        posted_date: newRec.postedDate,
+        video_url: newRec.videoUrl || newRec.video_url || '',
+        thumbnail: newRec.thumbnail,
+        description: newRec.description || '',
+        instructions: newRec.instructions || '',
+        target_batch: newRec.targetBatch
+      }]);
+      if (error) console.error('Supabase recording insert error:', error.message);
+    } catch (err) { console.warn('Recording insert handled:', err); }
   };
 
   const updateRecording = async (id, updatedFields, targetBatch = activeBatchFilter) => {
@@ -797,6 +1187,18 @@ export function LmsDataProvider({ children }) {
       [bKey]: (prev[bKey] || []).map((r) => (r.id === id ? { ...r, ...updatedFields } : r))
     }));
     logActivity(`Updated lecture recording ID ${id} (${bKey})`, 'library');
+    try {
+      const dbFields = {};
+      if (updatedFields.title !== undefined) dbFields.title = updatedFields.title;
+      if (updatedFields.publishStatus !== undefined) dbFields.publish_status = updatedFields.publishStatus;
+      if (updatedFields.description !== undefined) dbFields.description = updatedFields.description;
+      if (updatedFields.videoUrl !== undefined) dbFields.video_url = updatedFields.videoUrl;
+      if (updatedFields.thumbnail !== undefined) dbFields.thumbnail = updatedFields.thumbnail;
+      if (Object.keys(dbFields).length > 0) {
+        const { error } = await supabase.from('recordings').update(dbFields).eq('id', id);
+        if (error) console.error('Supabase recording update error:', error.message);
+      }
+    } catch (err) { console.warn('Recording update handled:', err); }
   };
 
   const deleteRecording = async (id, targetBatch = activeBatchFilter) => {
@@ -806,6 +1208,10 @@ export function LmsDataProvider({ children }) {
       [bKey]: (prev[bKey] || []).filter((r) => r.id !== id)
     }));
     logActivity(`Removed video recording ID ${id} (${bKey})`, 'library');
+    try {
+      const { error } = await supabase.from('recordings').delete().eq('id', id);
+      if (error) console.error('Supabase recording delete error:', error.message);
+    } catch (err) { console.warn('Recording delete handled:', err); }
   };
 
 
@@ -900,6 +1306,29 @@ export function LmsDataProvider({ children }) {
       [bKey]: [newProject, ...(prev[bKey] || [])]
     }));
     logActivity(`Published new project: "${newProject.title}" (${bKey})`, 'project');
+    try {
+      const { error } = await supabase.from('projects').upsert([{
+        id: newProject.id,
+        title: newProject.title,
+        type: newProject.type || 'Mini',
+        category: newProject.category || 'Full-Stack Web Dev',
+        difficulty: newProject.difficulty || 'Intermediate',
+        description: newProject.description || '',
+        tech_stack: newProject.techStack,
+        due_date: newProject.dueDate || null,
+        status: newProject.status,
+        template_url: newProject.templateUrl || '',
+        guidelines: newProject.guidelines || '',
+        assigned_count: newProject.assignedCount,
+        submitted_count: newProject.submittedCount,
+        feedback_count: newProject.feedbackCount,
+        avg_grade: newProject.avgGrade,
+        is_locked: newProject.isLocked,
+        submissions: newProject.submissions,
+        target_batch: newProject.targetBatch
+      }]);
+      if (error) console.error('Supabase project insert error:', error.message);
+    } catch (err) { console.warn('Project insert handled:', err); }
   };
 
   const updateProject = async (id, updatedFields, targetBatch = activeBatchFilter) => {
@@ -919,6 +1348,19 @@ export function LmsDataProvider({ children }) {
       [bKey]: (prev[bKey] || []).map((p) => (p.id === id ? { ...p, ...fieldsToApply } : p))
     }));
     logActivity(`Updated project listing ID ${id} (${bKey})`, 'project');
+    try {
+      const dbFields = {};
+      if (updatedFields.title !== undefined) dbFields.title = updatedFields.title;
+      if (updatedFields.status !== undefined) dbFields.status = updatedFields.status;
+      if (updatedFields.isLocked !== undefined) dbFields.is_locked = updatedFields.isLocked;
+      if (updatedFields.description !== undefined) dbFields.description = updatedFields.description;
+      if (fieldsToApply.techStack !== undefined) dbFields.tech_stack = fieldsToApply.techStack;
+      if (updatedFields.dueDate !== undefined) dbFields.due_date = updatedFields.dueDate;
+      if (Object.keys(dbFields).length > 0) {
+        const { error } = await supabase.from('projects').update(dbFields).eq('id', id);
+        if (error) console.error('Supabase project update error:', error.message);
+      }
+    } catch (err) { console.warn('Project update handled:', err); }
   };
 
   const deleteProject = async (id, targetBatch = activeBatchFilter) => {
@@ -928,6 +1370,10 @@ export function LmsDataProvider({ children }) {
       [bKey]: (prev[bKey] || []).filter((p) => p.id !== id)
     }));
     logActivity(`Deleted project ID ${id} (${bKey})`, 'project');
+    try {
+      const { error } = await supabase.from('projects').delete().eq('id', id);
+      if (error) console.error('Supabase project delete error:', error.message);
+    } catch (err) { console.warn('Project delete handled:', err); }
   };
 
   const gradeSubmission = async (projectId, submissionId, grade, feedback, targetBatch = activeBatchFilter) => {
@@ -975,6 +1421,23 @@ export function LmsDataProvider({ children }) {
       [bKey]: [newCq, ...(prev[bKey] || [])]
     }));
     logActivity(`Posted new coding question: "${newCq.title}" (${bKey})`, 'coding');
+    try {
+      const { error } = await supabase.from('coding_questions').upsert([{
+        id: newCq.id,
+        title: newCq.title,
+        difficulty: newCq.difficulty || 'Medium',
+        category: newCq.category || 'Algorithms',
+        tags: newCq.tags || [],
+        problem_statement: newCq.problemStatement || '',
+        starter_code: newCq.starterCode || '',
+        solution_code: newCq.solutionCode || '',
+        test_cases: newCq.testCases || [],
+        created_date: newCq.createdDate,
+        posted_by: newCq.postedBy,
+        target_batch: newCq.targetBatch
+      }]);
+      if (error) console.error('Supabase coding question insert error:', error.message);
+    } catch (err) { console.warn('Coding question insert handled:', err); }
   };
 
   const updateCodingQuestion = async (id, updatedFields, targetBatch = activeBatchFilter) => {
@@ -984,6 +1447,16 @@ export function LmsDataProvider({ children }) {
       [bKey]: (prev[bKey] || []).map((cq) => (cq.id === id ? { ...cq, ...updatedFields } : cq))
     }));
     logActivity(`Updated coding question ID ${id} (${bKey})`, 'coding');
+    try {
+      const dbFields = {};
+      if (updatedFields.title !== undefined) dbFields.title = updatedFields.title;
+      if (updatedFields.difficulty !== undefined) dbFields.difficulty = updatedFields.difficulty;
+      if (updatedFields.problemStatement !== undefined) dbFields.problem_statement = updatedFields.problemStatement;
+      if (Object.keys(dbFields).length > 0) {
+        const { error } = await supabase.from('coding_questions').update(dbFields).eq('id', id);
+        if (error) console.error('Supabase coding question update error:', error.message);
+      }
+    } catch (err) { console.warn('Coding question update handled:', err); }
   };
 
   const deleteCodingQuestion = async (id, targetBatch = activeBatchFilter) => {
@@ -993,6 +1466,10 @@ export function LmsDataProvider({ children }) {
       [bKey]: (prev[bKey] || []).filter((cq) => cq.id !== id)
     }));
     logActivity(`Deleted coding question ID ${id} (${bKey})`, 'coding');
+    try {
+      const { error } = await supabase.from('coding_questions').delete().eq('id', id);
+      if (error) console.error('Supabase coding question delete error:', error.message);
+    } catch (err) { console.warn('Coding question delete handled:', err); }
   };
 
 
@@ -1454,6 +1931,8 @@ export function LmsDataProvider({ children }) {
         getProjectsForBatch,
         codingQuestionsByBatch,
         getCodingQuestionsForBatch,
+        availableBatches,
+        addBatch,
         activeBatchFilter,
         setActiveBatchFilter
       }}

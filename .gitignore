@@ -3,3 +3,9 @@ dist
 .env
 *.log
 .DS_Store
+
+# Prevent committing any .env files in subdirectories
+Frontend/.env
+Frontend/.env.local
+backend/.env
+backend/.env.local

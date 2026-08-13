@@ -8,6 +8,7 @@ import { Modal } from '../../components/common/Modal';
 import { ConfirmDialog } from '../../components/common/ConfirmDialog';
 import { Badge } from '../../components/common/Badge';
 import { EmptyState } from '../../components/common/EmptyState';
+import { BatchFilterSelector } from '../../components/common/BatchFilterSelector';
 import {
   BookOpen,
   Plus,
@@ -18,11 +19,150 @@ import {
   Trash2,
   ChevronRight,
   Layers,
-  Image as ImageIcon
+  Image as ImageIcon,
+  Eye,
+  CheckSquare,
+  Square,
+  Calendar
 } from 'lucide-react';
 
+function CourseCardItem({ course, onViewBatches, onEdit, onDelete }) {
+  const getEffectiveBatchBadge = () => {
+    let wdList = [];
+    let weList = [];
+    try {
+      const savedWd = localStorage.getItem(`aspire_lms_card_wd_${course.id}`);
+      if (savedWd) wdList = JSON.parse(savedWd) || [];
+      const savedWe = localStorage.getItem(`aspire_lms_card_we_${course.id}`);
+      if (savedWe) weList = JSON.parse(savedWe) || [];
+    } catch (e) {}
+
+    if (wdList.length > 0 && weList.length === 0) {
+      return { label: 'Weekday Batch', color: 'bg-blue-600 text-white' };
+    }
+    if (weList.length > 0 && wdList.length === 0) {
+      return { label: 'Weekend Batch', color: 'bg-indigo-600 text-white' };
+    }
+    if (wdList.length > 0 && weList.length > 0) {
+      return { label: 'All Batches', color: 'bg-emerald-600 text-white' };
+    }
+
+    if (course.targetBatch?.startsWith('A26S') || course.targetBatch === 'Weekend Batch') {
+      return { label: 'Weekend Batch', color: 'bg-indigo-600 text-white' };
+    }
+    if (course.targetBatch?.startsWith('A26W') || course.targetBatch === 'Weekday Batch') {
+      return { label: 'Weekday Batch', color: 'bg-blue-600 text-white' };
+    }
+    return { label: course.targetBatch || 'All Batches', color: 'bg-emerald-600 text-white' };
+  };
+
+  const batchBadge = getEffectiveBatchBadge();
+
+  return (
+    <div className="group bg-white rounded-3xl border border-slate-200/80 shadow-2xs hover:shadow-xl hover:border-blue-300 transition-all duration-300 hover:-translate-y-1 overflow-hidden flex flex-col justify-between h-full">
+      {/* Top Section */}
+      <div>
+        {/* Fixed Height Thumbnail Header */}
+        <div className="relative h-44 w-full overflow-hidden bg-slate-900">
+          <img
+            src={course.thumbnail}
+            alt={course.title}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-90 group-hover:opacity-100"
+          />
+          {/* Category & Batch Pills Top Left */}
+          <div className="absolute top-3 left-3 flex flex-col gap-1 items-start">
+            <span className="bg-slate-950/80 text-white text-[11px] font-bold px-3 py-1 rounded-lg backdrop-blur-md border border-white/10 shadow-sm">
+              {course.category}
+            </span>
+            <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-md shadow-xs ${batchBadge.color}`}>
+              {batchBadge.label}
+            </span>
+          </div>
+
+          {/* Actions Top Right */}
+          <div className="absolute top-3 right-3 flex items-center gap-1 bg-white/95 backdrop-blur-md p-1 rounded-xl shadow-md border border-slate-200/60 z-10">
+            {/* Eye Symbol Button (View & Select Batches Popup) */}
+            <button
+              type="button"
+              onClick={() => onViewBatches(course)}
+              className="p-1.5 text-slate-500 hover:text-blue-600 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
+              title="View & Select Course Batches"
+            >
+              <Eye className="w-3.5 h-3.5" />
+            </button>
+            <button
+              type="button"
+              onClick={() => onEdit(course)}
+              className="p-1.5 text-slate-500 hover:text-blue-600 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
+              title="Edit Course"
+            >
+              <Edit2 className="w-3.5 h-3.5" />
+            </button>
+            <button
+              type="button"
+              onClick={() => onDelete(course)}
+              className="p-1.5 text-slate-500 hover:text-rose-600 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
+              title="Delete Course"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        </div>
+
+        {/* Content Details */}
+        <div className="p-5 space-y-3">
+
+          {/* Metrics Bar */}
+          <div className="flex items-center justify-between text-xs text-slate-500 pt-1">
+            <span className="flex items-center gap-1.5 font-semibold text-slate-600">
+              <Users className="w-4 h-4 text-blue-600 flex-shrink-0" />
+              <span>{course.enrolledCount} Students Enrolled</span>
+            </span>
+
+            <span className="flex items-center gap-1 font-bold text-amber-600 bg-amber-50 px-2.5 py-0.5 rounded-lg border border-amber-200/60">
+              <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+              <span>{course.rating}</span>
+            </span>
+          </div>
+
+          {/* Fixed Min-Height Title */}
+          <div className="min-h-[2.75rem] flex items-center">
+            <h3 className="font-bold text-slate-900 text-base group-hover:text-blue-600 transition-colors line-clamp-2 leading-snug">
+              {course.title}
+            </h3>
+          </div>
+
+          {/* Description */}
+          <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed min-h-[2.25rem]">
+            {course.description}
+          </p>
+
+          {/* Topic Modules Count Pill */}
+          <div className="pt-2 flex items-center gap-2 text-xs font-bold text-slate-800">
+            <div className="p-1.5 rounded-lg bg-blue-50 text-blue-600">
+              <Layers className="w-4 h-4" />
+            </div>
+            <span>{course.topics?.length || 0} Topic Modules</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Bottom Footer Section */}
+      <div className="px-5 py-3.5 bg-slate-50/80 border-t border-slate-100 flex items-center justify-between text-xs">
+        <span className="text-slate-500 font-medium truncate max-w-[50%]">By {course.instructor}</span>
+        <Link
+          to={`/courses/${course.id}`}
+          className="inline-flex items-center gap-1 font-bold text-blue-600 hover:text-blue-800 transition-all group-hover:translate-x-1"
+        >
+          Explore Topics <ChevronRight className="w-4 h-4" />
+        </Link>
+      </div>
+    </div>
+  );
+}
+
 export function CourseListPage() {
-  const { courses, addCourse, updateCourse, deleteCourse, activeBatchFilter, setActiveBatchFilter } = useLmsData();
+  const { courses, addCourse, updateCourse, deleteCourse, activeBatchFilter, setActiveBatchFilter, availableBatches } = useLmsData();
   const { addToast } = useToast();
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -42,6 +182,21 @@ export function CourseListPage() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [editingCourse, setEditingCourse] = useState(null);
   const [deletingCourse, setDeletingCourse] = useState(null);
+  const [viewingBatchesCourse, setViewingBatchesCourse] = useState(null);
+  const [eyeActiveTab, setEyeActiveTab] = useState('Weekdays');
+  const [selectedWeekdayBatches, setSelectedWeekdayBatches] = useState(['A26W1', 'A26W2', 'A26W3']);
+  const [selectedWeekendBatches, setSelectedWeekendBatches] = useState(['A26S1', 'A26S2']);
+
+  const handleOpenEyeModal = (course) => {
+    setViewingBatchesCourse(course);
+    setEyeActiveTab('Weekdays');
+    try {
+      const savedWd = localStorage.getItem(`aspire_lms_card_wd_${course.id}`);
+      setSelectedWeekdayBatches(savedWd ? JSON.parse(savedWd) : ['A26W1', 'A26W2', 'A26W3']);
+      const savedWe = localStorage.getItem(`aspire_lms_card_we_${course.id}`);
+      setSelectedWeekendBatches(savedWe ? JSON.parse(savedWe) : ['A26S1', 'A26S2']);
+    } catch (e) {}
+  };
 
   // Form State
   const [formData, setFormData] = useState({
@@ -98,14 +253,14 @@ export function CourseListPage() {
         topics: (formData.topics && formData.topics.length > 0) ? formData.topics : [
           {
             id: `top-${Date.now()}-1`,
-            title: 'Module 1: Core Fundamentals & Setup',
+            title: 'Stage 1: Front End + Repository (Git & Web Architecture)',
             liveClasses: 2,
             practice: 4,
             assessments: 1
           },
           {
             id: `top-${Date.now()}-2`,
-            title: 'Module 2: Advanced System Architecture',
+            title: 'Stage 2: Backend + DSA (Python, SQL & Algorithms)',
             liveClasses: 3,
             practice: 5,
             assessments: 2
@@ -131,7 +286,42 @@ export function CourseListPage() {
       c.instructor.toLowerCase().includes(searchTerm.toLowerCase()) ||
       c.description.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = categoryFilter === 'ALL' || c.category === categoryFilter;
-    const matchesBatch = batchFilter === 'ALL' || !c.targetBatch || c.targetBatch === 'All Batches' || c.targetBatch === batchFilter || c.targetBatch === activeBatchFilter;
+    const matchesBatch = (() => {
+      if (batchFilter === 'ALL') return true;
+      if (!c.targetBatch || c.targetBatch === 'All Batches' || c.targetBatch === 'ALL') return true;
+      if (c.targetBatch === batchFilter || c.targetBatch === activeBatchFilter) return true;
+
+      const isWeekendFilter = batchFilter === 'Weekend Batch' || batchFilter.startsWith('A26S');
+      const isWeekdayFilter = batchFilter === 'Weekday Batch' || (batchFilter.startsWith('A26W') && !batchFilter.startsWith('A26S'));
+
+      const courseIsWeekend = c.targetBatch === 'Weekend Batch' || c.targetBatch?.startsWith('A26S');
+      const courseIsWeekday = c.targetBatch === 'Weekday Batch' || (c.targetBatch?.startsWith('A26W') && !c.targetBatch?.startsWith('A26S'));
+
+      let hasSelectedWeekendBatches = false;
+      let hasSelectedWeekdayBatches = false;
+      try {
+        const savedWe = localStorage.getItem(`aspire_lms_card_we_${c.id}`);
+        if (savedWe) {
+          const parsed = JSON.parse(savedWe);
+          if (Array.isArray(parsed) && parsed.length > 0) hasSelectedWeekendBatches = true;
+        }
+        const savedWd = localStorage.getItem(`aspire_lms_card_wd_${c.id}`);
+        if (savedWd) {
+          const parsed = JSON.parse(savedWd);
+          if (Array.isArray(parsed) && parsed.length > 0) hasSelectedWeekdayBatches = true;
+        }
+      } catch (e) {}
+
+      if (isWeekendFilter) {
+        return courseIsWeekend || hasSelectedWeekendBatches || (!courseIsWeekday && !hasSelectedWeekdayBatches);
+      }
+
+      if (isWeekdayFilter) {
+        return courseIsWeekday || hasSelectedWeekdayBatches || (!courseIsWeekend && !hasSelectedWeekendBatches);
+      }
+
+      return true;
+    })();
     return matchesSearch && matchesCategory && matchesBatch;
   });
 
@@ -147,31 +337,7 @@ export function CourseListPage() {
             Manage curriculum tracks, author topics, and organize live classes, practice sets, and assessments.
           </p>
         </div>
-        <div className="flex items-center gap-3">
-          {/* Batch Selector Pills */}
-          <div className="flex items-center gap-1 p-1 bg-slate-100/80 rounded-xl border border-slate-200/80">
-            <button
-              onClick={() => setBatchFilter('Weekday Batch')}
-              className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                (batchFilter === 'Weekday Batch' || (!batchFilter && activeBatchFilter === 'Weekday Batch'))
-                  ? 'bg-blue-600 text-white shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
-              }`}
-            >
-              Weekday (A26W)
-            </button>
-            <button
-              onClick={() => setBatchFilter('Weekend Batch')}
-              className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                batchFilter === 'Weekend Batch'
-                  ? 'bg-purple-600 text-white shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
-              }`}
-            >
-              Weekend (A26S)
-            </button>
-          </div>
-
+        <div className="flex flex-wrap items-center gap-3">
           <Button variant="primary" size="md" icon={Plus} onClick={handleOpenAddModal}>
             Create New Course
           </Button>
@@ -221,102 +387,13 @@ export function CourseListPage() {
       {filteredCourses.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredCourses.map((course) => (
-            <div
+            <CourseCardItem
               key={course.id}
-              className="group bg-white rounded-3xl border border-slate-200/80 shadow-2xs hover:shadow-xl hover:border-blue-300 transition-all duration-300 hover:-translate-y-1 overflow-hidden flex flex-col justify-between h-full"
-            >
-              {/* Top Section */}
-              <div>
-                {/* Fixed Height Thumbnail Header */}
-                <div className="relative h-44 w-full overflow-hidden bg-slate-900">
-                  <img
-                    src={course.thumbnail}
-                    alt={course.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-90 group-hover:opacity-100"
-                  />
-                  {/* Category & Batch Pills Top Left */}
-                  <div className="absolute top-3 left-3 flex flex-col gap-1 items-start">
-                    <span className="bg-slate-950/80 text-white text-[11px] font-bold px-3 py-1 rounded-lg backdrop-blur-md border border-white/10 shadow-sm">
-                      {course.category}
-                    </span>
-                    <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-md shadow-xs ${
-                      course.targetBatch === 'Weekday Batch'
-                        ? 'bg-blue-600 text-white'
-                        : course.targetBatch === 'Weekend Batch'
-                        ? 'bg-purple-600 text-white'
-                        : 'bg-emerald-600 text-white'
-                    }`}>
-                      {course.targetBatch || 'All Batches'}
-                    </span>
-                  </div>
-
-                  {/* Actions Top Right */}
-                  <div className="absolute top-3 right-3 flex items-center gap-1 bg-white/95 backdrop-blur-md p-1 rounded-xl shadow-md border border-slate-200/60 z-10">
-                    <button
-                      onClick={() => handleOpenEditModal(course)}
-                      className="p-1.5 text-slate-500 hover:text-blue-600 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
-                      title="Edit Course"
-                    >
-                      <Edit2 className="w-3.5 h-3.5" />
-                    </button>
-                    <button
-                      onClick={() => setDeletingCourse(course)}
-                      className="p-1.5 text-slate-500 hover:text-rose-600 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
-                      title="Delete Course"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                </div>
-
-                {/* Content Details with Structured Spacing */}
-                <div className="p-5 space-y-3">
-                  {/* Metrics Bar */}
-                  <div className="flex items-center justify-between text-xs text-slate-500">
-                    <span className="flex items-center gap-1.5 font-semibold text-slate-600">
-                      <Users className="w-4 h-4 text-blue-600 flex-shrink-0" />
-                      <span>{course.enrolledCount} Students Enrolled</span>
-                    </span>
-
-                    <span className="flex items-center gap-1 font-bold text-amber-600 bg-amber-50 px-2.5 py-0.5 rounded-lg border border-amber-200/60">
-                      <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                      <span>{course.rating}</span>
-                    </span>
-                  </div>
-
-                  {/* Fixed Min-Height Title for Proper Grid Alignment */}
-                  <div className="min-h-[2.75rem] flex items-center">
-                    <h3 className="font-bold text-slate-900 text-base group-hover:text-blue-600 transition-colors line-clamp-2 leading-snug">
-                      {course.title}
-                    </h3>
-                  </div>
-
-                  {/* Fixed Min-Height Description */}
-                  <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed min-h-[2.25rem]">
-                    {course.description}
-                  </p>
-
-                  {/* Topic Modules Count Pill */}
-                  <div className="pt-2 flex items-center gap-2 text-xs font-bold text-slate-800">
-                    <div className="p-1.5 rounded-lg bg-blue-50 text-blue-600">
-                      <Layers className="w-4 h-4" />
-                    </div>
-                    <span>{course.topics?.length || 0} Topic Modules</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Bottom Footer Section Always Aligned at Bottom */}
-              <div className="px-5 py-3.5 bg-slate-50/80 border-t border-slate-100 flex items-center justify-between text-xs">
-                <span className="text-slate-500 font-medium truncate max-w-[50%]">By {course.instructor}</span>
-                <Link
-                  to={`/courses/${course.id}`}
-                  className="inline-flex items-center gap-1 font-bold text-blue-600 hover:text-blue-800 transition-all group-hover:translate-x-1"
-                >
-                  Explore Topics <ChevronRight className="w-4 h-4" />
-                </Link>
-              </div>
-            </div>
+              course={course}
+              onViewBatches={handleOpenEyeModal}
+              onEdit={handleOpenEditModal}
+              onDelete={(c) => setDeletingCourse(c)}
+            />
           ))}
         </div>
       ) : (
@@ -327,6 +404,163 @@ export function CourseListPage() {
           onAction={handleOpenAddModal}
         />
       )}
+
+      {/* --- PAGE-LEVEL EYE SYMBOL BATCH SELECTION MODAL POPUP --- */}
+      <Modal
+        isOpen={!!viewingBatchesCourse}
+        onClose={() => setViewingBatchesCourse(null)}
+        title={viewingBatchesCourse?.title || ''}
+        subtitle="View and multi-select active Weekday and Weekend batch numbers for this course"
+      >
+        <div className="space-y-5">
+          {/* In-Popup Tabs */}
+          <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setEyeActiveTab('Weekdays')}
+                className={`px-3.5 py-1.5 rounded-xl text-xs font-black transition-all flex items-center gap-2 cursor-pointer ${
+                  eyeActiveTab === 'Weekdays'
+                    ? 'bg-blue-600 text-white shadow-xs'
+                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                }`}
+              >
+                <Calendar className="w-3.5 h-3.5" />
+                <span>Weekday Batches</span>
+                <span className={`px-1.5 py-0.2 rounded-md text-[10px] ${
+                  eyeActiveTab === 'Weekdays' ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700'
+                }`}>
+                  {selectedWeekdayBatches.length}
+                </span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setEyeActiveTab('Weekends')}
+                className={`px-3.5 py-1.5 rounded-xl text-xs font-black transition-all flex items-center gap-2 cursor-pointer ${
+                  eyeActiveTab === 'Weekends'
+                    ? 'bg-indigo-600 text-white shadow-xs'
+                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                }`}
+              >
+                <Calendar className="w-3.5 h-3.5" />
+                <span>Weekend Batches</span>
+                <span className={`px-1.5 py-0.2 rounded-md text-[10px] ${
+                  eyeActiveTab === 'Weekends' ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700'
+                }`}>
+                  {selectedWeekendBatches.length}
+                </span>
+              </button>
+            </div>
+          </div>
+
+          {/* Weekdays Tab Batch Checkboxes */}
+          {eyeActiveTab === 'Weekdays' ? (
+            <div className="space-y-3">
+              <p className="text-xs text-slate-500 font-medium">
+                Check or uncheck Weekday batch numbers for this course:
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                {((availableBatches && availableBatches.length > 0 ? availableBatches : ['A26W1', 'A26W2', 'A26W3', 'A26W4']).filter(b => b.startsWith('A26W') && !b.startsWith('A26S') && !b.startsWith('A26WE'))).map((bCode) => {
+                  const isSelected = selectedWeekdayBatches.includes(bCode);
+                  const num = bCode.replace(/[^0-9]/g, '');
+
+                  return (
+                    <div
+                      key={bCode}
+                      onClick={() => {
+                        setSelectedWeekdayBatches((prev) => {
+                          const next = prev.includes(bCode) ? prev.filter((b) => b !== bCode) : [...prev, bCode];
+                          if (viewingBatchesCourse) {
+                            try { localStorage.setItem(`aspire_lms_card_wd_${viewingBatchesCourse.id}`, JSON.stringify(next)); } catch (e) {}
+                          }
+                          return next;
+                        });
+                      }}
+                      className={`flex items-center gap-3 p-3 rounded-xl border transition-all cursor-pointer select-none ${
+                        isSelected
+                          ? 'bg-blue-50 border-blue-300 ring-2 ring-blue-500/20 text-blue-900 font-bold'
+                          : 'bg-slate-50/60 border-slate-200 hover:bg-white text-slate-700 font-medium'
+                      }`}
+                    >
+                      {isSelected ? (
+                        <CheckSquare className="w-4 h-4 text-blue-600 flex-shrink-0" />
+                      ) : (
+                        <Square className="w-4 h-4 text-slate-400 flex-shrink-0" />
+                      )}
+                      <span className="text-xs font-extrabold">{bCode}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          ) : (
+            /* Weekends Tab Batch Checkboxes */
+            <div className="space-y-3">
+              <p className="text-xs text-slate-500 font-medium">
+                Check or uncheck Weekend batch numbers for this course:
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                {((availableBatches && availableBatches.length > 0 ? availableBatches.map(b => b.replace(/^A26WE/, 'A26S')) : ['A26S1', 'A26S2', 'A26S3']).filter((b, i, arr) => (b.startsWith('A26S') || b.startsWith('A26WE')) && arr.indexOf(b) === i)).map((bCode) => {
+                  const isSelected = selectedWeekendBatches.includes(bCode);
+
+                  return (
+                    <div
+                      key={bCode}
+                      onClick={() => {
+                        setSelectedWeekendBatches((prev) => {
+                          const next = prev.includes(bCode) ? prev.filter((b) => b !== bCode) : [...prev, bCode];
+                          if (viewingBatchesCourse) {
+                            try { localStorage.setItem(`aspire_lms_card_we_${viewingBatchesCourse.id}`, JSON.stringify(next)); } catch (e) {}
+                          }
+                          return next;
+                        });
+                      }}
+                      className={`flex items-center gap-3 p-3 rounded-xl border transition-all cursor-pointer select-none ${
+                        isSelected
+                          ? 'bg-indigo-50 border-indigo-300 ring-2 ring-indigo-500/20 text-indigo-900 font-bold'
+                          : 'bg-slate-50/60 border-slate-200 hover:bg-white text-slate-700 font-medium'
+                      }`}
+                    >
+                      {isSelected ? (
+                        <CheckSquare className="w-4 h-4 text-indigo-600 flex-shrink-0" />
+                      ) : (
+                        <Square className="w-4 h-4 text-slate-400 flex-shrink-0" />
+                      )}
+                      <span className="text-xs font-extrabold">{bCode}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Modal Footer */}
+          <div className="flex justify-end pt-3 border-t border-slate-100">
+            <Button
+              variant="primary"
+              size="md"
+              onClick={() => {
+                if (viewingBatchesCourse) {
+                  let newTargetBatch = 'All Batches';
+                  if (selectedWeekdayBatches.length > 0 && selectedWeekendBatches.length === 0) {
+                    newTargetBatch = 'Weekday Batch';
+                  } else if (selectedWeekendBatches.length > 0 && selectedWeekdayBatches.length === 0) {
+                    newTargetBatch = 'Weekend Batch';
+                  } else if (selectedWeekdayBatches.length > 0 && selectedWeekendBatches.length > 0) {
+                    newTargetBatch = 'All Batches';
+                  }
+                  updateCourse(viewingBatchesCourse.id, { targetBatch: newTargetBatch });
+                  addToast(`Updated batch allocation for "${viewingBatchesCourse.title}"`, 'success');
+                }
+                setViewingBatchesCourse(null);
+              }}
+            >
+              Save Batch Preferences
+            </Button>
+          </div>
+        </div>
+      </Modal>
 
       {/* Add / Edit Course Modal */}
       <Modal
@@ -372,13 +606,17 @@ export function CourseListPage() {
             />
 
             <Select
-              label="Target Batch Access"
+              label="Target Batch Code"
               value={formData.targetBatch}
               onChange={(e) => setFormData({ ...formData, targetBatch: e.target.value })}
               options={[
-                { value: 'All Batches', label: 'All Batches' },
-                { value: 'Weekday Batch', label: 'Weekday Batch' },
-                { value: 'Weekend Batch', label: 'Weekend Batch' }
+                { value: 'All Batches', label: 'All Batches (Global)' },
+                ...(availableBatches || ['A26W1', 'A26W2', 'A26S1']).map((b) => ({
+                  value: b,
+                  label: b.startsWith('A26W') && !b.startsWith('A26S')
+                    ? `${b} (Weekday)`
+                    : `${b} (Weekend)`
+                }))
               ]}
             />
           </div>
