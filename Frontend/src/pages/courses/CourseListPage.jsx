@@ -41,25 +41,25 @@ function CourseCardItem({ course, onViewBatches, onEdit, onDelete }) {
     const hasWe = Array.isArray(weList) && weList.length > 0;
 
     if (hasWd && hasWe) {
-      return { label: 'All Batches', color: 'bg-emerald-600 text-white' };
+      return { label: 'All', color: 'bg-emerald-600 text-white' };
     }
     if (hasWd && !hasWe) {
-      return { label: 'Weekday Batch', color: 'bg-blue-600 text-white' };
+      return { label: 'Weekday', color: 'bg-blue-600 text-white' };
     }
     if (hasWe && !hasWd) {
-      return { label: 'Weekend Batch', color: 'bg-indigo-600 text-white' };
+      return { label: 'Weekend', color: 'bg-indigo-600 text-white' };
     }
 
-    if (!course.targetBatch || course.targetBatch === 'All Batches' || course.targetBatch === 'ALL' || course.targetBatch === 'Weekday & Weekend') {
-      return { label: 'All Batches', color: 'bg-emerald-600 text-white' };
+    if (!course.targetBatch || course.targetBatch === 'All Batches' || course.targetBatch === 'ALL' || course.targetBatch === 'Weekday & Weekend' || course.targetBatch === 'All') {
+      return { label: 'All', color: 'bg-emerald-600 text-white' };
     }
-    if (course.targetBatch?.startsWith('A26S') || course.targetBatch === 'Weekend Batch') {
-      return { label: 'Weekend Batch', color: 'bg-indigo-600 text-white' };
+    if (course.targetBatch?.startsWith('A26S') || course.targetBatch === 'Weekend Batch' || course.targetBatch === 'Weekend') {
+      return { label: 'Weekend', color: 'bg-indigo-600 text-white' };
     }
-    if (course.targetBatch?.startsWith('A26W') || course.targetBatch === 'Weekday Batch') {
-      return { label: 'Weekday Batch', color: 'bg-blue-600 text-white' };
+    if (course.targetBatch?.startsWith('A26W') || course.targetBatch === 'Weekday Batch' || course.targetBatch === 'Weekday') {
+      return { label: 'Weekday', color: 'bg-blue-600 text-white' };
     }
-    return { label: course.targetBatch, color: 'bg-emerald-600 text-white' };
+    return { label: course.targetBatch === 'All Batches' ? 'All' : course.targetBatch === 'Weekday Batch' ? 'Weekday' : course.targetBatch === 'Weekend Batch' ? 'Weekend' : course.targetBatch, color: 'bg-emerald-600 text-white' };
   };
 
   const batchBadge = getEffectiveBatchBadge();
