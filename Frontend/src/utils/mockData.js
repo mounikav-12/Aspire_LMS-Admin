@@ -6,27 +6,45 @@ export const ROLES = {
 };
 
 export const PERMISSION_LIST = [
-  { id: 'manage_users', name: 'User & Staff Management', category: 'Administration' },
+  // Executive & Admin Access
+  { id: 'view_dashboard', name: 'Executive Analytics Dashboard', category: 'Administration' },
+  { id: 'manage_users', name: 'User & Staff Directory Management', category: 'Administration' },
   { id: 'manage_roles', name: 'Role & Permissions Matrix', category: 'Administration' },
-  { id: 'create_course', name: 'Create & Publish Courses', category: 'Course Management' },
-  { id: 'delete_course', name: 'Delete Courses', category: 'Course Management' },
-  { id: 'create_assessment', name: 'Create & Publish Assessments', category: 'Assessments' },
-  { id: 'delete_assessment', name: 'Delete Assessments', category: 'Assessments' },
-  { id: 'manage_projects', name: 'Manage Real-World Projects', category: 'Projects Portal' },
-  { id: 'manage_live_sessions', name: 'Manage Live Class Links', category: 'Live Sessions' },
-  { id: 'manage_jobs', name: 'Post & Sync Job Openings', category: 'Job Portal' },
-  { id: 'manage_recordings', name: 'Upload Video Recordings', category: 'Library' },
-  { id: 'manage_placement', name: 'Manage Placement Content', category: 'Placement Prep' },
-  { id: 'inspect_api_feed', name: 'Student LMS API Feed Sync', category: 'System Integration' }
+
+  // Batch & Student Operations
+  { id: 'manage_batches', name: 'Batch Management & Schedule Tracking', category: 'Batch & Student Ops' },
+  { id: 'manage_milestones', name: 'Curriculum Milestones & Roadmap', category: 'Batch & Student Ops' },
+  { id: 'manage_students', name: 'Student Directory & Progress Tracking', category: 'Batch & Student Ops' },
+
+  // Courseware & Academic Content
+  { id: 'create_course', name: 'Course Management & Topics', category: 'Courseware & Learning' },
+  { id: 'delete_course', name: 'Delete Courses', category: 'Courseware & Learning' },
+  { id: 'create_assessment', name: 'Assessments & Quizzes', category: 'Courseware & Learning' },
+  { id: 'delete_assessment', name: 'Delete Assessments', category: 'Courseware & Learning' },
+  { id: 'manage_coding', name: 'Coding Question Bank & Test Cases', category: 'Courseware & Learning' },
+  { id: 'manage_projects', name: 'Real-World Projects Portal', category: 'Courseware & Learning' },
+
+  // Live Classes & Career Enablement
+  { id: 'manage_live_sessions', name: 'Live Sessions & Schedule Links', category: 'Live & Placement' },
+  { id: 'manage_jobs', name: 'Job Portal & Hiring Pipeline', category: 'Live & Placement' },
+  { id: 'manage_recordings', name: 'Recording Video Library', category: 'Live & Placement' },
+  { id: 'manage_placement', name: 'Placement Prep & Career Content', category: 'Live & Placement' },
+  { id: 'inspect_api_feed', name: 'Student LMS Feed Sync API', category: 'Live & Placement' }
 ];
 
 export const INITIAL_ROLE_PERMISSIONS = {
   [ROLES.SUPER_ADMIN]: PERMISSION_LIST.map(p => p.id),
   [ROLES.ADMIN]: [
+    'view_dashboard',
+    'manage_batches',
+    'manage_milestones',
+    'manage_students',
+    'manage_users',
     'create_course',
     'delete_course',
     'create_assessment',
     'delete_assessment',
+    'manage_coding',
     'manage_projects',
     'manage_live_sessions',
     'manage_jobs',
@@ -35,7 +53,12 @@ export const INITIAL_ROLE_PERMISSIONS = {
     'inspect_api_feed'
   ],
   [ROLES.MANAGER]: [
+    'view_dashboard',
+    'manage_batches',
+    'manage_milestones',
+    'manage_students',
     'create_course',
+    'manage_coding',
     'manage_projects',
     'manage_live_sessions',
     'manage_jobs',
@@ -43,8 +66,13 @@ export const INITIAL_ROLE_PERMISSIONS = {
     'inspect_api_feed'
   ],
   [ROLES.INSTRUCTOR]: [
+    'view_dashboard',
+    'manage_batches',
+    'manage_milestones',
+    'manage_students',
     'create_course',
     'create_assessment',
+    'manage_coding',
     'manage_projects',
     'manage_live_sessions',
     'manage_recordings',

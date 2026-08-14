@@ -117,6 +117,90 @@ export function CourseDetailPage() {
     assessments: 1
   });
 
+  // --- SUBTOPICS / MODULES STATE & HANDLERS ---
+  const [customSubtopics, setCustomSubtopics] = useState(() => {
+    try {
+      const saved = localStorage.getItem(`aspire_lms_course_subtopics_${courseId}`);
+      if (saved) return JSON.parse(saved);
+    } catch (e) {}
+    return {};
+  });
+
+  const [isAddModuleModalOpen, setIsAddModuleModalOpen] = useState(false);
+  const [activeStageTopicId, setActiveStageTopicId] = useState(null);
+  const [editingModuleIndex, setEditingModuleIndex] = useState(null);
+  const [moduleFormData, setModuleFormData] = useState({ title: '', duration: '' });
+
+  const handleOpenAddModuleModal = (topicId) => {
+    setActiveStageTopicId(topicId);
+    setEditingModuleIndex(null);
+    setModuleFormData({ title: '', duration: '' });
+    setIsAddModuleModalOpen(true);
+  };
+
+  const handleOpenEditModuleModal = (topicId, idx, moduleItem) => {
+    setActiveStageTopicId(topicId);
+    setEditingModuleIndex(idx);
+    setModuleFormData({
+      title: moduleItem.title || '',
+      duration: moduleItem.duration || ''
+    });
+    setIsAddModuleModalOpen(true);
+  };
+
+  const handleSaveModule = (e) => {
+    e.preventDefault();
+    if (!moduleFormData.title.trim()) {
+      addToast('Please enter module title', 'error');
+      return;
+    }
+
+    const stageKey = activeStageTopicId;
+    const matchingStageIndex = topicsToRender.findIndex((t) => t.id === stageKey);
+    const matchingStage = milestones?.stages?.[matchingStageIndex] || INITIAL_MILESTONES?.stages?.[matchingStageIndex];
+    const currentList = customSubtopics[stageKey] || matchingStage?.subtopics || [];
+
+    let updatedList;
+    if (editingModuleIndex !== null) {
+      updatedList = currentList.map((m, idx) =>
+        idx === editingModuleIndex ? { ...m, ...moduleFormData } : m
+      );
+      addToast(`Updated module "${moduleFormData.title}"`, 'success');
+    } else {
+      const newMod = {
+        id: `subtop-${Date.now()}`,
+        title: moduleFormData.title,
+        duration: moduleFormData.duration || 'Web Architecture, Hands-on Coding & Projects'
+      };
+      updatedList = [...currentList, newMod];
+      addToast(`Added module "${moduleFormData.title}" to Stage`, 'success');
+    }
+
+    const nextSubtopics = { ...customSubtopics, [stageKey]: updatedList };
+    setCustomSubtopics(nextSubtopics);
+    try {
+      localStorage.setItem(`aspire_lms_course_subtopics_${courseId}`, JSON.stringify(nextSubtopics));
+    } catch (err) {}
+
+    setIsAddModuleModalOpen(false);
+    setEditingModuleIndex(null);
+  };
+
+  const handleDeleteModule = (topicId, idx, moduleTitle) => {
+    const matchingStageIndex = topicsToRender.findIndex((t) => t.id === topicId);
+    const matchingStage = milestones?.stages?.[matchingStageIndex] || INITIAL_MILESTONES?.stages?.[matchingStageIndex];
+    const currentList = customSubtopics[topicId] || matchingStage?.subtopics || [];
+    const updatedList = currentList.filter((_, i) => i !== idx);
+
+    const nextSubtopics = { ...customSubtopics, [topicId]: updatedList };
+    setCustomSubtopics(nextSubtopics);
+    try {
+      localStorage.setItem(`aspire_lms_course_subtopics_${courseId}`, JSON.stringify(nextSubtopics));
+    } catch (err) {}
+
+    addToast(`Removed module "${moduleTitle}"`, 'info');
+  };
+
   const toggleExpandTopic = (topicId) => {
     setExpandedTopicIds((prev) =>
       prev.includes(topicId) ? prev.filter((id) => id !== topicId) : [...prev, topicId]
@@ -379,7 +463,7 @@ export function CourseDetailPage() {
             </p>
           </div>
           <Button variant="primary" size="md" icon={Plus} onClick={handleOpenAddModal}>
-            Add Stage Module
+            Add Stage
           </Button>
         </div>
 
@@ -456,60 +540,103 @@ export function CourseDetailPage() {
                   </div>
 
                   {/* Expanded Stage Modules Drawer */}
-                  {isExpanded && (
-                    <div className="mt-5 pt-4 border-t border-slate-100 bg-slate-50/60 p-5 rounded-2xl space-y-4 animate-in fade-in slide-in-from-top-2 duration-200">
-                      <div className="flex items-center justify-between">
-                        <h4 className="text-xs font-black uppercase tracking-wider text-slate-600 flex items-center gap-2">
-                          <Layers className="w-4 h-4 text-blue-600" /> {matchingStage?.title || `Stage ${index + 1}`} Modules & Subtopics
-                        </h4>
-                        <span className="text-[11px] font-bold text-slate-400">
-                          {matchingStage?.subtopics?.length || 0} Subtopics Configured
-                        </span>
-                      </div>
+                  {isExpanded && (() => {
+                    const subtopicsList = customSubtopics[topic.id] || matchingStage?.subtopics || [];
 
-                      {matchingStage?.subtopics && matchingStage.subtopics.length > 0 ? (
-                        <div className="space-y-4">
-                          {matchingStage.subtopics.map((subtopic, sIdx) => (
-                            <div key={subtopic.id || sIdx} className="bg-white p-4.5 rounded-2xl border border-slate-200/80 shadow-2xs space-y-3">
-                              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                                <div>
-                                  <h5 className="font-bold text-slate-900 text-sm flex items-center gap-2">
-                                    <span className="w-5 h-5 rounded-md bg-blue-100 text-blue-700 text-[10px] font-black flex items-center justify-center">
-                                      {sIdx + 1}
-                                    </span>
-                                    {subtopic.title}
-                                  </h5>
-                                  {subtopic.duration && (
-                                    <p className="text-xs text-slate-500 mt-1 font-medium pl-7 leading-relaxed">
-                                      {subtopic.duration}
-                                    </p>
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      ) : (
-                        <div className="bg-white p-4 rounded-xl border border-slate-200/80 space-y-2">
-                          <p className="text-xs font-bold text-slate-700">Stage Summary:</p>
-                          <div className="grid grid-cols-3 gap-2 text-center text-xs">
-                            <div className="p-2.5 bg-emerald-50 rounded-xl border border-emerald-100">
-                              <span className="block font-black text-emerald-700 text-sm">{topic.liveClasses}</span>
-                              <span className="text-[10px] text-emerald-600 font-bold">Live Classes</span>
-                            </div>
-                            <div className="p-2.5 bg-sky-50 rounded-xl border border-sky-100">
-                              <span className="block font-black text-sky-700 text-sm">{topic.practice}</span>
-                              <span className="text-[10px] text-sky-600 font-bold">Practice Tasks</span>
-                            </div>
-                            <div className="p-2.5 bg-purple-50 rounded-xl border border-purple-100">
-                              <span className="block font-black text-purple-700 text-sm">{topic.assessments}</span>
-                              <span className="text-[10px] text-purple-600 font-bold">Assessments</span>
-                            </div>
+                    return (
+                      <div className="mt-5 pt-4 border-t border-slate-100 bg-slate-50/60 p-5 rounded-2xl space-y-4 animate-in fade-in slide-in-from-top-2 duration-200">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                          <h4 className="text-xs font-black uppercase tracking-wider text-slate-600 flex items-center gap-2">
+                            <Layers className="w-4 h-4 text-blue-600" /> {matchingStage?.title || `Stage ${index + 1}`} Modules & Subtopics
+                          </h4>
+                          <div className="flex items-center gap-3">
+                            <span className="text-[11px] font-bold text-slate-500 bg-slate-200/60 px-2.5 py-1 rounded-lg">
+                              {subtopicsList.length} Subtopics Configured
+                            </span>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              icon={Plus}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleOpenAddModuleModal(topic.id);
+                              }}
+                              className="text-xs font-bold border-blue-200 text-blue-700 bg-white hover:bg-blue-50 cursor-pointer shadow-xs"
+                            >
+                              Add Module
+                            </Button>
                           </div>
                         </div>
-                      )}
-                    </div>
-                  )}
+
+                        {subtopicsList.length > 0 ? (
+                          <div className="space-y-3">
+                            {subtopicsList.map((subtopic, sIdx) => (
+                              <div
+                                key={subtopic.id || sIdx}
+                                className="bg-white p-4.5 rounded-2xl border border-slate-200/80 shadow-2xs hover:border-blue-300 transition-all group/mod"
+                              >
+                                <div className="flex items-start justify-between gap-3">
+                                  <div className="flex-1">
+                                    <h5 className="font-bold text-slate-900 text-sm flex items-center gap-2">
+                                      <span className="w-5.5 h-5.5 rounded-lg bg-blue-100 text-blue-700 text-[11px] font-black flex items-center justify-center flex-shrink-0">
+                                        {sIdx + 1}
+                                      </span>
+                                      <span>{subtopic.title}</span>
+                                    </h5>
+                                    {subtopic.duration && (
+                                      <p className="text-xs text-slate-500 mt-1 font-medium pl-7 leading-relaxed">
+                                        {subtopic.duration}
+                                      </p>
+                                    )}
+                                  </div>
+
+                                  <div className="flex items-center gap-1">
+                                    <button
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleOpenEditModuleModal(topic.id, sIdx, subtopic);
+                                      }}
+                                      className="p-1.5 text-slate-400 hover:text-blue-600 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
+                                      title="Edit Module"
+                                    >
+                                      <Edit2 className="w-3.5 h-3.5" />
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleDeleteModule(topic.id, sIdx, subtopic.title);
+                                      }}
+                                      className="p-1.5 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
+                                      title="Delete Module"
+                                    >
+                                      <Trash2 className="w-3.5 h-3.5" />
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="bg-white p-6 rounded-2xl border border-slate-200/80 text-center space-y-3">
+                            <p className="text-xs font-semibold text-slate-500">No curriculum modules created inside this stage yet.</p>
+                            <Button
+                              variant="primary"
+                              size="sm"
+                              icon={Plus}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleOpenAddModuleModal(topic.id);
+                              }}
+                            >
+                              Add First Module
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })()}
                 </div>
               );
             })}
@@ -581,6 +708,56 @@ export function CourseDetailPage() {
             </Button>
             <Button type="submit" variant="primary">
               {editingTopic ? 'Save Stage' : 'Add Stage Module'}
+            </Button>
+          </div>
+        </form>
+      </Modal>
+
+      {/* Add / Edit Module Inside Stage Modal */}
+      <Modal
+        isOpen={isAddModuleModalOpen}
+        onClose={() => {
+          setIsAddModuleModalOpen(false);
+          setEditingModuleIndex(null);
+        }}
+        title={editingModuleIndex !== null ? 'Edit Stage Curriculum Module' : 'Add New Curriculum Module to Stage'}
+        subtitle="Define module title and curriculum topics / description for students"
+      >
+        <form onSubmit={handleSaveModule} className="space-y-4">
+          <Input
+            label="Module Title"
+            placeholder="e.g. Django ORM & Database Migration Architecture"
+            value={moduleFormData.title}
+            onChange={(e) => setModuleFormData({ ...moduleFormData, title: e.target.value })}
+            required
+          />
+
+          <div className="flex flex-col gap-1.5">
+            <label className="text-[11px] font-extrabold text-slate-700 tracking-wider uppercase">
+              Curriculum Topics / Description
+            </label>
+            <textarea
+              rows={3}
+              placeholder="e.g. Models, Fields, Migrations, QuerySet API, One-to-Many Relationships, Transactions"
+              value={moduleFormData.duration}
+              onChange={(e) => setModuleFormData({ ...moduleFormData, duration: e.target.value })}
+              className="w-full px-3.5 py-2.5 bg-slate-50/60 hover:bg-white border border-slate-200 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all shadow-2xs"
+            />
+          </div>
+
+          <div className="flex justify-end gap-3 pt-4 border-t border-slate-100">
+            <Button
+              variant="outline"
+              type="button"
+              onClick={() => {
+                setIsAddModuleModalOpen(false);
+                setEditingModuleIndex(null);
+              }}
+            >
+              Cancel
+            </Button>
+            <Button type="submit" variant="primary">
+              {editingModuleIndex !== null ? 'Save Module' : 'Add Module'}
             </Button>
           </div>
         </form>

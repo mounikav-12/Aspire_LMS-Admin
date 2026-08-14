@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useLmsData } from '../../context/LmsDataContext';
 import { useToast } from '../../context/ToastContext';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '../../components/common/Button';
 import { Input, Select } from '../../components/common/Input';
 import { Modal } from '../../components/common/Modal';
@@ -9,6 +9,7 @@ import { ConfirmDialog } from '../../components/common/ConfirmDialog';
 import { Badge } from '../../components/common/Badge';
 import { EmptyState } from '../../components/common/EmptyState';
 import { BatchFilterSelector } from '../../components/common/BatchFilterSelector';
+import { INITIAL_COURSES } from '../../utils/mockData';
 import {
   BookOpen,
   Plus,
@@ -27,6 +28,12 @@ import {
 } from 'lucide-react';
 
 function CourseCardItem({ course, onViewBatches, onEdit, onDelete }) {
+  const navigate = useNavigate();
+
+  const topicCount = (Array.isArray(course.topics) && course.topics.length > 0)
+    ? course.topics.length
+    : (INITIAL_COURSES.find(ic => ic.id === course.id || ic.title?.toLowerCase() === course.title?.toLowerCase())?.topics?.length || 4);
+
   const getEffectiveBatchBadge = () => {
     let wdList = null;
     let weList = null;
@@ -40,41 +47,35 @@ function CourseCardItem({ course, onViewBatches, onEdit, onDelete }) {
     const hasWd = Array.isArray(wdList) && wdList.length > 0;
     const hasWe = Array.isArray(weList) && weList.length > 0;
 
-    let rawLabel = course.targetBatch || 'All';
-
     if (hasWd && hasWe) {
-      rawLabel = 'All';
-    } else if (hasWd && !hasWe) {
-      rawLabel = 'Weekday';
-    } else if (hasWe && !hasWd) {
-      rawLabel = 'Weekend';
+      return { label: 'All', color: 'bg-emerald-600 text-white' };
+    }
+    if (hasWd && !hasWe) {
+      return { label: 'Weekday', color: 'bg-blue-600 text-white' };
+    }
+    if (hasWe && !hasWd) {
+      return { label: 'Weekend', color: 'bg-indigo-600 text-white' };
     }
 
-    let cleanLabel = 'All';
-    let color = 'bg-emerald-600 text-white';
-
-    const upper = String(rawLabel).toUpperCase();
-    if (upper.includes('WEEKDAY') && upper.includes('WEEKEND')) {
-      cleanLabel = 'All';
-      color = 'bg-emerald-600 text-white';
-    } else if (upper.includes('WEEKDAY') || upper.startsWith('A26W')) {
-      cleanLabel = 'Weekday';
-      color = 'bg-blue-600 text-white';
-    } else if (upper.includes('WEEKEND') || upper.startsWith('A26S')) {
-      cleanLabel = 'Weekend';
-      color = 'bg-indigo-600 text-white';
-    } else {
-      cleanLabel = 'All';
-      color = 'bg-emerald-600 text-white';
+    if (!course.targetBatch || course.targetBatch === 'All Batches' || course.targetBatch === 'ALL' || course.targetBatch === 'Weekday & Weekend' || course.targetBatch === 'All') {
+      return { label: 'All', color: 'bg-emerald-600 text-white' };
     }
-
-    return { label: cleanLabel, color };
+    if (course.targetBatch?.startsWith('A26S') || course.targetBatch === 'Weekend Batch' || course.targetBatch === 'Weekend') {
+      return { label: 'Weekend', color: 'bg-indigo-600 text-white' };
+    }
+    if (course.targetBatch?.startsWith('A26W') || course.targetBatch === 'Weekday Batch' || course.targetBatch === 'Weekday') {
+      return { label: 'Weekday', color: 'bg-blue-600 text-white' };
+    }
+    return { label: course.targetBatch === 'All Batches' ? 'All' : course.targetBatch === 'Weekday Batch' ? 'Weekday' : course.targetBatch === 'Weekend Batch' ? 'Weekend' : course.targetBatch, color: 'bg-emerald-600 text-white' };
   };
 
   const batchBadge = getEffectiveBatchBadge();
 
   return (
-    <div className="group bg-white rounded-3xl border border-slate-200/80 shadow-2xs hover:shadow-xl hover:border-blue-300 transition-all duration-300 hover:-translate-y-1 overflow-hidden flex flex-col justify-between h-full">
+    <div
+      onClick={() => navigate(`/courses/${course.id}`)}
+      className="group bg-white rounded-3xl border border-slate-200/80 shadow-2xs hover:shadow-xl hover:border-blue-300 transition-all duration-300 hover:-translate-y-1 overflow-hidden flex flex-col justify-between h-full cursor-pointer"
+    >
       {/* Top Section */}
       <div>
         {/* Fixed Height Thumbnail Header */}
@@ -95,11 +96,17 @@ function CourseCardItem({ course, onViewBatches, onEdit, onDelete }) {
           </div>
 
           {/* Actions Top Right */}
-          <div className="absolute top-3 right-3 flex items-center gap-1 bg-white/95 backdrop-blur-md p-1 rounded-xl shadow-md border border-slate-200/60 z-10">
+          <div
+            className="absolute top-3 right-3 flex items-center gap-1 bg-white/95 backdrop-blur-md p-1 rounded-xl shadow-md border border-slate-200/60 z-10"
+            onClick={(e) => e.stopPropagation()}
+          >
             {/* Eye Symbol Button (View & Select Batches Popup) */}
             <button
               type="button"
-              onClick={() => onViewBatches(course)}
+              onClick={(e) => {
+                e.stopPropagation();
+                onViewBatches(course);
+              }}
               className="p-1.5 text-slate-500 hover:text-blue-600 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
               title="View & Select Course Batches"
             >
@@ -107,7 +114,10 @@ function CourseCardItem({ course, onViewBatches, onEdit, onDelete }) {
             </button>
             <button
               type="button"
-              onClick={() => onEdit(course)}
+              onClick={(e) => {
+                e.stopPropagation();
+                onEdit(course);
+              }}
               className="p-1.5 text-slate-500 hover:text-blue-600 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
               title="Edit Course"
             >
@@ -115,7 +125,10 @@ function CourseCardItem({ course, onViewBatches, onEdit, onDelete }) {
             </button>
             <button
               type="button"
-              onClick={() => onDelete(course)}
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete(course);
+              }}
               className="p-1.5 text-slate-500 hover:text-rose-600 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
               title="Delete Course"
             >
@@ -157,7 +170,7 @@ function CourseCardItem({ course, onViewBatches, onEdit, onDelete }) {
             <div className="p-1.5 rounded-lg bg-blue-50 text-blue-600">
               <Layers className="w-4 h-4" />
             </div>
-            <span>{course.topics?.length || 0} Topic Modules</span>
+            <span>{topicCount} Topic Modules</span>
           </div>
         </div>
       </div>
@@ -165,12 +178,9 @@ function CourseCardItem({ course, onViewBatches, onEdit, onDelete }) {
       {/* Bottom Footer Section */}
       <div className="px-5 py-3.5 bg-slate-50/80 border-t border-slate-100 flex items-center justify-between text-xs">
         <span className="text-slate-500 font-medium truncate max-w-[50%]">By {course.instructor}</span>
-        <Link
-          to={`/courses/${course.id}`}
-          className="inline-flex items-center gap-1 font-bold text-blue-600 hover:text-blue-800 transition-all group-hover:translate-x-1"
-        >
+        <span className="inline-flex items-center gap-1 font-bold text-blue-600 group-hover:text-blue-800 transition-all group-hover:translate-x-1">
           Explore Topics <ChevronRight className="w-4 h-4" />
-        </Link>
+        </span>
       </div>
     </div>
   );
@@ -557,16 +567,13 @@ export function CourseListPage() {
               size="md"
               onClick={() => {
                 if (viewingBatchesCourse) {
-                  let newTargetBatch = 'All';
-                  const hasWd = selectedWeekdayBatches.length > 0;
-                  const hasWe = selectedWeekendBatches.length > 0;
-
-                  if (hasWd && !hasWe) {
-                    newTargetBatch = 'Weekday';
-                  } else if (hasWe && !hasWd) {
-                    newTargetBatch = 'Weekend';
-                  } else {
-                    newTargetBatch = 'All';
+                  let newTargetBatch = 'All Batches';
+                  if (selectedWeekdayBatches.length > 0 && selectedWeekendBatches.length === 0) {
+                    newTargetBatch = 'Weekday Batch';
+                  } else if (selectedWeekendBatches.length > 0 && selectedWeekdayBatches.length === 0) {
+                    newTargetBatch = 'Weekend Batch';
+                  } else if (selectedWeekdayBatches.length > 0 && selectedWeekendBatches.length > 0) {
+                    newTargetBatch = 'All Batches';
                   }
 
                   try {

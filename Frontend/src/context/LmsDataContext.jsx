@@ -140,7 +140,7 @@ export function LmsDataProvider({ children }) {
     });
   });
   const [rolePermissions, setRolePermissions] = useState(INITIAL_ROLE_PERMISSIONS);
-  const [coursesByBatch, setCoursesByBatch] = useState(() => loadBatchDictState('aspire_lms_courses_by_batch', INITIAL_COURSES, 'aspire_lms_courses_version', 'v6_strict_badge_sanitizer'));
+  const [coursesByBatch, setCoursesByBatch] = useState(() => loadBatchDictState('aspire_lms_courses_by_batch', INITIAL_COURSES, 'aspire_lms_courses_version', 'v5_all_batches_sync'));
   const [assessmentsByBatch, setAssessmentsByBatch] = useState(() => loadBatchDictState('aspire_lms_assessments_by_batch', INITIAL_ASSESSMENTS, 'aspire_lms_assessments_version', 'v2_batch_decoupled'));
   const [liveSessionsByBatch, setLiveSessionsByBatch] = useState(() => loadBatchDictState('aspire_lms_live_sessions_by_batch', INITIAL_LIVE_SESSIONS, 'aspire_lms_sessions_version', 'v2_batch_decoupled'));
   const [jobsByBatch, setJobsByBatch] = useState(() => loadBatchDictState('aspire_lms_jobs_by_batch', INITIAL_JOBS, 'aspire_lms_jobs_version', 'v2_batch_decoupled'));
@@ -199,10 +199,21 @@ export function LmsDataProvider({ children }) {
     } catch (e) {}
   }, [availableBatches]);
 
-  const addBatch = (newCode, category) => {
+  const addBatch = async (newCode, category) => {
     if (!newCode || availableBatches.includes(newCode)) return;
     setAvailableBatches((prev) => [...prev, newCode]);
     logActivity(`Created new batch code: "${newCode}" (${category || 'General'})`, 'batch');
+
+    try {
+      await supabase.from('batches').upsert([{
+        id: `batch-${Date.now()}`,
+        code: newCode,
+        category: category || 'Weekday',
+        status: 'Active'
+      }]);
+    } catch (err) {
+      console.warn('Batch insert handled:', err);
+    }
   };
 
   const [activeBatchFilter, setActiveBatchFilter] = useState(() => {
@@ -372,17 +383,25 @@ export function LmsDataProvider({ children }) {
       // 1. Fetch Profiles
       const { data: profilesData, error: profilesErr } = await supabase.from('profiles').select('*');
       if (!profilesErr && profilesData && profilesData.length > 0) {
+        // Self-heal/normalize usr-1 Super Admin profile in Supabase table if outdated email is present
+        const adminProfile = profilesData.find(u => u.id === 'usr-1');
+        if (adminProfile && (adminProfile.email.includes('sarah.admin') || adminProfile.name === 'Aspire_Admin')) {
+          adminProfile.name = 'Super Admin';
+          adminProfile.email = 'aspireAdmin@gmail.com';
+          supabase.from('profiles').update({ name: 'Super Admin', email: 'aspireAdmin@gmail.com' }).eq('id', 'usr-1');
+        }
+
         setUsers(profilesData.map(u => ({
           id: u.id,
-          name: u.name || '',
-          email: u.email || '',
+          name: u.id === 'usr-1' ? 'Super Admin' : (u.name || ''),
+          email: u.id === 'usr-1' ? 'aspireAdmin@gmail.com' : (u.email || ''),
           role: u.role || 'Instructor',
           originalRole: u.original_role || u.originalRole || u.role || 'Instructor',
-          department: u.department || 'Curriculum Operations',
+          department: u.department || 'Executive Leadership',
           status: u.status || 'Active',
           joinedDate: u.joined_date || u.joinedDate || '',
           phone: u.phone || '+91 98765-43210',
-          avatar: u.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80'
+          avatar: u.avatar || 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80'
         })));
         setIsSupabaseConnected(true);
       }
@@ -422,7 +441,13 @@ export function LmsDataProvider({ children }) {
       if (!coursesErr && coursesData && coursesData.length > 0) {
         const mappedCourses = coursesData.map(c => {
           const dbTopics = topicsByCourse[c.id];
-          const defaultCourse = INITIAL_COURSES.find(ic => ic.id === c.id);
+          const defaultCourse = INITIAL_COURSES.find(ic => ic.id === c.id || ic.title?.toLowerCase() === c.title?.toLowerCase());
+          const fallbackTopics = [
+            { id: 'top-1', title: 'Stage 1: Front End + Repository', liveClasses: 31, practice: 45, assessments: 12 },
+            { id: 'top-2', title: 'Stage 2: Backend + DSA', liveClasses: 81, practice: 110, assessments: 25 },
+            { id: 'top-3', title: 'Stage 3: AI & Cloud Integration', liveClasses: 17, practice: 25, assessments: 8 },
+            { id: 'top-4', title: 'Stage 4: Career Launchpad', liveClasses: 23, practice: 30, assessments: 10 }
+          ];
           return {
             id: c.id,
             title: c.title || '',
@@ -435,7 +460,11 @@ export function LmsDataProvider({ children }) {
             rating: c.rating || 4.8,
             description: c.description || '',
             targetBatch: c.target_batch || 'Weekday Batch',
-            topics: dbTopics && dbTopics.length > 0 ? dbTopics : (defaultCourse?.topics || [])
+            topics: (dbTopics && dbTopics.length > 0)
+              ? dbTopics
+              : ((defaultCourse?.topics && defaultCourse.topics.length > 0)
+                  ? defaultCourse.topics
+                  : fallbackTopics)
           };
         });
         // REPLACE batch buckets entirely (prevents duplicates from append-merge)
@@ -563,6 +592,63 @@ export function LmsDataProvider({ children }) {
           return next;
         });
       }
+
+      // 10. Fetch Students Roster
+      const { data: studentsData, error: studentsErr } = await supabase.from('students').select('*');
+      if (!studentsErr && studentsData && studentsData.length > 0) {
+        setStudents(studentsData.map(s => ({
+          id: s.id,
+          name: s.name || '',
+          email: s.email || '',
+          registrationId: s.registration_id || s.registrationId || '',
+          batch: s.batch || 'A26W1',
+          enrolledCourses: Array.isArray(s.enrolled_courses)
+            ? s.enrolled_courses
+            : (typeof s.enrolled_courses === 'string' ? JSON.parse(s.enrolled_courses) : (s.enrolledCourses || ['crs-101'])),
+          avatar: s.avatar || '',
+          attendance: s.attendance !== undefined ? s.attendance : 92,
+          progress: s.progress !== undefined ? s.progress : 78,
+          status: s.status || 'Active',
+          joinedDate: s.joined_date || s.joinedDate || '',
+          gpa: s.gpa !== undefined ? s.gpa : 3.8
+        })));
+      } else if (!studentsErr && (!studentsData || studentsData.length === 0)) {
+        try {
+          const payload = INITIAL_STUDENTS.map(s => ({
+            id: s.id,
+            registration_id: s.registrationId,
+            name: s.name,
+            email: s.email,
+            batch: s.batch,
+            status: s.status,
+            joined_date: s.joinedDate,
+            avatar: s.avatar,
+            enrolled_courses: s.enrolledCourses
+          }));
+          await supabase.from('students').upsert(payload);
+        } catch (seedErr) {
+          console.warn('Auto-seed students notice:', seedErr);
+        }
+      }
+
+      // 11. Fetch Batches List
+      const { data: batchesData, error: batchesErr } = await supabase.from('batches').select('*');
+      if (!batchesErr && batchesData && batchesData.length > 0) {
+        const dbBatches = batchesData.map(b => b.code || b.id);
+        setAvailableBatches(prev => Array.from(new Set([...prev, ...dbBatches])));
+      } else if (!batchesErr && (!batchesData || batchesData.length === 0)) {
+        try {
+          const payload = INITIAL_BATCH_LIST.map((code, idx) => ({
+            id: `btc-${idx + 1}`,
+            code: code,
+            category: code.startsWith('A26S') || code.startsWith('A26WE') ? 'Weekend' : 'Weekday',
+            status: 'Active'
+          }));
+          await supabase.from('batches').upsert(payload);
+        } catch (seedErr) {
+          console.warn('Auto-seed batches notice:', seedErr);
+        }
+      }
     } catch (err) {
       console.warn('Supabase initial fetch using fallback mock data:', err);
     } finally {
@@ -574,8 +660,6 @@ export function LmsDataProvider({ children }) {
     fetchSupabaseData();
 
     // Targeted Realtime channels — one per table, applying delta updates directly.
-    // This avoids the self-triggering loop caused by a schema-wide subscription
-    // (audit_activities inserts would trigger full re-fetches of all 8 tables).
     const channels = [];
     try {
       const makeChannel = (table, handler) => {
@@ -586,8 +670,11 @@ export function LmsDataProvider({ children }) {
         channels.push(ch);
       };
 
-      // Profiles — trigger full refetch (small table, important)
+      // Profiles, Students & Batches — trigger full refetch
       makeChannel('profiles', () => fetchSupabaseData());
+      makeChannel('students', () => fetchSupabaseData());
+      makeChannel('batches', () => fetchSupabaseData());
+
 
       // Courses — delta update
       makeChannel('courses', (payload) => {
@@ -1826,7 +1913,7 @@ export function LmsDataProvider({ children }) {
     }));
   };
 
-  const addStudent = (studentData) => {
+  const addStudent = async (studentData) => {
     const newStudent = {
       id: `std-${Date.now()}`,
       status: 'Active',
@@ -1837,14 +1924,53 @@ export function LmsDataProvider({ children }) {
       ...studentData
     };
     setStudents((prev) => [newStudent, ...prev]);
+
+    try {
+      await supabase.from('students').upsert([{
+        id: newStudent.id,
+        name: newStudent.name,
+        email: newStudent.email,
+        registration_id: newStudent.registrationId,
+        batch: newStudent.batch,
+        enrolled_courses: newStudent.enrolledCourses,
+        avatar: newStudent.avatar,
+        status: newStudent.status,
+        joined_date: newStudent.joinedDate
+      }]);
+    } catch (err) {
+      console.warn('Student insert handled:', err);
+    }
   };
 
-  const updateStudent = (id, updatedData) => {
+  const updateStudent = async (id, updatedData) => {
     setStudents((prev) => prev.map((s) => (s.id === id ? { ...s, ...updatedData } : s)));
+
+    const dbFields = {};
+    if (updatedData.name !== undefined) dbFields.name = updatedData.name;
+    if (updatedData.email !== undefined) dbFields.email = updatedData.email;
+    if (updatedData.registrationId !== undefined) dbFields.registration_id = updatedData.registrationId;
+    if (updatedData.batch !== undefined) dbFields.batch = updatedData.batch;
+    if (updatedData.enrolledCourses !== undefined) dbFields.enrolled_courses = updatedData.enrolledCourses;
+    if (updatedData.avatar !== undefined) dbFields.avatar = updatedData.avatar;
+    if (updatedData.status !== undefined) dbFields.status = updatedData.status;
+
+    try {
+      const { error } = await supabase.from('students').update(dbFields).eq('id', id);
+      if (error) console.error('Supabase student update error:', error.message);
+    } catch (err) {
+      console.warn('Student update handled:', err);
+    }
   };
 
-  const deleteStudent = (id) => {
+  const deleteStudent = async (id) => {
     setStudents((prev) => prev.filter((s) => s.id !== id));
+
+    try {
+      const { error } = await supabase.from('students').delete().eq('id', id);
+      if (error) console.error('Supabase student delete error:', error.message);
+    } catch (err) {
+      console.warn('Student delete handled:', err);
+    }
   };
 
   return (

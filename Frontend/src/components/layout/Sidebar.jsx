@@ -19,87 +19,46 @@ import {
   Settings,
   X,
   Flag,
-  Layers
+  Layers,
+  Film,
+  Award
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import { ROLES } from '../../utils/mockData';
+import { useLmsData } from '../../context/LmsDataContext';
+import { ROLES, INITIAL_ROLE_PERMISSIONS } from '../../utils/mockData';
 import { ProfileSettingsModal } from '../common/ProfileSettingsModal';
+
+const ALL_NAV_ITEMS = [
+  { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard, permissionId: 'view_dashboard' },
+  { label: 'Batches', path: '/batches', icon: Layers, permissionId: 'manage_batches' },
+  { label: 'Milestones', path: '/milestones', icon: Flag, permissionId: 'manage_milestones' },
+  { label: 'Students', path: '/students', icon: GraduationCap, permissionId: 'manage_students' },
+  { label: 'User Directory', path: '/users', icon: Users, permissionId: 'manage_users' },
+  { label: 'Permission Matrix', path: '/permissions', icon: ShieldCheck, permissionId: 'manage_roles' },
+  { label: 'Course Management', path: '/courses', icon: BookOpen, permissionId: 'create_course' },
+  { label: 'Assessments', path: '/assessments', icon: FileCheck2, permissionId: 'create_assessment' },
+  { label: 'Coding Questions', path: '/coding-questions', icon: Code2, permissionId: 'manage_coding' },
+  { label: 'Projects Portal', path: '/projects', icon: FolderGit2, permissionId: 'manage_projects' },
+  { label: 'Live Sessions', path: '/live-sessions', icon: Video, permissionId: 'manage_live_sessions' },
+  { label: 'Job Portal', path: '/jobs', icon: Briefcase, permissionId: 'manage_jobs' },
+  { label: 'Recording Library', path: '/library', icon: Film, permissionId: 'manage_recordings' },
+  { label: 'Placement Prep', path: '/placement', icon: Award, permissionId: 'manage_placement' },
+  { label: 'LMS Feed Sync', path: '/student-dashboard', icon: Radio, permissionId: 'inspect_api_feed' }
+];
 
 export function Sidebar({ isCollapsed, onToggle, isMobileOpen, onCloseMobile }) {
   const { currentRole, currentUser, logout, isSuperAdmin } = useAuth();
+  const { rolePermissions = {} } = useLmsData() || {};
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
 
-  // Navigation Items per Role
+  // Navigation Items dynamically filtered by Role Permissions Matrix
   const getNavItems = () => {
-    switch (currentRole) {
-      case ROLES.INSTRUCTOR:
-        return [
-          { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
-          { label: 'Batches', path: '/batches', icon: Layers },
-          { label: 'Milestones', path: '/milestones', icon: Flag },
-          { label: 'Students', path: '/students', icon: GraduationCap },
-          { label: 'Course Management', path: '/courses', icon: BookOpen },
-          { label: 'Assessments', path: '/assessments', icon: FileCheck2 },
-          { label: 'Coding Questions', path: '/coding-questions', icon: Code2 },
-          { label: 'Projects Portal', path: '/projects', icon: FolderGit2 },
-          { label: 'Live Sessions', path: '/live-sessions', icon: Video },
-          { label: 'Recording Library', path: '/library', icon: Sparkles },
-          { label: 'LMS Feed Sync', path: '/student-dashboard', icon: Radio }
-        ];
-
-      case ROLES.MANAGER:
-        return [
-          { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
-          { label: 'Batches', path: '/batches', icon: Layers },
-          { label: 'Milestones', path: '/milestones', icon: Flag },
-          { label: 'Students', path: '/students', icon: GraduationCap },
-          { label: 'Courses', path: '/courses', icon: BookOpen },
-          { label: 'Coding Questions', path: '/coding-questions', icon: Code2 },
-          { label: 'Projects Portal', path: '/projects', icon: FolderGit2 },
-          { label: 'Live Sessions', path: '/live-sessions', icon: Video },
-          { label: 'Job Portal', path: '/jobs', icon: Briefcase },
-          { label: 'Recording Library', path: '/library', icon: Sparkles },
-          { label: 'LMS Feed Sync', path: '/student-dashboard', icon: Radio }
-        ];
-
-      case ROLES.ADMIN:
-        return [
-          { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
-          { label: 'Batches', path: '/batches', icon: Layers },
-          { label: 'Milestones', path: '/milestones', icon: Flag },
-          { label: 'Students', path: '/students', icon: GraduationCap },
-          { label: 'User Directory', path: '/users', icon: Users },
-          { label: 'Course Management', path: '/courses', icon: BookOpen },
-          { label: 'Assessments', path: '/assessments', icon: FileCheck2 },
-          { label: 'Coding Questions', path: '/coding-questions', icon: Code2 },
-          { label: 'Projects Portal', path: '/projects', icon: FolderGit2 },
-          { label: 'Live Sessions', path: '/live-sessions', icon: Video },
-          { label: 'Job Portal', path: '/jobs', icon: Briefcase },
-          { label: 'Recording Library', path: '/library', icon: Sparkles },
-          { label: 'Placement Prep', path: '/placement', icon: Sparkles },
-          { label: 'LMS Feed Sync', path: '/student-dashboard', icon: Radio }
-        ];
-
-      case ROLES.SUPER_ADMIN:
-      default:
-        return [
-          { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
-          { label: 'Batches', path: '/batches', icon: Layers },
-          { label: 'Milestones', path: '/milestones', icon: Flag },
-          { label: 'Students', path: '/students', icon: GraduationCap },
-          { label: 'User Directory', path: '/users', icon: Users },
-          { label: 'Permission Matrix', path: '/permissions', icon: ShieldCheck },
-          { label: 'Course Management', path: '/courses', icon: BookOpen },
-          { label: 'Assessments', path: '/assessments', icon: FileCheck2 },
-          { label: 'Coding Questions', path: '/coding-questions', icon: Code2 },
-          { label: 'Projects Portal', path: '/projects', icon: FolderGit2 },
-          { label: 'Live Sessions', path: '/live-sessions', icon: Video },
-          { label: 'Job Portal', path: '/jobs', icon: Briefcase },
-          { label: 'Recording Library', path: '/library', icon: Sparkles },
-          { label: 'Placement Prep', path: '/placement', icon: Sparkles },
-          { label: 'LMS Feed Sync', path: '/student-dashboard', icon: Radio }
-        ];
+    if (isSuperAdmin || currentRole === ROLES.SUPER_ADMIN) {
+      return ALL_NAV_ITEMS;
     }
+
+    const assignedPerms = rolePermissions[currentRole] || INITIAL_ROLE_PERMISSIONS[currentRole] || [];
+    return ALL_NAV_ITEMS.filter((item) => assignedPerms.includes(item.permissionId));
   };
 
   const navItems = getNavItems();

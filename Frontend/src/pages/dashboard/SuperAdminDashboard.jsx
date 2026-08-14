@@ -100,16 +100,13 @@ export function SuperAdminDashboard() {
             {isSuperAdmin && (
               <div className="flex items-center gap-2 mb-3">
                 <Badge variant="blue" className="bg-white/10 text-white border-white/20 backdrop-blur-md px-3 py-1">
-                  <Sparkles className="w-3.5 h-3.5 mr-1 text-blue-300" /> Active Role: {currentRole}
+                  Active Role: {currentRole}
                 </Badge>
               </div>
             )}
             <h1 className="text-xl md:text-2xl font-bold tracking-normal text-white flex items-center gap-3">
               Admin Command Center Overview
             </h1>
-            <p className="text-blue-100/80 text-xs md:text-sm mt-2 max-w-xl leading-relaxed font-medium">
-              Author courseware, publish live class links, manage staff permissions, and inspect content performance analytics.
-            </p>
           </div>
 
           <div className="flex items-center gap-3 flex-wrap">

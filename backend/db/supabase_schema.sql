@@ -154,6 +154,34 @@ CREATE TABLE IF NOT EXISTS public.milestones_data (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- 12. BATCHES TABLE
+CREATE TABLE IF NOT EXISTS public.batches (
+  id VARCHAR(255) PRIMARY KEY,
+  code VARCHAR(100) UNIQUE NOT NULL,
+  name VARCHAR(255),
+  category VARCHAR(100) DEFAULT 'Weekday',
+  status VARCHAR(50) DEFAULT 'Active',
+  student_count INTEGER DEFAULT 0,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- 13. STUDENTS ROSTER TABLE
+CREATE TABLE IF NOT EXISTS public.students (
+  id VARCHAR(255) PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  email VARCHAR(255) UNIQUE NOT NULL,
+  registration_id VARCHAR(100),
+  batch VARCHAR(100) DEFAULT 'A26W1',
+  enrolled_courses JSONB DEFAULT '["crs-101"]'::jsonb,
+  avatar TEXT,
+  attendance INTEGER DEFAULT 92,
+  progress INTEGER DEFAULT 78,
+  status VARCHAR(50) DEFAULT 'Active',
+  joined_date DATE DEFAULT CURRENT_DATE,
+  gpa NUMERIC(3,2) DEFAULT 3.80,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
 -- ROW LEVEL SECURITY (RLS) POLICIES
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.role_permissions ENABLE ROW LEVEL SECURITY;
@@ -166,6 +194,15 @@ ALTER TABLE public.recordings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.placement_resources ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.audit_activities ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.milestones_data ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.batches ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.students ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Public Read Batches" ON public.batches FOR SELECT USING (true);
+CREATE POLICY "Public Write Batches" ON public.batches FOR ALL USING (true);
+
+CREATE POLICY "Public Read Students" ON public.students FOR SELECT USING (true);
+CREATE POLICY "Public Write Students" ON public.students FOR ALL USING (true);
+
 
 CREATE POLICY "Public Read Profiles" ON public.profiles FOR SELECT USING (true);
 CREATE POLICY "Public Write Profiles" ON public.profiles FOR ALL USING (true);
@@ -214,8 +251,24 @@ INSERT INTO public.courses (id, title, category, level, instructor, publish_stat
 ('crs-103', 'Data Structures & System Design for Tech Interviews', 'Computer Science', 'All Levels', 'Priya Sharma', 'Published', 'https://images.unsplash.com/photo-1516116211223-4c7141467477?w=600&auto=format&fit=crop&q=80', 520, 4.95, 'Comprehensive preparation for high-frequency DSA patterns, microservice architecture, and high scalability design.')
 ON CONFLICT (id) DO NOTHING;
 
-INSERT INTO public.jobs (id, company, job_title, job_type, salary, location, posted_date, publish_status, logo, description) VALUES
-('job-1', 'Stripe', 'Senior Frontend Engineer (React/TypeScript)', 'Full-Time / Remote', '₹16,50,000 - ₹22,00,000 / yr', 'Bengaluru / Hyderabad (Remote)', '2026-08-01', 'Live Feed', 'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=120&auto=format&fit=crop&q=80', 'Looking for a Senior Frontend Developer to lead dashboard user experience, high performance component libraries, and checkout widget architecture.'),
-('job-2', 'Datadog', 'Full-Stack Software Engineer', 'Full-Time', '₹14,00,000 - ₹18,00,000 / yr', 'Bengaluru, KA', '2026-08-02', 'Live Feed', 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=120&auto=format&fit=crop&q=80', 'Join our telemetry dashboard squad building real-time monitoring charts, distributed log visualizers, and node graph analytics.'),
-('job-3', 'Vercel', 'Developer Relations & Educator', 'Contract / Remote', '₹12,00,000 - ₹16,00,000 / yr', 'Remote India', '2026-07-28', 'Live Feed', 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=120&auto=format&fit=crop&q=80', 'Create world-class technical guides, interactive sample applications, and conduct webinars on Next.js performance optimizations.')
+INSERT INTO public.batches (id, code, category, status) VALUES
+('btc-1', 'A26W1', 'Weekday', 'Active'),
+('btc-2', 'A26W2', 'Weekday', 'Active'),
+('btc-3', 'A26W3', 'Weekday', 'Active'),
+('btc-4', 'A26S1', 'Weekend', 'Active'),
+('btc-5', 'A26S2', 'Weekend', 'Active'),
+('btc-6', 'A26S3', 'Weekend', 'Active')
 ON CONFLICT (id) DO NOTHING;
+
+INSERT INTO public.students (id, registration_id, name, email, batch, status, joined_date, avatar, enrolled_courses) VALUES
+('std-w1', 'A26W0001', 'Rahul Sharma', 'rahul.sharma@gmail.com', 'A26W1', 'Active', '2026-01-10', 'https://api.dicebear.com/7.x/initials/svg?seed=Rahul%20Sharma&backgroundColor=e0e7ff&textColor=3730a3&bold=true', '["crs-101", "crs-103"]'::jsonb),
+('std-w2', 'A26W0002', 'Ananya Verma', 'ananya.verma@gmail.com', 'A26W1', 'Active', '2026-01-12', 'https://api.dicebear.com/7.x/initials/svg?seed=Ananya%20Verma&backgroundColor=e0e7ff&textColor=3730a3&bold=true', '["crs-101"]'::jsonb),
+('std-w3', 'A26W0003', 'Vikram Patel', 'vikram.patel@gmail.com', 'A26W2', 'Active', '2026-01-15', 'https://api.dicebear.com/7.x/initials/svg?seed=Vikram%20Patel&backgroundColor=e0e7ff&textColor=3730a3&bold=true', '["crs-101", "crs-102"]'::jsonb),
+('std-w4', 'A26W0004', 'Sneha Reddy', 'sneha.reddy@gmail.com', 'A26W3', 'Active', '2026-01-18', 'https://api.dicebear.com/7.x/initials/svg?seed=Sneha%20Reddy&backgroundColor=e0e7ff&textColor=3730a3&bold=true', '["crs-101"]'::jsonb)
+ON CONFLICT (id) DO NOTHING;
+
+INSERT INTO public.live_sessions (id, program_name, technology, session_title, date, time, meeting_link, status, publish_status, instructor, description) VALUES
+('sess-1', 'Full-Stack Web Dev', 'React 18', 'React Server Components & State Management', '2026-08-16', '10:00 AM - 12:00 PM', 'https://meet.google.com/asp-live-01', 'Scheduled', 'Published to Student LMS', 'David Chen', 'Deep dive into RSC, streaming SSR, and scalable context patterns.'),
+('sess-2', 'Cloud DevOps', 'Docker & Kubernetes', 'Containerizing Microservices & Deployment', '2026-08-18', '02:00 PM - 04:00 PM', 'https://meet.google.com/asp-live-02', 'Scheduled', 'Published to Student LMS', 'Alex Rivera', 'Hands-on session building multi-stage Dockerfiles and Helm charts.')
+ON CONFLICT (id) DO NOTHING;
+
