@@ -182,13 +182,42 @@ CREATE TABLE IF NOT EXISTS public.students (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- 14. ASSESSMENTS TABLE
+CREATE TABLE IF NOT EXISTS public.assessments (
+  id TEXT PRIMARY KEY,
+  title TEXT NOT NULL,
+  course_id TEXT,
+  course_name TEXT,
+  duration TEXT DEFAULT '45 mins',
+  questions_count INT DEFAULT 15,
+  passing_score INT DEFAULT 70,
+  status TEXT DEFAULT 'Published',
+  created_date TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 15. RECORDINGS TABLE
+CREATE TABLE IF NOT EXISTS public.recordings (
+  id TEXT PRIMARY KEY,
+  title TEXT NOT NULL,
+  course_name TEXT,
+  date TEXT,
+  duration TEXT DEFAULT '1h 45m',
+  video_url TEXT,
+  thumbnail TEXT,
+  speaker TEXT,
+  topic TEXT,
+  batch TEXT DEFAULT 'A26W1',
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
 -- ====================================================================
 -- ENABLE REALTIME PUBLICATION FOR TABLES
 -- ====================================================================
 DO $$
 BEGIN
   IF EXISTS (SELECT 1 FROM pg_publication WHERE pubname = 'supabase_realtime') THEN
-    ALTER PUBLICATION supabase_realtime ADD TABLE public.projects, public.courses, public.jobs, public.live_sessions, public.placement_resources, public.milestones_data, public.coding_questions, public.batches, public.students;
+    ALTER PUBLICATION supabase_realtime ADD TABLE public.projects, public.courses, public.jobs, public.live_sessions, public.placement_resources, public.milestones_data, public.coding_questions, public.batches, public.students, public.assessments, public.recordings;
   END IF;
 EXCEPTION WHEN OTHERS THEN
   NULL;
@@ -210,6 +239,8 @@ ALTER TABLE public.role_permissions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.audit_activities ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.batches ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.students ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.assessments ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.recordings ENABLE ROW LEVEL SECURITY;
 
 -- CREATE POLICIES TO ALLOW APP DATA ACCESS
 DO $$
@@ -219,6 +250,12 @@ BEGIN
 
   DROP POLICY IF EXISTS "Allow full app access on courses" ON public.courses;
   CREATE POLICY "Allow full app access on courses" ON public.courses FOR ALL USING (true) WITH CHECK (true);
+
+  DROP POLICY IF EXISTS "Allow full app access on assessments" ON public.assessments;
+  CREATE POLICY "Allow full app access on assessments" ON public.assessments FOR ALL USING (true) WITH CHECK (true);
+
+  DROP POLICY IF EXISTS "Allow full app access on recordings" ON public.recordings;
+  CREATE POLICY "Allow full app access on recordings" ON public.recordings FOR ALL USING (true) WITH CHECK (true);
 
   DROP POLICY IF EXISTS "Allow full app access on course_topics" ON public.course_topics;
   CREATE POLICY "Allow full app access on course_topics" ON public.course_topics FOR ALL USING (true) WITH CHECK (true);
