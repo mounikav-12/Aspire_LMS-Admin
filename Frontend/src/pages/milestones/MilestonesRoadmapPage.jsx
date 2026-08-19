@@ -18,17 +18,21 @@ import {
   Plus,
   Edit2,
   Trash2,
+  Users,
   Eye,
   Settings,
   Book,
   FileText
 } from 'lucide-react';
+import { useSearchParams } from 'react-router-dom';
 import { useToast } from '../../context/ToastContext';
 import { useLmsData } from '../../context/LmsDataContext';
 
 export function MilestonesRoadmapPage() {
   const { addToast } = useToast();
   const {
+    courses = [],
+    students = [],
     milestonesByBatch,
     getMilestoneDataForBatch,
     milestones,
@@ -50,7 +54,8 @@ export function MilestonesRoadmapPage() {
     deleteLearningItem,
     updateMilestonesOverview,
     activeBatchFilter,
-    setActiveBatchFilter
+    setActiveBatchFilter,
+    assessments = []
   } = useLmsData();
 
   // Mode Toggle: 'admin' (CRUD management) vs 'user' (Student Portal View)
@@ -80,17 +85,78 @@ export function MilestonesRoadmapPage() {
   const [expandedModule, setExpandedModule] = useState(null);
   const [expandedStages, setExpandedStages] = useState({});
 
+  const [searchParams] = useSearchParams();
+  const queryCourseId = searchParams.get('courseId') || 'ALL';
+
+  const [selectedCourseId, setSelectedCourseId] = useState(queryCourseId);
+  const [selectedStudentAccessId, setSelectedStudentAccessId] = useState('ALL');
+
+  // Derive active milestones stages from Course Management or selected course
+  const getActiveMilestoneStages = () => {
+    let rawStages = currentMilestones?.stages || [];
+
+    if (selectedStudentAccessId !== 'ALL') {
+      const studentObj = students.find((s) => s.id === selectedStudentAccessId);
+      if (studentObj && Array.isArray(studentObj.enrolledCourses) && studentObj.enrolledCourses.length > 0) {
+        if (selectedCourseId === 'ALL') {
+          const studentCourseObjs = courses.filter((c) => studentObj.enrolledCourses.includes(c.id));
+          const derivedStages = [];
+          studentCourseObjs.forEach((crs) => {
+            if (Array.isArray(crs.topics) && crs.topics.length > 0) {
+              crs.topics.forEach((t, tIdx) => {
+                derivedStages.push({
+                  id: t.id || `stg-std-${tIdx}`,
+                  stageNumber: `STAGE 0${derivedStages.length + 1}`,
+                  phaseTag: `${crs.title} • Stage ${tIdx + 1}`,
+                  title: t.title,
+                  status: 'IN PROGRESS',
+                  statusType: 'in-progress',
+                  subtopics: t.subtopics || [
+                    { id: `sub-${tIdx}-1`, title: 'Live Session & Concepts', isCompleted: true, modulesCount: t.liveClasses || 4 },
+                    { id: `sub-${tIdx}-2`, title: 'Hands-on Practice & Assignments', isCompleted: false, modulesCount: t.practice || 6 },
+                    { id: `sub-${tIdx}-3`, title: 'Skill Assessments & Projects', isCompleted: false, modulesCount: t.assessments || 2 }
+                  ]
+                });
+              });
+            }
+          });
+          if (derivedStages.length > 0) return derivedStages;
+        }
+      }
+    }
+
+    if (selectedCourseId !== 'ALL') {
+      const targetCourse = courses.find((c) => c.id === selectedCourseId);
+      if (targetCourse && Array.isArray(targetCourse.topics) && targetCourse.topics.length > 0) {
+        return targetCourse.topics.map((t, idx) => ({
+          id: t.id || `stg-crs-${idx + 1}`,
+          stageNumber: `STAGE 0${idx + 1}`,
+          phaseTag: `${targetCourse.title} • Stage ${idx + 1}`,
+          title: t.title,
+          status: 'IN PROGRESS',
+          statusType: 'in-progress',
+          subtopics: t.subtopics || [
+            { id: `sub-${idx}-1`, title: 'Live Session & Concepts', isCompleted: true, modulesCount: t.liveClasses || 4 },
+            { id: `sub-${idx}-2`, title: 'Hands-on Practice & Assignments', isCompleted: false, modulesCount: t.practice || 6 },
+            { id: `sub-${idx}-3`, title: 'Skill Assessments & Projects', isCompleted: false, modulesCount: t.assessments || 2 }
+          ]
+        }));
+      }
+    }
+
+    return rawStages;
+  };
+
+  const filteredStages = getActiveMilestoneStages();
+
   const isStageUnlockedForUser = (stageIndex, stage) => {
-    if (viewMode === 'admin') return true; // Admin can view everything
+    if (viewMode === 'admin') return true;
     if (stage.isLocked || stage.statusType === 'locked' || stage.status === 'LOCKED') return false;
-    if (stageIndex === 0) return true; // Stage 1 unlocked initially
-    const prevStage = currentMilestones?.stages?.[stageIndex - 1];
+    if (stageIndex === 0) return true;
+    const prevStage = filteredStages[stageIndex - 1];
     const prevCompleted = prevStage?.status === 'COMPLETED' || prevStage?.statusType === 'completed';
     return prevCompleted;
   };
-
-  // Filter stages based on selectedBatch
-  const filteredStages = currentMilestones?.stages || [];
 
   // Automatic Real-Time Banner Calculations
   const autoTotalCount = filteredStages.reduce((acc, stg) => {
@@ -444,17 +510,17 @@ export function MilestonesRoadmapPage() {
           <div className="flex items-center gap-1 bg-white p-1 rounded-2xl border border-slate-200 shadow-2xs">
             <button
               onClick={() => setSelectedBatch('Weekday Batch')}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                 selectedBatch === 'Weekday Batch'
-                  ? 'bg-blue-600 text-white shadow-xs'
-                  : 'text-slate-600 hover:text-blue-600'
+                  ? 'bg-purple-600 text-white shadow-xs'
+                  : 'text-slate-600 hover:text-purple-600'
               }`}
             >
               Weekday (A26W)
             </button>
             <button
               onClick={() => setSelectedBatch('Weekend Batch')}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                 selectedBatch === 'Weekend Batch'
                   ? 'bg-purple-600 text-white shadow-xs'
                   : 'text-slate-600 hover:text-purple-600'
@@ -482,7 +548,7 @@ export function MilestonesRoadmapPage() {
               onClick={() => setViewMode('user')}
               className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                 viewMode === 'user'
-                  ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30'
+                  ? 'bg-purple-600 text-white shadow-md shadow-purple-600/30'
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
@@ -495,8 +561,7 @@ export function MilestonesRoadmapPage() {
 
       {/* Admin Mode Controls Banner */}
       {viewMode === 'admin' && (
-        <div className="bg-purple-50 border border-purple-200/80 rounded-2xl p-4 flex flex-wrap items-center justify-end gap-3 text-xs">
-
+        <div className="bg-purple-50/50 border border-purple-100 rounded-2xl p-3 flex flex-wrap items-center justify-end gap-3 text-xs">
           <div className="flex items-center gap-2">
             <button
               onClick={() => {
@@ -509,7 +574,7 @@ export function MilestonesRoadmapPage() {
                 });
                 setIsOverviewModalOpen(true);
               }}
-              className="px-3 py-1.5 rounded-xl bg-white border border-purple-300 text-purple-700 hover:bg-purple-100 font-bold flex items-center gap-1.5 shadow-2xs transition-colors cursor-pointer"
+              className="px-3.5 py-1.5 rounded-xl bg-white border border-purple-300 text-purple-700 hover:bg-purple-100 font-extrabold flex items-center gap-1.5 shadow-2xs transition-colors cursor-pointer"
             >
               <Edit2 className="w-3.5 h-3.5" />
               <span>Edit Banner Headline</span>
@@ -517,7 +582,7 @@ export function MilestonesRoadmapPage() {
 
             <button
               onClick={() => handleOpenStageModal(null)}
-              className="px-3 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold flex items-center gap-1.5 shadow-md shadow-purple-600/25 transition-all cursor-pointer"
+              className="px-3.5 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-extrabold flex items-center gap-1.5 shadow-md shadow-purple-600/25 transition-all cursor-pointer"
             >
               <Plus className="w-3.5 h-3.5" />
               <span>Add Milestone Stage</span>
@@ -526,24 +591,24 @@ export function MilestonesRoadmapPage() {
         </div>
       )}
 
-      {/* Top Banner Card (Vibrant Purple Gradient - Picture 1) */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-purple-700 via-violet-600 to-indigo-600 p-6 sm:p-8 text-white shadow-xl shadow-purple-600/20">
+      {/* Top Banner Card (Matching Picture 1 layout & styling) */}
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-600 p-6 sm:p-8 text-white shadow-xl shadow-purple-600/20">
         <div className="relative z-10 space-y-6">
           {/* Banner Header Badges */}
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="inline-flex items-center gap-2 rounded-full bg-white/20 backdrop-blur-md px-3.5 py-1.5 text-xs font-bold uppercase tracking-wider text-purple-100 border border-white/20">
+            <div className="inline-flex items-center gap-2 rounded-full bg-white/20 backdrop-blur-md px-3.5 py-1.5 text-xs font-extrabold uppercase tracking-wider text-purple-100 border border-white/20">
               <BookOpen className="w-4 h-4" />
-              <span>{milestones?.overview?.trackTitle || 'Python full stack + DSA with AI'}</span>
+              <span>{milestones?.overview?.trackTitle || 'PYTHON FULL STACK + DSA WITH AI'}</span>
             </div>
 
             <div className="flex items-center gap-3">
-              <div className="inline-flex items-center gap-1.5 rounded-full bg-white/15 backdrop-blur-md px-3 py-1 text-xs font-semibold text-purple-100 border border-white/15">
+              <div className="inline-flex items-center gap-1.5 rounded-full bg-white/15 backdrop-blur-md px-3.5 py-1 text-xs font-extrabold text-purple-100 border border-white/15">
                 <Trophy className="w-3.5 h-3.5 text-amber-300" />
                 <span>
                   {autoCompletedCount} / {autoTotalCount} Completed
                 </span>
               </div>
-              <div className="inline-flex items-center gap-1.5 rounded-full bg-white/15 backdrop-blur-md px-3 py-1 text-xs font-semibold text-purple-100 border border-white/15">
+              <div className="inline-flex items-center gap-1.5 rounded-full bg-white/15 backdrop-blur-md px-3.5 py-1 text-xs font-extrabold text-purple-100 border border-white/15">
                 <Zap className="w-3.5 h-3.5 text-cyan-300" />
                 <span>Level {autoUnlockedLevel} Unlocked</span>
               </div>
@@ -551,15 +616,15 @@ export function MilestonesRoadmapPage() {
           </div>
 
           {/* Banner Main Headline */}
-          <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-white max-w-3xl leading-snug">
+          <h2 className="text-xl sm:text-2xl font-black tracking-tight text-white max-w-3xl leading-snug">
             {milestones?.overview?.headline || 'Master core engineering fundamentals, advanced AI models, full-stack frameworks, and real-world project deployments.'}
           </h2>
 
           {/* Banner Progress Bar */}
           <div className="space-y-2 pt-2">
-            <div className="flex items-center justify-between text-xs font-semibold text-purple-100">
+            <div className="flex items-center justify-between text-xs font-extrabold text-purple-100">
               <span>Overall Track Completion</span>
-              <span className="font-bold text-white">{autoCompletionPercentage}%</span>
+              <span className="font-black text-white">{autoCompletionPercentage}%</span>
             </div>
             <div className="h-2.5 w-full overflow-hidden rounded-full bg-white/20 backdrop-blur-sm p-0.5">
               <div
@@ -1006,12 +1071,40 @@ export function MilestonesRoadmapPage() {
                           {/* Module Expanded Content */}
                           {isExpanded && (
                             <div className="p-4 space-y-3 bg-white">
-                              {module.items && module.items.length > 0 ? (
-                                module.items.map((item) => (
-                                  <div
-                                    key={item.id}
-                                    className="p-3.5 rounded-xl border border-slate-100 bg-slate-50/50 hover:bg-slate-50 flex items-center justify-between gap-3 transition-colors group/item"
-                                  >
+                              {(() => {
+                                const rawItems = module.items || [];
+                                const matchingAsmnts = (assessments || []).filter(a => {
+                                  const subMatch = (a.subtopicId && a.subtopicId === activeSubtopic.id) ||
+                                                   (a.subtopicName && a.subtopicName === activeSubtopic.title) ||
+                                                   (a.topicName && a.topicName === activeSubtopic.title);
+                                  const topicMatch = (a.innerTopicId && a.innerTopicId === module.id) ||
+                                                     (a.topicName && a.topicName === module.title);
+                                  return (subMatch && topicMatch) || (a.topicName === module.title);
+                                });
+
+                                const injected = matchingAsmnts.map(a => ({
+                                  id: `item-asm-${a.id}`,
+                                  assessmentId: a.id,
+                                  type: 'ASSESSMENT',
+                                  typeColor: 'bg-purple-100 text-purple-700 border-purple-200',
+                                  iconName: 'FileCheck',
+                                  iconBg: 'bg-purple-600 text-white',
+                                  title: a.title,
+                                  actionText: 'TAKE',
+                                  url: '/assessments',
+                                  btnStyle: 'bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30'
+                                }));
+
+                                const existingIds = new Set(rawItems.map(i => i.id || i.title?.toLowerCase()));
+                                const filteredInjected = injected.filter(i => !existingIds.has(i.id) && !existingIds.has(i.title?.toLowerCase()));
+                                const moduleDisplayItems = [...rawItems, ...filteredInjected];
+
+                                return moduleDisplayItems.length > 0 ? (
+                                  moduleDisplayItems.map((item) => (
+                                    <div
+                                      key={item.id}
+                                      className="p-3.5 rounded-xl border border-slate-100 bg-slate-50/50 hover:bg-slate-50 flex items-center justify-between gap-3 transition-colors group/item"
+                                    >
                                     <div className="flex items-center gap-3">
                                       {renderItemIcon(item.iconName, item.iconBg)}
                                       <div>
@@ -1067,7 +1160,8 @@ export function MilestonesRoadmapPage() {
                                     </button>
                                   )}
                                 </div>
-                              )}
+                              );
+                            })()}
 
                               {viewMode === 'admin' && module.items && module.items.length > 0 && (
                                 <button

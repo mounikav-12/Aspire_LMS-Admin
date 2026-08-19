@@ -39,7 +39,7 @@ export function PlacementPrepPage() {
     author: 'Career Success Team',
     readTime: '10 min read',
     snippet: '',
-    linkUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf'
+    linkUrl: ''
   });
 
   const handleOpenAddModal = () => {
@@ -49,7 +49,7 @@ export function PlacementPrepPage() {
       author: 'Career Success Team',
       readTime: '10 min read',
       snippet: '',
-      linkUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf'
+      linkUrl: ''
     });
     setIsAddModalOpen(true);
   };
@@ -62,7 +62,7 @@ export function PlacementPrepPage() {
       author: res.author,
       readTime: res.readTime,
       snippet: res.snippet,
-      linkUrl: res.linkUrl || 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf'
+      linkUrl: res.linkUrl || ''
     });
   };
 

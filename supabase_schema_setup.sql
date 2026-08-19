@@ -145,14 +145,8 @@ CREATE TABLE IF NOT EXISTS public.role_permissions (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 11. AUDIT ACTIVITIES TABLE
-CREATE TABLE IF NOT EXISTS public.audit_activities (
-  id TEXT PRIMARY KEY,
-  text TEXT NOT NULL,
-  time TEXT DEFAULT 'Just now',
-  type TEXT DEFAULT 'info',
-  created_at TIMESTAMPTZ DEFAULT NOW()
-);
+-- 11. DROP AUDIT ACTIVITIES TABLE IF EXISTS
+DROP TABLE IF EXISTS public.audit_activities CASCADE;
 
 -- 12. BATCHES TABLE
 CREATE TABLE IF NOT EXISTS public.batches (
@@ -170,17 +164,22 @@ CREATE TABLE IF NOT EXISTS public.students (
   id TEXT PRIMARY KEY,
   name TEXT NOT NULL,
   email TEXT UNIQUE NOT NULL,
+  mobile_number TEXT,
   registration_id TEXT,
   batch TEXT DEFAULT 'A26W1',
   enrolled_courses JSONB DEFAULT '["crs-101"]'::jsonb,
   avatar TEXT,
-  attendance INT DEFAULT 92,
-  progress INT DEFAULT 78,
   status TEXT DEFAULT 'Active',
   joined_date TEXT,
-  gpa NUMERIC(3, 2) DEFAULT 3.8,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+ALTER TABLE public.students ADD COLUMN IF NOT EXISTS mobile_number TEXT;
+ALTER TABLE public.students DROP COLUMN IF EXISTS attendance;
+ALTER TABLE public.students DROP COLUMN IF EXISTS progress;
+ALTER TABLE public.students DROP COLUMN IF EXISTS gpa;
+
+DROP TABLE IF EXISTS public.daily_schedules CASCADE;
 
 -- 14. ASSESSMENTS TABLE
 CREATE TABLE IF NOT EXISTS public.assessments (
@@ -236,7 +235,6 @@ ALTER TABLE public.milestones_data ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.coding_questions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.role_permissions ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.audit_activities ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.batches ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.students ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.assessments ENABLE ROW LEVEL SECURITY;
@@ -281,9 +279,6 @@ BEGIN
   DROP POLICY IF EXISTS "Allow full app access on role_permissions" ON public.role_permissions;
   CREATE POLICY "Allow full app access on role_permissions" ON public.role_permissions FOR ALL USING (true) WITH CHECK (true);
 
-  DROP POLICY IF EXISTS "Allow full app access on audit_activities" ON public.audit_activities;
-  CREATE POLICY "Allow full app access on audit_activities" ON public.audit_activities FOR ALL USING (true) WITH CHECK (true);
-
   DROP POLICY IF EXISTS "Allow full app access on batches" ON public.batches;
   CREATE POLICY "Allow full app access on batches" ON public.batches FOR ALL USING (true) WITH CHECK (true);
 
@@ -297,10 +292,7 @@ END $$;
 
 -- 1. PROFILES
 INSERT INTO public.profiles (id, name, email, role, original_role, department, status, joined_date, phone, avatar) VALUES
-('usr-1', 'Super Admin', 'aspireAdmin@gmail.com', 'Super Admin', 'Super Admin', 'Executive Leadership', 'Active', '2025-01-15', '+91 98765-43210', 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80'),
-('usr-2', 'Alex Rivera', 'alex.rivera@aspirelms.io', 'Admin', 'Admin', 'Curriculum Operations', 'Active', '2025-02-01', '+91 98765-43211', 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80'),
-('usr-3', 'Priya Sharma', 'priya.s@aspirelms.io', 'Manager', 'Manager', 'Engineering Training', 'Active', '2025-03-10', '+91 98765-43212', 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80'),
-('usr-4', 'David Chen', 'david.chen@aspirelms.io', 'Instructor', 'Instructor', 'Frontend Systems', 'Active', '2025-03-22', '+91 98765-43213', 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80')
+('usr-1', 'Super Admin', 'aspireAdmin@gmail.com', 'Super Admin', 'Super Admin', 'Executive Leadership', 'Active', '2025-01-15', '+91 98765-43210', 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80')
 ON CONFLICT (id) DO NOTHING;
 
 -- 2. BATCHES
@@ -313,32 +305,5 @@ INSERT INTO public.batches (id, code, category, status) VALUES
 ('btc-6', 'A26S3', 'Weekend', 'Active')
 ON CONFLICT (id) DO NOTHING;
 
--- 3. STUDENTS
-INSERT INTO public.students (id, registration_id, name, email, batch, status, joined_date, avatar, enrolled_courses) VALUES
-('std-w1', 'A26W0001', 'Rahul Sharma', 'rahul.sharma@gmail.com', 'A26W1', 'Active', '2026-01-10', 'https://api.dicebear.com/7.x/initials/svg?seed=Rahul%20Sharma&backgroundColor=e0e7ff&textColor=3730a3&bold=true', '["crs-101", "crs-103"]'::jsonb),
-('std-w2', 'A26W0002', 'Ananya Verma', 'ananya.verma@gmail.com', 'A26W1', 'Active', '2026-01-12', 'https://api.dicebear.com/7.x/initials/svg?seed=Ananya%20Verma&backgroundColor=e0e7ff&textColor=3730a3&bold=true', '["crs-101"]'::jsonb),
-('std-w3', 'A26W0003', 'Vikram Patel', 'vikram.patel@gmail.com', 'A26W2', 'Active', '2026-01-15', 'https://api.dicebear.com/7.x/initials/svg?seed=Vikram%20Patel&backgroundColor=e0e7ff&textColor=3730a3&bold=true', '["crs-101", "crs-102"]'::jsonb),
-('std-w4', 'A26W0004', 'Sneha Reddy', 'sneha.reddy@gmail.com', 'A26W3', 'Active', '2026-01-18', 'https://api.dicebear.com/7.x/initials/svg?seed=Sneha%20Reddy&backgroundColor=e0e7ff&textColor=3730a3&bold=true', '["crs-101"]'::jsonb)
-ON CONFLICT (id) DO NOTHING;
-
--- 4. COURSES
-INSERT INTO public.courses (id, title, category, level, instructor, publish_status, thumbnail, enrolled_count, rating, description) VALUES
-('crs-101', 'Full-Stack React & Node.js Mastery', 'Web Development', 'Intermediate', 'David Chen', 'Published', 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=600&auto=format&fit=crop&q=80', 342, 4.90, 'Master modern full-stack web applications with React 18, Tailwind CSS, Express, and PostgreSQL.'),
-('crs-102', 'Cloud Architecture & DevOps Essentials', 'Cloud & Infrastructure', 'Advanced', 'Alex Rivera', 'Published', 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=600&auto=format&fit=crop&q=80', 218, 4.80, 'Learn Docker containerization, Kubernetes orchestration, AWS Cloud infra, and automated CI/CD pipelines.'),
-('crs-103', 'Data Structures & System Design for Tech Interviews', 'Computer Science', 'All Levels', 'Priya Sharma', 'Published', 'https://images.unsplash.com/photo-1516116211223-4c7141467477?w=600&auto=format&fit=crop&q=80', 520, 4.95, 'Comprehensive preparation for high-frequency DSA patterns, microservice architecture, and high scalability design.')
-ON CONFLICT (id) DO NOTHING;
-
--- 5. JOBS
-INSERT INTO public.jobs (id, company, job_title, job_type, salary, location, posted_date, publish_status, logo, description) VALUES
-('job-1', 'Stripe', 'Senior Frontend Engineer (React/TypeScript)', 'Full-Time / Remote', '₹16,50,000 - ₹22,00,000 / yr', 'Bengaluru / Hyderabad (Remote)', '2026-08-01', 'Live Feed', 'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=120&auto=format&fit=crop&q=80', 'Looking for a Senior Frontend Developer to lead dashboard user experience, high performance component libraries, and checkout widget architecture.'),
-('job-2', 'Datadog', 'Full-Stack Software Engineer', 'Full-Time', '₹14,00,000 - ₹18,00,000 / yr', 'Bengaluru, KA', '2026-08-02', 'Live Feed', 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=120&auto=format&fit=crop&q=80', 'Join our telemetry dashboard squad building real-time monitoring charts, distributed log visualizers, and node graph analytics.'),
-('job-3', 'Vercel', 'Developer Relations & Educator', 'Contract / Remote', '₹12,00,000 - ₹16,00,000 / yr', 'Remote India', '2026-07-28', 'Live Feed', 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=120&auto=format&fit=crop&q=80', 'Create world-class technical guides, interactive sample applications, and conduct webinars on Next.js performance optimizations.')
-ON CONFLICT (id) DO NOTHING;
-
--- 6. LIVE SESSIONS
-INSERT INTO public.live_sessions (id, program_name, technology, session_title, date, time, meeting_link, status, publish_status, instructor, description) VALUES
-('sess-1', 'Full-Stack Web Dev', 'React 18', 'React Server Components & State Management', '2026-08-16', '10:00 AM - 12:00 PM', 'https://meet.google.com/asp-live-01', 'Scheduled', 'Published to Student LMS', 'David Chen', 'Deep dive into RSC, streaming SSR, and scalable context patterns.'),
-('sess-2', 'Cloud DevOps', 'Docker & Kubernetes', 'Containerizing Microservices & Deployment', '2026-08-18', '02:00 PM - 04:00 PM', 'https://meet.google.com/asp-live-02', 'Scheduled', 'Published to Student LMS', 'Alex Rivera', 'Hands-on session building multi-stage Dockerfiles and Helm charts.')
-ON CONFLICT (id) DO NOTHING;
 
 

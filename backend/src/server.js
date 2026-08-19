@@ -151,82 +151,12 @@ app.post('/api/auth/logout', (req, res) => {
 app.get('/api/student/course-schedule', async (req, res) => {
   try {
     const courseHierarchy = {
-      _id: "crs-ai-ml",
-      name: "AI & Machine Learning Program",
-      stages: [
-        {
-          _id: "stg-1",
-          name: "STAGE 1: PYTHON & CORE FUNDAMENTALS",
-          topics: [
-            {
-              _id: "top-1",
-              name: "Python Programming Basics",
-              subtopics: [
-                {
-                  _id: "sub-101",
-                  name: "Variables & Data Types",
-                  cheatSheetUrl: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
-                  sessions: {
-                    live: { _id: "sess-live-1", title: "Variables & Data Types Live Class", scheduledDate: new Date().toISOString() },
-                    lab: { _id: "sess-lab-1", title: "Variables Lab Practice" },
-                    assessment: { _id: "sess-mcq-1", title: "Variables Assessment Quiz" }
-                  }
-                },
-                {
-                  _id: "sub-102",
-                  name: "Functions & OOP Concepts",
-                  cheatSheetUrl: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
-                  sessions: {
-                    lab: { _id: "sess-lab-2", title: "Functions & Classes Lab" },
-                    assessment: { _id: "sess-mcq-2", title: "OOP Assessment" }
-                  }
-                }
-              ]
-            }
-          ]
-        },
-        {
-          _id: "stg-2",
-          name: "STAGE 2: MACHINE LEARNING & AI MODELS",
-          topics: [
-            {
-              _id: "top-2",
-              name: "Supervised Learning Algorithms",
-              subtopics: [
-                {
-                  _id: "sub-201",
-                  name: "Linear & Logistic Regression",
-                  sessions: {
-                    live: { _id: "sess-live-2", title: "Regression Models Workshop", scheduledDate: new Date(Date.now() + 86400000).toISOString() }
-                  }
-                }
-              ]
-            }
-          ]
-        }
-      ]
+      _id: "",
+      name: "",
+      stages: []
     };
 
-    const calendarSchedule = [
-      {
-        _id: "sched-1",
-        type: "LIVE_CLASS",
-        subtopicName: "Variables & Data Types",
-        topicName: "Python Programming Basics",
-        subtopicId: "sub-101",
-        scheduledDate: new Date().toISOString(),
-        duration: "120 min"
-      },
-      {
-        _id: "sched-2",
-        type: "LAB",
-        subtopicName: "Variables Lab Practice",
-        topicName: "Python Programming Basics",
-        subtopicId: "sub-101",
-        scheduledDate: new Date().toISOString(),
-        duration: "45 min"
-      }
-    ];
+    const calendarSchedule = [];
 
     res.json({ courseHierarchy, calendarSchedule });
   } catch (err) {
@@ -288,22 +218,7 @@ app.post('/api/live-sessions', async (req, res) => {
 // 5. MCQ TESTS API
 // =========================================================
 app.get('/api/mcq/:subtopicId', (req, res) => {
-  res.json([
-    {
-      _id: "mcq-set-1",
-      level: "EASY",
-      setType: "PRACTICE",
-      title: "Variables & Data Types Practice",
-      userResult: null
-    },
-    {
-      _id: "mcq-set-2",
-      level: "MEDIUM",
-      setType: "ASSIGNMENT",
-      title: "Variables Core Evaluation",
-      userResult: null
-    }
-  ]);
+  res.json([]);
 });
 
 // =========================================================
@@ -329,25 +244,15 @@ app.post('/api/projects', async (req, res) => {
 });
 
 // =========================================================
-// 6. DAILY SCHEDULE API
+// 6. DAILY SCHEDULE API (Legacy stub)
 // =========================================================
 app.get('/api/schedule', async (req, res) => {
-  try {
-    const { data, error } = await supabase.from('daily_schedules').select('*');
-    res.json({ success: true, data: data || [] });
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
-  }
+  res.json({ success: true, data: [] });
 });
 
 app.post('/api/schedule', async (req, res) => {
-  try {
-    const newTopic = { id: `top-sched-${Date.now()}`, ...req.body };
-    const { data, error } = await supabase.from('daily_schedules').upsert([newTopic]).select();
-    res.status(201).json({ success: true, data: data ? data[0] : newTopic });
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
-  }
+  const newTopic = { id: `top-sched-${Date.now()}`, ...req.body };
+  res.status(201).json({ success: true, data: newTopic });
 });
 
 // =========================================================
@@ -359,7 +264,6 @@ app.get('/api/v1/student-feed', async (req, res) => {
     const { data: liveSessions } = await supabase.from('live_sessions').select('*');
     const { data: jobs } = await supabase.from('jobs').select('*');
     const { data: projects } = await supabase.from('projects').select('*');
-    const { data: dailySchedules } = await supabase.from('daily_schedules').select('*');
 
     res.json({
       status: 'Connected & Syncing',
@@ -367,7 +271,7 @@ app.get('/api/v1/student-feed', async (req, res) => {
       lastSynced: new Date().toISOString(),
       feedPayload: {
         courses: courses || [],
-        dailySchedule: dailySchedules || [],
+        dailySchedule: [],
         projects: projects || [],
         liveSessions: liveSessions || [],
         jobOpportunities: jobs || []

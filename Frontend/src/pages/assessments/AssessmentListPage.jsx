@@ -29,8 +29,50 @@ import {
 } from 'lucide-react';
 
 export function AssessmentListPage() {
-  const { assessments, courses, addAssessment, updateAssessment, deleteAssessment, activeBatchFilter, setActiveBatchFilter } = useLmsData();
+  const { assessments, courses, milestones, addAssessment, updateAssessment, deleteAssessment, activeBatchFilter, setActiveBatchFilter } = useLmsData();
   const { addToast } = useToast();
+
+  const stagesList = (milestones && milestones.stages && milestones.stages.length > 0)
+    ? milestones.stages
+    : [
+        {
+          id: 'stage-1',
+          title: 'Stage 1: Front End + Repository',
+          subtopics: [
+            { id: 'git-github', title: 'Git & GitHub Version Control' },
+            { id: 'html5', title: 'HTML5 & Semantic Structure' },
+            { id: 'css3', title: 'CSS3 & Responsive Layouts' },
+            { id: 'javascript-es6', title: 'JavaScript Fundamentals & ES6+' },
+            { id: 'reactjs', title: 'React.js Components & Hooks' }
+          ]
+        },
+        {
+          id: 'stage-2',
+          title: 'Stage 2: Backend + DSA',
+          subtopics: [
+            { id: 'python-core', title: 'Python Syntax, OOP & Standard Library' },
+            { id: 'express-django', title: 'REST API Design with Express & Django' },
+            { id: 'postgresql', title: 'PostgreSQL Database & Relational Schemas' },
+            { id: 'dsa-core', title: 'Data Structures & Algorithms (Trees, Graphs, DP)' }
+          ]
+        },
+        {
+          id: 'stage-3',
+          title: 'Stage 3: AI & Cloud Integration',
+          subtopics: [
+            { id: 'ai-prompting', title: 'AI Model Integration & OpenAI APIs' },
+            { id: 'docker-cloud', title: 'Docker, Containers & Cloud Deployment' }
+          ]
+        },
+        {
+          id: 'stage-4',
+          title: 'Stage 4: Career Launchpad',
+          subtopics: [
+            { id: 'capstone-proj', title: 'Capstone Enterprise Full-Stack Deployment' },
+            { id: 'mock-interview', title: 'System Design & Technical Mock Interviews' }
+          ]
+        }
+      ];
 
   const [selectedBatch, setSelectedBatch] = useState(activeBatchFilter || 'Weekday Batch');
 
@@ -45,10 +87,17 @@ export function AssessmentListPage() {
   const [editingAssessment, setEditingAssessment] = useState(null);
   const [deletingAssessment, setDeletingAssessment] = useState(null);
 
-  // Form State with Dynamic Questions Array
+  // Form State with Dynamic Questions Array & 4-Tier Milestone Cascading Hierarchy
+  const firstStage = stagesList[0];
+  const firstSubtopic = firstStage?.subtopics?.[0];
+  const firstInner = firstSubtopic?.modules?.[0];
+
   const [formData, setFormData] = useState({
     title: '',
     courseId: courses[0]?.id || '',
+    stageId: firstStage?.id || 'stage-1',
+    subtopicId: firstSubtopic?.id || 'git-github',
+    innerTopicId: firstInner?.id || firstSubtopic?.id || '',
     durationMinutes: 45,
     totalMarks: 100,
     dueDate: '2026-08-15',
@@ -68,9 +117,15 @@ export function AssessmentListPage() {
   });
 
   const handleOpenAddModal = () => {
+    const fStage = stagesList[0];
+    const fSub = fStage?.subtopics?.[0];
+    const fInner = fSub?.modules?.[0];
     setFormData({
       title: '',
       courseId: courses[0]?.id || '',
+      stageId: fStage?.id || 'stage-1',
+      subtopicId: fSub?.id || 'git-github',
+      innerTopicId: fInner?.id || fSub?.id || '',
       durationMinutes: 45,
       totalMarks: 100,
       dueDate: '2026-08-15',
@@ -120,11 +175,22 @@ export function AssessmentListPage() {
           }
         ];
 
+    const foundStage = stagesList.find((s) => s.id === asm.stageId || s.title === asm.moduleName) || stagesList[0];
+    const subtopicsOfStage = foundStage?.subtopics || [];
+    const foundSubtopic = subtopicsOfStage.find((st) => st.id === asm.subtopicId || st.title === asm.subtopicName || st.title === asm.topicName) || subtopicsOfStage[0];
+    const innerModulesOfSubtopic = (foundSubtopic && Array.isArray(foundSubtopic.modules) && foundSubtopic.modules.length > 0)
+      ? foundSubtopic.modules
+      : [{ id: foundSubtopic?.id || 'all', title: foundSubtopic?.title || 'General Overview' }];
+    const foundInnerTopic = innerModulesOfSubtopic.find((m) => m.id === asm.innerTopicId || m.title === asm.topicName) || innerModulesOfSubtopic[0];
+
     setFormData({
       title: asm.title,
-      courseId: asm.courseId,
-      durationMinutes: asm.durationMinutes,
-      totalMarks: asm.totalMarks,
+      courseId: asm.courseId || courses[0]?.id || '',
+      stageId: foundStage?.id || 'stage-1',
+      subtopicId: foundSubtopic?.id || 'git-github',
+      innerTopicId: foundInnerTopic?.id || foundSubtopic?.id || '',
+      durationMinutes: asm.durationMinutes || 45,
+      totalMarks: asm.totalMarks || 100,
       dueDate: asm.dueDate || '2026-08-15',
       mcqs: initialMcqs,
       codingQuestions: initialCoding
@@ -225,6 +291,13 @@ export function AssessmentListPage() {
     }
 
     const selectedCourse = courses.find((c) => c.id === formData.courseId) || courses[0];
+    const selectedStage = stagesList.find((s) => s.id === formData.stageId) || stagesList[0];
+    const subtopicsOfStage = selectedStage?.subtopics || [];
+    const selectedSubtopic = subtopicsOfStage.find((st) => st.id === formData.subtopicId) || subtopicsOfStage[0];
+    const innerList = (selectedSubtopic && Array.isArray(selectedSubtopic.modules) && selectedSubtopic.modules.length > 0)
+      ? selectedSubtopic.modules
+      : [{ id: selectedSubtopic?.id || 'all-topics', title: selectedSubtopic?.title || 'General Overview' }];
+    const selectedInnerTopic = innerList.find((m) => m.id === formData.innerTopicId || m.title === formData.innerTopicId) || innerList[0];
 
     const totalMcqsCount = formData.mcqs.length;
     const totalCodingCount = formData.codingQuestions.length;
@@ -234,6 +307,12 @@ export function AssessmentListPage() {
       title: formData.title,
       courseId: selectedCourse?.id,
       courseName: selectedCourse?.title,
+      stageId: selectedStage?.id,
+      moduleName: selectedStage?.title,
+      subtopicId: selectedSubtopic?.id,
+      subtopicName: selectedSubtopic?.title,
+      innerTopicId: selectedInnerTopic?.id,
+      topicName: selectedInnerTopic?.title || selectedSubtopic?.title,
       durationMinutes: parseInt(formData.durationMinutes) || 45,
       totalMarks: parseInt(formData.totalMarks) || 100,
       dueDate: formData.dueDate,
@@ -378,29 +457,58 @@ export function AssessmentListPage() {
                 className="group bg-white rounded-3xl border border-slate-200/80 shadow-2xs hover:shadow-2xl hover:shadow-blue-500/10 hover:border-blue-300 transition-all duration-300 hover:-translate-y-1.5 p-6 flex flex-col justify-between h-full"
               >
                 <div className="space-y-4">
-                  {/* Header Badge & Action Icons */}
-                  <div className="flex items-center justify-between">
-                    <span className="inline-flex items-center gap-1.5 bg-blue-50/90 text-blue-700 font-bold px-3 py-1.5 rounded-xl border border-blue-200/60 text-xs">
-                      <BookOpen className="w-3.5 h-3.5 text-blue-600 flex-shrink-0" />
-                      <span className="truncate max-w-[240px]">{asm.courseName}</span>
-                    </span>
+                  {/* Header Badges & Action Icons */}
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="inline-flex items-center gap-1.5 bg-blue-50/90 text-blue-700 font-bold px-3 py-1.5 rounded-xl border border-blue-200/60 text-xs">
+                        <BookOpen className="w-3.5 h-3.5 text-blue-600 flex-shrink-0" />
+                        <span className="truncate max-w-[240px]">{asm.courseName || 'Python Full Stack'}</span>
+                      </span>
 
-                    <div className="flex items-center gap-1 bg-slate-50 p-1 rounded-xl border border-slate-100">
-                      <button
-                        onClick={() => handleOpenEditModal(asm)}
-                        className="p-1.5 text-slate-400 hover:text-blue-600 rounded-lg hover:bg-white transition-colors cursor-pointer"
-                        title="Edit Assessment & Questions"
-                      >
-                        <Edit2 className="w-3.5 h-3.5" />
-                      </button>
-                      <button
-                        onClick={() => setDeletingAssessment(asm)}
-                        className="p-1.5 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-white transition-colors cursor-pointer"
-                        title="Delete Assessment"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
+                      <div className="flex items-center gap-1 bg-slate-50 p-1 rounded-xl border border-slate-100">
+                        <button
+                          onClick={() => handleOpenEditModal(asm)}
+                          className="p-1.5 text-slate-400 hover:text-blue-600 rounded-lg hover:bg-white transition-colors cursor-pointer"
+                          title="Edit Assessment & Questions"
+                        >
+                          <Edit2 className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          onClick={() => setDeletingAssessment(asm)}
+                          className="p-1.5 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-white transition-colors cursor-pointer"
+                          title="Delete Assessment"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
                     </div>
+
+                    {/* Stage, Subtopic & Inner Topic Breadcrumb Pills */}
+                    {(asm.moduleName || asm.subtopicName || asm.topicName) && (
+                      <div className="flex flex-wrap items-center gap-1.5 text-[11px] font-semibold text-slate-600">
+                        {asm.moduleName && (
+                          <span className="px-2 py-0.5 bg-slate-100 text-slate-700 rounded-md border border-slate-200/80 font-bold">
+                            {asm.moduleName}
+                          </span>
+                        )}
+                        {asm.subtopicName && (
+                          <>
+                            <span className="text-slate-400">➔</span>
+                            <span className="px-2 py-0.5 bg-blue-50 text-blue-700 rounded-md border border-blue-200/80 font-bold">
+                              {asm.subtopicName}
+                            </span>
+                          </>
+                        )}
+                        {asm.topicName && (
+                          <>
+                            <span className="text-slate-400">➔</span>
+                            <span className="px-2 py-0.5 bg-purple-50 text-purple-700 rounded-md border border-purple-200/80 font-bold">
+                              Topic: {asm.topicName}
+                            </span>
+                          </>
+                        )}
+                      </div>
+                    )}
                   </div>
 
                   {/* Title & Total Questions Badge */}
@@ -506,23 +614,102 @@ export function AssessmentListPage() {
             required
           />
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Select
-              label="Associated Course Track"
-              value={formData.courseId}
-              onChange={(e) => setFormData({ ...formData, courseId: e.target.value })}
-              options={courses.map((c) => ({ value: c.id, label: c.title }))}
-            />
+          {/* 4-TIER CASCADING HIERARCHY SELECTOR */}
+          {(() => {
+            const currentStageObj = stagesList.find((s) => s.id === formData.stageId) || stagesList[0];
+            const currentSubtopicsArr = currentStageObj?.subtopics || [];
+            const currentSubtopicObj = currentSubtopicsArr.find((st) => st.id === formData.subtopicId) || currentSubtopicsArr[0];
+            const currentInnerModules = (currentSubtopicObj && Array.isArray(currentSubtopicObj.modules) && currentSubtopicObj.modules.length > 0)
+              ? currentSubtopicObj.modules
+              : [{ id: currentSubtopicObj?.id || 'all-topics', title: currentSubtopicObj?.title || 'General Overview' }];
 
+            return (
+              <div className="p-4 bg-slate-50/90 rounded-2xl border border-slate-200/80 space-y-3.5">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-black text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+                    <Layers className="w-4 h-4 text-blue-600" />
+                    <span>Curriculum Location & Milestone Topic Mapping</span>
+                  </label>
+                  <span className="text-[11px] font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-md border border-blue-200/60">
+                    4-Tier Milestone Cascade
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                  {/* Tier 1: Course Track */}
+                  <Select
+                    label="1. Course Track"
+                    value={formData.courseId}
+                    onChange={(e) => setFormData({ ...formData, courseId: e.target.value })}
+                    options={courses.map((c) => ({ value: c.id, label: c.title }))}
+                  />
+
+                  {/* Tier 2: Course Module / Stage */}
+                  <Select
+                    label="2. Course Module / Stage"
+                    value={formData.stageId}
+                    onChange={(e) => {
+                      const newStageId = e.target.value;
+                      const newStage = stagesList.find((s) => s.id === newStageId) || stagesList[0];
+                      const firstSub = newStage?.subtopics?.[0];
+                      const firstInner = firstSub?.modules?.[0];
+                      setFormData({
+                        ...formData,
+                        stageId: newStageId,
+                        subtopicId: firstSub?.id || '',
+                        innerTopicId: firstInner?.id || firstSub?.id || ''
+                      });
+                    }}
+                    options={stagesList.map((stg) => ({
+                      value: stg.id,
+                      label: stg.title
+                    }))}
+                  />
+
+                  {/* Tier 3: Milestone Subtopic */}
+                  <Select
+                    label="3. Milestone Subtopic"
+                    value={formData.subtopicId}
+                    onChange={(e) => {
+                      const newSubId = e.target.value;
+                      const targetStage = stagesList.find((s) => s.id === formData.stageId) || stagesList[0];
+                      const targetSub = targetStage?.subtopics?.find((st) => st.id === newSubId) || targetStage?.subtopics?.[0];
+                      const firstInner = targetSub?.modules?.[0];
+                      setFormData({
+                        ...formData,
+                        subtopicId: newSubId,
+                        innerTopicId: firstInner?.id || targetSub?.id || ''
+                      });
+                    }}
+                    options={currentSubtopicsArr.map((sub) => ({
+                      value: sub.id,
+                      label: sub.title
+                    }))}
+                  />
+
+                  {/* Tier 4: Specific Inner Topic */}
+                  <Select
+                    label="4. Specific Inner Topic"
+                    value={formData.innerTopicId}
+                    onChange={(e) => setFormData({ ...formData, innerTopicId: e.target.value })}
+                    options={currentInnerModules.map((mod) => ({
+                      value: mod.id || mod.title,
+                      label: mod.title
+                    }))}
+                  />
+                </div>
+              </div>
+            );
+          })()}
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <Input
               label="Duration (Minutes)"
               type="number"
               value={formData.durationMinutes}
               onChange={(e) => setFormData({ ...formData, durationMinutes: e.target.value })}
             />
-          </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Input
               label="Total Marks"
               type="number"

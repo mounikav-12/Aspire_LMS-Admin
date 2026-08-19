@@ -282,6 +282,16 @@ export function AuthProvider({ children }) {
       setCurrentUser(updated);
       localStorage.setItem('aspire_lms_user', JSON.stringify(updated));
 
+      setRegisteredUsers((prev) => {
+        const next = prev.map((u) =>
+          u.id === updated.id || (u.email && u.email.toLowerCase() === updated.email.toLowerCase())
+            ? { ...u, ...updatedFields }
+            : u
+        );
+        localStorage.setItem('aspire_lms_registered_users', JSON.stringify(next));
+        return next;
+      });
+
       try {
         await supabase.from('profiles').update({
           name: updated.name,

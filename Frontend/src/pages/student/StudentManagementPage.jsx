@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useLmsData } from '../../context/LmsDataContext';
+import { useLmsData, getStudentEnrolledCourses } from '../../context/LmsDataContext';
 import { useToast } from '../../context/ToastContext';
 import { Button } from '../../components/common/Button';
 import { Input, Select } from '../../components/common/Input';
@@ -12,6 +12,7 @@ import {
   UserPlus,
   Search,
   Mail,
+  Phone,
   Calendar,
   ShieldCheck,
   Edit2,
@@ -27,34 +28,122 @@ import {
   ArrowRight,
   Plus
 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 export function StudentManagementPage() {
-  const { students = [], addStudent, updateStudent, deleteStudent, courses = [], setActiveBatchFilter, availableBatches } = useLmsData();
+  const { students = [], addStudent, updateStudent, deleteStudent, courses = [], activeBatchFilter, setActiveBatchFilter, availableBatches } = useLmsData();
   const { addToast } = useToast();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const urlBatch = searchParams.get('batch');
 
   const batchList = availableBatches && availableBatches.length > 0
     ? availableBatches
     : ['A26W1', 'A26W2', 'A26W3', 'A26W4', 'A26S1', 'A26S2', 'A26S3'];
 
   const [searchTerm, setSearchTerm] = useState('');
-  const [batchFilter, setBatchFilter] = useState('ALL');
+  const [batchFilter, setBatchFilter] = useState(() => {
+    return urlBatch || (activeBatchFilter && activeBatchFilter !== 'ALL' ? activeBatchFilter : 'ALL');
+  });
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [editingStudent, setEditingStudent] = useState(null);
   const [deletingStudent, setDeletingStudent] = useState(null);
   const [testingStudent, setTestingStudent] = useState(null);
+  const [mobileError, setMobileError] = useState('');
+  const [emailError, setEmailError] = useState('');
+
+  React.useEffect(() => {
+    if (urlBatch) {
+      setBatchFilter(urlBatch);
+      if (setActiveBatchFilter) setActiveBatchFilter(urlBatch);
+    } else if (activeBatchFilter && activeBatchFilter !== 'ALL') {
+      setBatchFilter(activeBatchFilter);
+    }
+  }, [urlBatch, activeBatchFilter]);
 
   const defaultBatch = batchList[0] || 'A26W1';
+
+  // Helper to validate email format via regex (/^[^\s@]+@[^\s@]+\.[^\s@]+$/)
+  const getEmailValidationError = (emailVal) => {
+    const trimmed = (emailVal || '').trim();
+    if (!trimmed) return '';
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(trimmed)) {
+      return 'Please enter a valid email address (e.g. rahul.sharma@gmail.com)';
+    }
+    return '';
+  };
+
+  // Strips 91 prefix for 10-digit input field editing
+  const stripCountryCodeForInput = (phoneVal) => {
+    if (!phoneVal) return '';
+    const digits = String(phoneVal).trim().replace(/\D/g, '');
+    if (digits.length === 12 && digits.startsWith('91')) {
+      return digits.slice(2);
+    }
+    return digits.length > 10 ? digits.slice(-10) : digits;
+  };
+
+  // Helper to validate 10-digit user mobile number input
+  const getMobileValidationError = (mobileVal) => {
+    const trimmed = (mobileVal || '').trim();
+    if (!trimmed) return '';
+
+    const cleanDigits = trimmed.replace(/\D/g, '');
+    const input10Digits = cleanDigits.slice(-10);
+
+    if (cleanDigits.length < 10) {
+      return `Mobile number must contain 10 digits (${cleanDigits.length}/10 entered)`;
+    }
+
+    const duplicate = students.find((s) => {
+      if (editingStudent && s.id === editingStudent.id) return false;
+      const sMobile = (s.mobileNumber || s.mobile_number || '').trim();
+      if (!sMobile) return false;
+
+      const sDigits = sMobile.replace(/\D/g, '');
+      const s10Digits = sDigits.slice(-10);
+      return s10Digits.length === 10 && input10Digits.length === 10 && s10Digits === input10Digits;
+    });
+
+    if (duplicate) {
+      return 'Mobile number already registered';
+    }
+    return '';
+  };
+
+  const formatMobileWithCountryCode = (phoneVal) => {
+    if (!phoneVal) return '';
+    const trimmed = String(phoneVal).trim();
+    if (!trimmed) return '';
+
+    const digits = trimmed.replace(/\D/g, '');
+    if (!digits) return trimmed;
+
+    if (digits.length === 10) {
+      return `91${digits}`;
+    }
+    if (digits.length === 12 && digits.startsWith('91')) {
+      return digits;
+    }
+    return digits.length > 10 ? digits : `91${digits}`;
+  };
+
+  const getInitialsAvatar = (name) => {
+    const seedName = encodeURIComponent((name || 'Student').trim());
+    return `https://api.dicebear.com/7.x/initials/svg?seed=${seedName}&backgroundColor=e0e7ff&textColor=3730a3&bold=true`;
+  };
 
   // Form State
   const [formData, setFormData] = useState({
     name: '',
     email: '',
+    mobileNumber: '',
     registrationId: '',
     batch: defaultBatch,
-    enrolledCourses: ['crs-101'],
-    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80'
+    enrolledCourses: [],
+    avatar: getInitialsAvatar('')
   });
 
   const handleOpenAddModal = () => {
@@ -65,11 +154,14 @@ export function StudentManagementPage() {
     setFormData({
       name: '',
       email: '',
+      mobileNumber: '',
       registrationId: defaultRegId,
       batch: defaultBatch,
-      enrolledCourses: ['crs-101'],
-      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80'
+      enrolledCourses: [],
+      avatar: getInitialsAvatar('')
     });
+    setMobileError('');
+    setEmailError('');
     setIsAddModalOpen(true);
   };
 
@@ -88,14 +180,21 @@ export function StudentManagementPage() {
 
   const handleOpenEditModal = (student) => {
     setEditingStudent(student);
+    const editAvatar = (!student.avatar || student.avatar.includes('unsplash.com'))
+      ? getInitialsAvatar(student.name)
+      : student.avatar;
+    const rawMobile = student.mobileNumber || student.mobile_number || '';
     setFormData({
       name: student.name || '',
       email: student.email || '',
+      mobileNumber: stripCountryCodeForInput(rawMobile),
       registrationId: student.registrationId || '',
       batch: student.batch || defaultBatch,
-      enrolledCourses: student.enrolledCourses || ['crs-101'],
-      avatar: student.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80'
+      enrolledCourses: student.enrolledCourses || [],
+      avatar: editAvatar
     });
+    setMobileError('');
+    setEmailError('');
   };
 
   const handleSaveStudent = (e) => {
@@ -105,12 +204,32 @@ export function StudentManagementPage() {
       return;
     }
 
+    const emailErr = getEmailValidationError(formData.email);
+    if (emailErr) {
+      setEmailError(emailErr);
+      addToast(emailErr, 'error');
+      return;
+    }
+
+    const mobileErr = getMobileValidationError(formData.mobileNumber);
+    if (mobileErr) {
+      setMobileError(mobileErr);
+      addToast(mobileErr, 'error');
+      return;
+    }
+
+    const finalAvatar = (!formData.avatar || formData.avatar.includes('unsplash.com'))
+      ? getInitialsAvatar(formData.name)
+      : formData.avatar;
+    const formattedMobile = formatMobileWithCountryCode(formData.mobileNumber);
+    const finalStudentPayload = { ...formData, mobileNumber: formattedMobile, avatar: finalAvatar };
+
     if (editingStudent) {
-      updateStudent(editingStudent.id, formData);
+      updateStudent(editingStudent.id, finalStudentPayload);
       addToast(`Updated student account for "${formData.name}" (${formData.registrationId})`, 'success');
       setEditingStudent(null);
     } else {
-      addStudent(formData);
+      addStudent(finalStudentPayload);
       addToast(`Added new student: "${formData.name}" [Reg ID: ${formData.registrationId}]`, 'success');
       setIsAddModalOpen(false);
     }
@@ -137,11 +256,12 @@ export function StudentManagementPage() {
     if (!s) return false;
     const name = (s.name || '').toLowerCase();
     const email = (s.email || '').toLowerCase();
+    const mobile = (s.mobileNumber || s.mobile_number || '').toLowerCase();
     const regId = (s.registrationId || '').toLowerCase();
     const batch = (s.batch || '').toLowerCase();
     const query = searchTerm.toLowerCase();
 
-    const matchesSearch = name.includes(query) || email.includes(query) || regId.includes(query) || batch.includes(query);
+    const matchesSearch = name.includes(query) || email.includes(query) || mobile.includes(query) || regId.includes(query) || batch.includes(query);
     
     let matchesBatch = batchFilter === 'ALL' || s.batch === batchFilter;
     const isWeekdayFilter = batchFilter === 'WEEKDAY' || batchFilter === 'Weekday Batch';
@@ -243,8 +363,25 @@ export function StudentManagementPage() {
 
         {/* Batch Filter Tabs */}
         <div className="flex items-center gap-1 bg-slate-100/80 p-1 rounded-xl w-full md:w-auto">
+          {batchFilter !== 'ALL' && batchFilter !== 'Weekday Batch' && batchFilter !== 'Weekend Batch' && (
+            <button
+              onClick={() => {
+                setBatchFilter('ALL');
+                if (setActiveBatchFilter) setActiveBatchFilter('ALL');
+              }}
+              className="px-3.5 py-1.5 rounded-lg text-xs font-black bg-blue-600 text-white shadow-xs flex items-center gap-1.5 cursor-pointer"
+            >
+              <Layers className="w-3.5 h-3.5" />
+              <span>Batch {batchFilter}</span>
+              <span className="text-[10px] bg-blue-700 text-white px-1.5 py-0.2 rounded-md">×</span>
+            </button>
+          )}
+
           <button
-            onClick={() => setBatchFilter('ALL')}
+            onClick={() => {
+              setBatchFilter('ALL');
+              if (setActiveBatchFilter) setActiveBatchFilter('ALL');
+            }}
             className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
               batchFilter === 'ALL'
                 ? 'bg-white text-slate-900 shadow-xs'
@@ -254,7 +391,10 @@ export function StudentManagementPage() {
             All Batches ({students.length})
           </button>
           <button
-            onClick={() => setBatchFilter('Weekday Batch')}
+            onClick={() => {
+              setBatchFilter('Weekday Batch');
+              if (setActiveBatchFilter) setActiveBatchFilter('ALL');
+            }}
             className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
               batchFilter === 'Weekday Batch'
                 ? 'bg-blue-600 text-white shadow-xs'
@@ -264,7 +404,10 @@ export function StudentManagementPage() {
             Weekday Batch ({weekdayCount})
           </button>
           <button
-            onClick={() => setBatchFilter('Weekend Batch')}
+            onClick={() => {
+              setBatchFilter('Weekend Batch');
+              if (setActiveBatchFilter) setActiveBatchFilter('ALL');
+            }}
             className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
               batchFilter === 'Weekend Batch'
                 ? 'bg-purple-600 text-white shadow-xs'
@@ -291,6 +434,7 @@ export function StudentManagementPage() {
                 <tr className="border-b border-slate-200/80 bg-slate-50/70 text-[11px] uppercase tracking-wider text-slate-500 font-bold">
                   <th className="py-3.5 px-4">Student Profile</th>
                   <th className="py-3.5 px-4">Registration ID</th>
+                  <th className="py-3.5 px-4">Mobile Number</th>
                   <th className="py-3.5 px-4">Batch Allocation</th>
                   <th className="py-3.5 px-4">Course Enrolments</th>
                   <th className="py-3.5 px-4">Status</th>
@@ -305,17 +449,15 @@ export function StudentManagementPage() {
                       {/* Name & Email */}
                       <td className="py-3.5 px-4">
                         <div className="flex items-center gap-3">
-                          {student.avatar && !student.avatar.includes('unsplash.com') ? (
-                            <img
-                              src={student.avatar}
-                              alt={student.name}
-                              className="w-9 h-9 rounded-full object-cover border border-slate-200/80 ring-2 ring-slate-100 bg-slate-100 flex-shrink-0"
-                            />
-                          ) : (
-                            <div className="w-9 h-9 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200/80 flex items-center justify-center font-black text-xs shadow-2xs flex-shrink-0">
-                              {student.name ? student.name.charAt(0).toUpperCase() : 'S'}
-                            </div>
-                          )}
+                          <img
+                            src={student.avatar || getInitialsAvatar(student.name)}
+                            alt={student.name}
+                            onError={(e) => {
+                              e.target.onerror = null;
+                              e.target.src = getInitialsAvatar(student.name);
+                            }}
+                            className="w-9 h-9 rounded-full object-cover border border-slate-200/80 ring-2 ring-slate-100 bg-slate-100 flex-shrink-0"
+                          />
                           <div>
                             <p className="font-bold text-slate-900 group-hover:text-blue-600 transition-colors">
                               {student.name}
@@ -339,6 +481,14 @@ export function StudentManagementPage() {
                         </span>
                       </td>
 
+                      {/* Mobile Number */}
+                      <td className="py-3.5 px-4">
+                        <div className="flex items-center gap-1.5 text-xs text-slate-700 font-mono font-medium">
+                          <Phone className="w-3.5 h-3.5 text-slate-400" />
+                          <span>{student.mobileNumber || student.mobile_number || 'N/A'}</span>
+                        </div>
+                      </td>
+
                       {/* Batch Allocation */}
                       <td className="py-3.5 px-4">
                         <span
@@ -360,14 +510,15 @@ export function StudentManagementPage() {
                       {/* Course Access */}
                       <td className="py-3.5 px-4">
                         <div className="flex items-center gap-1.5 flex-wrap">
-                          {student.enrolledCourses?.map((crsId) => {
+                          {getStudentEnrolledCourses(student, courses)?.map((crsId) => {
                             const crs = courses.find((c) => c.id === crsId);
+                            const displayName = crs ? crs.title : crsId;
                             return (
                               <span
                                 key={crsId}
-                                className="px-2 py-0.5 bg-slate-100 border border-slate-200 text-slate-700 rounded-md text-[11px] font-semibold"
+                                className="px-2 py-0.5 bg-purple-50 border border-purple-200/80 text-purple-700 rounded-md text-[11px] font-semibold"
                               >
-                                {crs ? crs.title.split(' ')[0] : crsId}
+                                {displayName}
                               </span>
                             );
                           })}
@@ -433,13 +584,11 @@ export function StudentManagementPage() {
             value={formData.name}
             onChange={(e) => {
               const nameVal = e.target.value;
-              const generatedEmail = nameVal.trim()
-                ? `${nameVal.toLowerCase().trim().replace(/\s+/g, '.')}@gmail.com`
-                : '';
+              const generatedAvatar = getInitialsAvatar(nameVal);
               setFormData({
                 ...formData,
                 name: nameVal,
-                email: generatedEmail
+                avatar: generatedAvatar
               });
             }}
             required
@@ -450,8 +599,26 @@ export function StudentManagementPage() {
             type="email"
             placeholder="e.g. rahul.sharma@gmail.com"
             value={formData.email}
-            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+            error={emailError}
+            onChange={(e) => {
+              const val = e.target.value;
+              setFormData({ ...formData, email: val });
+              setEmailError(getEmailValidationError(val));
+            }}
             required
+          />
+
+          <Input
+            label="Mobile Number"
+            type="tel"
+            placeholder="e.g. 9121543678"
+            value={formData.mobileNumber}
+            error={mobileError}
+            onChange={(e) => {
+              const val = e.target.value;
+              setFormData({ ...formData, mobileNumber: val });
+              setMobileError(getMobileValidationError(val));
+            }}
           />
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -472,6 +639,48 @@ export function StudentManagementPage() {
               onChange={(e) => setFormData({ ...formData, registrationId: e.target.value })}
               required
             />
+          </div>
+
+          {/* Granted Course Track Access Checklist */}
+          <div className="space-y-1.5 pt-1">
+            <label className="text-[11px] font-extrabold text-slate-700 tracking-wider uppercase flex items-center justify-between">
+              <span>Granted Course Track Access</span>
+              <span className="text-blue-600 font-bold text-[10px]">
+                {(formData.enrolledCourses || []).length} Selected
+              </span>
+            </label>
+            <div className="p-3 bg-slate-50/80 rounded-xl border border-slate-200 space-y-2 max-h-44 overflow-y-auto">
+              {courses.map((crs) => {
+                const isSelected = (formData.enrolledCourses || []).includes(crs.id);
+                return (
+                  <label
+                    key={crs.id}
+                    className={`flex items-center justify-between p-2 rounded-lg border transition-all cursor-pointer ${
+                      isSelected ? 'bg-blue-50/60 border-blue-200' : 'bg-white border-slate-100 hover:border-slate-300'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={(e) => {
+                          const currentList = formData.enrolledCourses || [];
+                          const nextList = e.target.checked
+                            ? [...currentList, crs.id]
+                            : currentList.filter((id) => id !== crs.id);
+                          setFormData({ ...formData, enrolledCourses: nextList });
+                        }}
+                        className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 border-slate-300 cursor-pointer"
+                      />
+                      <span className="text-xs font-bold text-slate-800">{crs.title}</span>
+                    </div>
+                    <Badge variant={isSelected ? 'blue' : 'slate'} className="text-[10px]">
+                      {crs.category || 'Course Track'}
+                    </Badge>
+                  </label>
+                );
+              })}
+            </div>
           </div>
 
           <div className="pt-2 flex justify-end gap-2 border-t border-slate-100">

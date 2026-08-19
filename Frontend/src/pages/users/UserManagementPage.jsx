@@ -22,6 +22,10 @@ import {
   Image as ImageIcon
 } from 'lucide-react';
 
+function getInitialAvatar(name = 'User') {
+  return `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(name || 'User')}&backgroundColor=2563eb&textColor=ffffff&bold=true`;
+}
+
 export function UserManagementPage() {
   const { users = [], addUser, updateUser, deleteUser } = useLmsData();
   const { addToast } = useToast();
@@ -39,7 +43,7 @@ export function UserManagementPage() {
     role: ROLES.INSTRUCTOR,
     department: 'Curriculum Operations',
     phone: '+91 98765-43210',
-    avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80'
+    avatar: ''
   });
 
   const handleOpenAddModal = () => {
@@ -49,7 +53,7 @@ export function UserManagementPage() {
       role: ROLES.INSTRUCTOR,
       department: 'Curriculum Operations',
       phone: '+91 98765-43210',
-      avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80'
+      avatar: ''
     });
     setIsAddModalOpen(true);
   };
@@ -62,7 +66,7 @@ export function UserManagementPage() {
       role: user.role || ROLES.INSTRUCTOR,
       department: user.department || 'Curriculum Operations',
       phone: user.phone || '+91 98765-43210',
-      avatar: user.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80'
+      avatar: (user.avatar && !user.avatar.includes('unsplash.com')) ? user.avatar : ''
     });
   };
 
@@ -73,12 +77,18 @@ export function UserManagementPage() {
       return;
     }
 
+    const finalAvatar = (formData.avatar && !formData.avatar.includes('unsplash.com'))
+      ? formData.avatar
+      : getInitialAvatar(formData.name);
+
+    const payload = { ...formData, avatar: finalAvatar };
+
     if (editingUser) {
-      updateUser(editingUser.id, formData);
+      updateUser(editingUser.id, payload);
       addToast(`Updated user profile for "${formData.name}"`, 'success');
       setEditingUser(null);
     } else {
-      addUser(formData);
+      addUser(payload);
       addToast(`Added new staff member: "${formData.name}"`, 'success');
       setIsAddModalOpen(false);
     }
@@ -171,7 +181,7 @@ export function UserManagementPage() {
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
                         <img
-                          src={u.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80'}
+                          src={(u.avatar && !u.avatar.includes('unsplash.com')) ? u.avatar : getInitialAvatar(u.name)}
                           alt={u.name}
                           className="w-10 h-10 rounded-full object-cover border border-slate-200 ring-2 ring-blue-500/10"
                         />

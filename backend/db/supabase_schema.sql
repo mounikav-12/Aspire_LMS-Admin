@@ -137,14 +137,8 @@ CREATE TABLE IF NOT EXISTS public.placement_resources (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- 10. AUDIT ACTIVITIES LOG TABLE
-CREATE TABLE IF NOT EXISTS public.audit_activities (
-  id VARCHAR(255) PRIMARY KEY,
-  text TEXT NOT NULL,
-  time VARCHAR(100) NOT NULL,
-  type VARCHAR(50) DEFAULT 'info',
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
+-- 10. DROP AUDIT ACTIVITIES TABLE IF EXISTS
+DROP TABLE IF EXISTS public.audit_activities CASCADE;
 
 -- 11. MILESTONES ROADMAP TABLE
 CREATE TABLE IF NOT EXISTS public.milestones_data (
@@ -174,11 +168,8 @@ CREATE TABLE IF NOT EXISTS public.students (
   batch VARCHAR(100) DEFAULT 'A26W1',
   enrolled_courses JSONB DEFAULT '["crs-101"]'::jsonb,
   avatar TEXT,
-  attendance INTEGER DEFAULT 92,
-  progress INTEGER DEFAULT 78,
   status VARCHAR(50) DEFAULT 'Active',
   joined_date DATE DEFAULT CURRENT_DATE,
-  gpa NUMERIC(3,2) DEFAULT 3.80,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
@@ -239,16 +230,7 @@ CREATE POLICY "Public Write Milestones Data" ON public.milestones_data FOR ALL U
 
 -- INITIAL SEED DATA
 INSERT INTO public.profiles (id, name, email, role, original_role, department, status, joined_date, phone, avatar) VALUES
-('usr-1', 'Super Admin', 'aspireAdmin@gmail.com', 'Super Admin', 'Super Admin', 'Executive Leadership', 'Active', '2025-01-15', '+91 98765-43210', 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80'),
-('usr-2', 'Alex Rivera', 'alex.rivera@aspirelms.io', 'Admin', 'Admin', 'Curriculum Operations', 'Active', '2025-02-01', '+91 98765-43211', 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80'),
-('usr-3', 'Priya Sharma', 'priya.s@aspirelms.io', 'Manager', 'Manager', 'Engineering Training', 'Active', '2025-03-10', '+91 98765-43212', 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80'),
-('usr-4', 'David Chen', 'david.chen@aspirelms.io', 'Instructor', 'Instructor', 'Frontend Systems', 'Active', '2025-03-22', '+91 98765-43213', 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80')
-ON CONFLICT (id) DO NOTHING;
-
-INSERT INTO public.courses (id, title, category, level, instructor, publish_status, thumbnail, enrolled_count, rating, description) VALUES
-('crs-101', 'Full-Stack React & Node.js Mastery', 'Web Development', 'Intermediate', 'David Chen', 'Published', 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=600&auto=format&fit=crop&q=80', 342, 4.90, 'Master modern full-stack web applications with React 18, Tailwind CSS, Express, and PostgreSQL.'),
-('crs-102', 'Cloud Architecture & DevOps Essentials', 'Cloud & Infrastructure', 'Advanced', 'Alex Rivera', 'Published', 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=600&auto=format&fit=crop&q=80', 218, 4.80, 'Learn Docker containerization, Kubernetes orchestration, AWS Cloud infra, and automated CI/CD pipelines.'),
-('crs-103', 'Data Structures & System Design for Tech Interviews', 'Computer Science', 'All Levels', 'Priya Sharma', 'Published', 'https://images.unsplash.com/photo-1516116211223-4c7141467477?w=600&auto=format&fit=crop&q=80', 520, 4.95, 'Comprehensive preparation for high-frequency DSA patterns, microservice architecture, and high scalability design.')
+('usr-1', 'Super Admin', 'aspireAdmin@gmail.com', 'Super Admin', 'Super Admin', 'Executive Leadership', 'Active', '2025-01-15', '+91 98765-43210', 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80')
 ON CONFLICT (id) DO NOTHING;
 
 INSERT INTO public.batches (id, code, category, status) VALUES
@@ -260,15 +242,4 @@ INSERT INTO public.batches (id, code, category, status) VALUES
 ('btc-6', 'A26S3', 'Weekend', 'Active')
 ON CONFLICT (id) DO NOTHING;
 
-INSERT INTO public.students (id, registration_id, name, email, batch, status, joined_date, avatar, enrolled_courses) VALUES
-('std-w1', 'A26W0001', 'Rahul Sharma', 'rahul.sharma@gmail.com', 'A26W1', 'Active', '2026-01-10', 'https://api.dicebear.com/7.x/initials/svg?seed=Rahul%20Sharma&backgroundColor=e0e7ff&textColor=3730a3&bold=true', '["crs-101", "crs-103"]'::jsonb),
-('std-w2', 'A26W0002', 'Ananya Verma', 'ananya.verma@gmail.com', 'A26W1', 'Active', '2026-01-12', 'https://api.dicebear.com/7.x/initials/svg?seed=Ananya%20Verma&backgroundColor=e0e7ff&textColor=3730a3&bold=true', '["crs-101"]'::jsonb),
-('std-w3', 'A26W0003', 'Vikram Patel', 'vikram.patel@gmail.com', 'A26W2', 'Active', '2026-01-15', 'https://api.dicebear.com/7.x/initials/svg?seed=Vikram%20Patel&backgroundColor=e0e7ff&textColor=3730a3&bold=true', '["crs-101", "crs-102"]'::jsonb),
-('std-w4', 'A26W0004', 'Sneha Reddy', 'sneha.reddy@gmail.com', 'A26W3', 'Active', '2026-01-18', 'https://api.dicebear.com/7.x/initials/svg?seed=Sneha%20Reddy&backgroundColor=e0e7ff&textColor=3730a3&bold=true', '["crs-101"]'::jsonb)
-ON CONFLICT (id) DO NOTHING;
-
-INSERT INTO public.live_sessions (id, program_name, technology, session_title, date, time, meeting_link, status, publish_status, instructor, description) VALUES
-('sess-1', 'Full-Stack Web Dev', 'React 18', 'React Server Components & State Management', '2026-08-16', '10:00 AM - 12:00 PM', 'https://meet.google.com/asp-live-01', 'Scheduled', 'Published to Student LMS', 'David Chen', 'Deep dive into RSC, streaming SSR, and scalable context patterns.'),
-('sess-2', 'Cloud DevOps', 'Docker & Kubernetes', 'Containerizing Microservices & Deployment', '2026-08-18', '02:00 PM - 04:00 PM', 'https://meet.google.com/asp-live-02', 'Scheduled', 'Published to Student LMS', 'Alex Rivera', 'Hands-on session building multi-stage Dockerfiles and Helm charts.')
-ON CONFLICT (id) DO NOTHING;
 

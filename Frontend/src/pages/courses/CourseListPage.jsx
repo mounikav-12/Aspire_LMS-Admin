@@ -9,7 +9,7 @@ import { ConfirmDialog } from '../../components/common/ConfirmDialog';
 import { Badge } from '../../components/common/Badge';
 import { EmptyState } from '../../components/common/EmptyState';
 import { BatchFilterSelector } from '../../components/common/BatchFilterSelector';
-import { INITIAL_COURSES } from '../../utils/mockData';
+import { INITIAL_COURSES, INITIAL_MILESTONES } from '../../utils/mockData';
 import {
   BookOpen,
   Plus,
@@ -27,12 +27,36 @@ import {
   Calendar
 } from 'lucide-react';
 
-function CourseCardItem({ course, onViewBatches, onEdit, onDelete }) {
+function getCourseModulesCount(course, milestones) {
+  if (!course) return 31;
+
+  if (Array.isArray(course.topics) && course.topics.length > 0) {
+    let totalModules = 0;
+    let hasExplicitNested = false;
+    course.topics.forEach(t => {
+      if (Array.isArray(t.modules) && t.modules.length > 0) {
+        totalModules += t.modules.length;
+        hasExplicitNested = true;
+      } else if (Array.isArray(t.subtopics) && t.subtopics.length > 0) {
+        totalModules += t.subtopics.length;
+        hasExplicitNested = true;
+      } else if (typeof t.modulesCount === 'number' && t.modulesCount > 0) {
+        totalModules += t.modulesCount;
+        hasExplicitNested = true;
+      }
+    });
+    if (hasExplicitNested && totalModules > 0) return totalModules;
+  }
+
+  const milestoneStages = milestones?.stages || [];
+  const totalSubtopics = milestoneStages.reduce((acc, stg) => acc + (stg.subtopics?.length || 0), 0);
+  return totalSubtopics;
+}
+
+function CourseCardItem({ course, onViewBatches, onEdit, onDelete, milestones }) {
   const navigate = useNavigate();
 
-  const topicCount = (Array.isArray(course.topics) && course.topics.length > 0)
-    ? course.topics.length
-    : (INITIAL_COURSES.find(ic => ic.id === course.id || ic.title?.toLowerCase() === course.title?.toLowerCase())?.topics?.length || 4);
+  const topicCount = getCourseModulesCount(course, milestones);
 
   const getEffectiveBatchBadge = () => {
     let wdList = null;
@@ -177,17 +201,30 @@ function CourseCardItem({ course, onViewBatches, onEdit, onDelete }) {
 
       {/* Bottom Footer Section */}
       <div className="px-5 py-3.5 bg-slate-50/80 border-t border-slate-100 flex items-center justify-between text-xs">
-        <span className="text-slate-500 font-medium truncate max-w-[50%]">By {course.instructor}</span>
-        <span className="inline-flex items-center gap-1 font-bold text-blue-600 group-hover:text-blue-800 transition-all group-hover:translate-x-1">
-          Explore Topics <ChevronRight className="w-4 h-4" />
-        </span>
+        <span className="text-slate-500 font-medium truncate max-w-[40%]">By {course.instructor}</span>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              navigate(`/milestones?courseId=${course.id}`);
+            }}
+            className="inline-flex items-center gap-1 font-extrabold text-[11px] text-purple-700 bg-purple-100/70 hover:bg-purple-200/80 px-2.5 py-1 rounded-lg border border-purple-200 transition-all cursor-pointer"
+          >
+            <BookOpen className="w-3.5 h-3.5 text-purple-600" />
+            <span>Milestones Roadmap</span>
+          </button>
+          <span className="inline-flex items-center gap-1 font-bold text-blue-600 group-hover:text-blue-800 transition-all group-hover:translate-x-1">
+            Explore Topics <ChevronRight className="w-4 h-4" />
+          </span>
+        </div>
       </div>
     </div>
   );
 }
 
 export function CourseListPage() {
-  const { courses, addCourse, updateCourse, deleteCourse, activeBatchFilter, setActiveBatchFilter, availableBatches } = useLmsData();
+  const { courses, addCourse, updateCourse, deleteCourse, activeBatchFilter, setActiveBatchFilter, availableBatches, milestones } = useLmsData();
   const { addToast } = useToast();
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -415,6 +452,7 @@ export function CourseListPage() {
             <CourseCardItem
               key={course.id}
               course={course}
+              milestones={milestones}
               onViewBatches={handleOpenEyeModal}
               onEdit={handleOpenEditModal}
               onDelete={(c) => setDeletingCourse(c)}
@@ -568,12 +606,13 @@ export function CourseListPage() {
               onClick={() => {
                 if (viewingBatchesCourse) {
                   let newTargetBatch = 'All Batches';
-                  if (selectedWeekdayBatches.length > 0 && selectedWeekendBatches.length === 0) {
+                  const allSelected = [...selectedWeekdayBatches, ...selectedWeekendBatches];
+                  if (allSelected.length > 0) {
+                    newTargetBatch = allSelected.join(', ');
+                  } else if (selectedWeekdayBatches.length > 0 && selectedWeekendBatches.length === 0) {
                     newTargetBatch = 'Weekday Batch';
                   } else if (selectedWeekendBatches.length > 0 && selectedWeekdayBatches.length === 0) {
                     newTargetBatch = 'Weekend Batch';
-                  } else if (selectedWeekdayBatches.length > 0 && selectedWeekendBatches.length > 0) {
-                    newTargetBatch = 'All Batches';
                   }
 
                   try {
@@ -637,16 +676,18 @@ export function CourseListPage() {
             />
 
             <Select
-              label="Target Batch Code"
+              label="Target Batch Access"
               value={formData.targetBatch}
               onChange={(e) => setFormData({ ...formData, targetBatch: e.target.value })}
               options={[
-                { value: 'All Batches', label: 'All Batches (Global)' },
+                { value: 'All Batches', label: 'All Batches (Global Access)' },
+                { value: 'Weekend Batch', label: 'Weekend Batches (All Weekend Students)' },
+                { value: 'Weekday Batch', label: 'Weekday Batches (All Weekday Students)' },
                 ...(availableBatches || ['A26W1', 'A26W2', 'A26S1']).map((b) => ({
                   value: b,
                   label: b.startsWith('A26W') && !b.startsWith('A26S')
-                    ? `${b} (Weekday)`
-                    : `${b} (Weekend)`
+                    ? `${b} (Weekday Batch Code)`
+                    : `${b} (Weekend Batch Code)`
                 }))
               ]}
             />

@@ -161,7 +161,9 @@ export function StudentDashboardPage() {
                   <div>
                     <h4 className="font-extrabold text-slate-900 text-sm">{course.title}</h4>
                     <p className="text-xs text-slate-500 mt-0.5 font-medium">Category: {course.category} • Instructor: {course.instructor}</p>
-                    <span className="text-[11px] font-bold text-blue-600 mt-1 inline-block">{course.topics?.length || 0} Topic Modules Included</span>
+                    <span className="text-[11px] font-bold text-blue-600 mt-1 inline-block">
+                      {course.topics?.length ? course.topics.length : 0} Topic Modules Included
+                    </span>
                   </div>
                   <Badge variant="emerald">Published</Badge>
                 </div>

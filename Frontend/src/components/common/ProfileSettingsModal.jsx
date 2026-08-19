@@ -177,7 +177,13 @@ export function ProfileSettingsModal({ isOpen, onClose }) {
         <div className="flex items-center gap-4 p-4 bg-slate-50 rounded-2xl border border-slate-200/80">
           <div className="relative group cursor-pointer flex-shrink-0" onClick={() => fileInputRef.current?.click()}>
             <img
-              src={formData.avatar || currentUser?.avatar}
+              src={
+                formData.avatar && !formData.avatar.includes('unsplash.com')
+                  ? formData.avatar
+                  : (currentUser?.avatar && !currentUser.avatar.includes('unsplash.com'))
+                    ? currentUser.avatar
+                    : `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(formData.name || 'User')}&backgroundColor=2563eb&textColor=ffffff&bold=true`
+              }
               alt={formData.name}
               className="w-16 h-16 rounded-full object-cover border-2 border-white ring-2 ring-blue-500/20 shadow-md transition-opacity group-hover:opacity-75"
             />
