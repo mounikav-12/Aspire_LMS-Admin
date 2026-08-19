@@ -435,15 +435,6 @@ export function LmsDataProvider({ children }) {
         })
         .then(() => {})
         .catch((e) => console.warn('Supabase milestones default sync error:', e));
-
-      // 3. Fallback sync to local Express backend API
-      try {
-        fetch('/api/milestones', {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ batchData: milestonesByBatch, overview: weekdayOverview })
-        }).catch(() => {});
-      } catch (err) {}
     } catch (e) {}
   }, [milestonesByBatch]);
 
@@ -576,14 +567,6 @@ export function LmsDataProvider({ children }) {
         })
         .then(() => {})
         .catch((e) => console.warn('Supabase completion sync error:', e));
-
-      try {
-        fetch('/api/milestones/completion', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ completedItemIds: completedMilestoneItemIds })
-        }).catch(() => {});
-      } catch (e) {}
     } catch (e) {}
   }, [completedMilestoneItemIds]);
 
