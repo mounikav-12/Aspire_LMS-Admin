@@ -109,13 +109,10 @@ function CourseCardItem({ course, onViewBatches, onEdit, onDelete, milestones })
             alt={course.title}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-90 group-hover:opacity-100"
           />
-          {/* Category & Batch Pills Top Left */}
+          {/* Category Pill Top Left */}
           <div className="absolute top-3 left-3 flex flex-col gap-1 items-start">
             <span className="bg-slate-950/80 text-white text-[11px] font-bold px-3 py-1 rounded-lg backdrop-blur-md border border-white/10 shadow-sm">
               {course.category}
-            </span>
-            <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-md shadow-xs ${batchBadge.color}`}>
-              {batchBadge.label}
             </span>
           </div>
 
@@ -223,6 +220,65 @@ function CourseCardItem({ course, onViewBatches, onEdit, onDelete, milestones })
   );
 }
 
+function normalizeCategoryStr(str) {
+  if (!str) return '';
+  return str.toLowerCase().replace(/&/g, 'and').replace(/[^a-z0-9]/g, '');
+}
+
+function isCategoryMatch(course, filter) {
+  if (!filter || filter === 'ALL') return true;
+
+  const cat = course.category || '';
+  const title = course.title || '';
+
+  const normCat = normalizeCategoryStr(cat);
+  const normFilter = normalizeCategoryStr(filter);
+  const normTitle = normalizeCategoryStr(title);
+
+  if (filter === 'Courses') {
+    return (
+      normCat === 'courses' ||
+      normCat === 'webdevelopment' ||
+      normCat === 'cloudinfrastructure' ||
+      normCat === 'computerscience' ||
+      !normCat
+    );
+  }
+
+  // Exact or normalized category match
+  if (normCat === normFilter) return true;
+
+  // Handles variations like "communication & soft skills", "communication and soft skills", "communication&softskills", "soft skills"
+  if (normCat.length > 0 && (normCat.includes(normFilter) || normFilter.includes(normCat))) {
+    return true;
+  }
+
+  // Fallback: If title explicitly mentions key category terms
+  if (filter === 'Communication & Soft Skills') {
+    if (normTitle.includes('communication') || normTitle.includes('softskill')) return true;
+  } else if (filter === 'Aptitude & Reasoning') {
+    if (normTitle.includes('aptitude') || normTitle.includes('reasoning')) return true;
+  } else if (filter === 'Resume') {
+    if (normTitle.includes('resume')) return true;
+  } else if (filter === 'Portfolio') {
+    if (normTitle.includes('portfolio')) return true;
+  } else if (filter === 'LinkedIn') {
+    if (normTitle.includes('linkedin')) return true;
+  }
+
+  return false;
+}
+
+const CATEGORY_TABS = [
+  { id: 'ALL', label: 'All' },
+  { id: 'Courses', label: 'Courses' },
+  { id: 'Communication & Soft Skills', label: 'Communication & Soft Skills' },
+  { id: 'Aptitude & Reasoning', label: 'Aptitude & Reasoning' },
+  { id: 'Resume', label: 'Resume' },
+  { id: 'Portfolio', label: 'Portfolio' },
+  { id: 'LinkedIn', label: 'LinkedIn' }
+];
+
 export function CourseListPage() {
   const { courses, addCourse, updateCourse, deleteCourse, activeBatchFilter, setActiveBatchFilter, availableBatches, milestones } = useLmsData();
   const { addToast } = useToast();
@@ -246,24 +302,27 @@ export function CourseListPage() {
   const [deletingCourse, setDeletingCourse] = useState(null);
   const [viewingBatchesCourse, setViewingBatchesCourse] = useState(null);
   const [eyeActiveTab, setEyeActiveTab] = useState('Weekdays');
-  const [selectedWeekdayBatches, setSelectedWeekdayBatches] = useState(['A26W1', 'A26W2', 'A26W3']);
-  const [selectedWeekendBatches, setSelectedWeekendBatches] = useState(['A26S1', 'A26S2']);
+  const [selectedWeekdayBatches, setSelectedWeekdayBatches] = useState([]);
+  const [selectedWeekendBatches, setSelectedWeekendBatches] = useState([]);
 
   const handleOpenEyeModal = (course) => {
     setViewingBatchesCourse(course);
     setEyeActiveTab('Weekdays');
     try {
       const savedWd = localStorage.getItem(`aspire_lms_card_wd_${course.id}`);
-      setSelectedWeekdayBatches(savedWd ? JSON.parse(savedWd) : ['A26W1', 'A26W2', 'A26W3']);
+      setSelectedWeekdayBatches(savedWd ? JSON.parse(savedWd) : []);
       const savedWe = localStorage.getItem(`aspire_lms_card_we_${course.id}`);
-      setSelectedWeekendBatches(savedWe ? JSON.parse(savedWe) : ['A26S1', 'A26S2']);
-    } catch (e) {}
+      setSelectedWeekendBatches(savedWe ? JSON.parse(savedWe) : []);
+    } catch (e) {
+      setSelectedWeekdayBatches([]);
+      setSelectedWeekendBatches([]);
+    }
   };
 
   // Form State
   const [formData, setFormData] = useState({
     title: '',
-    category: 'Web Development',
+    category: 'Courses',
     level: 'Intermediate',
     targetBatch: 'All Batches',
     instructor: 'David Chen',
@@ -274,7 +333,7 @@ export function CourseListPage() {
   const handleOpenAddModal = () => {
     setFormData({
       title: '',
-      category: 'Web Development',
+      category: categoryFilter !== 'ALL' ? categoryFilter : 'Courses',
       level: 'Intermediate',
       targetBatch: 'All Batches',
       instructor: 'David Chen',
@@ -311,7 +370,7 @@ export function CourseListPage() {
     } else {
       addCourse({
         ...formData,
-        targetBatch: batchFilter || activeBatchFilter || 'Weekday Batch',
+        targetBatch: batchFilter || activeBatchFilter || 'All Batches',
         topics: (formData.topics && formData.topics.length > 0) ? formData.topics : [
           {
             id: `top-${Date.now()}-1`,
@@ -347,7 +406,9 @@ export function CourseListPage() {
       c.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       c.instructor.toLowerCase().includes(searchTerm.toLowerCase()) ||
       c.description.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = categoryFilter === 'ALL' || c.category === categoryFilter;
+    
+    const matchesCategory = isCategoryMatch(c, categoryFilter);
+
     const matchesBatch = (() => {
       if (batchFilter === 'ALL') return true;
       if (!c.targetBatch || c.targetBatch === 'All Batches' || c.targetBatch === 'ALL') return true;
@@ -406,42 +467,56 @@ export function CourseListPage() {
         </div>
       </div>
 
+      {/* Category Tabs */}
+      <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+        {CATEGORY_TABS.map((tab) => {
+          const isActive = categoryFilter === tab.id;
+          return (
+            <button
+              key={tab.id}
+              type="button"
+              onClick={() => setCategoryFilter(tab.id)}
+              className={`px-4 py-2 rounded-2xl text-xs md:text-sm font-bold whitespace-nowrap transition-all duration-200 cursor-pointer ${
+                isActive
+                  ? 'bg-purple-600 text-white shadow-md shadow-purple-500/20 ring-2 ring-purple-600/30'
+                  : 'bg-white text-slate-700 hover:bg-slate-100 hover:text-slate-900 border border-slate-200/80 shadow-2xs'
+              }`}
+            >
+              {tab.label}
+            </button>
+          );
+        })}
+      </div>
+
       {/* Toolbar */}
-      <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-2xs flex flex-col md:flex-row items-center gap-4">
+      <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-2xs flex flex-col md:flex-row items-center justify-between gap-4">
         <div className="relative flex-1 w-full">
           <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
             type="text"
-            placeholder="Search courses by title, instructor, keyword..."
+            placeholder="Search learning modules..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 bg-slate-50/70 border border-slate-200 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all"
+            className="w-full pl-10 pr-4 py-2 bg-slate-50/70 border border-slate-200 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-purple-500/10 focus:border-purple-500 transition-all"
           />
         </div>
 
-        <div className="w-full md:w-56">
-          <Select
-            value={categoryFilter}
-            onChange={(e) => setCategoryFilter(e.target.value)}
-            options={[
-              { value: 'ALL', label: 'All Categories' },
-              { value: 'Web Development', label: 'Web Development' },
-              { value: 'Cloud & Infrastructure', label: 'Cloud & Infrastructure' },
-              { value: 'Computer Science', label: 'Computer Science' }
-            ]}
-          />
-        </div>
+        <div className="flex items-center gap-3 w-full md:w-auto justify-between md:justify-end">
+          <span className="text-xs font-bold text-slate-600 whitespace-nowrap">
+            Showing {filteredCourses.length} module{filteredCourses.length !== 1 ? 's' : ''}
+          </span>
 
-        <div className="w-full md:w-56">
-          <Select
-            value={batchFilter}
-            onChange={(e) => setBatchFilter(e.target.value)}
-            options={[
-              { value: 'ALL', label: 'All Batches' },
-              { value: 'Weekday Batch', label: 'Weekday Batch' },
-              { value: 'Weekend Batch', label: 'Weekend Batch' }
-            ]}
-          />
+          <div className="w-44">
+            <Select
+              value={batchFilter}
+              onChange={(e) => setBatchFilter(e.target.value)}
+              options={[
+                { value: 'ALL', label: 'All Batches' },
+                { value: 'Weekday Batch', label: 'Weekday Batch' },
+                { value: 'Weekend Batch', label: 'Weekend Batch' }
+              ]}
+            />
+          </div>
         </div>
       </div>
 
@@ -474,59 +549,59 @@ export function CourseListPage() {
         onClose={() => setViewingBatchesCourse(null)}
         title={viewingBatchesCourse?.title || ''}
         subtitle="View and multi-select active Weekday and Weekend batch numbers for this course"
+        maxWidth="max-w-xl"
       >
         <div className="space-y-5">
-          {/* In-Popup Tabs */}
-          <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => setEyeActiveTab('Weekdays')}
-                className={`px-3.5 py-1.5 rounded-xl text-xs font-black transition-all flex items-center gap-2 cursor-pointer ${
-                  eyeActiveTab === 'Weekdays'
-                    ? 'bg-blue-600 text-white shadow-xs'
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                }`}
-              >
-                <Calendar className="w-3.5 h-3.5" />
-                <span>Weekday Batches</span>
-                <span className={`px-1.5 py-0.2 rounded-md text-[10px] ${
-                  eyeActiveTab === 'Weekdays' ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700'
-                }`}>
-                  {selectedWeekdayBatches.length}
-                </span>
-              </button>
+          {/* In-Popup Tabs matching uploaded image */}
+          <div className="flex items-center gap-3 pt-1">
+            <button
+              type="button"
+              onClick={() => setEyeActiveTab('Weekdays')}
+              className={`px-4 py-2.5 rounded-2xl text-xs font-black transition-all flex items-center gap-2 cursor-pointer ${
+                eyeActiveTab === 'Weekdays'
+                  ? 'bg-purple-600 text-white shadow-md shadow-purple-500/20'
+                  : 'bg-slate-100/90 text-slate-700 hover:bg-slate-200/80 font-bold'
+              }`}
+            >
+              <Calendar className="w-4 h-4" />
+              <span>Weekday Batches</span>
+              <span className={`px-2 py-0.5 rounded-full text-[11px] font-extrabold ${
+                eyeActiveTab === 'Weekdays' ? 'bg-purple-700/90 text-white' : 'bg-slate-200/90 text-slate-800'
+              }`}>
+                {selectedWeekdayBatches.length}
+              </span>
+            </button>
 
-              <button
-                type="button"
-                onClick={() => setEyeActiveTab('Weekends')}
-                className={`px-3.5 py-1.5 rounded-xl text-xs font-black transition-all flex items-center gap-2 cursor-pointer ${
-                  eyeActiveTab === 'Weekends'
-                    ? 'bg-indigo-600 text-white shadow-xs'
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                }`}
-              >
-                <Calendar className="w-3.5 h-3.5" />
-                <span>Weekend Batches</span>
-                <span className={`px-1.5 py-0.2 rounded-md text-[10px] ${
-                  eyeActiveTab === 'Weekends' ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700'
-                }`}>
-                  {selectedWeekendBatches.length}
-                </span>
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={() => setEyeActiveTab('Weekends')}
+              className={`px-4 py-2.5 rounded-2xl text-xs font-black transition-all flex items-center gap-2 cursor-pointer ${
+                eyeActiveTab === 'Weekends'
+                  ? 'bg-purple-600 text-white shadow-md shadow-purple-500/20'
+                  : 'bg-slate-100/90 text-slate-700 hover:bg-slate-200/80 font-bold'
+              }`}
+            >
+              <Calendar className="w-4 h-4" />
+              <span>Weekend Batches</span>
+              <span className={`px-2 py-0.5 rounded-full text-[11px] font-extrabold ${
+                eyeActiveTab === 'Weekends' ? 'bg-purple-700/90 text-white' : 'bg-slate-200/90 text-slate-800'
+              }`}>
+                {selectedWeekendBatches.length}
+              </span>
+            </button>
           </div>
+
+          <div className="border-t border-slate-100 my-2"></div>
 
           {/* Weekdays Tab Batch Checkboxes */}
           {eyeActiveTab === 'Weekdays' ? (
             <div className="space-y-3">
-              <p className="text-xs text-slate-500 font-medium">
+              <p className="text-xs text-slate-600 font-semibold">
                 Check or uncheck Weekday batch numbers for this course:
               </p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {((availableBatches && availableBatches.length > 0 ? availableBatches : ['A26W1', 'A26W2', 'A26W3', 'A26W4']).filter(b => b.startsWith('A26W') && !b.startsWith('A26S') && !b.startsWith('A26WE'))).map((bCode) => {
                   const isSelected = selectedWeekdayBatches.includes(bCode);
-                  const num = bCode.replace(/[^0-9]/g, '');
 
                   return (
                     <div
@@ -540,18 +615,18 @@ export function CourseListPage() {
                           return next;
                         });
                       }}
-                      className={`flex items-center gap-3 p-3 rounded-xl border transition-all cursor-pointer select-none ${
+                      className={`flex items-center gap-3.5 p-3.5 rounded-2xl border transition-all cursor-pointer select-none ${
                         isSelected
-                          ? 'bg-blue-50 border-blue-300 ring-2 ring-blue-500/20 text-blue-900 font-bold'
-                          : 'bg-slate-50/60 border-slate-200 hover:bg-white text-slate-700 font-medium'
+                          ? 'bg-purple-50/80 border-2 border-purple-400 text-purple-950 font-extrabold shadow-2xs'
+                          : 'bg-slate-50 border-slate-200 hover:bg-white text-slate-700 font-bold'
                       }`}
                     >
                       {isSelected ? (
-                        <CheckSquare className="w-4 h-4 text-blue-600 flex-shrink-0" />
+                        <CheckSquare className="w-5 h-5 text-purple-600 flex-shrink-0" />
                       ) : (
-                        <Square className="w-4 h-4 text-slate-400 flex-shrink-0" />
+                        <Square className="w-5 h-5 text-slate-400 flex-shrink-0" />
                       )}
-                      <span className="text-xs font-extrabold">{bCode}</span>
+                      <span className="text-xs font-black tracking-wide">{bCode}</span>
                     </div>
                   );
                 })}
@@ -560,11 +635,11 @@ export function CourseListPage() {
           ) : (
             /* Weekends Tab Batch Checkboxes */
             <div className="space-y-3">
-              <p className="text-xs text-slate-500 font-medium">
+              <p className="text-xs text-slate-600 font-semibold">
                 Check or uncheck Weekend batch numbers for this course:
               </p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                {((availableBatches && availableBatches.length > 0 ? availableBatches.map(b => b.replace(/^A26WE/, 'A26S')) : ['A26S1', 'A26S2', 'A26S3']).filter((b, i, arr) => (b.startsWith('A26S') || b.startsWith('A26WE')) && arr.indexOf(b) === i)).map((bCode) => {
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {((availableBatches && availableBatches.length > 0 ? availableBatches.map(b => b.replace(/^A26WE/, 'A26S')) : ['A26S1', 'A26S2', 'A26S3', 'A26S4']).filter((b, i, arr) => (b.startsWith('A26S') || b.startsWith('A26WE')) && arr.indexOf(b) === i)).map((bCode) => {
                   const isSelected = selectedWeekendBatches.includes(bCode);
 
                   return (
@@ -579,18 +654,18 @@ export function CourseListPage() {
                           return next;
                         });
                       }}
-                      className={`flex items-center gap-3 p-3 rounded-xl border transition-all cursor-pointer select-none ${
+                      className={`flex items-center gap-3.5 p-3.5 rounded-2xl border transition-all cursor-pointer select-none ${
                         isSelected
-                          ? 'bg-indigo-50 border-indigo-300 ring-2 ring-indigo-500/20 text-indigo-900 font-bold'
-                          : 'bg-slate-50/60 border-slate-200 hover:bg-white text-slate-700 font-medium'
+                          ? 'bg-purple-50/80 border-2 border-purple-400 text-purple-950 font-extrabold shadow-2xs'
+                          : 'bg-slate-50 border-slate-200 hover:bg-white text-slate-700 font-bold'
                       }`}
                     >
                       {isSelected ? (
-                        <CheckSquare className="w-4 h-4 text-indigo-600 flex-shrink-0" />
+                        <CheckSquare className="w-5 h-5 text-purple-600 flex-shrink-0" />
                       ) : (
-                        <Square className="w-4 h-4 text-slate-400 flex-shrink-0" />
+                        <Square className="w-5 h-5 text-slate-400 flex-shrink-0" />
                       )}
-                      <span className="text-xs font-extrabold">{bCode}</span>
+                      <span className="text-xs font-black tracking-wide">{bCode}</span>
                     </div>
                   );
                 })}
@@ -599,10 +674,9 @@ export function CourseListPage() {
           )}
 
           {/* Modal Footer */}
-          <div className="flex justify-end pt-3 border-t border-slate-100">
-            <Button
-              variant="primary"
-              size="md"
+          <div className="flex justify-end pt-4 border-t border-slate-100">
+            <button
+              type="button"
               onClick={() => {
                 if (viewingBatchesCourse) {
                   let newTargetBatch = 'All Batches';
@@ -611,7 +685,7 @@ export function CourseListPage() {
                     newTargetBatch = allSelected.join(', ');
                   } else if (selectedWeekdayBatches.length > 0 && selectedWeekendBatches.length === 0) {
                     newTargetBatch = 'Weekday Batch';
-                  } else if (selectedWeekendBatches.length > 0 && selectedWeekdayBatches.length === 0) {
+                  } else if (selectedWeekendBatches.length > 0 && selectedWeekendBatches.length === 0) {
                     newTargetBatch = 'Weekend Batch';
                   }
 
@@ -625,9 +699,10 @@ export function CourseListPage() {
                 }
                 setViewingBatchesCourse(null);
               }}
+              className="bg-purple-600 hover:bg-purple-700 text-white font-extrabold px-6 py-2.5 rounded-2xl shadow-md shadow-purple-500/25 transition-all text-xs cursor-pointer"
             >
               Save Batch Preferences
-            </Button>
+            </button>
           </div>
         </div>
       </Modal>
@@ -657,9 +732,12 @@ export function CourseListPage() {
               value={formData.category}
               onChange={(e) => setFormData({ ...formData, category: e.target.value })}
               options={[
-                { value: 'Web Development', label: 'Web Development' },
-                { value: 'Cloud & Infrastructure', label: 'Cloud & Infrastructure' },
-                { value: 'Computer Science', label: 'Computer Science' }
+                { value: 'Courses', label: 'Courses' },
+                { value: 'Communication & Soft Skills', label: 'Communication & Soft Skills' },
+                { value: 'Aptitude & Reasoning', label: 'Aptitude & Reasoning' },
+                { value: 'Resume', label: 'Resume' },
+                { value: 'Portfolio', label: 'Portfolio' },
+                { value: 'LinkedIn', label: 'LinkedIn' }
               ]}
             />
 

@@ -46,7 +46,20 @@ export function StudentDashboardPage() {
       courses: courses.map((c) => ({ id: c.id, title: c.title, category: c.category, topics_count: c.topics?.length || 0 })),
       projects: (projects || []).map((p) => ({ id: p.id, title: p.title, type: p.type || 'Mini', category: p.category, difficulty: p.difficulty, due_date: p.dueDate, tech_stack: p.techStack })),
       live_sessions: liveSessions.map((s) => ({ id: s.id, title: s.sessionTitle, meeting_link: s.meetingLink, schedule: s.date })),
-      job_openings: jobs.map((j) => ({ id: j.id, company: j.company, title: j.jobTitle, location: j.location })),
+      job_openings: jobs.map((j) => ({
+        id: j.id,
+        company: j.company,
+        title: j.jobTitle || j.title,
+        location: j.location,
+        package: j.salary || j.package,
+        openings: j.openings,
+        deadline: j.deadline,
+        status: j.statusBadge || 'APPLY NOW',
+        tech_stack: j.techStack || [],
+        responsibilities: j.responsibilities || [],
+        perks: j.perks || '',
+        is_locked: !!j.isLocked
+      })),
       recordings: recordings.map((r) => ({ id: r.id, title: r.title, video_url: r.videoUrl }))
     }
   };

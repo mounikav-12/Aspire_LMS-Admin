@@ -181,7 +181,7 @@ export function LmsDataProvider({ children }) {
   const [coursesByBatch, setCoursesByBatch] = useState(() => loadBatchDictState('aspire_lms_courses_by_batch', INITIAL_COURSES, 'aspire_lms_courses_version', 'v8_single_course'));
   const [assessmentsByBatch, setAssessmentsByBatch] = useState(() => loadBatchDictState('aspire_lms_assessments_by_batch', INITIAL_ASSESSMENTS, 'aspire_lms_assessments_version', 'v6_cleared_mock_data'));
   const [liveSessionsByBatch, setLiveSessionsByBatch] = useState(() => loadBatchDictState('aspire_lms_live_sessions_by_batch', INITIAL_LIVE_SESSIONS, 'aspire_lms_sessions_version', 'v6_cleared_mock_data'));
-  const [jobsByBatch, setJobsByBatch] = useState(() => loadBatchDictState('aspire_lms_jobs_by_batch', INITIAL_JOBS, 'aspire_lms_jobs_version', 'v6_cleared_mock_data'));
+  const [jobsByBatch, setJobsByBatch] = useState(() => loadBatchDictState('aspire_lms_jobs_by_batch', INITIAL_JOBS, 'aspire_lms_jobs_version', 'v8_cleared_jobs'));
   const [recordingsByBatch, setRecordingsByBatch] = useState(() => loadBatchDictState('aspire_lms_recordings_by_batch', INITIAL_RECORDINGS, 'aspire_lms_recordings_version', 'v6_cleared_mock_data'));
   const [placementResources, setPlacementResources] = useState(() => loadLocalState('aspire_lms_placement_resources', INITIAL_PLACEMENT_RESOURCES));
   const [projectsByBatch, setProjectsByBatch] = useState(() => loadBatchDictState('aspire_lms_projects_by_batch', INITIAL_PROJECTS, 'aspire_lms_projects_version', 'v6_cleared_mock_data'));
@@ -655,13 +655,23 @@ export function LmsDataProvider({ children }) {
           company: j.company || '',
           jobTitle: j.job_title || j.jobTitle || '',
           jobType: j.job_type || j.jobType || 'Full-Time',
-          salary: j.salary || '₹14,00,000 - ₹18,00,000 / yr',
+          salary: j.salary || j.package || '4–7 LPA',
           location: j.location || '',
+          openings: j.openings !== undefined ? j.openings : (j.positions !== undefined ? j.positions : 3),
+          deadline: j.deadline || 'Sep 30, 2026',
+          statusBadge: j.status_badge || j.statusBadge || j.status || 'APPLY NOW',
           postedDate: j.posted_date || j.postedDate || '',
           publishStatus: j.publish_status || j.publishStatus || 'Live Feed',
           isLocked: j.is_locked !== undefined ? j.is_locked : (j.isLocked || false),
           logo: j.logo || '',
           description: j.description || '',
+          responsibilities: Array.isArray(j.responsibilities)
+            ? j.responsibilities
+            : (typeof j.responsibilities === 'string' ? JSON.parse(j.responsibilities) : []),
+          techStack: Array.isArray(j.tech_stack)
+            ? j.tech_stack
+            : (Array.isArray(j.techStack) ? j.techStack : (typeof j.tech_stack === 'string' ? JSON.parse(j.tech_stack) : [])),
+          perks: j.perks || '',
           targetBatch: j.target_batch || 'Weekday Batch'
         }));
         // REPLACE (not append) to prevent duplicates
@@ -1143,7 +1153,7 @@ export function LmsDataProvider({ children }) {
     const bKey = resolveBatchKey(targetBatch);
     const newCourse = {
       id: courseData.id || generateAlphanumericCourseId(courseData.title),
-      targetBatch: bKey,
+      targetBatch: courseData.targetBatch || bKey,
       enrolledCount: 0,
       rating: 5.0,
       publishStatus: 'Published',
@@ -1151,11 +1161,21 @@ export function LmsDataProvider({ children }) {
       topics: courseData.topics || [],
       ...courseData
     };
-    // Optimistic UI update
-    setCoursesByBatch((prev) => ({
-      ...prev,
-      [bKey]: [newCourse, ...(prev[bKey] || [])]
-    }));
+    // Optimistic UI update across all batches if targetBatch is All Batches or ALL
+    setCoursesByBatch((prev) => {
+      const isAll = !newCourse.targetBatch || newCourse.targetBatch === 'All Batches' || newCourse.targetBatch === 'ALL';
+      if (isAll) {
+        return {
+          ...prev,
+          'Weekday Batch': [newCourse, ...(prev['Weekday Batch'] || []).filter(c => c.id !== newCourse.id)],
+          'Weekend Batch': [newCourse, ...(prev['Weekend Batch'] || []).filter(c => c.id !== newCourse.id)]
+        };
+      }
+      return {
+        ...prev,
+        [bKey]: [newCourse, ...(prev[bKey] || []).filter(c => c.id !== newCourse.id)]
+      };
+    });
     logActivity(`Created new course: "${newCourse.title}" (${bKey})`, 'course');
     // Persist to Supabase
     try {
@@ -1178,10 +1198,13 @@ export function LmsDataProvider({ children }) {
 
   const updateCourse = async (id, updatedFields, targetBatch = activeBatchFilter) => {
     const bKey = resolveBatchKey(targetBatch);
-    setCoursesByBatch((prev) => ({
-      ...prev,
-      [bKey]: (prev[bKey] || []).map((c) => (c.id === id ? { ...c, ...updatedFields } : c))
-    }));
+    setCoursesByBatch((prev) => {
+      const next = { ...prev };
+      Object.keys(next).forEach((key) => {
+        next[key] = (next[key] || []).map((c) => (c.id === id ? { ...c, ...updatedFields } : c));
+      });
+      return next;
+    });
     logActivity(`Updated course properties for ID ${id} (${bKey})`, 'course');
     // Persist update to Supabase
     try {
@@ -1484,15 +1507,21 @@ export function LmsDataProvider({ children }) {
       const { error } = await supabase.from('jobs').upsert([{
         id: newJob.id,
         company: newJob.company,
-        job_title: newJob.jobTitle,
+        job_title: newJob.jobTitle || newJob.title,
         job_type: newJob.jobType || 'Full-Time',
-        salary: newJob.salary || '',
+        salary: newJob.salary || newJob.package || '',
         location: newJob.location || '',
+        openings: newJob.openings !== undefined ? newJob.openings : 3,
+        deadline: newJob.deadline || '',
+        status_badge: newJob.statusBadge || newJob.status || 'APPLY NOW',
         posted_date: newJob.postedDate,
         publish_status: newJob.publishStatus,
         is_locked: newJob.isLocked,
         logo: newJob.logo,
         description: newJob.description || '',
+        responsibilities: newJob.responsibilities || [],
+        tech_stack: newJob.techStack || [],
+        perks: newJob.perks || '',
         target_batch: newJob.targetBatch
       }]);
       if (error) console.error('Supabase job insert error:', error.message);
@@ -1509,13 +1538,29 @@ export function LmsDataProvider({ children }) {
     try {
       const dbFields = {};
       if (updatedFields.company !== undefined) dbFields.company = updatedFields.company;
-      if (updatedFields.jobTitle !== undefined) dbFields.job_title = updatedFields.jobTitle;
+      if (updatedFields.jobTitle !== undefined || updatedFields.title !== undefined) {
+        dbFields.job_title = updatedFields.jobTitle || updatedFields.title;
+      }
       if (updatedFields.jobType !== undefined) dbFields.job_type = updatedFields.jobType;
-      if (updatedFields.salary !== undefined) dbFields.salary = updatedFields.salary;
+      if (updatedFields.salary !== undefined || updatedFields.package !== undefined) {
+        dbFields.salary = updatedFields.salary || updatedFields.package;
+      }
       if (updatedFields.location !== undefined) dbFields.location = updatedFields.location;
+      if (updatedFields.openings !== undefined) dbFields.openings = updatedFields.openings;
+      if (updatedFields.deadline !== undefined) dbFields.deadline = updatedFields.deadline;
+      if (updatedFields.statusBadge !== undefined || updatedFields.status !== undefined) {
+        dbFields.status_badge = updatedFields.statusBadge || updatedFields.status;
+      }
       if (updatedFields.publishStatus !== undefined) dbFields.publish_status = updatedFields.publishStatus;
       if (updatedFields.isLocked !== undefined) dbFields.is_locked = updatedFields.isLocked;
+      if (updatedFields.logo !== undefined) dbFields.logo = updatedFields.logo;
       if (updatedFields.description !== undefined) dbFields.description = updatedFields.description;
+      if (updatedFields.responsibilities !== undefined) dbFields.responsibilities = updatedFields.responsibilities;
+      if (updatedFields.techStack !== undefined || updatedFields.tech_stack !== undefined) {
+        dbFields.tech_stack = updatedFields.techStack || updatedFields.tech_stack;
+      }
+      if (updatedFields.perks !== undefined) dbFields.perks = updatedFields.perks;
+      if (updatedFields.targetBatch !== undefined) dbFields.target_batch = updatedFields.targetBatch;
       if (Object.keys(dbFields).length > 0) {
         const { error } = await supabase.from('jobs').update(dbFields).eq('id', id);
         if (error) console.error('Supabase job update error:', error.message);
