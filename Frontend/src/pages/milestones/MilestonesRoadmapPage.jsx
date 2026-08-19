@@ -33,8 +33,59 @@ import { useSearchParams } from 'react-router-dom';
 import { useToast } from '../../context/ToastContext';
 import { useLmsData } from '../../context/LmsDataContext';
 
-// Pure Date & Time Release Determination Helper with Hierarchy Inheritance
-export const getScheduleInfo = (item, parentSchedule = null) => {
+// Helper to get local date as YYYY-MM-DD string
+export const getLocalDateString = (d = new Date()) => {
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
+// Robust date & time parser across all string formats (YYYY-MM-DD, HH:MM, HH:MM AM/PM, HH:MM - HH:MM, ISO)
+export const parseUnlockDateTime = (unlockDate, unlockTime, unlockDateTime) => {
+  if (!unlockDate && !unlockDateTime) return null;
+
+  if (unlockDate) {
+    const rawDate = String(unlockDate).split('T')[0];
+    const parts = rawDate.split('-');
+    if (parts.length === 3) {
+      const year = parseInt(parts[0], 10);
+      const month = parseInt(parts[1], 10) - 1;
+      const day = parseInt(parts[2], 10);
+
+      let hours = 0;
+      let minutes = 0;
+
+      if (unlockTime) {
+        const timeStr = String(unlockTime);
+        const match = timeStr.match(/(\d{1,2}):(\d{2})/);
+        if (match) {
+          hours = parseInt(match[1], 10);
+          minutes = parseInt(match[2], 10);
+          if (/pm/i.test(timeStr) && hours < 12) {
+            hours += 12;
+          } else if (/am/i.test(timeStr) && hours === 12) {
+            hours = 0;
+          }
+        }
+      }
+
+      const parsed = new Date(year, month, day, hours, minutes, 0);
+      if (!isNaN(parsed.getTime())) return parsed;
+    }
+  }
+
+  if (unlockDateTime) {
+    const d = new Date(unlockDateTime);
+    if (!isNaN(d.getTime())) return d;
+  }
+
+  const fallback = new Date(unlockDateTime || unlockDate);
+  return isNaN(fallback.getTime()) ? null : fallback;
+};
+
+// Pure Date & Time Release Determination Helper with Hierarchy Inheritance & Live Timestamp Support
+export const getScheduleInfo = (item, parentSchedule = null, nowTimestamp = Date.now()) => {
   if (!item) {
     return {
       hasSchedule: false,
@@ -78,7 +129,6 @@ export const getScheduleInfo = (item, parentSchedule = null) => {
 
   // 2. If child item does NOT have its own specific date/time set:
   if (!unlockDate && !unlockDateTime) {
-    // If parent is UNLOCKED, child is automatically UNLOCKED and accessible
     if (parentSchedule && parentSchedule.isUnlocked) {
       return {
         hasSchedule: parentSchedule.hasSchedule,
@@ -97,7 +147,6 @@ export const getScheduleInfo = (item, parentSchedule = null) => {
       };
     }
 
-    // If top-level item (e.g. Stage) has no explicit date set, default to UNLOCKED (available)
     return {
       hasSchedule: false,
       isUnlocked: true,
@@ -116,14 +165,8 @@ export const getScheduleInfo = (item, parentSchedule = null) => {
   }
 
   // 3. Item has its OWN specific scheduled date & time
-  let targetTime = 0;
-  try {
-    targetTime = new Date(unlockDateTime).getTime();
-  } catch (e) {
-    targetTime = NaN;
-  }
-
-  if (isNaN(targetTime)) {
+  const parsedDate = parseUnlockDateTime(unlockDate, unlockTime, unlockDateTime);
+  if (!parsedDate) {
     return {
       hasSchedule: false,
       isUnlocked: true,
@@ -141,15 +184,14 @@ export const getScheduleInfo = (item, parentSchedule = null) => {
     };
   }
 
-  const now = Date.now();
-  const isUnlocked = now >= targetTime;
+  const targetTime = parsedDate.getTime();
+  const isUnlocked = nowTimestamp >= targetTime;
   const isLocked = !isUnlocked;
 
-  const d = new Date(targetTime);
-  const dateFormatted = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-  const timeFormatted = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+  const dateFormatted = parsedDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  const timeFormatted = parsedDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
 
-  const diffMs = targetTime - now;
+  const diffMs = targetTime - nowTimestamp;
   const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
   const diffDays = Math.floor(diffHours / 24);
 
@@ -223,6 +265,15 @@ export function MilestonesRoadmapPage() {
     activeBatchFilter && activeBatchFilter !== 'ALL' ? activeBatchFilter : 'Weekday Batch'
   );
 
+  // Live ticking state to continuously re-evaluate scheduled releases in real-time
+  const [currentTime, setCurrentTime] = useState(Date.now());
+  React.useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(Date.now());
+    }, 5000);
+    return () => clearInterval(timer);
+  }, []);
+
   React.useEffect(() => {
     if (activeBatchFilter && activeBatchFilter !== 'ALL' && activeBatchFilter !== selectedBatch) {
       setSelectedBatchState(activeBatchFilter);
@@ -250,67 +301,16 @@ export function MilestonesRoadmapPage() {
   const [selectedCourseId, setSelectedCourseId] = useState(queryCourseId);
   const [selectedStudentAccessId, setSelectedStudentAccessId] = useState('ALL');
 
-  // Derive active milestones stages from Course Management or selected course
+  // Derive active milestones stages ensuring complete structure and schedule preservation
   const getActiveMilestoneStages = () => {
-    let rawStages = currentMilestones?.stages || [];
-
-    if (selectedStudentAccessId !== 'ALL') {
-      const studentObj = students.find((s) => s.id === selectedStudentAccessId);
-      if (studentObj && Array.isArray(studentObj.enrolledCourses) && studentObj.enrolledCourses.length > 0) {
-        if (selectedCourseId === 'ALL') {
-          const studentCourseObjs = courses.filter((c) => studentObj.enrolledCourses.includes(c.id));
-          const derivedStages = [];
-          studentCourseObjs.forEach((crs) => {
-            if (Array.isArray(crs.topics) && crs.topics.length > 0) {
-              crs.topics.forEach((t, tIdx) => {
-                derivedStages.push({
-                  id: t.id || `stg-std-${tIdx}`,
-                  stageNumber: `STAGE 0${derivedStages.length + 1}`,
-                  phaseTag: `${crs.title} • Stage ${tIdx + 1}`,
-                  title: t.title,
-                  unlockDate: t.unlockDate || (tIdx === 0 ? new Date().toISOString().split('T')[0] : null),
-                  unlockTime: t.unlockTime || '09:00',
-                  subtopics: t.subtopics || [
-                    { id: `sub-${tIdx}-1`, title: 'Live Session & Concepts', isCompleted: true, modulesCount: t.liveClasses || 4 },
-                    { id: `sub-${tIdx}-2`, title: 'Hands-on Practice & Assignments', isCompleted: false, modulesCount: t.practice || 6 },
-                    { id: `sub-${tIdx}-3`, title: 'Skill Assessments & Projects', isCompleted: false, modulesCount: t.assessments || 2 }
-                  ]
-                });
-              });
-            }
-          });
-          if (derivedStages.length > 0) return derivedStages;
-        }
-      }
-    }
-
-    if (selectedCourseId !== 'ALL') {
-      const targetCourse = courses.find((c) => c.id === selectedCourseId);
-      if (targetCourse && Array.isArray(targetCourse.topics) && targetCourse.topics.length > 0) {
-        return targetCourse.topics.map((t, idx) => ({
-          id: t.id || `stg-crs-${idx + 1}`,
-          stageNumber: `STAGE 0${idx + 1}`,
-          phaseTag: `${targetCourse.title} • Stage ${idx + 1}`,
-          title: t.title,
-          unlockDate: t.unlockDate || (idx === 0 ? new Date().toISOString().split('T')[0] : null),
-          unlockTime: t.unlockTime || '09:00',
-          subtopics: t.subtopics || [
-            { id: `sub-${idx}-1`, title: 'Live Session & Concepts', isCompleted: true, modulesCount: t.liveClasses || 4 },
-            { id: `sub-${idx}-2`, title: 'Hands-on Practice & Assignments', isCompleted: false, modulesCount: t.practice || 6 },
-            { id: `sub-${idx}-3`, title: 'Skill Assessments & Projects', isCompleted: false, modulesCount: t.assessments || 2 }
-          ]
-        }));
-      }
-    }
-
-    return rawStages;
+    return currentMilestones?.stages || [];
   };
 
   const filteredStages = getActiveMilestoneStages();
 
   // Helper to check if a stage is unlocked purely by date/time
   const isStageUnlocked = (stage) => {
-    const stageSched = getScheduleInfo(stage);
+    const stageSched = getScheduleInfo(stage, null, currentTime);
     return stageSched.isUnlocked;
   };
 
@@ -460,7 +460,8 @@ export function MilestonesRoadmapPage() {
 
   // --- Handlers: Date & Time Schedule Modal ---
   const handleOpenScheduleModal = (type, item, stageId = null, subtopicId = null) => {
-    const sInfo = getScheduleInfo(item);
+    const sInfo = getScheduleInfo(item, null, currentTime);
+    const todayStr = getLocalDateString(new Date());
     setScheduleTarget({
       type,
       item,
@@ -470,8 +471,8 @@ export function MilestonesRoadmapPage() {
       title: item.title || item.stageNumber || 'Item'
     });
     setScheduleFormData({
-      unlockDate: sInfo.unlockDate || '',
-      unlockTime: sInfo.unlockTime || '09:00'
+      unlockDate: sInfo.unlockDate || item.unlockDate || todayStr,
+      unlockTime: sInfo.unlockTime || item.unlockTime || '09:00'
     });
     setIsScheduleModalOpen(true);
   };
@@ -484,11 +485,15 @@ export function MilestonesRoadmapPage() {
     const uDateTime = unlockDate ? `${unlockDate}T${unlockTime || '00:00'}` : null;
 
     if (scheduleTarget.type === 'stage') {
-      setStageSchedule(scheduleTarget.id, {
-        unlockDate,
-        unlockTime,
-        unlockDateTime: uDateTime
-      });
+      setStageSchedule(
+        scheduleTarget.id,
+        {
+          unlockDate,
+          unlockTime,
+          unlockDateTime: uDateTime
+        },
+        selectedBatch
+      );
       addToast(
         unlockDate
           ? `📅 Stage release scheduled for ${unlockDate} at ${unlockTime}`
@@ -496,11 +501,16 @@ export function MilestonesRoadmapPage() {
         'success'
       );
     } else if (scheduleTarget.type === 'subtopic') {
-      setSubtopicSchedule(scheduleTarget.stageId, scheduleTarget.id, {
-        unlockDate,
-        unlockTime,
-        unlockDateTime: uDateTime
-      });
+      setSubtopicSchedule(
+        scheduleTarget.stageId,
+        scheduleTarget.id,
+        {
+          unlockDate,
+          unlockTime,
+          unlockDateTime: uDateTime
+        },
+        selectedBatch
+      );
       addToast(
         unlockDate
           ? `📅 Subtopic release scheduled for ${unlockDate} at ${unlockTime}`
@@ -508,11 +518,17 @@ export function MilestonesRoadmapPage() {
         'success'
       );
     } else if (scheduleTarget.type === 'module') {
-      setModuleSchedule(scheduleTarget.stageId, scheduleTarget.subtopicId, scheduleTarget.id, {
-        unlockDate,
-        unlockTime,
-        unlockDateTime: uDateTime
-      });
+      setModuleSchedule(
+        scheduleTarget.stageId,
+        scheduleTarget.subtopicId,
+        scheduleTarget.id,
+        {
+          unlockDate,
+          unlockTime,
+          unlockDateTime: uDateTime
+        },
+        selectedBatch
+      );
       addToast(
         unlockDate
           ? `📅 Module release scheduled for ${unlockDate} at ${unlockTime}`
@@ -528,25 +544,40 @@ export function MilestonesRoadmapPage() {
     if (!scheduleTarget) return;
 
     if (scheduleTarget.type === 'stage') {
-      setStageSchedule(scheduleTarget.id, {
-        unlockDate: '',
-        unlockTime: '',
-        unlockDateTime: null
-      });
+      setStageSchedule(
+        scheduleTarget.id,
+        {
+          unlockDate: '',
+          unlockTime: '',
+          unlockDateTime: null
+        },
+        selectedBatch
+      );
       addToast('Stage schedule cleared (Available by default)', 'info');
     } else if (scheduleTarget.type === 'subtopic') {
-      setSubtopicSchedule(scheduleTarget.stageId, scheduleTarget.id, {
-        unlockDate: '',
-        unlockTime: '',
-        unlockDateTime: null
-      });
+      setSubtopicSchedule(
+        scheduleTarget.stageId,
+        scheduleTarget.id,
+        {
+          unlockDate: '',
+          unlockTime: '',
+          unlockDateTime: null
+        },
+        selectedBatch
+      );
       addToast('Subtopic schedule cleared (Inherits stage release)', 'info');
     } else if (scheduleTarget.type === 'module') {
-      setModuleSchedule(scheduleTarget.stageId, scheduleTarget.subtopicId, scheduleTarget.id, {
-        unlockDate: '',
-        unlockTime: '',
-        unlockDateTime: null
-      });
+      setModuleSchedule(
+        scheduleTarget.stageId,
+        scheduleTarget.subtopicId,
+        scheduleTarget.id,
+        {
+          unlockDate: '',
+          unlockTime: '',
+          unlockDateTime: null
+        },
+        selectedBatch
+      );
       addToast('Module schedule cleared (Inherits subtopic release)', 'info');
     }
 
@@ -557,7 +588,7 @@ export function MilestonesRoadmapPage() {
   const applyDatePreset = (daysFromNow, time = '09:00') => {
     const d = new Date();
     d.setDate(d.getDate() + daysFromNow);
-    const dateStr = d.toISOString().split('T')[0];
+    const dateStr = getLocalDateString(d);
     setScheduleFormData({
       unlockDate: dateStr,
       unlockTime: time
@@ -566,8 +597,8 @@ export function MilestonesRoadmapPage() {
 
   const applyImmediateUnlock = () => {
     const d = new Date();
-    d.setMinutes(d.getMinutes() - 1);
-    const dateStr = d.toISOString().split('T')[0];
+    d.setMinutes(d.getMinutes() - 2);
+    const dateStr = getLocalDateString(d);
     const hours = String(d.getHours()).padStart(2, '0');
     const minutes = String(d.getMinutes()).padStart(2, '0');
     setScheduleFormData({
@@ -619,10 +650,10 @@ export function MilestonesRoadmapPage() {
     };
 
     if (editingStage) {
-      updateStage(editingStage.id, payload);
+      updateStage(editingStage.id, payload, selectedBatch);
       addToast('Milestone stage updated successfully', 'success');
     } else {
-      addStage(payload);
+      addStage(payload, selectedBatch);
       addToast('New milestone stage created', 'success');
     }
     setIsStageModalOpen(false);
@@ -630,7 +661,7 @@ export function MilestonesRoadmapPage() {
 
   const handleDeleteStage = (stageId, title) => {
     if (window.confirm(`Are you sure you want to delete "${title}"?`)) {
-      deleteStage(stageId);
+      deleteStage(stageId, selectedBatch);
       if (selectedSubtopicState?.stageId === stageId) {
         setSelectedSubtopicState(null);
       }
@@ -681,10 +712,10 @@ export function MilestonesRoadmapPage() {
     };
 
     if (editingSubtopic) {
-      updateSubtopic(targetStageIdForSubtopic, editingSubtopic.id, payload);
+      updateSubtopic(targetStageIdForSubtopic, editingSubtopic.id, payload, selectedBatch);
       addToast('Subtopic updated', 'success');
     } else {
-      addSubtopic(targetStageIdForSubtopic, payload);
+      addSubtopic(targetStageIdForSubtopic, payload, selectedBatch);
       addToast('Subtopic added to stage', 'success');
     }
     setIsSubtopicModalOpen(false);
@@ -692,7 +723,7 @@ export function MilestonesRoadmapPage() {
 
   const handleDeleteSubtopic = (stageId, subtopicId, title) => {
     if (window.confirm(`Delete subtopic "${title}"?`)) {
-      deleteSubtopic(stageId, subtopicId);
+      deleteSubtopic(stageId, subtopicId, selectedBatch);
       if (selectedSubtopicState?.subtopicId === subtopicId) {
         setSelectedSubtopicState(null);
       }
@@ -738,10 +769,10 @@ export function MilestonesRoadmapPage() {
     };
 
     if (editingModule) {
-      updateModule(activeSubtopic.stageId, activeSubtopic.id, editingModule.id, payload);
+      updateModule(activeSubtopic.stageId, activeSubtopic.id, editingModule.id, payload, selectedBatch);
       addToast('Module updated', 'success');
     } else {
-      addModule(activeSubtopic.stageId, activeSubtopic.id, payload);
+      addModule(activeSubtopic.stageId, activeSubtopic.id, payload, selectedBatch);
       addToast('New module added to learning path', 'success');
     }
     setIsModuleModalOpen(false);
@@ -750,7 +781,7 @@ export function MilestonesRoadmapPage() {
   const handleDeleteModule = (moduleId, title) => {
     if (!activeSubtopic) return;
     if (window.confirm(`Delete module "${title}" and all its resources?`)) {
-      deleteModule(activeSubtopic.stageId, activeSubtopic.id, moduleId);
+      deleteModule(activeSubtopic.stageId, activeSubtopic.id, moduleId, selectedBatch);
       addToast('Module deleted', 'info');
     }
   };
@@ -812,10 +843,10 @@ export function MilestonesRoadmapPage() {
     };
 
     if (editingItem) {
-      updateLearningItem(activeSubtopic.stageId, activeSubtopic.id, targetModuleIdForItem, editingItem.id, payload);
+      updateLearningItem(activeSubtopic.stageId, activeSubtopic.id, targetModuleIdForItem, editingItem.id, payload, selectedBatch);
       addToast('Resource item updated', 'success');
     } else {
-      addLearningItem(activeSubtopic.stageId, activeSubtopic.id, targetModuleIdForItem, payload);
+      addLearningItem(activeSubtopic.stageId, activeSubtopic.id, targetModuleIdForItem, payload, selectedBatch);
       addToast('Resource item added to module', 'success');
     }
     setIsItemModalOpen(false);
@@ -824,7 +855,7 @@ export function MilestonesRoadmapPage() {
   const handleDeleteItem = (moduleId, itemId, title) => {
     if (!activeSubtopic) return;
     if (window.confirm(`Delete resource item "${title}"?`)) {
-      deleteLearningItem(activeSubtopic.stageId, activeSubtopic.id, moduleId, itemId);
+      deleteLearningItem(activeSubtopic.stageId, activeSubtopic.id, moduleId, itemId, selectedBatch);
       addToast('Resource item deleted', 'info');
     }
   };
@@ -1015,7 +1046,7 @@ export function MilestonesRoadmapPage() {
       {/* Stage Timeline (Pure Time-Based Lock/Unlock System) */}
       <div className="relative pt-4">
         {filteredStages.map((stage, stageIndex) => {
-          const stageSched = getScheduleInfo(stage);
+          const stageSched = getScheduleInfo(stage, null, currentTime);
           const isStageCurrentUnlocked = stageSched.isUnlocked;
 
           const totalStages = filteredStages.length;
@@ -1185,7 +1216,7 @@ export function MilestonesRoadmapPage() {
                   <div className="p-4 sm:p-5 bg-slate-50/70 border-t border-slate-200/80 space-y-3 animate-in fade-in slide-in-from-top-2 duration-300">
                     {visibleSubtopics && visibleSubtopics.length > 0 ? (
                       visibleSubtopics.map((subtopic, subtopicIndex) => {
-                        const subSched = getScheduleInfo(subtopic, stageSched);
+                        const subSched = getScheduleInfo(subtopic, stageSched, currentTime);
                         const isSubtopicLocked = subSched.isLocked;
 
                         const subItems = [];
@@ -1343,8 +1374,8 @@ export function MilestonesRoadmapPage() {
                       </span>
 
                       {viewMode === 'admin' && (() => {
-                        const stageSched = getScheduleInfo(activeStage);
-                        const sInfo = getScheduleInfo(activeSubtopic, stageSched);
+                        const stageSched = getScheduleInfo(activeStage, null, currentTime);
+                        const sInfo = getScheduleInfo(activeSubtopic, stageSched, currentTime);
                         return (
                           <span
                             className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border flex items-center gap-1 ${
@@ -1405,9 +1436,9 @@ export function MilestonesRoadmapPage() {
                   {activeSubtopic.modules && activeSubtopic.modules.length > 0 ? (
                     activeSubtopic.modules.map((module) => {
                       const isExpanded = expandedModule === module.id || activeSubtopic.modules.length === 1;
-                      const stageSched = getScheduleInfo(activeStage);
-                      const subSched = getScheduleInfo(activeSubtopic, stageSched);
-                      const modSched = getScheduleInfo(module, subSched);
+                      const stageSched = getScheduleInfo(activeStage, null, currentTime);
+                      const subSched = getScheduleInfo(activeSubtopic, stageSched, currentTime);
+                      const modSched = getScheduleInfo(module, subSched, currentTime);
                       const isModLocked = modSched.isLocked;
 
                       return (
