@@ -304,26 +304,16 @@ export function StudentManagementPage() {
       {/* Real-time Student Access Testing Modal / Drawer Banner if active */}
       {testingStudent && (
         <div className="p-4 bg-slate-900 text-white rounded-2xl shadow-lg border border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4 animate-in slide-in-from-top-4 duration-300">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-blue-500/20 text-blue-400 rounded-xl border border-blue-500/30">
-              <Sparkles className="w-6 h-6 animate-pulse" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="font-black text-base text-white">{testingStudent.name}</span>
-                <span className={`px-2 py-0.5 rounded-full text-xs font-mono font-bold ${
-                  testingStudent.batch === 'Weekday Batch' ? 'bg-blue-500/30 text-blue-300 border border-blue-400/40' : 'bg-purple-500/30 text-purple-300 border border-purple-400/40'
-                }`}>
-                  {testingStudent.registrationId}
-                </span>
-                <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-slate-800 text-slate-300">
-                  {testingStudent.batch}
-                </span>
-              </div>
-              <p className="text-xs text-slate-300 mt-1">
-                Real-time test session active. Verify course access and batch milestone roadmap progression.
-              </p>
-            </div>
+          <div className="flex items-center gap-2">
+            <span className="font-black text-base text-white">{testingStudent.name}</span>
+            <span className={`px-2 py-0.5 rounded-full text-xs font-mono font-bold ${
+              testingStudent.batch === 'Weekday Batch' ? 'bg-blue-500/30 text-blue-300 border border-blue-400/40' : 'bg-purple-500/30 text-purple-300 border border-purple-400/40'
+            }`}>
+              {testingStudent.registrationId}
+            </span>
+            <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-slate-800 text-slate-300">
+              {testingStudent.batch}
+            </span>
           </div>
 
           <div className="flex items-center gap-2">

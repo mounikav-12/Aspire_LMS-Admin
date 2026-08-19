@@ -20,7 +20,8 @@ app.use(cors({
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
-app.use(express.json());
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 // =========================================================
 // 1. DIAGNOSTICS & HEALTH CHECK ENDPOINTS
@@ -146,19 +147,134 @@ app.post('/api/auth/logout', (req, res) => {
 });
 
 // =========================================================
-// 3. STUDENT DASHBOARD & COURSE SCHEDULE API
+// 3. MILESTONES & COURSE SCHEDULE REALTIME DATABASE APIS
 // =========================================================
+app.get('/api/milestones', async (req, res) => {
+  try {
+    const { data: milesData, error } = await supabase.from('milestones_data').select('*');
+    if (error) throw error;
+
+    const batchRow = milesData?.find(m => m.id === 'batch_data');
+    const defaultRow = milesData?.find(m => m.id === 'default');
+
+    let batchData = batchRow?.overview?.batchData;
+    if (!batchData && defaultRow) {
+      batchData = {
+        'Weekday Batch': { overview: defaultRow.overview || {}, stages: defaultRow.stages || [] },
+        'Weekend Batch': { overview: defaultRow.overview || {}, stages: defaultRow.stages || [] }
+      };
+    }
+
+    res.json({
+      success: true,
+      batchData: batchData || {},
+      milestones: milesData || []
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+app.put('/api/milestones', async (req, res) => {
+  try {
+    const { batchData, overview } = req.body;
+    if (!batchData) {
+      return res.status(400).json({ success: false, message: 'batchData is required' });
+    }
+
+    const weekdayStages = batchData['Weekday Batch']?.stages || batchData['default']?.stages || [];
+    const weekdayOverview = batchData['Weekday Batch']?.overview || overview || {};
+
+    // 1. Upsert batch_data record
+    const { error: batchErr } = await supabase.from('milestones_data').upsert([{
+      id: 'batch_data',
+      overview: { batchData },
+      stages: weekdayStages,
+      updated_at: new Date().toISOString()
+    }]);
+    if (batchErr) console.warn('Supabase batch_data upsert error:', batchErr.message);
+
+    // 2. Upsert default fallback record
+    const { error: defErr } = await supabase.from('milestones_data').upsert([{
+      id: 'default',
+      overview: weekdayOverview,
+      stages: weekdayStages,
+      updated_at: new Date().toISOString()
+    }]);
+    if (defErr) console.warn('Supabase default upsert error:', defErr.message);
+
+    res.json({
+      success: true,
+      message: 'Milestones successfully saved in realtime Supabase database',
+      updatedAt: new Date().toISOString()
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+app.get('/api/milestones/completion', async (req, res) => {
+  try {
+    const { data: compData, error } = await supabase.from('milestones_data').select('*').eq('id', 'completed_items').single();
+    res.json({
+      success: true,
+      completedItemIds: compData?.overview?.itemIds || []
+    });
+  } catch (err) {
+    res.json({ success: true, completedItemIds: [] });
+  }
+});
+
+app.post('/api/milestones/completion', async (req, res) => {
+  try {
+    const { completedItemIds } = req.body;
+    const { error } = await supabase.from('milestones_data').upsert([{
+      id: 'completed_items',
+      overview: { itemIds: completedItemIds || [] },
+      stages: [],
+      updated_at: new Date().toISOString()
+    }]);
+    if (error) throw error;
+    res.json({ success: true, completedItemIds });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
 app.get('/api/student/course-schedule', async (req, res) => {
   try {
+    const { data: milestonesData } = await supabase.from('milestones_data').select('*');
+    const batchRow = milestonesData?.find(m => m.id === 'batch_data');
+    const defaultBatchData = batchRow?.overview?.batchData || {};
+    const stages = defaultBatchData['Weekday Batch']?.stages || defaultBatchData['default']?.stages || [];
+
     const courseHierarchy = {
-      _id: "",
-      name: "",
-      stages: []
+      _id: "course-py-fullstack",
+      name: "Python Full Stack + DSA with AI",
+      stages: stages.map(stg => ({
+        id: stg.id,
+        title: stg.title,
+        stageNumber: stg.stageNumber,
+        status: stg.status,
+        isLocked: stg.isLocked,
+        unlockDate: stg.unlockDate || null,
+        unlockTime: stg.unlockTime || null,
+        unlockDateTime: stg.unlockDateTime || null,
+        subtopics: stg.subtopics || []
+      }))
     };
 
-    const calendarSchedule = [];
+    const calendarSchedule = stages
+      .filter(s => s.unlockDate)
+      .map(s => ({
+        stageId: s.id,
+        title: s.title,
+        unlockDate: s.unlockDate,
+        unlockTime: s.unlockTime,
+        unlockDateTime: s.unlockDateTime
+      }));
 
-    res.json({ courseHierarchy, calendarSchedule });
+    res.json({ success: true, courseHierarchy, calendarSchedule });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
@@ -264,12 +380,14 @@ app.get('/api/v1/student-feed', async (req, res) => {
     const { data: liveSessions } = await supabase.from('live_sessions').select('*');
     const { data: jobs } = await supabase.from('jobs').select('*');
     const { data: projects } = await supabase.from('projects').select('*');
+    const { data: milestonesData } = await supabase.from('milestones_data').select('*');
 
     res.json({
       status: 'Connected & Syncing',
       endpoint: '/api/v1/student-feed',
       lastSynced: new Date().toISOString(),
       feedPayload: {
+        milestones: milestonesData || [],
         courses: courses || [],
         dailySchedule: [],
         projects: projects || [],

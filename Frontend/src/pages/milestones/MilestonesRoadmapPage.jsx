@@ -22,11 +22,223 @@ import {
   Eye,
   Settings,
   Book,
-  FileText
+  FileText,
+  Calendar,
+  CalendarClock,
+  Timer,
+  CheckCircle2,
+  AlertCircle
 } from 'lucide-react';
 import { useSearchParams } from 'react-router-dom';
 import { useToast } from '../../context/ToastContext';
 import { useLmsData } from '../../context/LmsDataContext';
+
+export const formatLocalDate = (d) => {
+  if (!d || isNaN(new Date(d).getTime())) return '';
+  const dateObj = new Date(d);
+  const year = dateObj.getFullYear();
+  const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+  const day = String(dateObj.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
+// Pure Date & Time Release Determination Helper with Hierarchy Inheritance
+export const parseUnlockTimestamp = (unlockDate, unlockTime, unlockDateTime) => {
+  if (!unlockDate && !unlockDateTime) return null;
+
+  if (typeof unlockDateTime === 'number' && !isNaN(unlockDateTime)) {
+    return unlockDateTime;
+  }
+
+  let rawDate = unlockDate || '';
+  let rawTime = unlockTime || '00:00';
+
+  if (!rawDate && unlockDateTime && typeof unlockDateTime === 'string') {
+    const parts = unlockDateTime.split('T');
+    rawDate = parts[0];
+    if (parts[1] && !unlockTime) {
+      rawTime = parts[1].substring(0, 5);
+    }
+  }
+
+  if (rawDate && typeof rawDate === 'string') {
+    if (rawDate.includes('T')) {
+      const parts = rawDate.split('T');
+      rawDate = parts[0];
+      if (parts[1] && !unlockTime) {
+        rawTime = parts[1].substring(0, 5);
+      }
+    }
+
+    const dParts = rawDate.split('-').map(Number);
+    if (dParts.length === 3 && !dParts.some(isNaN)) {
+      const [year, month, day] = dParts;
+      let hours = 0;
+      let minutes = 0;
+      if (rawTime) {
+        const tParts = String(rawTime).split(':').map(Number);
+        hours = isNaN(tParts[0]) ? 0 : tParts[0];
+        minutes = isNaN(tParts[1]) ? 0 : tParts[1];
+      }
+      const d = new Date(year, month - 1, day, hours, minutes, 0, 0);
+      const ts = d.getTime();
+      if (!isNaN(ts)) return ts;
+    }
+  }
+
+  if (unlockDateTime) {
+    try {
+      const parsed = new Date(unlockDateTime).getTime();
+      if (!isNaN(parsed)) return parsed;
+    } catch (e) {}
+  }
+  return null;
+};
+
+export const getScheduleInfo = (item, parentSchedule = null) => {
+  if (!item) {
+    return {
+      hasSchedule: false,
+      isUnlocked: true,
+      isLocked: false,
+      unlockDate: '',
+      unlockTime: '',
+      unlockDateTime: null,
+      dateFormatted: '',
+      timeFormatted: '',
+      fullFormatted: 'Available',
+      shortFormatted: 'Available',
+      relativeText: 'Released',
+      statusLabel: 'UNLOCKED',
+      inherited: false
+    };
+  }
+
+  // 1. If parent schedule is explicitly LOCKED (e.g. parent Stage is scheduled for future), child inherits lock
+  if (parentSchedule && parentSchedule.isLocked) {
+    return {
+      hasSchedule: parentSchedule.hasSchedule,
+      isUnlocked: false,
+      isLocked: true,
+      unlockDate: parentSchedule.unlockDate,
+      unlockTime: parentSchedule.unlockTime,
+      unlockDateTime: parentSchedule.unlockDateTime,
+      dateFormatted: parentSchedule.dateFormatted,
+      timeFormatted: parentSchedule.timeFormatted,
+      fullFormatted: parentSchedule.fullFormatted,
+      shortFormatted: parentSchedule.shortFormatted,
+      relativeText: parentSchedule.relativeText,
+      statusLabel: 'LOCKED',
+      inherited: true
+    };
+  }
+
+  const unlockDate = item.unlockDate || '';
+  const unlockTime = item.unlockTime || '';
+  const unlockDateTime = item.unlockDateTime || (unlockDate ? `${unlockDate}T${unlockTime || '00:00'}` : '');
+
+  // 2. If child item does NOT have its own specific date/time set:
+  if (!unlockDate && !unlockDateTime) {
+    // If parent is UNLOCKED, child is automatically UNLOCKED and accessible
+    if (parentSchedule && parentSchedule.isUnlocked) {
+      return {
+        hasSchedule: parentSchedule.hasSchedule,
+        isUnlocked: true,
+        isLocked: false,
+        unlockDate: parentSchedule.unlockDate,
+        unlockTime: parentSchedule.unlockTime,
+        unlockDateTime: parentSchedule.unlockDateTime,
+        dateFormatted: parentSchedule.dateFormatted,
+        timeFormatted: parentSchedule.timeFormatted,
+        fullFormatted: parentSchedule.fullFormatted,
+        shortFormatted: parentSchedule.shortFormatted,
+        relativeText: 'Released',
+        statusLabel: 'UNLOCKED',
+        inherited: true
+      };
+    }
+
+    // If top-level item (e.g. Stage) has no explicit date set, default to UNLOCKED (available)
+    return {
+      hasSchedule: false,
+      isUnlocked: true,
+      isLocked: false,
+      unlockDate: '',
+      unlockTime: '',
+      unlockDateTime: null,
+      dateFormatted: '',
+      timeFormatted: '',
+      fullFormatted: 'Available',
+      shortFormatted: 'Available',
+      relativeText: 'Released',
+      statusLabel: 'UNLOCKED',
+      inherited: false
+    };
+  }
+
+  // 3. Item has its OWN specific scheduled date & time
+  const targetTime = parseUnlockTimestamp(unlockDate, unlockTime, unlockDateTime);
+
+  if (!targetTime || isNaN(targetTime)) {
+    return {
+      hasSchedule: false,
+      isUnlocked: true,
+      isLocked: false,
+      unlockDate,
+      unlockTime,
+      unlockDateTime,
+      dateFormatted: '',
+      timeFormatted: '',
+      fullFormatted: 'Available',
+      shortFormatted: 'Available',
+      relativeText: 'Released',
+      statusLabel: 'UNLOCKED',
+      inherited: false
+    };
+  }
+
+  const now = Date.now();
+  const isUnlocked = now >= targetTime;
+  const isLocked = !isUnlocked;
+
+  const d = new Date(targetTime);
+  const dateFormatted = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  const timeFormatted = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+
+  const diffMs = targetTime - now;
+  const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+  const diffDays = Math.floor(diffHours / 24);
+
+  let relativeText = '';
+  if (isLocked) {
+    if (diffDays > 0) {
+      relativeText = `in ${diffDays} day${diffDays > 1 ? 's' : ''}`;
+    } else if (diffHours > 0) {
+      relativeText = `in ${diffHours} hr${diffHours > 1 ? 's' : ''}`;
+    } else {
+      const diffMins = Math.max(1, Math.floor(diffMs / (1000 * 60)));
+      relativeText = `in ${diffMins} min${diffMins > 1 ? 's' : ''}`;
+    }
+  } else {
+    relativeText = 'Released';
+  }
+
+  return {
+    hasSchedule: true,
+    isUnlocked,
+    isLocked,
+    unlockDate,
+    unlockTime,
+    unlockDateTime,
+    dateFormatted,
+    timeFormatted,
+    fullFormatted: `${dateFormatted} at ${timeFormatted}`,
+    shortFormatted: `${dateFormatted}, ${timeFormatted}`,
+    relativeText,
+    statusLabel: isUnlocked ? 'UNLOCKED' : 'LOCKED',
+    inherited: false
+  };
+};
 
 export function MilestonesRoadmapPage() {
   const { addToast } = useToast();
@@ -38,16 +250,15 @@ export function MilestonesRoadmapPage() {
     milestones,
     addStage,
     updateStage,
-    toggleStageLock,
-    updateStageStatus,
+    setStageSchedule,
     deleteStage,
     addSubtopic,
     updateSubtopic,
-    toggleSubtopicLock,
+    setSubtopicSchedule,
     deleteSubtopic,
     addModule,
     updateModule,
-    toggleModuleLock,
+    setModuleSchedule,
     deleteModule,
     addLearningItem,
     updateLearningItem,
@@ -55,10 +266,16 @@ export function MilestonesRoadmapPage() {
     updateMilestonesOverview,
     activeBatchFilter,
     setActiveBatchFilter,
-    assessments = []
+    assessments = [],
+    liveSessions = [],
+    completedMilestoneItemIds = [],
+    toggleItemCompletion = () => {},
+    markItemCompleted = () => {},
+    unmarkItemCompleted = () => {},
+    toggleSubtopicCompletion = () => {}
   } = useLmsData();
 
-  // Mode Toggle: 'admin' (CRUD management) vs 'user' (Student Portal View)
+  // Mode Toggle: 'admin' (CRUD & Schedule Setter) vs 'user' (Main LMS Student View)
   const [viewMode, setViewMode] = useState('admin');
   const [selectedBatch, setSelectedBatchState] = useState(
     activeBatchFilter && activeBatchFilter !== 'ALL' ? activeBatchFilter : 'Weekday Batch'
@@ -81,9 +298,9 @@ export function MilestonesRoadmapPage() {
   const currentMilestones = getMilestoneDataForBatch ? getMilestoneDataForBatch(selectedBatch) : milestones;
 
   // Selected subtopic for slide-over drawer
-  const [selectedSubtopicState, setSelectedSubtopicState] = useState(null); // { stageId, subtopic }
+  const [selectedSubtopicState, setSelectedSubtopicState] = useState(null); // { stageId, subtopicId }
   const [expandedModule, setExpandedModule] = useState(null);
-  const [expandedStages, setExpandedStages] = useState({});
+  const [expandedStages, setExpandedStages] = useState({ 'stage-1': true, 'stage-1-w': true, 'stage-1-s': true });
 
   const [searchParams] = useSearchParams();
   const queryCourseId = searchParams.get('courseId') || 'ALL';
@@ -94,6 +311,10 @@ export function MilestonesRoadmapPage() {
   // Derive active milestones stages from Course Management or selected course
   const getActiveMilestoneStages = () => {
     let rawStages = currentMilestones?.stages || [];
+
+    if (rawStages.length > 0) {
+      return rawStages;
+    }
 
     if (selectedStudentAccessId !== 'ALL') {
       const studentObj = students.find((s) => s.id === selectedStudentAccessId);
@@ -109,8 +330,8 @@ export function MilestonesRoadmapPage() {
                   stageNumber: `STAGE 0${derivedStages.length + 1}`,
                   phaseTag: `${crs.title} • Stage ${tIdx + 1}`,
                   title: t.title,
-                  status: 'IN PROGRESS',
-                  statusType: 'in-progress',
+                  unlockDate: t.unlockDate || (tIdx === 0 ? formatLocalDate(new Date()) : null),
+                  unlockTime: t.unlockTime || '09:00',
                   subtopics: t.subtopics || [
                     { id: `sub-${tIdx}-1`, title: 'Live Session & Concepts', isCompleted: true, modulesCount: t.liveClasses || 4 },
                     { id: `sub-${tIdx}-2`, title: 'Hands-on Practice & Assignments', isCompleted: false, modulesCount: t.practice || 6 },
@@ -133,8 +354,8 @@ export function MilestonesRoadmapPage() {
           stageNumber: `STAGE 0${idx + 1}`,
           phaseTag: `${targetCourse.title} • Stage ${idx + 1}`,
           title: t.title,
-          status: 'IN PROGRESS',
-          statusType: 'in-progress',
+          unlockDate: t.unlockDate || (idx === 0 ? formatLocalDate(new Date()) : null),
+          unlockTime: t.unlockTime || '09:00',
           subtopics: t.subtopics || [
             { id: `sub-${idx}-1`, title: 'Live Session & Concepts', isCompleted: true, modulesCount: t.liveClasses || 4 },
             { id: `sub-${idx}-2`, title: 'Hands-on Practice & Assignments', isCompleted: false, modulesCount: t.practice || 6 },
@@ -149,59 +370,91 @@ export function MilestonesRoadmapPage() {
 
   const filteredStages = getActiveMilestoneStages();
 
-  const isStageUnlockedForUser = (stageIndex, stage) => {
-    if (viewMode === 'admin') return true;
-    if (stage.isLocked || stage.statusType === 'locked' || stage.status === 'LOCKED') return false;
-    if (stageIndex === 0) return true;
-    const prevStage = filteredStages[stageIndex - 1];
-    const prevCompleted = prevStage?.status === 'COMPLETED' || prevStage?.statusType === 'completed';
-    return prevCompleted;
+  // Helper to check if a stage is unlocked purely by date/time
+  const isStageUnlocked = (stage) => {
+    const stageSched = getScheduleInfo(stage);
+    return stageSched.isUnlocked;
   };
 
-  // Automatic Real-Time Banner Calculations
-  const autoTotalCount = filteredStages.reduce((acc, stg) => {
-    return acc + (stg.subtopics?.length || 0);
-  }, 0) || 31;
+  // Real-Time Banner Calculations based on actual Student Topic Completion
+  let totalItemsCount = 0;
+  let completedItemsCount = 0;
+  let totalSubtopicsCount = 0;
+  let completedSubtopicsCount = 0;
 
-  const autoCompletedCount = filteredStages.reduce((acc, stg) => {
-    if (stg.status === 'COMPLETED' || stg.statusType === 'completed') {
-      return acc + (stg.subtopics?.length || 0);
-    }
-    const doneInStage = stg.subtopics?.filter((sub) => sub.isCompleted || sub.status === 'COMPLETED')?.length || 0;
-    return acc + doneInStage;
-  }, 0) || 0;
+  filteredStages.forEach((stage) => {
+    (stage.subtopics || []).forEach((sub) => {
+      totalSubtopicsCount += 1;
+      let subItems = [];
+      (sub.modules || []).forEach((mod) => {
+        (mod.items || []).forEach((item) => {
+          subItems.push(item);
+          totalItemsCount += 1;
+          if (completedMilestoneItemIds.includes(item.id)) {
+            completedItemsCount += 1;
+          }
+        });
+      });
 
-  const autoCompletionPercentage = autoTotalCount > 0
-    ? Math.round((autoCompletedCount / autoTotalCount) * 100)
+      const isSubDone =
+        sub.isCompleted ||
+        completedMilestoneItemIds.includes(sub.id) ||
+        (subItems.length > 0 && subItems.every((it) => completedMilestoneItemIds.includes(it.id)));
+
+      if (isSubDone) {
+        completedSubtopicsCount += 1;
+      }
+    });
+  });
+
+  const totalTopicsCount = totalItemsCount > 0 ? totalItemsCount : (totalSubtopicsCount || 31);
+  const completedTopicsCount = totalItemsCount > 0 ? completedItemsCount : completedSubtopicsCount;
+
+  const completionPercentage = totalTopicsCount > 0
+    ? Math.min(100, Math.round((completedTopicsCount / totalTopicsCount) * 100))
     : 0;
 
-  const autoUnlockedLevel = filteredStages.filter((stg, idx) => isStageUnlockedForUser(idx, stg)).length || 1;
+  const completedStagesCount = filteredStages.filter((stage) => {
+    const subs = stage.subtopics || [];
+    if (subs.length === 0) return false;
+    return subs.every((sub) => {
+      let subItems = [];
+      (sub.modules || []).forEach((mod) => {
+        (mod.items || []).forEach((item) => subItems.push(item));
+      });
+      return (
+        sub.isCompleted ||
+        completedMilestoneItemIds.includes(sub.id) ||
+        (subItems.length > 0 && subItems.every((it) => completedMilestoneItemIds.includes(it.id)))
+      );
+    });
+  }).length;
 
-  const handleSubtopicClick = (stageIndex, stage, subtopic) => {
-    const unlocked = isStageUnlockedForUser(stageIndex, stage);
-    if (!unlocked) {
-      const prevStageName = currentMilestones?.stages?.[stageIndex - 1]?.title || 'previous stage';
-      addToast(`🔒 Stage is locked! Complete ${prevStageName} first to unlock.`, 'warning');
-      return;
-    }
-    if (subtopic.isLocked && viewMode !== 'admin') {
-      addToast(`🔒 Subtopic "${subtopic.title}" has been locked by admin.`, 'warning');
-      return;
-    }
+  const autoUnlockedStagesCount = filteredStages.filter((stg) => isStageUnlocked(stg)).length;
+
+  // Handle clicking a subtopic row -> Opens the Drawer to view syllabus/modules
+  const handleSubtopicClick = (stage, subtopic) => {
     setSelectedSubtopicState({ stageId: stage.id, subtopicId: subtopic.id });
   };
 
-  // Modal States
+  // --- Modal States ---
+  // Dedicated Date & Time Release Scheduler Modal
+  const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
+  const [scheduleTarget, setScheduleTarget] = useState(null);
+  const [scheduleFormData, setScheduleFormData] = useState({
+    unlockDate: '',
+    unlockTime: '09:00'
+  });
+
   const [isStageModalOpen, setIsStageModalOpen] = useState(false);
-  const [editingStage, setEditingStage] = useState(null); // null for new, stage object for edit
+  const [editingStage, setEditingStage] = useState(null);
   const [stageFormData, setStageFormData] = useState({
     stageNumber: 'STAGE 01',
     phaseTag: 'Phase 1 • Core Mastery',
     title: '',
     targetBatch: 'All Batches',
-    status: 'IN PROGRESS',
-    statusType: 'in-progress',
-    isLocked: false
+    unlockDate: '',
+    unlockTime: '09:00'
   });
 
   const [isSubtopicModalOpen, setIsSubtopicModalOpen] = useState(false);
@@ -211,12 +464,18 @@ export function MilestonesRoadmapPage() {
     title: '',
     targetBatch: 'All Batches',
     description: 'Click to view subtopics',
-    duration: ''
+    duration: '',
+    unlockDate: '',
+    unlockTime: '09:00'
   });
 
   const [isModuleModalOpen, setIsModuleModalOpen] = useState(false);
   const [editingModule, setEditingModule] = useState(null);
-  const [moduleFormData, setModuleFormData] = useState({ title: '' });
+  const [moduleFormData, setModuleFormData] = useState({
+    title: '',
+    unlockDate: '',
+    unlockTime: '09:00'
+  });
 
   const [isItemModalOpen, setIsItemModalOpen] = useState(false);
   const [targetModuleIdForItem, setTargetModuleIdForItem] = useState(null);
@@ -230,37 +489,137 @@ export function MilestonesRoadmapPage() {
 
   const [isOverviewModalOpen, setIsOverviewModalOpen] = useState(false);
   const [overviewFormData, setOverviewFormData] = useState({
-    headline: milestones?.overview?.headline || '',
-    completedCount: milestones?.overview?.completedCount || 4,
-    totalCount: milestones?.overview?.totalCount || 12,
-    unlockedLevel: milestones?.overview?.unlockedLevel || 3,
-    completionPercentage: milestones?.overview?.completionPercentage || 45
+    headline: milestones?.overview?.headline || ''
   });
 
-  // Derived current active subtopic object from global state
-  const getActiveSubtopic = () => {
-    if (!selectedSubtopicState) return null;
-    const stage = currentMilestones?.stages?.find((s) => s.id === selectedSubtopicState.stageId);
-    if (!stage) return null;
-    const sub = stage.subtopics?.find((st) => st.id === selectedSubtopicState.subtopicId);
-    return sub ? { stageId: stage.id, ...sub } : null;
+  // Derived current active subtopic object and parent stage
+  const getActiveSubtopicAndStage = () => {
+    if (!selectedSubtopicState) return { activeStage: null, activeSubtopic: null };
+    const stage = (currentMilestones?.stages || []).find(
+      (s) => s.id === selectedSubtopicState.stageId || s.id.replace(/-[ws]$/, '') === String(selectedSubtopicState.stageId).replace(/-[ws]$/, '')
+    );
+    if (!stage) return { activeStage: null, activeSubtopic: null };
+    const sub = (stage.subtopics || []).find(
+      (st) => st.id === selectedSubtopicState.subtopicId || st.id.replace(/-[ws]$/, '') === String(selectedSubtopicState.subtopicId).replace(/-[ws]$/, '')
+    );
+    return {
+      activeStage: stage,
+      activeSubtopic: sub ? { stageId: stage.id, ...sub } : null
+    };
   };
 
-  const activeSubtopic = getActiveSubtopic();
+  const { activeStage, activeSubtopic } = getActiveSubtopicAndStage();
 
   // Helper for rendering icons dynamically
-  const renderItemIcon = (iconName, iconBg) => {
+  const renderItemIcon = (iconName, iconBg, isLocked = false) => {
     let IconComp = Video;
     if (iconName === 'Code') IconComp = Code;
     if (iconName === 'FileCheck') IconComp = FileCheck;
     if (iconName === 'BookText' || iconName === 'Book' || iconName === 'FileText') IconComp = Book;
 
     return (
-      <div className={`p-2 rounded-xl ${iconBg || 'bg-purple-600 text-white'}`}>
+      <div className={`p-2.5 rounded-xl ${iconBg || 'bg-purple-600 text-white'} flex-shrink-0 shadow-xs`}>
         <IconComp className="w-4 h-4" />
       </div>
     );
   };
+
+  // --- Handlers: Date & Time Schedule Modal ---
+  const handleOpenScheduleModal = (type, item, stageId = null, subtopicId = null) => {
+    const sInfo = getScheduleInfo(item);
+    setScheduleTarget({
+      type,
+      item,
+      id: item.id,
+      stageId: stageId || item.id,
+      subtopicId: subtopicId || item.id,
+      title: item.title || item.stageNumber || 'Item'
+    });
+    setScheduleFormData({
+      unlockDate: sInfo.unlockDate || '',
+      unlockTime: sInfo.unlockTime || '09:00'
+    });
+    setIsScheduleModalOpen(true);
+  };
+
+  const handleSaveSchedule = (e) => {
+    e.preventDefault();
+    if (!scheduleTarget) return;
+
+    const { unlockDate, unlockTime } = scheduleFormData;
+    const uDateTime = unlockDate ? `${unlockDate}T${unlockTime || '00:00'}` : null;
+
+    if (scheduleTarget.type === 'stage') {
+      setStageSchedule(scheduleTarget.id, {
+        unlockDate,
+        unlockTime,
+        unlockDateTime: uDateTime
+      }, selectedBatch);
+      addToast(
+        unlockDate
+          ? `📅 Stage release scheduled for ${unlockDate} at ${unlockTime}`
+          : 'Stage schedule updated',
+        'success'
+      );
+    } else if (scheduleTarget.type === 'subtopic') {
+      setSubtopicSchedule(scheduleTarget.stageId, scheduleTarget.id, {
+        unlockDate,
+        unlockTime,
+        unlockDateTime: uDateTime
+      }, selectedBatch);
+      addToast(
+        unlockDate
+          ? `📅 Subtopic release scheduled for ${unlockDate} at ${unlockTime}`
+          : 'Subtopic schedule updated',
+        'success'
+      );
+    } else if (scheduleTarget.type === 'module') {
+      setModuleSchedule(scheduleTarget.stageId, scheduleTarget.subtopicId, scheduleTarget.id, {
+        unlockDate,
+        unlockTime,
+        unlockDateTime: uDateTime
+      }, selectedBatch);
+      addToast(
+        unlockDate
+          ? `📅 Module release scheduled for ${unlockDate} at ${unlockTime}`
+          : 'Module schedule updated',
+        'success'
+      );
+    }
+
+    setIsScheduleModalOpen(false);
+  };
+
+  const handleClearSchedule = () => {
+    if (!scheduleTarget) return;
+
+    if (scheduleTarget.type === 'stage') {
+      setStageSchedule(scheduleTarget.id, {
+        unlockDate: '',
+        unlockTime: '',
+        unlockDateTime: null
+      }, selectedBatch);
+      addToast('Stage schedule cleared (Available by default)', 'info');
+    } else if (scheduleTarget.type === 'subtopic') {
+      setSubtopicSchedule(scheduleTarget.stageId, scheduleTarget.id, {
+        unlockDate: '',
+        unlockTime: '',
+        unlockDateTime: null
+      }, selectedBatch);
+      addToast('Subtopic schedule cleared (Inherits stage release)', 'info');
+    } else if (scheduleTarget.type === 'module') {
+      setModuleSchedule(scheduleTarget.stageId, scheduleTarget.subtopicId, scheduleTarget.id, {
+        unlockDate: '',
+        unlockTime: '',
+        unlockDateTime: null
+      }, selectedBatch);
+      addToast('Module schedule cleared (Inherits subtopic release)', 'info');
+    }
+
+    setIsScheduleModalOpen(false);
+  };
+
+
 
   // --- Handlers: Stage ---
   const handleOpenStageModal = (stage = null) => {
@@ -271,9 +630,8 @@ export function MilestonesRoadmapPage() {
         phaseTag: stage.phaseTag,
         title: stage.title,
         targetBatch: stage.targetBatch || 'All Batches',
-        status: stage.status,
-        statusType: stage.statusType,
-        isLocked: stage.isLocked
+        unlockDate: stage.unlockDate || '',
+        unlockTime: stage.unlockTime || '09:00'
       });
     } else {
       setEditingStage(null);
@@ -283,9 +641,8 @@ export function MilestonesRoadmapPage() {
         phaseTag: `Phase ${nextNum} • Core Mastery`,
         title: '',
         targetBatch: selectedBatch !== 'ALL' ? selectedBatch : 'All Batches',
-        status: 'AVAILABLE',
-        statusType: 'available',
-        isLocked: false
+        unlockDate: '',
+        unlockTime: '09:00'
       });
     }
     setIsStageModalOpen(true);
@@ -297,11 +654,20 @@ export function MilestonesRoadmapPage() {
       addToast('Please enter a stage title', 'error');
       return;
     }
+    const uDateTime = stageFormData.unlockDate
+      ? `${stageFormData.unlockDate}T${stageFormData.unlockTime || '00:00'}`
+      : null;
+
+    const payload = {
+      ...stageFormData,
+      unlockDateTime: uDateTime
+    };
+
     if (editingStage) {
-      updateStage(editingStage.id, stageFormData);
+      updateStage(editingStage.id, payload, selectedBatch);
       addToast('Milestone stage updated successfully', 'success');
     } else {
-      addStage(stageFormData);
+      addStage(payload, selectedBatch);
       addToast('New milestone stage created', 'success');
     }
     setIsStageModalOpen(false);
@@ -309,7 +675,7 @@ export function MilestonesRoadmapPage() {
 
   const handleDeleteStage = (stageId, title) => {
     if (window.confirm(`Are you sure you want to delete "${title}"?`)) {
-      deleteStage(stageId);
+      deleteStage(stageId, selectedBatch);
       if (selectedSubtopicState?.stageId === stageId) {
         setSelectedSubtopicState(null);
       }
@@ -326,7 +692,9 @@ export function MilestonesRoadmapPage() {
         title: subtopic.title,
         targetBatch: subtopic.targetBatch || 'All Batches',
         description: subtopic.description,
-        duration: subtopic.duration
+        duration: subtopic.duration,
+        unlockDate: subtopic.unlockDate || '',
+        unlockTime: subtopic.unlockTime || '09:00'
       });
     } else {
       setEditingSubtopic(null);
@@ -334,7 +702,9 @@ export function MilestonesRoadmapPage() {
         title: '',
         targetBatch: selectedBatch !== 'ALL' ? selectedBatch : 'All Batches',
         description: 'Click to view subtopics',
-        duration: 'Master core concepts and practical workflows in this module.'
+        duration: 'Master core concepts and practical workflows in this module.',
+        unlockDate: '',
+        unlockTime: '09:00'
       });
     }
     setIsSubtopicModalOpen(true);
@@ -346,11 +716,20 @@ export function MilestonesRoadmapPage() {
       addToast('Please enter a subtopic title', 'error');
       return;
     }
+    const uDateTime = subtopicFormData.unlockDate
+      ? `${subtopicFormData.unlockDate}T${subtopicFormData.unlockTime || '00:00'}`
+      : null;
+
+    const payload = {
+      ...subtopicFormData,
+      unlockDateTime: uDateTime
+    };
+
     if (editingSubtopic) {
-      updateSubtopic(targetStageIdForSubtopic, editingSubtopic.id, subtopicFormData);
+      updateSubtopic(targetStageIdForSubtopic, editingSubtopic.id, payload, selectedBatch);
       addToast('Subtopic updated', 'success');
     } else {
-      addSubtopic(targetStageIdForSubtopic, subtopicFormData);
+      addSubtopic(targetStageIdForSubtopic, payload, selectedBatch);
       addToast('Subtopic added to stage', 'success');
     }
     setIsSubtopicModalOpen(false);
@@ -358,7 +737,7 @@ export function MilestonesRoadmapPage() {
 
   const handleDeleteSubtopic = (stageId, subtopicId, title) => {
     if (window.confirm(`Delete subtopic "${title}"?`)) {
-      deleteSubtopic(stageId, subtopicId);
+      deleteSubtopic(stageId, subtopicId, selectedBatch);
       if (selectedSubtopicState?.subtopicId === subtopicId) {
         setSelectedSubtopicState(null);
       }
@@ -370,10 +749,18 @@ export function MilestonesRoadmapPage() {
   const handleOpenModuleModal = (module = null) => {
     if (module) {
       setEditingModule(module);
-      setModuleFormData({ title: module.title });
+      setModuleFormData({
+        title: module.title,
+        unlockDate: module.unlockDate || '',
+        unlockTime: module.unlockTime || '09:00'
+      });
     } else {
       setEditingModule(null);
-      setModuleFormData({ title: '' });
+      setModuleFormData({
+        title: '',
+        unlockDate: '',
+        unlockTime: '09:00'
+      });
     }
     setIsModuleModalOpen(true);
   };
@@ -386,11 +773,20 @@ export function MilestonesRoadmapPage() {
     }
     if (!activeSubtopic) return;
 
+    const uDateTime = moduleFormData.unlockDate
+      ? `${moduleFormData.unlockDate}T${moduleFormData.unlockTime || '00:00'}`
+      : null;
+
+    const payload = {
+      ...moduleFormData,
+      unlockDateTime: uDateTime
+    };
+
     if (editingModule) {
-      updateModule(activeSubtopic.stageId, activeSubtopic.id, editingModule.id, moduleFormData);
-      addToast('Module title updated', 'success');
+      updateModule(activeSubtopic.stageId, activeSubtopic.id, editingModule.id, payload, selectedBatch);
+      addToast('Module updated', 'success');
     } else {
-      addModule(activeSubtopic.stageId, activeSubtopic.id, moduleFormData);
+      addModule(activeSubtopic.stageId, activeSubtopic.id, payload, selectedBatch);
       addToast('New module added to learning path', 'success');
     }
     setIsModuleModalOpen(false);
@@ -399,7 +795,7 @@ export function MilestonesRoadmapPage() {
   const handleDeleteModule = (moduleId, title) => {
     if (!activeSubtopic) return;
     if (window.confirm(`Delete module "${title}" and all its resources?`)) {
-      deleteModule(activeSubtopic.stageId, activeSubtopic.id, moduleId);
+      deleteModule(activeSubtopic.stageId, activeSubtopic.id, moduleId, selectedBatch);
       addToast('Module deleted', 'info');
     }
   };
@@ -461,10 +857,10 @@ export function MilestonesRoadmapPage() {
     };
 
     if (editingItem) {
-      updateLearningItem(activeSubtopic.stageId, activeSubtopic.id, targetModuleIdForItem, editingItem.id, payload);
+      updateLearningItem(activeSubtopic.stageId, activeSubtopic.id, targetModuleIdForItem, editingItem.id, payload, selectedBatch);
       addToast('Resource item updated', 'success');
     } else {
-      addLearningItem(activeSubtopic.stageId, activeSubtopic.id, targetModuleIdForItem, payload);
+      addLearningItem(activeSubtopic.stageId, activeSubtopic.id, targetModuleIdForItem, payload, selectedBatch);
       addToast('Resource item added to module', 'success');
     }
     setIsItemModalOpen(false);
@@ -473,7 +869,7 @@ export function MilestonesRoadmapPage() {
   const handleDeleteItem = (moduleId, itemId, title) => {
     if (!activeSubtopic) return;
     if (window.confirm(`Delete resource item "${title}"?`)) {
-      deleteLearningItem(activeSubtopic.stageId, activeSubtopic.id, moduleId, itemId);
+      deleteLearningItem(activeSubtopic.stageId, activeSubtopic.id, moduleId, itemId, selectedBatch);
       addToast('Resource item deleted', 'info');
     }
   };
@@ -481,16 +877,45 @@ export function MilestonesRoadmapPage() {
   // Save Banner Overview
   const handleSaveOverview = (e) => {
     e.preventDefault();
-    updateMilestonesOverview(overviewFormData);
+    updateMilestonesOverview(overviewFormData, selectedBatch);
     addToast('Roadmap banner settings updated', 'success');
     setIsOverviewModalOpen(false);
   };
 
-  const handleActionClick = (actionText, title, url) => {
+  // Action Click Handler for JOIN, VIEW, TAKE with Strict Date & Time Enforcement
+  const handleActionClick = (actionText, title, url, isLocked, sInfo, itemId) => {
+    if (isLocked) {
+      if (viewMode === 'admin') {
+        if (url && url.startsWith('http')) {
+          if (window.confirm(`[Admin Preview] This item is scheduled for ${sInfo.fullFormatted} (${sInfo.relativeText}). Test open link now?`)) {
+            window.open(url, '_blank');
+          }
+        } else {
+          addToast(`🔒 [Admin Preview] Scheduled for ${sInfo.fullFormatted}`, 'info');
+        }
+        return;
+      }
+
+      // Student View: Strictly Locked - Shows Toast Message and Prevents Opening
+      addToast(
+        sInfo.hasSchedule
+          ? `🔒 "${title}" is locked! Available on ${sInfo.fullFormatted} (${sInfo.relativeText}).`
+          : `🔒 "${title}" is locked until release date and time!`,
+        'warning'
+      );
+      return;
+    }
+
+    // Unlocked: Automatically mark item completed when opened (progress increases)
+    if (itemId) {
+      markItemCompleted(itemId);
+    }
+
+    // Unlocked: Open resource
     if (url && url.startsWith('http')) {
       window.open(url, '_blank');
     } else {
-      addToast(`Executing ${actionText} for "${title}"`, 'info');
+      addToast(`Opening ${actionText} for "${title}"`, 'success');
     }
   };
 
@@ -500,9 +925,6 @@ export function MilestonesRoadmapPage() {
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-black text-slate-900 tracking-tight">Milestones Roadmap</h1>
-          <p className="text-sm text-slate-500 font-medium mt-1">
-            Track your journey and master core engineering fundamentals.
-          </p>
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
@@ -561,16 +983,14 @@ export function MilestonesRoadmapPage() {
 
       {/* Admin Mode Controls Banner */}
       {viewMode === 'admin' && (
-        <div className="bg-purple-50/50 border border-purple-100 rounded-2xl p-3 flex flex-wrap items-center justify-end gap-3 text-xs">
+        <div className="bg-purple-50/70 border border-purple-200 rounded-2xl p-3 flex flex-wrap items-center justify-between gap-3 text-xs">
+          
+
           <div className="flex items-center gap-2">
             <button
               onClick={() => {
                 setOverviewFormData({
-                  headline: milestones?.overview?.headline || '',
-                  completedCount: milestones?.overview?.completedCount || 4,
-                  totalCount: milestones?.overview?.totalCount || 12,
-                  unlockedLevel: milestones?.overview?.unlockedLevel || 3,
-                  completionPercentage: milestones?.overview?.completionPercentage || 45
+                  headline: milestones?.overview?.headline || ''
                 });
                 setIsOverviewModalOpen(true);
               }}
@@ -591,7 +1011,7 @@ export function MilestonesRoadmapPage() {
         </div>
       )}
 
-      {/* Top Banner Card (Matching Picture 1 layout & styling) */}
+      {/* Top Banner Card */}
       <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-600 p-6 sm:p-8 text-white shadow-xl shadow-purple-600/20">
         <div className="relative z-10 space-y-6">
           {/* Banner Header Badges */}
@@ -605,45 +1025,43 @@ export function MilestonesRoadmapPage() {
               <div className="inline-flex items-center gap-1.5 rounded-full bg-white/15 backdrop-blur-md px-3.5 py-1 text-xs font-extrabold text-purple-100 border border-white/15">
                 <Trophy className="w-3.5 h-3.5 text-amber-300" />
                 <span>
-                  {autoCompletedCount} / {autoTotalCount} Completed
+                  {completedTopicsCount} / {totalTopicsCount} Topics Completed
                 </span>
               </div>
               <div className="inline-flex items-center gap-1.5 rounded-full bg-white/15 backdrop-blur-md px-3.5 py-1 text-xs font-extrabold text-purple-100 border border-white/15">
                 <Zap className="w-3.5 h-3.5 text-cyan-300" />
-                <span>Level {autoUnlockedLevel} Unlocked</span>
+                <span>{completedStagesCount} / {filteredStages.length} Stages Completed</span>
               </div>
             </div>
           </div>
 
           {/* Banner Main Headline */}
           <h2 className="text-xl sm:text-2xl font-black tracking-tight text-white max-w-3xl leading-snug">
-            {milestones?.overview?.headline || 'Master core engineering fundamentals, advanced AI models, full-stack frameworks, and real-world project deployments.'}
+            {milestones?.overview?.headline ||
+              'Master core engineering fundamentals, advanced AI models, full-stack frameworks, and real-world project deployments.'}
           </h2>
 
           {/* Banner Progress Bar */}
           <div className="space-y-2 pt-2">
             <div className="flex items-center justify-between text-xs font-extrabold text-purple-100">
-              <span>Overall Track Completion</span>
-              <span className="font-black text-white">{autoCompletionPercentage}%</span>
+              <span>Overall Track Completion Progress</span>
+              <span className="font-black text-white">{completionPercentage}%</span>
             </div>
             <div className="h-2.5 w-full overflow-hidden rounded-full bg-white/20 backdrop-blur-sm p-0.5">
               <div
                 className="h-full rounded-full bg-white transition-all duration-500 shadow-sm"
-                style={{ width: `${autoCompletionPercentage}%` }}
+                style={{ width: `${completionPercentage}%` }}
               />
             </div>
           </div>
         </div>
       </div>
 
-      {/* Stage Timeline */}
+      {/* Stage Timeline (Pure Time-Based Lock/Unlock System) */}
       <div className="relative pt-4">
         {filteredStages.map((stage, stageIndex) => {
-          const unlockedForUser = isStageUnlockedForUser(stageIndex, stage);
-          const isCurrentInProgress = stage.statusType === 'in-progress' || stage.status === 'IN PROGRESS';
-          const isCompleted = stage.statusType === 'completed' || stage.status === 'COMPLETED';
-          const isAvailable = (stage.statusType === 'available' || stage.status === 'AVAILABLE') && unlockedForUser;
-          const isLocked = !unlockedForUser || stage.statusType === 'locked' || stage.status === 'LOCKED' || stage.isLocked;
+          const stageSched = getScheduleInfo(stage);
+          const isStageCurrentUnlocked = stageSched.isUnlocked;
 
           const totalStages = filteredStages.length;
           const isFirstStage = stageIndex === 0;
@@ -657,31 +1075,19 @@ export function MilestonesRoadmapPage() {
                 {/* Continuous Vertical Line Segment */}
                 <div
                   className={`absolute left-1/2 -translate-x-1/2 w-0.5 bg-purple-300 pointer-events-none z-0 ${
-                    isFirstStage
-                      ? 'top-[18px]'
-                      : isLastStage
-                      ? 'top-0 h-[18px]'
-                      : 'top-0'
+                    isFirstStage ? 'top-[18px]' : isLastStage ? 'top-0 h-[18px]' : 'top-0'
                   }`}
                   style={!isLastStage ? { bottom: '-2rem' } : {}}
                 />
 
                 <div
                   className={`relative z-10 flex h-9 w-9 items-center justify-center rounded-full border-2 transition-all shadow-sm ${
-                    isCompleted
+                    isStageCurrentUnlocked
                       ? 'border-emerald-600 bg-emerald-600 text-white'
-                      : isCurrentInProgress
-                      ? 'border-purple-600 bg-purple-600 text-white ring-4 ring-purple-100 shadow-purple-600/30'
-                      : isAvailable
-                      ? 'border-purple-500 bg-white text-purple-600 ring-2 ring-purple-200'
                       : 'border-slate-300 bg-slate-100 text-slate-400'
                   }`}
                 >
-                  {isLocked ? (
-                    <Lock className="w-4 h-4" />
-                  ) : (
-                    <Brain className="w-4 h-4" />
-                  )}
+                  {isStageCurrentUnlocked ? <Brain className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
                 </div>
               </div>
 
@@ -697,20 +1103,28 @@ export function MilestonesRoadmapPage() {
                   }
                   className="group bg-white text-slate-900 hover:bg-gradient-to-r hover:from-purple-700 hover:via-purple-600 hover:to-indigo-700 hover:text-white p-5 sm:p-6 cursor-pointer select-none transition-all duration-300 relative overflow-hidden border-b border-slate-100 hover:border-transparent"
                 >
-                  {/* Decorative Glow (visible on hover) */}
+                  {/* Decorative Glow */}
                   <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-white/10 rounded-full blur-2xl pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
                   <div className="flex flex-wrap items-center justify-between gap-4 relative z-10">
                     <div className="flex items-center gap-3.5">
-                      <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-purple-100 group-hover:bg-white/20 group-hover:backdrop-blur-md text-purple-600 group-hover:text-white shadow-inner flex-shrink-0 transition-all duration-300">
-                        {isLocked ? <Lock className="w-6 h-6" /> : <Brain className="w-6 h-6" />}
+                      <div
+                        className={`flex h-12 w-12 items-center justify-center rounded-2xl shadow-inner flex-shrink-0 transition-all duration-300 ${
+                          isStageCurrentUnlocked
+                            ? 'bg-purple-100 group-hover:bg-white/20 text-purple-600 group-hover:text-white'
+                            : 'bg-slate-100 text-slate-400 group-hover:bg-white/20 group-hover:text-white'
+                        }`}
+                      >
+                        {isStageCurrentUnlocked ? <Brain className="w-6 h-6" /> : <Lock className="w-6 h-6" />}
                       </div>
                       <div>
                         <div className="flex items-center gap-2 flex-wrap">
                           <span className="text-[10px] font-black uppercase tracking-wider text-purple-700 group-hover:text-purple-900 bg-purple-100 px-2 py-0.5 rounded-md border border-purple-200 shadow-xs transition-colors duration-300">
                             {stage.stageNumber}
                           </span>
-                          <span className="text-xs font-medium text-slate-400 group-hover:text-purple-200 transition-colors duration-300">{stage.phaseTag}</span>
+                          <span className="text-xs font-medium text-slate-400 group-hover:text-purple-200 transition-colors duration-300">
+                            {stage.phaseTag}
+                          </span>
                         </div>
                         <h3 className="text-lg sm:text-xl font-bold text-slate-900 group-hover:text-white mt-1 leading-snug transition-colors duration-300">
                           {stage.title}
@@ -723,88 +1137,69 @@ export function MilestonesRoadmapPage() {
                       </div>
                     </div>
 
-
-                    {/* Right Actions: Status Badges, Admin Controls & Dropdown Arrow */}
+                    {/* Right Side: Admin Schedule Setter & Dropdown Chevron */}
                     <div className="flex flex-wrap items-center gap-2.5" onClick={(e) => e.stopPropagation()}>
-                      {isCompleted && (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 group-hover:bg-emerald-400/20 group-hover:backdrop-blur-md border border-emerald-300 group-hover:border-emerald-300/40 px-3 py-1 text-xs font-bold text-emerald-700 group-hover:text-emerald-200 transition-all duration-300">
-                          ✅ COMPLETED
-                        </span>
-                      )}
-                      {isCurrentInProgress && !isCompleted && (
-                        <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-100 group-hover:bg-purple-400/30 group-hover:backdrop-blur-md border border-blue-300 group-hover:border-purple-300/40 px-3 py-1 text-xs font-bold text-blue-700 group-hover:text-white transition-all duration-300">
-                          <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-                          IN PROGRESS
-                        </span>
-                      )}
-                      {isAvailable && !isCompleted && !isCurrentInProgress && (
-                        <span className="inline-flex items-center rounded-full bg-purple-100 group-hover:bg-white/20 group-hover:backdrop-blur-md border border-purple-300 group-hover:border-white/30 px-3 py-1 text-xs font-bold text-purple-700 group-hover:text-white transition-all duration-300">
-                          AVAILABLE
-                        </span>
-                      )}
-                      {isLocked && !isCompleted && (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 group-hover:bg-white/20 group-hover:backdrop-blur-md border border-slate-300 group-hover:border-white/30 px-3 py-1 text-xs font-bold text-slate-600 group-hover:text-slate-200 transition-all duration-300">
-                          <Lock className="w-3 h-3" />
-                          LOCKED
-                        </span>
-                      )}
-
+                      {/* Scheduled Date & Time Release Badge (Admin Mode Only) */}
                       {viewMode === 'admin' && (
-                        <div className="flex items-center gap-1.5 bg-slate-100 group-hover:bg-white/10 group-hover:backdrop-blur-md p-1.5 rounded-xl border border-slate-200 group-hover:border-white/20 transition-all duration-300">
-                          {/* Admin Lock/Unlock Toggle Button */}
-                          <button
-                            onClick={() => {
-                              toggleStageLock(stage.id);
-                              addToast(stage.isLocked ? `🔓 Stage "${stage.title}" unlocked` : `🔒 Stage "${stage.title}" locked`, 'info');
-                            }}
-                            title={stage.isLocked ? "Click to Unlock Stage" : "Click to Lock Stage"}
-                            className={`px-2.5 py-1 text-xs font-bold rounded-lg transition-all flex items-center gap-1 cursor-pointer ${
-                              stage.isLocked
-                                ? 'bg-rose-100 group-hover:bg-rose-500/30 text-rose-600 group-hover:text-rose-100 border border-rose-300 group-hover:border-rose-400/40 hover:bg-rose-200 group-hover:hover:bg-rose-500/50'
-                                : 'bg-emerald-100 group-hover:bg-emerald-500/30 text-emerald-700 group-hover:text-emerald-100 border border-emerald-300 group-hover:border-emerald-400/40 hover:bg-emerald-200 group-hover:hover:bg-emerald-500/50'
-                            }`}
-                          >
-                            {stage.isLocked ? <Lock className="w-3.5 h-3.5" /> : <Unlock className="w-3.5 h-3.5" />}
-                            <span>{stage.isLocked ? 'Locked' : 'Unlocked'}</span>
-                          </button>
+                        <>
+                          {stageSched.hasSchedule ? (
+                            stageSched.isLocked ? (
+                              <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 group-hover:bg-amber-400/20 group-hover:backdrop-blur-md border border-amber-300 group-hover:border-amber-300/40 px-3.5 py-1.5 text-xs font-bold text-amber-800 group-hover:text-amber-100 transition-all duration-300 shadow-2xs">
+                                <Clock className="w-3.5 h-3.5 text-amber-600 group-hover:text-amber-200 animate-pulse" />
+                                <span>Unlocks: {stageSched.shortFormatted} ({stageSched.relativeText})</span>
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 group-hover:bg-emerald-400/20 group-hover:backdrop-blur-md border border-emerald-300 group-hover:border-emerald-300/40 px-3.5 py-1.5 text-xs font-bold text-emerald-800 group-hover:text-emerald-100 transition-all duration-300 shadow-2xs">
+                                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 group-hover:text-emerald-200" />
+                                <span>UNLOCKED • Released {stageSched.dateFormatted}</span>
+                              </span>
+                            )
+                          ) : (
+                            <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 group-hover:bg-emerald-400/20 group-hover:backdrop-blur-md border border-emerald-300 group-hover:border-emerald-300/40 px-3.5 py-1.5 text-xs font-bold text-emerald-800 group-hover:text-emerald-100 transition-all duration-300 shadow-2xs">
+                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                              <span>UNLOCKED • Available</span>
+                            </span>
+                          )}
 
-                          {/* Admin Status Dropdown Selector */}
-                          <select
-                            value={stage.status || (stage.isLocked ? 'LOCKED' : 'AVAILABLE')}
-                            onChange={(e) => {
-                              updateStageStatus(stage.id, e.target.value);
-                              addToast(`Stage status set to ${e.target.value}`, 'success');
-                            }}
-                            className="text-xs font-bold bg-white group-hover:bg-purple-950/80 border border-slate-300 group-hover:border-purple-400/40 text-slate-700 group-hover:text-white rounded-lg px-2 py-1 cursor-pointer hover:bg-slate-50 group-hover:hover:bg-purple-900 focus:ring-2 focus:ring-purple-300 transition-all duration-300"
-                          >
-                            <option value="IN PROGRESS" className="bg-white text-slate-900">⚡ IN PROGRESS</option>
-                            <option value="AVAILABLE" className="bg-white text-slate-900">🔓 AVAILABLE</option>
-                            <option value="COMPLETED" className="bg-white text-slate-900">✅ COMPLETED</option>
-                            <option value="LOCKED" className="bg-white text-slate-900">🔒 LOCKED</option>
-                          </select>
+                          {/* Admin Mode Schedule Setter and CRUD Buttons */}
+                          <div className="flex items-center gap-1.5 bg-slate-100 group-hover:bg-white/10 group-hover:backdrop-blur-md p-1.5 rounded-xl border border-slate-200 group-hover:border-white/20 transition-all duration-300">
+                            <button
+                              onClick={() => handleOpenScheduleModal('stage', stage)}
+                              title={stageSched.hasSchedule ? `Scheduled: ${stageSched.fullFormatted}` : 'Set Release Date & Time'}
+                              className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all flex items-center gap-1.5 cursor-pointer ${
+                                stageSched.hasSchedule
+                                  ? 'bg-purple-600 text-white shadow-xs border border-purple-400/50 hover:bg-purple-700'
+                                  : 'bg-white group-hover:bg-purple-950/80 text-purple-700 group-hover:text-purple-200 border border-slate-300 group-hover:border-purple-400/40 hover:bg-purple-50'
+                              }`}
+                            >
+                              <Calendar className="w-3.5 h-3.5" />
+                              <Clock className="w-3 h-3" />
+                              <span>{stageSched.hasSchedule ? 'Date Set' : 'Set Date & Time'}</span>
+                            </button>
 
-                          <button
-                            onClick={() => handleOpenSubtopicModal(stage.id, null)}
-                            title="Add Subtopic to Stage"
-                            className="p-1.5 text-slate-500 group-hover:text-white hover:bg-slate-200 group-hover:hover:bg-white/20 rounded-lg transition-all cursor-pointer"
-                          >
-                            <Plus className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => handleOpenStageModal(stage)}
-                            title="Edit Stage Details"
-                            className="p-1.5 text-slate-500 group-hover:text-white hover:bg-slate-200 group-hover:hover:bg-white/20 rounded-lg transition-all cursor-pointer"
-                          >
-                            <Edit2 className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => handleDeleteStage(stage.id, stage.title)}
-                            title="Delete Stage"
-                            className="p-1.5 text-rose-400 group-hover:text-rose-200 hover:bg-rose-50 group-hover:hover:bg-rose-500/30 rounded-lg transition-all cursor-pointer"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
+                            <button
+                              onClick={() => handleOpenSubtopicModal(stage.id, null)}
+                              title="Add Subtopic to Stage"
+                              className="p-1.5 text-slate-500 group-hover:text-white hover:bg-slate-200 group-hover:hover:bg-white/20 rounded-lg transition-all cursor-pointer"
+                            >
+                              <Plus className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => handleOpenStageModal(stage)}
+                              title="Edit Stage Details"
+                              className="p-1.5 text-slate-500 group-hover:text-white hover:bg-slate-200 group-hover:hover:bg-white/20 rounded-lg transition-all cursor-pointer"
+                            >
+                              <Edit2 className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => handleDeleteStage(stage.id, stage.title)}
+                              title="Delete Stage"
+                              className="p-1.5 text-rose-400 group-hover:text-rose-200 hover:bg-rose-50 group-hover:hover:bg-rose-500/30 rounded-lg transition-all cursor-pointer"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </>
                       )}
 
                       {/* Interactive Chevron Toggle Button */}
@@ -818,7 +1213,7 @@ export function MilestonesRoadmapPage() {
                           }));
                         }}
                         className="flex h-9 w-9 items-center justify-center rounded-full bg-purple-100 group-hover:bg-white/20 group-hover:backdrop-blur-md text-purple-600 group-hover:text-white hover:bg-purple-200 group-hover:hover:bg-white group-hover:hover:text-purple-700 transition-all cursor-pointer shadow-sm ml-1"
-                        title={expandedStages[stage.id] ? "Collapse Modules" : "Expand Modules"}
+                        title={expandedStages[stage.id] ? 'Collapse Modules' : 'Expand Modules'}
                       >
                         <ChevronDown
                           className={`w-5 h-5 transition-transform duration-300 ${
@@ -835,26 +1230,86 @@ export function MilestonesRoadmapPage() {
                   <div className="p-4 sm:p-5 bg-slate-50/70 border-t border-slate-200/80 space-y-3 animate-in fade-in slide-in-from-top-2 duration-300">
                     {visibleSubtopics && visibleSubtopics.length > 0 ? (
                       visibleSubtopics.map((subtopic, subtopicIndex) => {
-                        const isSubtopicEffectiveLocked = isLocked || subtopic.isLocked;
+                        const subSched = getScheduleInfo(subtopic, stageSched);
+                        const isSubtopicLocked = subSched.isLocked;
+
+                        const subItems = [];
+                        (subtopic.modules || []).forEach((m) => {
+                          (m.items || []).forEach((it) => subItems.push(it));
+                        });
+                        const isSubDone =
+                          subtopic.isCompleted ||
+                          completedMilestoneItemIds.includes(subtopic.id) ||
+                          (subItems.length > 0 && subItems.every((it) => completedMilestoneItemIds.includes(it.id)));
+
                         return (
                           <div key={subtopic.id} className="relative group/sub">
                             <div className="relative flex items-center gap-2">
                               <button
-                                onClick={() => handleSubtopicClick(stageIndex, stage, subtopic)}
+                                onClick={() => handleSubtopicClick(stage, subtopic)}
                                 className={`w-full text-left rounded-2xl px-4 py-3.5 transition-all flex items-center justify-between group cursor-pointer border shadow-xs ${
-                                  isSubtopicEffectiveLocked
-                                    ? 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed'
+                                  isSubDone
+                                    ? 'bg-emerald-50/40 border-emerald-200 text-slate-900 hover:bg-emerald-50'
                                     : 'bg-white hover:bg-purple-50/80 hover:border-purple-300 border-slate-200/90 text-slate-800'
                                 }`}
                               >
                                 <div className="flex items-center gap-3">
-                                  <div className="flex h-7 w-7 items-center justify-center rounded-xl bg-purple-100 text-purple-700 font-bold text-xs flex-shrink-0">
-                                    {subtopicIndex + 1}
+                                  <div
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      toggleSubtopicCompletion(subtopic);
+                                      const nextDone = !isSubDone;
+                                      addToast(
+                                        nextDone
+                                          ? `✅ Marked "${subtopic.title}" as completed!`
+                                          : `⚪ Marked "${subtopic.title}" as uncompleted`,
+                                        'info'
+                                      );
+                                    }}
+                                    title={isSubDone ? 'Topic Completed (Click to unmark)' : 'Click to mark topic as completed'}
+                                    className={`flex h-7 w-7 items-center justify-center rounded-xl font-bold text-xs flex-shrink-0 cursor-pointer border transition-transform active:scale-95 ${
+                                      isSubDone
+                                        ? 'bg-emerald-100 text-emerald-700 border-emerald-300 hover:bg-emerald-200'
+                                        : isSubtopicLocked
+                                        ? 'bg-slate-100 text-slate-600 border-slate-200'
+                                        : 'bg-purple-100 text-purple-700 border-purple-200 hover:bg-purple-200'
+                                    }`}
+                                  >
+                                    {isSubDone ? <CheckCircle2 className="w-4 h-4 text-emerald-600" /> : subtopicIndex + 1}
                                   </div>
                                   <div>
-                                    <span className="font-bold text-xs sm:text-sm text-slate-900 group-hover:text-purple-700 block">
-                                      {subtopic.title}
-                                    </span>
+                                    <div className="flex items-center gap-2 flex-wrap">
+                                      <span className="font-bold text-xs sm:text-sm block text-slate-900 group-hover:text-purple-700">
+                                        {subtopic.title}
+                                      </span>
+
+                                      {isSubDone && (
+                                        <span
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            toggleSubtopicCompletion(subtopic);
+                                            addToast(`⚪ Marked "${subtopic.title}" as uncompleted`, 'info');
+                                          }}
+                                          title="Click to uncomplete"
+                                          className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200 hover:bg-emerald-200 cursor-pointer transition-colors"
+                                        >
+                                          <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                                          <span>Completed ✕</span>
+                                        </span>
+                                      )}
+
+                                      {/* Subtopic Scheduled Date Badge (Admin Mode Only) */}
+                                      {viewMode === 'admin' && subSched.hasSchedule && !subSched.inherited && (
+                                        <span className={`inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${
+                                          subSched.isLocked
+                                            ? 'text-amber-800 bg-amber-50 border-amber-200'
+                                            : 'text-emerald-800 bg-emerald-50 border-emerald-200'
+                                        }`}>
+                                          {subSched.isLocked ? <Clock className="w-3 h-3 text-amber-600" /> : <CheckCircle2 className="w-3 h-3 text-emerald-600" />}
+                                          <span>{subSched.isLocked ? `Unlocks ${subSched.shortFormatted}` : `Released ${subSched.dateFormatted}`}</span>
+                                        </span>
+                                      )}
+                                    </div>
                                     {subtopic.duration && (
                                       <span className="text-[11px] font-medium text-slate-500 block mt-0.5">
                                         {subtopic.duration}
@@ -863,34 +1318,40 @@ export function MilestonesRoadmapPage() {
                                   </div>
                                 </div>
                                 <div className="flex items-center gap-2 flex-shrink-0">
-                                  {isSubtopicEffectiveLocked && <Lock className="w-3.5 h-3.5 text-rose-600" />}
-                                  <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-purple-600 group-hover:translate-x-0.5 transition-all" />
+                                  {isSubtopicLocked ? (
+                                    <Lock className="w-3.5 h-3.5 text-slate-400" />
+                                  ) : (
+                                    <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-purple-600 group-hover:translate-x-0.5 transition-all" />
+                                  )}
                                 </div>
                               </button>
 
                               {viewMode === 'admin' && (
                                 <div className="flex items-center gap-1 bg-white p-1.5 rounded-xl border border-slate-200 shadow-xs flex-shrink-0">
+                                  {/* Subtopic Schedule Date & Time Button */}
                                   <button
-                                    onClick={() => {
-                                      toggleSubtopicLock(stage.id, subtopic.id);
-                                      addToast(isSubtopicEffectiveLocked ? `🔓 Subtopic "${subtopic.title}" unlocked` : `🔒 Subtopic "${subtopic.title}" locked`, 'info');
-                                    }}
-                                    title={isSubtopicEffectiveLocked ? "Unlock Subtopic" : "Lock Subtopic"}
-                                    className="p-1 text-slate-600 hover:text-purple-600 hover:bg-purple-50 rounded-md cursor-pointer"
+                                    onClick={() => handleOpenScheduleModal('subtopic', subtopic, stage.id)}
+                                    title={subSched.hasSchedule && !subSched.inherited ? `Scheduled: ${subSched.fullFormatted}` : 'Set Release Schedule'}
+                                    className={`p-1.5 rounded-lg cursor-pointer transition-all ${
+                                      subSched.hasSchedule && !subSched.inherited
+                                        ? 'bg-purple-100 text-purple-700 hover:bg-purple-200 border border-purple-300'
+                                        : 'text-slate-600 hover:text-purple-600 hover:bg-purple-50'
+                                    }`}
                                   >
-                                    {isSubtopicEffectiveLocked ? <Lock className="w-3.5 h-3.5 text-rose-600" /> : <Unlock className="w-3.5 h-3.5 text-emerald-600" />}
+                                    <Calendar className="w-3.5 h-3.5" />
                                   </button>
+
                                   <button
                                     onClick={() => handleOpenSubtopicModal(stage.id, subtopic)}
                                     title="Edit Subtopic"
-                                    className="p-1 text-slate-600 hover:text-purple-600 hover:bg-purple-50 rounded-md cursor-pointer"
+                                    className="p-1.5 text-slate-600 hover:text-purple-600 hover:bg-purple-50 rounded-lg cursor-pointer"
                                   >
                                     <Edit2 className="w-3.5 h-3.5" />
                                   </button>
                                   <button
                                     onClick={() => handleDeleteSubtopic(stage.id, subtopic.id, subtopic.title)}
                                     title="Delete Subtopic"
-                                    className="p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-md cursor-pointer"
+                                    className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg cursor-pointer"
                                   >
                                     <Trash2 className="w-3.5 h-3.5" />
                                   </button>
@@ -908,7 +1369,7 @@ export function MilestonesRoadmapPage() {
                             onClick={() => handleOpenSubtopicModal(stage.id, null)}
                             className="mt-3 block mx-auto border-2 border-dashed border-purple-200 hover:border-purple-400 px-4 py-2 rounded-xl text-xs font-bold text-purple-600 hover:bg-purple-50 transition-colors cursor-pointer"
                           >
-                             Add First Module
+                            Add First Module
                           </button>
                         )}
                       </div>
@@ -922,7 +1383,7 @@ export function MilestonesRoadmapPage() {
       </div>
 
       {/* Slide-Over Right Drawer (Picture 2 Content) */}
-      {activeSubtopic && (
+      {activeSubtopic && activeStage && (
         <div className="fixed inset-0 z-50 overflow-hidden">
           {/* Backdrop Overlay with Blur */}
           <div
@@ -933,7 +1394,6 @@ export function MilestonesRoadmapPage() {
           {/* Drawer Side Panel */}
           <div className="fixed inset-y-0 right-0 max-w-full flex pl-10">
             <div className="w-screen max-w-md bg-white shadow-2xl flex flex-col justify-between overflow-hidden animate-in slide-in-from-right duration-300 border-l border-slate-200">
-              
               {/* Drawer Content */}
               <div className="flex-1 overflow-y-auto p-6 space-y-6">
                 {/* Header */}
@@ -942,10 +1402,71 @@ export function MilestonesRoadmapPage() {
                     <h2 className="text-2xl font-black text-slate-900 tracking-tight leading-tight">
                       {activeSubtopic.title}
                     </h2>
-                    <div className="mt-2 flex items-center gap-2">
+                    <div className="mt-2 flex items-center gap-2 flex-wrap">
                       <span className="inline-block bg-purple-100 text-purple-700 text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full border border-purple-200">
                         TOPIC CATALOG
                       </span>
+
+                      {(() => {
+                        let subItems = [];
+                        (activeSubtopic.modules || []).forEach((mod) => {
+                          (mod.items || []).forEach((item) => subItems.push(item));
+                        });
+                        const isDrawerSubtopicDone =
+                          activeSubtopic.isCompleted ||
+                          completedMilestoneItemIds.includes(activeSubtopic.id) ||
+                          (subItems.length > 0 && subItems.every((it) => completedMilestoneItemIds.includes(it.id)));
+
+                        return (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              toggleSubtopicCompletion(activeSubtopic);
+                              addToast(
+                                !isDrawerSubtopicDone
+                                  ? `✅ Marked all topics in "${activeSubtopic.title}" as completed!`
+                                  : `⚪ Marked "${activeSubtopic.title}" as uncompleted`,
+                                'info'
+                              );
+                            }}
+                            title={isDrawerSubtopicDone ? 'Topic Completed (Click to uncomplete all)' : 'Click to mark entire topic as completed'}
+                            className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border flex items-center gap-1 cursor-pointer transition-colors ${
+                              isDrawerSubtopicDone
+                                ? 'bg-emerald-100 text-emerald-800 border-emerald-300 hover:bg-emerald-200 shadow-2xs'
+                                : 'bg-slate-100 text-slate-700 border-slate-200 hover:bg-purple-50 hover:text-purple-700'
+                            }`}
+                          >
+                            <CheckCircle2 className={`w-3 h-3 ${isDrawerSubtopicDone ? 'text-emerald-600' : 'text-slate-400'}`} />
+                            <span>{isDrawerSubtopicDone ? 'Completed ✕' : 'Mark Topic Complete'}</span>
+                          </button>
+                        );
+                      })()}
+
+                      {viewMode === 'admin' && (() => {
+                        const stageSched = getScheduleInfo(activeStage);
+                        const sInfo = getScheduleInfo(activeSubtopic, stageSched);
+                        return (
+                          <span
+                            className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border flex items-center gap-1 ${
+                              sInfo.isLocked
+                                ? 'bg-amber-50 text-amber-800 border-amber-200'
+                                : 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                            }`}
+                          >
+                            {sInfo.isLocked ? (
+                              <>
+                                <Clock className="w-3 h-3 text-amber-600" />
+                                <span>Unlocks {sInfo.shortFormatted}</span>
+                              </>
+                            ) : (
+                              <>
+                                <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                                <span>{sInfo.hasSchedule && !sInfo.inherited ? `Released ${sInfo.dateFormatted}` : 'Available'}</span>
+                              </>
+                            )}
+                          </span>
+                        );
+                      })()}
                     </div>
                     <p className="text-xs text-slate-500 font-medium mt-3 leading-relaxed">
                       {activeSubtopic.duration || activeSubtopic.description}
@@ -984,12 +1505,13 @@ export function MilestonesRoadmapPage() {
                   {activeSubtopic.modules && activeSubtopic.modules.length > 0 ? (
                     activeSubtopic.modules.map((module) => {
                       const isExpanded = expandedModule === module.id || activeSubtopic.modules.length === 1;
+                      const stageSched = getScheduleInfo(activeStage);
+                      const subSched = getScheduleInfo(activeSubtopic, stageSched);
+                      const modSched = getScheduleInfo(module, subSched);
+                      const isModLocked = modSched.isLocked;
 
                       return (
-                        <div
-                          key={module.id}
-                          className="rounded-2xl border border-slate-200/90 overflow-hidden shadow-xs"
-                        >
+                        <div key={module.id} className="rounded-2xl border border-slate-200/90 overflow-hidden shadow-xs">
                           {/* Module Header Bar */}
                           <div
                             className={`w-full p-4 flex items-center justify-between text-left font-bold text-sm transition-all ${
@@ -1000,7 +1522,7 @@ export function MilestonesRoadmapPage() {
                           >
                             <div
                               onClick={() => setExpandedModule(isExpanded ? null : module.id)}
-                              className="flex items-center gap-2.5 flex-1 cursor-pointer"
+                              className="flex items-center gap-2.5 flex-1 cursor-pointer flex-wrap"
                             >
                               <span
                                 className={`flex h-6 w-6 items-center justify-center rounded-md text-xs font-black ${
@@ -1010,10 +1532,16 @@ export function MilestonesRoadmapPage() {
                                 {module.title.charAt(0).toUpperCase()}
                               </span>
                               <span>{module.title}</span>
-                              {module.isLocked && (
-                                <span className="text-[10px] bg-rose-100 text-rose-700 font-bold px-2 py-0.5 rounded-full border border-rose-200 flex items-center gap-1">
-                                  <Lock className="w-3 h-3" />
-                                  Locked
+
+                              {/* Module Schedule Badge (Admin Mode Only) */}
+                              {viewMode === 'admin' && modSched.hasSchedule && !modSched.inherited && (
+                                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border flex items-center gap-1 ${
+                                  modSched.isLocked
+                                    ? 'bg-amber-100 text-amber-900 border-amber-300'
+                                    : 'bg-emerald-100 text-emerald-900 border-emerald-300'
+                                }`}>
+                                  {modSched.isLocked ? <Clock className="w-3 h-3 text-amber-700" /> : <CheckCircle2 className="w-3 h-3 text-emerald-700" />}
+                                  <span>{modSched.isLocked ? `Unlocks ${modSched.shortFormatted}` : `Released ${modSched.dateFormatted}`}</span>
                                 </span>
                               )}
                             </div>
@@ -1021,16 +1549,19 @@ export function MilestonesRoadmapPage() {
                             <div className="flex items-center gap-2">
                               {viewMode === 'admin' && (
                                 <div className="flex items-center gap-1 border-r border-white/20 pr-2 mr-1">
+                                  {/* Module Schedule Button */}
                                   <button
-                                    onClick={() => {
-                                      toggleModuleLock(activeSubtopic.stageId, activeSubtopic.id, module.id);
-                                      addToast(module.isLocked ? `🔓 Module "${module.title}" unlocked` : `🔒 Module "${module.title}" locked`, 'info');
-                                    }}
-                                    title={module.isLocked ? "Unlock Module" : "Lock Module"}
-                                    className="p-1 hover:bg-white/20 rounded cursor-pointer text-white"
+                                    onClick={() =>
+                                      handleOpenScheduleModal('module', module, activeSubtopic.stageId, activeSubtopic.id)
+                                    }
+                                    title={modSched.hasSchedule && !modSched.inherited ? `Scheduled: ${modSched.fullFormatted}` : 'Set Release Schedule'}
+                                    className={`p-1 rounded cursor-pointer ${
+                                      modSched.hasSchedule && !modSched.inherited ? 'bg-white/30 text-amber-200' : 'hover:bg-white/20 text-white'
+                                    }`}
                                   >
-                                    {module.isLocked ? <Lock className="w-3.5 h-3.5 text-rose-200" /> : <Unlock className="w-3.5 h-3.5 text-emerald-200" />}
+                                    <Calendar className="w-3.5 h-3.5" />
                                   </button>
+
                                   <button
                                     onClick={() => handleOpenItemModal(module.id, null)}
                                     title="Add Resource Item"
@@ -1055,10 +1586,7 @@ export function MilestonesRoadmapPage() {
                                 </div>
                               )}
 
-                              <button
-                                onClick={() => setExpandedModule(isExpanded ? null : module.id)}
-                                className="cursor-pointer"
-                              >
+                              <button onClick={() => setExpandedModule(isExpanded ? null : module.id)} className="cursor-pointer">
                                 {isExpanded ? (
                                   <ChevronDown className="w-4 h-4 text-white" />
                                 ) : (
@@ -1071,97 +1599,197 @@ export function MilestonesRoadmapPage() {
                           {/* Module Expanded Content */}
                           {isExpanded && (
                             <div className="p-4 space-y-3 bg-white">
+                              {/* Admin Mode Schedule Info if locked */}
+                              {viewMode === 'admin' && isModLocked && (
+                                <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl text-amber-900 text-xs flex items-start gap-2.5">
+                                  <Clock className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0 animate-pulse" />
+                                  <div>
+                                    <span className="font-bold block">Content Scheduled Release</span>
+                                    <span className="text-[11px] text-amber-700">
+                                      This module and all resources (Live Classes, Labs, Assessments) are locked until{' '}
+                                      <strong>{modSched.fullFormatted} ({modSched.relativeText})</strong>.
+                                    </span>
+                                  </div>
+                                </div>
+                              )}
+
                               {(() => {
-                                const rawItems = module.items || [];
-                                const matchingAsmnts = (assessments || []).filter(a => {
-                                  const subMatch = (a.subtopicId && a.subtopicId === activeSubtopic.id) ||
-                                                   (a.subtopicName && a.subtopicName === activeSubtopic.title) ||
-                                                   (a.topicName && a.topicName === activeSubtopic.title);
-                                  const topicMatch = (a.innerTopicId && a.innerTopicId === module.id) ||
-                                                     (a.topicName && a.topicName === module.title);
-                                  return (subMatch && topicMatch) || (a.topicName === module.title);
-                                });
+                                  const rawItems = module.items || [];
 
-                                const injected = matchingAsmnts.map(a => ({
-                                  id: `item-asm-${a.id}`,
-                                  assessmentId: a.id,
-                                  type: 'ASSESSMENT',
-                                  typeColor: 'bg-purple-100 text-purple-700 border-purple-200',
-                                  iconName: 'FileCheck',
-                                  iconBg: 'bg-purple-600 text-white',
-                                  title: a.title,
-                                  actionText: 'TAKE',
-                                  url: '/assessments',
-                                  btnStyle: 'bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30'
-                                }));
+                                  // Ensure raw items with matching live session sync latest meeting link
+                                  const syncedRawItems = rawItems.map((item) => {
+                                    if (item.type === 'LIVE CLASS') {
+                                      const matchedSess = (liveSessions || []).find(
+                                        (s) =>
+                                          s.id === item.sessionId ||
+                                          `item-live-${s.id}` === item.id ||
+                                          (item.title && s.sessionTitle && item.title.toLowerCase().trim() === s.sessionTitle.toLowerCase().trim())
+                                      );
+                                      if (matchedSess && (matchedSess.meetingLink || matchedSess.meeting_link)) {
+                                        return {
+                                          ...item,
+                                          url: matchedSess.meetingLink || matchedSess.meeting_link
+                                        };
+                                      }
+                                    }
+                                    return item;
+                                  });
 
-                                const existingIds = new Set(rawItems.map(i => i.id || i.title?.toLowerCase()));
-                                const filteredInjected = injected.filter(i => !existingIds.has(i.id) && !existingIds.has(i.title?.toLowerCase()));
-                                const moduleDisplayItems = [...rawItems, ...filteredInjected];
+                                  // Only include assessments or live sessions if explicitly linked to this specific module ID
+                                  const strictlyLinkedAsmnts = (assessments || [])
+                                    .filter((a) => a.innerTopicId === module.id || a.moduleId === module.id)
+                                    .map((a) => ({
+                                      id: `item-asm-${a.id}`,
+                                      assessmentId: a.id,
+                                      type: 'ASSESSMENT',
+                                      typeColor: 'bg-purple-100 text-purple-700 border-purple-200',
+                                      iconName: 'FileCheck',
+                                      iconBg: 'bg-purple-600 text-white',
+                                      title: a.title,
+                                      actionText: 'TAKE',
+                                      url: '/assessments',
+                                      btnStyle: 'bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30'
+                                    }));
+
+                                  const strictlyLinkedLive = (liveSessions || [])
+                                    .filter((s) => s.moduleId === module.id)
+                                    .map((s) => ({
+                                      id: `item-live-${s.id}`,
+                                      sessionId: s.id,
+                                      type: 'LIVE CLASS',
+                                      typeColor: 'bg-purple-100 text-purple-700 border-purple-200',
+                                      iconName: 'Video',
+                                      iconBg: 'bg-purple-600 text-white',
+                                      title: s.sessionTitle || s.title || 'Live Class Masterclass',
+                                      actionText: 'JOIN',
+                                      url: s.meetingLink || s.meeting_link || 'https://meet.google.com/aspire-lms-live',
+                                      btnStyle: 'bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30'
+                                    }));
+
+                                  const existingIds = new Set(syncedRawItems.map((i) => i.id || i.title?.toLowerCase()));
+                                  const extraAsmnts = strictlyLinkedAsmnts.filter((i) => !existingIds.has(i.id));
+                                  const extraLive = strictlyLinkedLive.filter((i) => !existingIds.has(i.id));
+
+                                  const moduleDisplayItems = [...syncedRawItems, ...extraLive, ...extraAsmnts];
 
                                 return moduleDisplayItems.length > 0 ? (
-                                  moduleDisplayItems.map((item) => (
-                                    <div
-                                      key={item.id}
-                                      className="p-3.5 rounded-xl border border-slate-100 bg-slate-50/50 hover:bg-slate-50 flex items-center justify-between gap-3 transition-colors group/item"
-                                    >
-                                    <div className="flex items-center gap-3">
-                                      {renderItemIcon(item.iconName, item.iconBg)}
-                                      <div>
-                                        <span className={`text-[9px] font-black tracking-wider uppercase px-2 py-0.5 rounded border inline-block mb-0.5 ${item.typeColor}`}>
-                                          {item.type}
-                                        </span>
-                                        <h4 className="text-xs font-bold text-slate-800 leading-tight">
-                                          {item.title}
-                                        </h4>
-                                      </div>
-                                    </div>
+                                  moduleDisplayItems.map((item) => {
+                                    const isItemDone = completedMilestoneItemIds.includes(item.id);
 
-                                    <div className="flex items-center gap-1.5">
-                                      <button
-                                        onClick={() => handleActionClick(item.actionText, item.title, item.url)}
-                                        className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 transition-all cursor-pointer ${item.btnStyle}`}
+                                    return (
+                                      <div
+                                        key={item.id}
+                                        className={`p-3.5 rounded-xl border flex items-center justify-between gap-3 transition-all group/item ${
+                                          isItemDone
+                                            ? 'bg-emerald-50/40 border-emerald-200'
+                                            : 'border-slate-100 bg-slate-50/50 hover:bg-slate-50'
+                                        }`}
                                       >
-                                        <span>{item.actionText}</span>
-                                        <ExternalLink className="w-3 h-3" />
-                                      </button>
+                                        <div className="flex items-center gap-3">
+                                          {/* Interactive Completion Toggle Button */}
+                                          <button
+                                            type="button"
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              toggleItemCompletion(item.id);
+                                              const nextDone = !isItemDone;
+                                              addToast(
+                                                nextDone
+                                                  ? `✅ Completed "${item.title}"! Progress updated.`
+                                                  : `Unmarked "${item.title}"`,
+                                                'info'
+                                              );
+                                            }}
+                                            title={isItemDone ? 'Topic Completed (Click to unmark)' : 'Click to mark as completed'}
+                                            className={`flex-shrink-0 p-1.5 rounded-lg border transition-all cursor-pointer flex items-center justify-center ${
+                                              isItemDone
+                                                ? 'bg-emerald-100 text-emerald-700 border-emerald-300 shadow-2xs hover:bg-emerald-200'
+                                                : 'bg-white text-slate-300 border-slate-200 hover:text-purple-600 hover:border-purple-300'
+                                            }`}
+                                          >
+                                            <CheckCircle2 className={`w-4 h-4 ${isItemDone ? 'text-emerald-600' : 'text-slate-300'}`} />
+                                          </button>
 
-                                      {viewMode === 'admin' && (
-                                        <div className="flex items-center gap-0.5 border-l border-slate-200 pl-1">
-                                          <button
-                                            onClick={() => handleOpenItemModal(module.id, item)}
-                                            title="Edit Item"
-                                            className="p-1 text-slate-400 hover:text-purple-600 rounded cursor-pointer"
-                                          >
-                                            <Edit2 className="w-3 h-3" />
-                                          </button>
-                                          <button
-                                            onClick={() => handleDeleteItem(module.id, item.id, item.title)}
-                                            title="Delete Item"
-                                            className="p-1 text-slate-400 hover:text-rose-600 rounded cursor-pointer"
-                                          >
-                                            <Trash2 className="w-3 h-3" />
-                                          </button>
+                                          {renderItemIcon(item.iconName, item.iconBg, false)}
+                                          <div>
+                                            <div className="flex items-center gap-1.5 mb-0.5">
+                                              <span
+                                                className={`text-[9px] font-black tracking-wider uppercase px-2 py-0.5 rounded border inline-block ${
+                                                  item.typeColor || 'bg-purple-100 text-purple-700 border-purple-200'
+                                                }`}
+                                              >
+                                                {item.type}
+                                              </span>
+                                              {isItemDone && (
+                                                <span
+                                                  onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    toggleItemCompletion(item.id);
+                                                    addToast(`⚪ Marked "${item.title}" as uncompleted`, 'info');
+                                                  }}
+                                                  title="Click to uncomplete"
+                                                  className="text-[9px] font-extrabold px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-700 border border-emerald-200 hover:bg-emerald-200 cursor-pointer transition-colors"
+                                                >
+                                                  COMPLETED ✕
+                                                </span>
+                                              )}
+                                            </div>
+                                            <h4 className="text-xs font-bold text-slate-800 leading-tight">{item.title}</h4>
+                                          </div>
                                         </div>
-                                      )}
-                                    </div>
+
+                                        <div className="flex items-center gap-1.5">
+                                          {/* Action Button: JOIN, VIEW, TAKE - Visible & Interactive */}
+                                          <button
+                                            onClick={() =>
+                                              handleActionClick(item.actionText, item.title, item.url, isModLocked, modSched, item.id)
+                                            }
+                                            className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 transition-all cursor-pointer ${
+                                              item.btnStyle || 'bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30'
+                                            }`}
+                                            title={`${item.actionText} ${item.title}`}
+                                          >
+                                            <span>{item.actionText}</span>
+                                            <ExternalLink className="w-3 h-3" />
+                                          </button>
+
+                                          {viewMode === 'admin' && (
+                                            <div className="flex items-center gap-0.5 border-l border-slate-200 pl-1">
+                                              <button
+                                                onClick={() => handleOpenItemModal(module.id, item)}
+                                                title="Edit Item"
+                                                className="p-1 text-slate-400 hover:text-purple-600 rounded cursor-pointer"
+                                              >
+                                                <Edit2 className="w-3 h-3" />
+                                              </button>
+                                              <button
+                                                onClick={() => handleDeleteItem(module.id, item.id, item.title)}
+                                                title="Delete Item"
+                                                className="p-1 text-slate-400 hover:text-rose-600 rounded cursor-pointer"
+                                              >
+                                                <Trash2 className="w-3 h-3" />
+                                              </button>
+                                            </div>
+                                          )}
+                                        </div>
+                                      </div>
+                                    );
+                                  })
+                                ) : (
+                                  <div className="text-center py-4 text-xs text-slate-400 space-y-2">
+                                    <p>No learning items added yet to this module.</p>
+                                    {viewMode === 'admin' && (
+                                      <button
+                                        onClick={() => handleOpenItemModal(module.id, null)}
+                                        className="px-3 py-1.5 bg-purple-50 text-purple-700 font-bold rounded-lg hover:bg-purple-100 text-xs inline-flex items-center gap-1 cursor-pointer"
+                                      >
+                                        <Plus className="w-3.5 h-3.5" />
+                                        <span>Add Learning Resource</span>
+                                      </button>
+                                    )}
                                   </div>
-                                ))
-                              ) : (
-                                <div className="text-center py-4 text-xs text-slate-400 space-y-2">
-                                  <p>No learning items added yet to this module.</p>
-                                  {viewMode === 'admin' && (
-                                    <button
-                                      onClick={() => handleOpenItemModal(module.id, null)}
-                                      className="px-3 py-1.5 bg-purple-50 text-purple-700 font-bold rounded-lg hover:bg-purple-100 text-xs inline-flex items-center gap-1 cursor-pointer"
-                                    >
-                                      <Plus className="w-3.5 h-3.5" />
-                                      <span>Add Learning Resource</span>
-                                    </button>
-                                  )}
-                                </div>
-                              );
-                            })()}
+                                );
+                              })()}
 
                               {viewMode === 'admin' && module.items && module.items.length > 0 && (
                                 <button
@@ -1193,8 +1821,107 @@ export function MilestonesRoadmapPage() {
                   )}
                 </div>
               </div>
-
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* --- DEDICATED MODAL: Release Date & Time Scheduler --- */}
+      {isScheduleModalOpen && scheduleTarget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="w-full max-w-md bg-white rounded-3xl p-6 shadow-2xl space-y-5 animate-in zoom-in-95 duration-200 border border-slate-100">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div>
+                <span className="text-[10px] font-black uppercase tracking-wider text-purple-600 bg-purple-50 px-2.5 py-0.5 rounded-full border border-purple-100">
+                  {scheduleTarget.type.toUpperCase()} RELEASE SCHEDULER
+                </span>
+                <h3 className="text-base sm:text-lg font-bold text-slate-900 mt-1">
+                  Schedule Unlock Date & Time
+                </h3>
+              </div>
+              <button
+                onClick={() => setIsScheduleModalOpen(false)}
+                className="text-slate-400 hover:text-slate-600 p-1 rounded-full hover:bg-slate-100"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="p-3 bg-purple-50/60 rounded-2xl border border-purple-100 text-xs">
+              <span className="font-medium text-slate-500 block">Target Item:</span>
+              <span className="font-extrabold text-purple-900 text-sm mt-0.5 block">{scheduleTarget.title}</span>
+            </div>
+
+            <form onSubmit={handleSaveSchedule} className="space-y-4 text-xs">
+
+
+              {/* Exact Date and Time Pickers */}
+              <div className="grid grid-cols-2 gap-3 pt-1">
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1 flex items-center gap-1">
+                    <Calendar className="w-3.5 h-3.5 text-purple-600" />
+                    <span>Unlock Date</span>
+                  </label>
+                  <input
+                    type="date"
+                    required
+                    value={scheduleFormData.unlockDate}
+                    onChange={(e) => setScheduleFormData({ ...scheduleFormData, unlockDate: e.target.value })}
+                    className="w-full px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 font-semibold bg-white cursor-pointer"
+                  />
+                </div>
+
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1 flex items-center gap-1">
+                    <Clock className="w-3.5 h-3.5 text-purple-600" />
+                    <span>Unlock Time</span>
+                  </label>
+                  <input
+                    type="time"
+                    required
+                    value={scheduleFormData.unlockTime}
+                    onChange={(e) => setScheduleFormData({ ...scheduleFormData, unlockTime: e.target.value })}
+                    className="w-full px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 font-semibold bg-white cursor-pointer"
+                  />
+                </div>
+              </div>
+
+              {/* Automatic rule notice */}
+              <div className="p-3 bg-purple-50 rounded-2xl border border-purple-100 text-[11px] text-purple-800 leading-relaxed flex items-start gap-2">
+                <AlertCircle className="w-4 h-4 text-purple-600 mt-0.5 flex-shrink-0" />
+                <span>
+                  When the stage or module reaches its scheduled date & time, it automatically unlocks and makes all contents and live links (Join, View, Take) immediately accessible!
+                </span>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex items-center justify-between gap-2 pt-3 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={handleClearSchedule}
+                  className="px-3 py-2 rounded-xl text-rose-600 font-bold hover:bg-rose-50 border border-transparent hover:border-rose-200 cursor-pointer transition-colors"
+                >
+                  Clear Schedule
+                </button>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setIsScheduleModalOpen(false)}
+                    className="px-4 py-2 rounded-xl text-slate-600 font-bold hover:bg-slate-100 cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-5 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold shadow-md shadow-purple-600/20 cursor-pointer flex items-center gap-1.5"
+                  >
+                    <CheckCircle2 className="w-4 h-4" />
+                    <span>Save Schedule</span>
+                  </button>
+                </div>
+              </div>
+            </form>
           </div>
         </div>
       )}
@@ -1250,6 +1977,34 @@ export function MilestonesRoadmapPage() {
                 />
               </div>
 
+              {/* Unlock Date and Time Inputs */}
+              <div className="p-3 bg-purple-50/50 rounded-2xl border border-purple-100 space-y-2">
+                <label className="block font-extrabold text-purple-900 flex items-center gap-1">
+                  <CalendarClock className="w-3.5 h-3.5 text-purple-600" />
+                  <span>Scheduled Unlock Date & Time</span>
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <span className="text-[10px] text-slate-500 font-bold block mb-1">Date</span>
+                    <input
+                      type="date"
+                      value={stageFormData.unlockDate || ''}
+                      onChange={(e) => setStageFormData({ ...stageFormData, unlockDate: e.target.value })}
+                      className="w-full px-3 py-1.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 font-semibold bg-white text-xs"
+                    />
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-slate-500 font-bold block mb-1">Time</span>
+                    <input
+                      type="time"
+                      value={stageFormData.unlockTime || '09:00'}
+                      onChange={(e) => setStageFormData({ ...stageFormData, unlockTime: e.target.value })}
+                      className="w-full px-3 py-1.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 font-semibold bg-white text-xs"
+                    />
+                  </div>
+                </div>
+              </div>
+
               <div>
                 <label className="block font-bold text-slate-700 mb-1">Target Batch Access</label>
                 <select
@@ -1260,48 +2015,6 @@ export function MilestonesRoadmapPage() {
                   <option value="Weekday Batch">Weekday Batch Only (A26W)</option>
                   <option value="Weekend Batch">Weekend Batch Only (A26S)</option>
                 </select>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block font-bold text-slate-700 mb-1">Stage Availability Status</label>
-                  <select
-                    value={stageFormData.statusType}
-                    onChange={(e) => {
-                      const val = e.target.value;
-                      let statusText = 'AVAILABLE';
-                      let isLocked = false;
-                      if (val === 'in-progress') statusText = 'IN PROGRESS';
-                      if (val === 'locked') {
-                        statusText = 'LOCKED';
-                        isLocked = true;
-                      }
-                      setStageFormData({
-                        ...stageFormData,
-                        statusType: val,
-                        status: statusText,
-                        isLocked
-                      });
-                    }}
-                    className="w-full px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 font-semibold bg-white"
-                  >
-                    <option value="in-progress">IN PROGRESS</option>
-                    <option value="available">AVAILABLE</option>
-                    <option value="locked">LOCKED</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block font-bold text-slate-700 mb-1">Lock Icon Overlay</label>
-                  <select
-                    value={stageFormData.isLocked ? 'true' : 'false'}
-                    onChange={(e) => setStageFormData({ ...stageFormData, isLocked: e.target.value === 'true' })}
-                    className="w-full px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 font-semibold bg-white"
-                  >
-                    <option value="false">Unlocked</option>
-                    <option value="true">Locked (Requires prerequisite completion)</option>
-                  </select>
-                </div>
               </div>
 
               <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
@@ -1348,6 +2061,34 @@ export function MilestonesRoadmapPage() {
                   placeholder="e.g. Docker Containers & Multi-stage Builds"
                   className="w-full px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 font-semibold text-sm"
                 />
+              </div>
+
+              {/* Scheduled Date & Time for Subtopic */}
+              <div className="p-3 bg-purple-50/50 rounded-2xl border border-purple-100 space-y-2">
+                <label className="block font-extrabold text-purple-900 flex items-center gap-1">
+                  <CalendarClock className="w-3.5 h-3.5 text-purple-600" />
+                  <span>Scheduled Unlock Date & Time</span>
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <span className="text-[10px] text-slate-500 font-bold block mb-1">Date</span>
+                    <input
+                      type="date"
+                      value={subtopicFormData.unlockDate || ''}
+                      onChange={(e) => setSubtopicFormData({ ...subtopicFormData, unlockDate: e.target.value })}
+                      className="w-full px-3 py-1.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 font-semibold bg-white text-xs"
+                    />
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-slate-500 font-bold block mb-1">Time</span>
+                    <input
+                      type="time"
+                      value={subtopicFormData.unlockTime || '09:00'}
+                      onChange={(e) => setSubtopicFormData({ ...subtopicFormData, unlockTime: e.target.value })}
+                      className="w-full px-3 py-1.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 font-semibold bg-white text-xs"
+                    />
+                  </div>
+                </div>
               </div>
 
               <div>
@@ -1424,10 +2165,38 @@ export function MilestonesRoadmapPage() {
                   type="text"
                   required
                   value={moduleFormData.title}
-                  onChange={(e) => setModuleFormData({ title: e.target.value })}
+                  onChange={(e) => setModuleFormData({ ...moduleFormData, title: e.target.value })}
                   placeholder="e.g. Variables & Data Types or Docker Networking"
                   className="w-full px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 font-semibold"
                 />
+              </div>
+
+              {/* Scheduled Date & Time for Inner Module */}
+              <div className="p-3 bg-purple-50/50 rounded-2xl border border-purple-100 space-y-2">
+                <label className="block font-extrabold text-purple-900 flex items-center gap-1">
+                  <CalendarClock className="w-3.5 h-3.5 text-purple-600" />
+                  <span>Scheduled Unlock Date & Time</span>
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <span className="text-[10px] text-slate-500 font-bold block mb-1">Date</span>
+                    <input
+                      type="date"
+                      value={moduleFormData.unlockDate || ''}
+                      onChange={(e) => setModuleFormData({ ...moduleFormData, unlockDate: e.target.value })}
+                      className="w-full px-2 py-1.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 font-semibold bg-white text-xs"
+                    />
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-slate-500 font-bold block mb-1">Time</span>
+                    <input
+                      type="time"
+                      value={moduleFormData.unlockTime || '09:00'}
+                      onChange={(e) => setModuleFormData({ ...moduleFormData, unlockTime: e.target.value })}
+                      className="w-full px-2 py-1.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 font-semibold bg-white text-xs"
+                    />
+                  </div>
+                </div>
               </div>
 
               <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
