@@ -13,10 +13,12 @@ import {
   Search,
   Clock,
   CheckCircle2,
+  Code2,
   Star,
   ExternalLink,
   Trash2,
   Edit2,
+  Edit3,
   Sparkles,
   ArrowRight,
   ArrowLeft,
@@ -31,16 +33,55 @@ import {
   BookOpen,
   EyeOff,
   Lock,
+  MessageSquare,
+  Send,
+  FileText,
   Unlock
 } from 'lucide-react';
 
 export function ProjectManagementPage() {
-  const { projects = [], addProject, updateProject, deleteProject } = useLmsData();
+  const { projects = [], courses = [], milestones = {}, addProject, updateProject, deleteProject, gradeSubmission } = useLmsData();
   const { addToast } = useToast();
+
+  const stagesList = (milestones && milestones.stages && milestones.stages.length > 0)
+    ? milestones.stages
+    : [
+        {
+          id: 'stage-1',
+          title: 'Stage 1: Front End + Repository',
+          subtopics: [
+            { id: 'git-github', title: 'Git & GitHub Version Control' },
+            { id: 'html5', title: 'HTML5 & Semantic Structure' },
+            { id: 'css3', title: 'CSS3 & Responsive Layouts' },
+            { id: 'javascript-es6', title: 'JavaScript Fundamentals & ES6+' },
+            { id: 'reactjs', title: 'React.js Components & Hooks' }
+          ]
+        },
+        {
+          id: 'stage-2',
+          title: 'Stage 2: Backend + DSA',
+          subtopics: [
+            { id: 'python-core', title: 'Python Syntax, OOP & Standard Library' },
+            { id: 'express-django', title: 'REST API Design with Express & Django' },
+            { id: 'postgresql', title: 'PostgreSQL Database & Relational Schemas' },
+            { id: 'dsa-core', title: 'Data Structures & Algorithms (Trees, Graphs, DP)' }
+          ]
+        },
+        {
+          id: 'stage-3',
+          title: 'Stage 3: Full Stack & AI Integrations',
+          subtopics: [
+            { id: 'ai-prompting', title: 'AI Engineering & Prompt Design' },
+            { id: 'fullstack-deploy', title: 'Full Stack Integration & Cloud Deployment' }
+          ]
+        }
+      ];
 
   // Navigation & Filter States
   const [projectTypeTab, setProjectTypeTab] = useState('Mini Projects'); // 'Mini Projects' | 'Major Projects' | 'Capstone Projects' | 'Templates'
   const [statusFilterTab, setStatusFilterTab] = useState('Assigned'); // 'Assigned' | 'Submitted' | 'Mentor Feedback'
+  const [activeTab, setActiveTab] = useState('assigned');
+  const [selectedType, setSelectedType] = useState('All');
   const [searchTerm, setSearchTerm] = useState('');
 
   // Selected Project for Detail View (Matching Image 2 & Image 3)
@@ -51,21 +92,73 @@ export function ProjectManagementPage() {
   const [editingProject, setEditingProject] = useState(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
 
+  // Target Batches Eye Modal States
+  const [viewingBatchesProject, setViewingBatchesProject] = useState(null);
+  const [eyeActiveTab, setEyeActiveTab] = useState('Weekdays');
+  const [selectedWeekdayBatches, setSelectedWeekdayBatches] = useState([]);
+  const [selectedWeekendBatches, setSelectedWeekendBatches] = useState([]);
+
+  const handleOpenEyeModal = (proj) => {
+    setViewingBatchesProject(proj);
+    setEyeActiveTab('Weekdays');
+    try {
+      const savedWd = localStorage.getItem(`aspire_lms_proj_wd_${proj.id}`);
+      setSelectedWeekdayBatches(savedWd ? JSON.parse(savedWd) : []);
+      const savedWe = localStorage.getItem(`aspire_lms_proj_we_${proj.id}`);
+      setSelectedWeekendBatches(savedWe ? JSON.parse(savedWe) : []);
+    } catch (e) {
+      setSelectedWeekdayBatches([]);
+      setSelectedWeekendBatches([]);
+    }
+  };
+
+  // Grade Modal State
+  const [gradingSubmission, setGradingSubmission] = useState(null);
+  const [gradeInput, setGradeInput] = useState('');
+  const [feedbackInput, setFeedbackInput] = useState('');
+
+  const handleOpenGradeModal = (projectId, submission) => {
+    setGradingSubmission({ projectId, submission });
+    setGradeInput(submission.grade || 85);
+    setFeedbackInput(submission.mentorFeedback || '');
+  };
+
+  const handleSaveGrade = async (e) => {
+    e.preventDefault();
+    if (!gradingSubmission) return;
+
+    if (gradeSubmission) {
+      await gradeSubmission(
+        gradingSubmission.projectId,
+        gradingSubmission.submission.id,
+        gradeInput,
+        feedbackInput
+      );
+    }
+    addToast(`Saved feedback & grade for ${gradingSubmission.submission.studentName}`, 'success');
+    setGradingSubmission(null);
+  };
+
   // Form State for Add / Edit
   const [formData, setFormData] = useState({
     title: '',
     type: 'Mini',
-    category: 'Module 2: Python Fundamentals',
+    courseId: '',
+    stageId: 'stage-1',
+    subtopicId: 'git-github',
+    innerTopicId: 'git-arch',
+    category: 'Full-Stack Web Dev',
     difficulty: 'Beginner',
     description: '',
-    techStack: 'Python, Pandas, Data Cleaning',
-    dueDate: 'Aug 20',
+    techStack: '',
+    dueDate: '',
+    templateUrl: '',
     status: 'Assigned',
-    overview: 'Build a Python script that analyzes, cleans, and generates insights from raw CSV data. Develop a production-ready solution adhering to industry coding standards, modular component organization, and clean user experience.',
-    requirements: 'Responsive UI & Modern Layout: Ensure seamless experience across mobile, tablet, and desktop viewports.\nInput Validation & State Handling: Implement validation rules, error feedback, and loading states for async actions.\nClean Code & Version Control: Submit clean code with meaningful commit messages and proper file structuring.',
-    steps: 'Setup project repository\nBuild core feature logic\nSubmit drive link',
-    rubric: 'UI/UX & Responsiveness: 35%\nFunctionality & Logic: 35%\nCode Quality & Cleanliness: 30%',
-    mentorTip: 'Test code thoroughly before submitting drive link.'
+    overview: '',
+    requirements: '',
+    steps: '',
+    rubric: '',
+    mentorTip: ''
   });
 
   // Calculate Overall Metrics
@@ -90,15 +183,14 @@ export function ProjectManagementPage() {
     // Type Match
     let matchesType = true;
     if (projectTypeTab === 'Mini Projects') matchesType = (proj.type || 'Mini').toLowerCase().includes('mini');
-    else if (projectTypeTab === 'Major Projects') matchesType = (proj.type || '').toLowerCase().includes('major');
-    else if (projectTypeTab === 'Capstone Projects') matchesType = (proj.type || '').toLowerCase().includes('capstone');
-    else if (projectTypeTab === 'Templates') matchesType = (proj.type || '').toLowerCase().includes('template');
+    else if (projectTypeTab === 'Major Projects') matchesType = (proj.type || 'Mini').toLowerCase().includes('major');
+    else if (projectTypeTab === 'Capstone Projects') matchesType = (proj.type || 'Mini').toLowerCase().includes('capstone');
 
-    // Status Tab Match
+    // Status Match
     let matchesStatus = true;
-    if (statusFilterTab === 'Assigned') matchesStatus = (proj.status || 'Assigned').toLowerCase() === 'assigned';
-    else if (statusFilterTab === 'Submitted') matchesStatus = (proj.status || '').toLowerCase() === 'submitted';
-    else if (statusFilterTab === 'Mentor Feedback') matchesStatus = (proj.status || '').toLowerCase() === 'feedback' || (proj.status || '').toLowerCase().includes('mentor');
+    if (statusFilterTab === 'Assigned') matchesStatus = proj.status === 'Assigned' || proj.status === 'Published';
+    else if (statusFilterTab === 'Submitted') matchesStatus = (proj.submittedCount || 0) > 0;
+    else if (statusFilterTab === 'Mentor Feedback') matchesStatus = (proj.feedbackCount || 0) > 0;
 
     return matchesSearch && matchesType && matchesStatus;
   });
@@ -108,17 +200,22 @@ export function ProjectManagementPage() {
     setFormData({
       title: '',
       type: 'Mini',
-      category: 'Module 2: Python Fundamentals',
+      courseId: courses[0]?.id || 'python',
+      stageId: 'stage-1',
+      subtopicId: 'git-github',
+      innerTopicId: 'git-arch',
+      category: 'Full-Stack Web Dev',
       difficulty: 'Beginner',
       description: '',
-      techStack: 'Python, Pandas, Data Cleaning',
-      dueDate: 'Aug 20',
+      techStack: '',
+      dueDate: '',
+      templateUrl: '',
       status: 'Assigned',
-      overview: 'Build a Python script that analyzes, cleans, and generates insights from raw CSV data. Develop a production-ready solution adhering to industry coding standards, modular component organization, and clean user experience.',
-      requirements: 'Responsive UI & Modern Layout: Ensure seamless experience across mobile, tablet, and desktop viewports.\nInput Validation & State Handling: Implement validation rules, error feedback, and loading states for async actions.\nClean Code & Version Control: Submit clean code with meaningful commit messages and proper file structuring.',
-      steps: 'Setup project repository\nBuild core feature logic\nSubmit drive link',
-      rubric: 'UI/UX & Responsiveness: 35%\nFunctionality & Logic: 35%\nCode Quality & Cleanliness: 30%',
-      mentorTip: 'Test code thoroughly before submitting drive link.'
+      overview: '',
+      requirements: '',
+      steps: '',
+      rubric: '',
+      mentorTip: ''
     });
     setIsCreateModalOpen(true);
   };
@@ -128,6 +225,10 @@ export function ProjectManagementPage() {
     setFormData({
       title: proj.title || '',
       type: proj.type || 'Mini',
+      courseId: proj.courseId || courses[0]?.id || 'python',
+      stageId: proj.stageId || 'stage-1',
+      subtopicId: proj.subtopicId || 'git-github',
+      innerTopicId: proj.innerTopicId || 'git-arch',
       category: proj.category || 'Module 2: Python Fundamentals',
       difficulty: proj.difficulty || 'Beginner',
       description: proj.description || '',
@@ -140,7 +241,7 @@ export function ProjectManagementPage() {
         : (proj.requirements || ''),
       steps: Array.isArray(proj.steps) ? proj.steps.join('\n') : (proj.steps || ''),
       rubric: Array.isArray(proj.rubric)
-        ? proj.rubric.map(r => `${r.label}: ${r.weight}`).join('\n')
+        ? proj.rubric.map(r => typeof r === 'string' ? r : `${r.label}: ${r.weight}`).join('\n')
         : (proj.rubric || ''),
       mentorTip: proj.mentorTip || 'Test code thoroughly before submitting drive link.'
     });
@@ -161,8 +262,8 @@ export function ProjectManagementPage() {
     const requirementsList = typeof formData.requirements === 'string'
       ? formData.requirements.split('\n').filter(Boolean).map(line => {
           if (line.includes(':')) {
-            const [t, d] = line.split(':');
-            return { title: t.trim(), desc: d.trim() };
+            const [t, ...dParts] = line.split(':');
+            return { title: t.trim(), desc: dParts.join(':').trim() };
           }
           return { title: line.trim(), desc: '' };
         })
@@ -175,8 +276,8 @@ export function ProjectManagementPage() {
     const rubricList = typeof formData.rubric === 'string'
       ? formData.rubric.split('\n').filter(Boolean).map(line => {
           if (line.includes(':')) {
-            const [l, w] = line.split(':');
-            return { label: l.trim(), weight: w.trim() };
+            const [l, ...wParts] = line.split(':');
+            return { label: l.trim(), weight: wParts.join(':').trim() };
           }
           return { label: line.trim(), weight: '33%' };
         })
@@ -191,7 +292,11 @@ export function ProjectManagementPage() {
     };
 
     if (editingProject) {
+      const updatedProj = { ...editingProject, ...payload };
       await updateProject(editingProject.id, payload);
+      if (activeProjectDetail?.id === editingProject.id) {
+        setActiveProjectDetail(updatedProj);
+      }
       addToast(`Updated project: "${formData.title}"`, 'success');
     } else {
       await addProject(payload);
@@ -212,6 +317,30 @@ export function ProjectManagementPage() {
       }
     }
   };
+  const getTypeBadge = (type) => {
+    switch (type) {
+      case 'Capstone':
+        return (
+          <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-purple-100 text-purple-700 border border-purple-200/60">
+            Capstone
+          </span>
+        );
+      case 'Major':
+        return (
+          <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-700 border border-blue-200/60">
+            Major
+          </span>
+        );
+      case 'Mini':
+      default:
+        return (
+          <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-700 border border-amber-200/60">
+            Mini Project
+          </span>
+        );
+    }
+  };
+
   const getDifficultyBadge = (difficulty) => {
     switch (difficulty) {
       case 'Advanced':
@@ -438,6 +567,13 @@ export function ProjectManagementPage() {
 
                 <div className="flex items-center gap-1.5">
                   <button
+                    onClick={() => handleOpenEyeModal(proj)}
+                    className="p-2 text-slate-400 hover:text-purple-600 rounded-xl hover:bg-purple-50 transition-colors cursor-pointer"
+                    title="Target Batches"
+                  >
+                    <Eye className="w-4 h-4" />
+                  </button>
+                  <button
                     onClick={() => handleOpenEditModal(proj)}
                     className="p-2 text-slate-400 hover:text-blue-600 rounded-xl hover:bg-blue-50 transition-colors cursor-pointer"
                     title="Edit Project"
@@ -451,14 +587,14 @@ export function ProjectManagementPage() {
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
-                  <Button
-                    variant="primary"
-                    size="sm"
-                    className="px-4 py-1.5 rounded-xl font-bold bg-slate-900 hover:bg-blue-600 text-white transition-all shadow-md"
-                    onClick={() => setActiveTab('submitted')}
+                  <button
+                    type="button"
+                    onClick={() => setActiveProjectDetail(proj)}
+                    className="bg-purple-600 hover:bg-purple-700 text-white font-extrabold px-4 py-2 rounded-2xl text-xs flex items-center gap-1.5 shadow-md shadow-purple-500/20 transition-all cursor-pointer"
                   >
-                    Start <ArrowRight className="w-3.5 h-3.5 ml-1" />
-                  </Button>
+                    <span>View Details</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </button>
                 </div>
               </div>
             </div>
@@ -624,50 +760,124 @@ export function ProjectManagementPage() {
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
         title={editingProject ? 'Edit Project Assignment' : 'Create Real-World Project'}
+        maxWidth="max-w-3xl"
       >
         <form onSubmit={handleFormSubmit} className="space-y-4">
           <Input
             label="Project Title"
             type="text"
-            placeholder="e.g. E-commerce Platform"
+            placeholder="e.g. Python Data Analyzer"
             value={formData.title}
             onChange={(e) => setFormData({ ...formData, title: e.target.value })}
             required
           />
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          {/* 4-TIER CASCADING HIERARCHY SELECTOR (CURRICULUM LOCATION & MILESTONE TOPIC MAPPING) */}
+          {(() => {
+            const currentStageObj = stagesList.find((s) => s.id === formData.stageId) || stagesList[0];
+            const currentSubtopicsArr = currentStageObj?.subtopics || [];
+            const currentSubtopicObj = currentSubtopicsArr.find((st) => st.id === formData.subtopicId) || currentSubtopicsArr[0];
+            const currentInnerModules = (currentSubtopicObj && Array.isArray(currentSubtopicObj.modules) && currentSubtopicObj.modules.length > 0)
+              ? currentSubtopicObj.modules
+              : [{ id: currentSubtopicObj?.id || 'all-topics', title: currentSubtopicObj?.title || 'General Overview' }];
+
+            return (
+              <div className="p-4 bg-slate-50/90 rounded-2xl border border-slate-200/80 space-y-3.5">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-black text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+                    <Layers className="w-4 h-4 text-purple-600" />
+                    <span>CURRICULUM LOCATION & MILESTONE TOPIC MAPPING</span>
+                  </label>
+                  <span className="text-[11px] font-extrabold text-purple-700 bg-purple-50 px-2.5 py-1 rounded-xl border border-purple-200/60">
+                    4-Tier Milestone Cascade
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* Tier 1: Course Track */}
+                  <Select
+                    label="1. COURSE TRACK"
+                    value={formData.courseId || courses[0]?.id || 'python'}
+                    onChange={(e) => setFormData({ ...formData, courseId: e.target.value })}
+                    options={courses.length > 0 ? courses.map((c) => ({ value: c.id, label: c.title })) : [{ value: 'python', label: 'Python' }]}
+                  />
+
+                  {/* Tier 2: Course Module / Stage */}
+                  <Select
+                    label="2. COURSE MODULE / STAGE"
+                    value={formData.stageId || stagesList[0]?.id || 'stage-1'}
+                    onChange={(e) => {
+                      const newStageId = e.target.value;
+                      const newStage = stagesList.find((s) => s.id === newStageId) || stagesList[0];
+                      const firstSub = newStage?.subtopics?.[0];
+                      const firstInner = firstSub?.modules?.[0];
+                      setFormData({
+                        ...formData,
+                        stageId: newStageId,
+                        subtopicId: firstSub?.id || '',
+                        innerTopicId: firstInner?.id || firstSub?.id || ''
+                      });
+                    }}
+                    options={stagesList.map((stg) => ({
+                      value: stg.id,
+                      label: stg.title
+                    }))}
+                  />
+
+                  {/* Tier 3: Milestone Subtopic */}
+                  <Select
+                    label="3. MILESTONE SUBTOPIC"
+                    value={formData.subtopicId || currentSubtopicsArr[0]?.id || 'git-github'}
+                    onChange={(e) => {
+                      const newSubId = e.target.value;
+                      const targetStage = stagesList.find((s) => s.id === formData.stageId) || stagesList[0];
+                      const targetSub = targetStage?.subtopics?.find((st) => st.id === newSubId) || targetStage?.subtopics?.[0];
+                      const firstInner = targetSub?.modules?.[0];
+                      setFormData({
+                        ...formData,
+                        subtopicId: newSubId,
+                        innerTopicId: firstInner?.id || targetSub?.id || ''
+                      });
+                    }}
+                    options={currentSubtopicsArr.map((sub) => ({
+                      value: sub.id,
+                      label: sub.title
+                    }))}
+                  />
+
+                  {/* Tier 4: Specific Inner Topic */}
+                  <Select
+                    label="4. SPECIFIC INNER TOPIC"
+                    value={formData.innerTopicId || currentInnerModules[0]?.id || 'git-arch'}
+                    onChange={(e) => setFormData({ ...formData, innerTopicId: e.target.value })}
+                    options={currentInnerModules.map((mod) => ({
+                      value: mod.id || mod.title,
+                      label: mod.title
+                    }))}
+                  />
+                </div>
+              </div>
+            );
+          })()}
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Select
               label="Project Type"
               value={formData.type}
               onChange={(e) => setFormData({ ...formData, type: e.target.value })}
               options={[
-                { value: 'Mini', label: 'Mini' },
-                { value: 'Major', label: 'Major' },
-                { value: 'Capstone', label: 'Capstone' }
+                { value: 'Mini', label: 'Mini Project' },
+                { value: 'Major', label: 'Major Project' },
+                { value: 'Capstone', label: 'Capstone Project' }
               ]}
             />
 
-            <Select
-              label="Track / Category"
-              value={formData.category}
-              onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-              options={[
-                { value: 'Full-Stack Web Dev', label: 'Full-Stack Web Dev' },
-                { value: 'AI & Machine Learning', label: 'AI & Machine Learning' },
-                { value: 'Frontend Systems', label: 'Frontend Systems' },
-                { value: 'Backend & DevOps', label: 'Backend & DevOps' }
-              ]}
-            />
-
-            <Select
-              label="Difficulty Level"
-              value={formData.difficulty}
-              onChange={(e) => setFormData({ ...formData, difficulty: e.target.value })}
-              options={[
-                { value: 'Beginner', label: 'Beginner' },
-                { value: 'Intermediate', label: 'Intermediate' },
-                { value: 'Advanced', label: 'Advanced' }
-              ]}
+            <Input
+              label="Due Date Label"
+              type="text"
+              placeholder="e.g. Aug 20"
+              value={formData.dueDate}
+              onChange={(e) => setFormData({ ...formData, dueDate: e.target.value })}
             />
           </div>
 
@@ -697,17 +907,77 @@ export function ProjectManagementPage() {
 
           <div className="flex flex-col gap-1.5">
             <label className="text-[11px] font-extrabold text-slate-700 uppercase tracking-wider">
-              Project Description
+              Short Description
             </label>
             <textarea
-              rows={3}
-              placeholder="Build a complete e-commerce platform with cart, checkout, and admin dashboard."
+              rows={2}
+              placeholder="Build a Python script that analyzes, cleans, and generates insights from raw CSV data."
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               className="w-full px-3.5 py-2.5 bg-slate-50/60 hover:bg-white border border-slate-200 rounded-xl text-xs text-slate-800 focus:bg-white focus:outline-none focus:border-blue-500 transition-all"
               required
             />
           </div>
+
+          <div className="flex flex-col gap-1.5">
+            <label className="text-[11px] font-extrabold text-slate-700 uppercase tracking-wider">
+              Full Project Overview Brief
+            </label>
+            <textarea
+              rows={3}
+              placeholder="Develop a production-ready solution adhering to industry coding standards, modular component organization, and clean user experience."
+              value={formData.overview}
+              onChange={(e) => setFormData({ ...formData, overview: e.target.value })}
+              className="w-full px-3.5 py-2.5 bg-slate-50/60 hover:bg-white border border-slate-200 rounded-xl text-xs text-slate-800 focus:bg-white focus:outline-none focus:border-blue-500 transition-all"
+            />
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <label className="text-[11px] font-extrabold text-slate-700 uppercase tracking-wider">
+              Key Functional Requirements (Title: Description per line)
+            </label>
+            <textarea
+              rows={3}
+              placeholder="Responsive UI & Modern Layout: Ensure seamless experience across mobile, tablet, and desktop viewports.&#10;Input Validation & State Handling: Implement validation rules, error feedback, and loading states async.&#10;Clean Code & Version Control: Submit clean code with meaningful commit messages."
+              value={formData.requirements}
+              onChange={(e) => setFormData({ ...formData, requirements: e.target.value })}
+              className="w-full px-3.5 py-2.5 bg-slate-50/60 hover:bg-white border border-slate-200 rounded-xl text-xs text-slate-800 font-mono focus:bg-white focus:outline-none focus:border-blue-500 transition-all"
+            />
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <label className="text-[11px] font-extrabold text-slate-700 uppercase tracking-wider">
+              Recommended Implementation Steps (One per line)
+            </label>
+            <textarea
+              rows={3}
+              placeholder="1. Setup project repository&#10;2. Build core feature logic&#10;3. Submit drive link"
+              value={formData.steps}
+              onChange={(e) => setFormData({ ...formData, steps: e.target.value })}
+              className="w-full px-3.5 py-2.5 bg-slate-50/60 hover:bg-white border border-slate-200 rounded-xl text-xs text-slate-800 font-mono focus:bg-white focus:outline-none focus:border-blue-500 transition-all"
+            />
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <label className="text-[11px] font-extrabold text-slate-700 uppercase tracking-wider">
+              Evaluation Rubric Criteria & Weights (Label: Weight per line)
+            </label>
+            <textarea
+              rows={3}
+              placeholder="UI/UX & Responsiveness: 35%&#10;Functionality & Logic: 35%&#10;Code Quality & Cleanliness: 30%"
+              value={formData.rubric}
+              onChange={(e) => setFormData({ ...formData, rubric: e.target.value })}
+              className="w-full px-3.5 py-2.5 bg-slate-50/60 hover:bg-white border border-slate-200 rounded-xl text-xs text-slate-800 font-mono focus:bg-white focus:outline-none focus:border-blue-500 transition-all"
+            />
+          </div>
+
+          <Input
+            label="Mentor Pro Tip"
+            type="text"
+            placeholder="e.g. Test code thoroughly before submitting drive link."
+            value={formData.mentorTip}
+            onChange={(e) => setFormData({ ...formData, mentorTip: e.target.value })}
+          />
 
           <div className="flex justify-end gap-2.5 pt-2">
             <Button variant="secondary" onClick={() => setIsCreateModalOpen(false)}>
@@ -760,6 +1030,304 @@ export function ProjectManagementPage() {
             </Button>
           </div>
         </form>
+      </Modal>
+
+      {/* View Project Details Modal Popup matching screenshot */}
+      <Modal
+        isOpen={!!activeProjectDetail}
+        onClose={() => setActiveProjectDetail(null)}
+        title={activeProjectDetail?.title || 'Project Details'}
+        maxWidth="max-w-4xl"
+      >
+        {activeProjectDetail && (
+          <div className="space-y-6 pt-1">
+            {/* Top Badges */}
+            <div className="flex flex-wrap items-center gap-2 pb-2 border-b border-slate-100">
+              {getTypeBadge(activeProjectDetail.type || 'Mini')}
+              {getDifficultyBadge(activeProjectDetail.difficulty)}
+              <span className="px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-700">
+                {activeProjectDetail.category}
+              </span>
+              <span className="ml-auto text-xs font-semibold text-slate-500 flex items-center gap-1">
+                <Clock className="w-3.5 h-3.5 text-slate-400" /> Due {activeProjectDetail.dueDate}
+              </span>
+            </div>
+
+            {/* Grid Layout matching image media_1787138288694 */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+              {/* Left Column: Brief & Objectives (2 cols) */}
+              <div className="lg:col-span-2 bg-white p-5 rounded-3xl border border-slate-200/80 space-y-6">
+                <div>
+                  <div className="flex items-center gap-2 text-xs font-black text-purple-600 uppercase tracking-wider mb-1">
+                    <FileText className="w-4 h-4" />
+                    <span>PROJECT BRIEF & OBJECTIVES</span>
+                  </div>
+                  <h3 className="text-base font-black text-slate-900 mb-2">Project Overview</h3>
+                  <p className="text-xs text-slate-600 leading-relaxed font-normal">
+                    {activeProjectDetail.overview || activeProjectDetail.description}
+                  </p>
+                </div>
+
+                {/* Key Functional Requirements */}
+                <div className="space-y-3">
+                  <h4 className="text-[11px] font-black text-slate-800 uppercase tracking-wider">
+                    KEY FUNCTIONAL REQUIREMENTS
+                  </h4>
+                  <div className="space-y-2">
+                    {(Array.isArray(activeProjectDetail.requirements)
+                      ? activeProjectDetail.requirements
+                      : typeof activeProjectDetail.requirements === 'string'
+                      ? activeProjectDetail.requirements.split('\n').filter(Boolean)
+                      : []
+                    ).map((req, idx) => {
+                      const title = typeof req === 'string' ? (req.includes(':') ? req.split(':')[0] : req) : req.title;
+                      const desc = typeof req === 'string' ? (req.includes(':') ? req.split(':').slice(1).join(':') : '') : req.desc;
+                      return (
+                        <div
+                          key={idx}
+                          className="p-3 bg-slate-50/80 hover:bg-slate-100/60 border border-slate-200/80 rounded-2xl flex items-start gap-3 transition-colors"
+                        >
+                          <CheckCircle2 className="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5" />
+                          <div className="space-y-0.5">
+                            <span className="text-xs font-bold text-slate-900 block">{title}</span>
+                            {desc && <p className="text-[11px] text-slate-500 leading-normal">{desc}</p>}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Recommended Implementation Steps */}
+                <div className="space-y-3 pt-2">
+                  <h4 className="text-[11px] font-black text-slate-800 uppercase tracking-wider">
+                    RECOMMENDED IMPLEMENTATION STEPS
+                  </h4>
+                  <div className="space-y-2">
+                    {(Array.isArray(activeProjectDetail.steps)
+                      ? activeProjectDetail.steps
+                      : typeof activeProjectDetail.steps === 'string'
+                      ? activeProjectDetail.steps.split('\n').filter(Boolean)
+                      : ['Setup project repository', 'Build core feature logic', 'Submit drive link']
+                    ).map((step, idx) => (
+                      <div key={idx} className="flex items-center gap-3">
+                        <span className="w-6 h-6 rounded-full bg-purple-100 text-purple-700 text-xs font-bold flex items-center justify-center flex-shrink-0">
+                          {idx + 1}
+                        </span>
+                        <span className="text-xs text-slate-700 font-semibold">{typeof step === 'string' ? step.replace(/^\d+[\.\s]*/, '') : step}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Column: Evaluation Rubric & Mentor Pro Tips (1 col) */}
+              <div className="space-y-4">
+                {/* Evaluation Rubric */}
+                <div className="bg-white p-5 rounded-3xl border border-slate-200/80 space-y-4">
+                  <div className="flex items-center gap-2 text-xs font-black text-purple-600 uppercase tracking-wider">
+                    <Star className="w-4 h-4" />
+                    <span>EVALUATION RUBRIC</span>
+                  </div>
+                  <div className="space-y-3">
+                    {(Array.isArray(activeProjectDetail.rubric)
+                      ? activeProjectDetail.rubric
+                      : typeof activeProjectDetail.rubric === 'string'
+                      ? activeProjectDetail.rubric.split('\n').filter(Boolean)
+                      : []
+                    ).map((rub, idx) => {
+                      const label = typeof rub === 'string' ? (rub.includes(':') ? rub.split(':')[0] : rub) : rub.label;
+                      const weight = typeof rub === 'string' ? (rub.includes(':') ? rub.split(':')[1] : '33%') : rub.weight;
+                      const percentVal = parseInt(weight) || 35;
+                      return (
+                        <div key={idx} className="space-y-1.5">
+                          <div className="flex items-center justify-between text-xs font-bold">
+                            <span className="text-slate-800">{label}</span>
+                            <span className="text-purple-600 font-black">{weight}</span>
+                          </div>
+                          <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                            <div
+                              className="bg-purple-600 h-full rounded-full transition-all duration-500"
+                              style={{ width: `${percentVal}%` }}
+                            />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Mentor Pro Tips */}
+                <div className="bg-amber-50/60 p-5 rounded-3xl border border-amber-200/80 space-y-2">
+                  <div className="flex items-center gap-2 text-xs font-black text-amber-700 uppercase tracking-wider">
+                    <BookOpen className="w-4 h-4" />
+                    <span>MENTOR PRO TIPS</span>
+                  </div>
+                  <ul className="text-xs text-amber-900/90 list-disc list-inside space-y-1 font-medium">
+                    <li>{activeProjectDetail.mentorTip || 'Test code thoroughly before submitting drive link.'}</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </Modal>
+
+      {/* Target Batches Selection Modal matching screenshot media_1787139432274 */}
+      <Modal
+        isOpen={!!viewingBatchesProject}
+        onClose={() => setViewingBatchesProject(null)}
+        title={viewingBatchesProject?.title || 'Target Batches'}
+        subtitle="View and multi-select active Weekday and Weekend batch numbers for this project assignment"
+        maxWidth="max-w-xl"
+      >
+        {viewingBatchesProject && (
+          <div className="space-y-5 pt-2">
+            {/* Weekday / Weekend Tabs with Counts */}
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => setEyeActiveTab('Weekdays')}
+                className={`flex items-center gap-2 px-5 py-2.5 rounded-2xl text-xs font-black transition-all cursor-pointer ${
+                  eyeActiveTab === 'Weekdays'
+                    ? 'bg-purple-600 text-white shadow-md shadow-purple-500/30'
+                    : 'bg-slate-100 hover:bg-slate-200/80 text-slate-700'
+                }`}
+              >
+                <Calendar className="w-4 h-4" />
+                <span>Weekday Batches</span>
+                <span className={`px-2 py-0.5 rounded-full text-[11px] font-black ${
+                  eyeActiveTab === 'Weekdays' ? 'bg-purple-700 text-white' : 'bg-slate-200 text-slate-700'
+                }`}>
+                  {selectedWeekdayBatches.length}
+                </span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setEyeActiveTab('Weekends')}
+                className={`flex items-center gap-2 px-5 py-2.5 rounded-2xl text-xs font-black transition-all cursor-pointer ${
+                  eyeActiveTab === 'Weekends'
+                    ? 'bg-purple-600 text-white shadow-md shadow-purple-500/30'
+                    : 'bg-slate-100 hover:bg-slate-200/80 text-slate-700'
+                }`}
+              >
+                <Calendar className="w-4 h-4" />
+                <span>Weekend Batches</span>
+                <span className={`px-2 py-0.5 rounded-full text-[11px] font-black ${
+                  eyeActiveTab === 'Weekends' ? 'bg-purple-700 text-white' : 'bg-slate-200 text-slate-700'
+                }`}>
+                  {selectedWeekendBatches.length}
+                </span>
+              </button>
+            </div>
+
+            {/* Checkboxes List */}
+            {eyeActiveTab === 'Weekdays' ? (
+              <div className="space-y-3">
+                <p className="text-xs text-slate-600 font-semibold">
+                  Check or uncheck Weekday batch numbers for this project:
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {['A26W1', 'A26W2', 'A26W3', 'A26W4'].map((bCode) => {
+                    const isSelected = selectedWeekdayBatches.includes(bCode);
+                    return (
+                      <div
+                        key={bCode}
+                        onClick={() => {
+                          setSelectedWeekdayBatches((prev) => {
+                            const next = prev.includes(bCode) ? prev.filter((b) => b !== bCode) : [...prev, bCode];
+                            if (viewingBatchesProject) {
+                              try { localStorage.setItem(`aspire_lms_proj_wd_${viewingBatchesProject.id}`, JSON.stringify(next)); } catch (e) {}
+                            }
+                            return next;
+                          });
+                        }}
+                        className={`flex items-center gap-3.5 p-3.5 rounded-2xl border transition-all cursor-pointer select-none ${
+                          isSelected
+                            ? 'bg-purple-50/80 border-2 border-purple-400 text-purple-950 font-extrabold shadow-2xs'
+                            : 'bg-slate-50 border-slate-200 hover:bg-white text-slate-700 font-bold'
+                        }`}
+                      >
+                        {isSelected ? (
+                          <CheckSquare className="w-5 h-5 text-purple-600 flex-shrink-0" />
+                        ) : (
+                          <Square className="w-5 h-5 text-slate-400 flex-shrink-0" />
+                        )}
+                        <span className="text-xs font-black tracking-wide">{bCode}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <p className="text-xs text-slate-600 font-semibold">
+                  Check or uncheck Weekend batch numbers for this project:
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {['A26S1', 'A26S2', 'A26S3', 'A26S4'].map((bCode) => {
+                    const isSelected = selectedWeekendBatches.includes(bCode);
+                    return (
+                      <div
+                        key={bCode}
+                        onClick={() => {
+                          setSelectedWeekendBatches((prev) => {
+                            const next = prev.includes(bCode) ? prev.filter((b) => b !== bCode) : [...prev, bCode];
+                            if (viewingBatchesProject) {
+                              try { localStorage.setItem(`aspire_lms_proj_we_${viewingBatchesProject.id}`, JSON.stringify(next)); } catch (e) {}
+                            }
+                            return next;
+                          });
+                        }}
+                        className={`flex items-center gap-3.5 p-3.5 rounded-2xl border transition-all cursor-pointer select-none ${
+                          isSelected
+                            ? 'bg-purple-50/80 border-2 border-purple-400 text-purple-950 font-extrabold shadow-2xs'
+                            : 'bg-slate-50 border-slate-200 hover:bg-white text-slate-700 font-bold'
+                        }`}
+                      >
+                        {isSelected ? (
+                          <CheckSquare className="w-5 h-5 text-purple-600 flex-shrink-0" />
+                        ) : (
+                          <Square className="w-5 h-5 text-slate-400 flex-shrink-0" />
+                        )}
+                        <span className="text-xs font-black tracking-wide">{bCode}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Modal Footer */}
+            <div className="flex justify-end pt-4 border-t border-slate-100">
+              <button
+                type="button"
+                onClick={() => {
+                  if (viewingBatchesProject) {
+                    let newTargetBatch = 'All Batches';
+                    const allSelected = [...selectedWeekdayBatches, ...selectedWeekendBatches];
+                    if (allSelected.length > 0) {
+                      newTargetBatch = allSelected.join(', ');
+                    }
+
+                    try {
+                      localStorage.setItem(`aspire_lms_proj_wd_${viewingBatchesProject.id}`, JSON.stringify(selectedWeekdayBatches));
+                      localStorage.setItem(`aspire_lms_proj_we_${viewingBatchesProject.id}`, JSON.stringify(selectedWeekendBatches));
+                    } catch (e) {}
+
+                    updateProject(viewingBatchesProject.id, { targetBatch: newTargetBatch, targetBatches: allSelected });
+                    addToast(`Updated batch allocation for "${viewingBatchesProject.title}"`, 'success');
+                  }
+                  setViewingBatchesProject(null);
+                }}
+                className="bg-purple-600 hover:bg-purple-700 text-white font-extrabold px-6 py-2.5 rounded-2xl shadow-md shadow-purple-500/25 transition-all text-xs cursor-pointer"
+              >
+                Save Batch Preferences
+              </button>
+            </div>
+          </div>
+        )}
       </Modal>
 
       {/* Confirm Delete Dialog */}

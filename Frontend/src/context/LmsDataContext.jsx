@@ -840,7 +840,22 @@ export function LmsDataProvider({ children }) {
           submissions: Array.isArray(p.submissions)
             ? p.submissions
             : (typeof p.submissions === 'string' ? JSON.parse(p.submissions) : (p.submissions || [])),
-          targetBatch: p.target_batch || 'Weekday Batch'
+          targetBatch: p.target_batch || 'Weekday Batch',
+          overview: p.overview || p.description || '',
+          requirements: Array.isArray(p.requirements)
+            ? p.requirements
+            : (typeof p.requirements === 'string' ? JSON.parse(p.requirements) : (p.requirements || [])),
+          steps: Array.isArray(p.steps)
+            ? p.steps
+            : (typeof p.steps === 'string' ? JSON.parse(p.steps) : (p.steps || [])),
+          rubric: Array.isArray(p.rubric)
+            ? p.rubric
+            : (typeof p.rubric === 'string' ? JSON.parse(p.rubric) : (p.rubric || [])),
+          mentorTip: p.mentor_tip || p.mentorTip || 'Test code thoroughly before submitting drive link.',
+          courseId: p.course_id || p.courseId || '',
+          stageId: p.stage_id || p.stageId || '',
+          subtopicId: p.subtopic_id || p.subtopicId || '',
+          innerTopicId: p.inner_topic_id || p.innerTopicId || ''
         }));
         // REPLACE (not append) to prevent duplicates (supports All Batches target)
         setProjectsByBatch(() => {
@@ -1778,7 +1793,16 @@ export function LmsDataProvider({ children }) {
         avg_grade: newProject.avgGrade,
         is_locked: newProject.isLocked,
         submissions: newProject.submissions,
-        target_batch: newProject.targetBatch
+        target_batch: newProject.targetBatch,
+        overview: newProject.overview || newProject.description || '',
+        requirements: newProject.requirements || [],
+        steps: newProject.steps || [],
+        rubric: newProject.rubric || [],
+        mentor_tip: newProject.mentorTip || '',
+        course_id: newProject.courseId || '',
+        stage_id: newProject.stageId || '',
+        subtopic_id: newProject.subtopicId || '',
+        inner_topic_id: newProject.innerTopicId || ''
       }]);
       if (error) console.error('Supabase project insert error:', error.message);
     } catch (err) { console.warn('Project insert handled:', err); }
@@ -1804,11 +1828,25 @@ export function LmsDataProvider({ children }) {
     try {
       const dbFields = {};
       if (updatedFields.title !== undefined) dbFields.title = updatedFields.title;
+      if (updatedFields.type !== undefined) dbFields.type = updatedFields.type;
+      if (updatedFields.category !== undefined) dbFields.category = updatedFields.category;
+      if (updatedFields.difficulty !== undefined) dbFields.difficulty = updatedFields.difficulty;
       if (updatedFields.status !== undefined) dbFields.status = updatedFields.status;
       if (updatedFields.isLocked !== undefined) dbFields.is_locked = updatedFields.isLocked;
       if (updatedFields.description !== undefined) dbFields.description = updatedFields.description;
       if (fieldsToApply.techStack !== undefined) dbFields.tech_stack = fieldsToApply.techStack;
       if (updatedFields.dueDate !== undefined) dbFields.due_date = updatedFields.dueDate;
+      if (updatedFields.templateUrl !== undefined) dbFields.template_url = updatedFields.templateUrl;
+      if (updatedFields.overview !== undefined) dbFields.overview = updatedFields.overview;
+      if (updatedFields.requirements !== undefined) dbFields.requirements = updatedFields.requirements;
+      if (updatedFields.steps !== undefined) dbFields.steps = updatedFields.steps;
+      if (updatedFields.rubric !== undefined) dbFields.rubric = updatedFields.rubric;
+      if (updatedFields.mentorTip !== undefined) dbFields.mentor_tip = updatedFields.mentorTip;
+      if (updatedFields.courseId !== undefined) dbFields.course_id = updatedFields.courseId;
+      if (updatedFields.stageId !== undefined) dbFields.stage_id = updatedFields.stageId;
+      if (updatedFields.subtopicId !== undefined) dbFields.subtopic_id = updatedFields.subtopicId;
+      if (updatedFields.innerTopicId !== undefined) dbFields.inner_topic_id = updatedFields.innerTopicId;
+
       if (Object.keys(dbFields).length > 0) {
         const { error } = await supabase.from('projects').update(dbFields).eq('id', id);
         if (error) console.error('Supabase project update error:', error.message);
