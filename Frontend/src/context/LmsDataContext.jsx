@@ -408,16 +408,42 @@ export function LmsDataProvider({ children }) {
       if (milestonesByBatch && milestonesByBatch['Weekday Batch']) {
         localStorage.setItem('aspire_lms_milestones', JSON.stringify(milestonesByBatch['Weekday Batch']));
       }
+
+      const weekdayStages = milestonesByBatch['Weekday Batch']?.stages || milestonesByBatch['default']?.stages || [];
+      const weekdayOverview = milestonesByBatch['Weekday Batch']?.overview || {};
+
+      // 1. Sync batch_data to Supabase PostgreSQL table
       supabase
         .from('milestones_data')
         .upsert({
           id: 'batch_data',
           overview: { batchData: milestonesByBatch },
-          stages: [],
+          stages: weekdayStages,
           updated_at: new Date().toISOString()
         })
         .then(() => {})
-        .catch((e) => console.warn('Supabase milestones sync error:', e));
+        .catch((e) => console.warn('Supabase milestones batch sync error:', e));
+
+      // 2. Sync default row to Supabase
+      supabase
+        .from('milestones_data')
+        .upsert({
+          id: 'default',
+          overview: weekdayOverview,
+          stages: weekdayStages,
+          updated_at: new Date().toISOString()
+        })
+        .then(() => {})
+        .catch((e) => console.warn('Supabase milestones default sync error:', e));
+
+      // 3. Fallback sync to local Express backend API
+      try {
+        fetch('/api/milestones', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ batchData: milestonesByBatch, overview: weekdayOverview })
+        }).catch(() => {});
+      } catch (err) {}
     } catch (e) {}
   }, [milestonesByBatch]);
 
@@ -527,6 +553,60 @@ export function LmsDataProvider({ children }) {
 
   const [activities, setActivities] = useState(MOCK_ACTIVITIES);
   const [isSupabaseConnected, setIsSupabaseConnected] = useState(false);
+
+  // Student Milestone Topics/Items Completion State
+  const [completedMilestoneItemIds, setCompletedMilestoneItemIds] = useState(() => {
+    try {
+      const saved = localStorage.getItem('aspire_lms_completed_milestone_items_v1');
+      if (saved) return JSON.parse(saved);
+    } catch (e) {}
+    return ['git-intro-m1-live', 'git-intro-m1-lab'];
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('aspire_lms_completed_milestone_items_v1', JSON.stringify(completedMilestoneItemIds));
+      supabase
+        .from('milestones_data')
+        .upsert({
+          id: 'completed_items',
+          overview: { itemIds: completedMilestoneItemIds },
+          stages: [],
+          updated_at: new Date().toISOString()
+        })
+        .then(() => {})
+        .catch((e) => console.warn('Supabase completion sync error:', e));
+
+      try {
+        fetch('/api/milestones/completion', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ completedItemIds: completedMilestoneItemIds })
+        }).catch(() => {});
+      } catch (e) {}
+    } catch (e) {}
+  }, [completedMilestoneItemIds]);
+
+  const toggleItemCompletion = (itemId) => {
+    setCompletedMilestoneItemIds((prev) => {
+      const isAlready = prev.includes(itemId);
+      if (isAlready) {
+        return prev.filter((id) => id !== itemId);
+      } else {
+        return [...prev, itemId];
+      }
+    });
+  };
+
+  const markItemCompleted = (itemId) => {
+    setCompletedMilestoneItemIds((prev) => {
+      if (!prev.includes(itemId)) {
+        return [...prev, itemId];
+      }
+      return prev;
+    });
+  };
+
   // Guard against concurrent or self-triggered Realtime fetches
   const isRefetchingRef = React.useRef(false);
 
@@ -785,7 +865,7 @@ export function LmsDataProvider({ children }) {
         })));
       }
 
-      // 8. Fetch Milestones Roadmap Data from Supabase
+      // 8. Fetch Milestones Roadmap Data & Student Progress from Supabase
       const { data: milesData, error: milesErr } = await supabase.from('milestones_data').select('*');
       if (!milesErr && milesData && milesData.length > 0) {
         const batchRow = milesData.find(m => m.id === 'batch_data');
@@ -800,6 +880,11 @@ export function LmsDataProvider({ children }) {
               'Weekend Batch': { overview, stages: defaultRow.stages }
             });
           }
+        }
+
+        const compRow = milesData.find(m => m.id === 'completed_items');
+        if (compRow && compRow.overview && Array.isArray(compRow.overview.itemIds)) {
+          setCompletedMilestoneItemIds(compRow.overview.itemIds);
         }
       }
 
@@ -939,8 +1024,18 @@ export function LmsDataProvider({ children }) {
       // Profiles, Students, Batches, Milestones, Courses, Assessments, Coding Questions & Projects — trigger full refetch
       makeChannel('profiles', () => fetchSupabaseData());
       makeChannel('students', () => fetchSupabaseData());
-      makeChannel('batches', () => fetchSupabaseData());
-      makeChannel('milestones_data', () => fetchSupabaseData());
+      // Milestones Realtime Channel
+      makeChannel('milestones_data', (payload) => {
+        if (payload?.new) {
+          const row = payload.new;
+          if (row.id === 'batch_data' && row.overview?.batchData) {
+            setMilestonesByBatch(row.overview.batchData);
+          } else if (row.id === 'completed_items' && Array.isArray(row.overview?.itemIds)) {
+            setCompletedMilestoneItemIds(row.overview.itemIds);
+          }
+        }
+        fetchSupabaseData();
+      });
       makeChannel('courses', () => fetchSupabaseData());
       makeChannel('assessments', () => fetchSupabaseData());
       makeChannel('coding_questions', () => fetchSupabaseData());
@@ -1391,7 +1486,77 @@ export function LmsDataProvider({ children }) {
       [bKey]: [newSession, ...(prev[bKey] || [])]
     }));
     logActivity(`Scheduled live session: "${newSession.sessionTitle || newSession.title}" (${bKey})`, 'session');
+
+    // Auto-sync live session item into corresponding milestone module
+    if (newSession.stageId || newSession.subtopicId || newSession.technology || newSession.sessionTitle) {
+      updateBatchState(bKey, (batchData) => {
+        const stages = batchData.stages || [];
+        const stageMatch = stages.find(s => s.id === newSession.stageId || s.title === newSession.stageName || (newSession.technology && s.title?.toLowerCase().includes(newSession.technology.toLowerCase()))) || stages[0];
+        if (!stageMatch) return batchData;
+
+        const subtopics = stageMatch.subtopics || [];
+        const subtopicMatch = subtopics.find(st => st.id === newSession.subtopicId || st.title === newSession.subtopicName || (newSession.technology && st.title?.toLowerCase().includes(newSession.technology.toLowerCase())) || (newSession.sessionTitle && st.title?.toLowerCase().includes(newSession.sessionTitle.toLowerCase().split(' ')[0]))) || subtopics[0];
+        if (!subtopicMatch) return batchData;
+
+        const modules = subtopicMatch.modules || [];
+        let modMatch = modules.find(m => m.id === newSession.moduleId || m.title === newSession.moduleName) || modules[0];
+
+        const liveItem = {
+          id: `item-live-${newSession.id}`,
+          sessionId: newSession.id,
+          type: 'LIVE CLASS',
+          typeColor: 'bg-purple-100 text-purple-700 border-purple-200',
+          iconName: 'Video',
+          iconBg: 'bg-purple-600 text-white',
+          title: newSession.sessionTitle || newSession.title || 'Live Class Session',
+          actionText: 'JOIN',
+          url: newSession.meetingLink || 'https://meet.google.com/aspire-lms-live',
+          btnStyle: 'bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30'
+        };
+
+        const updatedStages = stages.map(stg => {
+          if (stg.id !== stageMatch.id) return stg;
+          return {
+            ...stg,
+            subtopics: (stg.subtopics || []).map(sub => {
+              if (sub.id !== subtopicMatch.id) return sub;
+              let existingMods = [...(sub.modules || [])];
+              if (!modMatch) {
+                const newMod = {
+                  id: `mod-${Date.now()}`,
+                  title: newSession.moduleName || 'Live Class Sessions',
+                  items: [liveItem]
+                };
+                existingMods.push(newMod);
+              } else {
+                existingMods = existingMods.map(m => {
+                  if (m.id !== modMatch.id && m.title !== modMatch.title) return m;
+                  const hasItem = (m.items || []).some(it => it.id === liveItem.id || it.sessionId === newSession.id);
+                  return {
+                    ...m,
+                    items: hasItem
+                      ? (m.items || []).map(it => (it.id === liveItem.id || it.sessionId === newSession.id ? { ...it, title: liveItem.title, url: liveItem.url } : it))
+                      : [liveItem, ...(m.items || [])]
+                  };
+                });
+              }
+              return {
+                ...sub,
+                modulesCount: existingMods.length,
+                modules: existingMods
+              };
+            })
+          };
+        });
+
+        return { ...batchData, stages: updatedStages };
+      });
+    }
+
     try {
+      const packedTopicName = `${newSession.stageName || ''}||${newSession.subtopicName || ''}||${newSession.moduleName || ''}`;
+      const packedTopicId = `${newSession.stageId || ''}||${newSession.subtopicId || ''}||${newSession.moduleId || ''}`;
+
       const { error } = await supabase.from('live_sessions').upsert([{
         id: newSession.id,
         program_name: newSession.programName || '',
@@ -1404,7 +1569,9 @@ export function LmsDataProvider({ children }) {
         publish_status: newSession.publishStatus || 'Published to Student LMS',
         instructor: newSession.instructor || '',
         description: newSession.description || '',
-        target_batch: newSession.targetBatch
+        target_batch: newSession.targetBatch,
+        topic_id: packedTopicId,
+        topic_name: packedTopicName
       }]);
       if (error) console.error('Supabase live session insert error:', error.message);
     } catch (err) { console.warn('Live session insert handled:', err); }
@@ -1417,6 +1584,31 @@ export function LmsDataProvider({ children }) {
       [bKey]: (prev[bKey] || []).map((s) => (s.id === id ? { ...s, ...updatedFields } : s))
     }));
     logActivity(`Updated live session ID ${id} (${bKey})`, 'session');
+
+    // Update milestone module item if present
+    updateBatchState(bKey, (batchData) => {
+      const stages = (batchData.stages || []).map(stg => ({
+        ...stg,
+        subtopics: (stg.subtopics || []).map(sub => ({
+          ...sub,
+          modules: (sub.modules || []).map(m => ({
+            ...m,
+            items: (m.items || []).map(it => {
+              if (it.id === `item-live-${id}` || it.sessionId === id) {
+                return {
+                  ...it,
+                  title: updatedFields.sessionTitle !== undefined ? updatedFields.sessionTitle : it.title,
+                  url: updatedFields.meetingLink !== undefined ? updatedFields.meetingLink : it.url
+                };
+              }
+              return it;
+            })
+          }))
+        }))
+      }));
+      return { ...batchData, stages };
+    });
+
     try {
       const dbFields = {};
       if (updatedFields.sessionTitle !== undefined) dbFields.session_title = updatedFields.sessionTitle;
@@ -1441,6 +1633,22 @@ export function LmsDataProvider({ children }) {
       [bKey]: (prev[bKey] || []).filter((s) => s.id !== id)
     }));
     logActivity(`Deleted live session ID ${id} (${bKey})`, 'session');
+
+    // Remove from milestone module items
+    updateBatchState(bKey, (batchData) => {
+      const stages = (batchData.stages || []).map(stg => ({
+        ...stg,
+        subtopics: (stg.subtopics || []).map(sub => ({
+          ...sub,
+          modules: (sub.modules || []).map(m => ({
+            ...m,
+            items: (m.items || []).filter(it => it.id !== `item-live-${id}` && it.sessionId !== id)
+          }))
+        }))
+      }));
+      return { ...batchData, stages };
+    });
+
     try {
       const { error } = await supabase.from('live_sessions').delete().eq('id', id);
       if (error) console.error('Supabase live session delete error:', error.message);
@@ -1926,6 +2134,9 @@ export function LmsDataProvider({ children }) {
         status: newStageData.status || 'AVAILABLE',
         statusType: newStageData.statusType || 'available',
         isLocked: newStageData.isLocked || false,
+        unlockDate: newStageData.unlockDate || null,
+        unlockTime: newStageData.unlockTime || null,
+        unlockDateTime: newStageData.unlockDateTime || (newStageData.unlockDate ? `${newStageData.unlockDate}T${newStageData.unlockTime || '00:00'}` : null),
         subtopics: newStageData.subtopics || []
       };
       return {
@@ -1938,7 +2149,96 @@ export function LmsDataProvider({ children }) {
   const updateStage = (stageId, updatedData, targetBatch = activeBatchFilter) => {
     updateBatchState(targetBatch, (batchData) => ({
       ...batchData,
-      stages: (batchData.stages || []).map((stg) => (stg.id === stageId ? { ...stg, ...updatedData } : stg))
+      stages: (batchData.stages || []).map((stg) => {
+        if (stg.id !== stageId) return stg;
+        const merged = { ...stg, ...updatedData };
+        if (updatedData.unlockDate !== undefined || updatedData.unlockTime !== undefined) {
+          const uDate = updatedData.unlockDate !== undefined ? updatedData.unlockDate : stg.unlockDate;
+          const uTime = updatedData.unlockTime !== undefined ? updatedData.unlockTime : stg.unlockTime;
+          merged.unlockDate = uDate;
+          merged.unlockTime = uTime;
+          merged.unlockDateTime = uDate ? `${uDate}T${uTime || '00:00'}` : null;
+        }
+        return merged;
+      })
+    }));
+  };
+
+  const setStageSchedule = (stageId, scheduleData, targetBatch = activeBatchFilter) => {
+    const { unlockDate, unlockTime, unlockDateTime, isLocked } = scheduleData;
+    updateBatchState(targetBatch, (batchData) => ({
+      ...batchData,
+      stages: (batchData.stages || []).map((stg) => {
+        if (stg.id !== stageId) return stg;
+        const uDate = unlockDate !== undefined ? unlockDate : stg.unlockDate;
+        const uTime = unlockTime !== undefined ? unlockTime : stg.unlockTime;
+        const uDateTime = unlockDateTime !== undefined ? unlockDateTime : (uDate ? `${uDate}T${uTime || '00:00'}` : null);
+        return {
+          ...stg,
+          unlockDate: uDate,
+          unlockTime: uTime,
+          unlockDateTime: uDateTime,
+          ...(isLocked !== undefined ? { isLocked, status: isLocked ? 'LOCKED' : (stg.status === 'LOCKED' ? 'AVAILABLE' : stg.status), statusType: isLocked ? 'locked' : (stg.statusType === 'locked' ? 'available' : stg.statusType) } : {})
+        };
+      })
+    }));
+  };
+
+  const setSubtopicSchedule = (stageId, subtopicId, scheduleData, targetBatch = activeBatchFilter) => {
+    const { unlockDate, unlockTime, unlockDateTime, isLocked } = scheduleData;
+    updateBatchState(targetBatch, (batchData) => ({
+      ...batchData,
+      stages: (batchData.stages || []).map((stg) => {
+        if (stg.id !== stageId) return stg;
+        return {
+          ...stg,
+          subtopics: (stg.subtopics || []).map((sub) => {
+            if (sub.id !== subtopicId) return sub;
+            const uDate = unlockDate !== undefined ? unlockDate : sub.unlockDate;
+            const uTime = unlockTime !== undefined ? unlockTime : sub.unlockTime;
+            const uDateTime = unlockDateTime !== undefined ? unlockDateTime : (uDate ? `${uDate}T${uTime || '00:00'}` : null);
+            return {
+              ...sub,
+              unlockDate: uDate,
+              unlockTime: uTime,
+              unlockDateTime: uDateTime,
+              ...(isLocked !== undefined ? { isLocked } : {})
+            };
+          })
+        };
+      })
+    }));
+  };
+
+  const setModuleSchedule = (stageId, subtopicId, moduleId, scheduleData, targetBatch = activeBatchFilter) => {
+    const { unlockDate, unlockTime, unlockDateTime, isLocked } = scheduleData;
+    updateBatchState(targetBatch, (batchData) => ({
+      ...batchData,
+      stages: (batchData.stages || []).map((stg) => {
+        if (stg.id !== stageId) return stg;
+        return {
+          ...stg,
+          subtopics: (stg.subtopics || []).map((sub) => {
+            if (sub.id !== subtopicId) return sub;
+            return {
+              ...sub,
+              modules: (sub.modules || []).map((mod) => {
+                if (mod.id !== moduleId) return mod;
+                const uDate = unlockDate !== undefined ? unlockDate : mod.unlockDate;
+                const uTime = unlockTime !== undefined ? unlockTime : mod.unlockTime;
+                const uDateTime = unlockDateTime !== undefined ? unlockDateTime : (uDate ? `${uDate}T${uTime || '00:00'}` : null);
+                return {
+                  ...mod,
+                  unlockDate: uDate,
+                  unlockTime: uTime,
+                  unlockDateTime: uDateTime,
+                  ...(isLocked !== undefined ? { isLocked } : {})
+                };
+              })
+            };
+          })
+        };
+      })
     }));
   };
 
@@ -2038,12 +2338,18 @@ export function LmsDataProvider({ children }) {
       ...batchData,
       stages: (batchData.stages || []).map((stg) => {
         if (stg.id !== stageId) return stg;
+        const uDate = newSubtopicData.unlockDate || null;
+        const uTime = newSubtopicData.unlockTime || null;
         const newSub = {
           id: `subtopic-${Date.now()}-${bKey === 'Weekday Batch' ? 'w' : 's'}`,
           title: newSubtopicData.title || 'New Subtopic',
           targetBatch: bKey,
           description: newSubtopicData.description || 'Click to view subtopics',
           duration: newSubtopicData.duration || 'Topic overview description.',
+          unlockDate: uDate,
+          unlockTime: uTime,
+          unlockDateTime: newSubtopicData.unlockDateTime || (uDate ? `${uDate}T${uTime || '00:00'}` : null),
+          isLocked: newSubtopicData.isLocked || false,
           modulesCount: 0,
           modules: []
         };
@@ -2062,7 +2368,18 @@ export function LmsDataProvider({ children }) {
         if (stg.id !== stageId) return stg;
         return {
           ...stg,
-          subtopics: (stg.subtopics || []).map((sub) => (sub.id === subtopicId ? { ...sub, ...updatedData } : sub))
+          subtopics: (stg.subtopics || []).map((sub) => {
+            if (sub.id !== subtopicId) return sub;
+            const merged = { ...sub, ...updatedData };
+            if (updatedData.unlockDate !== undefined || updatedData.unlockTime !== undefined) {
+              const uDate = updatedData.unlockDate !== undefined ? updatedData.unlockDate : sub.unlockDate;
+              const uTime = updatedData.unlockTime !== undefined ? updatedData.unlockTime : sub.unlockTime;
+              merged.unlockDate = uDate;
+              merged.unlockTime = uTime;
+              merged.unlockDateTime = uDate ? `${uDate}T${uTime || '00:00'}` : null;
+            }
+            return merged;
+          })
         };
       })
     }));
@@ -2090,9 +2407,15 @@ export function LmsDataProvider({ children }) {
           ...stg,
           subtopics: (stg.subtopics || []).map((sub) => {
             if (sub.id !== subtopicId) return sub;
+            const uDate = newModuleData.unlockDate || null;
+            const uTime = newModuleData.unlockTime || null;
             const newMod = {
               id: `mod-${Date.now()}`,
               title: newModuleData.title || 'New Module',
+              unlockDate: uDate,
+              unlockTime: uTime,
+              unlockDateTime: newModuleData.unlockDateTime || (uDate ? `${uDate}T${uTime || '00:00'}` : null),
+              isLocked: newModuleData.isLocked || false,
               items: []
             };
             const updatedMods = [...(sub.modules || []), newMod];
@@ -2118,7 +2441,18 @@ export function LmsDataProvider({ children }) {
             if (sub.id !== subtopicId) return sub;
             return {
               ...sub,
-              modules: (sub.modules || []).map((mod) => (mod.id === moduleId ? { ...mod, ...updatedData } : mod))
+              modules: (sub.modules || []).map((mod) => {
+                if (mod.id !== moduleId) return mod;
+                const merged = { ...mod, ...updatedData };
+                if (updatedData.unlockDate !== undefined || updatedData.unlockTime !== undefined) {
+                  const uDate = updatedData.unlockDate !== undefined ? updatedData.unlockDate : mod.unlockDate;
+                  const uTime = updatedData.unlockTime !== undefined ? updatedData.unlockTime : mod.unlockTime;
+                  merged.unlockDate = uDate;
+                  merged.unlockTime = uTime;
+                  merged.unlockDateTime = uDate ? `${uDate}T${uTime || '00:00'}` : null;
+                }
+                return merged;
+              })
             };
           })
         };
@@ -2388,15 +2722,18 @@ export function LmsDataProvider({ children }) {
         milestones,
         addStage,
         updateStage,
+        setStageSchedule,
         toggleStageLock,
         updateStageStatus,
         deleteStage,
         addSubtopic,
         updateSubtopic,
+        setSubtopicSchedule,
         toggleSubtopicLock,
         deleteSubtopic,
         addModule,
         updateModule,
+        setModuleSchedule,
         toggleModuleLock,
         deleteModule,
         addLearningItem,
@@ -2424,7 +2761,10 @@ export function LmsDataProvider({ children }) {
         addBatch,
         deleteBatch,
         activeBatchFilter,
-        setActiveBatchFilter
+        setActiveBatchFilter,
+        completedMilestoneItemIds,
+        toggleItemCompletion,
+        markItemCompleted
       }}
     >
       {children}
@@ -2438,6 +2778,9 @@ const defaultLmsDataContext = {
   liveSessions: [],
   jobs: [],
   recordings: [],
+  completedMilestoneItemIds: [],
+  toggleItemCompletion: () => {},
+  markItemCompleted: () => {},
   projects: [],
   codingQuestions: [],
   activities: [],

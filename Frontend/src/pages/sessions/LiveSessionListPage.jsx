@@ -20,12 +20,16 @@ import {
   Trash2,
   Tv2,
   Lock,
-  Unlock
+  Unlock,
+  Layers,
+  Bookmark
 } from 'lucide-react';
 
 export function LiveSessionListPage() {
-  const { liveSessions, addLiveSession, updateLiveSession, deleteLiveSession, toggleLiveSessionLock, activeBatchFilter, setActiveBatchFilter } = useLmsData();
+  const { liveSessions, addLiveSession, updateLiveSession, deleteLiveSession, toggleLiveSessionLock, activeBatchFilter, setActiveBatchFilter, milestones } = useLmsData();
   const { addToast } = useToast();
+
+  const stagesList = milestones?.stages || [];
 
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
@@ -36,25 +40,41 @@ export function LiveSessionListPage() {
   // Form State
   const [formData, setFormData] = useState({
     programName: 'Senior Engineering Cohort',
-    technology: 'React 18 & TypeScript',
+    technology: 'Git',
     sessionTitle: '',
-    date: '2026-08-08',
-    time: '18:00 - 19:30 EST',
+    date: new Date().toISOString().split('T')[0],
+    time: '10:00 - 11:30 AM',
     meetingLink: 'https://meet.google.com/aspire-lms-live',
-    instructor: 'David Chen',
-    description: ''
+    instructor: 'Sara Devi',
+    description: '',
+    stageId: stagesList[0]?.id || '',
+    stageName: stagesList[0]?.title || '',
+    subtopicId: stagesList[0]?.subtopics?.[0]?.id || '',
+    subtopicName: stagesList[0]?.subtopics?.[0]?.title || '',
+    moduleId: stagesList[0]?.subtopics?.[0]?.modules?.[0]?.id || '',
+    moduleName: stagesList[0]?.subtopics?.[0]?.modules?.[0]?.title || ''
   });
 
   const handleOpenAddModal = () => {
+    const firstStage = stagesList[0];
+    const firstSub = firstStage?.subtopics?.[0];
+    const firstMod = firstSub?.modules?.[0];
+
     setFormData({
       programName: 'Senior Engineering Cohort',
-      technology: 'React 18 & TypeScript',
+      technology: 'Git',
       sessionTitle: '',
-      date: '2026-08-08',
-      time: '18:00 - 19:30 EST',
+      date: new Date().toISOString().split('T')[0],
+      time: '10:00 - 11:30 AM',
       meetingLink: 'https://meet.google.com/aspire-lms-live',
-      instructor: 'David Chen',
-      description: ''
+      instructor: 'Sara Devi',
+      description: '',
+      stageId: firstStage?.id || '',
+      stageName: firstStage?.title || '',
+      subtopicId: firstSub?.id || '',
+      subtopicName: firstSub?.title || '',
+      moduleId: firstMod?.id || '',
+      moduleName: firstMod?.title || ''
     });
     setIsAddModalOpen(true);
   };
@@ -62,14 +82,20 @@ export function LiveSessionListPage() {
   const handleOpenEditModal = (sess) => {
     setEditingSession(sess);
     setFormData({
-      programName: sess.programName,
-      technology: sess.technology,
-      sessionTitle: sess.sessionTitle,
-      date: sess.date,
-      time: sess.time,
-      meetingLink: sess.meetingLink,
-      instructor: sess.instructor,
-      description: sess.description
+      programName: sess.programName || 'Senior Engineering Cohort',
+      technology: sess.technology || 'Git',
+      sessionTitle: sess.sessionTitle || sess.title || '',
+      date: sess.date || '',
+      time: sess.time || '',
+      meetingLink: sess.meetingLink || 'https://meet.google.com/aspire-lms-live',
+      instructor: sess.instructor || 'Sara Devi',
+      description: sess.description || '',
+      stageId: sess.stageId || stagesList[0]?.id || '',
+      stageName: sess.stageName || stagesList[0]?.title || '',
+      subtopicId: sess.subtopicId || stagesList[0]?.subtopics?.[0]?.id || '',
+      subtopicName: sess.subtopicName || stagesList[0]?.subtopics?.[0]?.title || '',
+      moduleId: sess.moduleId || stagesList[0]?.subtopics?.[0]?.modules?.[0]?.id || '',
+      moduleName: sess.moduleName || stagesList[0]?.subtopics?.[0]?.modules?.[0]?.title || ''
     });
   };
 
@@ -80,13 +106,25 @@ export function LiveSessionListPage() {
       return;
     }
 
+    // Resolve stage and subtopic titles
+    const currentStageObj = stagesList.find((s) => s.id === formData.stageId) || stagesList[0];
+    const currentSubObj = currentStageObj?.subtopics?.find((st) => st.id === formData.subtopicId) || currentStageObj?.subtopics?.[0];
+    const currentModObj = currentSubObj?.modules?.find((m) => m.id === formData.moduleId) || currentSubObj?.modules?.[0];
+
+    const sessionPayload = {
+      ...formData,
+      stageName: currentStageObj?.title || formData.stageName,
+      subtopicName: currentSubObj?.title || formData.subtopicName,
+      moduleName: currentModObj?.title || formData.moduleName
+    };
+
     if (editingSession) {
-      updateLiveSession(editingSession.id, formData);
+      updateLiveSession(editingSession.id, sessionPayload);
       addToast(`Updated live session: "${formData.sessionTitle}"`, 'success');
       setEditingSession(null);
     } else {
-      addLiveSession(formData);
-      addToast(`Scheduled live session: "${formData.sessionTitle}"`, 'success');
+      addLiveSession(sessionPayload);
+      addToast(`Scheduled live session: "${formData.sessionTitle}" & linked to Milestone!`, 'success');
       setIsAddModalOpen(false);
     }
   };
@@ -240,6 +278,12 @@ export function LiveSessionListPage() {
                     <UserCheck className="w-4 h-4 text-blue-600 flex-shrink-0" />
                     <span>Instructor: <strong className="text-slate-800 font-bold">{sess.instructor}</strong></span>
                   </div>
+                  {(sess.subtopicName || sess.moduleName) && (
+                    <div className="flex items-center gap-1.5 text-[11px] text-purple-700 bg-purple-50/90 px-2.5 py-1 rounded-xl border border-purple-200/70 font-bold">
+                      <Layers className="w-3 h-3 text-purple-600 flex-shrink-0" />
+                      <span className="truncate">Milestone: {sess.subtopicName || sess.moduleName}</span>
+                    </div>
+                  )}
                 </div>
 
                 <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed font-medium">
@@ -297,6 +341,101 @@ export function LiveSessionListPage() {
             onChange={(e) => setFormData({ ...formData, sessionTitle: e.target.value })}
             required
           />
+
+          {/* CASCADING MILESTONE CURRICULUM LOCATION MAPPING */}
+          {(() => {
+            const currentStageObj = stagesList.find((s) => s.id === formData.stageId) || stagesList[0];
+            const currentSubtopicsArr = currentStageObj?.subtopics || [];
+            const currentSubtopicObj = currentSubtopicsArr.find((st) => st.id === formData.subtopicId) || currentSubtopicsArr[0];
+            const currentInnerModules = (currentSubtopicObj && Array.isArray(currentSubtopicObj.modules) && currentSubtopicObj.modules.length > 0)
+              ? currentSubtopicObj.modules
+              : [{ id: currentSubtopicObj?.id || 'mod-live-1', title: currentSubtopicObj?.title || 'Live Sessions Module' }];
+
+            return (
+              <div className="p-4 bg-slate-50/90 rounded-2xl border border-slate-200/80 space-y-3.5">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-black text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+                    <Layers className="w-4 h-4 text-purple-600" />
+                    <span>Link to Milestone Subtopic & Module (Student LMS)</span>
+                  </label>
+                  <span className="text-[11px] font-bold text-purple-700 bg-purple-50 px-2 py-0.5 rounded-md border border-purple-200/60">
+                    Live Class Linker
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  {/* Stage Selection */}
+                  <Select
+                    label="1. Milestone Stage"
+                    value={formData.stageId}
+                    onChange={(e) => {
+                      const newStageId = e.target.value;
+                      const newStage = stagesList.find((s) => s.id === newStageId) || stagesList[0];
+                      const firstSub = newStage?.subtopics?.[0];
+                      const firstMod = firstSub?.modules?.[0];
+                      setFormData({
+                        ...formData,
+                        stageId: newStageId,
+                        stageName: newStage?.title || '',
+                        subtopicId: firstSub?.id || '',
+                        subtopicName: firstSub?.title || '',
+                        moduleId: firstMod?.id || '',
+                        moduleName: firstMod?.title || ''
+                      });
+                    }}
+                    options={stagesList.map((stg) => ({
+                      value: stg.id,
+                      label: stg.title
+                    }))}
+                  />
+
+                  {/* Subtopic Selection */}
+                  <Select
+                    label="2. Milestone Subtopic"
+                    value={formData.subtopicId}
+                    onChange={(e) => {
+                      const newSubId = e.target.value;
+                      const targetStage = stagesList.find((s) => s.id === formData.stageId) || stagesList[0];
+                      const targetSub = targetStage?.subtopics?.find((st) => st.id === newSubId) || targetStage?.subtopics?.[0];
+                      const firstMod = targetSub?.modules?.[0];
+                      setFormData({
+                        ...formData,
+                        subtopicId: newSubId,
+                        subtopicName: targetSub?.title || '',
+                        moduleId: firstMod?.id || '',
+                        moduleName: firstMod?.title || ''
+                      });
+                    }}
+                    options={currentSubtopicsArr.map((sub) => ({
+                      value: sub.id,
+                      label: sub.title
+                    }))}
+                  />
+
+                  {/* Module Selection */}
+                  <Select
+                    label="3. Specific Module"
+                    value={formData.moduleId}
+                    onChange={(e) => {
+                      const newModId = e.target.value;
+                      const targetStage = stagesList.find((s) => s.id === formData.stageId) || stagesList[0];
+                      const targetSub = targetStage?.subtopics?.find((st) => st.id === formData.subtopicId) || targetStage?.subtopics?.[0];
+                      const targetMod = targetSub?.modules?.find((m) => m.id === newModId) || targetSub?.modules?.[0];
+                      setFormData({
+                        ...formData,
+                        moduleId: newModId,
+                        moduleName: targetMod?.title || ''
+                      });
+                    }}
+                    options={currentInnerModules.map((mod) => ({
+                      value: mod.id || mod.title,
+                      label: mod.title
+                    }))}
+                  />
+                </div>
+              </div>
+            );
+          })()}
 
           <div className="grid grid-cols-2 gap-4">
             <Input
