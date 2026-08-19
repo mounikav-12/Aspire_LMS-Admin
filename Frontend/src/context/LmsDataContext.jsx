@@ -610,6 +610,7 @@ export function LmsDataProvider({ children }) {
             { id: 'top-3', title: 'Stage 3: AI & Cloud Integration', liveClasses: 17, practice: 25, assessments: 8 },
             { id: 'top-4', title: 'Stage 4: Career Launchpad', liveClasses: 23, practice: 30, assessments: 10 }
           ];
+          const isPythonFullStack = (c.title || '').toLowerCase().includes('python full') || (c.id || '').includes('1786624019154');
           return {
             id: c.id,
             title: c.title || '',
@@ -626,7 +627,7 @@ export function LmsDataProvider({ children }) {
               ? dbTopics
               : ((defaultCourse?.topics && defaultCourse.topics.length > 0)
                   ? defaultCourse.topics
-                  : fallbackTopics)
+                  : (isPythonFullStack ? fallbackTopics : []))
           };
         });
         // REPLACE batch buckets entirely (supports All Batches target)
@@ -1173,8 +1174,8 @@ export function LmsDataProvider({ children }) {
       rating: 5.0,
       publishStatus: 'Published',
       thumbnail: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=600&auto=format&fit=crop&q=80',
-      topics: courseData.topics || [],
-      ...courseData
+      ...courseData,
+      topics: Array.isArray(courseData.topics) ? courseData.topics : []
     };
     // Optimistic UI update across all batches if targetBatch is All Batches or ALL
     setCoursesByBatch((prev) => {

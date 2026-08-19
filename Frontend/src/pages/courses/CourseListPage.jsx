@@ -28,7 +28,7 @@ import {
 } from 'lucide-react';
 
 function getCourseModulesCount(course, milestones) {
-  if (!course) return 31;
+  if (!course) return 0;
 
   if (Array.isArray(course.topics) && course.topics.length > 0) {
     let totalModules = 0;
@@ -46,11 +46,16 @@ function getCourseModulesCount(course, milestones) {
       }
     });
     if (hasExplicitNested && totalModules > 0) return totalModules;
+    return course.topics.length;
   }
 
-  const milestoneStages = milestones?.stages || [];
-  const totalSubtopics = milestoneStages.reduce((acc, stg) => acc + (stg.subtopics?.length || 0), 0);
-  return totalSubtopics;
+  const isPythonFullStackCourse = (course.title || '').toLowerCase().includes('python full') || (course.id || '').includes('1786624019154');
+  if (isPythonFullStackCourse) {
+    const milestoneStages = milestones?.stages || INITIAL_MILESTONES?.stages || [];
+    return milestoneStages.length > 0 ? milestoneStages.length : 4;
+  }
+
+  return 0;
 }
 
 function CourseCardItem({ course, onViewBatches, onEdit, onDelete, milestones }) {
@@ -371,24 +376,9 @@ export function CourseListPage() {
       addCourse({
         ...formData,
         targetBatch: batchFilter || activeBatchFilter || 'All Batches',
-        topics: (formData.topics && formData.topics.length > 0) ? formData.topics : [
-          {
-            id: `top-${Date.now()}-1`,
-            title: 'Stage 1: Front End + Repository (Git & Web Architecture)',
-            liveClasses: 2,
-            practice: 4,
-            assessments: 1
-          },
-          {
-            id: `top-${Date.now()}-2`,
-            title: 'Stage 2: Backend + DSA (Python, SQL & Algorithms)',
-            liveClasses: 3,
-            practice: 5,
-            assessments: 2
-          }
-        ]
+        topics: []
       });
-      addToast(`Course "${formData.title}" created with default topic modules!`, 'success');
+      addToast(`Course "${formData.title}" created successfully!`, 'success');
       setIsAddModalOpen(false);
     }
   };

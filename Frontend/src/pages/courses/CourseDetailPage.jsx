@@ -46,11 +46,15 @@ export function CourseDetailPage() {
     assessments: (stg.subtopics?.length || 4) * 2
   }));
 
+  const isPythonFullStackCourse = (course?.title || '').toLowerCase().includes('python full') || (course?.id || '').includes('1786624019154');
+
   const topicsToRender = (course?.topics && course.topics.length > 0)
     ? course.topics
     : (initialMatchingCourse?.topics && initialMatchingCourse.topics.length > 0)
     ? initialMatchingCourse.topics
-    : defaultTopicsFromStages;
+    : isPythonFullStackCourse
+    ? defaultTopicsFromStages
+    : [];
 
   // Active Tab State ('Weekdays' | 'Weekends')
   const [activeTab, setActiveTab] = useState('Weekdays');
@@ -643,9 +647,10 @@ export function CourseDetailPage() {
           </div>
         ) : (
           <EmptyState
-            title="No Stages Found"
-            description="Add stage modules to break down live classes, practice, and tests."
-            actionLabel="Add Stage"
+            icon={Layers}
+            title="No Curriculum Stages Yet"
+            description="This course does not have any curriculum stages or modules assigned yet. Click '+ Add Stage' to create stages and modules manually."
+            actionLabel="Add First Stage"
             onAction={handleOpenAddModal}
           />
         )}
