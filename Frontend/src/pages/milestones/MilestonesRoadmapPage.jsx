@@ -33,198 +33,14 @@ import { useSearchParams } from 'react-router-dom';
 import { useToast } from '../../context/ToastContext';
 import { useLmsData } from '../../context/LmsDataContext';
 
-// Helper to get local date as YYYY-MM-DD string
-export const getLocalDateString = (d = new Date()) => {
-  const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
-};
+import {
+  getLocalDateString,
+  parseUnlockDateTime,
+  getScheduleInfo
+} from '../../utils/milestoneUtils';
 
-// Robust date & time parser across all string formats (YYYY-MM-DD, HH:MM, HH:MM AM/PM, HH:MM - HH:MM, ISO)
-export const parseUnlockDateTime = (unlockDate, unlockTime, unlockDateTime) => {
-  if (!unlockDate && !unlockDateTime) return null;
-
-  if (unlockDate) {
-    const rawDate = String(unlockDate).split('T')[0];
-    const parts = rawDate.split('-');
-    if (parts.length === 3) {
-      const year = parseInt(parts[0], 10);
-      const month = parseInt(parts[1], 10) - 1;
-      const day = parseInt(parts[2], 10);
-
-      let hours = 0;
-      let minutes = 0;
-
-      if (unlockTime) {
-        const timeStr = String(unlockTime);
-        const match = timeStr.match(/(\d{1,2}):(\d{2})/);
-        if (match) {
-          hours = parseInt(match[1], 10);
-          minutes = parseInt(match[2], 10);
-          if (/pm/i.test(timeStr) && hours < 12) {
-            hours += 12;
-          } else if (/am/i.test(timeStr) && hours === 12) {
-            hours = 0;
-          }
-        }
-      }
-
-      const parsed = new Date(year, month, day, hours, minutes, 0);
-      if (!isNaN(parsed.getTime())) return parsed;
-    }
-  }
-
-  if (unlockDateTime) {
-    const d = new Date(unlockDateTime);
-    if (!isNaN(d.getTime())) return d;
-  }
-
-  const fallback = new Date(unlockDateTime || unlockDate);
-  return isNaN(fallback.getTime()) ? null : fallback;
-};
-
-// Pure Date & Time Release Determination Helper with Hierarchy Inheritance & Live Timestamp Support
-export const getScheduleInfo = (item, parentSchedule = null, nowTimestamp = Date.now()) => {
-  if (!item) {
-    return {
-      hasSchedule: false,
-      isUnlocked: false,
-      isLocked: true,
-      unlockDate: '',
-      unlockTime: '',
-      unlockDateTime: null,
-      dateFormatted: '',
-      timeFormatted: '',
-      fullFormatted: 'Release date not set',
-      shortFormatted: 'No date set',
-      relativeText: 'Locked',
-      statusLabel: 'LOCKED',
-      inherited: false
-    };
-  }
-
-  // 1. If parent schedule is explicitly LOCKED (e.g. parent Stage is scheduled for future), child inherits lock
-  if (parentSchedule && parentSchedule.isLocked) {
-    return {
-      hasSchedule: parentSchedule.hasSchedule,
-      isUnlocked: false,
-      isLocked: true,
-      unlockDate: parentSchedule.unlockDate,
-      unlockTime: parentSchedule.unlockTime,
-      unlockDateTime: parentSchedule.unlockDateTime,
-      dateFormatted: parentSchedule.dateFormatted,
-      timeFormatted: parentSchedule.timeFormatted,
-      fullFormatted: parentSchedule.fullFormatted,
-      shortFormatted: parentSchedule.shortFormatted,
-      relativeText: parentSchedule.relativeText,
-      statusLabel: 'LOCKED',
-      inherited: true
-    };
-  }
-
-  const unlockDate = item.unlockDate || '';
-  const unlockTime = item.unlockTime || '';
-  const unlockDateTime = item.unlockDateTime || (unlockDate ? `${unlockDate}T${unlockTime || '00:00'}` : '');
-
-  // 2. If child item does NOT have its own specific date/time set:
-  if (!unlockDate && !unlockDateTime) {
-    if (parentSchedule && parentSchedule.isUnlocked) {
-      return {
-        hasSchedule: parentSchedule.hasSchedule,
-        isUnlocked: true,
-        isLocked: false,
-        unlockDate: parentSchedule.unlockDate,
-        unlockTime: parentSchedule.unlockTime,
-        unlockDateTime: parentSchedule.unlockDateTime,
-        dateFormatted: parentSchedule.dateFormatted,
-        timeFormatted: parentSchedule.timeFormatted,
-        fullFormatted: parentSchedule.fullFormatted,
-        shortFormatted: parentSchedule.shortFormatted,
-        relativeText: 'Released',
-        statusLabel: 'UNLOCKED',
-        inherited: true
-      };
-    }
-
-    return {
-      hasSchedule: false,
-      isUnlocked: true,
-      isLocked: false,
-      unlockDate: '',
-      unlockTime: '',
-      unlockDateTime: null,
-      dateFormatted: '',
-      timeFormatted: '',
-      fullFormatted: 'Available',
-      shortFormatted: 'Available',
-      relativeText: 'Released',
-      statusLabel: 'UNLOCKED',
-      inherited: false
-    };
-  }
-
-  // 3. Item has its OWN specific scheduled date & time
-  const parsedDate = parseUnlockDateTime(unlockDate, unlockTime, unlockDateTime);
-  if (!parsedDate) {
-    return {
-      hasSchedule: false,
-      isUnlocked: true,
-      isLocked: false,
-      unlockDate,
-      unlockTime,
-      unlockDateTime,
-      dateFormatted: '',
-      timeFormatted: '',
-      fullFormatted: 'Available',
-      shortFormatted: 'Available',
-      relativeText: 'Released',
-      statusLabel: 'UNLOCKED',
-      inherited: false
-    };
-  }
-
-  const targetTime = parsedDate.getTime();
-  const isUnlocked = nowTimestamp >= targetTime;
-  const isLocked = !isUnlocked;
-
-  const dateFormatted = parsedDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-  const timeFormatted = parsedDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
-
-  const diffMs = targetTime - nowTimestamp;
-  const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-  const diffDays = Math.floor(diffHours / 24);
-
-  let relativeText = '';
-  if (isLocked) {
-    if (diffDays > 0) {
-      relativeText = `in ${diffDays} day${diffDays > 1 ? 's' : ''}`;
-    } else if (diffHours > 0) {
-      relativeText = `in ${diffHours} hr${diffHours > 1 ? 's' : ''}`;
-    } else {
-      const diffMins = Math.max(1, Math.floor(diffMs / (1000 * 60)));
-      relativeText = `in ${diffMins} min${diffMins > 1 ? 's' : ''}`;
-    }
-  } else {
-    relativeText = 'Released';
-  }
-
-  return {
-    hasSchedule: true,
-    isUnlocked,
-    isLocked,
-    unlockDate,
-    unlockTime,
-    unlockDateTime,
-    dateFormatted,
-    timeFormatted,
-    fullFormatted: `${dateFormatted} at ${timeFormatted}`,
-    shortFormatted: `${dateFormatted}, ${timeFormatted}`,
-    relativeText,
-    statusLabel: isUnlocked ? 'UNLOCKED' : 'LOCKED',
-    inherited: false
-  };
-};
+// Re-export for compatibility with external components
+export { getLocalDateString, parseUnlockDateTime, getScheduleInfo };
 
 export function MilestonesRoadmapPage() {
   const { addToast } = useToast();
@@ -252,11 +68,7 @@ export function MilestonesRoadmapPage() {
     updateMilestonesOverview,
     activeBatchFilter,
     setActiveBatchFilter,
-    assessments = [],
-    liveSessions = [],
-    completedMilestoneItemIds = [],
-    toggleItemCompletion = () => {},
-    markItemCompleted = () => {}
+    assessments = []
   } = useLmsData();
 
   // Mode Toggle: 'admin' (CRUD & Schedule Setter) vs 'user' (Main LMS Student View)
@@ -264,15 +76,6 @@ export function MilestonesRoadmapPage() {
   const [selectedBatch, setSelectedBatchState] = useState(
     activeBatchFilter && activeBatchFilter !== 'ALL' ? activeBatchFilter : 'Weekday Batch'
   );
-
-  // Live ticking state to continuously re-evaluate scheduled releases in real-time
-  const [currentTime, setCurrentTime] = useState(Date.now());
-  React.useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentTime(Date.now());
-    }, 5000);
-    return () => clearInterval(timer);
-  }, []);
 
   React.useEffect(() => {
     if (activeBatchFilter && activeBatchFilter !== 'ALL' && activeBatchFilter !== selectedBatch) {
@@ -301,74 +104,92 @@ export function MilestonesRoadmapPage() {
   const [selectedCourseId, setSelectedCourseId] = useState(queryCourseId);
   const [selectedStudentAccessId, setSelectedStudentAccessId] = useState('ALL');
 
-  // Derive active milestones stages ensuring complete structure and schedule preservation
+  // Derive active milestones stages from Course Management or selected course
   const getActiveMilestoneStages = () => {
-    return currentMilestones?.stages || [];
+    let rawStages = currentMilestones?.stages || [];
+
+    if (selectedStudentAccessId !== 'ALL') {
+      const studentObj = students.find((s) => s.id === selectedStudentAccessId);
+      if (studentObj && Array.isArray(studentObj.enrolledCourses) && studentObj.enrolledCourses.length > 0) {
+        if (selectedCourseId === 'ALL') {
+          const studentCourseObjs = courses.filter((c) => studentObj.enrolledCourses.includes(c.id));
+          const derivedStages = [];
+          studentCourseObjs.forEach((crs) => {
+            if (Array.isArray(crs.topics) && crs.topics.length > 0) {
+              crs.topics.forEach((t, tIdx) => {
+                derivedStages.push({
+                  id: t.id || `stg-std-${tIdx}`,
+                  stageNumber: `STAGE 0${derivedStages.length + 1}`,
+                  phaseTag: `${crs.title} • Stage ${tIdx + 1}`,
+                  title: t.title,
+                  unlockDate: t.unlockDate || (tIdx === 0 ? new Date().toISOString().split('T')[0] : null),
+                  unlockTime: t.unlockTime || '09:00',
+                  subtopics: t.subtopics || [
+                    { id: `sub-${tIdx}-1`, title: 'Live Session & Concepts', isCompleted: true, modulesCount: t.liveClasses || 4 },
+                    { id: `sub-${tIdx}-2`, title: 'Hands-on Practice & Assignments', isCompleted: false, modulesCount: t.practice || 6 },
+                    { id: `sub-${tIdx}-3`, title: 'Skill Assessments & Projects', isCompleted: false, modulesCount: t.assessments || 2 }
+                  ]
+                });
+              });
+            }
+          });
+          if (derivedStages.length > 0) return derivedStages;
+        }
+      }
+    }
+
+    if (selectedCourseId !== 'ALL') {
+      const targetCourse = courses.find((c) => c.id === selectedCourseId);
+      if (targetCourse && Array.isArray(targetCourse.topics) && targetCourse.topics.length > 0) {
+        return targetCourse.topics.map((t, idx) => ({
+          id: t.id || `stg-crs-${idx + 1}`,
+          stageNumber: `STAGE 0${idx + 1}`,
+          phaseTag: `${targetCourse.title} • Stage ${idx + 1}`,
+          title: t.title,
+          unlockDate: t.unlockDate || (idx === 0 ? new Date().toISOString().split('T')[0] : null),
+          unlockTime: t.unlockTime || '09:00',
+          subtopics: t.subtopics || [
+            { id: `sub-${idx}-1`, title: 'Live Session & Concepts', isCompleted: true, modulesCount: t.liveClasses || 4 },
+            { id: `sub-${idx}-2`, title: 'Hands-on Practice & Assignments', isCompleted: false, modulesCount: t.practice || 6 },
+            { id: `sub-${idx}-3`, title: 'Skill Assessments & Projects', isCompleted: false, modulesCount: t.assessments || 2 }
+          ]
+        }));
+      }
+    }
+
+    return rawStages;
   };
 
   const filteredStages = getActiveMilestoneStages();
 
   // Helper to check if a stage is unlocked purely by date/time
   const isStageUnlocked = (stage) => {
-    const stageSched = getScheduleInfo(stage, null, currentTime);
+    const stageSched = getScheduleInfo(stage);
     return stageSched.isUnlocked;
   };
 
-  // Real-Time Banner Calculations based on actual Student Topic Completion
-  let totalItemsCount = 0;
-  let completedItemsCount = 0;
-  let totalSubtopicsCount = 0;
-  let completedSubtopicsCount = 0;
-
-  filteredStages.forEach((stage) => {
-    (stage.subtopics || []).forEach((sub) => {
-      totalSubtopicsCount += 1;
-      let subItems = [];
-      (sub.modules || []).forEach((mod) => {
-        (mod.items || []).forEach((item) => {
-          subItems.push(item);
-          totalItemsCount += 1;
-          if (completedMilestoneItemIds.includes(item.id)) {
-            completedItemsCount += 1;
-          }
-        });
-      });
-
-      const isSubDone =
-        sub.isCompleted ||
-        completedMilestoneItemIds.includes(sub.id) ||
-        (subItems.length > 0 && subItems.every((it) => completedMilestoneItemIds.includes(it.id)));
-
-      if (isSubDone) {
-        completedSubtopicsCount += 1;
-      }
-    });
-  });
-
-  const totalTopicsCount = totalItemsCount > 0 ? totalItemsCount : (totalSubtopicsCount || 31);
-  const completedTopicsCount = totalItemsCount > 0 ? completedItemsCount : completedSubtopicsCount;
-
-  const completionPercentage = totalTopicsCount > 0
-    ? Math.min(100, Math.round((completedTopicsCount / totalTopicsCount) * 100))
-    : 0;
-
-  const completedStagesCount = filteredStages.filter((stage) => {
-    const subs = stage.subtopics || [];
-    if (subs.length === 0) return false;
-    return subs.every((sub) => {
-      let subItems = [];
-      (sub.modules || []).forEach((mod) => {
-        (mod.items || []).forEach((item) => subItems.push(item));
-      });
-      return (
-        sub.isCompleted ||
-        completedMilestoneItemIds.includes(sub.id) ||
-        (subItems.length > 0 && subItems.every((it) => completedMilestoneItemIds.includes(it.id)))
-      );
-    });
-  }).length;
+  // Real-Time Banner Calculations based on date & time release
+  const autoTotalCount = filteredStages.reduce((acc, stg) => {
+    return acc + (stg.subtopics?.length || 0);
+  }, 0) || 31;
 
   const autoUnlockedStagesCount = filteredStages.filter((stg) => isStageUnlocked(stg)).length;
+
+  const autoCompletedCount = filteredStages.reduce((acc, stg) => {
+    const sSched = getScheduleInfo(stg);
+    if (sSched.isUnlocked) {
+      const doneInStage = stg.subtopics?.filter((sub) => {
+        const subSched = getScheduleInfo(sub, sSched);
+        return subSched.isUnlocked;
+      })?.length || 0;
+      return acc + doneInStage;
+    }
+    return acc;
+  }, 0);
+
+  const autoCompletionPercentage = autoTotalCount > 0
+    ? Math.round((autoCompletedCount / autoTotalCount) * 100)
+    : 0;
 
   // Handle clicking a subtopic row -> Opens the Drawer to view syllabus/modules
   const handleSubtopicClick = (stage, subtopic) => {
@@ -460,8 +281,7 @@ export function MilestonesRoadmapPage() {
 
   // --- Handlers: Date & Time Schedule Modal ---
   const handleOpenScheduleModal = (type, item, stageId = null, subtopicId = null) => {
-    const sInfo = getScheduleInfo(item, null, currentTime);
-    const todayStr = getLocalDateString(new Date());
+    const sInfo = getScheduleInfo(item);
     setScheduleTarget({
       type,
       item,
@@ -471,8 +291,8 @@ export function MilestonesRoadmapPage() {
       title: item.title || item.stageNumber || 'Item'
     });
     setScheduleFormData({
-      unlockDate: sInfo.unlockDate || item.unlockDate || todayStr,
-      unlockTime: sInfo.unlockTime || item.unlockTime || '09:00'
+      unlockDate: sInfo.unlockDate || '',
+      unlockTime: sInfo.unlockTime || '09:00'
     });
     setIsScheduleModalOpen(true);
   };
@@ -485,15 +305,11 @@ export function MilestonesRoadmapPage() {
     const uDateTime = unlockDate ? `${unlockDate}T${unlockTime || '00:00'}` : null;
 
     if (scheduleTarget.type === 'stage') {
-      setStageSchedule(
-        scheduleTarget.id,
-        {
-          unlockDate,
-          unlockTime,
-          unlockDateTime: uDateTime
-        },
-        selectedBatch
-      );
+      setStageSchedule(scheduleTarget.id, {
+        unlockDate,
+        unlockTime,
+        unlockDateTime: uDateTime
+      });
       addToast(
         unlockDate
           ? `📅 Stage release scheduled for ${unlockDate} at ${unlockTime}`
@@ -501,16 +317,11 @@ export function MilestonesRoadmapPage() {
         'success'
       );
     } else if (scheduleTarget.type === 'subtopic') {
-      setSubtopicSchedule(
-        scheduleTarget.stageId,
-        scheduleTarget.id,
-        {
-          unlockDate,
-          unlockTime,
-          unlockDateTime: uDateTime
-        },
-        selectedBatch
-      );
+      setSubtopicSchedule(scheduleTarget.stageId, scheduleTarget.id, {
+        unlockDate,
+        unlockTime,
+        unlockDateTime: uDateTime
+      });
       addToast(
         unlockDate
           ? `📅 Subtopic release scheduled for ${unlockDate} at ${unlockTime}`
@@ -518,17 +329,11 @@ export function MilestonesRoadmapPage() {
         'success'
       );
     } else if (scheduleTarget.type === 'module') {
-      setModuleSchedule(
-        scheduleTarget.stageId,
-        scheduleTarget.subtopicId,
-        scheduleTarget.id,
-        {
-          unlockDate,
-          unlockTime,
-          unlockDateTime: uDateTime
-        },
-        selectedBatch
-      );
+      setModuleSchedule(scheduleTarget.stageId, scheduleTarget.subtopicId, scheduleTarget.id, {
+        unlockDate,
+        unlockTime,
+        unlockDateTime: uDateTime
+      });
       addToast(
         unlockDate
           ? `📅 Module release scheduled for ${unlockDate} at ${unlockTime}`
@@ -544,40 +349,25 @@ export function MilestonesRoadmapPage() {
     if (!scheduleTarget) return;
 
     if (scheduleTarget.type === 'stage') {
-      setStageSchedule(
-        scheduleTarget.id,
-        {
-          unlockDate: '',
-          unlockTime: '',
-          unlockDateTime: null
-        },
-        selectedBatch
-      );
+      setStageSchedule(scheduleTarget.id, {
+        unlockDate: '',
+        unlockTime: '',
+        unlockDateTime: null
+      });
       addToast('Stage schedule cleared (Available by default)', 'info');
     } else if (scheduleTarget.type === 'subtopic') {
-      setSubtopicSchedule(
-        scheduleTarget.stageId,
-        scheduleTarget.id,
-        {
-          unlockDate: '',
-          unlockTime: '',
-          unlockDateTime: null
-        },
-        selectedBatch
-      );
+      setSubtopicSchedule(scheduleTarget.stageId, scheduleTarget.id, {
+        unlockDate: '',
+        unlockTime: '',
+        unlockDateTime: null
+      });
       addToast('Subtopic schedule cleared (Inherits stage release)', 'info');
     } else if (scheduleTarget.type === 'module') {
-      setModuleSchedule(
-        scheduleTarget.stageId,
-        scheduleTarget.subtopicId,
-        scheduleTarget.id,
-        {
-          unlockDate: '',
-          unlockTime: '',
-          unlockDateTime: null
-        },
-        selectedBatch
-      );
+      setModuleSchedule(scheduleTarget.stageId, scheduleTarget.subtopicId, scheduleTarget.id, {
+        unlockDate: '',
+        unlockTime: '',
+        unlockDateTime: null
+      });
       addToast('Module schedule cleared (Inherits subtopic release)', 'info');
     }
 
@@ -588,7 +378,7 @@ export function MilestonesRoadmapPage() {
   const applyDatePreset = (daysFromNow, time = '09:00') => {
     const d = new Date();
     d.setDate(d.getDate() + daysFromNow);
-    const dateStr = getLocalDateString(d);
+    const dateStr = d.toISOString().split('T')[0];
     setScheduleFormData({
       unlockDate: dateStr,
       unlockTime: time
@@ -597,8 +387,8 @@ export function MilestonesRoadmapPage() {
 
   const applyImmediateUnlock = () => {
     const d = new Date();
-    d.setMinutes(d.getMinutes() - 2);
-    const dateStr = getLocalDateString(d);
+    d.setMinutes(d.getMinutes() - 1);
+    const dateStr = d.toISOString().split('T')[0];
     const hours = String(d.getHours()).padStart(2, '0');
     const minutes = String(d.getMinutes()).padStart(2, '0');
     setScheduleFormData({
@@ -650,10 +440,10 @@ export function MilestonesRoadmapPage() {
     };
 
     if (editingStage) {
-      updateStage(editingStage.id, payload, selectedBatch);
+      updateStage(editingStage.id, payload);
       addToast('Milestone stage updated successfully', 'success');
     } else {
-      addStage(payload, selectedBatch);
+      addStage(payload);
       addToast('New milestone stage created', 'success');
     }
     setIsStageModalOpen(false);
@@ -661,7 +451,7 @@ export function MilestonesRoadmapPage() {
 
   const handleDeleteStage = (stageId, title) => {
     if (window.confirm(`Are you sure you want to delete "${title}"?`)) {
-      deleteStage(stageId, selectedBatch);
+      deleteStage(stageId);
       if (selectedSubtopicState?.stageId === stageId) {
         setSelectedSubtopicState(null);
       }
@@ -712,10 +502,10 @@ export function MilestonesRoadmapPage() {
     };
 
     if (editingSubtopic) {
-      updateSubtopic(targetStageIdForSubtopic, editingSubtopic.id, payload, selectedBatch);
+      updateSubtopic(targetStageIdForSubtopic, editingSubtopic.id, payload);
       addToast('Subtopic updated', 'success');
     } else {
-      addSubtopic(targetStageIdForSubtopic, payload, selectedBatch);
+      addSubtopic(targetStageIdForSubtopic, payload);
       addToast('Subtopic added to stage', 'success');
     }
     setIsSubtopicModalOpen(false);
@@ -723,7 +513,7 @@ export function MilestonesRoadmapPage() {
 
   const handleDeleteSubtopic = (stageId, subtopicId, title) => {
     if (window.confirm(`Delete subtopic "${title}"?`)) {
-      deleteSubtopic(stageId, subtopicId, selectedBatch);
+      deleteSubtopic(stageId, subtopicId);
       if (selectedSubtopicState?.subtopicId === subtopicId) {
         setSelectedSubtopicState(null);
       }
@@ -769,10 +559,10 @@ export function MilestonesRoadmapPage() {
     };
 
     if (editingModule) {
-      updateModule(activeSubtopic.stageId, activeSubtopic.id, editingModule.id, payload, selectedBatch);
+      updateModule(activeSubtopic.stageId, activeSubtopic.id, editingModule.id, payload);
       addToast('Module updated', 'success');
     } else {
-      addModule(activeSubtopic.stageId, activeSubtopic.id, payload, selectedBatch);
+      addModule(activeSubtopic.stageId, activeSubtopic.id, payload);
       addToast('New module added to learning path', 'success');
     }
     setIsModuleModalOpen(false);
@@ -781,7 +571,7 @@ export function MilestonesRoadmapPage() {
   const handleDeleteModule = (moduleId, title) => {
     if (!activeSubtopic) return;
     if (window.confirm(`Delete module "${title}" and all its resources?`)) {
-      deleteModule(activeSubtopic.stageId, activeSubtopic.id, moduleId, selectedBatch);
+      deleteModule(activeSubtopic.stageId, activeSubtopic.id, moduleId);
       addToast('Module deleted', 'info');
     }
   };
@@ -843,10 +633,10 @@ export function MilestonesRoadmapPage() {
     };
 
     if (editingItem) {
-      updateLearningItem(activeSubtopic.stageId, activeSubtopic.id, targetModuleIdForItem, editingItem.id, payload, selectedBatch);
+      updateLearningItem(activeSubtopic.stageId, activeSubtopic.id, targetModuleIdForItem, editingItem.id, payload);
       addToast('Resource item updated', 'success');
     } else {
-      addLearningItem(activeSubtopic.stageId, activeSubtopic.id, targetModuleIdForItem, payload, selectedBatch);
+      addLearningItem(activeSubtopic.stageId, activeSubtopic.id, targetModuleIdForItem, payload);
       addToast('Resource item added to module', 'success');
     }
     setIsItemModalOpen(false);
@@ -855,7 +645,7 @@ export function MilestonesRoadmapPage() {
   const handleDeleteItem = (moduleId, itemId, title) => {
     if (!activeSubtopic) return;
     if (window.confirm(`Delete resource item "${title}"?`)) {
-      deleteLearningItem(activeSubtopic.stageId, activeSubtopic.id, moduleId, itemId, selectedBatch);
+      deleteLearningItem(activeSubtopic.stageId, activeSubtopic.id, moduleId, itemId);
       addToast('Resource item deleted', 'info');
     }
   };
@@ -869,7 +659,7 @@ export function MilestonesRoadmapPage() {
   };
 
   // Action Click Handler for JOIN, VIEW, TAKE with Strict Date & Time Enforcement
-  const handleActionClick = (actionText, title, url, isLocked, sInfo, itemId) => {
+  const handleActionClick = (actionText, title, url, isLocked, sInfo) => {
     if (isLocked) {
       if (viewMode === 'admin') {
         if (url && url.startsWith('http')) {
@@ -890,11 +680,6 @@ export function MilestonesRoadmapPage() {
         'warning'
       );
       return;
-    }
-
-    // Unlocked: Automatically mark item completed when opened (progress increases)
-    if (itemId) {
-      markItemCompleted(itemId);
     }
 
     // Unlocked: Open resource
@@ -970,7 +755,6 @@ export function MilestonesRoadmapPage() {
       {/* Admin Mode Controls Banner */}
       {viewMode === 'admin' && (
         <div className="bg-purple-50/70 border border-purple-200 rounded-2xl p-3 flex flex-wrap items-center justify-between gap-3 text-xs">
-          
 
           <div className="flex items-center gap-2">
             <button
@@ -1011,12 +795,12 @@ export function MilestonesRoadmapPage() {
               <div className="inline-flex items-center gap-1.5 rounded-full bg-white/15 backdrop-blur-md px-3.5 py-1 text-xs font-extrabold text-purple-100 border border-white/15">
                 <Trophy className="w-3.5 h-3.5 text-amber-300" />
                 <span>
-                  {completedTopicsCount} / {totalTopicsCount} Topics Completed
+                  {autoCompletedCount} / {autoTotalCount} Modules Released
                 </span>
               </div>
               <div className="inline-flex items-center gap-1.5 rounded-full bg-white/15 backdrop-blur-md px-3.5 py-1 text-xs font-extrabold text-purple-100 border border-white/15">
                 <Zap className="w-3.5 h-3.5 text-cyan-300" />
-                <span>{completedStagesCount} / {filteredStages.length} Stages Completed</span>
+                <span>{autoUnlockedStagesCount} Stages Unlocked</span>
               </div>
             </div>
           </div>
@@ -1030,13 +814,13 @@ export function MilestonesRoadmapPage() {
           {/* Banner Progress Bar */}
           <div className="space-y-2 pt-2">
             <div className="flex items-center justify-between text-xs font-extrabold text-purple-100">
-              <span>Overall Track Completion Progress</span>
-              <span className="font-black text-white">{completionPercentage}%</span>
+              <span>Overall Track Released Progress</span>
+              <span className="font-black text-white">{autoCompletionPercentage}%</span>
             </div>
             <div className="h-2.5 w-full overflow-hidden rounded-full bg-white/20 backdrop-blur-sm p-0.5">
               <div
                 className="h-full rounded-full bg-white transition-all duration-500 shadow-sm"
-                style={{ width: `${completionPercentage}%` }}
+                style={{ width: `${autoCompletionPercentage}%` }}
               />
             </div>
           </div>
@@ -1046,7 +830,7 @@ export function MilestonesRoadmapPage() {
       {/* Stage Timeline (Pure Time-Based Lock/Unlock System) */}
       <div className="relative pt-4">
         {filteredStages.map((stage, stageIndex) => {
-          const stageSched = getScheduleInfo(stage, null, currentTime);
+          const stageSched = getScheduleInfo(stage);
           const isStageCurrentUnlocked = stageSched.isUnlocked;
 
           const totalStages = filteredStages.length;
@@ -1216,53 +1000,31 @@ export function MilestonesRoadmapPage() {
                   <div className="p-4 sm:p-5 bg-slate-50/70 border-t border-slate-200/80 space-y-3 animate-in fade-in slide-in-from-top-2 duration-300">
                     {visibleSubtopics && visibleSubtopics.length > 0 ? (
                       visibleSubtopics.map((subtopic, subtopicIndex) => {
-                        const subSched = getScheduleInfo(subtopic, stageSched, currentTime);
+                        const subSched = getScheduleInfo(subtopic, stageSched);
                         const isSubtopicLocked = subSched.isLocked;
-
-                        const subItems = [];
-                        (subtopic.modules || []).forEach((m) => {
-                          (m.items || []).forEach((it) => subItems.push(it));
-                        });
-                        const isSubDone =
-                          subtopic.isCompleted ||
-                          completedMilestoneItemIds.includes(subtopic.id) ||
-                          (subItems.length > 0 && subItems.every((it) => completedMilestoneItemIds.includes(it.id)));
 
                         return (
                           <div key={subtopic.id} className="relative group/sub">
                             <div className="relative flex items-center gap-2">
                               <button
                                 onClick={() => handleSubtopicClick(stage, subtopic)}
-                                className={`w-full text-left rounded-2xl px-4 py-3.5 transition-all flex items-center justify-between group cursor-pointer border shadow-xs ${
-                                  isSubDone
-                                    ? 'bg-emerald-50/40 border-emerald-200 text-slate-900 hover:bg-emerald-50'
-                                    : 'bg-white hover:bg-purple-50/80 hover:border-purple-300 border-slate-200/90 text-slate-800'
-                                }`}
+                                className="w-full text-left rounded-2xl px-4 py-3.5 transition-all flex items-center justify-between group cursor-pointer border shadow-xs bg-white hover:bg-purple-50/80 hover:border-purple-300 border-slate-200/90 text-slate-800"
                               >
                                 <div className="flex items-center gap-3">
                                   <div
                                     className={`flex h-7 w-7 items-center justify-center rounded-xl font-bold text-xs flex-shrink-0 ${
-                                      isSubDone
-                                        ? 'bg-emerald-100 text-emerald-700'
-                                        : isSubtopicLocked
+                                      isSubtopicLocked
                                         ? 'bg-slate-100 text-slate-600'
                                         : 'bg-purple-100 text-purple-700'
                                     }`}
                                   >
-                                    {isSubDone ? <CheckCircle2 className="w-4 h-4 text-emerald-600" /> : subtopicIndex + 1}
+                                    {subtopicIndex + 1}
                                   </div>
                                   <div>
                                     <div className="flex items-center gap-2 flex-wrap">
                                       <span className="font-bold text-xs sm:text-sm block text-slate-900 group-hover:text-purple-700">
                                         {subtopic.title}
                                       </span>
-
-                                      {isSubDone && (
-                                        <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">
-                                          <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                                          <span>Completed</span>
-                                        </span>
-                                      )}
 
                                       {/* Subtopic Scheduled Date Badge (Admin Mode Only) */}
                                       {viewMode === 'admin' && subSched.hasSchedule && !subSched.inherited && (
@@ -1374,8 +1136,8 @@ export function MilestonesRoadmapPage() {
                       </span>
 
                       {viewMode === 'admin' && (() => {
-                        const stageSched = getScheduleInfo(activeStage, null, currentTime);
-                        const sInfo = getScheduleInfo(activeSubtopic, stageSched, currentTime);
+                        const stageSched = getScheduleInfo(activeStage);
+                        const sInfo = getScheduleInfo(activeSubtopic, stageSched);
                         return (
                           <span
                             className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border flex items-center gap-1 ${
@@ -1436,9 +1198,9 @@ export function MilestonesRoadmapPage() {
                   {activeSubtopic.modules && activeSubtopic.modules.length > 0 ? (
                     activeSubtopic.modules.map((module) => {
                       const isExpanded = expandedModule === module.id || activeSubtopic.modules.length === 1;
-                      const stageSched = getScheduleInfo(activeStage, null, currentTime);
-                      const subSched = getScheduleInfo(activeSubtopic, stageSched, currentTime);
-                      const modSched = getScheduleInfo(module, subSched, currentTime);
+                      const stageSched = getScheduleInfo(activeStage);
+                      const subSched = getScheduleInfo(activeSubtopic, stageSched);
+                      const modSched = getScheduleInfo(module, subSched);
                       const isModLocked = modSched.isLocked;
 
                       return (
@@ -1545,188 +1307,93 @@ export function MilestonesRoadmapPage() {
                               )}
 
                               {(() => {
-                                  const rawItems = module.items || [];
+                                const rawItems = module.items || [];
+                                const matchingAsmnts = (assessments || []).filter((a) => {
+                                  const subMatch =
+                                    (a.subtopicId && a.subtopicId === activeSubtopic.id) ||
+                                    (a.subtopicName && a.subtopicName === activeSubtopic.title) ||
+                                    (a.topicName && a.topicName === activeSubtopic.title);
+                                  const topicMatch =
+                                    (a.innerTopicId && a.innerTopicId === module.id) ||
+                                    (a.topicName && a.topicName === module.title);
+                                  return (subMatch && topicMatch) || a.topicName === module.title;
+                                });
 
-                                  // 1. Injected Assessments
-                                  const matchingAsmnts = (assessments || []).filter((a) => {
-                                    const subMatch =
-                                      (a.subtopicId && a.subtopicId === activeSubtopic.id) ||
-                                      (a.subtopicName && a.subtopicName === activeSubtopic.title) ||
-                                      (a.topicName && a.topicName === activeSubtopic.title);
-                                    const topicMatch =
-                                      (a.innerTopicId && a.innerTopicId === module.id) ||
-                                      (a.topicName && a.topicName === module.title);
-                                    return (subMatch && topicMatch) || a.topicName === module.title;
-                                  });
+                                const injected = matchingAsmnts.map((a) => ({
+                                  id: `item-asm-${a.id}`,
+                                  assessmentId: a.id,
+                                  type: 'ASSESSMENT',
+                                  typeColor: 'bg-purple-100 text-purple-700 border-purple-200',
+                                  iconName: 'FileCheck',
+                                  iconBg: 'bg-purple-600 text-white',
+                                  title: a.title,
+                                  actionText: 'TAKE',
+                                  url: '/assessments',
+                                  btnStyle: 'bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30'
+                                }));
 
-                                  const injectedAsmnts = matchingAsmnts.map((a) => ({
-                                    id: `item-asm-${a.id}`,
-                                    assessmentId: a.id,
-                                    type: 'ASSESSMENT',
-                                    typeColor: 'bg-purple-100 text-purple-700 border-purple-200',
-                                    iconName: 'FileCheck',
-                                    iconBg: 'bg-purple-600 text-white',
-                                    title: a.title,
-                                    actionText: 'TAKE',
-                                    url: '/assessments',
-                                    btnStyle: 'bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30'
-                                  }));
-
-                                  // 2. Injected Live Sessions
-                                  const matchingLiveSessions = (liveSessions || []).filter((s) => {
-                                    const subMatch =
-                                      (s.subtopicId && s.subtopicId === activeSubtopic.id) ||
-                                      (s.subtopicName && s.subtopicName === activeSubtopic.title) ||
-                                      (s.topic_id && s.topic_id.includes(activeSubtopic.id)) ||
-                                      (s.technology && activeSubtopic.title?.toLowerCase().includes(s.technology.toLowerCase())) ||
-                                      (s.sessionTitle && activeSubtopic.title?.toLowerCase().includes(s.sessionTitle.toLowerCase().split(' ')[0]));
-                                    const modMatch =
-                                      (s.moduleId && s.moduleId === module.id) ||
-                                      (s.moduleName && s.moduleName === module.title) ||
-                                      (s.topic_id && s.topic_id.includes(module.id)) ||
-                                      (s.sessionTitle && module.title?.toLowerCase().includes(s.sessionTitle.toLowerCase())) ||
-                                      (s.technology && module.title?.toLowerCase().includes(s.technology.toLowerCase()));
-                                    return (subMatch && modMatch) || (subMatch && !s.moduleId);
-                                  });
-
-                                  const injectedLive = matchingLiveSessions.map((s) => ({
-                                    id: `item-live-${s.id}`,
-                                    sessionId: s.id,
-                                    type: 'LIVE CLASS',
-                                    typeColor: 'bg-purple-100 text-purple-700 border-purple-200',
-                                    iconName: 'Video',
-                                    iconBg: 'bg-purple-600 text-white',
-                                    title: s.sessionTitle || s.title || 'Live Class Masterclass',
-                                    actionText: 'JOIN',
-                                    url: s.meetingLink || s.meeting_link || 'https://meet.google.com/aspire-lms-live',
-                                    btnStyle: 'bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30'
-                                  }));
-
-                                  const existingIds = new Set(rawItems.map((i) => i.id || i.title?.toLowerCase()));
-                                  const filteredInjectedAsmnts = injectedAsmnts.filter(
-                                    (i) => !existingIds.has(i.id) && !existingIds.has(i.title?.toLowerCase())
-                                  );
-                                  const filteredInjectedLive = injectedLive.filter(
-                                    (i) => !existingIds.has(i.id) && !existingIds.has(i.title?.toLowerCase())
-                                  );
-
-                                  // Ensure raw items with matching live session sync latest meeting link
-                                  const syncedRawItems = rawItems.map((item) => {
-                                    if (item.type === 'LIVE CLASS') {
-                                      const matchedSess = (liveSessions || []).find(
-                                        (s) =>
-                                          s.id === item.sessionId ||
-                                          `item-live-${s.id}` === item.id ||
-                                          (item.title && s.sessionTitle && item.title.toLowerCase().includes(s.sessionTitle.toLowerCase())) ||
-                                          (item.title && s.technology && item.title.toLowerCase().includes(s.technology.toLowerCase()))
-                                      );
-                                      if (matchedSess && (matchedSess.meetingLink || matchedSess.meeting_link)) {
-                                        return {
-                                          ...item,
-                                          url: matchedSess.meetingLink || matchedSess.meeting_link
-                                        };
-                                      }
-                                    }
-                                    return item;
-                                  });
-
-                                  const moduleDisplayItems = [...syncedRawItems, ...filteredInjectedLive, ...filteredInjectedAsmnts];
+                                const existingIds = new Set(rawItems.map((i) => i.id || i.title?.toLowerCase()));
+                                const filteredInjected = injected.filter(
+                                  (i) => !existingIds.has(i.id) && !existingIds.has(i.title?.toLowerCase())
+                                );
+                                const moduleDisplayItems = [...rawItems, ...filteredInjected];
 
                                 return moduleDisplayItems.length > 0 ? (
-                                  moduleDisplayItems.map((item) => {
-                                    const isItemDone = completedMilestoneItemIds.includes(item.id);
-
-                                    return (
-                                      <div
-                                        key={item.id}
-                                        className={`p-3.5 rounded-xl border flex items-center justify-between gap-3 transition-all group/item ${
-                                          isItemDone
-                                            ? 'bg-emerald-50/40 border-emerald-200'
-                                            : 'border-slate-100 bg-slate-50/50 hover:bg-slate-50'
-                                        }`}
-                                      >
-                                        <div className="flex items-center gap-3">
-                                          {/* Interactive Completion Toggle Button */}
-                                          <button
-                                            type="button"
-                                            onClick={(e) => {
-                                              e.stopPropagation();
-                                              toggleItemCompletion(item.id);
-                                              const nextDone = !isItemDone;
-                                              addToast(
-                                                nextDone
-                                                  ? `✅ Completed "${item.title}"! Progress updated.`
-                                                  : `Unmarked "${item.title}"`,
-                                                'info'
-                                              );
-                                            }}
-                                            title={isItemDone ? 'Topic Completed (Click to unmark)' : 'Click to mark as completed'}
-                                            className={`flex-shrink-0 p-1.5 rounded-lg border transition-all cursor-pointer flex items-center justify-center ${
-                                              isItemDone
-                                                ? 'bg-emerald-100 text-emerald-700 border-emerald-300 shadow-2xs hover:bg-emerald-200'
-                                                : 'bg-white text-slate-300 border-slate-200 hover:text-purple-600 hover:border-purple-300'
+                                  moduleDisplayItems.map((item) => (
+                                    <div
+                                      key={item.id}
+                                      className="p-3.5 rounded-xl border border-slate-100 bg-slate-50/50 hover:bg-slate-50 flex items-center justify-between gap-3 transition-colors group/item"
+                                    >
+                                      <div className="flex items-center gap-3">
+                                        {renderItemIcon(item.iconName, item.iconBg, false)}
+                                        <div>
+                                          <span
+                                            className={`text-[9px] font-black tracking-wider uppercase px-2 py-0.5 rounded border inline-block mb-0.5 ${
+                                              item.typeColor || 'bg-purple-100 text-purple-700 border-purple-200'
                                             }`}
                                           >
-                                            <CheckCircle2 className={`w-4 h-4 ${isItemDone ? 'text-emerald-600' : 'text-slate-300'}`} />
-                                          </button>
-
-                                          {renderItemIcon(item.iconName, item.iconBg, false)}
-                                          <div>
-                                            <div className="flex items-center gap-1.5 mb-0.5">
-                                              <span
-                                                className={`text-[9px] font-black tracking-wider uppercase px-2 py-0.5 rounded border inline-block ${
-                                                  item.typeColor || 'bg-purple-100 text-purple-700 border-purple-200'
-                                                }`}
-                                              >
-                                                {item.type}
-                                              </span>
-                                              {isItemDone && (
-                                                <span className="text-[9px] font-extrabold px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-700 border border-emerald-200">
-                                                  COMPLETED
-                                                </span>
-                                              )}
-                                            </div>
-                                            <h4 className="text-xs font-bold text-slate-800 leading-tight">{item.title}</h4>
-                                          </div>
-                                        </div>
-
-                                        <div className="flex items-center gap-1.5">
-                                          {/* Action Button: JOIN, VIEW, TAKE - Visible & Interactive */}
-                                          <button
-                                            onClick={() =>
-                                              handleActionClick(item.actionText, item.title, item.url, isModLocked, modSched, item.id)
-                                            }
-                                            className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 transition-all cursor-pointer ${
-                                              item.btnStyle || 'bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30'
-                                            }`}
-                                            title={`${item.actionText} ${item.title}`}
-                                          >
-                                            <span>{item.actionText}</span>
-                                            <ExternalLink className="w-3 h-3" />
-                                          </button>
-
-                                          {viewMode === 'admin' && (
-                                            <div className="flex items-center gap-0.5 border-l border-slate-200 pl-1">
-                                              <button
-                                                onClick={() => handleOpenItemModal(module.id, item)}
-                                                title="Edit Item"
-                                                className="p-1 text-slate-400 hover:text-purple-600 rounded cursor-pointer"
-                                              >
-                                                <Edit2 className="w-3 h-3" />
-                                              </button>
-                                              <button
-                                                onClick={() => handleDeleteItem(module.id, item.id, item.title)}
-                                                title="Delete Item"
-                                                className="p-1 text-slate-400 hover:text-rose-600 rounded cursor-pointer"
-                                              >
-                                                <Trash2 className="w-3 h-3" />
-                                              </button>
-                                            </div>
-                                          )}
+                                            {item.type}
+                                          </span>
+                                          <h4 className="text-xs font-bold text-slate-800 leading-tight">{item.title}</h4>
                                         </div>
                                       </div>
-                                    );
-                                  })
+
+                                      <div className="flex items-center gap-1.5">
+                                        {/* Action Button: JOIN, VIEW, TAKE - Visible & Interactive */}
+                                        <button
+                                          onClick={() =>
+                                            handleActionClick(item.actionText, item.title, item.url, isModLocked, modSched)
+                                          }
+                                          className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 transition-all cursor-pointer ${
+                                            item.btnStyle || 'bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30'
+                                          }`}
+                                          title={`${item.actionText} ${item.title}`}
+                                        >
+                                          <span>{item.actionText}</span>
+                                          <ExternalLink className="w-3 h-3" />
+                                        </button>
+
+                                        {viewMode === 'admin' && (
+                                          <div className="flex items-center gap-0.5 border-l border-slate-200 pl-1">
+                                            <button
+                                              onClick={() => handleOpenItemModal(module.id, item)}
+                                              title="Edit Item"
+                                              className="p-1 text-slate-400 hover:text-purple-600 rounded cursor-pointer"
+                                            >
+                                              <Edit2 className="w-3 h-3" />
+                                            </button>
+                                            <button
+                                              onClick={() => handleDeleteItem(module.id, item.id, item.title)}
+                                              title="Delete Item"
+                                              className="p-1 text-slate-400 hover:text-rose-600 rounded cursor-pointer"
+                                            >
+                                              <Trash2 className="w-3 h-3" />
+                                            </button>
+                                          </div>
+                                        )}
+                                      </div>
+                                    </div>
+                                  ))
                                 ) : (
                                   <div className="text-center py-4 text-xs text-slate-400 space-y-2">
                                     <p>No learning items added yet to this module.</p>
