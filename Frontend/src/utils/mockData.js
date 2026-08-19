@@ -121,6 +121,75 @@ export const INITIAL_RECORDINGS = [];
 
 export const INITIAL_PLACEMENT_RESOURCES = [];
 
+export const INITIAL_PROJECTS = [
+  {
+    id: 'proj-py-data-analyzer',
+    title: 'Python Data Analyzer',
+    type: 'Mini',
+    category: 'Module 2: Python Fundamentals',
+    difficulty: 'Beginner',
+    description: 'Build a Python script that analyzes, cleans, and generates insights from raw CSV data.',
+    techStack: ['Python', 'Pandas', 'Data Cleaning'],
+    dueDate: 'Aug 20',
+    status: 'Assigned',
+    assignedCount: 2,
+    submittedCount: 0,
+    feedbackCount: 0,
+    avgGrade: 0,
+    overview: 'Build a Python script that analyzes, cleans, and generates insights from raw CSV data. Develop a production-ready solution adhering to industry coding standards, modular component organization, and clean user experience.',
+    requirements: [
+      { title: 'Responsive UI & Modern Layout', desc: 'Ensure seamless experience across mobile, tablet, and desktop viewports.' },
+      { title: 'Input Validation & State Handling', desc: 'Implement validation rules, error feedback, and loading states for async actions.' },
+      { title: 'Clean Code & Version Control', desc: 'Submit clean code with meaningful commit messages and proper file structuring.' }
+    ],
+    steps: [
+      'Setup project repository',
+      'Build core feature logic',
+      'Submit drive link'
+    ],
+    rubric: [
+      { label: 'UI/UX & Responsiveness', weight: '35%' },
+      { label: 'Functionality & Logic', weight: '35%' },
+      { label: 'Code Quality & Cleanliness', weight: '30%' }
+    ],
+    mentorTip: 'Test code thoroughly before submitting drive link.',
+    targetBatch: 'Weekday Batch'
+  },
+  {
+    id: 'proj-django-rest-redis',
+    title: 'Django REST API & Redis Cache',
+    type: 'Mini',
+    category: 'Module 3: Backend & DSA',
+    difficulty: 'Intermediate',
+    description: 'Build a robust Django REST API with JWT authentication and Redis caching for database queries.',
+    techStack: ['Python', 'Django', 'Redis'],
+    dueDate: 'Sep 10',
+    status: 'Assigned',
+    assignedCount: 2,
+    submittedCount: 0,
+    feedbackCount: 0,
+    avgGrade: 0,
+    overview: 'Build a robust Django REST API with JWT authentication and Redis caching for database queries.',
+    requirements: [
+      { title: 'JWT Authentication & Security', desc: 'Secure endpoints with JWT access and refresh tokens.' },
+      { title: 'Redis Caching Layer', desc: 'Cache frequently accessed database query results in Redis.' },
+      { title: 'API Documentation & Tests', desc: 'Write comprehensive Swagger/OpenAPI docs and unit tests.' }
+    ],
+    steps: [
+      'Setup Django project & app schema',
+      'Configure Redis cache backend',
+      'Implement JWT auth middleware'
+    ],
+    rubric: [
+      { label: 'API Architecture & Security', weight: '40%' },
+      { label: 'Redis Caching Performance', weight: '35%' },
+      { label: 'Unit Tests & Coverage', weight: '25%' }
+    ],
+    mentorTip: 'Use Redis CLI to inspect cache key expiration times during development.',
+    targetBatch: 'Weekday Batch'
+  }
+];
+
 export const MOCK_ACTIVITIES = [];
 
 export const API_FEED_STATUS = {
@@ -132,8 +201,6 @@ export const API_FEED_STATUS = {
   jobPostingsLive: 0,
   recordingsPublished: 0
 };
-
-export const INITIAL_PROJECTS = [];
 
 export const INITIAL_CODING_QUESTIONS = [];
 

@@ -3,7 +3,6 @@ import { useLmsData } from '../../context/LmsDataContext';
 import { useToast } from '../../context/ToastContext';
 import { Badge } from '../../components/common/Badge';
 import { EmptyState } from '../../components/common/EmptyState';
-import { BatchFilterSelector } from '../../components/common/BatchFilterSelector';
 import { Button } from '../../components/common/Button';
 import { Input, Select } from '../../components/common/Input';
 import { Modal } from '../../components/common/Modal';
@@ -14,77 +13,94 @@ import {
   Search,
   Clock,
   CheckCircle2,
-  MessageSquare,
   Star,
   ExternalLink,
-  Code2,
   Trash2,
-  Edit3,
+  Edit2,
   Sparkles,
   ArrowRight,
-  Filter,
-  Check,
-  Send,
+  ArrowLeft,
+  UploadCloud,
+  FileCode2,
+  Lightbulb,
+  CheckSquare,
+  Square,
+  Eye,
+  Calendar,
   Layers,
-  BookOpen
+  BookOpen,
+  EyeOff,
+  Lock,
+  Unlock
 } from 'lucide-react';
 
 export function ProjectManagementPage() {
-  const { projects, addProject, updateProject, deleteProject, gradeSubmission, activeBatchFilter, setActiveBatchFilter } = useLmsData();
+  const { projects = [], addProject, updateProject, deleteProject } = useLmsData();
   const { addToast } = useToast();
 
-  const [activeTab, setActiveTab] = useState('assigned'); // 'assigned' | 'submitted' | 'feedback' | 'templates'
+  // Navigation & Filter States
+  const [projectTypeTab, setProjectTypeTab] = useState('Mini Projects'); // 'Mini Projects' | 'Major Projects' | 'Capstone Projects' | 'Templates'
+  const [statusFilterTab, setStatusFilterTab] = useState('Assigned'); // 'Assigned' | 'Submitted' | 'Mentor Feedback'
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedType, setSelectedType] = useState('All');
-  const [selectedCategory, setSelectedCategory] = useState('All');
-  const [selectedDifficulty, setSelectedDifficulty] = useState('All');
-  const [selectedStatus, setSelectedStatus] = useState('All');
+
+  // Selected Project for Detail View (Matching Image 2 & Image 3)
+  const [activeProjectDetail, setActiveProjectDetail] = useState(null);
 
   // Modal States
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [editingProject, setEditingProject] = useState(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
 
-  // Grade Modal State
-  const [gradingSubmission, setGradingSubmission] = useState(null); // { projectId, submission }
-  const [gradeInput, setGradeInput] = useState('');
-  const [feedbackInput, setFeedbackInput] = useState('');
-
-  // Form State
+  // Form State for Add / Edit
   const [formData, setFormData] = useState({
     title: '',
     type: 'Mini',
-    category: 'Full-Stack Web Dev',
-    difficulty: 'Intermediate',
+    category: 'Module 2: Python Fundamentals',
+    difficulty: 'Beginner',
     description: '',
-    techStack: 'React, Node.js, PostgreSQL',
-    dueDate: 'Due Aug 25',
-    templateUrl: 'https://github.com/aspire-lms/starter-repo',
-    guidelines: 'Include clear setup instructions and clean code formatting.'
+    techStack: 'Python, Pandas, Data Cleaning',
+    dueDate: 'Aug 20',
+    status: 'Assigned',
+    overview: 'Build a Python script that analyzes, cleans, and generates insights from raw CSV data. Develop a production-ready solution adhering to industry coding standards, modular component organization, and clean user experience.',
+    requirements: 'Responsive UI & Modern Layout: Ensure seamless experience across mobile, tablet, and desktop viewports.\nInput Validation & State Handling: Implement validation rules, error feedback, and loading states for async actions.\nClean Code & Version Control: Submit clean code with meaningful commit messages and proper file structuring.',
+    steps: 'Setup project repository\nBuild core feature logic\nSubmit drive link',
+    rubric: 'UI/UX & Responsiveness: 35%\nFunctionality & Logic: 35%\nCode Quality & Cleanliness: 30%',
+    mentorTip: 'Test code thoroughly before submitting drive link.'
   });
 
-  // Calculate Overall Metrics matching screenshot
+  // Calculate Overall Metrics
   const totalAssigned = projects.reduce((acc, p) => acc + (p.assignedCount || 1), 0);
   const totalSubmitted = projects.reduce((acc, p) => acc + (p.submittedCount || 0), 0);
   const totalFeedback = projects.reduce((acc, p) => acc + (p.feedbackCount || 0), 0);
-  const gradedProjects = projects.filter((p) => p.avgGrade > 0);
+  const gradedProjects = projects.filter((p) => (p.avgGrade || 0) > 0);
   const overallAvgGrade = gradedProjects.length > 0
     ? Math.round(gradedProjects.reduce((acc, p) => acc + p.avgGrade, 0) / gradedProjects.length)
     : 89;
 
-  // Filter projects
+  // Category Tabs Filter Logic
   const filteredProjects = projects.filter((proj) => {
-    const matchesSearch =
-      proj.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      proj.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      proj.techStack.some((t) => t.toLowerCase().includes(searchTerm.toLowerCase()));
+    if (!proj) return false;
+    const title = (proj.title || '').toLowerCase();
+    const desc = (proj.description || '').toLowerCase();
+    const cat = (proj.category || '').toLowerCase();
+    const query = (searchTerm || '').toLowerCase();
 
-    const matchesType = selectedType === 'All' || (proj.type || 'Mini') === selectedType;
-    const matchesCategory = selectedCategory === 'All' || proj.category === selectedCategory;
-    const matchesDifficulty = selectedDifficulty === 'All' || proj.difficulty === selectedDifficulty;
-    const matchesStatus = selectedStatus === 'All' || proj.status === selectedStatus;
+    const matchesSearch = title.includes(query) || desc.includes(query) || cat.includes(query);
 
-    return matchesSearch && matchesType && matchesCategory && matchesDifficulty && matchesStatus;
+    // Type Match
+    let matchesType = true;
+    if (projectTypeTab === 'Mini Projects') matchesType = (proj.type || 'Mini').toLowerCase().includes('mini');
+    else if (projectTypeTab === 'Major Projects') matchesType = (proj.type || '').toLowerCase().includes('major');
+    else if (projectTypeTab === 'Capstone Projects') matchesType = (proj.type || '').toLowerCase().includes('capstone');
+    else if (projectTypeTab === 'Templates') matchesType = (proj.type || '').toLowerCase().includes('template');
+
+    // Status Tab Match
+    let matchesStatus = true;
+    if (statusFilterTab === 'Assigned') matchesStatus = (proj.status || 'Assigned').toLowerCase() === 'assigned';
+    else if (statusFilterTab === 'Submitted') matchesStatus = (proj.status || '').toLowerCase() === 'submitted';
+    else if (statusFilterTab === 'Mentor Feedback') matchesStatus = (proj.status || '').toLowerCase() === 'feedback' || (proj.status || '').toLowerCase().includes('mentor');
+
+    return matchesSearch && matchesType && matchesStatus;
   });
 
   const handleOpenCreateModal = () => {
@@ -92,13 +108,17 @@ export function ProjectManagementPage() {
     setFormData({
       title: '',
       type: 'Mini',
-      category: 'Full-Stack Web Dev',
-      difficulty: 'Intermediate',
+      category: 'Module 2: Python Fundamentals',
+      difficulty: 'Beginner',
       description: '',
-      techStack: 'React, Node.js, PostgreSQL',
-      dueDate: 'Due Aug 25',
-      templateUrl: 'https://github.com/aspire-lms/starter-repo',
-      guidelines: 'Include clean commits and unit tests.'
+      techStack: 'Python, Pandas, Data Cleaning',
+      dueDate: 'Aug 20',
+      status: 'Assigned',
+      overview: 'Build a Python script that analyzes, cleans, and generates insights from raw CSV data. Develop a production-ready solution adhering to industry coding standards, modular component organization, and clean user experience.',
+      requirements: 'Responsive UI & Modern Layout: Ensure seamless experience across mobile, tablet, and desktop viewports.\nInput Validation & State Handling: Implement validation rules, error feedback, and loading states for async actions.\nClean Code & Version Control: Submit clean code with meaningful commit messages and proper file structuring.',
+      steps: 'Setup project repository\nBuild core feature logic\nSubmit drive link',
+      rubric: 'UI/UX & Responsiveness: 35%\nFunctionality & Logic: 35%\nCode Quality & Cleanliness: 30%',
+      mentorTip: 'Test code thoroughly before submitting drive link.'
     });
     setIsCreateModalOpen(true);
   };
@@ -106,15 +126,23 @@ export function ProjectManagementPage() {
   const handleOpenEditModal = (proj) => {
     setEditingProject(proj);
     setFormData({
-      title: proj.title,
+      title: proj.title || '',
       type: proj.type || 'Mini',
-      category: proj.category,
-      difficulty: proj.difficulty,
-      description: proj.description,
-      techStack: proj.techStack.join(', '),
-      dueDate: proj.dueDate,
-      templateUrl: proj.templateUrl || '',
-      guidelines: proj.guidelines || ''
+      category: proj.category || 'Module 2: Python Fundamentals',
+      difficulty: proj.difficulty || 'Beginner',
+      description: proj.description || '',
+      techStack: Array.isArray(proj.techStack) ? proj.techStack.join(', ') : (proj.techStack || ''),
+      dueDate: proj.dueDate || 'Aug 20',
+      status: proj.status || 'Assigned',
+      overview: proj.overview || proj.description || '',
+      requirements: Array.isArray(proj.requirements)
+        ? proj.requirements.map(r => typeof r === 'string' ? r : `${r.title}: ${r.desc}`).join('\n')
+        : (proj.requirements || ''),
+      steps: Array.isArray(proj.steps) ? proj.steps.join('\n') : (proj.steps || ''),
+      rubric: Array.isArray(proj.rubric)
+        ? proj.rubric.map(r => `${r.label}: ${r.weight}`).join('\n')
+        : (proj.rubric || ''),
+      mentorTip: proj.mentorTip || 'Test code thoroughly before submitting drive link.'
     });
     setIsCreateModalOpen(true);
   };
@@ -122,100 +150,68 @@ export function ProjectManagementPage() {
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     if (!formData.title || !formData.description) {
-      addToast('Please fill in title and description', 'error');
+      addToast('Please fill in project title and description', 'error');
       return;
     }
 
-    const formattedTechStack = formData.techStack
-      .split(',')
-      .map((t) => t.trim())
-      .filter((t) => t.length > 0);
+    const techStackList = typeof formData.techStack === 'string'
+      ? formData.techStack.split(',').map((t) => t.trim()).filter(Boolean)
+      : formData.techStack;
+
+    const requirementsList = typeof formData.requirements === 'string'
+      ? formData.requirements.split('\n').filter(Boolean).map(line => {
+          if (line.includes(':')) {
+            const [t, d] = line.split(':');
+            return { title: t.trim(), desc: d.trim() };
+          }
+          return { title: line.trim(), desc: '' };
+        })
+      : formData.requirements;
+
+    const stepsList = typeof formData.steps === 'string'
+      ? formData.steps.split('\n').filter(Boolean)
+      : formData.steps;
+
+    const rubricList = typeof formData.rubric === 'string'
+      ? formData.rubric.split('\n').filter(Boolean).map(line => {
+          if (line.includes(':')) {
+            const [l, w] = line.split(':');
+            return { label: l.trim(), weight: w.trim() };
+          }
+          return { label: line.trim(), weight: '33%' };
+        })
+      : formData.rubric;
+
+    const payload = {
+      ...formData,
+      techStack: techStackList,
+      requirements: requirementsList,
+      steps: stepsList,
+      rubric: rubricList
+    };
 
     if (editingProject) {
-      await updateProject(editingProject.id, {
-        title: formData.title,
-        type: formData.type,
-        category: formData.category,
-        difficulty: formData.difficulty,
-        description: formData.description,
-        techStack: formattedTechStack,
-        dueDate: formData.dueDate,
-        templateUrl: formData.templateUrl,
-        guidelines: formData.guidelines
-      });
+      await updateProject(editingProject.id, payload);
       addToast(`Updated project: "${formData.title}"`, 'success');
     } else {
-      await addProject({
-        title: formData.title,
-        type: formData.type,
-        category: formData.category,
-        difficulty: formData.difficulty,
-        description: formData.description,
-        techStack: formattedTechStack,
-        dueDate: formData.dueDate,
-        templateUrl: formData.templateUrl,
-        guidelines: formData.guidelines
-      });
-      addToast(`Published new project: "${formData.title}"`, 'success');
+      await addProject(payload);
+      addToast(`Published project: "${formData.title}"`, 'success');
     }
 
     setIsCreateModalOpen(false);
+    setEditingProject(null);
   };
 
   const handleDelete = async () => {
     if (deleteConfirmId) {
       await deleteProject(deleteConfirmId);
-      addToast('Project assignment deleted', 'info');
+      addToast('Project deleted successfully', 'info');
       setDeleteConfirmId(null);
+      if (activeProjectDetail?.id === deleteConfirmId) {
+        setActiveProjectDetail(null);
+      }
     }
   };
-
-  const handleOpenGradeModal = (projectId, submission) => {
-    setGradingSubmission({ projectId, submission });
-    setGradeInput(submission.grade || 85);
-    setFeedbackInput(submission.mentorFeedback || '');
-  };
-
-  const handleSaveGrade = async (e) => {
-    e.preventDefault();
-    if (!gradingSubmission) return;
-
-    await gradeSubmission(
-      gradingSubmission.projectId,
-      gradingSubmission.submission.id,
-      gradeInput,
-      feedbackInput
-    );
-    addToast(`Saved feedback & grade for ${gradingSubmission.submission.studentName}`, 'success');
-    setGradingSubmission(null);
-  };
-
-  // Helper for project type badge
-  const getTypeBadge = (type) => {
-    switch (type) {
-      case 'Capstone':
-        return (
-          <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-purple-100 text-purple-700 border border-purple-200/60">
-            Capstone
-          </span>
-        );
-      case 'Major':
-        return (
-          <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-700 border border-amber-200/60">
-            Major
-          </span>
-        );
-      case 'Mini':
-      default:
-        return (
-          <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-indigo-100 text-indigo-700 border border-indigo-200/60">
-            Mini
-          </span>
-        );
-    }
-  };
-
-  // Helper for difficulty badge styling matching screenshot
   const getDifficultyBadge = (difficulty) => {
     switch (difficulty) {
       case 'Advanced':
