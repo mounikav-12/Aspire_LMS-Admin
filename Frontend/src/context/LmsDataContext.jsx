@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import { useAuth } from './AuthContext';
 import {
@@ -402,6 +402,8 @@ export function LmsDataProvider({ children }) {
     return createInitialMilestonesByBatch();
   });
 
+  const lastSyncedMilestonesRef = useRef('');
+
   useEffect(() => {
     try {
       localStorage.setItem('aspire_lms_milestones_by_batch', JSON.stringify(milestonesByBatch));
@@ -409,32 +411,51 @@ export function LmsDataProvider({ children }) {
         localStorage.setItem('aspire_lms_milestones', JSON.stringify(milestonesByBatch['Weekday Batch']));
       }
 
-      const weekdayStages = milestonesByBatch['Weekday Batch']?.stages || milestonesByBatch['default']?.stages || [];
-      const weekdayOverview = milestonesByBatch['Weekday Batch']?.overview || {};
+      const stringified = JSON.stringify(milestonesByBatch);
+      if (lastSyncedMilestonesRef.current === stringified) {
+        return;
+      }
 
-      // 1. Sync batch_data to Supabase PostgreSQL table
-      supabase
-        .from('milestones_data')
-        .upsert({
-          id: 'batch_data',
-          overview: { batchData: milestonesByBatch },
-          stages: weekdayStages,
-          updated_at: new Date().toISOString()
-        })
-        .then(() => {})
-        .catch((e) => console.warn('Supabase milestones batch sync error:', e));
+      const timer = setTimeout(() => {
+        lastSyncedMilestonesRef.current = stringified;
+        const weekdayStages = milestonesByBatch['Weekday Batch']?.stages || milestonesByBatch['default']?.stages || [];
+        const weekdayOverview = milestonesByBatch['Weekday Batch']?.overview || {};
 
-      // 2. Sync default row to Supabase
-      supabase
-        .from('milestones_data')
-        .upsert({
-          id: 'default',
-          overview: weekdayOverview,
-          stages: weekdayStages,
-          updated_at: new Date().toISOString()
-        })
-        .then(() => {})
-        .catch((e) => console.warn('Supabase milestones default sync error:', e));
+        // 1. Sync batch_data to Supabase PostgreSQL table
+        supabase
+          .from('milestones_data')
+          .upsert({
+            id: 'batch_data',
+            overview: { batchData: milestonesByBatch },
+            stages: weekdayStages,
+            updated_at: new Date().toISOString()
+          })
+          .then(() => {})
+          .catch((e) => console.warn('Supabase milestones batch sync error:', e));
+
+        // 2. Sync default row to Supabase
+        supabase
+          .from('milestones_data')
+          .upsert({
+            id: 'default',
+            overview: weekdayOverview,
+            stages: weekdayStages,
+            updated_at: new Date().toISOString()
+          })
+          .then(() => {})
+          .catch((e) => console.warn('Supabase milestones default sync error:', e));
+
+        // 3. Fallback sync to local Express backend API
+        try {
+          fetch('/api/milestones', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ batchData: milestonesByBatch, overview: weekdayOverview })
+          }).catch(() => {});
+        } catch (err) {}
+      }, 500);
+
+      return () => clearTimeout(timer);
     } catch (e) {}
   }, [milestonesByBatch]);
 
@@ -554,23 +575,46 @@ export function LmsDataProvider({ children }) {
     return ['git-intro-m1-live', 'git-intro-m1-lab'];
   });
 
+  const lastSyncedCompletedRef = useRef('');
+
   useEffect(() => {
     try {
       localStorage.setItem('aspire_lms_completed_milestone_items_v1', JSON.stringify(completedMilestoneItemIds));
-      supabase
-        .from('milestones_data')
-        .upsert({
-          id: 'completed_items',
-          overview: { itemIds: completedMilestoneItemIds },
-          stages: [],
-          updated_at: new Date().toISOString()
-        })
-        .then(() => {})
-        .catch((e) => console.warn('Supabase completion sync error:', e));
+
+      const stringified = JSON.stringify([...completedMilestoneItemIds].sort());
+      if (lastSyncedCompletedRef.current === stringified) {
+        return;
+      }
+
+      const timer = setTimeout(() => {
+        lastSyncedCompletedRef.current = stringified;
+
+        supabase
+          .from('milestones_data')
+          .upsert({
+            id: 'completed_items',
+            overview: { itemIds: completedMilestoneItemIds },
+            stages: [],
+            updated_at: new Date().toISOString()
+          })
+          .then(() => {})
+          .catch((e) => console.warn('Supabase completion sync error:', e));
+
+        try {
+          fetch('/api/milestones/completion', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ completedItemIds: completedMilestoneItemIds })
+          }).catch(() => {});
+        } catch (e) {}
+      }, 400);
+
+      return () => clearTimeout(timer);
     } catch (e) {}
   }, [completedMilestoneItemIds]);
 
   const toggleItemCompletion = (itemId) => {
+    if (!itemId) return;
     setCompletedMilestoneItemIds((prev) => {
       const isAlready = prev.includes(itemId);
       if (isAlready) {
@@ -582,11 +626,41 @@ export function LmsDataProvider({ children }) {
   };
 
   const markItemCompleted = (itemId) => {
+    if (!itemId) return;
     setCompletedMilestoneItemIds((prev) => {
       if (!prev.includes(itemId)) {
         return [...prev, itemId];
       }
       return prev;
+    });
+  };
+
+  const unmarkItemCompleted = (itemId) => {
+    if (!itemId) return;
+    setCompletedMilestoneItemIds((prev) => prev.filter((id) => id !== itemId));
+  };
+
+  const toggleSubtopicCompletion = (subtopic) => {
+    if (!subtopic) return;
+    const subItems = [];
+    (subtopic.modules || []).forEach((mod) => {
+      (mod.items || []).forEach((item) => {
+        if (item && item.id) subItems.push(item.id);
+      });
+    });
+
+    setCompletedMilestoneItemIds((prev) => {
+      const isSubDone =
+        prev.includes(subtopic.id) ||
+        (subItems.length > 0 && subItems.every((id) => prev.includes(id)));
+
+      if (isSubDone) {
+        const removeSet = new Set([subtopic.id, ...subItems]);
+        return prev.filter((id) => !removeSet.has(id));
+      } else {
+        const nextSet = new Set([...prev, subtopic.id, ...subItems]);
+        return Array.from(nextSet);
+      }
     });
   };
 
@@ -853,14 +927,22 @@ export function LmsDataProvider({ children }) {
       if (!milesErr && milesData && milesData.length > 0) {
         const batchRow = milesData.find(m => m.id === 'batch_data');
         if (batchRow && batchRow.overview && batchRow.overview.batchData) {
-          setMilestonesByBatch(batchRow.overview.batchData);
+          setMilestonesByBatch(prev => {
+            const nextData = batchRow.overview.batchData;
+            if (JSON.stringify(prev) === JSON.stringify(nextData)) return prev;
+            return nextData;
+          });
         } else {
           const defaultRow = milesData.find(m => m.id === 'default');
           if (defaultRow && defaultRow.stages && defaultRow.stages.length > 0) {
             const overview = defaultRow.overview || {};
-            setMilestonesByBatch({
+            const nextData = {
               'Weekday Batch': { overview, stages: defaultRow.stages },
               'Weekend Batch': { overview, stages: defaultRow.stages }
+            };
+            setMilestonesByBatch(prev => {
+              if (JSON.stringify(prev) === JSON.stringify(nextData)) return prev;
+              return nextData;
             });
           }
         }
@@ -1012,12 +1094,14 @@ export function LmsDataProvider({ children }) {
         if (payload?.new) {
           const row = payload.new;
           if (row.id === 'batch_data' && row.overview?.batchData) {
-            setMilestonesByBatch(row.overview.batchData);
+            setMilestonesByBatch(prev => {
+              if (JSON.stringify(prev) === JSON.stringify(row.overview.batchData)) return prev;
+              return row.overview.batchData;
+            });
           } else if (row.id === 'completed_items' && Array.isArray(row.overview?.itemIds)) {
             setCompletedMilestoneItemIds(row.overview.itemIds);
           }
         }
-        fetchSupabaseData();
       });
       makeChannel('courses', () => fetchSupabaseData());
       makeChannel('assessments', () => fetchSupabaseData());
@@ -2133,7 +2217,8 @@ export function LmsDataProvider({ children }) {
     updateBatchState(targetBatch, (batchData) => ({
       ...batchData,
       stages: (batchData.stages || []).map((stg) => {
-        if (stg.id !== stageId) return stg;
+        const isMatch = stg.id === stageId || stg.id.replace(/-[ws]$/, '') === String(stageId).replace(/-[ws]$/, '');
+        if (!isMatch) return stg;
         const merged = { ...stg, ...updatedData };
         if (updatedData.unlockDate !== undefined || updatedData.unlockTime !== undefined) {
           const uDate = updatedData.unlockDate !== undefined ? updatedData.unlockDate : stg.unlockDate;
@@ -2152,7 +2237,8 @@ export function LmsDataProvider({ children }) {
     updateBatchState(targetBatch, (batchData) => ({
       ...batchData,
       stages: (batchData.stages || []).map((stg) => {
-        if (stg.id !== stageId) return stg;
+        const isMatch = stg.id === stageId || stg.id.replace(/-[ws]$/, '') === String(stageId).replace(/-[ws]$/, '');
+        if (!isMatch) return stg;
         const uDate = unlockDate !== undefined ? unlockDate : stg.unlockDate;
         const uTime = unlockTime !== undefined ? unlockTime : stg.unlockTime;
         const uDateTime = unlockDateTime !== undefined ? unlockDateTime : (uDate ? `${uDate}T${uTime || '00:00'}` : null);
@@ -2172,11 +2258,13 @@ export function LmsDataProvider({ children }) {
     updateBatchState(targetBatch, (batchData) => ({
       ...batchData,
       stages: (batchData.stages || []).map((stg) => {
-        if (stg.id !== stageId) return stg;
+        const isStageMatch = stg.id === stageId || stg.id.replace(/-[ws]$/, '') === String(stageId).replace(/-[ws]$/, '');
+        if (!isStageMatch) return stg;
         return {
           ...stg,
           subtopics: (stg.subtopics || []).map((sub) => {
-            if (sub.id !== subtopicId) return sub;
+            const isSubMatch = sub.id === subtopicId || sub.id.replace(/-[ws]$/, '') === String(subtopicId).replace(/-[ws]$/, '');
+            if (!isSubMatch) return sub;
             const uDate = unlockDate !== undefined ? unlockDate : sub.unlockDate;
             const uTime = unlockTime !== undefined ? unlockTime : sub.unlockTime;
             const uDateTime = unlockDateTime !== undefined ? unlockDateTime : (uDate ? `${uDate}T${uTime || '00:00'}` : null);
@@ -2198,15 +2286,18 @@ export function LmsDataProvider({ children }) {
     updateBatchState(targetBatch, (batchData) => ({
       ...batchData,
       stages: (batchData.stages || []).map((stg) => {
-        if (stg.id !== stageId) return stg;
+        const isStageMatch = stg.id === stageId || stg.id.replace(/-[ws]$/, '') === String(stageId).replace(/-[ws]$/, '');
+        if (!isStageMatch) return stg;
         return {
           ...stg,
           subtopics: (stg.subtopics || []).map((sub) => {
-            if (sub.id !== subtopicId) return sub;
+            const isSubMatch = sub.id === subtopicId || sub.id.replace(/-[ws]$/, '') === String(subtopicId).replace(/-[ws]$/, '');
+            if (!isSubMatch) return sub;
             return {
               ...sub,
               modules: (sub.modules || []).map((mod) => {
-                if (mod.id !== moduleId) return mod;
+                const isModMatch = mod.id === moduleId || mod.id.replace(/-[ws]$/, '') === String(moduleId).replace(/-[ws]$/, '');
+                if (!isModMatch) return mod;
                 const uDate = unlockDate !== undefined ? unlockDate : mod.unlockDate;
                 const uTime = unlockTime !== undefined ? unlockTime : mod.unlockTime;
                 const uDateTime = unlockDateTime !== undefined ? unlockDateTime : (uDate ? `${uDate}T${uTime || '00:00'}` : null);
@@ -2229,7 +2320,8 @@ export function LmsDataProvider({ children }) {
     updateBatchState(targetBatch, (batchData) => ({
       ...batchData,
       stages: (batchData.stages || []).map((stg) => {
-        if (stg.id !== stageId) return stg;
+        const isMatch = stg.id === stageId || stg.id.replace(/-[ws]$/, '') === String(stageId).replace(/-[ws]$/, '');
+        if (!isMatch) return stg;
         const currentlyLocked = stg.isLocked || stg.statusType === 'locked' || stg.status === 'LOCKED';
         const newIsLocked = !currentlyLocked;
         return {
@@ -2247,7 +2339,8 @@ export function LmsDataProvider({ children }) {
     updateBatchState(targetBatch, (batchData) => ({
       ...batchData,
       stages: (batchData.stages || []).map((stg) => {
-        if (stg.id !== stageId) return stg;
+        const isMatch = stg.id === stageId || stg.id.replace(/-[ws]$/, '') === String(stageId).replace(/-[ws]$/, '');
+        if (!isMatch) return stg;
         let statusType = 'available';
         let isLocked = false;
         if (newStatus === 'COMPLETED') {
@@ -2275,11 +2368,13 @@ export function LmsDataProvider({ children }) {
     updateBatchState(targetBatch, (batchData) => ({
       ...batchData,
       stages: (batchData.stages || []).map((stg) => {
-        if (stg.id !== stageId) return stg;
+        const isStageMatch = stg.id === stageId || stg.id.replace(/-[ws]$/, '') === String(stageId).replace(/-[ws]$/, '');
+        if (!isStageMatch) return stg;
         return {
           ...stg,
           subtopics: (stg.subtopics || []).map((sub) => {
-            if (sub.id !== subtopicId) return sub;
+            const isSubMatch = sub.id === subtopicId || sub.id.replace(/-[ws]$/, '') === String(subtopicId).replace(/-[ws]$/, '');
+            if (!isSubMatch) return sub;
             return { ...sub, isLocked: !sub.isLocked };
           })
         };
@@ -2291,15 +2386,18 @@ export function LmsDataProvider({ children }) {
     updateBatchState(targetBatch, (batchData) => ({
       ...batchData,
       stages: (batchData.stages || []).map((stg) => {
-        if (stg.id !== stageId) return stg;
+        const isStageMatch = stg.id === stageId || stg.id.replace(/-[ws]$/, '') === String(stageId).replace(/-[ws]$/, '');
+        if (!isStageMatch) return stg;
         return {
           ...stg,
           subtopics: (stg.subtopics || []).map((sub) => {
-            if (sub.id !== subtopicId) return sub;
+            const isSubMatch = sub.id === subtopicId || sub.id.replace(/-[ws]$/, '') === String(subtopicId).replace(/-[ws]$/, '');
+            if (!isSubMatch) return sub;
             return {
               ...sub,
               modules: (sub.modules || []).map((mod) => {
-                if (mod.id !== moduleId) return mod;
+                const isModMatch = mod.id === moduleId || mod.id.replace(/-[ws]$/, '') === String(moduleId).replace(/-[ws]$/, '');
+                if (!isModMatch) return mod;
                 return { ...mod, isLocked: !mod.isLocked };
               })
             };
@@ -2312,7 +2410,7 @@ export function LmsDataProvider({ children }) {
   const deleteStage = (stageId, targetBatch = activeBatchFilter) => {
     updateBatchState(targetBatch, (batchData) => ({
       ...batchData,
-      stages: (batchData.stages || []).filter((stg) => stg.id !== stageId)
+      stages: (batchData.stages || []).filter((stg) => stg.id !== stageId && stg.id.replace(/-[ws]$/, '') !== String(stageId).replace(/-[ws]$/, ''))
     }));
   };
 
@@ -2320,7 +2418,8 @@ export function LmsDataProvider({ children }) {
     updateBatchState(targetBatch, (batchData, bKey) => ({
       ...batchData,
       stages: (batchData.stages || []).map((stg) => {
-        if (stg.id !== stageId) return stg;
+        const isMatch = stg.id === stageId || stg.id.replace(/-[ws]$/, '') === String(stageId).replace(/-[ws]$/, '');
+        if (!isMatch) return stg;
         const uDate = newSubtopicData.unlockDate || null;
         const uTime = newSubtopicData.unlockTime || null;
         const newSub = {
@@ -2348,11 +2447,13 @@ export function LmsDataProvider({ children }) {
     updateBatchState(targetBatch, (batchData) => ({
       ...batchData,
       stages: (batchData.stages || []).map((stg) => {
-        if (stg.id !== stageId) return stg;
+        const isStageMatch = stg.id === stageId || stg.id.replace(/-[ws]$/, '') === String(stageId).replace(/-[ws]$/, '');
+        if (!isStageMatch) return stg;
         return {
           ...stg,
           subtopics: (stg.subtopics || []).map((sub) => {
-            if (sub.id !== subtopicId) return sub;
+            const isSubMatch = sub.id === subtopicId || sub.id.replace(/-[ws]$/, '') === String(subtopicId).replace(/-[ws]$/, '');
+            if (!isSubMatch) return sub;
             const merged = { ...sub, ...updatedData };
             if (updatedData.unlockDate !== undefined || updatedData.unlockTime !== undefined) {
               const uDate = updatedData.unlockDate !== undefined ? updatedData.unlockDate : sub.unlockDate;
@@ -2372,10 +2473,11 @@ export function LmsDataProvider({ children }) {
     updateBatchState(targetBatch, (batchData) => ({
       ...batchData,
       stages: (batchData.stages || []).map((stg) => {
-        if (stg.id !== stageId) return stg;
+        const isStageMatch = stg.id === stageId || stg.id.replace(/-[ws]$/, '') === String(stageId).replace(/-[ws]$/, '');
+        if (!isStageMatch) return stg;
         return {
           ...stg,
-          subtopics: (stg.subtopics || []).filter((sub) => sub.id !== subtopicId)
+          subtopics: (stg.subtopics || []).filter((sub) => sub.id !== subtopicId && sub.id.replace(/-[ws]$/, '') !== String(subtopicId).replace(/-[ws]$/, ''))
         };
       })
     }));
@@ -2385,11 +2487,13 @@ export function LmsDataProvider({ children }) {
     updateBatchState(targetBatch, (batchData) => ({
       ...batchData,
       stages: (batchData.stages || []).map((stg) => {
-        if (stg.id !== stageId) return stg;
+        const isStageMatch = stg.id === stageId || stg.id.replace(/-[ws]$/, '') === String(stageId).replace(/-[ws]$/, '');
+        if (!isStageMatch) return stg;
         return {
           ...stg,
           subtopics: (stg.subtopics || []).map((sub) => {
-            if (sub.id !== subtopicId) return sub;
+            const isSubMatch = sub.id === subtopicId || sub.id.replace(/-[ws]$/, '') === String(subtopicId).replace(/-[ws]$/, '');
+            if (!isSubMatch) return sub;
             const uDate = newModuleData.unlockDate || null;
             const uTime = newModuleData.unlockTime || null;
             const newMod = {
@@ -2417,15 +2521,18 @@ export function LmsDataProvider({ children }) {
     updateBatchState(targetBatch, (batchData) => ({
       ...batchData,
       stages: (batchData.stages || []).map((stg) => {
-        if (stg.id !== stageId) return stg;
+        const isStageMatch = stg.id === stageId || stg.id.replace(/-[ws]$/, '') === String(stageId).replace(/-[ws]$/, '');
+        if (!isStageMatch) return stg;
         return {
           ...stg,
           subtopics: (stg.subtopics || []).map((sub) => {
-            if (sub.id !== subtopicId) return sub;
+            const isSubMatch = sub.id === subtopicId || sub.id.replace(/-[ws]$/, '') === String(subtopicId).replace(/-[ws]$/, '');
+            if (!isSubMatch) return sub;
             return {
               ...sub,
               modules: (sub.modules || []).map((mod) => {
-                if (mod.id !== moduleId) return mod;
+                const isModMatch = mod.id === moduleId || mod.id.replace(/-[ws]$/, '') === String(moduleId).replace(/-[ws]$/, '');
+                if (!isModMatch) return mod;
                 const merged = { ...mod, ...updatedData };
                 if (updatedData.unlockDate !== undefined || updatedData.unlockTime !== undefined) {
                   const uDate = updatedData.unlockDate !== undefined ? updatedData.unlockDate : mod.unlockDate;
@@ -2447,12 +2554,14 @@ export function LmsDataProvider({ children }) {
     updateBatchState(targetBatch, (batchData) => ({
       ...batchData,
       stages: (batchData.stages || []).map((stg) => {
-        if (stg.id !== stageId) return stg;
+        const isStageMatch = stg.id === stageId || stg.id.replace(/-[ws]$/, '') === String(stageId).replace(/-[ws]$/, '');
+        if (!isStageMatch) return stg;
         return {
           ...stg,
           subtopics: (stg.subtopics || []).map((sub) => {
-            if (sub.id !== subtopicId) return sub;
-            const updatedMods = (sub.modules || []).filter((mod) => mod.id !== moduleId);
+            const isSubMatch = sub.id === subtopicId || sub.id.replace(/-[ws]$/, '') === String(subtopicId).replace(/-[ws]$/, '');
+            if (!isSubMatch) return sub;
+            const updatedMods = (sub.modules || []).filter((mod) => mod.id !== moduleId && mod.id.replace(/-[ws]$/, '') !== String(moduleId).replace(/-[ws]$/, ''));
             return {
               ...sub,
               modulesCount: updatedMods.length,
@@ -2468,15 +2577,18 @@ export function LmsDataProvider({ children }) {
     updateBatchState(targetBatch, (batchData) => ({
       ...batchData,
       stages: (batchData.stages || []).map((stg) => {
-        if (stg.id !== stageId) return stg;
+        const isStageMatch = stg.id === stageId || stg.id.replace(/-[ws]$/, '') === String(stageId).replace(/-[ws]$/, '');
+        if (!isStageMatch) return stg;
         return {
           ...stg,
           subtopics: (stg.subtopics || []).map((sub) => {
-            if (sub.id !== subtopicId) return sub;
+            const isSubMatch = sub.id === subtopicId || sub.id.replace(/-[ws]$/, '') === String(subtopicId).replace(/-[ws]$/, '');
+            if (!isSubMatch) return sub;
             return {
               ...sub,
               modules: (sub.modules || []).map((mod) => {
-                if (mod.id !== moduleId) return mod;
+                const isModMatch = mod.id === moduleId || mod.id.replace(/-[ws]$/, '') === String(moduleId).replace(/-[ws]$/, '');
+                if (!isModMatch) return mod;
                 const newItem = {
                   id: `item-${Date.now()}`,
                   type: newItemData.type || 'LIVE CLASS',
@@ -2504,18 +2616,21 @@ export function LmsDataProvider({ children }) {
     updateBatchState(targetBatch, (batchData) => ({
       ...batchData,
       stages: (batchData.stages || []).map((stg) => {
-        if (stg.id !== stageId) return stg;
+        const isStageMatch = stg.id === stageId || stg.id.replace(/-[ws]$/, '') === String(stageId).replace(/-[ws]$/, '');
+        if (!isStageMatch) return stg;
         return {
           ...stg,
           subtopics: (stg.subtopics || []).map((sub) => {
-            if (sub.id !== subtopicId) return sub;
+            const isSubMatch = sub.id === subtopicId || sub.id.replace(/-[ws]$/, '') === String(subtopicId).replace(/-[ws]$/, '');
+            if (!isSubMatch) return sub;
             return {
               ...sub,
               modules: (sub.modules || []).map((mod) => {
-                if (mod.id !== moduleId) return mod;
+                const isModMatch = mod.id === moduleId || mod.id.replace(/-[ws]$/, '') === String(moduleId).replace(/-[ws]$/, '');
+                if (!isModMatch) return mod;
                 return {
                   ...mod,
-                  items: (mod.items || []).map((itm) => (itm.id === itemId ? { ...itm, ...updatedData } : itm))
+                  items: (mod.items || []).map((itm) => (itm.id === itemId || itm.id.replace(/-[ws]$/, '') === String(itemId).replace(/-[ws]$/, '') ? { ...itm, ...updatedData } : itm))
                 };
               })
             };
@@ -2529,18 +2644,21 @@ export function LmsDataProvider({ children }) {
     updateBatchState(targetBatch, (batchData) => ({
       ...batchData,
       stages: (batchData.stages || []).map((stg) => {
-        if (stg.id !== stageId) return stg;
+        const isStageMatch = stg.id === stageId || stg.id.replace(/-[ws]$/, '') === String(stageId).replace(/-[ws]$/, '');
+        if (!isStageMatch) return stg;
         return {
           ...stg,
           subtopics: (stg.subtopics || []).map((sub) => {
-            if (sub.id !== subtopicId) return sub;
+            const isSubMatch = sub.id === subtopicId || sub.id.replace(/-[ws]$/, '') === String(subtopicId).replace(/-[ws]$/, '');
+            if (!isSubMatch) return sub;
             return {
               ...sub,
               modules: (sub.modules || []).map((mod) => {
-                if (mod.id !== moduleId) return mod;
+                const isModMatch = mod.id === moduleId || mod.id.replace(/-[ws]$/, '') === String(moduleId).replace(/-[ws]$/, '');
+                if (!isModMatch) return mod;
                 return {
                   ...mod,
-                  items: (mod.items || []).filter((itm) => itm.id !== itemId)
+                  items: (mod.items || []).filter((itm) => itm.id !== itemId && itm.id.replace(/-[ws]$/, '') !== String(itemId).replace(/-[ws]$/, ''))
                 };
               })
             };
@@ -2747,7 +2865,9 @@ export function LmsDataProvider({ children }) {
         setActiveBatchFilter,
         completedMilestoneItemIds,
         toggleItemCompletion,
-        markItemCompleted
+        markItemCompleted,
+        unmarkItemCompleted,
+        toggleSubtopicCompletion
       }}
     >
       {children}
@@ -2764,6 +2884,8 @@ const defaultLmsDataContext = {
   completedMilestoneItemIds: [],
   toggleItemCompletion: () => {},
   markItemCompleted: () => {},
+  unmarkItemCompleted: () => {},
+  toggleSubtopicCompletion: () => {},
   projects: [],
   codingQuestions: [],
   activities: [],

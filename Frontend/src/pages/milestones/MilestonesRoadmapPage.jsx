@@ -33,14 +33,212 @@ import { useSearchParams } from 'react-router-dom';
 import { useToast } from '../../context/ToastContext';
 import { useLmsData } from '../../context/LmsDataContext';
 
-import {
-  getLocalDateString,
-  parseUnlockDateTime,
-  getScheduleInfo
-} from '../../utils/milestoneUtils';
+export const formatLocalDate = (d) => {
+  if (!d || isNaN(new Date(d).getTime())) return '';
+  const dateObj = new Date(d);
+  const year = dateObj.getFullYear();
+  const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+  const day = String(dateObj.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
 
-// Re-export for compatibility with external components
-export { getLocalDateString, parseUnlockDateTime, getScheduleInfo };
+// Pure Date & Time Release Determination Helper with Hierarchy Inheritance
+export const parseUnlockTimestamp = (unlockDate, unlockTime, unlockDateTime) => {
+  if (!unlockDate && !unlockDateTime) return null;
+
+  if (typeof unlockDateTime === 'number' && !isNaN(unlockDateTime)) {
+    return unlockDateTime;
+  }
+
+  let rawDate = unlockDate || '';
+  let rawTime = unlockTime || '00:00';
+
+  if (!rawDate && unlockDateTime && typeof unlockDateTime === 'string') {
+    const parts = unlockDateTime.split('T');
+    rawDate = parts[0];
+    if (parts[1] && !unlockTime) {
+      rawTime = parts[1].substring(0, 5);
+    }
+  }
+
+  if (rawDate && typeof rawDate === 'string') {
+    if (rawDate.includes('T')) {
+      const parts = rawDate.split('T');
+      rawDate = parts[0];
+      if (parts[1] && !unlockTime) {
+        rawTime = parts[1].substring(0, 5);
+      }
+    }
+
+    const dParts = rawDate.split('-').map(Number);
+    if (dParts.length === 3 && !dParts.some(isNaN)) {
+      const [year, month, day] = dParts;
+      let hours = 0;
+      let minutes = 0;
+      if (rawTime) {
+        const tParts = String(rawTime).split(':').map(Number);
+        hours = isNaN(tParts[0]) ? 0 : tParts[0];
+        minutes = isNaN(tParts[1]) ? 0 : tParts[1];
+      }
+      const d = new Date(year, month - 1, day, hours, minutes, 0, 0);
+      const ts = d.getTime();
+      if (!isNaN(ts)) return ts;
+    }
+  }
+
+  if (unlockDateTime) {
+    try {
+      const parsed = new Date(unlockDateTime).getTime();
+      if (!isNaN(parsed)) return parsed;
+    } catch (e) {}
+  }
+  return null;
+};
+
+export const getScheduleInfo = (item, parentSchedule = null) => {
+  if (!item) {
+    return {
+      hasSchedule: false,
+      isUnlocked: true,
+      isLocked: false,
+      unlockDate: '',
+      unlockTime: '',
+      unlockDateTime: null,
+      dateFormatted: '',
+      timeFormatted: '',
+      fullFormatted: 'Available',
+      shortFormatted: 'Available',
+      relativeText: 'Released',
+      statusLabel: 'UNLOCKED',
+      inherited: false
+    };
+  }
+
+  // 1. If parent schedule is explicitly LOCKED (e.g. parent Stage is scheduled for future), child inherits lock
+  if (parentSchedule && parentSchedule.isLocked) {
+    return {
+      hasSchedule: parentSchedule.hasSchedule,
+      isUnlocked: false,
+      isLocked: true,
+      unlockDate: parentSchedule.unlockDate,
+      unlockTime: parentSchedule.unlockTime,
+      unlockDateTime: parentSchedule.unlockDateTime,
+      dateFormatted: parentSchedule.dateFormatted,
+      timeFormatted: parentSchedule.timeFormatted,
+      fullFormatted: parentSchedule.fullFormatted,
+      shortFormatted: parentSchedule.shortFormatted,
+      relativeText: parentSchedule.relativeText,
+      statusLabel: 'LOCKED',
+      inherited: true
+    };
+  }
+
+  const unlockDate = item.unlockDate || '';
+  const unlockTime = item.unlockTime || '';
+  const unlockDateTime = item.unlockDateTime || (unlockDate ? `${unlockDate}T${unlockTime || '00:00'}` : '');
+
+  // 2. If child item does NOT have its own specific date/time set:
+  if (!unlockDate && !unlockDateTime) {
+    // If parent is UNLOCKED, child is automatically UNLOCKED and accessible
+    if (parentSchedule && parentSchedule.isUnlocked) {
+      return {
+        hasSchedule: parentSchedule.hasSchedule,
+        isUnlocked: true,
+        isLocked: false,
+        unlockDate: parentSchedule.unlockDate,
+        unlockTime: parentSchedule.unlockTime,
+        unlockDateTime: parentSchedule.unlockDateTime,
+        dateFormatted: parentSchedule.dateFormatted,
+        timeFormatted: parentSchedule.timeFormatted,
+        fullFormatted: parentSchedule.fullFormatted,
+        shortFormatted: parentSchedule.shortFormatted,
+        relativeText: 'Released',
+        statusLabel: 'UNLOCKED',
+        inherited: true
+      };
+    }
+
+    // If top-level item (e.g. Stage) has no explicit date set, default to UNLOCKED (available)
+    return {
+      hasSchedule: false,
+      isUnlocked: true,
+      isLocked: false,
+      unlockDate: '',
+      unlockTime: '',
+      unlockDateTime: null,
+      dateFormatted: '',
+      timeFormatted: '',
+      fullFormatted: 'Available',
+      shortFormatted: 'Available',
+      relativeText: 'Released',
+      statusLabel: 'UNLOCKED',
+      inherited: false
+    };
+  }
+
+  // 3. Item has its OWN specific scheduled date & time
+  const targetTime = parseUnlockTimestamp(unlockDate, unlockTime, unlockDateTime);
+
+  if (!targetTime || isNaN(targetTime)) {
+    return {
+      hasSchedule: false,
+      isUnlocked: true,
+      isLocked: false,
+      unlockDate,
+      unlockTime,
+      unlockDateTime,
+      dateFormatted: '',
+      timeFormatted: '',
+      fullFormatted: 'Available',
+      shortFormatted: 'Available',
+      relativeText: 'Released',
+      statusLabel: 'UNLOCKED',
+      inherited: false
+    };
+  }
+
+  const now = Date.now();
+  const isUnlocked = now >= targetTime;
+  const isLocked = !isUnlocked;
+
+  const d = new Date(targetTime);
+  const dateFormatted = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  const timeFormatted = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+
+  const diffMs = targetTime - now;
+  const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+  const diffDays = Math.floor(diffHours / 24);
+
+  let relativeText = '';
+  if (isLocked) {
+    if (diffDays > 0) {
+      relativeText = `in ${diffDays} day${diffDays > 1 ? 's' : ''}`;
+    } else if (diffHours > 0) {
+      relativeText = `in ${diffHours} hr${diffHours > 1 ? 's' : ''}`;
+    } else {
+      const diffMins = Math.max(1, Math.floor(diffMs / (1000 * 60)));
+      relativeText = `in ${diffMins} min${diffMins > 1 ? 's' : ''}`;
+    }
+  } else {
+    relativeText = 'Released';
+  }
+
+  return {
+    hasSchedule: true,
+    isUnlocked,
+    isLocked,
+    unlockDate,
+    unlockTime,
+    unlockDateTime,
+    dateFormatted,
+    timeFormatted,
+    fullFormatted: `${dateFormatted} at ${timeFormatted}`,
+    shortFormatted: `${dateFormatted}, ${timeFormatted}`,
+    relativeText,
+    statusLabel: isUnlocked ? 'UNLOCKED' : 'LOCKED',
+    inherited: false
+  };
+};
 
 export function MilestonesRoadmapPage() {
   const { addToast } = useToast();
@@ -68,7 +266,13 @@ export function MilestonesRoadmapPage() {
     updateMilestonesOverview,
     activeBatchFilter,
     setActiveBatchFilter,
-    assessments = []
+    assessments = [],
+    liveSessions = [],
+    completedMilestoneItemIds = [],
+    toggleItemCompletion = () => {},
+    markItemCompleted = () => {},
+    unmarkItemCompleted = () => {},
+    toggleSubtopicCompletion = () => {}
   } = useLmsData();
 
   // Mode Toggle: 'admin' (CRUD & Schedule Setter) vs 'user' (Main LMS Student View)
@@ -108,6 +312,10 @@ export function MilestonesRoadmapPage() {
   const getActiveMilestoneStages = () => {
     let rawStages = currentMilestones?.stages || [];
 
+    if (rawStages.length > 0) {
+      return rawStages;
+    }
+
     if (selectedStudentAccessId !== 'ALL') {
       const studentObj = students.find((s) => s.id === selectedStudentAccessId);
       if (studentObj && Array.isArray(studentObj.enrolledCourses) && studentObj.enrolledCourses.length > 0) {
@@ -122,7 +330,7 @@ export function MilestonesRoadmapPage() {
                   stageNumber: `STAGE 0${derivedStages.length + 1}`,
                   phaseTag: `${crs.title} • Stage ${tIdx + 1}`,
                   title: t.title,
-                  unlockDate: t.unlockDate || (tIdx === 0 ? new Date().toISOString().split('T')[0] : null),
+                  unlockDate: t.unlockDate || (tIdx === 0 ? formatLocalDate(new Date()) : null),
                   unlockTime: t.unlockTime || '09:00',
                   subtopics: t.subtopics || [
                     { id: `sub-${tIdx}-1`, title: 'Live Session & Concepts', isCompleted: true, modulesCount: t.liveClasses || 4 },
@@ -146,7 +354,7 @@ export function MilestonesRoadmapPage() {
           stageNumber: `STAGE 0${idx + 1}`,
           phaseTag: `${targetCourse.title} • Stage ${idx + 1}`,
           title: t.title,
-          unlockDate: t.unlockDate || (idx === 0 ? new Date().toISOString().split('T')[0] : null),
+          unlockDate: t.unlockDate || (idx === 0 ? formatLocalDate(new Date()) : null),
           unlockTime: t.unlockTime || '09:00',
           subtopics: t.subtopics || [
             { id: `sub-${idx}-1`, title: 'Live Session & Concepts', isCompleted: true, modulesCount: t.liveClasses || 4 },
@@ -168,28 +376,61 @@ export function MilestonesRoadmapPage() {
     return stageSched.isUnlocked;
   };
 
-  // Real-Time Banner Calculations based on date & time release
-  const autoTotalCount = filteredStages.reduce((acc, stg) => {
-    return acc + (stg.subtopics?.length || 0);
-  }, 0) || 31;
+  // Real-Time Banner Calculations based on actual Student Topic Completion
+  let totalItemsCount = 0;
+  let completedItemsCount = 0;
+  let totalSubtopicsCount = 0;
+  let completedSubtopicsCount = 0;
+
+  filteredStages.forEach((stage) => {
+    (stage.subtopics || []).forEach((sub) => {
+      totalSubtopicsCount += 1;
+      let subItems = [];
+      (sub.modules || []).forEach((mod) => {
+        (mod.items || []).forEach((item) => {
+          subItems.push(item);
+          totalItemsCount += 1;
+          if (completedMilestoneItemIds.includes(item.id)) {
+            completedItemsCount += 1;
+          }
+        });
+      });
+
+      const isSubDone =
+        sub.isCompleted ||
+        completedMilestoneItemIds.includes(sub.id) ||
+        (subItems.length > 0 && subItems.every((it) => completedMilestoneItemIds.includes(it.id)));
+
+      if (isSubDone) {
+        completedSubtopicsCount += 1;
+      }
+    });
+  });
+
+  const totalTopicsCount = totalItemsCount > 0 ? totalItemsCount : (totalSubtopicsCount || 31);
+  const completedTopicsCount = totalItemsCount > 0 ? completedItemsCount : completedSubtopicsCount;
+
+  const completionPercentage = totalTopicsCount > 0
+    ? Math.min(100, Math.round((completedTopicsCount / totalTopicsCount) * 100))
+    : 0;
+
+  const completedStagesCount = filteredStages.filter((stage) => {
+    const subs = stage.subtopics || [];
+    if (subs.length === 0) return false;
+    return subs.every((sub) => {
+      let subItems = [];
+      (sub.modules || []).forEach((mod) => {
+        (mod.items || []).forEach((item) => subItems.push(item));
+      });
+      return (
+        sub.isCompleted ||
+        completedMilestoneItemIds.includes(sub.id) ||
+        (subItems.length > 0 && subItems.every((it) => completedMilestoneItemIds.includes(it.id)))
+      );
+    });
+  }).length;
 
   const autoUnlockedStagesCount = filteredStages.filter((stg) => isStageUnlocked(stg)).length;
-
-  const autoCompletedCount = filteredStages.reduce((acc, stg) => {
-    const sSched = getScheduleInfo(stg);
-    if (sSched.isUnlocked) {
-      const doneInStage = stg.subtopics?.filter((sub) => {
-        const subSched = getScheduleInfo(sub, sSched);
-        return subSched.isUnlocked;
-      })?.length || 0;
-      return acc + doneInStage;
-    }
-    return acc;
-  }, 0);
-
-  const autoCompletionPercentage = autoTotalCount > 0
-    ? Math.round((autoCompletedCount / autoTotalCount) * 100)
-    : 0;
 
   // Handle clicking a subtopic row -> Opens the Drawer to view syllabus/modules
   const handleSubtopicClick = (stage, subtopic) => {
@@ -254,9 +495,13 @@ export function MilestonesRoadmapPage() {
   // Derived current active subtopic object and parent stage
   const getActiveSubtopicAndStage = () => {
     if (!selectedSubtopicState) return { activeStage: null, activeSubtopic: null };
-    const stage = currentMilestones?.stages?.find((s) => s.id === selectedSubtopicState.stageId);
+    const stage = (currentMilestones?.stages || []).find(
+      (s) => s.id === selectedSubtopicState.stageId || s.id.replace(/-[ws]$/, '') === String(selectedSubtopicState.stageId).replace(/-[ws]$/, '')
+    );
     if (!stage) return { activeStage: null, activeSubtopic: null };
-    const sub = stage.subtopics?.find((st) => st.id === selectedSubtopicState.subtopicId);
+    const sub = (stage.subtopics || []).find(
+      (st) => st.id === selectedSubtopicState.subtopicId || st.id.replace(/-[ws]$/, '') === String(selectedSubtopicState.subtopicId).replace(/-[ws]$/, '')
+    );
     return {
       activeStage: stage,
       activeSubtopic: sub ? { stageId: stage.id, ...sub } : null
@@ -309,7 +554,7 @@ export function MilestonesRoadmapPage() {
         unlockDate,
         unlockTime,
         unlockDateTime: uDateTime
-      });
+      }, selectedBatch);
       addToast(
         unlockDate
           ? `📅 Stage release scheduled for ${unlockDate} at ${unlockTime}`
@@ -321,7 +566,7 @@ export function MilestonesRoadmapPage() {
         unlockDate,
         unlockTime,
         unlockDateTime: uDateTime
-      });
+      }, selectedBatch);
       addToast(
         unlockDate
           ? `📅 Subtopic release scheduled for ${unlockDate} at ${unlockTime}`
@@ -333,7 +578,7 @@ export function MilestonesRoadmapPage() {
         unlockDate,
         unlockTime,
         unlockDateTime: uDateTime
-      });
+      }, selectedBatch);
       addToast(
         unlockDate
           ? `📅 Module release scheduled for ${unlockDate} at ${unlockTime}`
@@ -353,49 +598,28 @@ export function MilestonesRoadmapPage() {
         unlockDate: '',
         unlockTime: '',
         unlockDateTime: null
-      });
+      }, selectedBatch);
       addToast('Stage schedule cleared (Available by default)', 'info');
     } else if (scheduleTarget.type === 'subtopic') {
       setSubtopicSchedule(scheduleTarget.stageId, scheduleTarget.id, {
         unlockDate: '',
         unlockTime: '',
         unlockDateTime: null
-      });
+      }, selectedBatch);
       addToast('Subtopic schedule cleared (Inherits stage release)', 'info');
     } else if (scheduleTarget.type === 'module') {
       setModuleSchedule(scheduleTarget.stageId, scheduleTarget.subtopicId, scheduleTarget.id, {
         unlockDate: '',
         unlockTime: '',
         unlockDateTime: null
-      });
+      }, selectedBatch);
       addToast('Module schedule cleared (Inherits subtopic release)', 'info');
     }
 
     setIsScheduleModalOpen(false);
   };
 
-  // Quick Presets Helper
-  const applyDatePreset = (daysFromNow, time = '09:00') => {
-    const d = new Date();
-    d.setDate(d.getDate() + daysFromNow);
-    const dateStr = d.toISOString().split('T')[0];
-    setScheduleFormData({
-      unlockDate: dateStr,
-      unlockTime: time
-    });
-  };
 
-  const applyImmediateUnlock = () => {
-    const d = new Date();
-    d.setMinutes(d.getMinutes() - 1);
-    const dateStr = d.toISOString().split('T')[0];
-    const hours = String(d.getHours()).padStart(2, '0');
-    const minutes = String(d.getMinutes()).padStart(2, '0');
-    setScheduleFormData({
-      unlockDate: dateStr,
-      unlockTime: `${hours}:${minutes}`
-    });
-  };
 
   // --- Handlers: Stage ---
   const handleOpenStageModal = (stage = null) => {
@@ -440,10 +664,10 @@ export function MilestonesRoadmapPage() {
     };
 
     if (editingStage) {
-      updateStage(editingStage.id, payload);
+      updateStage(editingStage.id, payload, selectedBatch);
       addToast('Milestone stage updated successfully', 'success');
     } else {
-      addStage(payload);
+      addStage(payload, selectedBatch);
       addToast('New milestone stage created', 'success');
     }
     setIsStageModalOpen(false);
@@ -451,7 +675,7 @@ export function MilestonesRoadmapPage() {
 
   const handleDeleteStage = (stageId, title) => {
     if (window.confirm(`Are you sure you want to delete "${title}"?`)) {
-      deleteStage(stageId);
+      deleteStage(stageId, selectedBatch);
       if (selectedSubtopicState?.stageId === stageId) {
         setSelectedSubtopicState(null);
       }
@@ -502,10 +726,10 @@ export function MilestonesRoadmapPage() {
     };
 
     if (editingSubtopic) {
-      updateSubtopic(targetStageIdForSubtopic, editingSubtopic.id, payload);
+      updateSubtopic(targetStageIdForSubtopic, editingSubtopic.id, payload, selectedBatch);
       addToast('Subtopic updated', 'success');
     } else {
-      addSubtopic(targetStageIdForSubtopic, payload);
+      addSubtopic(targetStageIdForSubtopic, payload, selectedBatch);
       addToast('Subtopic added to stage', 'success');
     }
     setIsSubtopicModalOpen(false);
@@ -513,7 +737,7 @@ export function MilestonesRoadmapPage() {
 
   const handleDeleteSubtopic = (stageId, subtopicId, title) => {
     if (window.confirm(`Delete subtopic "${title}"?`)) {
-      deleteSubtopic(stageId, subtopicId);
+      deleteSubtopic(stageId, subtopicId, selectedBatch);
       if (selectedSubtopicState?.subtopicId === subtopicId) {
         setSelectedSubtopicState(null);
       }
@@ -559,10 +783,10 @@ export function MilestonesRoadmapPage() {
     };
 
     if (editingModule) {
-      updateModule(activeSubtopic.stageId, activeSubtopic.id, editingModule.id, payload);
+      updateModule(activeSubtopic.stageId, activeSubtopic.id, editingModule.id, payload, selectedBatch);
       addToast('Module updated', 'success');
     } else {
-      addModule(activeSubtopic.stageId, activeSubtopic.id, payload);
+      addModule(activeSubtopic.stageId, activeSubtopic.id, payload, selectedBatch);
       addToast('New module added to learning path', 'success');
     }
     setIsModuleModalOpen(false);
@@ -571,7 +795,7 @@ export function MilestonesRoadmapPage() {
   const handleDeleteModule = (moduleId, title) => {
     if (!activeSubtopic) return;
     if (window.confirm(`Delete module "${title}" and all its resources?`)) {
-      deleteModule(activeSubtopic.stageId, activeSubtopic.id, moduleId);
+      deleteModule(activeSubtopic.stageId, activeSubtopic.id, moduleId, selectedBatch);
       addToast('Module deleted', 'info');
     }
   };
@@ -633,10 +857,10 @@ export function MilestonesRoadmapPage() {
     };
 
     if (editingItem) {
-      updateLearningItem(activeSubtopic.stageId, activeSubtopic.id, targetModuleIdForItem, editingItem.id, payload);
+      updateLearningItem(activeSubtopic.stageId, activeSubtopic.id, targetModuleIdForItem, editingItem.id, payload, selectedBatch);
       addToast('Resource item updated', 'success');
     } else {
-      addLearningItem(activeSubtopic.stageId, activeSubtopic.id, targetModuleIdForItem, payload);
+      addLearningItem(activeSubtopic.stageId, activeSubtopic.id, targetModuleIdForItem, payload, selectedBatch);
       addToast('Resource item added to module', 'success');
     }
     setIsItemModalOpen(false);
@@ -645,7 +869,7 @@ export function MilestonesRoadmapPage() {
   const handleDeleteItem = (moduleId, itemId, title) => {
     if (!activeSubtopic) return;
     if (window.confirm(`Delete resource item "${title}"?`)) {
-      deleteLearningItem(activeSubtopic.stageId, activeSubtopic.id, moduleId, itemId);
+      deleteLearningItem(activeSubtopic.stageId, activeSubtopic.id, moduleId, itemId, selectedBatch);
       addToast('Resource item deleted', 'info');
     }
   };
@@ -653,13 +877,13 @@ export function MilestonesRoadmapPage() {
   // Save Banner Overview
   const handleSaveOverview = (e) => {
     e.preventDefault();
-    updateMilestonesOverview(overviewFormData);
+    updateMilestonesOverview(overviewFormData, selectedBatch);
     addToast('Roadmap banner settings updated', 'success');
     setIsOverviewModalOpen(false);
   };
 
   // Action Click Handler for JOIN, VIEW, TAKE with Strict Date & Time Enforcement
-  const handleActionClick = (actionText, title, url, isLocked, sInfo) => {
+  const handleActionClick = (actionText, title, url, isLocked, sInfo, itemId) => {
     if (isLocked) {
       if (viewMode === 'admin') {
         if (url && url.startsWith('http')) {
@@ -680,6 +904,11 @@ export function MilestonesRoadmapPage() {
         'warning'
       );
       return;
+    }
+
+    // Unlocked: Automatically mark item completed when opened (progress increases)
+    if (itemId) {
+      markItemCompleted(itemId);
     }
 
     // Unlocked: Open resource
@@ -755,6 +984,7 @@ export function MilestonesRoadmapPage() {
       {/* Admin Mode Controls Banner */}
       {viewMode === 'admin' && (
         <div className="bg-purple-50/70 border border-purple-200 rounded-2xl p-3 flex flex-wrap items-center justify-between gap-3 text-xs">
+          
 
           <div className="flex items-center gap-2">
             <button
@@ -795,12 +1025,12 @@ export function MilestonesRoadmapPage() {
               <div className="inline-flex items-center gap-1.5 rounded-full bg-white/15 backdrop-blur-md px-3.5 py-1 text-xs font-extrabold text-purple-100 border border-white/15">
                 <Trophy className="w-3.5 h-3.5 text-amber-300" />
                 <span>
-                  {autoCompletedCount} / {autoTotalCount} Modules Released
+                  {completedTopicsCount} / {totalTopicsCount} Topics Completed
                 </span>
               </div>
               <div className="inline-flex items-center gap-1.5 rounded-full bg-white/15 backdrop-blur-md px-3.5 py-1 text-xs font-extrabold text-purple-100 border border-white/15">
                 <Zap className="w-3.5 h-3.5 text-cyan-300" />
-                <span>{autoUnlockedStagesCount} Stages Unlocked</span>
+                <span>{completedStagesCount} / {filteredStages.length} Stages Completed</span>
               </div>
             </div>
           </div>
@@ -814,13 +1044,13 @@ export function MilestonesRoadmapPage() {
           {/* Banner Progress Bar */}
           <div className="space-y-2 pt-2">
             <div className="flex items-center justify-between text-xs font-extrabold text-purple-100">
-              <span>Overall Track Released Progress</span>
-              <span className="font-black text-white">{autoCompletionPercentage}%</span>
+              <span>Overall Track Completion Progress</span>
+              <span className="font-black text-white">{completionPercentage}%</span>
             </div>
             <div className="h-2.5 w-full overflow-hidden rounded-full bg-white/20 backdrop-blur-sm p-0.5">
               <div
                 className="h-full rounded-full bg-white transition-all duration-500 shadow-sm"
-                style={{ width: `${autoCompletionPercentage}%` }}
+                style={{ width: `${completionPercentage}%` }}
               />
             </div>
           </div>
@@ -1003,28 +1233,70 @@ export function MilestonesRoadmapPage() {
                         const subSched = getScheduleInfo(subtopic, stageSched);
                         const isSubtopicLocked = subSched.isLocked;
 
+                        const subItems = [];
+                        (subtopic.modules || []).forEach((m) => {
+                          (m.items || []).forEach((it) => subItems.push(it));
+                        });
+                        const isSubDone =
+                          subtopic.isCompleted ||
+                          completedMilestoneItemIds.includes(subtopic.id) ||
+                          (subItems.length > 0 && subItems.every((it) => completedMilestoneItemIds.includes(it.id)));
+
                         return (
                           <div key={subtopic.id} className="relative group/sub">
                             <div className="relative flex items-center gap-2">
                               <button
                                 onClick={() => handleSubtopicClick(stage, subtopic)}
-                                className="w-full text-left rounded-2xl px-4 py-3.5 transition-all flex items-center justify-between group cursor-pointer border shadow-xs bg-white hover:bg-purple-50/80 hover:border-purple-300 border-slate-200/90 text-slate-800"
+                                className={`w-full text-left rounded-2xl px-4 py-3.5 transition-all flex items-center justify-between group cursor-pointer border shadow-xs ${
+                                  isSubDone
+                                    ? 'bg-emerald-50/40 border-emerald-200 text-slate-900 hover:bg-emerald-50'
+                                    : 'bg-white hover:bg-purple-50/80 hover:border-purple-300 border-slate-200/90 text-slate-800'
+                                }`}
                               >
                                 <div className="flex items-center gap-3">
                                   <div
-                                    className={`flex h-7 w-7 items-center justify-center rounded-xl font-bold text-xs flex-shrink-0 ${
-                                      isSubtopicLocked
-                                        ? 'bg-slate-100 text-slate-600'
-                                        : 'bg-purple-100 text-purple-700'
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      toggleSubtopicCompletion(subtopic);
+                                      const nextDone = !isSubDone;
+                                      addToast(
+                                        nextDone
+                                          ? `✅ Marked "${subtopic.title}" as completed!`
+                                          : `⚪ Marked "${subtopic.title}" as uncompleted`,
+                                        'info'
+                                      );
+                                    }}
+                                    title={isSubDone ? 'Topic Completed (Click to unmark)' : 'Click to mark topic as completed'}
+                                    className={`flex h-7 w-7 items-center justify-center rounded-xl font-bold text-xs flex-shrink-0 cursor-pointer border transition-transform active:scale-95 ${
+                                      isSubDone
+                                        ? 'bg-emerald-100 text-emerald-700 border-emerald-300 hover:bg-emerald-200'
+                                        : isSubtopicLocked
+                                        ? 'bg-slate-100 text-slate-600 border-slate-200'
+                                        : 'bg-purple-100 text-purple-700 border-purple-200 hover:bg-purple-200'
                                     }`}
                                   >
-                                    {subtopicIndex + 1}
+                                    {isSubDone ? <CheckCircle2 className="w-4 h-4 text-emerald-600" /> : subtopicIndex + 1}
                                   </div>
                                   <div>
                                     <div className="flex items-center gap-2 flex-wrap">
                                       <span className="font-bold text-xs sm:text-sm block text-slate-900 group-hover:text-purple-700">
                                         {subtopic.title}
                                       </span>
+
+                                      {isSubDone && (
+                                        <span
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            toggleSubtopicCompletion(subtopic);
+                                            addToast(`⚪ Marked "${subtopic.title}" as uncompleted`, 'info');
+                                          }}
+                                          title="Click to uncomplete"
+                                          className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200 hover:bg-emerald-200 cursor-pointer transition-colors"
+                                        >
+                                          <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                                          <span>Completed ✕</span>
+                                        </span>
+                                      )}
 
                                       {/* Subtopic Scheduled Date Badge (Admin Mode Only) */}
                                       {viewMode === 'admin' && subSched.hasSchedule && !subSched.inherited && (
@@ -1134,6 +1406,41 @@ export function MilestonesRoadmapPage() {
                       <span className="inline-block bg-purple-100 text-purple-700 text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full border border-purple-200">
                         TOPIC CATALOG
                       </span>
+
+                      {(() => {
+                        let subItems = [];
+                        (activeSubtopic.modules || []).forEach((mod) => {
+                          (mod.items || []).forEach((item) => subItems.push(item));
+                        });
+                        const isDrawerSubtopicDone =
+                          activeSubtopic.isCompleted ||
+                          completedMilestoneItemIds.includes(activeSubtopic.id) ||
+                          (subItems.length > 0 && subItems.every((it) => completedMilestoneItemIds.includes(it.id)));
+
+                        return (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              toggleSubtopicCompletion(activeSubtopic);
+                              addToast(
+                                !isDrawerSubtopicDone
+                                  ? `✅ Marked all topics in "${activeSubtopic.title}" as completed!`
+                                  : `⚪ Marked "${activeSubtopic.title}" as uncompleted`,
+                                'info'
+                              );
+                            }}
+                            title={isDrawerSubtopicDone ? 'Topic Completed (Click to uncomplete all)' : 'Click to mark entire topic as completed'}
+                            className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border flex items-center gap-1 cursor-pointer transition-colors ${
+                              isDrawerSubtopicDone
+                                ? 'bg-emerald-100 text-emerald-800 border-emerald-300 hover:bg-emerald-200 shadow-2xs'
+                                : 'bg-slate-100 text-slate-700 border-slate-200 hover:bg-purple-50 hover:text-purple-700'
+                            }`}
+                          >
+                            <CheckCircle2 className={`w-3 h-3 ${isDrawerSubtopicDone ? 'text-emerald-600' : 'text-slate-400'}`} />
+                            <span>{isDrawerSubtopicDone ? 'Completed ✕' : 'Mark Topic Complete'}</span>
+                          </button>
+                        );
+                      })()}
 
                       {viewMode === 'admin' && (() => {
                         const stageSched = getScheduleInfo(activeStage);
@@ -1307,93 +1614,167 @@ export function MilestonesRoadmapPage() {
                               )}
 
                               {(() => {
-                                const rawItems = module.items || [];
-                                const matchingAsmnts = (assessments || []).filter((a) => {
-                                  const subMatch =
-                                    (a.subtopicId && a.subtopicId === activeSubtopic.id) ||
-                                    (a.subtopicName && a.subtopicName === activeSubtopic.title) ||
-                                    (a.topicName && a.topicName === activeSubtopic.title);
-                                  const topicMatch =
-                                    (a.innerTopicId && a.innerTopicId === module.id) ||
-                                    (a.topicName && a.topicName === module.title);
-                                  return (subMatch && topicMatch) || a.topicName === module.title;
-                                });
+                                  const rawItems = module.items || [];
 
-                                const injected = matchingAsmnts.map((a) => ({
-                                  id: `item-asm-${a.id}`,
-                                  assessmentId: a.id,
-                                  type: 'ASSESSMENT',
-                                  typeColor: 'bg-purple-100 text-purple-700 border-purple-200',
-                                  iconName: 'FileCheck',
-                                  iconBg: 'bg-purple-600 text-white',
-                                  title: a.title,
-                                  actionText: 'TAKE',
-                                  url: '/assessments',
-                                  btnStyle: 'bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30'
-                                }));
+                                  // Ensure raw items with matching live session sync latest meeting link
+                                  const syncedRawItems = rawItems.map((item) => {
+                                    if (item.type === 'LIVE CLASS') {
+                                      const matchedSess = (liveSessions || []).find(
+                                        (s) =>
+                                          s.id === item.sessionId ||
+                                          `item-live-${s.id}` === item.id ||
+                                          (item.title && s.sessionTitle && item.title.toLowerCase().trim() === s.sessionTitle.toLowerCase().trim())
+                                      );
+                                      if (matchedSess && (matchedSess.meetingLink || matchedSess.meeting_link)) {
+                                        return {
+                                          ...item,
+                                          url: matchedSess.meetingLink || matchedSess.meeting_link
+                                        };
+                                      }
+                                    }
+                                    return item;
+                                  });
 
-                                const existingIds = new Set(rawItems.map((i) => i.id || i.title?.toLowerCase()));
-                                const filteredInjected = injected.filter(
-                                  (i) => !existingIds.has(i.id) && !existingIds.has(i.title?.toLowerCase())
-                                );
-                                const moduleDisplayItems = [...rawItems, ...filteredInjected];
+                                  // Only include assessments or live sessions if explicitly linked to this specific module ID
+                                  const strictlyLinkedAsmnts = (assessments || [])
+                                    .filter((a) => a.innerTopicId === module.id || a.moduleId === module.id)
+                                    .map((a) => ({
+                                      id: `item-asm-${a.id}`,
+                                      assessmentId: a.id,
+                                      type: 'ASSESSMENT',
+                                      typeColor: 'bg-purple-100 text-purple-700 border-purple-200',
+                                      iconName: 'FileCheck',
+                                      iconBg: 'bg-purple-600 text-white',
+                                      title: a.title,
+                                      actionText: 'TAKE',
+                                      url: '/assessments',
+                                      btnStyle: 'bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30'
+                                    }));
+
+                                  const strictlyLinkedLive = (liveSessions || [])
+                                    .filter((s) => s.moduleId === module.id)
+                                    .map((s) => ({
+                                      id: `item-live-${s.id}`,
+                                      sessionId: s.id,
+                                      type: 'LIVE CLASS',
+                                      typeColor: 'bg-purple-100 text-purple-700 border-purple-200',
+                                      iconName: 'Video',
+                                      iconBg: 'bg-purple-600 text-white',
+                                      title: s.sessionTitle || s.title || 'Live Class Masterclass',
+                                      actionText: 'JOIN',
+                                      url: s.meetingLink || s.meeting_link || 'https://meet.google.com/aspire-lms-live',
+                                      btnStyle: 'bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30'
+                                    }));
+
+                                  const existingIds = new Set(syncedRawItems.map((i) => i.id || i.title?.toLowerCase()));
+                                  const extraAsmnts = strictlyLinkedAsmnts.filter((i) => !existingIds.has(i.id));
+                                  const extraLive = strictlyLinkedLive.filter((i) => !existingIds.has(i.id));
+
+                                  const moduleDisplayItems = [...syncedRawItems, ...extraLive, ...extraAsmnts];
 
                                 return moduleDisplayItems.length > 0 ? (
-                                  moduleDisplayItems.map((item) => (
-                                    <div
-                                      key={item.id}
-                                      className="p-3.5 rounded-xl border border-slate-100 bg-slate-50/50 hover:bg-slate-50 flex items-center justify-between gap-3 transition-colors group/item"
-                                    >
-                                      <div className="flex items-center gap-3">
-                                        {renderItemIcon(item.iconName, item.iconBg, false)}
-                                        <div>
-                                          <span
-                                            className={`text-[9px] font-black tracking-wider uppercase px-2 py-0.5 rounded border inline-block mb-0.5 ${
-                                              item.typeColor || 'bg-purple-100 text-purple-700 border-purple-200'
+                                  moduleDisplayItems.map((item) => {
+                                    const isItemDone = completedMilestoneItemIds.includes(item.id);
+
+                                    return (
+                                      <div
+                                        key={item.id}
+                                        className={`p-3.5 rounded-xl border flex items-center justify-between gap-3 transition-all group/item ${
+                                          isItemDone
+                                            ? 'bg-emerald-50/40 border-emerald-200'
+                                            : 'border-slate-100 bg-slate-50/50 hover:bg-slate-50'
+                                        }`}
+                                      >
+                                        <div className="flex items-center gap-3">
+                                          {/* Interactive Completion Toggle Button */}
+                                          <button
+                                            type="button"
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              toggleItemCompletion(item.id);
+                                              const nextDone = !isItemDone;
+                                              addToast(
+                                                nextDone
+                                                  ? `✅ Completed "${item.title}"! Progress updated.`
+                                                  : `Unmarked "${item.title}"`,
+                                                'info'
+                                              );
+                                            }}
+                                            title={isItemDone ? 'Topic Completed (Click to unmark)' : 'Click to mark as completed'}
+                                            className={`flex-shrink-0 p-1.5 rounded-lg border transition-all cursor-pointer flex items-center justify-center ${
+                                              isItemDone
+                                                ? 'bg-emerald-100 text-emerald-700 border-emerald-300 shadow-2xs hover:bg-emerald-200'
+                                                : 'bg-white text-slate-300 border-slate-200 hover:text-purple-600 hover:border-purple-300'
                                             }`}
                                           >
-                                            {item.type}
-                                          </span>
-                                          <h4 className="text-xs font-bold text-slate-800 leading-tight">{item.title}</h4>
+                                            <CheckCircle2 className={`w-4 h-4 ${isItemDone ? 'text-emerald-600' : 'text-slate-300'}`} />
+                                          </button>
+
+                                          {renderItemIcon(item.iconName, item.iconBg, false)}
+                                          <div>
+                                            <div className="flex items-center gap-1.5 mb-0.5">
+                                              <span
+                                                className={`text-[9px] font-black tracking-wider uppercase px-2 py-0.5 rounded border inline-block ${
+                                                  item.typeColor || 'bg-purple-100 text-purple-700 border-purple-200'
+                                                }`}
+                                              >
+                                                {item.type}
+                                              </span>
+                                              {isItemDone && (
+                                                <span
+                                                  onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    toggleItemCompletion(item.id);
+                                                    addToast(`⚪ Marked "${item.title}" as uncompleted`, 'info');
+                                                  }}
+                                                  title="Click to uncomplete"
+                                                  className="text-[9px] font-extrabold px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-700 border border-emerald-200 hover:bg-emerald-200 cursor-pointer transition-colors"
+                                                >
+                                                  COMPLETED ✕
+                                                </span>
+                                              )}
+                                            </div>
+                                            <h4 className="text-xs font-bold text-slate-800 leading-tight">{item.title}</h4>
+                                          </div>
+                                        </div>
+
+                                        <div className="flex items-center gap-1.5">
+                                          {/* Action Button: JOIN, VIEW, TAKE - Visible & Interactive */}
+                                          <button
+                                            onClick={() =>
+                                              handleActionClick(item.actionText, item.title, item.url, isModLocked, modSched, item.id)
+                                            }
+                                            className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 transition-all cursor-pointer ${
+                                              item.btnStyle || 'bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30'
+                                            }`}
+                                            title={`${item.actionText} ${item.title}`}
+                                          >
+                                            <span>{item.actionText}</span>
+                                            <ExternalLink className="w-3 h-3" />
+                                          </button>
+
+                                          {viewMode === 'admin' && (
+                                            <div className="flex items-center gap-0.5 border-l border-slate-200 pl-1">
+                                              <button
+                                                onClick={() => handleOpenItemModal(module.id, item)}
+                                                title="Edit Item"
+                                                className="p-1 text-slate-400 hover:text-purple-600 rounded cursor-pointer"
+                                              >
+                                                <Edit2 className="w-3 h-3" />
+                                              </button>
+                                              <button
+                                                onClick={() => handleDeleteItem(module.id, item.id, item.title)}
+                                                title="Delete Item"
+                                                className="p-1 text-slate-400 hover:text-rose-600 rounded cursor-pointer"
+                                              >
+                                                <Trash2 className="w-3 h-3" />
+                                              </button>
+                                            </div>
+                                          )}
                                         </div>
                                       </div>
-
-                                      <div className="flex items-center gap-1.5">
-                                        {/* Action Button: JOIN, VIEW, TAKE - Visible & Interactive */}
-                                        <button
-                                          onClick={() =>
-                                            handleActionClick(item.actionText, item.title, item.url, isModLocked, modSched)
-                                          }
-                                          className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 transition-all cursor-pointer ${
-                                            item.btnStyle || 'bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30'
-                                          }`}
-                                          title={`${item.actionText} ${item.title}`}
-                                        >
-                                          <span>{item.actionText}</span>
-                                          <ExternalLink className="w-3 h-3" />
-                                        </button>
-
-                                        {viewMode === 'admin' && (
-                                          <div className="flex items-center gap-0.5 border-l border-slate-200 pl-1">
-                                            <button
-                                              onClick={() => handleOpenItemModal(module.id, item)}
-                                              title="Edit Item"
-                                              className="p-1 text-slate-400 hover:text-purple-600 rounded cursor-pointer"
-                                            >
-                                              <Edit2 className="w-3 h-3" />
-                                            </button>
-                                            <button
-                                              onClick={() => handleDeleteItem(module.id, item.id, item.title)}
-                                              title="Delete Item"
-                                              className="p-1 text-slate-400 hover:text-rose-600 rounded cursor-pointer"
-                                            >
-                                              <Trash2 className="w-3 h-3" />
-                                            </button>
-                                          </div>
-                                        )}
-                                      </div>
-                                    </div>
-                                  ))
+                                    );
+                                  })
                                 ) : (
                                   <div className="text-center py-4 text-xs text-slate-400 space-y-2">
                                     <p>No learning items added yet to this module.</p>
@@ -1472,44 +1853,7 @@ export function MilestonesRoadmapPage() {
             </div>
 
             <form onSubmit={handleSaveSchedule} className="space-y-4 text-xs">
-              {/* Quick Presets */}
-              <div>
-                <label className="block font-bold text-slate-700 mb-1.5">Quick Presets</label>
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    type="button"
-                    onClick={applyImmediateUnlock}
-                    className="px-3 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 rounded-xl font-bold text-left transition-all cursor-pointer flex items-center justify-between"
-                  >
-                    <span>Release Now</span>
-                    <span className="text-[10px] text-emerald-600 font-bold">Unlock</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => applyDatePreset(1, '09:00')}
-                    className="px-3 py-2 bg-slate-100 hover:bg-purple-50 hover:text-purple-700 hover:border-purple-200 border border-slate-200 rounded-xl font-bold text-slate-700 text-left transition-all cursor-pointer flex items-center justify-between"
-                  >
-                    <span>Tomorrow</span>
-                    <span className="text-[10px] text-slate-400">09:00 AM</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => applyDatePreset(3, '10:00')}
-                    className="px-3 py-2 bg-slate-100 hover:bg-purple-50 hover:text-purple-700 hover:border-purple-200 border border-slate-200 rounded-xl font-bold text-slate-700 text-left transition-all cursor-pointer flex items-center justify-between"
-                  >
-                    <span>In 3 Days</span>
-                    <span className="text-[10px] text-slate-400">10:00 AM</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => applyDatePreset(7, '09:00')}
-                    className="px-3 py-2 bg-slate-100 hover:bg-purple-50 hover:text-purple-700 hover:border-purple-200 border border-slate-200 rounded-xl font-bold text-slate-700 text-left transition-all cursor-pointer flex items-center justify-between"
-                  >
-                    <span>In 1 Week</span>
-                    <span className="text-[10px] text-slate-400">09:00 AM</span>
-                  </button>
-                </div>
-              </div>
+
 
               {/* Exact Date and Time Pickers */}
               <div className="grid grid-cols-2 gap-3 pt-1">

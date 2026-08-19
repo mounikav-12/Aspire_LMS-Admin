@@ -25,7 +25,7 @@ import {
   Layers,
   Brain
 } from 'lucide-react';
-import { getScheduleInfo } from '../../utils/milestoneUtils';
+import { getScheduleInfo } from '../milestones/MilestonesRoadmapPage';
 
 export function StudentDashboardPage() {
   const { courses, liveSessions, jobs, recordings, projects, milestones } = useLmsData();
