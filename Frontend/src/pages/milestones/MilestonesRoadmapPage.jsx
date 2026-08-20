@@ -22,6 +22,7 @@ import {
   Flag,
   Book,
   FileText,
+  Layers,
   Calendar,
   CalendarClock,
   Timer,
@@ -1065,14 +1066,37 @@ export function MilestonesRoadmapPage() {
       </div>
 
       {/* Stats Overview Bar */}
-      <div className="flex items-center gap-4">
-        <div className="bg-white rounded-2xl border border-slate-200 p-4 flex items-center gap-3 shadow-sm min-w-[200px]">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        {/* Total Stages */}
+        <div className="bg-white rounded-2xl border border-slate-200 p-4 flex items-center gap-3 shadow-sm">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-purple-100 text-purple-600 flex-shrink-0">
             <BookOpen className="w-5 h-5" />
           </div>
           <div>
             <p className="text-xs text-slate-500 font-medium">Total Stages</p>
             <p className="text-lg font-bold text-slate-900">{filteredStages.length}</p>
+          </div>
+        </div>
+
+        {/* Total Modules */}
+        <div className="bg-white rounded-2xl border border-slate-200 p-4 flex items-center gap-3 shadow-sm">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-100 text-blue-600 flex-shrink-0">
+            <Layers className="w-5 h-5" />
+          </div>
+          <div>
+            <p className="text-xs text-slate-500 font-medium">Total Modules</p>
+            <p className="text-lg font-bold text-slate-900">{totalSubtopicsCount}</p>
+          </div>
+        </div>
+
+        {/* Total Lessons */}
+        <div className="bg-white rounded-2xl border border-slate-200 p-4 flex items-center gap-3 shadow-sm">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-100 text-indigo-600 flex-shrink-0">
+            <FileText className="w-5 h-5" />
+          </div>
+          <div>
+            <p className="text-xs text-slate-500 font-medium">Total Lessons</p>
+            <p className="text-lg font-bold text-slate-900">{totalTopicsCount}</p>
           </div>
         </div>
       </div>
