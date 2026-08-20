@@ -1097,7 +1097,7 @@ export function MilestonesRoadmapPage() {
       </div>
 
       {/* Stats Overview Bar */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-2xl">
         {/* Total Stages */}
         <div className="bg-white rounded-2xl border border-slate-200 p-4 flex items-center gap-3 shadow-sm">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-purple-100 text-purple-600 flex-shrink-0">
@@ -1117,17 +1117,6 @@ export function MilestonesRoadmapPage() {
           <div>
             <p className="text-xs text-slate-500 font-medium">Total Modules</p>
             <p className="text-lg font-bold text-slate-900">{totalSubtopicsCount}</p>
-          </div>
-        </div>
-
-        {/* Total Lessons */}
-        <div className="bg-white rounded-2xl border border-slate-200 p-4 flex items-center gap-3 shadow-sm">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-100 text-indigo-600 flex-shrink-0">
-            <FileText className="w-5 h-5" />
-          </div>
-          <div>
-            <p className="text-xs text-slate-500 font-medium">Total Lessons</p>
-            <p className="text-lg font-bold text-slate-900">{totalLessonsDisplayCount}</p>
           </div>
         </div>
       </div>
