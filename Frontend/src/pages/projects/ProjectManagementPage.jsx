@@ -806,17 +806,62 @@ export function ProjectManagementPage() {
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
         title={editingProject ? 'Edit Project Assignment' : 'Create Real-World Project'}
-        maxWidth="max-w-3xl"
+        maxWidth="max-w-5xl"
+        maxHeight="max-h-[88vh]"
       >
         <form onSubmit={handleFormSubmit} className="space-y-4">
-          <Input
-            label="Project Title"
-            type="text"
-            placeholder="e.g. Python Data Analyzer"
-            value={formData.title}
-            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-            required
-          />
+          {/* Row 1: Title (2 cols), Type (1 col), Due Date (1 col) */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="md:col-span-2">
+              <Input
+                label="Project Title"
+                type="text"
+                placeholder="e.g. Python Data Analyzer"
+                value={formData.title}
+                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                required
+              />
+            </div>
+            <div className="md:col-span-1">
+              <Select
+                label="Project Type"
+                value={formData.type}
+                onChange={(e) => setFormData({ ...formData, type: e.target.value })}
+                options={[
+                  { value: 'Mini', label: 'Mini Project' },
+                  { value: 'Major', label: 'Major Project' },
+                  { value: 'Capstone', label: 'Capstone Project' }
+                ]}
+              />
+            </div>
+            <div className="md:col-span-1">
+              <Input
+                label="Due Date Label"
+                type="text"
+                placeholder="e.g. Aug 30"
+                value={formData.dueDate}
+                onChange={(e) => setFormData({ ...formData, dueDate: e.target.value })}
+              />
+            </div>
+          </div>
+
+          {/* Row 2: Tech Stack Tags & Starter Template Repo URL */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Input
+              label="Tech Stack Tags (Comma-Separated)"
+              type="text"
+              placeholder="React, Node.js, PostgreSQL, Stripe"
+              value={formData.techStack}
+              onChange={(e) => setFormData({ ...formData, techStack: e.target.value })}
+            />
+            <Input
+              label="Starter Template Repo URL"
+              type="text"
+              placeholder="https://github.com/aspire-lms/ecommerce-starter"
+              value={formData.templateUrl}
+              onChange={(e) => setFormData({ ...formData, templateUrl: e.target.value })}
+            />
+          </div>
 
           {/* 4-TIER CASCADING HIERARCHY SELECTOR (CURRICULUM LOCATION & MILESTONE TOPIC MAPPING) */}
           {(() => {
@@ -831,7 +876,7 @@ export function ProjectManagementPage() {
             ) || [];
 
             return (
-              <div className="p-4 bg-slate-50/90 rounded-2xl border border-slate-200/80 space-y-3.5">
+              <div className="p-4 bg-slate-50/90 rounded-2xl border border-slate-200/80 space-y-3">
                 <div className="flex items-center justify-between">
                   <label className="text-xs font-black text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
                     <Layers className="w-4 h-4 text-purple-600" />
@@ -913,118 +958,95 @@ export function ProjectManagementPage() {
             );
           })()}
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Select
-              label="Project Type"
-              value={formData.type}
-              onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-              options={[
-                { value: 'Mini', label: 'Mini Project' },
-                { value: 'Major', label: 'Major Project' },
-                { value: 'Capstone', label: 'Capstone Project' }
-              ]}
-            />
+          {/* Row 3: Short Description & Mentor Pro Tip (matching rows=2 textareas) */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[11px] font-extrabold text-slate-700 uppercase tracking-wider h-5 flex items-center">
+                Short Description
+              </label>
+              <textarea
+                rows={2}
+                placeholder="Build a Python script that analyzes, cleans, and generates insights from raw CSV data."
+                value={formData.description}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                className="w-full px-3.5 py-2 bg-slate-50/60 hover:bg-white border border-slate-200 rounded-xl text-xs text-slate-800 focus:bg-white focus:outline-none focus:border-blue-500 transition-all resize-none"
+                required
+              />
+            </div>
 
-            <Input
-              label="Due Date Label"
-              type="text"
-              placeholder="e.g. Aug 20"
-              value={formData.dueDate}
-              onChange={(e) => setFormData({ ...formData, dueDate: e.target.value })}
-            />
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[11px] font-extrabold text-slate-700 uppercase tracking-wider h-5 flex items-center">
+                Mentor Pro Tip
+              </label>
+              <textarea
+                rows={2}
+                placeholder="e.g. Test code thoroughly before submitting drive link."
+                value={formData.mentorTip}
+                onChange={(e) => setFormData({ ...formData, mentorTip: e.target.value })}
+                className="w-full px-3.5 py-2 bg-slate-50/60 hover:bg-white border border-slate-200 rounded-xl text-xs text-slate-800 focus:bg-white focus:outline-none focus:border-blue-500 transition-all resize-none"
+              />
+            </div>
           </div>
 
-          <Input
-            label="Tech Stack Tags (Comma-Separated)"
-            type="text"
-            placeholder="React, Node.js, PostgreSQL, Stripe"
-            value={formData.techStack}
-            onChange={(e) => setFormData({ ...formData, techStack: e.target.value })}
-          />
+          {/* Row 4: Full Overview Brief & Key Functional Requirements */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[11px] font-extrabold text-slate-700 uppercase tracking-wider h-5 flex items-center">
+                Full Project Overview Brief
+              </label>
+              <textarea
+                rows={3}
+                placeholder="Develop a production-ready solution adhering to industry coding standards, modular component organization, and clean user experience."
+                value={formData.overview}
+                onChange={(e) => setFormData({ ...formData, overview: e.target.value })}
+                className="w-full px-3.5 py-2 bg-slate-50/60 hover:bg-white border border-slate-200 rounded-xl text-xs text-slate-800 focus:bg-white focus:outline-none focus:border-blue-500 transition-all resize-none"
+              />
+            </div>
 
-          <Input
-            label="Starter Template Repo URL"
-            type="text"
-            placeholder="https://github.com/aspire-lms/ecommerce-starter"
-            value={formData.templateUrl}
-            onChange={(e) => setFormData({ ...formData, templateUrl: e.target.value })}
-          />
-
-          <div className="flex flex-col gap-1.5">
-            <label className="text-[11px] font-extrabold text-slate-700 uppercase tracking-wider">
-              Short Description
-            </label>
-            <textarea
-              rows={2}
-              placeholder="Build a Python script that analyzes, cleans, and generates insights from raw CSV data."
-              value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              className="w-full px-3.5 py-2.5 bg-slate-50/60 hover:bg-white border border-slate-200 rounded-xl text-xs text-slate-800 focus:bg-white focus:outline-none focus:border-blue-500 transition-all"
-              required
-            />
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[11px] font-extrabold text-slate-700 uppercase tracking-wider h-5 flex items-center">
+                Key Functional Requirements
+              </label>
+              <textarea
+                rows={3}
+                placeholder="Title: Description per line (e.g. Responsive UI: Ensure seamless layout...)"
+                value={formData.requirements}
+                onChange={(e) => setFormData({ ...formData, requirements: e.target.value })}
+                className="w-full px-3.5 py-2 bg-slate-50/60 hover:bg-white border border-slate-200 rounded-xl text-xs text-slate-800 font-mono focus:bg-white focus:outline-none focus:border-blue-500 transition-all resize-none"
+              />
+            </div>
           </div>
 
-          <div className="flex flex-col gap-1.5">
-            <label className="text-[11px] font-extrabold text-slate-700 uppercase tracking-wider">
-              Full Project Overview Brief
-            </label>
-            <textarea
-              rows={3}
-              placeholder="Develop a production-ready solution adhering to industry coding standards, modular component organization, and clean user experience."
-              value={formData.overview}
-              onChange={(e) => setFormData({ ...formData, overview: e.target.value })}
-              className="w-full px-3.5 py-2.5 bg-slate-50/60 hover:bg-white border border-slate-200 rounded-xl text-xs text-slate-800 focus:bg-white focus:outline-none focus:border-blue-500 transition-all"
-            />
+          {/* Row 5: Recommended Implementation Steps & Evaluation Rubric Criteria */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[11px] font-extrabold text-slate-700 uppercase tracking-wider h-5 flex items-center">
+                Recommended Implementation Steps
+              </label>
+              <textarea
+                rows={3}
+                placeholder="One per line (e.g. 1. Setup repository&#10;2. Build core logic&#10;3. Submit link)"
+                value={formData.steps}
+                onChange={(e) => setFormData({ ...formData, steps: e.target.value })}
+                className="w-full px-3.5 py-2 bg-slate-50/60 hover:bg-white border border-slate-200 rounded-xl text-xs text-slate-800 font-mono focus:bg-white focus:outline-none focus:border-blue-500 transition-all resize-none"
+              />
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[11px] font-extrabold text-slate-700 uppercase tracking-wider h-5 flex items-center">
+                Evaluation Rubric & Weights
+              </label>
+              <textarea
+                rows={3}
+                placeholder="Label: Weight per line (e.g. UI/UX: 35%&#10;Logic: 35%&#10;Clean Code: 30%)"
+                value={formData.rubric}
+                onChange={(e) => setFormData({ ...formData, rubric: e.target.value })}
+                className="w-full px-3.5 py-2 bg-slate-50/60 hover:bg-white border border-slate-200 rounded-xl text-xs text-slate-800 font-mono focus:bg-white focus:outline-none focus:border-blue-500 transition-all resize-none"
+              />
+            </div>
           </div>
 
-          <div className="flex flex-col gap-1.5">
-            <label className="text-[11px] font-extrabold text-slate-700 uppercase tracking-wider">
-              Key Functional Requirements (Title: Description per line)
-            </label>
-            <textarea
-              rows={3}
-              placeholder="Responsive UI & Modern Layout: Ensure seamless experience across mobile, tablet, and desktop viewports.&#10;Input Validation & State Handling: Implement validation rules, error feedback, and loading states async.&#10;Clean Code & Version Control: Submit clean code with meaningful commit messages."
-              value={formData.requirements}
-              onChange={(e) => setFormData({ ...formData, requirements: e.target.value })}
-              className="w-full px-3.5 py-2.5 bg-slate-50/60 hover:bg-white border border-slate-200 rounded-xl text-xs text-slate-800 font-mono focus:bg-white focus:outline-none focus:border-blue-500 transition-all"
-            />
-          </div>
-
-          <div className="flex flex-col gap-1.5">
-            <label className="text-[11px] font-extrabold text-slate-700 uppercase tracking-wider">
-              Recommended Implementation Steps (One per line)
-            </label>
-            <textarea
-              rows={3}
-              placeholder="1. Setup project repository&#10;2. Build core feature logic&#10;3. Submit drive link"
-              value={formData.steps}
-              onChange={(e) => setFormData({ ...formData, steps: e.target.value })}
-              className="w-full px-3.5 py-2.5 bg-slate-50/60 hover:bg-white border border-slate-200 rounded-xl text-xs text-slate-800 font-mono focus:bg-white focus:outline-none focus:border-blue-500 transition-all"
-            />
-          </div>
-
-          <div className="flex flex-col gap-1.5">
-            <label className="text-[11px] font-extrabold text-slate-700 uppercase tracking-wider">
-              Evaluation Rubric Criteria & Weights (Label: Weight per line)
-            </label>
-            <textarea
-              rows={3}
-              placeholder="UI/UX & Responsiveness: 35%&#10;Functionality & Logic: 35%&#10;Code Quality & Cleanliness: 30%"
-              value={formData.rubric}
-              onChange={(e) => setFormData({ ...formData, rubric: e.target.value })}
-              className="w-full px-3.5 py-2.5 bg-slate-50/60 hover:bg-white border border-slate-200 rounded-xl text-xs text-slate-800 font-mono focus:bg-white focus:outline-none focus:border-blue-500 transition-all"
-            />
-          </div>
-
-          <Input
-            label="Mentor Pro Tip"
-            type="text"
-            placeholder="e.g. Test code thoroughly before submitting drive link."
-            value={formData.mentorTip}
-            onChange={(e) => setFormData({ ...formData, mentorTip: e.target.value })}
-          />
-
-          <div className="flex justify-end gap-2.5 pt-2">
+          <div className="flex justify-end gap-2.5 pt-3 border-t border-slate-100">
             <Button variant="secondary" onClick={() => setIsCreateModalOpen(false)}>
               Cancel
             </Button>

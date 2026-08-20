@@ -7,7 +7,8 @@ export function Modal({
   title,
   subtitle,
   children,
-  maxWidth = 'max-w-xl'
+  maxWidth = 'max-w-xl',
+  maxHeight = 'max-h-[88vh]'
 }) {
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -24,7 +25,7 @@ export function Modal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
       <div
-        className={`relative w-full ${maxWidth} bg-white rounded-2xl shadow-2xl border border-slate-100 overflow-hidden transform transition-all animate-in zoom-in-95 duration-200`}
+        className={`relative w-full ${maxWidth} bg-white rounded-2xl shadow-2xl border border-slate-100 overflow-hidden transform transition-all animate-in zoom-in-95 duration-200 my-auto`}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -42,7 +43,7 @@ export function Modal({
         </div>
 
         {/* Content */}
-        <div className="px-6 py-5 max-h-[80vh] overflow-y-auto">{children}</div>
+        <div className={`px-6 py-5 ${maxHeight} overflow-y-auto`}>{children}</div>
       </div>
     </div>
   );
