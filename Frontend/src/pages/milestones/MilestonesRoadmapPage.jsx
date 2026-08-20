@@ -1131,7 +1131,7 @@ export function MilestonesRoadmapPage() {
                 <div
                   className={`relative z-10 flex h-9 w-9 items-center justify-center rounded-full border-2 transition-all shadow-sm ${
                     isStageCurrentUnlocked
-                      ? 'border-emerald-600 bg-emerald-600 text-white'
+                      ? 'border-purple-600 bg-purple-600 text-white'
                       : 'border-slate-300 bg-slate-100 text-slate-400'
                   }`}
                 >
