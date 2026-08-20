@@ -729,7 +729,19 @@ export function LmsDataProvider({ children }) {
       const { data: topicsData } = await supabase.from('course_topics').select('*');
       const topicsByCourse = {};
       if (topicsData && topicsData.length > 0) {
-        topicsData.forEach(t => {
+        // Sort topics numerically by their Stage number (Stage 1, Stage 2...) or ID
+        const sortedTopics = [...topicsData].sort((a, b) => {
+          const numA = parseInt((a.title || '').match(/Stage\s*(\d+)/i)?.[1]) || 
+                       parseInt((a.id || '').match(/stg-(\d+)/)?.[1]) || 
+                       parseInt((a.id || '').match(/stg\d+/)?.[1]) || 999;
+          const numB = parseInt((b.title || '').match(/Stage\s*(\d+)/i)?.[1]) || 
+                       parseInt((b.id || '').match(/stg-(\d+)/)?.[1]) || 
+                       parseInt((b.id || '').match(/stg\d+/)?.[1]) || 999;
+          if (numA !== numB) return numA - numB;
+          return new Date(a.created_at || 0) - new Date(b.created_at || 0);
+        });
+
+        sortedTopics.forEach(t => {
           if (!topicsByCourse[t.course_id]) topicsByCourse[t.course_id] = [];
           topicsByCourse[t.course_id].push({
             id: t.id,
@@ -737,7 +749,7 @@ export function LmsDataProvider({ children }) {
             liveClasses: t.live_classes || 0,
             practice: t.practice || 0,
             assessments: t.assessments || 0,
-            subtopics: t.subtopics || [] // <-- Add this
+            subtopics: t.subtopics || []
           });
         });
       }
