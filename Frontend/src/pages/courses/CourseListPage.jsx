@@ -9,7 +9,6 @@ import { ConfirmDialog } from '../../components/common/ConfirmDialog';
 import { Badge } from '../../components/common/Badge';
 import { EmptyState } from '../../components/common/EmptyState';
 import { BatchFilterSelector } from '../../components/common/BatchFilterSelector';
-import { INITIAL_COURSES, INITIAL_MILESTONES } from '../../utils/mockData';
 import {
   BookOpen,
   Plus,
@@ -51,7 +50,7 @@ function getCourseModulesCount(course, milestones) {
 
   const isPythonFullStackCourse = (course.title || '').toLowerCase().includes('python full') || (course.id || '').includes('1786624019154');
   if (isPythonFullStackCourse) {
-    const milestoneStages = milestones?.stages || INITIAL_MILESTONES?.stages || [];
+    const milestoneStages = milestones?.stages || [];
     return milestoneStages.length > 0 ? milestoneStages.length : 4;
   }
 
@@ -590,7 +589,7 @@ export function CourseListPage() {
                 Check or uncheck Weekday batch numbers for this course:
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {((availableBatches && availableBatches.length > 0 ? availableBatches : ['A26W1', 'A26W2', 'A26W3', 'A26W4']).filter(b => b.startsWith('A26W') && !b.startsWith('A26S') && !b.startsWith('A26WE'))).map((bCode) => {
+                {((availableBatches && availableBatches.length > 0 ? availableBatches : ['A26W1', 'A26W2', 'A26W3']).filter(b => b.startsWith('A26W') && !b.startsWith('A26S') && !b.startsWith('A26WE'))).map((bCode) => {
                   const isSelected = selectedWeekdayBatches.includes(bCode);
 
                   return (

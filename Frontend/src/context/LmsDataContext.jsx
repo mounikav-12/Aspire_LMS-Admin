@@ -14,6 +14,7 @@ import {
   INITIAL_USERS,
   INITIAL_STUDENTS,
   INITIAL_ROLE_PERMISSIONS,
+  INITIAL_BADGES,
   MOCK_ACTIVITIES,
   ROLES
 } from '../utils/mockData';
@@ -185,8 +186,13 @@ export function LmsDataProvider({ children }) {
   const [recordingsByBatch, setRecordingsByBatch] = useState(() => loadBatchDictState('aspire_lms_recordings_by_batch', INITIAL_RECORDINGS, 'aspire_lms_recordings_version', 'v6_cleared_mock_data'));
   const [placementResources, setPlacementResources] = useState(() => loadLocalState('aspire_lms_placement_resources', INITIAL_PLACEMENT_RESOURCES));
   const [projectsByBatch, setProjectsByBatch] = useState(() => loadBatchDictState('aspire_lms_projects_by_batch', INITIAL_PROJECTS, 'aspire_lms_projects_version', 'v7_student_ui_projects'));
+  const [badges, setBadges] = useState(() => loadLocalState('aspire_lms_badges', INITIAL_BADGES));
   const [courseLessons, setCourseLessons] = useState([]);
   const [milestoneLocks, setMilestoneLocks] = useState([]);
+
+  useEffect(() => {
+    try { localStorage.setItem('aspire_lms_badges', JSON.stringify(badges)); } catch (e) {}
+  }, [badges]);
 
   useEffect(() => {
     try { localStorage.setItem('aspire_lms_users', JSON.stringify(users)); } catch (e) {}
@@ -1032,7 +1038,7 @@ export function LmsDataProvider({ children }) {
           const next = { 'Weekday Batch': [], 'Weekend Batch': [] };
           mappedProjects.forEach(p => {
             const target = (p.targetBatch || '').toUpperCase();
-            if (target === 'ALL BATCHES' || target === 'ALL') {
+            if (target === 'ALL BATCHES' || target === 'ALL' || !p.targetBatch || target === '') {
               next['Weekday Batch'].push(p);
               next['Weekend Batch'].push(p);
             } else if (target === 'WEEKEND BATCH' || target.includes('WEEKEND') || target.includes('A26S')) {
@@ -1127,6 +1133,29 @@ export function LmsDataProvider({ children }) {
         if (locksData) setMilestoneLocks(locksData);
       } catch (err) { console.warn('Milestone locks load:', err); }
 
+      // 13. Fetch Badges Catalog
+      try {
+        const { data: badgesData, error: badgesErr } = await supabase.from('badges').select('*');
+        if (!badgesErr && badgesData && badgesData.length > 0) {
+          setBadges(badgesData.map(b => ({
+            id: b.id,
+            name: b.name || '',
+            description: b.description || '',
+            icon: b.icon || 'Award',
+            color: b.color || 'purple',
+            category: b.category || 'Achievement',
+            criteria: b.criteria || '',
+            points: b.points || '100 XP',
+            targetBatch: b.target_batch || b.targetBatch || 'ALL BATCHES'
+          })));
+        } else {
+          const { data: milesBadges } = await supabase.from('milestones_data').select('*').eq('id', 'badges_data');
+          if (milesBadges && milesBadges[0]?.overview?.badges) {
+            setBadges(milesBadges[0].overview.badges);
+          }
+        }
+      } catch (err) { console.warn('Badges load:', err); }
+
     } catch (err) {
       console.warn('Supabase initial fetch using fallback mock data:', err);
     } finally {
@@ -1162,6 +1191,8 @@ export function LmsDataProvider({ children }) {
             });
           } else if (row.id === 'completed_items' && Array.isArray(row.overview?.itemIds)) {
             setCompletedMilestoneItemIds(row.overview.itemIds);
+          } else if (row.id === 'badges_data' && Array.isArray(row.overview?.badges)) {
+            setBadges(row.overview.badges);
           }
         }
       });
@@ -1169,6 +1200,7 @@ export function LmsDataProvider({ children }) {
       makeChannel('assessments', () => fetchSupabaseData());
       makeChannel('coding_questions', () => fetchSupabaseData());
       makeChannel('projects', () => fetchSupabaseData());
+      makeChannel('badges', () => fetchSupabaseData());
 
       // Live Sessions — delta update
       makeChannel('live_sessions', (payload) => {
@@ -2108,6 +2140,7 @@ export function LmsDataProvider({ children }) {
 
     // --- PROJECTS ---
   const addProject = async (projectData, targetBatch = activeBatchFilter) => {
+    const batchTargetVal = projectData.targetBatch || 'ALL BATCHES';
     const bKey = resolveBatchKey(targetBatch);
     const techStackArray = Array.isArray(projectData.techStack)
       ? projectData.techStack
@@ -2117,7 +2150,7 @@ export function LmsDataProvider({ children }) {
 
     const newProject = {
       id: `proj-${Date.now()}-${bKey === 'Weekday Batch' ? 'w' : 's'}`,
-      targetBatch: bKey,
+      targetBatch: batchTargetVal,
       assignedCount: projectData.assignedCount || 1,
       submittedCount: projectData.submittedCount || 0,
       feedbackCount: projectData.feedbackCount || 0,
@@ -2129,11 +2162,18 @@ export function LmsDataProvider({ children }) {
       techStack: techStackArray
     };
 
-    setProjectsByBatch((prev) => ({
-      ...prev,
-      [bKey]: [newProject, ...(prev[bKey] || [])]
-    }));
-    logActivity(`Published new project: "${newProject.title}" (${bKey})`, 'project');
+    setProjectsByBatch((prev) => {
+      const next = { ...prev };
+      const keysToUpdate = (batchTargetVal === 'ALL BATCHES' || batchTargetVal === 'ALL')
+        ? ['Weekday Batch', 'Weekend Batch']
+        : [bKey];
+      keysToUpdate.forEach(k => {
+        next[k] = [newProject, ...(next[k] || []).filter(p => p.id !== newProject.id)];
+      });
+      return next;
+    });
+
+    logActivity(`Published new project: "${newProject.title}" (${batchTargetVal})`, 'project');
     try {
       const { error } = await supabase.from('projects').upsert([{
         id: newProject.id,
@@ -2153,7 +2193,7 @@ export function LmsDataProvider({ children }) {
         avg_grade: newProject.avgGrade,
         is_locked: newProject.isLocked,
         submissions: newProject.submissions,
-        target_batch: newProject.targetBatch,
+        target_batch: batchTargetVal,
         overview: newProject.overview || newProject.description || '',
         requirements: newProject.requirements || [],
         steps: newProject.steps || [],
@@ -2335,6 +2375,96 @@ export function LmsDataProvider({ children }) {
       const { error } = await supabase.from('coding_questions').delete().eq('id', id);
       if (error) console.error('Supabase coding question delete error:', error.message);
     } catch (err) { console.warn('Coding question delete handled:', err); }
+  };
+
+  // --- BADGES ---
+  const addBadge = async (badgeData) => {
+    const newBadge = {
+      id: `badge-${Date.now()}`,
+      name: badgeData.name || 'New Badge',
+      description: badgeData.description || '',
+      icon: badgeData.icon || 'Award',
+      color: badgeData.color || 'purple',
+      category: badgeData.category || 'Skill',
+      criteria: badgeData.criteria || '',
+      points: badgeData.points || '100 XP',
+      targetBatch: badgeData.targetBatch || 'ALL BATCHES'
+    };
+
+    setBadges((prev) => {
+      const updated = [newBadge, ...prev.filter((b) => b.id !== newBadge.id)];
+      // Broadcast via milestones_data
+      supabase.from('milestones_data').upsert([{
+        id: 'badges_data',
+        overview: { badges: updated },
+        updated_at: new Date().toISOString()
+      }]).then();
+      return updated;
+    });
+
+    logActivity(`Created new badge: "${newBadge.name}"`, 'badge');
+
+    try {
+      await supabase.from('badges').upsert([{
+        id: newBadge.id,
+        name: newBadge.name,
+        description: newBadge.description,
+        icon: newBadge.icon,
+        color: newBadge.color,
+        category: newBadge.category,
+        criteria: newBadge.criteria,
+        points: newBadge.points,
+        target_batch: newBadge.targetBatch
+      }]);
+    } catch (err) { console.warn('Badge insert handled:', err); }
+  };
+
+  const updateBadge = async (id, updatedFields) => {
+    setBadges((prev) => {
+      const updated = prev.map((b) => (b.id === id ? { ...b, ...updatedFields } : b));
+      supabase.from('milestones_data').upsert([{
+        id: 'badges_data',
+        overview: { badges: updated },
+        updated_at: new Date().toISOString()
+      }]).then();
+      return updated;
+    });
+
+    logActivity(`Updated badge ID ${id}`, 'badge');
+
+    try {
+      const dbFields = {};
+      if (updatedFields.name !== undefined) dbFields.name = updatedFields.name;
+      if (updatedFields.description !== undefined) dbFields.description = updatedFields.description;
+      if (updatedFields.icon !== undefined) dbFields.icon = updatedFields.icon;
+      if (updatedFields.color !== undefined) dbFields.color = updatedFields.color;
+      if (updatedFields.category !== undefined) dbFields.category = updatedFields.category;
+      if (updatedFields.criteria !== undefined) dbFields.criteria = updatedFields.criteria;
+      if (updatedFields.points !== undefined) dbFields.points = updatedFields.points;
+      if (updatedFields.targetBatch !== undefined) dbFields.target_batch = updatedFields.targetBatch;
+
+      if (Object.keys(dbFields).length > 0) {
+        await supabase.from('badges').update(dbFields).eq('id', id);
+      }
+    } catch (err) { console.warn('Badge update handled:', err); }
+  };
+
+  const deleteBadge = async (id) => {
+    setBadges((prev) => {
+      const updated = prev.filter((b) => b.id !== id);
+      supabase.from('milestones_data').upsert([{
+        id: 'badges_data',
+        overview: { badges: updated },
+        updated_at: new Date().toISOString()
+      }]).then();
+      return updated;
+    });
+
+    logActivity(`Deleted badge ID ${id}`, 'badge');
+
+    try {
+      await supabase.from('badges').delete().eq('id', id);
+    } catch (err) { console.warn('Badge delete handled:', err); }
   };
 
 
@@ -3179,6 +3309,10 @@ export function LmsDataProvider({ children }) {
         getProjectsForBatch,
         codingQuestionsByBatch,
         getCodingQuestionsForBatch,
+        badges,
+        addBadge,
+        updateBadge,
+        deleteBadge,
         availableBatches,
         addBatch,
         deleteBatch,

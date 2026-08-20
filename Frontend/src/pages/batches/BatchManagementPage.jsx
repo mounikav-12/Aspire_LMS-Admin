@@ -30,7 +30,7 @@ export function BatchManagementPage() {
   // Segregate Batches cleanly
   const allBatches = availableBatches && availableBatches.length > 0
     ? availableBatches
-    : ['A26W1', 'A26W2', 'A26W3', 'A26W4', 'A26S1', 'A26S2', 'A26S3'];
+    : ['A26W1', 'A26W2', 'A26W3', 'A26S1', 'A26S2', 'A26S3'];
 
   const weekdayBatches = allBatches.filter((b) => b.startsWith('A26W') && !b.startsWith('A26S') && !b.startsWith('A26WE'));
   const weekendBatches = allBatches.filter((b) => b.startsWith('A26S') || b.startsWith('A26WE'));
