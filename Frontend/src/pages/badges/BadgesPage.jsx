@@ -51,13 +51,21 @@ const ICON_MAP = {
 };
 
 const COLOR_THEMES = {
-  purple: {
-    bg: 'bg-purple-50/70 hover:bg-purple-50',
-    border: 'border-purple-200/80 hover:border-purple-400',
-    text: 'text-purple-700',
-    iconGradient: 'from-purple-600 to-indigo-600 text-white shadow-purple-500/25 ring-purple-500/10',
-    badge: 'bg-purple-100/80 text-purple-800 border-purple-200',
-    accent: 'bg-purple-600'
+  blue: {
+    bg: 'bg-blue-50/70 hover:bg-blue-50',
+    border: 'border-blue-200/80 hover:border-blue-400',
+    text: 'text-blue-700',
+    iconGradient: 'from-blue-600 to-indigo-600 text-white shadow-blue-500/25 ring-blue-500/10',
+    badge: 'bg-blue-100/80 text-blue-800 border-blue-200',
+    accent: 'bg-blue-600'
+  },
+  indigo: {
+    bg: 'bg-indigo-50/70 hover:bg-indigo-50',
+    border: 'border-indigo-200/80 hover:border-indigo-400',
+    text: 'text-indigo-700',
+    iconGradient: 'from-indigo-600 to-violet-600 text-white shadow-indigo-500/25 ring-indigo-500/10',
+    badge: 'bg-indigo-100/80 text-indigo-800 border-indigo-200',
+    accent: 'bg-indigo-600'
   },
   emerald: {
     bg: 'bg-emerald-50/70 hover:bg-emerald-50',
@@ -75,21 +83,13 @@ const COLOR_THEMES = {
     badge: 'bg-amber-100/80 text-amber-800 border-amber-200',
     accent: 'bg-amber-500'
   },
-  blue: {
-    bg: 'bg-blue-50/70 hover:bg-blue-50',
-    border: 'border-blue-200/80 hover:border-blue-400',
-    text: 'text-blue-700',
-    iconGradient: 'from-blue-600 to-cyan-600 text-white shadow-blue-500/25 ring-blue-500/10',
-    badge: 'bg-blue-100/80 text-blue-800 border-blue-200',
-    accent: 'bg-blue-600'
-  },
-  indigo: {
-    bg: 'bg-indigo-50/70 hover:bg-indigo-50',
-    border: 'border-indigo-200/80 hover:border-indigo-400',
-    text: 'text-indigo-700',
-    iconGradient: 'from-indigo-600 to-violet-600 text-white shadow-indigo-500/25 ring-indigo-500/10',
-    badge: 'bg-indigo-100/80 text-indigo-800 border-indigo-200',
-    accent: 'bg-indigo-600'
+  purple: {
+    bg: 'bg-purple-50/70 hover:bg-purple-50',
+    border: 'border-purple-200/80 hover:border-purple-400',
+    text: 'text-purple-700',
+    iconGradient: 'from-purple-600 to-indigo-600 text-white shadow-purple-500/25 ring-purple-500/10',
+    badge: 'bg-purple-100/80 text-purple-800 border-purple-200',
+    accent: 'bg-purple-600'
   },
   rose: {
     bg: 'bg-rose-50/70 hover:bg-rose-50',
@@ -123,7 +123,7 @@ export function BadgesPage() {
     description: '',
     category: 'Skill',
     icon: 'Award',
-    color: 'purple',
+    color: 'blue',
     criteria: '',
     points: '100 XP',
     targetBatch: 'ALL BATCHES'
@@ -136,7 +136,7 @@ export function BadgesPage() {
       description: '',
       category: 'Skill',
       icon: 'Award',
-      color: 'purple',
+      color: 'blue',
       criteria: '',
       points: '100 XP',
       targetBatch: 'ALL BATCHES'
@@ -151,7 +151,7 @@ export function BadgesPage() {
       description: badge.description || '',
       category: badge.category || 'Skill',
       icon: badge.icon || 'Award',
-      color: badge.color || 'purple',
+      color: badge.color || 'blue',
       criteria: badge.criteria || '',
       points: badge.points || '100 XP',
       targetBatch: badge.targetBatch || 'ALL BATCHES'
@@ -224,11 +224,11 @@ export function BadgesPage() {
   ];
 
   const availableColors = [
-    { key: 'purple', label: 'Purple', bg: 'bg-purple-600' },
-    { key: 'emerald', label: 'Emerald', bg: 'bg-emerald-600' },
-    { key: 'amber', label: 'Amber Gold', bg: 'bg-amber-500' },
     { key: 'blue', label: 'Royal Blue', bg: 'bg-blue-600' },
     { key: 'indigo', label: 'Indigo', bg: 'bg-indigo-600' },
+    { key: 'emerald', label: 'Emerald', bg: 'bg-emerald-600' },
+    { key: 'amber', label: 'Amber Gold', bg: 'bg-amber-500' },
+    { key: 'purple', label: 'Purple', bg: 'bg-purple-600' },
     { key: 'rose', label: 'Rose Red', bg: 'bg-rose-600' }
   ];
 
@@ -237,14 +237,14 @@ export function BadgesPage() {
       {/* Executive Hero Banner */}
       <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-slate-950 via-slate-900 to-indigo-950 text-white p-7 sm:p-9 shadow-2xl border border-slate-800/80">
         {/* Ambient Decorative Background Effects */}
-        <div className="absolute -top-24 -right-24 w-96 h-96 bg-purple-600/20 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -top-24 -right-24 w-96 h-96 bg-blue-600/20 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-indigo-600/20 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
 
         <div className="relative z-10 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
           <div className="space-y-3 max-w-2xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-purple-500/20 to-indigo-500/20 border border-purple-400/30 text-purple-300 text-xs font-black uppercase tracking-wider backdrop-blur-md">
-              <Sparkles className="w-3.5 h-3.5 text-purple-400 animate-pulse" />
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-blue-500/20 to-indigo-500/20 border border-blue-400/30 text-blue-300 text-xs font-black uppercase tracking-wider backdrop-blur-md">
+              <Sparkles className="w-3.5 h-3.5 text-blue-400 animate-pulse" />
               <span>Gamified Recognition Engine</span>
             </div>
             
@@ -265,7 +265,7 @@ export function BadgesPage() {
                 onClick={() => setActiveTab('catalog')}
                 className={`px-3.5 py-2 rounded-xl text-xs font-extrabold transition-all cursor-pointer ${
                   activeTab === 'catalog'
-                    ? 'bg-purple-600 text-white shadow-md shadow-purple-600/30'
+                    ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30'
                     : 'text-slate-400 hover:text-white'
                 }`}
               >
@@ -276,7 +276,7 @@ export function BadgesPage() {
                 onClick={() => setActiveTab('showcase')}
                 className={`px-3.5 py-2 rounded-xl text-xs font-extrabold transition-all cursor-pointer ${
                   activeTab === 'showcase'
-                    ? 'bg-purple-600 text-white shadow-md shadow-purple-600/30'
+                    ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30'
                     : 'text-slate-400 hover:text-white'
                 }`}
               >
@@ -288,7 +288,7 @@ export function BadgesPage() {
               variant="primary"
               icon={Plus}
               onClick={handleOpenAddModal}
-              className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-black shadow-lg shadow-purple-600/30 border border-purple-400/30 px-5 py-2.5 rounded-2xl cursor-pointer"
+              className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-black shadow-lg shadow-blue-600/30 border border-blue-400/30 px-5 py-2.5 rounded-2xl cursor-pointer"
             >
               Create Badge
             </Button>
@@ -301,7 +301,7 @@ export function BadgesPage() {
         <div className="bg-white p-5 rounded-3xl border border-slate-200/80 shadow-2xs hover:shadow-md transition-all">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Badges</span>
-            <div className="w-10 h-10 rounded-2xl bg-purple-50 text-purple-600 border border-purple-100 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 border border-blue-100 flex items-center justify-center">
               <Award className="w-5 h-5" />
             </div>
           </div>
@@ -391,7 +391,7 @@ export function BadgesPage() {
             placeholder="Search badge name or criteria..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-9 pr-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-purple-500 focus:bg-white transition-all shadow-2xs font-semibold"
+            className="w-full pl-9 pr-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:bg-white transition-all shadow-2xs font-semibold"
           />
         </div>
       </div>
@@ -401,7 +401,7 @@ export function BadgesPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredBadges.map((badge) => {
             const IconComp = ICON_MAP[badge.icon] || Award;
-            const theme = COLOR_THEMES[badge.color] || COLOR_THEMES.purple;
+            const theme = COLOR_THEMES[badge.color] || COLOR_THEMES.blue;
 
             return (
               <div
@@ -419,7 +419,7 @@ export function BadgesPage() {
                         <span className={`inline-block mb-1 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider border ${theme.badge}`}>
                           {badge.category}
                         </span>
-                        <h3 className="font-black text-slate-900 text-base leading-snug group-hover:text-purple-700 transition-colors">
+                        <h3 className="font-black text-slate-900 text-base leading-snug group-hover:text-blue-700 transition-colors">
                           {badge.name}
                         </h3>
                       </div>
@@ -453,9 +453,9 @@ export function BadgesPage() {
                   <button
                     type="button"
                     onClick={() => setAwardModalBadge(badge)}
-                    className="flex items-center gap-2 px-4 py-2 rounded-2xl text-xs font-extrabold text-white bg-slate-900 hover:bg-purple-700 shadow-md transition-all cursor-pointer"
+                    className="flex items-center gap-2 px-4 py-2 rounded-2xl text-xs font-extrabold text-white bg-slate-900 hover:bg-blue-600 shadow-md transition-all cursor-pointer"
                   >
-                    <Award className="w-4 h-4 text-purple-400" />
+                    <Award className="w-4 h-4 text-blue-400" />
                     <span>Award Badge</span>
                   </button>
 
@@ -484,7 +484,7 @@ export function BadgesPage() {
 
           {filteredBadges.length === 0 && (
             <div className="col-span-full bg-white p-12 rounded-3xl border border-slate-200 text-center space-y-4 shadow-2xs">
-              <div className="w-16 h-16 rounded-3xl bg-purple-50 border border-purple-100 flex items-center justify-center text-purple-500 mx-auto">
+              <div className="w-16 h-16 rounded-3xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 mx-auto">
                 <Award className="w-8 h-8" />
               </div>
               <div className="space-y-1">
@@ -504,12 +504,12 @@ export function BadgesPage() {
       {/* STUDENT SHOWCASE VIEW MODE */}
       {activeTab === 'showcase' && (
         <div className="space-y-6">
-          <div className="p-6 bg-gradient-to-r from-purple-900 to-slate-900 rounded-3xl text-white space-y-2">
+          <div className="p-6 bg-gradient-to-r from-slate-950 via-slate-900 to-indigo-950 rounded-3xl text-white space-y-2 border border-slate-800">
             <h3 className="text-lg font-black flex items-center gap-2">
               <Sparkles className="w-5 h-5 text-amber-400" />
               <span>Student Profile Achievement Preview</span>
             </h3>
-            <p className="text-xs text-purple-200 leading-relaxed max-w-2xl">
+            <p className="text-xs text-blue-200 leading-relaxed max-w-2xl">
               This preview demonstrates how badges are presented to enrolled students on their LMS profile dashboard upon achieving course milestones.
             </p>
           </div>
@@ -517,7 +517,7 @@ export function BadgesPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {badges.map((badge, idx) => {
               const IconComp = ICON_MAP[badge.icon] || Award;
-              const theme = COLOR_THEMES[badge.color] || COLOR_THEMES.purple;
+              const theme = COLOR_THEMES[badge.color] || COLOR_THEMES.blue;
               const isUnlocked = idx < 2; // Preview first 2 as unlocked for demo
 
               return (
@@ -556,7 +556,7 @@ export function BadgesPage() {
 
                   <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
                     <span className="font-extrabold text-slate-500">{badge.category}</span>
-                    <span className="font-black text-purple-700 bg-purple-50 px-2.5 py-0.5 rounded-full border border-purple-200">
+                    <span className="font-black text-blue-700 bg-blue-50 px-2.5 py-0.5 rounded-full border border-blue-200">
                       {badge.points || '100 XP'}
                     </span>
                   </div>
@@ -622,7 +622,7 @@ export function BadgesPage() {
                     onClick={() => setFormData({ ...formData, icon: ic.key })}
                     className={`p-3 rounded-xl flex flex-col items-center gap-1.5 transition-all cursor-pointer ${
                       isSelected
-                        ? 'bg-purple-600 text-white shadow-md ring-2 ring-purple-600'
+                        ? 'bg-blue-600 text-white shadow-md ring-2 ring-blue-600'
                         : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
                     }`}
                   >
@@ -648,7 +648,7 @@ export function BadgesPage() {
                     type="button"
                     onClick={() => setFormData({ ...formData, color: col.key })}
                     className={`h-10 rounded-xl flex items-center justify-center transition-all cursor-pointer ${col.bg} ${
-                      isSelected ? 'ring-4 ring-offset-2 ring-purple-600 scale-105' : 'hover:scale-95 opacity-90'
+                      isSelected ? 'ring-4 ring-offset-2 ring-blue-600 scale-105' : 'hover:scale-95 opacity-90'
                     }`}
                     title={col.label}
                   >
@@ -676,7 +676,7 @@ export function BadgesPage() {
               placeholder="Brief description of what this badge recognizes..."
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-2xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-purple-500 shadow-2xs font-medium"
+              className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-2xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-blue-500 shadow-2xs font-medium"
             />
           </div>
 
@@ -684,7 +684,7 @@ export function BadgesPage() {
             <Button variant="outline" type="button" onClick={() => setIsModalOpen(false)}>
               Cancel
             </Button>
-            <Button variant="primary" type="submit" className="bg-purple-600 hover:bg-purple-500">
+            <Button variant="primary" type="submit">
               {editingBadge ? 'Save Badge' : 'Publish Badge'}
             </Button>
           </div>
@@ -717,7 +717,7 @@ export function BadgesPage() {
             <Button variant="outline" type="button" onClick={() => setAwardModalBadge(null)}>
               Cancel
             </Button>
-            <Button variant="primary" type="submit" icon={Award} className="bg-purple-600 hover:bg-purple-500">
+            <Button variant="primary" type="submit" icon={Award}>
               Award Badge Now
             </Button>
           </div>

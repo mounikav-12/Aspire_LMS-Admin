@@ -879,10 +879,10 @@ export function ProjectManagementPage() {
               <div className="p-4 bg-slate-50/90 rounded-2xl border border-slate-200/80 space-y-3">
                 <div className="flex items-center justify-between">
                   <label className="text-xs font-black text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
-                    <Layers className="w-4 h-4 text-purple-600" />
+                    <Layers className="w-4 h-4 text-blue-600" />
                     <span>CURRICULUM LOCATION & MILESTONE TOPIC MAPPING</span>
                   </label>
-                  <span className="text-[11px] font-extrabold text-purple-700 bg-purple-50 px-2.5 py-1 rounded-xl border border-purple-200/60">
+                  <span className="text-[11px] font-extrabold text-blue-700 bg-blue-50 px-2.5 py-1 rounded-xl border border-blue-200/60">
                     4-Tier Milestone Cascade
                   </span>
                 </div>
