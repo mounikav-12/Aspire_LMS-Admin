@@ -227,32 +227,29 @@ export function LmsDataProvider({ children }) {
         const { data, error } = await supabase
           .from('rewards')
           .select('*')
-          .order('required_xp', { ascending: true });
+          .order('reward_required_xp_points', { ascending: true });
 
         if (!error && data && data.length > 0 && isMounted) {
           const normalized = data.map((row) => {
-            const isReleased = row.is_released !== undefined
-              ? row.is_released
-              : (row.is_locked !== undefined ? !row.is_locked : (row.reward_locked_or_unlocked !== undefined ? !row.reward_locked_or_unlocked : false));
+            const isLocked = row.is_locked !== undefined ? row.is_locked : true;
 
             return {
               id: row.id,
-              title: row.title || row.reward_title || 'Untitled Reward',
-              reward_title: row.title || row.reward_title || 'Untitled Reward',
-              image: row.image || row.image_url || row.reward_image_url || '/rewards/stickers.jpg',
-              image_url: row.image || row.image_url || row.reward_image_url || '/rewards/stickers.jpg',
-              reward_image_url: row.image || row.image_url || row.reward_image_url || '/rewards/stickers.jpg',
-              requiredXp: Number(row.required_xp || row.reward_required_xp_points || row.requiredXp || 1000),
-              required_xp: Number(row.required_xp || row.reward_required_xp_points || row.requiredXp || 1000),
-              reward_required_xp_points: Number(row.required_xp || row.reward_required_xp_points || row.requiredXp || 1000),
-              isReleased: isReleased,
-              is_released: isReleased,
-              is_locked: !isReleased,
-              reward_locked_or_unlocked: !isReleased,
+              title: row.reward_title || 'Untitled Reward',
+              reward_title: row.reward_title || 'Untitled Reward',
+              image: row.reward_image_url || '/rewards/stickers.jpg',
+              image_url: row.reward_image_url || '/rewards/stickers.jpg',
+              reward_image_url: row.reward_image_url || '/rewards/stickers.jpg',
+              requiredXp: Number(row.reward_required_xp_points || 1000),
+              required_xp: Number(row.reward_required_xp_points || 1000),
+              reward_required_xp_points: Number(row.reward_required_xp_points || 1000),
+              isReleased: !isLocked,
+              is_released: !isLocked,
+              is_locked: isLocked,
               category: row.category || 'ACCESSORIES',
               stock: row.stock !== undefined ? Number(row.stock) : 50,
               description: row.description || '',
-              unlockedCount: row.unlocked_count || row.unlockedCount || 0
+              unlockedCount: 0
             };
           });
           setRewards(normalized);
@@ -260,16 +257,10 @@ export function LmsDataProvider({ children }) {
           // If Supabase table is empty, seed initial rewards into database
           const seedData = INITIAL_REWARDS.map(r => ({
             id: r.id,
-            title: r.title,
             reward_title: r.title,
-            image: r.image,
-            image_url: r.image,
             reward_image_url: r.image,
-            required_xp: r.requiredXp,
             reward_required_xp_points: r.requiredXp,
             is_locked: !r.isReleased,
-            reward_locked_or_unlocked: !r.isReleased,
-            is_released: r.isReleased,
             category: r.category,
             stock: r.stock || 50,
             description: r.description || ''
@@ -290,54 +281,48 @@ export function LmsDataProvider({ children }) {
         if (payload.eventType === 'INSERT') {
           const row = payload.new;
           if (row) {
-            const isReleased = row.is_released !== undefined
-              ? row.is_released
-              : (row.is_locked !== undefined ? !row.is_locked : (row.reward_locked_or_unlocked !== undefined ? !row.reward_locked_or_unlocked : false));
+            const isLocked = row.is_locked !== undefined ? row.is_locked : true;
             const newRow = {
               id: row.id,
-              title: row.title || row.reward_title || 'Untitled Reward',
-              reward_title: row.title || row.reward_title || 'Untitled Reward',
-              image: row.image || row.image_url || row.reward_image_url || '/rewards/stickers.jpg',
-              image_url: row.image || row.image_url || row.reward_image_url || '/rewards/stickers.jpg',
-              reward_image_url: row.image || row.image_url || row.reward_image_url || '/rewards/stickers.jpg',
-              requiredXp: Number(row.required_xp || row.reward_required_xp_points || row.requiredXp || 1000),
-              required_xp: Number(row.required_xp || row.reward_required_xp_points || row.requiredXp || 1000),
-              reward_required_xp_points: Number(row.required_xp || row.reward_required_xp_points || row.requiredXp || 1000),
-              isReleased: isReleased,
-              is_released: isReleased,
-              is_locked: !isReleased,
-              reward_locked_or_unlocked: !isReleased,
+              title: row.reward_title || 'Untitled Reward',
+              reward_title: row.reward_title || 'Untitled Reward',
+              image: row.reward_image_url || '/rewards/stickers.jpg',
+              image_url: row.reward_image_url || '/rewards/stickers.jpg',
+              reward_image_url: row.reward_image_url || '/rewards/stickers.jpg',
+              requiredXp: Number(row.reward_required_xp_points || 1000),
+              required_xp: Number(row.reward_required_xp_points || 1000),
+              reward_required_xp_points: Number(row.reward_required_xp_points || 1000),
+              isReleased: !isLocked,
+              is_released: !isLocked,
+              is_locked: isLocked,
               category: row.category || 'ACCESSORIES',
               stock: row.stock !== undefined ? Number(row.stock) : 50,
               description: row.description || '',
-              unlockedCount: row.unlocked_count || row.unlockedCount || 0
+              unlockedCount: 0
             };
             setRewards((prev) => [newRow, ...prev.filter((r) => r.id !== newRow.id)]);
           }
         } else if (payload.eventType === 'UPDATE') {
           const row = payload.new;
           if (row) {
-            const isReleased = row.is_released !== undefined
-              ? row.is_released
-              : (row.is_locked !== undefined ? !row.is_locked : (row.reward_locked_or_unlocked !== undefined ? !row.reward_locked_or_unlocked : false));
+            const isLocked = row.is_locked !== undefined ? row.is_locked : true;
             const updatedRow = {
               id: row.id,
-              title: row.title || row.reward_title || 'Untitled Reward',
-              reward_title: row.title || row.reward_title || 'Untitled Reward',
-              image: row.image || row.image_url || row.reward_image_url || '/rewards/stickers.jpg',
-              image_url: row.image || row.image_url || row.reward_image_url || '/rewards/stickers.jpg',
-              reward_image_url: row.image || row.image_url || row.reward_image_url || '/rewards/stickers.jpg',
-              requiredXp: Number(row.required_xp || row.reward_required_xp_points || row.requiredXp || 1000),
-              required_xp: Number(row.required_xp || row.reward_required_xp_points || row.requiredXp || 1000),
-              reward_required_xp_points: Number(row.required_xp || row.reward_required_xp_points || row.requiredXp || 1000),
-              isReleased: isReleased,
-              is_released: isReleased,
-              is_locked: !isReleased,
-              reward_locked_or_unlocked: !isReleased,
+              title: row.reward_title || 'Untitled Reward',
+              reward_title: row.reward_title || 'Untitled Reward',
+              image: row.reward_image_url || '/rewards/stickers.jpg',
+              image_url: row.reward_image_url || '/rewards/stickers.jpg',
+              reward_image_url: row.reward_image_url || '/rewards/stickers.jpg',
+              requiredXp: Number(row.reward_required_xp_points || 1000),
+              required_xp: Number(row.reward_required_xp_points || 1000),
+              reward_required_xp_points: Number(row.reward_required_xp_points || 1000),
+              isReleased: !isLocked,
+              is_released: !isLocked,
+              is_locked: isLocked,
               category: row.category || 'ACCESSORIES',
               stock: row.stock !== undefined ? Number(row.stock) : 50,
               description: row.description || '',
-              unlockedCount: row.unlocked_count || row.unlockedCount || 0
+              unlockedCount: 0
             };
             setRewards((prev) => prev.map((r) => (r.id === updatedRow.id ? updatedRow : r)));
           }
@@ -2943,25 +2928,28 @@ export function LmsDataProvider({ children }) {
 
   // Reward Management Handlers with Real-time Supabase Database Sync
   const addReward = async (newReward) => {
+    const isLocked = newReward.is_locked !== undefined 
+      ? newReward.is_locked 
+      : (newReward.isReleased !== undefined ? !newReward.isReleased : true);
+
     const item = {
       ...newReward,
       id: newReward.id || `rew-${Date.now()}`,
-      title: newReward.title || 'New Reward',
-      reward_title: newReward.title || 'New Reward',
-      image: newReward.image || '/rewards/stickers.jpg',
-      image_url: newReward.image || '/rewards/stickers.jpg',
-      reward_image_url: newReward.image || '/rewards/stickers.jpg',
-      requiredXp: Number(newReward.requiredXp || 1000),
-      required_xp: Number(newReward.requiredXp || 1000),
-      reward_required_xp_points: Number(newReward.requiredXp || 1000),
-      isReleased: newReward.isReleased !== undefined ? newReward.isReleased : false,
-      is_released: newReward.isReleased !== undefined ? newReward.isReleased : false,
-      is_locked: newReward.isReleased !== undefined ? !newReward.isReleased : true,
-      reward_locked_or_unlocked: newReward.isReleased !== undefined ? !newReward.isReleased : true,
+      title: newReward.reward_title || newReward.title || 'New Reward',
+      reward_title: newReward.reward_title || newReward.title || 'New Reward',
+      image: newReward.reward_image_url || newReward.image || '/rewards/stickers.jpg',
+      image_url: newReward.reward_image_url || newReward.image || '/rewards/stickers.jpg',
+      reward_image_url: newReward.reward_image_url || newReward.image || '/rewards/stickers.jpg',
+      requiredXp: Number(newReward.reward_required_xp_points || newReward.requiredXp || 1000),
+      required_xp: Number(newReward.reward_required_xp_points || newReward.requiredXp || 1000),
+      reward_required_xp_points: Number(newReward.reward_required_xp_points || newReward.requiredXp || 1000),
+      isReleased: !isLocked,
+      is_released: !isLocked,
+      is_locked: isLocked,
       category: newReward.category || 'ACCESSORIES',
       stock: Number(newReward.stock || 50),
       description: newReward.description || '',
-      unlockedCount: newReward.unlockedCount || 0
+      unlockedCount: 0
     };
 
     setRewards((prev) => [item, ...prev.filter((r) => r.id !== item.id)]);
@@ -2969,16 +2957,10 @@ export function LmsDataProvider({ children }) {
     try {
       await supabase.from('rewards').upsert([{
         id: item.id,
-        title: item.title,
         reward_title: item.reward_title,
-        image: item.image,
-        image_url: item.image_url,
         reward_image_url: item.reward_image_url,
-        required_xp: item.required_xp,
         reward_required_xp_points: item.reward_required_xp_points,
         is_locked: item.is_locked,
-        reward_locked_or_unlocked: item.reward_locked_or_unlocked,
-        is_released: item.is_released,
         category: item.category,
         stock: item.stock,
         description: item.description,
@@ -2997,24 +2979,19 @@ export function LmsDataProvider({ children }) {
 
     try {
       const dbFields = { updated_at: new Date().toISOString() };
-      if (updatedFields.title !== undefined) {
-        dbFields.title = updatedFields.title;
-        dbFields.reward_title = updatedFields.title;
+      if (updatedFields.title !== undefined || updatedFields.reward_title !== undefined) {
+        dbFields.reward_title = updatedFields.reward_title || updatedFields.title;
       }
-      if (updatedFields.image !== undefined) {
-        dbFields.image = updatedFields.image;
-        dbFields.image_url = updatedFields.image;
-        dbFields.reward_image_url = updatedFields.image;
+      if (updatedFields.image !== undefined || updatedFields.reward_image_url !== undefined || updatedFields.image_url !== undefined) {
+        dbFields.reward_image_url = updatedFields.reward_image_url || updatedFields.image || updatedFields.image_url;
       }
-      if (updatedFields.requiredXp !== undefined) {
-        const xp = Number(updatedFields.requiredXp);
-        dbFields.required_xp = xp;
-        dbFields.reward_required_xp_points = xp;
+      if (updatedFields.requiredXp !== undefined || updatedFields.reward_required_xp_points !== undefined) {
+        dbFields.reward_required_xp_points = Number(updatedFields.reward_required_xp_points || updatedFields.requiredXp);
       }
-      if (updatedFields.isReleased !== undefined) {
-        dbFields.is_released = updatedFields.isReleased;
+      if (updatedFields.is_locked !== undefined) {
+        dbFields.is_locked = updatedFields.is_locked;
+      } else if (updatedFields.isReleased !== undefined) {
         dbFields.is_locked = !updatedFields.isReleased;
-        dbFields.reward_locked_or_unlocked = !updatedFields.isReleased;
       }
       if (updatedFields.category !== undefined) dbFields.category = updatedFields.category;
       if (updatedFields.stock !== undefined) dbFields.stock = Number(updatedFields.stock);
@@ -3039,6 +3016,7 @@ export function LmsDataProvider({ children }) {
   const toggleReleaseReward = async (id) => {
     const target = rewards.find((r) => r.id === id);
     const newReleased = target ? !target.isReleased : true;
+    const newLocked = !newReleased;
 
     setRewards((prev) =>
       prev.map((r) =>
@@ -3047,8 +3025,7 @@ export function LmsDataProvider({ children }) {
               ...r,
               isReleased: newReleased,
               is_released: newReleased,
-              is_locked: !newReleased,
-              reward_locked_or_unlocked: !newReleased
+              is_locked: newLocked
             }
           : r
       )
@@ -3056,9 +3033,7 @@ export function LmsDataProvider({ children }) {
 
     try {
       await supabase.from('rewards').update({
-        is_released: newReleased,
-        is_locked: !newReleased,
-        reward_locked_or_unlocked: !newReleased,
+        is_locked: newLocked,
         updated_at: new Date().toISOString()
       }).eq('id', id);
     } catch (err) {
@@ -3072,16 +3047,13 @@ export function LmsDataProvider({ children }) {
         ...r,
         isReleased: true,
         is_released: true,
-        is_locked: false,
-        reward_locked_or_unlocked: false
+        is_locked: false
       }))
     );
 
     try {
       await supabase.from('rewards').update({
-        is_released: true,
         is_locked: false,
-        reward_locked_or_unlocked: false,
         updated_at: new Date().toISOString()
       }).neq('id', 'null');
     } catch (err) {
@@ -3095,16 +3067,13 @@ export function LmsDataProvider({ children }) {
         ...r,
         isReleased: false,
         is_released: false,
-        is_locked: true,
-        reward_locked_or_unlocked: true
+        is_locked: true
       }))
     );
 
     try {
       await supabase.from('rewards').update({
-        is_released: false,
         is_locked: true,
-        reward_locked_or_unlocked: true,
         updated_at: new Date().toISOString()
       }).neq('id', 'null');
     } catch (err) {

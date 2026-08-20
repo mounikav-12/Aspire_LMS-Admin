@@ -205,20 +205,13 @@ DROP TABLE IF EXISTS public.daily_schedules CASCADE;
 -- 15. REWARDS & MERCHANDISE CATALOG TABLE
 CREATE TABLE IF NOT EXISTS public.rewards (
   id TEXT PRIMARY KEY,
-  title TEXT NOT NULL,
-  reward_title TEXT,
-  image_url TEXT,
+  reward_title TEXT NOT NULL,
   reward_image_url TEXT,
-  image TEXT,
-  required_xp INT DEFAULT 1000,
   reward_required_xp_points INT DEFAULT 1000,
   is_locked BOOLEAN DEFAULT true,
-  reward_locked_or_unlocked BOOLEAN DEFAULT true,
-  is_released BOOLEAN DEFAULT false,
   category TEXT DEFAULT 'ACCESSORIES',
   stock INT DEFAULT 50,
   description TEXT,
-  unlocked_count INT DEFAULT 0,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );

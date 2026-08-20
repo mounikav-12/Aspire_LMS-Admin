@@ -375,21 +375,20 @@ app.post('/api/schedule', async (req, res) => {
 // 7. REWARDS & MERCHANDISE REALTIME DATABASE APIS
 // =========================================================
 const DEFAULT_REWARDS_SEED = [
-  { id: 'rew-1', title: 'Developer Sticker Pack', reward_title: 'Developer Sticker Pack', image: '/rewards/stickers.jpg', image_url: '/rewards/stickers.jpg', reward_image_url: '/rewards/stickers.jpg', required_xp: 1000, reward_required_xp_points: 1000, is_locked: true, reward_locked_or_unlocked: true, is_released: false, category: 'ACCESSORIES', stock: 100, description: 'High quality vinyl stickers for laptop and workspace customization.' },
-  { id: 'rew-2', title: 'Aspire Next Coffee Mug', reward_title: 'Aspire Next Coffee Mug', image: '/rewards/mug.jpg', image_url: '/rewards/mug.jpg', reward_image_url: '/rewards/mug.jpg', required_xp: 2000, reward_required_xp_points: 2000, is_locked: true, reward_locked_or_unlocked: true, is_released: false, category: 'DRINKWARE', stock: 50, description: 'Matte ceramic coffee mug with premium branding.' },
-  { id: 'rew-3', title: 'Reusable Smart Notebook', reward_title: 'Reusable Smart Notebook', image: '/rewards/notebook.jpg', image_url: '/rewards/notebook.jpg', reward_image_url: '/rewards/notebook.jpg', required_xp: 3800, reward_required_xp_points: 3800, is_locked: true, reward_locked_or_unlocked: true, is_released: false, category: 'STATIONERY', stock: 40, description: 'Cloud-connected reusable digital smart notebook.' },
-  { id: 'rew-4', title: 'Smart LED Flask', reward_title: 'Smart LED Flask', image: '/rewards/flask.jpg', image_url: '/rewards/flask.jpg', reward_image_url: '/rewards/flask.jpg', required_xp: 5000, reward_required_xp_points: 5000, is_locked: true, reward_locked_or_unlocked: true, is_released: false, category: 'DRINKWARE', stock: 35, description: 'Insulated stainless steel temperature display smart water flask.' },
-  { id: 'rew-5', title: 'Premium Developer T-Shirt', reward_title: 'Premium Developer T-Shirt', image: '/rewards/tshirt.jpg', image_url: '/rewards/tshirt.jpg', reward_image_url: '/rewards/tshirt.jpg', required_xp: 8000, reward_required_xp_points: 8000, is_locked: true, reward_locked_or_unlocked: true, is_released: false, category: 'APPAREL', stock: 60, description: '100% combed cotton high quality developer merchandise t-shirt.' },
-  { id: 'rew-6', title: 'Tech Backpack', reward_title: 'Tech Backpack', image: '/rewards/backpack.jpg', image_url: '/rewards/backpack.jpg', reward_image_url: '/rewards/backpack.jpg', required_xp: 15000, reward_required_xp_points: 15000, is_locked: true, reward_locked_or_unlocked: true, is_released: false, category: 'GEAR', stock: 20, description: 'Water resistant laptop & tech accessories organizer backpack.' }
+  { id: 'rew-1', reward_title: 'Developer Sticker Pack', reward_image_url: '/rewards/stickers.jpg', reward_required_xp_points: 1000, is_locked: true, category: 'ACCESSORIES', stock: 100, description: 'High quality vinyl stickers for laptop and workspace customization.' },
+  { id: 'rew-2', reward_title: 'Aspire Next Coffee Mug', reward_image_url: '/rewards/mug.jpg', reward_required_xp_points: 2000, is_locked: true, category: 'DRINKWARE', stock: 50, description: 'Matte ceramic coffee mug with premium branding.' },
+  { id: 'rew-3', reward_title: 'Reusable Smart Notebook', reward_image_url: '/rewards/notebook.jpg', reward_required_xp_points: 3800, is_locked: true, category: 'STATIONERY', stock: 40, description: 'Cloud-connected reusable digital smart notebook.' },
+  { id: 'rew-4', reward_title: 'Smart LED Flask', reward_image_url: '/rewards/flask.jpg', reward_required_xp_points: 5000, is_locked: true, category: 'DRINKWARE', stock: 35, description: 'Insulated stainless steel temperature display smart water flask.' },
+  { id: 'rew-5', reward_title: 'Premium Developer T-Shirt', reward_image_url: '/rewards/tshirt.jpg', reward_required_xp_points: 8000, is_locked: true, category: 'APPAREL', stock: 60, description: '100% combed cotton high quality developer merchandise t-shirt.' },
+  { id: 'rew-6', reward_title: 'Tech Backpack', reward_image_url: '/rewards/backpack.jpg', reward_required_xp_points: 15000, is_locked: true, category: 'GEAR', stock: 20, description: 'Water resistant laptop & tech accessories organizer backpack.' }
 ];
 
 app.get('/api/rewards', async (req, res) => {
   try {
-    const { data, error } = await supabase.from('rewards').select('*').order('required_xp', { ascending: true });
+    const { data, error } = await supabase.from('rewards').select('*').order('reward_required_xp_points', { ascending: true });
     if (error) throw error;
 
     if (!data || data.length === 0) {
-      // Seed default rewards if table is newly created
       try {
         await supabase.from('rewards').upsert(DEFAULT_REWARDS_SEED);
       } catch (seedErr) {}
@@ -407,16 +406,10 @@ app.post('/api/rewards', async (req, res) => {
     const payload = req.body;
     const item = {
       id: payload.id || `rew-${Date.now()}`,
-      title: payload.title || payload.reward_title || 'New Reward',
-      reward_title: payload.title || payload.reward_title || 'New Reward',
-      image: payload.image || payload.image_url || payload.reward_image_url || '/rewards/stickers.jpg',
-      image_url: payload.image || payload.image_url || payload.reward_image_url || '/rewards/stickers.jpg',
-      reward_image_url: payload.image || payload.image_url || payload.reward_image_url || '/rewards/stickers.jpg',
-      required_xp: Number(payload.requiredXp || payload.required_xp || payload.reward_required_xp_points || 1000),
-      reward_required_xp_points: Number(payload.requiredXp || payload.required_xp || payload.reward_required_xp_points || 1000),
-      is_locked: payload.isReleased !== undefined ? !payload.isReleased : (payload.is_locked !== undefined ? payload.is_locked : true),
-      reward_locked_or_unlocked: payload.isReleased !== undefined ? !payload.isReleased : (payload.is_locked !== undefined ? payload.is_locked : true),
-      is_released: payload.isReleased !== undefined ? payload.isReleased : (payload.is_released !== undefined ? payload.is_released : false),
+      reward_title: payload.reward_title || payload.title || 'New Reward',
+      reward_image_url: payload.reward_image_url || payload.image || payload.image_url || '/rewards/stickers.jpg',
+      reward_required_xp_points: Number(payload.reward_required_xp_points || payload.requiredXp || payload.required_xp || 1000),
+      is_locked: payload.is_locked !== undefined ? payload.is_locked : (payload.isReleased !== undefined ? !payload.isReleased : true),
       category: payload.category || 'ACCESSORIES',
       stock: Number(payload.stock || 50),
       description: payload.description || '',
@@ -441,29 +434,19 @@ app.put('/api/rewards/:id', async (req, res) => {
     const updates = {
       updated_at: new Date().toISOString()
     };
-    if (payload.title !== undefined) {
-      updates.title = payload.title;
-      updates.reward_title = payload.title;
+    if (payload.reward_title !== undefined || payload.title !== undefined) {
+      updates.reward_title = payload.reward_title || payload.title;
     }
-    if (payload.image !== undefined || payload.image_url !== undefined || payload.reward_image_url !== undefined) {
-      const img = payload.image || payload.image_url || payload.reward_image_url;
-      updates.image = img;
-      updates.image_url = img;
-      updates.reward_image_url = img;
+    if (payload.reward_image_url !== undefined || payload.image !== undefined || payload.image_url !== undefined) {
+      updates.reward_image_url = payload.reward_image_url || payload.image || payload.image_url;
     }
-    if (payload.requiredXp !== undefined || payload.required_xp !== undefined || payload.reward_required_xp_points !== undefined) {
-      const xp = Number(payload.requiredXp || payload.required_xp || payload.reward_required_xp_points);
-      updates.required_xp = xp;
-      updates.reward_required_xp_points = xp;
+    if (payload.reward_required_xp_points !== undefined || payload.requiredXp !== undefined || payload.required_xp !== undefined) {
+      updates.reward_required_xp_points = Number(payload.reward_required_xp_points || payload.requiredXp || payload.required_xp);
     }
-    if (payload.isReleased !== undefined) {
-      updates.is_released = payload.isReleased;
-      updates.is_locked = !payload.isReleased;
-      updates.reward_locked_or_unlocked = !payload.isReleased;
-    } else if (payload.is_locked !== undefined) {
+    if (payload.is_locked !== undefined) {
       updates.is_locked = payload.is_locked;
-      updates.reward_locked_or_unlocked = payload.is_locked;
-      updates.is_released = !payload.is_locked;
+    } else if (payload.isReleased !== undefined) {
+      updates.is_locked = !payload.isReleased;
     }
     if (payload.category !== undefined) updates.category = payload.category;
     if (payload.stock !== undefined) updates.stock = Number(payload.stock);
@@ -493,13 +476,11 @@ app.delete('/api/rewards/:id', async (req, res) => {
 app.put('/api/rewards/:id/toggle-lock', async (req, res) => {
   try {
     const { id } = req.params;
-    const { data: current } = await supabase.from('rewards').select('is_locked, is_released').eq('id', id).single();
+    const { data: current } = await supabase.from('rewards').select('is_locked').eq('id', id).single();
     const newLocked = current ? !current.is_locked : false;
 
     const updates = {
       is_locked: newLocked,
-      reward_locked_or_unlocked: newLocked,
-      is_released: !newLocked,
       updated_at: new Date().toISOString()
     };
 
@@ -516,8 +497,6 @@ app.post('/api/rewards/release-all', async (req, res) => {
   try {
     const updates = {
       is_locked: false,
-      reward_locked_or_unlocked: false,
-      is_released: true,
       updated_at: new Date().toISOString()
     };
     await supabase.from('rewards').update(updates).neq('id', 'null');
@@ -531,8 +510,6 @@ app.post('/api/rewards/lock-all', async (req, res) => {
   try {
     const updates = {
       is_locked: true,
-      reward_locked_or_unlocked: true,
-      is_released: false,
       updated_at: new Date().toISOString()
     };
     await supabase.from('rewards').update(updates).neq('id', 'null');
@@ -567,11 +544,14 @@ app.get('/api/v1/student-feed', async (req, res) => {
         jobOpportunities: jobs || [],
         rewards: (rewardsData && rewardsData.length > 0 ? rewardsData : DEFAULT_REWARDS_SEED).map(r => ({
           id: r.id,
-          reward_title: r.title || r.reward_title,
-          reward_image_url: r.image || r.image_url || r.reward_image_url,
-          reward_required_xp_points: r.required_xp || r.reward_required_xp_points,
-          reward_locked_or_unlocked: r.is_locked !== undefined ? r.is_locked : r.reward_locked_or_unlocked,
-          is_released_to_students: r.is_released !== undefined ? r.is_released : !r.is_locked
+          reward_title: r.reward_title || r.title,
+          reward_image_url: r.reward_image_url || r.image || r.image_url,
+          reward_required_xp_points: r.reward_required_xp_points || r.required_xp,
+          is_locked: r.is_locked,
+          is_released_to_students: !r.is_locked,
+          category: r.category,
+          stock: r.stock,
+          description: r.description
         }))
       }
     });
