@@ -14,6 +14,7 @@ import {
   INITIAL_USERS,
   INITIAL_STUDENTS,
   INITIAL_ROLE_PERMISSIONS,
+  INITIAL_REWARDS,
   MOCK_ACTIVITIES,
   ROLES
 } from '../utils/mockData';
@@ -185,6 +186,175 @@ export function LmsDataProvider({ children }) {
   const [recordingsByBatch, setRecordingsByBatch] = useState(() => loadBatchDictState('aspire_lms_recordings_by_batch', INITIAL_RECORDINGS, 'aspire_lms_recordings_version', 'v6_cleared_mock_data'));
   const [placementResources, setPlacementResources] = useState(() => loadLocalState('aspire_lms_placement_resources', INITIAL_PLACEMENT_RESOURCES));
   const [projectsByBatch, setProjectsByBatch] = useState(() => loadBatchDictState('aspire_lms_projects_by_batch', INITIAL_PROJECTS, 'aspire_lms_projects_version', 'v6_cleared_mock_data'));
+  const [rewards, setRewards] = useState(() => loadLocalState('aspire_lms_rewards_v2', INITIAL_REWARDS));
+
+  const DEFAULT_REWARDS_HEADER = {
+    badgeText: 'STUDENT MERCHANDISE & SWAG STORE',
+    title: 'AspireNext Rewards & Merchandise',
+    description: 'Earn XP points by solving coding practice problems, completing quizzes, and finishing course modules to unlock official branded merchandise.',
+    xpBadgeLabel: '0 Total Student XP'
+  };
+
+  const [rewardsStoreConfig, setRewardsStoreConfig] = useState(() => {
+    try {
+      const saved = localStorage.getItem('aspire_lms_rewards_header_config');
+      if (saved) return JSON.parse(saved);
+    } catch (e) {}
+    return DEFAULT_REWARDS_HEADER;
+  });
+
+  const updateRewardsStoreConfig = (newConfig) => {
+    setRewardsStoreConfig((prev) => {
+      const updated = { ...prev, ...newConfig };
+      try {
+        localStorage.setItem('aspire_lms_rewards_header_config', JSON.stringify(updated));
+      } catch (e) {}
+      return updated;
+    });
+  };
+
+  useEffect(() => {
+    try { localStorage.setItem('aspire_lms_rewards_v2', JSON.stringify(rewards)); } catch (e) {}
+  }, [rewards]);
+
+  // Realtime Supabase Database Sync for Rewards
+  useEffect(() => {
+    let isMounted = true;
+
+    // 1. Initial fetch from Supabase
+    async function loadRewardsFromDb() {
+      try {
+        const { data, error } = await supabase
+          .from('rewards')
+          .select('*')
+          .order('required_xp', { ascending: true });
+
+        if (!error && data && data.length > 0 && isMounted) {
+          const normalized = data.map((row) => {
+            const isReleased = row.is_released !== undefined
+              ? row.is_released
+              : (row.is_locked !== undefined ? !row.is_locked : (row.reward_locked_or_unlocked !== undefined ? !row.reward_locked_or_unlocked : false));
+
+            return {
+              id: row.id,
+              title: row.title || row.reward_title || 'Untitled Reward',
+              reward_title: row.title || row.reward_title || 'Untitled Reward',
+              image: row.image || row.image_url || row.reward_image_url || '/rewards/stickers.jpg',
+              image_url: row.image || row.image_url || row.reward_image_url || '/rewards/stickers.jpg',
+              reward_image_url: row.image || row.image_url || row.reward_image_url || '/rewards/stickers.jpg',
+              requiredXp: Number(row.required_xp || row.reward_required_xp_points || row.requiredXp || 1000),
+              required_xp: Number(row.required_xp || row.reward_required_xp_points || row.requiredXp || 1000),
+              reward_required_xp_points: Number(row.required_xp || row.reward_required_xp_points || row.requiredXp || 1000),
+              isReleased: isReleased,
+              is_released: isReleased,
+              is_locked: !isReleased,
+              reward_locked_or_unlocked: !isReleased,
+              category: row.category || 'ACCESSORIES',
+              stock: row.stock !== undefined ? Number(row.stock) : 50,
+              description: row.description || '',
+              unlockedCount: row.unlocked_count || row.unlockedCount || 0
+            };
+          });
+          setRewards(normalized);
+        } else if (!error && (!data || data.length === 0)) {
+          // If Supabase table is empty, seed initial rewards into database
+          const seedData = INITIAL_REWARDS.map(r => ({
+            id: r.id,
+            title: r.title,
+            reward_title: r.title,
+            image: r.image,
+            image_url: r.image,
+            reward_image_url: r.image,
+            required_xp: r.requiredXp,
+            reward_required_xp_points: r.requiredXp,
+            is_locked: !r.isReleased,
+            reward_locked_or_unlocked: !r.isReleased,
+            is_released: r.isReleased,
+            category: r.category,
+            stock: r.stock || 50,
+            description: r.description || ''
+          }));
+          await supabase.from('rewards').upsert(seedData);
+        }
+      } catch (err) {
+        console.warn('[Supabase Rewards] fetch warning:', err);
+      }
+    }
+
+    loadRewardsFromDb();
+
+    // 2. Realtime subscription to postgres_changes
+    const channel = supabase
+      .channel('realtime_rewards_store')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'rewards' }, (payload) => {
+        if (payload.eventType === 'INSERT') {
+          const row = payload.new;
+          if (row) {
+            const isReleased = row.is_released !== undefined
+              ? row.is_released
+              : (row.is_locked !== undefined ? !row.is_locked : (row.reward_locked_or_unlocked !== undefined ? !row.reward_locked_or_unlocked : false));
+            const newRow = {
+              id: row.id,
+              title: row.title || row.reward_title || 'Untitled Reward',
+              reward_title: row.title || row.reward_title || 'Untitled Reward',
+              image: row.image || row.image_url || row.reward_image_url || '/rewards/stickers.jpg',
+              image_url: row.image || row.image_url || row.reward_image_url || '/rewards/stickers.jpg',
+              reward_image_url: row.image || row.image_url || row.reward_image_url || '/rewards/stickers.jpg',
+              requiredXp: Number(row.required_xp || row.reward_required_xp_points || row.requiredXp || 1000),
+              required_xp: Number(row.required_xp || row.reward_required_xp_points || row.requiredXp || 1000),
+              reward_required_xp_points: Number(row.required_xp || row.reward_required_xp_points || row.requiredXp || 1000),
+              isReleased: isReleased,
+              is_released: isReleased,
+              is_locked: !isReleased,
+              reward_locked_or_unlocked: !isReleased,
+              category: row.category || 'ACCESSORIES',
+              stock: row.stock !== undefined ? Number(row.stock) : 50,
+              description: row.description || '',
+              unlockedCount: row.unlocked_count || row.unlockedCount || 0
+            };
+            setRewards((prev) => [newRow, ...prev.filter((r) => r.id !== newRow.id)]);
+          }
+        } else if (payload.eventType === 'UPDATE') {
+          const row = payload.new;
+          if (row) {
+            const isReleased = row.is_released !== undefined
+              ? row.is_released
+              : (row.is_locked !== undefined ? !row.is_locked : (row.reward_locked_or_unlocked !== undefined ? !row.reward_locked_or_unlocked : false));
+            const updatedRow = {
+              id: row.id,
+              title: row.title || row.reward_title || 'Untitled Reward',
+              reward_title: row.title || row.reward_title || 'Untitled Reward',
+              image: row.image || row.image_url || row.reward_image_url || '/rewards/stickers.jpg',
+              image_url: row.image || row.image_url || row.reward_image_url || '/rewards/stickers.jpg',
+              reward_image_url: row.image || row.image_url || row.reward_image_url || '/rewards/stickers.jpg',
+              requiredXp: Number(row.required_xp || row.reward_required_xp_points || row.requiredXp || 1000),
+              required_xp: Number(row.required_xp || row.reward_required_xp_points || row.requiredXp || 1000),
+              reward_required_xp_points: Number(row.required_xp || row.reward_required_xp_points || row.requiredXp || 1000),
+              isReleased: isReleased,
+              is_released: isReleased,
+              is_locked: !isReleased,
+              reward_locked_or_unlocked: !isReleased,
+              category: row.category || 'ACCESSORIES',
+              stock: row.stock !== undefined ? Number(row.stock) : 50,
+              description: row.description || '',
+              unlockedCount: row.unlocked_count || row.unlockedCount || 0
+            };
+            setRewards((prev) => prev.map((r) => (r.id === updatedRow.id ? updatedRow : r)));
+          }
+        } else if (payload.eventType === 'DELETE') {
+          const deletedId = payload.old?.id;
+          if (deletedId) {
+            setRewards((prev) => prev.filter((r) => r.id !== deletedId));
+          }
+        }
+      })
+      .subscribe();
+
+    return () => {
+      isMounted = false;
+      supabase.removeChannel(channel);
+    };
+  }, []);
 
   useEffect(() => {
     try { localStorage.setItem('aspire_lms_users', JSON.stringify(users)); } catch (e) {}
@@ -2771,6 +2941,177 @@ export function LmsDataProvider({ children }) {
     }
   };
 
+  // Reward Management Handlers with Real-time Supabase Database Sync
+  const addReward = async (newReward) => {
+    const item = {
+      ...newReward,
+      id: newReward.id || `rew-${Date.now()}`,
+      title: newReward.title || 'New Reward',
+      reward_title: newReward.title || 'New Reward',
+      image: newReward.image || '/rewards/stickers.jpg',
+      image_url: newReward.image || '/rewards/stickers.jpg',
+      reward_image_url: newReward.image || '/rewards/stickers.jpg',
+      requiredXp: Number(newReward.requiredXp || 1000),
+      required_xp: Number(newReward.requiredXp || 1000),
+      reward_required_xp_points: Number(newReward.requiredXp || 1000),
+      isReleased: newReward.isReleased !== undefined ? newReward.isReleased : false,
+      is_released: newReward.isReleased !== undefined ? newReward.isReleased : false,
+      is_locked: newReward.isReleased !== undefined ? !newReward.isReleased : true,
+      reward_locked_or_unlocked: newReward.isReleased !== undefined ? !newReward.isReleased : true,
+      category: newReward.category || 'ACCESSORIES',
+      stock: Number(newReward.stock || 50),
+      description: newReward.description || '',
+      unlockedCount: newReward.unlockedCount || 0
+    };
+
+    setRewards((prev) => [item, ...prev.filter((r) => r.id !== item.id)]);
+
+    try {
+      await supabase.from('rewards').upsert([{
+        id: item.id,
+        title: item.title,
+        reward_title: item.reward_title,
+        image: item.image,
+        image_url: item.image_url,
+        reward_image_url: item.reward_image_url,
+        required_xp: item.required_xp,
+        reward_required_xp_points: item.reward_required_xp_points,
+        is_locked: item.is_locked,
+        reward_locked_or_unlocked: item.reward_locked_or_unlocked,
+        is_released: item.is_released,
+        category: item.category,
+        stock: item.stock,
+        description: item.description,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      }]);
+    } catch (err) {
+      console.warn('Supabase addReward handled:', err);
+    }
+  };
+
+  const updateReward = async (id, updatedFields) => {
+    setRewards((prev) =>
+      prev.map((r) => (r.id === id ? { ...r, ...updatedFields } : r))
+    );
+
+    try {
+      const dbFields = { updated_at: new Date().toISOString() };
+      if (updatedFields.title !== undefined) {
+        dbFields.title = updatedFields.title;
+        dbFields.reward_title = updatedFields.title;
+      }
+      if (updatedFields.image !== undefined) {
+        dbFields.image = updatedFields.image;
+        dbFields.image_url = updatedFields.image;
+        dbFields.reward_image_url = updatedFields.image;
+      }
+      if (updatedFields.requiredXp !== undefined) {
+        const xp = Number(updatedFields.requiredXp);
+        dbFields.required_xp = xp;
+        dbFields.reward_required_xp_points = xp;
+      }
+      if (updatedFields.isReleased !== undefined) {
+        dbFields.is_released = updatedFields.isReleased;
+        dbFields.is_locked = !updatedFields.isReleased;
+        dbFields.reward_locked_or_unlocked = !updatedFields.isReleased;
+      }
+      if (updatedFields.category !== undefined) dbFields.category = updatedFields.category;
+      if (updatedFields.stock !== undefined) dbFields.stock = Number(updatedFields.stock);
+      if (updatedFields.description !== undefined) dbFields.description = updatedFields.description;
+
+      await supabase.from('rewards').update(dbFields).eq('id', id);
+    } catch (err) {
+      console.warn('Supabase updateReward handled:', err);
+    }
+  };
+
+  const deleteReward = async (id) => {
+    setRewards((prev) => prev.filter((r) => r.id !== id));
+
+    try {
+      await supabase.from('rewards').delete().eq('id', id);
+    } catch (err) {
+      console.warn('Supabase deleteReward handled:', err);
+    }
+  };
+
+  const toggleReleaseReward = async (id) => {
+    const target = rewards.find((r) => r.id === id);
+    const newReleased = target ? !target.isReleased : true;
+
+    setRewards((prev) =>
+      prev.map((r) =>
+        r.id === id
+          ? {
+              ...r,
+              isReleased: newReleased,
+              is_released: newReleased,
+              is_locked: !newReleased,
+              reward_locked_or_unlocked: !newReleased
+            }
+          : r
+      )
+    );
+
+    try {
+      await supabase.from('rewards').update({
+        is_released: newReleased,
+        is_locked: !newReleased,
+        reward_locked_or_unlocked: !newReleased,
+        updated_at: new Date().toISOString()
+      }).eq('id', id);
+    } catch (err) {
+      console.warn('Supabase toggleReleaseReward handled:', err);
+    }
+  };
+
+  const releaseAllRewards = async () => {
+    setRewards((prev) =>
+      prev.map((r) => ({
+        ...r,
+        isReleased: true,
+        is_released: true,
+        is_locked: false,
+        reward_locked_or_unlocked: false
+      }))
+    );
+
+    try {
+      await supabase.from('rewards').update({
+        is_released: true,
+        is_locked: false,
+        reward_locked_or_unlocked: false,
+        updated_at: new Date().toISOString()
+      }).neq('id', 'null');
+    } catch (err) {
+      console.warn('Supabase releaseAllRewards handled:', err);
+    }
+  };
+
+  const lockAllRewards = async () => {
+    setRewards((prev) =>
+      prev.map((r) => ({
+        ...r,
+        isReleased: false,
+        is_released: false,
+        is_locked: true,
+        reward_locked_or_unlocked: true
+      }))
+    );
+
+    try {
+      await supabase.from('rewards').update({
+        is_released: false,
+        is_locked: true,
+        reward_locked_or_unlocked: true,
+        updated_at: new Date().toISOString()
+      }).neq('id', 'null');
+    } catch (err) {
+      console.warn('Supabase lockAllRewards handled:', err);
+    }
+  };
+
   return (
     <LmsDataContext.Provider
       value={{
@@ -2782,6 +3123,15 @@ export function LmsDataProvider({ children }) {
         addStudent,
         updateStudent,
         deleteStudent,
+        rewards,
+        rewardsStoreConfig,
+        updateRewardsStoreConfig,
+        addReward,
+        updateReward,
+        deleteReward,
+        toggleReleaseReward,
+        releaseAllRewards,
+        lockAllRewards,
         rolePermissions,
         toggleRolePermission,
         courses,
@@ -2888,6 +3238,20 @@ const defaultLmsDataContext = {
   toggleSubtopicCompletion: () => {},
   projects: [],
   codingQuestions: [],
+  rewards: [],
+  rewardsStoreConfig: {
+    badgeText: 'STUDENT MERCHANDISE & SWAG STORE',
+    title: 'AspireNext Rewards & Merchandise',
+    description: 'Earn XP points by solving coding practice problems, completing quizzes, and finishing course modules to unlock official branded merchandise.',
+    xpBadgeLabel: '0 Total Student XP'
+  },
+  updateRewardsStoreConfig: () => {},
+  addReward: () => {},
+  updateReward: () => {},
+  deleteReward: () => {},
+  toggleReleaseReward: () => {},
+  releaseAllRewards: () => {},
+  lockAllRewards: () => {},
   activities: [],
   isSupabaseConnected: false,
   activeBatchFilter: 'ALL',

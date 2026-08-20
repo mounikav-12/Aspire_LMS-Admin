@@ -1,6 +1,25 @@
 import React, { useEffect } from 'react';
 import { X } from 'lucide-react';
 
+const MAX_WIDTH_CLASSES = {
+  sm: 'max-w-sm',
+  md: 'max-w-md',
+  lg: 'max-w-lg',
+  xl: 'max-w-xl',
+  '2xl': 'max-w-2xl',
+  '3xl': 'max-w-3xl',
+  '4xl': 'max-w-4xl',
+  '5xl': 'max-w-5xl',
+  'max-w-sm': 'max-w-sm',
+  'max-w-md': 'max-w-md',
+  'max-w-lg': 'max-w-lg',
+  'max-w-xl': 'max-w-xl',
+  'max-w-2xl': 'max-w-2xl',
+  'max-w-3xl': 'max-w-3xl',
+  'max-w-4xl': 'max-w-4xl',
+  'max-w-5xl': 'max-w-5xl'
+};
+
 export function Modal({
   isOpen,
   onClose,
@@ -9,6 +28,8 @@ export function Modal({
   children,
   maxWidth = 'max-w-xl'
 }) {
+  const resolvedMaxWidth = MAX_WIDTH_CLASSES[maxWidth] || maxWidth;
+
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === 'Escape' && isOpen) {
@@ -22,9 +43,9 @@ export function Modal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 overflow-y-auto bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
       <div
-        className={`relative w-full ${maxWidth} bg-white rounded-2xl shadow-2xl border border-slate-100 overflow-hidden transform transition-all animate-in zoom-in-95 duration-200`}
+        className={`relative w-full ${resolvedMaxWidth} bg-white rounded-2xl shadow-2xl border border-slate-100 overflow-hidden my-auto transform transition-all animate-in zoom-in-95 duration-200`}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}

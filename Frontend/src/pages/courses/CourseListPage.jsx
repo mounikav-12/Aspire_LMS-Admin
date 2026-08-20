@@ -19,6 +19,8 @@ import {
   Edit2,
   Trash2,
   ChevronRight,
+  ChevronDown,
+  Check,
   Layers,
   Image as ImageIcon,
   Eye,
@@ -26,6 +28,83 @@ import {
   Square,
   Calendar
 } from 'lucide-react';
+
+function CustomDropdownSelect({ label, value, onChange, options = [], icon: Icon, placeholder = 'Select an option' }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = React.useRef(null);
+
+  React.useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const selectedOption = options.find((opt) => opt.value === value) || {
+    value,
+    label: value || placeholder
+  };
+
+  return (
+    <div className="w-full min-w-0 flex flex-col gap-1.5" ref={dropdownRef}>
+      {label && (
+        <label className="text-[11px] font-extrabold text-slate-700 tracking-wider uppercase truncate" title={label}>
+          {label}
+        </label>
+      )}
+      <div className="relative min-w-0">
+        <button
+          type="button"
+          onClick={() => setIsOpen(!isOpen)}
+          className={`w-full min-w-0 px-3.5 py-2.5 bg-slate-50/60 hover:bg-white border rounded-xl text-sm text-left flex items-center justify-between transition-all duration-200 cursor-pointer shadow-2xs ${
+            isOpen
+              ? 'bg-white border-blue-500 ring-4 ring-blue-500/10 text-slate-900'
+              : 'border-slate-200 text-slate-800'
+          }`}
+        >
+          <div className="flex items-center gap-2 min-w-0 truncate pr-2">
+            {Icon && <Icon className="w-4 h-4 text-slate-400 flex-shrink-0" />}
+            <span className="truncate text-sm font-medium">{selectedOption.label}</span>
+          </div>
+          <ChevronDown
+            className={`w-4 h-4 text-slate-500 flex-shrink-0 transition-transform duration-200 ${
+              isOpen ? 'rotate-180 text-blue-600' : ''
+            }`}
+          />
+        </button>
+
+        {isOpen && (
+          <div className="absolute right-0 left-0 top-full mt-1.5 z-50 bg-white border border-slate-200 rounded-xl shadow-xl max-h-56 overflow-y-auto p-1.5 space-y-0.5 animate-in fade-in zoom-in-95 duration-150">
+            {options.map((opt) => {
+              const isSelected = opt.value === value;
+              return (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={() => {
+                    onChange(opt.value);
+                    setIsOpen(false);
+                  }}
+                  className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-semibold text-left transition-colors cursor-pointer ${
+                    isSelected
+                      ? 'bg-blue-50 text-blue-700 font-bold'
+                      : 'text-slate-700 hover:bg-slate-50 hover:text-slate-900'
+                  }`}
+                >
+                  <span className="truncate pr-2">{opt.label}</span>
+                  {isSelected && <Check className="w-3.5 h-3.5 text-blue-600 flex-shrink-0" />}
+                </button>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
 
 function getCourseModulesCount(course, milestones) {
   if (!course) return 31;
@@ -241,6 +320,22 @@ export function CourseListPage() {
     setBatchFilterState(val);
     if (setActiveBatchFilter) setActiveBatchFilter(val);
   };
+  const allWeekdayBatchesList = (
+    availableBatches && availableBatches.length > 0
+      ? availableBatches.filter(
+          (b) => b.startsWith('A26W') && !b.startsWith('A26S') && !b.startsWith('A26WE')
+        )
+      : ['A26W1', 'A26W2', 'A26W3']
+  );
+  const allWeekendBatchesList = (
+    availableBatches && availableBatches.length > 0
+      ? availableBatches
+          .filter((b) => b.startsWith('A26S') || b.startsWith('A26WE'))
+          .map((b) => b.replace(/^A26WE/, 'A26S'))
+          .filter((b, i, arr) => arr.indexOf(b) === i)
+      : ['A26S1', 'A26S2']
+  );
+
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [editingCourse, setEditingCourse] = useState(null);
   const [deletingCourse, setDeletingCourse] = useState(null);
@@ -276,7 +371,7 @@ export function CourseListPage() {
       title: '',
       category: 'Web Development',
       level: 'Intermediate',
-      targetBatch: 'All Batches',
+      targetBatch: batchFilter || activeBatchFilter || 'All Batches',
       instructor: 'David Chen',
       thumbnail: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=600&auto=format&fit=crop&q=80',
       description: ''
@@ -288,12 +383,12 @@ export function CourseListPage() {
     setEditingCourse(course);
     setFormData({
       title: course.title,
-      category: course.category,
-      level: course.level,
+      category: course.category || 'Web Development',
+      level: course.level || 'Intermediate',
       targetBatch: course.targetBatch || 'All Batches',
-      instructor: course.instructor,
+      instructor: course.instructor || 'David Chen',
       thumbnail: course.thumbnail || 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=600&auto=format&fit=crop&q=80',
-      description: course.description
+      description: course.description || ''
     });
   };
 
@@ -311,7 +406,6 @@ export function CourseListPage() {
     } else {
       addCourse({
         ...formData,
-        targetBatch: batchFilter || activeBatchFilter || 'Weekday Batch',
         topics: (formData.topics && formData.topics.length > 0) ? formData.topics : [
           {
             id: `top-${Date.now()}-1`,
@@ -641,6 +735,7 @@ export function CourseListPage() {
         }}
         title={editingCourse ? 'Edit Course Details' : 'Add New Course'}
         subtitle="Define course properties, thumbnail URL, and instructor assignments"
+        maxWidth="max-w-4xl"
       >
         <form onSubmit={handleSaveCourse} className="space-y-4">
           <Input
@@ -651,22 +746,23 @@ export function CourseListPage() {
             required
           />
 
-          <div className="grid grid-cols-3 gap-4">
-            <Select
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <CustomDropdownSelect
               label="Category"
               value={formData.category}
-              onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+              onChange={(val) => setFormData({ ...formData, category: val })}
               options={[
                 { value: 'Web Development', label: 'Web Development' },
                 { value: 'Cloud & Infrastructure', label: 'Cloud & Infrastructure' },
-                { value: 'Computer Science', label: 'Computer Science' }
+                { value: 'Computer Science', label: 'Computer Science' },
+                { value: 'Courses', label: 'Courses' }
               ]}
             />
 
-            <Select
+            <CustomDropdownSelect
               label="Difficulty Level"
               value={formData.level}
-              onChange={(e) => setFormData({ ...formData, level: e.target.value })}
+              onChange={(val) => setFormData({ ...formData, level: val })}
               options={[
                 { value: 'Beginner', label: 'Beginner' },
                 { value: 'Intermediate', label: 'Intermediate' },
@@ -675,25 +771,34 @@ export function CourseListPage() {
               ]}
             />
 
-            <Select
+            <CustomDropdownSelect
               label="Target Batch Access"
               value={formData.targetBatch}
-              onChange={(e) => setFormData({ ...formData, targetBatch: e.target.value })}
+              onChange={(val) => setFormData({ ...formData, targetBatch: val })}
               options={[
                 { value: 'All Batches', label: 'All Batches (Global Access)' },
                 { value: 'Weekend Batch', label: 'Weekend Batches (All Weekend Students)' },
                 { value: 'Weekday Batch', label: 'Weekday Batches (All Weekday Students)' },
-                ...(availableBatches || ['A26W1', 'A26W2', 'A26S1']).map((b) => ({
-                  value: b,
-                  label: b.startsWith('A26W') && !b.startsWith('A26S')
-                    ? `${b} (Weekday Batch Code)`
-                    : `${b} (Weekend Batch Code)`
-                }))
+                { value: 'A26S1', label: 'A26S1 (Weekend Batch Code)' },
+                { value: 'A26S2', label: 'A26S2 (Weekend Batch Code)' },
+                { value: 'A26S3', label: 'A26S3 (Weekend Batch Code)' },
+                { value: 'A26S4', label: 'A26S4 (Weekend Batch Code)' },
+                { value: 'A26W1', label: 'A26W1 (Weekday Batch Code)' },
+                { value: 'A26W2', label: 'A26W2 (Weekday Batch Code)' },
+                { value: 'A26W3', label: 'A26W3 (Weekday Batch Code)' },
+                ...(availableBatches || [])
+                  .filter((b) => !['A26S1', 'A26S2', 'A26S3', 'A26S4', 'A26W1', 'A26W2', 'A26W3'].includes(b))
+                  .map((b) => ({
+                    value: b,
+                    label: b.startsWith('A26W') && !b.startsWith('A26S')
+                      ? `${b} (Weekday Batch Code)`
+                      : `${b} (Weekend Batch Code)`
+                  }))
               ]}
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Input
               label="Lead Instructor"
               placeholder="Instructor Name"
@@ -720,7 +825,7 @@ export function CourseListPage() {
               placeholder="Provide a comprehensive course overview..."
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              className="w-full px-3.5 py-2.5 bg-slate-50/60 hover:bg-white border border-slate-200 rounded-xl text-sm text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all shadow-2xs"
+              className="w-full px-3.5 py-2.5 bg-slate-50/60 hover:bg-white border border-slate-200 rounded-xl text-sm text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all shadow-2xs resize-none"
               required
             />
           </div>

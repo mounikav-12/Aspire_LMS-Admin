@@ -22,20 +22,54 @@ import {
   Lock,
   Unlock,
   Layers,
-  Bookmark
+  Bookmark,
+  CheckSquare,
+  Square
 } from 'lucide-react';
 
 export function LiveSessionListPage() {
-  const { liveSessions, addLiveSession, updateLiveSession, deleteLiveSession, toggleLiveSessionLock, activeBatchFilter, setActiveBatchFilter, milestones } = useLmsData();
+  const {
+    liveSessions,
+    courses = [],
+    addLiveSession,
+    updateLiveSession,
+    deleteLiveSession,
+    toggleLiveSessionLock,
+    activeBatchFilter,
+    setActiveBatchFilter,
+    milestones,
+    availableBatches
+  } = useLmsData();
   const { addToast } = useToast();
 
   const stagesList = milestones?.stages || [];
+
+  const allWeekdayBatchesList = (
+    availableBatches && availableBatches.length > 0
+      ? availableBatches.filter(
+          (b) => b.startsWith('A26W') && !b.startsWith('A26S') && !b.startsWith('A26WE')
+        )
+      : ['A26W1', 'A26W2', 'A26W3']
+  );
+  const allWeekendBatchesList = (
+    availableBatches && availableBatches.length > 0
+      ? availableBatches
+          .filter((b) => b.startsWith('A26S') || b.startsWith('A26WE'))
+          .map((b) => b.replace(/^A26WE/, 'A26S'))
+          .filter((b, i, arr) => arr.indexOf(b) === i)
+      : ['A26S1', 'A26S2']
+  );
 
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [editingSession, setEditingSession] = useState(null);
   const [deletingSession, setDeletingSession] = useState(null);
+
+  // Batch Selection State for Modal
+  const [batchActiveTab, setBatchActiveTab] = useState('Weekdays'); // 'Weekdays' | 'Weekends'
+  const [selectedWeekdayBatches, setSelectedWeekdayBatches] = useState(allWeekdayBatchesList);
+  const [selectedWeekendBatches, setSelectedWeekendBatches] = useState(allWeekendBatchesList);
 
   // Form State
   const [formData, setFormData] = useState({
@@ -47,6 +81,8 @@ export function LiveSessionListPage() {
     meetingLink: 'https://meet.google.com/aspire-lms-live',
     instructor: 'Sara Devi',
     description: '',
+    courseId: courses[0]?.id || '',
+    courseName: courses[0]?.title || '',
     stageId: stagesList[0]?.id || '',
     stageName: stagesList[0]?.title || '',
     subtopicId: stagesList[0]?.subtopics?.[0]?.id || '',
@@ -60,6 +96,10 @@ export function LiveSessionListPage() {
     const firstSub = firstStage?.subtopics?.[0];
     const firstMod = firstSub?.modules?.[0];
 
+    setBatchActiveTab('Weekdays');
+    setSelectedWeekdayBatches(allWeekdayBatchesList);
+    setSelectedWeekendBatches(allWeekendBatchesList);
+
     setFormData({
       programName: 'Senior Engineering Cohort',
       technology: 'Git',
@@ -69,6 +109,8 @@ export function LiveSessionListPage() {
       meetingLink: 'https://meet.google.com/aspire-lms-live',
       instructor: 'Sara Devi',
       description: '',
+      courseId: courses[0]?.id || '',
+      courseName: courses[0]?.title || '',
       stageId: firstStage?.id || '',
       stageName: firstStage?.title || '',
       subtopicId: firstSub?.id || '',
@@ -81,6 +123,29 @@ export function LiveSessionListPage() {
 
   const handleOpenEditModal = (sess) => {
     setEditingSession(sess);
+    setBatchActiveTab('Weekdays');
+
+    let initialWd = [];
+    let initialWe = [];
+    if (Array.isArray(sess.targetBatches) && sess.targetBatches.length > 0) {
+      initialWd = sess.targetBatches.filter(
+        (b) => b.startsWith('A26W') && !b.startsWith('A26S') && !b.startsWith('A26WE')
+      );
+      initialWe = sess.targetBatches.filter((b) => b.startsWith('A26S') || b.startsWith('A26WE'));
+    } else if (typeof sess.targetBatch === 'string' && sess.targetBatch && sess.targetBatch !== 'All Batches') {
+      const parsed = sess.targetBatch.split(',').map((s) => s.trim());
+      initialWd = parsed.filter(
+        (b) => b.startsWith('A26W') && !b.startsWith('A26S') && !b.startsWith('A26WE')
+      );
+      initialWe = parsed.filter((b) => b.startsWith('A26S') || b.startsWith('A26WE'));
+    }
+    if (initialWd.length === 0 && initialWe.length === 0) {
+      initialWd = allWeekdayBatchesList;
+      initialWe = allWeekendBatchesList;
+    }
+    setSelectedWeekdayBatches(initialWd);
+    setSelectedWeekendBatches(initialWe);
+
     setFormData({
       programName: sess.programName || 'Senior Engineering Cohort',
       technology: sess.technology || 'Git',
@@ -90,6 +155,8 @@ export function LiveSessionListPage() {
       meetingLink: sess.meetingLink || 'https://meet.google.com/aspire-lms-live',
       instructor: sess.instructor || 'Sara Devi',
       description: sess.description || '',
+      courseId: sess.courseId || courses[0]?.id || '',
+      courseName: sess.courseName || courses.find((c) => c.id === sess.courseId)?.title || '',
       stageId: sess.stageId || stagesList[0]?.id || '',
       stageName: sess.stageName || stagesList[0]?.title || '',
       subtopicId: sess.subtopicId || stagesList[0]?.subtopics?.[0]?.id || '',
@@ -107,15 +174,23 @@ export function LiveSessionListPage() {
     }
 
     // Resolve stage and subtopic titles
+    const selectedCourse = courses.find((c) => c.id === formData.courseId) || courses[0];
     const currentStageObj = stagesList.find((s) => s.id === formData.stageId) || stagesList[0];
     const currentSubObj = currentStageObj?.subtopics?.find((st) => st.id === formData.subtopicId) || currentStageObj?.subtopics?.[0];
     const currentModObj = currentSubObj?.modules?.find((m) => m.id === formData.moduleId) || currentSubObj?.modules?.[0];
 
+    const allBatches = [...selectedWeekdayBatches, ...selectedWeekendBatches];
+    const targetBatchStr = allBatches.length > 0 ? allBatches.join(', ') : 'All Batches';
+
     const sessionPayload = {
       ...formData,
+      courseId: selectedCourse?.id || formData.courseId,
+      courseName: selectedCourse?.title || formData.courseName,
       stageName: currentStageObj?.title || formData.stageName,
       subtopicName: currentSubObj?.title || formData.subtopicName,
-      moduleName: currentModObj?.title || formData.moduleName
+      moduleName: currentModObj?.title || formData.moduleName,
+      targetBatches: allBatches,
+      targetBatch: targetBatchStr
     };
 
     if (editingSession) {
@@ -278,10 +353,22 @@ export function LiveSessionListPage() {
                     <UserCheck className="w-4 h-4 text-blue-600 flex-shrink-0" />
                     <span>Instructor: <strong className="text-slate-800 font-bold">{sess.instructor}</strong></span>
                   </div>
+                  {sess.courseName && (
+                    <div className="flex items-center gap-1.5 text-[11px] text-blue-700 bg-blue-50/90 px-2.5 py-1 rounded-xl border border-blue-200/70 font-bold">
+                      <Bookmark className="w-3 h-3 text-blue-600 flex-shrink-0" />
+                      <span className="truncate">Course: {sess.courseName}</span>
+                    </div>
+                  )}
                   {(sess.subtopicName || sess.moduleName) && (
                     <div className="flex items-center gap-1.5 text-[11px] text-purple-700 bg-purple-50/90 px-2.5 py-1 rounded-xl border border-purple-200/70 font-bold">
                       <Layers className="w-3 h-3 text-purple-600 flex-shrink-0" />
                       <span className="truncate">Milestone: {sess.subtopicName || sess.moduleName}</span>
+                    </div>
+                  )}
+                  {sess.targetBatch && (
+                    <div className="flex items-center gap-1.5 text-[11px] text-indigo-700 bg-indigo-50/90 px-2.5 py-1 rounded-xl border border-indigo-200/70 font-bold">
+                      <Calendar className="w-3 h-3 text-indigo-600 flex-shrink-0" />
+                      <span className="truncate">Batches: {sess.targetBatch}</span>
                     </div>
                   )}
                 </div>
@@ -332,17 +419,19 @@ export function LiveSessionListPage() {
         }}
         title={editingSession ? 'Edit Live Session' : 'Schedule Live Class Session'}
         subtitle="Configure session title, tech track, meeting room link, and date/time"
+        maxWidth="max-w-4xl"
       >
-        <form onSubmit={handleSaveSession} className="space-y-4">
+        <form onSubmit={handleSaveSession} className="space-y-5">
+          {/* 1. Session Title */}
           <Input
             label="Session Title"
-            placeholder="e.g. Deep Dive into React Server Components"
+            placeholder="e.g. Advanced Git Commands: Staging, Committing & Remotes"
             value={formData.sessionTitle}
             onChange={(e) => setFormData({ ...formData, sessionTitle: e.target.value })}
             required
           />
 
-          {/* CASCADING MILESTONE CURRICULUM LOCATION MAPPING */}
+          {/* 2. CASCADING MILESTONE CURRICULUM LOCATION MAPPING */}
           {(() => {
             const currentStageObj = stagesList.find((s) => s.id === formData.stageId) || stagesList[0];
             const currentSubtopicsArr = currentStageObj?.subtopics || [];
@@ -352,108 +441,289 @@ export function LiveSessionListPage() {
               : [{ id: currentSubtopicObj?.id || 'mod-live-1', title: currentSubtopicObj?.title || 'Live Sessions Module' }];
 
             return (
-              <div className="p-4 bg-slate-50/90 rounded-2xl border border-slate-200/80 space-y-3.5">
-                <div className="flex items-center justify-between">
-                  <label className="text-xs font-black text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
-                    <Layers className="w-4 h-4 text-purple-600" />
-                    <span>Link to Milestone Subtopic & Module (Student LMS)</span>
-                  </label>
-                  <span className="text-[11px] font-bold text-purple-700 bg-purple-50 px-2 py-0.5 rounded-md border border-purple-200/60">
-                    Live Class Linker
-                  </span>
+              <div className="bg-gradient-to-br from-slate-50 to-blue-50/40 p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-2xs space-y-4">
+                {/* Header */}
+                <div className="flex items-center gap-2.5 pb-3 border-b border-purple-100/80">
+                  <div className="w-8 h-8 rounded-xl bg-purple-600 text-white flex items-center justify-center shadow-xs flex-shrink-0">
+                    <Layers className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h4 className="text-xs font-black text-slate-900 uppercase tracking-wider">
+                      Curriculum Location & Milestone Topic Mapping
+                    </h4>
+                    <p className="text-[11px] text-slate-500 font-medium">
+                      Map this live session to a specific course, milestone stage, subtopic, and topic module
+                    </p>
+                  </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  {/* Stage Selection */}
-                  <Select
-                    label="1. Milestone Stage"
-                    value={formData.stageId}
-                    onChange={(e) => {
-                      const newStageId = e.target.value;
-                      const newStage = stagesList.find((s) => s.id === newStageId) || stagesList[0];
-                      const firstSub = newStage?.subtopics?.[0];
-                      const firstMod = firstSub?.modules?.[0];
-                      setFormData({
-                        ...formData,
-                        stageId: newStageId,
-                        stageName: newStage?.title || '',
-                        subtopicId: firstSub?.id || '',
-                        subtopicName: firstSub?.title || '',
-                        moduleId: firstMod?.id || '',
-                        moduleName: firstMod?.title || ''
-                      });
-                    }}
-                    options={stagesList.map((stg) => ({
-                      value: stg.id,
-                      label: stg.title
-                    }))}
-                  />
+                {/* Structured Step Layout - All Full Width to prevent text truncation */}
+                <div className="space-y-3">
+                  {/* Step 1: Course Track */}
+                  <div className="bg-white/90 p-3.5 rounded-xl border border-purple-100/90 shadow-2xs">
+                    <Select
+                      label="1. Course Track"
+                      value={formData.courseId}
+                      onChange={(e) => {
+                        const selectedC = courses.find((c) => c.id === e.target.value);
+                        setFormData({
+                          ...formData,
+                          courseId: e.target.value,
+                          courseName: selectedC?.title || ''
+                        });
+                      }}
+                      options={courses.map((c) => ({ value: c.id, label: c.title }))}
+                    />
+                  </div>
 
-                  {/* Subtopic Selection */}
-                  <Select
-                    label="2. Milestone Subtopic"
-                    value={formData.subtopicId}
-                    onChange={(e) => {
-                      const newSubId = e.target.value;
-                      const targetStage = stagesList.find((s) => s.id === formData.stageId) || stagesList[0];
-                      const targetSub = targetStage?.subtopics?.find((st) => st.id === newSubId) || targetStage?.subtopics?.[0];
-                      const firstMod = targetSub?.modules?.[0];
-                      setFormData({
-                        ...formData,
-                        subtopicId: newSubId,
-                        subtopicName: targetSub?.title || '',
-                        moduleId: firstMod?.id || '',
-                        moduleName: firstMod?.title || ''
-                      });
-                    }}
-                    options={currentSubtopicsArr.map((sub) => ({
-                      value: sub.id,
-                      label: sub.title
-                    }))}
-                  />
+                  {/* Step 2: Course Module / Stage */}
+                  <div className="bg-white/90 p-3.5 rounded-xl border border-purple-100/90 shadow-2xs">
+                    <Select
+                      label="2. Course Module / Stage"
+                      value={formData.stageId}
+                      onChange={(e) => {
+                        const newStageId = e.target.value;
+                        const newStage = stagesList.find((s) => s.id === newStageId) || stagesList[0];
+                        const firstSub = newStage?.subtopics?.[0];
+                        const firstMod = firstSub?.modules?.[0];
+                        setFormData({
+                          ...formData,
+                          stageId: newStageId,
+                          stageName: newStage?.title || '',
+                          subtopicId: firstSub?.id || '',
+                          subtopicName: firstSub?.title || '',
+                          moduleId: firstMod?.id || '',
+                          moduleName: firstMod?.title || ''
+                        });
+                      }}
+                      options={stagesList.map((stg) => ({
+                        value: stg.id,
+                        label: stg.title
+                      }))}
+                    />
+                  </div>
 
-                  {/* Module Selection */}
-                  <Select
-                    label="3. Specific Module"
-                    value={formData.moduleId}
-                    onChange={(e) => {
-                      const newModId = e.target.value;
-                      const targetStage = stagesList.find((s) => s.id === formData.stageId) || stagesList[0];
-                      const targetSub = targetStage?.subtopics?.find((st) => st.id === formData.subtopicId) || targetStage?.subtopics?.[0];
-                      const targetMod = targetSub?.modules?.find((m) => m.id === newModId) || targetSub?.modules?.[0];
-                      setFormData({
-                        ...formData,
-                        moduleId: newModId,
-                        moduleName: targetMod?.title || ''
-                      });
-                    }}
-                    options={currentInnerModules.map((mod) => ({
-                      value: mod.id || mod.title,
-                      label: mod.title
-                    }))}
-                  />
+                  {/* Step 3: Milestone Subtopic */}
+                  <div className="bg-white/90 p-3.5 rounded-xl border border-purple-100/90 shadow-2xs">
+                    <Select
+                      label="3. Milestone Subtopic"
+                      value={formData.subtopicId}
+                      onChange={(e) => {
+                        const newSubId = e.target.value;
+                        const targetStage = stagesList.find((s) => s.id === formData.stageId) || stagesList[0];
+                        const targetSub = targetStage?.subtopics?.find((st) => st.id === newSubId) || targetStage?.subtopics?.[0];
+                        const firstMod = targetSub?.modules?.[0];
+                        setFormData({
+                          ...formData,
+                          subtopicId: newSubId,
+                          subtopicName: targetSub?.title || '',
+                          moduleId: firstMod?.id || '',
+                          moduleName: firstMod?.title || ''
+                        });
+                      }}
+                      options={currentSubtopicsArr.map((sub) => ({
+                        value: sub.id,
+                        label: sub.title
+                      }))}
+                    />
+                  </div>
+
+                  {/* Step 4: Specific Inner Topic */}
+                  <div className="bg-white/90 p-3.5 rounded-xl border border-purple-100/90 shadow-2xs">
+                    <Select
+                      label="4. Specific Inner Topic"
+                      value={formData.moduleId}
+                      onChange={(e) => {
+                        const newModId = e.target.value;
+                        const targetStage = stagesList.find((s) => s.id === formData.stageId) || stagesList[0];
+                        const targetSub = targetStage?.subtopics?.find((st) => st.id === formData.subtopicId) || targetStage?.subtopics?.[0];
+                        const targetMod = targetSub?.modules?.find((m) => m.id === newModId) || targetSub?.modules?.[0];
+                        setFormData({
+                          ...formData,
+                          moduleId: newModId,
+                          moduleName: targetMod?.title || ''
+                        });
+                      }}
+                      options={currentInnerModules.map((mod) => ({
+                        value: mod.id || mod.title,
+                        label: mod.title
+                      }))}
+                    />
+                  </div>
                 </div>
               </div>
             );
           })()}
 
-          <div className="grid grid-cols-2 gap-4">
+          {/* 3. BATCH ALLOCATION: WEEKDAY & WEEKEND BATCHES */}
+          <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/90 shadow-2xs space-y-3.5">
+            {/* Header & Tabs */}
+            <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-100">
+              <div className="flex items-center gap-2">
+                {/* Weekday Batches Tab */}
+                <button
+                  type="button"
+                  onClick={() => setBatchActiveTab('Weekdays')}
+                  className={`px-4 py-2 rounded-xl text-xs font-black transition-all flex items-center gap-2 cursor-pointer ${
+                    batchActiveTab === 'Weekdays'
+                      ? 'bg-purple-600 text-white shadow-md shadow-purple-500/20'
+                      : 'bg-slate-100/80 text-slate-600 hover:bg-slate-200/80 hover:text-slate-900'
+                  }`}
+                >
+                  <Calendar className="w-3.5 h-3.5" />
+                  <span>Weekday Batches</span>
+                  <span
+                    className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold ${
+                      batchActiveTab === 'Weekdays'
+                        ? 'bg-white/25 text-white'
+                        : 'bg-slate-200 text-slate-700'
+                    }`}
+                  >
+                    {selectedWeekdayBatches.length}
+                  </span>
+                </button>
+
+                {/* Weekend Batches Tab */}
+                <button
+                  type="button"
+                  onClick={() => setBatchActiveTab('Weekends')}
+                  className={`px-4 py-2 rounded-xl text-xs font-black transition-all flex items-center gap-2 cursor-pointer ${
+                    batchActiveTab === 'Weekends'
+                      ? 'bg-purple-600 text-white shadow-md shadow-purple-500/20'
+                      : 'bg-slate-100/80 text-slate-600 hover:bg-slate-200/80 hover:text-slate-900'
+                  }`}
+                >
+                  <Calendar className="w-3.5 h-3.5" />
+                  <span>Weekend Batches</span>
+                  <span
+                    className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold ${
+                      batchActiveTab === 'Weekends'
+                        ? 'bg-white/25 text-white'
+                        : 'bg-slate-200 text-slate-700'
+                    }`}
+                  >
+                    {selectedWeekendBatches.length}
+                  </span>
+                </button>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (batchActiveTab === 'Weekdays') {
+                      setSelectedWeekdayBatches(
+                        selectedWeekdayBatches.length === allWeekdayBatchesList.length
+                          ? []
+                          : allWeekdayBatchesList
+                      );
+                    } else {
+                      setSelectedWeekendBatches(
+                        selectedWeekendBatches.length === allWeekendBatchesList.length
+                          ? []
+                          : allWeekendBatchesList
+                      );
+                    }
+                  }}
+                  className="text-[11px] font-bold text-purple-600 hover:text-purple-700 hover:underline cursor-pointer"
+                >
+                  {batchActiveTab === 'Weekdays'
+                    ? selectedWeekdayBatches.length === allWeekdayBatchesList.length
+                      ? 'Deselect All'
+                      : 'Select All'
+                    : selectedWeekendBatches.length === allWeekendBatchesList.length
+                    ? 'Deselect All'
+                    : 'Select All'}
+                </button>
+              </div>
+            </div>
+
+            {/* Instruction line */}
+            <p className="text-xs text-slate-500 font-medium">
+              Check or uncheck {batchActiveTab === 'Weekdays' ? 'Weekday' : 'Weekend'} batch numbers for this live session:
+            </p>
+
+            {/* Checkbox Grid */}
+            {batchActiveTab === 'Weekdays' ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+                {allWeekdayBatchesList.map((bCode) => {
+                  const isSelected = selectedWeekdayBatches.includes(bCode);
+
+                  return (
+                    <div
+                      key={bCode}
+                      onClick={() => {
+                        setSelectedWeekdayBatches((prev) =>
+                          prev.includes(bCode) ? prev.filter((b) => b !== bCode) : [...prev, bCode]
+                        );
+                      }}
+                      className={`flex items-center gap-3 p-3 rounded-xl border transition-all cursor-pointer select-none ${
+                        isSelected
+                          ? 'bg-purple-50/80 border-purple-300 ring-2 ring-purple-500/20 text-purple-900 font-bold shadow-2xs'
+                          : 'bg-slate-50/60 border-slate-200 hover:bg-white hover:border-slate-300 text-slate-700 font-medium'
+                      }`}
+                    >
+                      {isSelected ? (
+                        <CheckSquare className="w-4 h-4 text-purple-600 flex-shrink-0" />
+                      ) : (
+                        <Square className="w-4 h-4 text-slate-400 flex-shrink-0" />
+                      )}
+                      <span className="text-xs font-black tracking-wide">{bCode}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+                {allWeekendBatchesList.map((bCode) => {
+                  const isSelected = selectedWeekendBatches.includes(bCode);
+
+                  return (
+                    <div
+                      key={bCode}
+                      onClick={() => {
+                        setSelectedWeekendBatches((prev) =>
+                          prev.includes(bCode) ? prev.filter((b) => b !== bCode) : [...prev, bCode]
+                        );
+                      }}
+                      className={`flex items-center gap-3 p-3 rounded-xl border transition-all cursor-pointer select-none ${
+                        isSelected
+                          ? 'bg-purple-50/80 border-purple-300 ring-2 ring-purple-500/20 text-purple-900 font-bold shadow-2xs'
+                          : 'bg-slate-50/60 border-slate-200 hover:bg-white hover:border-slate-300 text-slate-700 font-medium'
+                      }`}
+                    >
+                      {isSelected ? (
+                        <CheckSquare className="w-4 h-4 text-purple-600 flex-shrink-0" />
+                      ) : (
+                        <Square className="w-4 h-4 text-slate-400 flex-shrink-0" />
+                      )}
+                      <span className="text-xs font-black tracking-wide">{bCode}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* 4. Program & Track Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Input
               label="Cohort / Program Name"
-              placeholder="e.g. Senior Engineering Cohort #4"
+              placeholder="e.g. Senior Engineering Cohort"
               value={formData.programName}
               onChange={(e) => setFormData({ ...formData, programName: e.target.value })}
             />
 
             <Input
               label="Technology Track"
-              placeholder="e.g. React 18 & TypeScript"
+              placeholder="e.g. Git / Python / React"
               value={formData.technology}
               onChange={(e) => setFormData({ ...formData, technology: e.target.value })}
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          {/* 4. Date & Time Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Input
               label="Date"
               type="date"
@@ -464,42 +734,49 @@ export function LiveSessionListPage() {
 
             <Input
               label="Time Slot"
-              placeholder="e.g. 18:00 - 19:30 EST"
+              placeholder="e.g. 14:30 - 16:00"
               value={formData.time}
               onChange={(e) => setFormData({ ...formData, time: e.target.value })}
               required
             />
           </div>
 
-          <Input
-            label="Meeting Room URL (Google Meet, Zoom, MS Teams)"
-            placeholder="https://meet.google.com/aspire-lms-live"
-            value={formData.meetingLink}
-            onChange={(e) => setFormData({ ...formData, meetingLink: e.target.value })}
-            required
-          />
+          {/* 5. Meeting Room & Instructor Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Input
+              label="Meeting Room URL (Google Meet, Zoom, MS Teams)"
+              placeholder="https://meet.google.com/aspire-lms-live"
+              value={formData.meetingLink}
+              onChange={(e) => setFormData({ ...formData, meetingLink: e.target.value })}
+              required
+            />
 
-          <Input
-            label="Instructor Name"
-            value={formData.instructor}
-            onChange={(e) => setFormData({ ...formData, instructor: e.target.value })}
-          />
+            <Input
+              label="Instructor Name"
+              placeholder="e.g. Sara Devi"
+              value={formData.instructor}
+              onChange={(e) => setFormData({ ...formData, instructor: e.target.value })}
+            />
+          </div>
 
+          {/* 6. Session Agenda */}
           <div className="flex flex-col gap-1.5">
             <label className="text-[11px] font-extrabold text-slate-700 tracking-wider uppercase">
               Session Agenda / Overview
             </label>
             <textarea
               rows={3}
-              placeholder="Detail session objectives and lab prerequisites..."
+              placeholder="Detail session objectives, lab prerequisites, key takeaways..."
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              className="w-full px-3.5 py-2.5 bg-slate-50/60 hover:bg-white border border-slate-200 rounded-xl text-sm text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all shadow-2xs"
+              className="w-full px-3.5 py-2.5 bg-slate-50/60 hover:bg-white border border-slate-200 rounded-xl text-sm text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all shadow-2xs resize-none"
             />
           </div>
 
-          <div className="flex justify-end gap-3 pt-4 border-t border-slate-100">
+          {/* 7. Action Buttons */}
+          <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
             <Button
+              type="button"
               variant="outline"
               onClick={() => {
                 setIsAddModalOpen(false);

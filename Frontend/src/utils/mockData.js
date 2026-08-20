@@ -23,6 +23,7 @@ export const PERMISSION_LIST = [
   { id: 'delete_assessment', name: 'Delete Assessments', category: 'Courseware & Learning' },
   { id: 'manage_coding', name: 'Coding Question Bank & Test Cases', category: 'Courseware & Learning' },
   { id: 'manage_projects', name: 'Real-World Projects Portal', category: 'Courseware & Learning' },
+  { id: 'manage_rewards', name: 'Rewards & Merchandise Store', category: 'Live & Placement' },
 
   // Live Classes & Career Enablement
   { id: 'manage_live_sessions', name: 'Live Sessions & Schedule Links', category: 'Live & Placement' },
@@ -46,6 +47,7 @@ export const INITIAL_ROLE_PERMISSIONS = {
     'delete_assessment',
     'manage_coding',
     'manage_projects',
+    'manage_rewards',
     'manage_live_sessions',
     'manage_jobs',
     'manage_recordings',
@@ -60,6 +62,7 @@ export const INITIAL_ROLE_PERMISSIONS = {
     'create_course',
     'manage_coding',
     'manage_projects',
+    'manage_rewards',
     'manage_live_sessions',
     'manage_jobs',
     'manage_recordings',
@@ -74,11 +77,81 @@ export const INITIAL_ROLE_PERMISSIONS = {
     'create_assessment',
     'manage_coding',
     'manage_projects',
+    'manage_rewards',
     'manage_live_sessions',
     'manage_recordings',
     'inspect_api_feed'
   ]
 };
+
+export const INITIAL_REWARDS = [
+  {
+    id: 'rew-1',
+    title: 'Developer Sticker Pack',
+    category: 'ACCESSORIES',
+    requiredXp: 1000,
+    image: '/rewards/stickers.jpg',
+    description: 'Pro Developer Laptop Sticker Pack with custom Aspire Next branding and developer badges.',
+    isReleased: false,
+    stock: 150,
+    unlockedCount: 0
+  },
+  {
+    id: 'rew-2',
+    title: 'Aspire Next Coffee Mug',
+    category: 'DRINKWARE',
+    requiredXp: 2000,
+    image: '/rewards/mug.jpg',
+    description: 'Ceramic matte-finish coffee mug featuring the Aspire Next emblem and inspiring tagline.',
+    isReleased: false,
+    stock: 80,
+    unlockedCount: 0
+  },
+  {
+    id: 'rew-3',
+    title: 'Reusable Smart Notebook',
+    category: 'STATIONERY',
+    requiredXp: 3800,
+    image: '/rewards/notebook.jpg',
+    description: 'Smart erasable executive notebook with precision pen and companion cleaning cloth.',
+    isReleased: false,
+    stock: 50,
+    unlockedCount: 0
+  },
+  {
+    id: 'rew-4',
+    title: 'Smart LED Flask',
+    category: 'DRINKWARE',
+    requiredXp: 5000,
+    image: '/rewards/flask.jpg',
+    description: 'Insulated vacuum flask with real-time digital LED temperature indicator and hot/cold insulation.',
+    isReleased: false,
+    stock: 45,
+    unlockedCount: 0
+  },
+  {
+    id: 'rew-5',
+    title: 'Premium Developer T-Shirt',
+    category: 'APPAREL',
+    requiredXp: 8000,
+    image: '/rewards/tshirt.jpg',
+    description: 'High quality breathable navy cotton developer tee with dual-sided Aspire Next insignia.',
+    isReleased: false,
+    stock: 60,
+    unlockedCount: 0
+  },
+  {
+    id: 'rew-6',
+    title: 'Tech Backpack',
+    category: 'GEAR',
+    requiredXp: 15000,
+    image: '/rewards/backpack.jpg',
+    description: 'Ergonomic water-resistant tech backpack with dedicated laptop sleeve and security pockets.',
+    isReleased: false,
+    stock: 25,
+    unlockedCount: 0
+  }
+];
 
 export const INITIAL_USERS = [
   {

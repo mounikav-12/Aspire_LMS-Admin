@@ -25,6 +25,7 @@ const JobPortalPage = lazy(() => import('../pages/jobs/JobPortalPage').then(m =>
 const RecordingLibraryPage = lazy(() => import('../pages/library/RecordingLibraryPage').then(m => ({ default: m.RecordingLibraryPage })));
 const RecordingDetailPage = lazy(() => import('../pages/library/RecordingDetailPage').then(m => ({ default: m.RecordingDetailPage })));
 const PlacementPrepPage = lazy(() => import('../pages/placement/PlacementPrepPage').then(m => ({ default: m.PlacementPrepPage })));
+const RewardsManagementPage = lazy(() => import('../pages/rewards/RewardsManagementPage').then(m => ({ default: m.RewardsManagementPage })));
 const StudentDashboardPage = lazy(() => import('../pages/student/StudentDashboardPage').then(m => ({ default: m.StudentDashboardPage })));
 const StudentManagementPage = lazy(() => import('../pages/student/StudentManagementPage').then(m => ({ default: m.StudentManagementPage })));
 const MilestonesRoadmapPage = lazy(() => import('../pages/milestones/MilestonesRoadmapPage').then(m => ({ default: m.MilestonesRoadmapPage })));
@@ -102,6 +103,9 @@ export function AppRoutes() {
 
           {/* Placement Preparation */}
           <Route path="/placement" element={<PlacementPrepPage />} />
+
+          {/* Rewards & Merchandise */}
+          <Route path="/rewards" element={<RewardsManagementPage />} />
 
           {/* Student Specific View */}
           <Route path="/student-dashboard" element={<StudentDashboardPage />} />
