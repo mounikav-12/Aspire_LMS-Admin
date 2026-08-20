@@ -498,6 +498,14 @@ export function MilestonesRoadmapPage() {
   let completedSubtopicsCount = 0;
   let totalLessonsCalculated = 0;
 
+  const activeCourseId = (() => {
+    if (selectedCourseId === 'ALL') {
+      const pythonCourse = courses.find(c => c.title && c.title.toLowerCase().includes('python'));
+      return pythonCourse ? pythonCourse.id : courses[0]?.id;
+    }
+    return selectedCourseId;
+  })();
+
   filteredStages.forEach((stage) => {
     (stage.subtopics || []).forEach((sub) => {
       totalSubtopicsCount += 1;
@@ -513,7 +521,7 @@ export function MilestonesRoadmapPage() {
       });
 
       const matchingCourseLessons = courseLessons.filter(
-        (l) => (targetCourseId === 'ALL' || l.course_id === targetCourseId) && (l.stage_id === stage.id || l.module_id === sub.id)
+        (l) => (!activeCourseId || l.course_id === activeCourseId) && (l.stage_id === stage.id || l.module_id === sub.id)
       );
 
       const countForThisSubtopic = Math.max(
@@ -536,7 +544,7 @@ export function MilestonesRoadmapPage() {
   });
 
   const courseLessonsCountForCourse = courseLessons.filter(
-    (l) => targetCourseId === 'ALL' || l.course_id === targetCourseId
+    (l) => !activeCourseId || l.course_id === activeCourseId
   ).length;
 
   const totalLessonsDisplayCount = Math.max(
