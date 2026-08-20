@@ -10,6 +10,9 @@ const MAX_WIDTH_CLASSES = {
   '3xl': 'max-w-3xl',
   '4xl': 'max-w-4xl',
   '5xl': 'max-w-5xl',
+  '6xl': 'max-w-6xl',
+  '7xl': 'max-w-7xl',
+  'full': 'max-w-[96vw]',
   'max-w-sm': 'max-w-sm',
   'max-w-md': 'max-w-md',
   'max-w-lg': 'max-w-lg',
@@ -17,7 +20,9 @@ const MAX_WIDTH_CLASSES = {
   'max-w-2xl': 'max-w-2xl',
   'max-w-3xl': 'max-w-3xl',
   'max-w-4xl': 'max-w-4xl',
-  'max-w-5xl': 'max-w-5xl'
+  'max-w-5xl': 'max-w-5xl',
+  'max-w-6xl': 'max-w-6xl',
+  'max-w-7xl': 'max-w-7xl'
 };
 
 export function Modal({
@@ -43,7 +48,7 @@ export function Modal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 overflow-y-auto bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 overflow-y-auto bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
       <div
         className={`relative w-full ${resolvedMaxWidth} bg-white rounded-2xl shadow-2xl border border-slate-100 overflow-hidden my-auto transform transition-all animate-in zoom-in-95 duration-200`}
         onClick={(e) => e.stopPropagation()}
@@ -56,14 +61,14 @@ export function Modal({
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 transition-colors"
+            className="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Content */}
-        <div className="px-6 py-5 max-h-[80vh] overflow-y-auto">{children}</div>
+        <div className="px-6 py-5 max-h-[88vh] overflow-y-auto">{children}</div>
       </div>
     </div>
   );

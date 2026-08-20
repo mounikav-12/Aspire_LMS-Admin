@@ -410,7 +410,7 @@ export function LiveSessionListPage() {
         />
       )}
 
-      {/* Add / Edit Live Session Modal */}
+      {/* Add / Edit Session Modal */}
       <Modal
         isOpen={isAddModalOpen || !!editingSession}
         onClose={() => {
@@ -419,19 +419,31 @@ export function LiveSessionListPage() {
         }}
         title={editingSession ? 'Edit Live Session' : 'Schedule Live Class Session'}
         subtitle="Configure session title, tech track, meeting room link, and date/time"
-        maxWidth="max-w-4xl"
+        maxWidth="max-w-6xl"
       >
-        <form onSubmit={handleSaveSession} className="space-y-5">
-          {/* 1. Session Title */}
-          <Input
-            label="Session Title"
-            placeholder="e.g. Advanced Git Commands: Staging, Committing & Remotes"
-            value={formData.sessionTitle}
-            onChange={(e) => setFormData({ ...formData, sessionTitle: e.target.value })}
-            required
-          />
+        <form onSubmit={handleSaveSession} className="space-y-4">
+          {/* 1. Session Title & Technology Track Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
+            <div className="md:col-span-2">
+              <Input
+                label="Session Title"
+                placeholder="e.g. Advanced Git Commands: Staging, Committing & Remotes"
+                value={formData.sessionTitle}
+                onChange={(e) => setFormData({ ...formData, sessionTitle: e.target.value })}
+                required
+              />
+            </div>
+            <div>
+              <Input
+                label="Technology Track"
+                placeholder="e.g. Git / Python / React"
+                value={formData.technology}
+                onChange={(e) => setFormData({ ...formData, technology: e.target.value })}
+              />
+            </div>
+          </div>
 
-          {/* 2. CASCADING MILESTONE CURRICULUM LOCATION MAPPING */}
+          {/* 2. CASCADING MILESTONE CURRICULUM LOCATION MAPPING (2x2 Grid) */}
           {(() => {
             const currentStageObj = stagesList.find((s) => s.id === formData.stageId) || stagesList[0];
             const currentSubtopicsArr = currentStageObj?.subtopics || [];
@@ -441,11 +453,11 @@ export function LiveSessionListPage() {
               : [{ id: currentSubtopicObj?.id || 'mod-live-1', title: currentSubtopicObj?.title || 'Live Sessions Module' }];
 
             return (
-              <div className="bg-gradient-to-br from-slate-50 to-blue-50/40 p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-2xs space-y-4">
+              <div className="bg-gradient-to-br from-slate-50 to-blue-50/40 p-3.5 sm:p-4 rounded-2xl border border-slate-200/80 shadow-2xs space-y-3">
                 {/* Header */}
-                <div className="flex items-center gap-2.5 pb-3 border-b border-purple-100/80">
-                  <div className="w-8 h-8 rounded-xl bg-purple-600 text-white flex items-center justify-center shadow-xs flex-shrink-0">
-                    <Layers className="w-4 h-4" />
+                <div className="flex items-center gap-2.5 pb-2.5 border-b border-purple-100/80">
+                  <div className="w-7 h-7 rounded-lg bg-purple-600 text-white flex items-center justify-center shadow-xs flex-shrink-0">
+                    <Layers className="w-3.5 h-3.5" />
                   </div>
                   <div>
                     <h4 className="text-xs font-black text-slate-900 uppercase tracking-wider">
@@ -457,10 +469,10 @@ export function LiveSessionListPage() {
                   </div>
                 </div>
 
-                {/* Structured Step Layout - All Full Width to prevent text truncation */}
-                <div className="space-y-3">
+                {/* 2x2 Structured Step Layout */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {/* Step 1: Course Track */}
-                  <div className="bg-white/90 p-3.5 rounded-xl border border-purple-100/90 shadow-2xs">
+                  <div className="bg-white/95 p-2.5 sm:p-3 rounded-xl border border-purple-100/90 shadow-2xs">
                     <Select
                       label="1. Course Track"
                       value={formData.courseId}
@@ -477,7 +489,7 @@ export function LiveSessionListPage() {
                   </div>
 
                   {/* Step 2: Course Module / Stage */}
-                  <div className="bg-white/90 p-3.5 rounded-xl border border-purple-100/90 shadow-2xs">
+                  <div className="bg-white/95 p-2.5 sm:p-3 rounded-xl border border-purple-100/90 shadow-2xs">
                     <Select
                       label="2. Course Module / Stage"
                       value={formData.stageId}
@@ -504,7 +516,7 @@ export function LiveSessionListPage() {
                   </div>
 
                   {/* Step 3: Milestone Subtopic */}
-                  <div className="bg-white/90 p-3.5 rounded-xl border border-purple-100/90 shadow-2xs">
+                  <div className="bg-white/95 p-2.5 sm:p-3 rounded-xl border border-purple-100/90 shadow-2xs">
                     <Select
                       label="3. Milestone Subtopic"
                       value={formData.subtopicId}
@@ -529,7 +541,7 @@ export function LiveSessionListPage() {
                   </div>
 
                   {/* Step 4: Specific Inner Topic */}
-                  <div className="bg-white/90 p-3.5 rounded-xl border border-purple-100/90 shadow-2xs">
+                  <div className="bg-white/95 p-2.5 sm:p-3 rounded-xl border border-purple-100/90 shadow-2xs">
                     <Select
                       label="4. Specific Inner Topic"
                       value={formData.moduleId}
@@ -556,15 +568,15 @@ export function LiveSessionListPage() {
           })()}
 
           {/* 3. BATCH ALLOCATION: WEEKDAY & WEEKEND BATCHES */}
-          <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/90 shadow-2xs space-y-3.5">
+          <div className="bg-white p-3.5 sm:p-4 rounded-2xl border border-slate-200/90 shadow-2xs space-y-3">
             {/* Header & Tabs */}
-            <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-100">
+            <div className="flex flex-wrap items-center justify-between gap-2.5 pb-2.5 border-b border-slate-100">
               <div className="flex items-center gap-2">
                 {/* Weekday Batches Tab */}
                 <button
                   type="button"
                   onClick={() => setBatchActiveTab('Weekdays')}
-                  className={`px-4 py-2 rounded-xl text-xs font-black transition-all flex items-center gap-2 cursor-pointer ${
+                  className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all flex items-center gap-2 cursor-pointer ${
                     batchActiveTab === 'Weekdays'
                       ? 'bg-purple-600 text-white shadow-md shadow-purple-500/20'
                       : 'bg-slate-100/80 text-slate-600 hover:bg-slate-200/80 hover:text-slate-900'
@@ -573,7 +585,7 @@ export function LiveSessionListPage() {
                   <Calendar className="w-3.5 h-3.5" />
                   <span>Weekday Batches</span>
                   <span
-                    className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold ${
+                    className={`px-1.5 py-0.5 rounded-full text-[10px] font-extrabold ${
                       batchActiveTab === 'Weekdays'
                         ? 'bg-white/25 text-white'
                         : 'bg-slate-200 text-slate-700'
@@ -587,7 +599,7 @@ export function LiveSessionListPage() {
                 <button
                   type="button"
                   onClick={() => setBatchActiveTab('Weekends')}
-                  className={`px-4 py-2 rounded-xl text-xs font-black transition-all flex items-center gap-2 cursor-pointer ${
+                  className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all flex items-center gap-2 cursor-pointer ${
                     batchActiveTab === 'Weekends'
                       ? 'bg-purple-600 text-white shadow-md shadow-purple-500/20'
                       : 'bg-slate-100/80 text-slate-600 hover:bg-slate-200/80 hover:text-slate-900'
@@ -596,7 +608,7 @@ export function LiveSessionListPage() {
                   <Calendar className="w-3.5 h-3.5" />
                   <span>Weekend Batches</span>
                   <span
-                    className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold ${
+                    className={`px-1.5 py-0.5 rounded-full text-[10px] font-extrabold ${
                       batchActiveTab === 'Weekends'
                         ? 'bg-white/25 text-white'
                         : 'bg-slate-200 text-slate-700'
@@ -638,14 +650,9 @@ export function LiveSessionListPage() {
               </div>
             </div>
 
-            {/* Instruction line */}
-            <p className="text-xs text-slate-500 font-medium">
-              Check or uncheck {batchActiveTab === 'Weekdays' ? 'Weekday' : 'Weekend'} batch numbers for this live session:
-            </p>
-
-            {/* Checkbox Grid */}
+            {/* Checkbox Grid - 4 Columns */}
             {batchActiveTab === 'Weekdays' ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
                 {allWeekdayBatchesList.map((bCode) => {
                   const isSelected = selectedWeekdayBatches.includes(bCode);
 
@@ -657,16 +664,16 @@ export function LiveSessionListPage() {
                           prev.includes(bCode) ? prev.filter((b) => b !== bCode) : [...prev, bCode]
                         );
                       }}
-                      className={`flex items-center gap-3 p-3 rounded-xl border transition-all cursor-pointer select-none ${
+                      className={`flex items-center gap-2.5 p-2 rounded-xl border transition-all cursor-pointer select-none ${
                         isSelected
                           ? 'bg-purple-50/80 border-purple-300 ring-2 ring-purple-500/20 text-purple-900 font-bold shadow-2xs'
                           : 'bg-slate-50/60 border-slate-200 hover:bg-white hover:border-slate-300 text-slate-700 font-medium'
                       }`}
                     >
                       {isSelected ? (
-                        <CheckSquare className="w-4 h-4 text-purple-600 flex-shrink-0" />
+                        <CheckSquare className="w-3.5 h-3.5 text-purple-600 flex-shrink-0" />
                       ) : (
-                        <Square className="w-4 h-4 text-slate-400 flex-shrink-0" />
+                        <Square className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
                       )}
                       <span className="text-xs font-black tracking-wide">{bCode}</span>
                     </div>
@@ -674,7 +681,7 @@ export function LiveSessionListPage() {
                 })}
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
                 {allWeekendBatchesList.map((bCode) => {
                   const isSelected = selectedWeekendBatches.includes(bCode);
 
@@ -686,16 +693,16 @@ export function LiveSessionListPage() {
                           prev.includes(bCode) ? prev.filter((b) => b !== bCode) : [...prev, bCode]
                         );
                       }}
-                      className={`flex items-center gap-3 p-3 rounded-xl border transition-all cursor-pointer select-none ${
+                      className={`flex items-center gap-2.5 p-2 rounded-xl border transition-all cursor-pointer select-none ${
                         isSelected
                           ? 'bg-purple-50/80 border-purple-300 ring-2 ring-purple-500/20 text-purple-900 font-bold shadow-2xs'
                           : 'bg-slate-50/60 border-slate-200 hover:bg-white hover:border-slate-300 text-slate-700 font-medium'
                       }`}
                     >
                       {isSelected ? (
-                        <CheckSquare className="w-4 h-4 text-purple-600 flex-shrink-0" />
+                        <CheckSquare className="w-3.5 h-3.5 text-purple-600 flex-shrink-0" />
                       ) : (
-                        <Square className="w-4 h-4 text-slate-400 flex-shrink-0" />
+                        <Square className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
                       )}
                       <span className="text-xs font-black tracking-wide">{bCode}</span>
                     </div>
@@ -705,25 +712,22 @@ export function LiveSessionListPage() {
             )}
           </div>
 
-          {/* 4. Program & Track Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {/* 4. Cohort, Date, Time & Instructor Grid (4 columns) */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
             <Input
-              label="Cohort / Program Name"
-              placeholder="e.g. Senior Engineering Cohort"
+              label="Cohort / Program"
+              placeholder="e.g. Full Stack Cohort"
               value={formData.programName}
               onChange={(e) => setFormData({ ...formData, programName: e.target.value })}
             />
 
             <Input
-              label="Technology Track"
-              placeholder="e.g. Git / Python / React"
-              value={formData.technology}
-              onChange={(e) => setFormData({ ...formData, technology: e.target.value })}
+              label="Instructor Name"
+              placeholder="e.g. Sara Devi"
+              value={formData.instructor}
+              onChange={(e) => setFormData({ ...formData, instructor: e.target.value })}
             />
-          </div>
 
-          {/* 4. Date & Time Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Input
               label="Date"
               type="date"
@@ -741,8 +745,8 @@ export function LiveSessionListPage() {
             />
           </div>
 
-          {/* 5. Meeting Room & Instructor Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {/* 5. Meeting Room URL & Session Agenda (2 columns) */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
             <Input
               label="Meeting Room URL (Google Meet, Zoom, MS Teams)"
               placeholder="https://meet.google.com/aspire-lms-live"
@@ -751,30 +755,22 @@ export function LiveSessionListPage() {
               required
             />
 
-            <Input
-              label="Instructor Name"
-              placeholder="e.g. Sara Devi"
-              value={formData.instructor}
-              onChange={(e) => setFormData({ ...formData, instructor: e.target.value })}
-            />
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[11px] font-extrabold text-slate-700 tracking-wider uppercase">
+                Session Agenda / Overview
+              </label>
+              <textarea
+                rows={2}
+                placeholder="Detail session objectives, lab prerequisites, key takeaways..."
+                value={formData.description}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                className="w-full px-3 py-2 bg-slate-50/60 hover:bg-white border border-slate-200 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all shadow-2xs resize-none"
+              />
+            </div>
           </div>
 
-          {/* 6. Session Agenda */}
-          <div className="flex flex-col gap-1.5">
-            <label className="text-[11px] font-extrabold text-slate-700 tracking-wider uppercase">
-              Session Agenda / Overview
-            </label>
-            <textarea
-              rows={3}
-              placeholder="Detail session objectives, lab prerequisites, key takeaways..."
-              value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              className="w-full px-3.5 py-2.5 bg-slate-50/60 hover:bg-white border border-slate-200 rounded-xl text-sm text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all shadow-2xs resize-none"
-            />
-          </div>
-
-          {/* 7. Action Buttons */}
-          <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
+          {/* 6. Action Buttons */}
+          <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
             <Button
               type="button"
               variant="outline"

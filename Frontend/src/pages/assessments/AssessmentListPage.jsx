@@ -648,39 +648,44 @@ export function AssessmentListPage() {
         }}
         title={editingAssessment ? 'Edit Assessment & Questions' : 'Create Assessment'}
         subtitle="Configure quiz parameters, MCQ questions, and coding task prompts"
-        maxWidth="max-w-4xl"
+        maxWidth="max-w-6xl"
       >
-        <form onSubmit={handleSaveAssessment} className="space-y-5">
-          {/* Total Questions Header Banner */}
-          <div className="bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-900 p-4 sm:p-5 rounded-2xl text-white flex items-center justify-between shadow-md">
-            <div className="flex items-center gap-2.5">
-              <ListChecks className="w-5 h-5 text-blue-300" />
-              <div>
-                <span className="text-xs font-bold text-blue-200 uppercase tracking-wider block">Assessment Capacity</span>
-                <span className="text-sm font-black text-white">
-                  Total Questions: <strong className="text-amber-300">{currentModalTotalQuestions}</strong>
+        <form onSubmit={handleSaveAssessment} className="space-y-4">
+          {/* Title & Assessment Capacity Header Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 items-end">
+            <div className="md:col-span-2">
+              <Input
+                label="Assessment Title"
+                placeholder="e.g. React Concurrent Features & Hooks Evaluation"
+                value={formData.title}
+                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                required
+              />
+            </div>
+
+            {/* Total Questions Header Banner */}
+            <div className="bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-900 p-2.5 sm:p-3 rounded-2xl text-white flex items-center justify-between shadow-md mb-0.5">
+              <div className="flex items-center gap-2">
+                <ListChecks className="w-4 h-4 text-blue-300 flex-shrink-0" />
+                <div>
+                  <span className="text-[10px] font-bold text-blue-200 uppercase tracking-wider block">Capacity</span>
+                  <span className="text-xs font-black text-white">
+                    Total Questions: <strong className="text-amber-300">{currentModalTotalQuestions}</strong>
+                  </span>
+                </div>
+              </div>
+              <div className="flex items-center gap-1.5 text-[11px]">
+                <span className="px-2 py-0.5 rounded-lg bg-white/10 text-blue-100 font-semibold border border-white/15">
+                  {currentModalMcqCount} MCQs
+                </span>
+                <span className="px-2 py-0.5 rounded-lg bg-white/10 text-blue-100 font-semibold border border-white/15">
+                  {currentModalCodingCount} Coding
                 </span>
               </div>
             </div>
-            <div className="flex items-center gap-2 text-xs">
-              <span className="px-2.5 py-1 rounded-lg bg-white/10 text-blue-100 font-semibold border border-white/15">
-                {currentModalMcqCount} MCQs
-              </span>
-              <span className="px-2.5 py-1 rounded-lg bg-white/10 text-blue-100 font-semibold border border-white/15">
-                {currentModalCodingCount} Coding
-              </span>
-            </div>
           </div>
 
-          <Input
-            label="Assessment Title"
-            placeholder="e.g. React Concurrent Features & Hooks Evaluation"
-            value={formData.title}
-            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-            required
-          />
-
-          {/* 4-TIER CASCADING HIERARCHY SELECTOR */}
+          {/* 4-TIER CASCADING HIERARCHY SELECTOR (2x2 Grid) */}
           {(() => {
             const currentStageObj = stagesList.find((s) => s.id === formData.stageId) || stagesList[0];
             const currentSubtopicsArr = currentStageObj?.subtopics || [];
@@ -690,10 +695,10 @@ export function AssessmentListPage() {
               : [{ id: currentSubtopicObj?.id || 'all-topics', title: currentSubtopicObj?.title || 'General Overview' }];
 
             return (
-              <div className="bg-gradient-to-br from-slate-50 to-blue-50/40 p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-2xs space-y-4">
-                <div className="flex items-center gap-2.5 pb-3 border-b border-purple-100/80">
-                  <div className="w-8 h-8 rounded-xl bg-purple-600 text-white flex items-center justify-center shadow-xs flex-shrink-0">
-                    <Layers className="w-4 h-4" />
+              <div className="bg-gradient-to-br from-slate-50 to-blue-50/40 p-3.5 sm:p-4 rounded-2xl border border-slate-200/80 shadow-2xs space-y-3">
+                <div className="flex items-center gap-2.5 pb-2.5 border-b border-purple-100/80">
+                  <div className="w-7 h-7 rounded-lg bg-purple-600 text-white flex items-center justify-center shadow-xs flex-shrink-0">
+                    <Layers className="w-3.5 h-3.5" />
                   </div>
                   <div>
                     <h4 className="text-xs font-black text-slate-900 uppercase tracking-wider">
@@ -705,10 +710,10 @@ export function AssessmentListPage() {
                   </div>
                 </div>
 
-                {/* Structured Step Layout - All Full Width to prevent text truncation */}
-                <div className="space-y-3">
+                {/* 2x2 Structured Step Layout */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {/* Step 1: Course Track */}
-                  <div className="bg-white/90 p-3.5 rounded-xl border border-purple-100/90 shadow-2xs">
+                  <div className="bg-white/95 p-2.5 sm:p-3 rounded-xl border border-purple-100/90 shadow-2xs">
                     <Select
                       label="1. Course Track"
                       value={formData.courseId}
@@ -718,7 +723,7 @@ export function AssessmentListPage() {
                   </div>
 
                   {/* Step 2: Course Module / Stage */}
-                  <div className="bg-white/90 p-3.5 rounded-xl border border-purple-100/90 shadow-2xs">
+                  <div className="bg-white/95 p-2.5 sm:p-3 rounded-xl border border-purple-100/90 shadow-2xs">
                     <Select
                       label="2. Course Module / Stage"
                       value={formData.stageId}
@@ -742,7 +747,7 @@ export function AssessmentListPage() {
                   </div>
 
                   {/* Step 3: Milestone Subtopic */}
-                  <div className="bg-white/90 p-3.5 rounded-xl border border-purple-100/90 shadow-2xs">
+                  <div className="bg-white/95 p-2.5 sm:p-3 rounded-xl border border-purple-100/90 shadow-2xs">
                     <Select
                       label="3. Milestone Subtopic"
                       value={formData.subtopicId}
@@ -765,7 +770,7 @@ export function AssessmentListPage() {
                   </div>
 
                   {/* Step 4: Specific Inner Topic */}
-                  <div className="bg-white/90 p-3.5 rounded-xl border border-purple-100/90 shadow-2xs">
+                  <div className="bg-white/95 p-2.5 sm:p-3 rounded-xl border border-purple-100/90 shadow-2xs">
                     <Select
                       label="4. Specific Inner Topic"
                       value={formData.innerTopicId}
@@ -782,15 +787,15 @@ export function AssessmentListPage() {
           })()}
 
           {/* BATCH ALLOCATION: WEEKDAY & WEEKEND BATCHES */}
-          <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/90 shadow-2xs space-y-3.5">
+          <div className="bg-white p-3.5 sm:p-4 rounded-2xl border border-slate-200/90 shadow-2xs space-y-3">
             {/* Header & Tabs */}
-            <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-100">
+            <div className="flex flex-wrap items-center justify-between gap-2.5 pb-2.5 border-b border-slate-100">
               <div className="flex items-center gap-2">
                 {/* Weekday Batches Tab */}
                 <button
                   type="button"
                   onClick={() => setBatchActiveTab('Weekdays')}
-                  className={`px-4 py-2 rounded-xl text-xs font-black transition-all flex items-center gap-2 cursor-pointer ${
+                  className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all flex items-center gap-2 cursor-pointer ${
                     batchActiveTab === 'Weekdays'
                       ? 'bg-purple-600 text-white shadow-md shadow-purple-500/20'
                       : 'bg-slate-100/80 text-slate-600 hover:bg-slate-200/80 hover:text-slate-900'
@@ -799,7 +804,7 @@ export function AssessmentListPage() {
                   <Calendar className="w-3.5 h-3.5" />
                   <span>Weekday Batches</span>
                   <span
-                    className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold ${
+                    className={`px-1.5 py-0.5 rounded-full text-[10px] font-extrabold ${
                       batchActiveTab === 'Weekdays'
                         ? 'bg-white/25 text-white'
                         : 'bg-slate-200 text-slate-700'
@@ -813,7 +818,7 @@ export function AssessmentListPage() {
                 <button
                   type="button"
                   onClick={() => setBatchActiveTab('Weekends')}
-                  className={`px-4 py-2 rounded-xl text-xs font-black transition-all flex items-center gap-2 cursor-pointer ${
+                  className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all flex items-center gap-2 cursor-pointer ${
                     batchActiveTab === 'Weekends'
                       ? 'bg-purple-600 text-white shadow-md shadow-purple-500/20'
                       : 'bg-slate-100/80 text-slate-600 hover:bg-slate-200/80 hover:text-slate-900'
@@ -822,7 +827,7 @@ export function AssessmentListPage() {
                   <Calendar className="w-3.5 h-3.5" />
                   <span>Weekend Batches</span>
                   <span
-                    className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold ${
+                    className={`px-1.5 py-0.5 rounded-full text-[10px] font-extrabold ${
                       batchActiveTab === 'Weekends'
                         ? 'bg-white/25 text-white'
                         : 'bg-slate-200 text-slate-700'
@@ -864,14 +869,9 @@ export function AssessmentListPage() {
               </div>
             </div>
 
-            {/* Instruction line */}
-            <p className="text-xs text-slate-500 font-medium">
-              Check or uncheck {batchActiveTab === 'Weekdays' ? 'Weekday' : 'Weekend'} batch numbers for this assessment:
-            </p>
-
-            {/* Checkbox Grid */}
+            {/* Checkbox Grid - 4 Columns */}
             {batchActiveTab === 'Weekdays' ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
                 {allWeekdayBatchesList.map((bCode) => {
                   const isSelected = selectedWeekdayBatches.includes(bCode);
 
@@ -883,16 +883,16 @@ export function AssessmentListPage() {
                           prev.includes(bCode) ? prev.filter((b) => b !== bCode) : [...prev, bCode]
                         );
                       }}
-                      className={`flex items-center gap-3 p-3 rounded-xl border transition-all cursor-pointer select-none ${
+                      className={`flex items-center gap-2.5 p-2 rounded-xl border transition-all cursor-pointer select-none ${
                         isSelected
                           ? 'bg-purple-50/80 border-purple-300 ring-2 ring-purple-500/20 text-purple-900 font-bold shadow-2xs'
                           : 'bg-slate-50/60 border-slate-200 hover:bg-white hover:border-slate-300 text-slate-700 font-medium'
                       }`}
                     >
                       {isSelected ? (
-                        <CheckSquare className="w-4 h-4 text-purple-600 flex-shrink-0" />
+                        <CheckSquare className="w-3.5 h-3.5 text-purple-600 flex-shrink-0" />
                       ) : (
-                        <Square className="w-4 h-4 text-slate-400 flex-shrink-0" />
+                        <Square className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
                       )}
                       <span className="text-xs font-black tracking-wide">{bCode}</span>
                     </div>
@@ -900,7 +900,7 @@ export function AssessmentListPage() {
                 })}
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
                 {allWeekendBatchesList.map((bCode) => {
                   const isSelected = selectedWeekendBatches.includes(bCode);
 
@@ -912,16 +912,16 @@ export function AssessmentListPage() {
                           prev.includes(bCode) ? prev.filter((b) => b !== bCode) : [...prev, bCode]
                         );
                       }}
-                      className={`flex items-center gap-3 p-3 rounded-xl border transition-all cursor-pointer select-none ${
+                      className={`flex items-center gap-2.5 p-2 rounded-xl border transition-all cursor-pointer select-none ${
                         isSelected
                           ? 'bg-purple-50/80 border-purple-300 ring-2 ring-purple-500/20 text-purple-900 font-bold shadow-2xs'
                           : 'bg-slate-50/60 border-slate-200 hover:bg-white hover:border-slate-300 text-slate-700 font-medium'
                       }`}
                     >
                       {isSelected ? (
-                        <CheckSquare className="w-4 h-4 text-purple-600 flex-shrink-0" />
+                        <CheckSquare className="w-3.5 h-3.5 text-purple-600 flex-shrink-0" />
                       ) : (
-                        <Square className="w-4 h-4 text-slate-400 flex-shrink-0" />
+                        <Square className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
                       )}
                       <span className="text-xs font-black tracking-wide">{bCode}</span>
                     </div>
@@ -931,7 +931,7 @@ export function AssessmentListPage() {
             )}
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
             <Input
               label="Duration (Minutes)"
               type="number"
