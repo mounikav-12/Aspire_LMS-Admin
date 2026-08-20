@@ -1065,35 +1065,14 @@ export function MilestonesRoadmapPage() {
       </div>
 
       {/* Stats Overview Bar */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <div className="bg-white rounded-2xl border border-slate-200 p-4 flex items-center gap-3 shadow-sm">
+      <div className="flex items-center gap-4">
+        <div className="bg-white rounded-2xl border border-slate-200 p-4 flex items-center gap-3 shadow-sm min-w-[200px]">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-purple-100 text-purple-600 flex-shrink-0">
             <BookOpen className="w-5 h-5" />
           </div>
           <div>
             <p className="text-xs text-slate-500 font-medium">Total Stages</p>
             <p className="text-lg font-bold text-slate-900">{filteredStages.length}</p>
-          </div>
-        </div>
-        <div className="bg-white rounded-2xl border border-slate-200 p-4 flex items-center gap-3 shadow-sm">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 text-emerald-600 flex-shrink-0">
-            <CheckCircle2 className="w-5 h-5" />
-          </div>
-          <div>
-            <p className="text-xs text-slate-500 font-medium">Topics Completed</p>
-            <p className="text-lg font-bold text-slate-900">{completedTopicsCount} <span className="text-xs text-slate-400 font-medium">/ {totalTopicsCount}</span></p>
-          </div>
-        </div>
-        <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
-          <div className="flex items-center justify-between mb-2">
-            <p className="text-xs text-slate-500 font-medium">Overall Progress</p>
-            <p className="text-xs font-bold text-purple-600">{completionPercentage}%</p>
-          </div>
-          <div className="h-2 w-full overflow-hidden rounded-full bg-slate-100">
-            <div
-              className="h-full rounded-full bg-purple-600 transition-all duration-500"
-              style={{ width: `${completionPercentage}%` }}
-            />
           </div>
         </div>
       </div>
