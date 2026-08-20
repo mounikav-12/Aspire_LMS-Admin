@@ -1,23 +1,85 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLmsData } from '../../context/LmsDataContext';
-import { Plus, Layers, Check } from 'lucide-react';
+import { Plus, Layers, Filter } from 'lucide-react';
 import { Modal } from './Modal';
 import { Input, Select } from './Input';
 import { Button } from './Button';
 
 export function BatchFilterSelector({ activeBatch, onSelectBatch, className = '' }) {
-  const { availableBatches, addBatch } = useLmsData();
+  const { availableBatches = [], addBatch } = useLmsData();
 
   const currentBatch = activeBatch || 'ALL';
-  const [categoryTab, setCategoryTab] = useState('ALL'); // 'ALL' | 'WEEKDAY' | 'WEEKEND'
+
+  // Helper to get category from batch code
+  const getCategoryFromBatch = (b) => {
+    if (!b || b === 'ALL') return 'ALL';
+    if (b.startsWith('A26S')) return 'WEEKEND';
+    if (b.startsWith('A26W')) return 'WEEKDAY';
+    return 'ALL';
+  };
+
+  const [categoryTab, setCategoryTab] = useState(() => getCategoryFromBatch(currentBatch));
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [newBatchCategory, setNewBatchCategory] = useState('Weekday');
   const [customBatchNumber, setCustomBatchNumber] = useState('');
 
-  const weekdayBatches = (availableBatches || []).filter(
+  // Keep categoryTab in sync if activeBatch changes externally
+  useEffect(() => {
+    if (currentBatch !== 'ALL') {
+      const derived = getCategoryFromBatch(currentBatch);
+      setCategoryTab(derived);
+    }
+  }, [currentBatch]);
+
+  const weekdayBatches = availableBatches.filter(
     (b) => b.startsWith('A26W') && !b.startsWith('A26S')
   );
-  const weekendBatches = (availableBatches || []).filter((b) => b.startsWith('A26S'));
+  const weekendBatches = availableBatches.filter((b) => b.startsWith('A26S'));
+
+  // Related batch options for Dropdown 2 based on Dropdown 1 selection
+  const getRelatedBatchOptions = () => {
+    if (categoryTab === 'WEEKDAY') {
+      return [
+        { value: 'ALL', label: 'All Weekday Batches' },
+        ...weekdayBatches.map((b) => ({ value: b, label: `Batch ${b}` }))
+      ];
+    }
+    if (categoryTab === 'WEEKEND') {
+      return [
+        { value: 'ALL', label: 'All Weekend Batches' },
+        ...weekendBatches.map((b) => ({ value: b, label: `Batch ${b}` }))
+      ];
+    }
+    return [
+      { value: 'ALL', label: 'All Batches' },
+      ...availableBatches.map((b) => ({ value: b, label: `Batch ${b}` }))
+    ];
+  };
+
+  const handleCategoryChange = (e) => {
+    const selectedCat = e.target.value;
+    setCategoryTab(selectedCat);
+
+    if (selectedCat === 'ALL') {
+      onSelectBatch('ALL');
+    } else if (selectedCat === 'WEEKDAY') {
+      if (weekdayBatches.includes(currentBatch)) {
+        // Keep current weekday batch
+      } else {
+        onSelectBatch(weekdayBatches[0] || 'ALL');
+      }
+    } else if (selectedCat === 'WEEKEND') {
+      if (weekendBatches.includes(currentBatch)) {
+        // Keep current weekend batch
+      } else {
+        onSelectBatch(weekendBatches[0] || 'ALL');
+      }
+    }
+  };
+
+  const handleBatchSelectChange = (e) => {
+    onSelectBatch(e.target.value);
+  };
 
   const handleAddBatchSubmit = (e) => {
     e.preventDefault();
@@ -35,104 +97,56 @@ export function BatchFilterSelector({ activeBatch, onSelectBatch, className = ''
     setIsAddModalOpen(false);
   };
 
-  const visibleBatches =
-    categoryTab === 'WEEKDAY'
-      ? weekdayBatches
-      : categoryTab === 'WEEKEND'
-      ? weekendBatches
-      : availableBatches || [];
+  const relatedOptions = getRelatedBatchOptions();
 
   return (
-    <div className={`flex flex-wrap items-center gap-2 ${className}`}>
-      {/* Category Filter Tabs */}
-      <div className="flex items-center gap-1 p-1 bg-slate-100/90 rounded-xl border border-slate-200/80 shadow-2xs">
-        <button
-          type="button"
-          onClick={() => {
-            setCategoryTab('ALL');
-            onSelectBatch('ALL');
-          }}
-          className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-            currentBatch === 'ALL' && categoryTab === 'ALL'
-              ? 'bg-purple-600 text-white shadow-xs'
-              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/70'
-          }`}
+    <div className={`flex flex-wrap items-center gap-3 ${className}`}>
+      {/* Dropdown 1: Category Filter (All Batches, Weekday, Weekend) */}
+      <div className="flex items-center gap-2">
+        <label className="text-xs font-black text-slate-700 uppercase tracking-wider flex items-center gap-1">
+          <Filter className="w-3.5 h-3.5 text-blue-600" />
+          <span>Batch Filter:</span>
+        </label>
+        <select
+          value={categoryTab}
+          onChange={handleCategoryChange}
+          className="px-3.5 py-2 bg-white border border-slate-200 hover:border-slate-300 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:border-blue-500 shadow-2xs cursor-pointer transition-all"
         >
-          All Batches
-        </button>
-
-        <button
-          type="button"
-          onClick={() => {
-            setCategoryTab('WEEKDAY');
-            if (!weekdayBatches.includes(currentBatch)) {
-              onSelectBatch(weekdayBatches[0] || 'A26W1');
-            }
-          }}
-          className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1 ${
-            categoryTab === 'WEEKDAY' || (currentBatch.startsWith('A26W') && !currentBatch.startsWith('A26S'))
-              ? 'bg-purple-600 text-white shadow-xs'
-              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/70'
-          }`}
-        >
-          Weekday (A26W)
-        </button>
-
-        <button
-          type="button"
-          onClick={() => {
-            setCategoryTab('WEEKEND');
-            if (!weekendBatches.includes(currentBatch)) {
-              onSelectBatch(weekendBatches[0] || 'A26S1');
-            }
-          }}
-          className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1 ${
-            categoryTab === 'WEEKEND' || currentBatch.startsWith('A26S')
-              ? 'bg-purple-600 text-white shadow-xs'
-              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/70'
-          }`}
-        >
-          Weekend (A26S)
-        </button>
+          <option value="ALL">All Batches</option>
+          <option value="WEEKDAY">Weekday (A26W)</option>
+          <option value="WEEKEND">Weekend (A26S)</option>
+        </select>
       </div>
 
-      {/* Specific Batch Pills */}
-      <div className="flex items-center gap-1.5 overflow-x-auto py-1">
-        {visibleBatches.map((bCode) => {
-          const isSelected = currentBatch === bCode;
-          const isWeekday = bCode.startsWith('A26W') && !bCode.startsWith('A26S');
-
-          return (
-            <button
-              key={bCode}
-              type="button"
-              onClick={() => onSelectBatch(bCode)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer border ${
-                isSelected
-                  ? isWeekday
-                    ? 'bg-purple-50 text-purple-700 border-purple-300 ring-2 ring-purple-500/20'
-                    : 'bg-purple-50 text-purple-700 border-purple-300 ring-2 ring-purple-500/20'
-                  : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:bg-slate-50'
-              }`}
-            >
-              <Layers className="w-3.5 h-3.5 text-slate-400" />
-              <span>{bCode}</span>
-              {isSelected && <Check className="w-3.5 h-3.5 ml-0.5 text-purple-600" />}
-            </button>
-          );
-        })}
-
-        {/* Add New Batch Button */}
-        <button
-          type="button"
-          onClick={() => setIsAddModalOpen(true)}
-          className="px-2.5 py-1.5 rounded-lg text-xs font-bold text-slate-600 hover:text-purple-600 bg-white hover:bg-purple-50/50 border border-dashed border-slate-300 hover:border-purple-400 transition-all flex items-center gap-1 cursor-pointer"
-          title="Create a new batch code"
+      {/* Dropdown 2: Related Batches based on Dropdown 1 */}
+      <div className="flex items-center gap-2">
+        <label className="text-xs font-black text-slate-700 uppercase tracking-wider flex items-center gap-1">
+          <Layers className="w-3.5 h-3.5 text-blue-600" />
+          <span>Select Batch:</span>
+        </label>
+        <select
+          value={currentBatch}
+          onChange={handleBatchSelectChange}
+          className="px-3.5 py-2 bg-white border border-slate-200 hover:border-slate-300 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:border-blue-500 shadow-2xs cursor-pointer transition-all min-w-[150px]"
         >
-          <Plus className="w-3.5 h-3.5" />
-          <span>New Batch</span>
-        </button>
+          {relatedOptions.map((opt) => (
+            <option key={opt.value} value={opt.value}>
+              {opt.label}
+            </option>
+          ))}
+        </select>
       </div>
+
+      {/* Add New Batch Button */}
+      <button
+        type="button"
+        onClick={() => setIsAddModalOpen(true)}
+        className="px-3 py-2 rounded-xl text-xs font-bold text-slate-700 hover:text-blue-600 bg-white hover:bg-blue-50/60 border border-dashed border-slate-300 hover:border-blue-400 transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs"
+        title="Create a new batch code"
+      >
+        <Plus className="w-3.5 h-3.5 text-blue-600" />
+        <span>New Batch</span>
+      </button>
 
       {/* Add Batch Modal */}
       <Modal
@@ -165,7 +179,7 @@ export function BatchFilterSelector({ activeBatch, onSelectBatch, className = ''
             }${customBatchNumber || 'X'}`}
           />
 
-          <div className="flex items-center justify-end gap-3 pt-4 border-t">
+          <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
             <Button
               type="button"
               variant="outline"
