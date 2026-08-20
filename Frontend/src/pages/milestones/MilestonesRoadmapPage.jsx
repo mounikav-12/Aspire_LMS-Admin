@@ -661,10 +661,15 @@ export function MilestonesRoadmapPage() {
         'success'
       );
     } else if (scheduleTarget.type === 'module') {
+      let targetCourseId = selectedCourseId;
+      if (targetCourseId === 'ALL') {
+        const pythonCourse = courses.find(c => c.title && c.title.toLowerCase().includes('python'));
+        targetCourseId = pythonCourse ? pythonCourse.id : courses[0]?.id;
+      }
       setLessonLock({
         lesson_id: scheduleTarget.id,
         batch_code: selectedBatch,
-        course_id: selectedCourseId !== 'ALL' ? selectedCourseId : '',
+        course_id: targetCourseId || '',
         stage_id: scheduleTarget.stageId || '',
         module_id: scheduleTarget.subtopicId || '',
         unlock_date: unlockDate,
