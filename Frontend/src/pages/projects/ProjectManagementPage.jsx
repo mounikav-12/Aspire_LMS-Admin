@@ -548,6 +548,7 @@ export function ProjectManagementPage() {
       {activeTab === 'assigned' && (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
           {filteredProjects.map((proj) => {
+            const lockStatus = getLessonLockStatus ? getLessonLockStatus(proj.id, activeBatchFilter) : null;
 
             return (
             <div
@@ -571,7 +572,7 @@ export function ProjectManagementPage() {
                     </div>
                   </div>
                   <div className="flex flex-col items-end gap-1">
-                    {lockStatus.isLocked && (
+                    {lockStatus?.isLocked && (
                       <span className="inline-flex items-center gap-1 bg-rose-50 text-rose-700 font-bold px-2 py-0.5 rounded-lg border border-rose-200/60 text-[10px]">
                         <Lock className="w-3 h-3 text-rose-600 flex-shrink-0" />
                         <span>{lockStatus.label}</span>
