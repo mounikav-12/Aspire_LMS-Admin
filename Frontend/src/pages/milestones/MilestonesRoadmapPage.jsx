@@ -50,6 +50,13 @@ export const parseUnlockTimestamp = (unlockDate, unlockTime, unlockDateTime) => 
     return unlockDateTime;
   }
 
+  if (unlockDateTime && typeof unlockDateTime === 'string' && (unlockDateTime.includes('Z') || unlockDateTime.length > 16)) {
+    try {
+      const parsed = new Date(unlockDateTime).getTime();
+      if (!isNaN(parsed)) return parsed;
+    } catch (e) {}
+  }
+
   let rawDate = unlockDate || '';
   let rawTime = unlockTime || '00:00';
 
