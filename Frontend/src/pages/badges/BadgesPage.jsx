@@ -200,7 +200,7 @@ export function BadgesPage() {
             <span>Milestone Rewards & Badges</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white">
-            Badges & Recognition Portal
+            Badges Portal
           </h1>
           <p className="text-xs sm:text-sm text-purple-200/80 leading-relaxed">
             Create, manage, and award skill badges to recognize student achievements, project milestones, and course completions.

@@ -43,7 +43,7 @@ const ALL_NAV_ITEMS = [
   { label: 'Job Portal', path: '/jobs', icon: Briefcase, permissionId: 'manage_jobs' },
   { label: 'Recording Library', path: '/library', icon: Film, permissionId: 'manage_recordings' },
   { label: 'Placement Prep', path: '/placement', icon: Award, permissionId: 'manage_placement' },
-  { label: 'Badges & Rewards', path: '/badges', icon: Sparkles, permissionId: 'manage_badges' },
+  { label: 'Badges', path: '/badges', icon: Sparkles, permissionId: 'manage_badges' },
   { label: 'LMS Feed Sync', path: '/student-dashboard', icon: Radio, permissionId: 'inspect_api_feed' }
 ];
 

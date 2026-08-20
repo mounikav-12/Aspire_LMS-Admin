@@ -29,7 +29,7 @@ export const PERMISSION_LIST = [
   { id: 'manage_jobs', name: 'Job Portal & Hiring Pipeline', category: 'Live & Placement' },
   { id: 'manage_recordings', name: 'Recording Video Library', category: 'Live & Placement' },
   { id: 'manage_placement', name: 'Placement Prep & Career Content', category: 'Live & Placement' },
-  { id: 'manage_badges', name: 'Badges & Milestone Rewards', category: 'Live & Placement' },
+  { id: 'manage_badges', name: 'Badges', category: 'Live & Placement' },
   { id: 'inspect_api_feed', name: 'Student LMS Feed Sync API', category: 'Live & Placement' }
 ];
 
