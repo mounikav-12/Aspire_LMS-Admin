@@ -811,7 +811,7 @@ export function AssessmentListPage() {
                   }
                 }}
                 options={[
-                  { value: 'ALL', label: `All Weekday Batches (${allWeekdayBatchesList.join(', ')})` },
+                  { value: 'ALL', label: 'All Weekday Batches' },
                   ...allWeekdayBatchesList.map((b) => ({ value: b, label: `Weekday Batch ${b}` })),
                   ...(selectedWeekdayBatches.length > 1 && selectedWeekdayBatches.length < allWeekdayBatchesList.length
                     ? [{ value: selectedWeekdayBatches.join(','), label: `Selected: ${selectedWeekdayBatches.join(', ')}` }]
@@ -844,7 +844,7 @@ export function AssessmentListPage() {
                   }
                 }}
                 options={[
-                  { value: 'ALL', label: `All Weekend Batches (${allWeekendBatchesList.join(', ')})` },
+                  { value: 'ALL', label: 'All Weekend Batches' },
                   ...allWeekendBatchesList.map((b) => ({ value: b, label: `Weekend Batch ${b}` })),
                   ...(selectedWeekendBatches.length > 1 && selectedWeekendBatches.length < allWeekendBatchesList.length
                     ? [{ value: selectedWeekendBatches.join(','), label: `Selected: ${selectedWeekendBatches.join(', ')}` }]
