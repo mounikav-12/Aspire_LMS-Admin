@@ -8,6 +8,8 @@ import {
   Shield,
   Target,
   Flame,
+  Crown,
+  Gem,
   Plus,
   Edit2,
   Trash2,
@@ -18,7 +20,15 @@ import {
   Layers,
   Clock,
   ArrowRight,
-  BookOpen
+  BookOpen,
+  Filter,
+  Check,
+  ChevronRight,
+  TrendingUp,
+  SlidersHorizontal,
+  Lock,
+  Unlock,
+  GraduationCap
 } from 'lucide-react';
 import { useLmsData } from '../../context/LmsDataContext';
 import { useAuth } from '../../context/AuthContext';
@@ -35,51 +45,59 @@ const ICON_MAP = {
   Medal,
   Shield,
   Target,
-  Flame
+  Flame,
+  Crown,
+  Gem
 };
 
 const COLOR_THEMES = {
   purple: {
-    bg: 'bg-purple-50',
-    border: 'border-purple-200',
+    bg: 'bg-purple-50/70 hover:bg-purple-50',
+    border: 'border-purple-200/80 hover:border-purple-400',
     text: 'text-purple-700',
-    iconBg: 'bg-purple-600 text-white',
-    badge: 'bg-purple-100 text-purple-800'
+    iconGradient: 'from-purple-600 to-indigo-600 text-white shadow-purple-500/25 ring-purple-500/10',
+    badge: 'bg-purple-100/80 text-purple-800 border-purple-200',
+    accent: 'bg-purple-600'
   },
   emerald: {
-    bg: 'bg-emerald-50',
-    border: 'border-emerald-200',
+    bg: 'bg-emerald-50/70 hover:bg-emerald-50',
+    border: 'border-emerald-200/80 hover:border-emerald-400',
     text: 'text-emerald-700',
-    iconBg: 'bg-emerald-600 text-white',
-    badge: 'bg-emerald-100 text-emerald-800'
+    iconGradient: 'from-emerald-600 to-teal-600 text-white shadow-emerald-500/25 ring-emerald-500/10',
+    badge: 'bg-emerald-100/80 text-emerald-800 border-emerald-200',
+    accent: 'bg-emerald-600'
   },
   amber: {
-    bg: 'bg-amber-50',
-    border: 'border-amber-200',
+    bg: 'bg-amber-50/70 hover:bg-amber-50',
+    border: 'border-amber-200/80 hover:border-amber-400',
     text: 'text-amber-700',
-    iconBg: 'bg-amber-500 text-white',
-    badge: 'bg-amber-100 text-amber-800'
+    iconGradient: 'from-amber-500 to-orange-600 text-white shadow-amber-500/25 ring-amber-500/10',
+    badge: 'bg-amber-100/80 text-amber-800 border-amber-200',
+    accent: 'bg-amber-500'
   },
   blue: {
-    bg: 'bg-blue-50',
-    border: 'border-blue-200',
+    bg: 'bg-blue-50/70 hover:bg-blue-50',
+    border: 'border-blue-200/80 hover:border-blue-400',
     text: 'text-blue-700',
-    iconBg: 'bg-blue-600 text-white',
-    badge: 'bg-blue-100 text-blue-800'
+    iconGradient: 'from-blue-600 to-cyan-600 text-white shadow-blue-500/25 ring-blue-500/10',
+    badge: 'bg-blue-100/80 text-blue-800 border-blue-200',
+    accent: 'bg-blue-600'
   },
   indigo: {
-    bg: 'bg-indigo-50',
-    border: 'border-indigo-200',
+    bg: 'bg-indigo-50/70 hover:bg-indigo-50',
+    border: 'border-indigo-200/80 hover:border-indigo-400',
     text: 'text-indigo-700',
-    iconBg: 'bg-indigo-600 text-white',
-    badge: 'bg-indigo-100 text-indigo-800'
+    iconGradient: 'from-indigo-600 to-violet-600 text-white shadow-indigo-500/25 ring-indigo-500/10',
+    badge: 'bg-indigo-100/80 text-indigo-800 border-indigo-200',
+    accent: 'bg-indigo-600'
   },
   rose: {
-    bg: 'bg-rose-50',
-    border: 'border-rose-200',
+    bg: 'bg-rose-50/70 hover:bg-rose-50',
+    border: 'border-rose-200/80 hover:border-rose-400',
     text: 'text-rose-700',
-    iconBg: 'bg-rose-600 text-white',
-    badge: 'bg-rose-100 text-rose-800'
+    iconGradient: 'from-rose-600 to-pink-600 text-white shadow-rose-500/25 ring-rose-500/10',
+    badge: 'bg-rose-100/80 text-rose-800 border-rose-200',
+    accent: 'bg-rose-600'
   }
 };
 
@@ -90,6 +108,7 @@ export function BadgesPage() {
 
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
+  const [activeTab, setActiveTab] = useState('catalog'); // 'catalog' | 'showcase'
 
   // Modal States
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -161,7 +180,7 @@ export function BadgesPage() {
   const handleDeleteBadge = async () => {
     if (deleteConfirmId) {
       await deleteBadge(deleteConfirmId);
-      addToast('Badge deleted successfully', 'info');
+      addToast('Badge removed from catalog', 'info');
       setDeleteConfirmId(null);
     }
   };
@@ -183,227 +202,379 @@ export function BadgesPage() {
     const query = searchTerm.toLowerCase();
     const name = (b.name || '').toLowerCase();
     const desc = (b.description || '').toLowerCase();
-    const matchesSearch = name.includes(query) || desc.includes(query);
+    const cat = (b.category || '').toLowerCase();
+    const matchesSearch = name.includes(query) || desc.includes(query) || cat.includes(query);
     const matchesCategory = selectedCategory === 'All' || b.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
 
   const categories = ['All', 'Academic', 'Skill', 'Achievement', 'Milestone'];
 
-  return (
-    <div className="space-y-6">
-      {/* Header Banner */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-gradient-to-r from-slate-900 via-purple-950 to-slate-900 p-6 sm:p-8 rounded-3xl text-white shadow-xl relative overflow-hidden">
-        <div className="relative z-10 space-y-1.5 max-w-xl">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/20 border border-purple-400/30 text-purple-300 text-xs font-bold uppercase tracking-wider">
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>Milestone Rewards & Badges</span>
-          </div>
-          <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white">
-            Badges Portal
-          </h1>
-          <p className="text-xs sm:text-sm text-purple-200/80 leading-relaxed">
-            Create, manage, and award skill badges to recognize student achievements, project milestones, and course completions.
-          </p>
-        </div>
+  const availableIcons = [
+    { key: 'Award', label: 'Award Ribbon' },
+    { key: 'Trophy', label: 'Trophy Cup' },
+    { key: 'Star', label: 'Star' },
+    { key: 'Zap', label: 'Lightning' },
+    { key: 'Medal', label: 'Medal' },
+    { key: 'Shield', label: 'Shield' },
+    { key: 'Target', label: 'Target' },
+    { key: 'Flame', label: 'Flame' },
+    { key: 'Crown', label: 'Crown' },
+    { key: 'Gem', label: 'Gem' }
+  ];
 
-        <Button
-          variant="primary"
-          icon={Plus}
-          onClick={handleOpenAddModal}
-          className="relative z-10 bg-purple-600 hover:bg-purple-500 text-white font-extrabold shadow-lg shadow-purple-600/30 border border-purple-400/40 cursor-pointer"
-        >
-          Create New Badge
-        </Button>
+  const availableColors = [
+    { key: 'purple', label: 'Purple', bg: 'bg-purple-600' },
+    { key: 'emerald', label: 'Emerald', bg: 'bg-emerald-600' },
+    { key: 'amber', label: 'Amber Gold', bg: 'bg-amber-500' },
+    { key: 'blue', label: 'Royal Blue', bg: 'bg-blue-600' },
+    { key: 'indigo', label: 'Indigo', bg: 'bg-indigo-600' },
+    { key: 'rose', label: 'Rose Red', bg: 'bg-rose-600' }
+  ];
+
+  return (
+    <div className="space-y-7">
+      {/* Executive Hero Banner */}
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-slate-950 via-slate-900 to-indigo-950 text-white p-7 sm:p-9 shadow-2xl border border-slate-800/80">
+        {/* Ambient Decorative Background Effects */}
+        <div className="absolute -top-24 -right-24 w-96 h-96 bg-purple-600/20 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-indigo-600/20 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+          <div className="space-y-3 max-w-2xl">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-purple-500/20 to-indigo-500/20 border border-purple-400/30 text-purple-300 text-xs font-black uppercase tracking-wider backdrop-blur-md">
+              <Sparkles className="w-3.5 h-3.5 text-purple-400 animate-pulse" />
+              <span>Gamified Recognition Engine</span>
+            </div>
+            
+            <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-white leading-tight">
+              Badges & Achievements
+            </h1>
+            
+            <p className="text-sm text-slate-300/90 leading-relaxed font-medium">
+              Motivate student progress with dynamic skill badges, milestone trophies, and automated achievement rewards across all learning stages.
+            </p>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-3">
+            {/* View Switcher Pills */}
+            <div className="p-1 bg-slate-900/80 backdrop-blur-md border border-slate-800 rounded-2xl flex items-center gap-1 shadow-inner">
+              <button
+                type="button"
+                onClick={() => setActiveTab('catalog')}
+                className={`px-3.5 py-2 rounded-xl text-xs font-extrabold transition-all cursor-pointer ${
+                  activeTab === 'catalog'
+                    ? 'bg-purple-600 text-white shadow-md shadow-purple-600/30'
+                    : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                Badge Catalog ({badges.length})
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab('showcase')}
+                className={`px-3.5 py-2 rounded-xl text-xs font-extrabold transition-all cursor-pointer ${
+                  activeTab === 'showcase'
+                    ? 'bg-purple-600 text-white shadow-md shadow-purple-600/30'
+                    : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                Student View
+              </button>
+            </div>
+
+            <Button
+              variant="primary"
+              icon={Plus}
+              onClick={handleOpenAddModal}
+              className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-black shadow-lg shadow-purple-600/30 border border-purple-400/30 px-5 py-2.5 rounded-2xl cursor-pointer"
+            >
+              Create Badge
+            </Button>
+          </div>
+        </div>
       </div>
 
-      {/* Metrics Row */}
+      {/* Metric Cards Row */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white p-5 rounded-3xl border border-slate-200/80 shadow-2xs flex items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-purple-100 border border-purple-200 flex items-center justify-center text-purple-600 flex-shrink-0">
-            <Award className="w-6 h-6" />
+        <div className="bg-white p-5 rounded-3xl border border-slate-200/80 shadow-2xs hover:shadow-md transition-all">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Badges</span>
+            <div className="w-10 h-10 rounded-2xl bg-purple-50 text-purple-600 border border-purple-100 flex items-center justify-center">
+              <Award className="w-5 h-5" />
+            </div>
           </div>
-          <div>
-            <span className="text-2xl font-black text-slate-900 block leading-tight">{badges.length}</span>
-            <span className="text-xs font-bold text-slate-500">Total Badges</span>
+          <div className="flex items-baseline gap-2">
+            <span className="text-3xl font-black text-slate-900">{badges.length}</span>
+            <span className="text-xs font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">Active</span>
           </div>
         </div>
 
-        <div className="bg-white p-5 rounded-3xl border border-slate-200/80 shadow-2xs flex items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-emerald-100 border border-emerald-200 flex items-center justify-center text-emerald-600 flex-shrink-0">
-            <Layers className="w-6 h-6" />
+        <div className="bg-white p-5 rounded-3xl border border-slate-200/80 shadow-2xs hover:shadow-md transition-all">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">XP Reward Pool</span>
+            <div className="w-10 h-10 rounded-2xl bg-amber-50 text-amber-600 border border-amber-100 flex items-center justify-center">
+              <Zap className="w-5 h-5" />
+            </div>
           </div>
-          <div>
-            <span className="text-2xl font-black text-slate-900 block leading-tight">
+          <div className="flex items-baseline gap-2">
+            <span className="text-3xl font-black text-slate-900">
+              {badges.reduce((acc, b) => acc + (parseInt(b.points) || 100), 0)}
+            </span>
+            <span className="text-xs font-bold text-slate-400">Total Points</span>
+          </div>
+        </div>
+
+        <div className="bg-white p-5 rounded-3xl border border-slate-200/80 shadow-2xs hover:shadow-md transition-all">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Categories</span>
+            <div className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 border border-blue-100 flex items-center justify-center">
+              <Layers className="w-5 h-5" />
+            </div>
+          </div>
+          <div className="flex items-baseline gap-2">
+            <span className="text-3xl font-black text-slate-900">
               {new Set(badges.map((b) => b.category)).size}
             </span>
-            <span className="text-xs font-bold text-slate-500">Active Categories</span>
+            <span className="text-xs font-semibold text-slate-500">Domains</span>
           </div>
         </div>
 
-        <div className="bg-white p-5 rounded-3xl border border-slate-200/80 shadow-2xs flex items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-amber-100 border border-amber-200 flex items-center justify-center text-amber-600 flex-shrink-0">
-            <Trophy className="w-6 h-6" />
+        <div className="bg-white p-5 rounded-3xl border border-slate-200/80 shadow-2xs hover:shadow-md transition-all">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Student Roster</span>
+            <div className="w-10 h-10 rounded-2xl bg-indigo-50 text-indigo-600 border border-indigo-100 flex items-center justify-center">
+              <GraduationCap className="w-5 h-5" />
+            </div>
           </div>
-          <div>
-            <span className="text-2xl font-black text-slate-900 block leading-tight">
-              {badges.reduce((acc, b) => acc + (parseInt(b.points) || 100), 0)} XP
-            </span>
-            <span className="text-xs font-bold text-slate-500">Total XP Pool</span>
-          </div>
-        </div>
-
-        <div className="bg-white p-5 rounded-3xl border border-slate-200/80 shadow-2xs flex items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-blue-100 border border-blue-200 flex items-center justify-center text-blue-600 flex-shrink-0">
-            <UserCheck className="w-6 h-6" />
-          </div>
-          <div>
-            <span className="text-2xl font-black text-slate-900 block leading-tight">
-              {students.length}
-            </span>
-            <span className="text-xs font-bold text-slate-500">Eligible Students</span>
+          <div className="flex items-baseline gap-2">
+            <span className="text-3xl font-black text-slate-900">{students.length}</span>
+            <span className="text-xs font-semibold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full border border-indigo-200">Eligible</span>
           </div>
         </div>
       </div>
 
-      {/* Filter Tabs & Search Bar */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 border-b border-slate-200/80 pb-4">
+      {/* Control Bar: Category Filters & Search */}
+      <div className="bg-white p-4 rounded-3xl border border-slate-200/80 shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-4">
         {/* Category Pills */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0">
-          {categories.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setSelectedCategory(cat)}
-              className={`px-4 py-2 rounded-xl text-xs font-extrabold transition-all cursor-pointer whitespace-nowrap ${
-                selectedCategory === cat
-                  ? 'bg-purple-600 text-white shadow-md shadow-purple-500/20'
-                  : 'bg-slate-100 hover:bg-slate-200/80 text-slate-600'
-              }`}
-            >
-              {cat}
-            </button>
-          ))}
+        <div className="flex items-center gap-2 overflow-x-auto pb-1 md:pb-0 scrollbar-none">
+          {categories.map((cat) => {
+            const count = cat === 'All' ? badges.length : badges.filter((b) => b.category === cat).length;
+            const isSelected = selectedCategory === cat;
+            return (
+              <button
+                key={cat}
+                onClick={() => setSelectedCategory(cat)}
+                className={`px-4 py-2 rounded-2xl text-xs font-black transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 ${
+                  isSelected
+                    ? 'bg-slate-900 text-white shadow-md shadow-slate-900/20'
+                    : 'bg-slate-100/80 hover:bg-slate-200/80 text-slate-600 font-bold'
+                }`}
+              >
+                <span>{cat}</span>
+                <span className={`px-2 py-0.5 rounded-full text-[10px] font-black ${
+                  isSelected ? 'bg-slate-800 text-slate-200' : 'bg-slate-200/80 text-slate-600'
+                }`}>
+                  {count}
+                </span>
+              </button>
+            );
+          })}
         </div>
 
         {/* Search */}
-        <div className="relative w-full sm:w-64">
+        <div className="relative w-full md:w-72">
           <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             placeholder="Search badge name or criteria..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-9 pr-3.5 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-purple-500 shadow-2xs"
+            className="w-full pl-9 pr-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-purple-500 focus:bg-white transition-all shadow-2xs font-semibold"
           />
         </div>
       </div>
 
-      {/* Badges Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-        {filteredBadges.map((badge) => {
-          const IconComp = ICON_MAP[badge.icon] || Award;
-          const theme = COLOR_THEMES[badge.color] || COLOR_THEMES.purple;
+      {/* CATALOG VIEW MODE */}
+      {activeTab === 'catalog' && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredBadges.map((badge) => {
+            const IconComp = ICON_MAP[badge.icon] || Award;
+            const theme = COLOR_THEMES[badge.color] || COLOR_THEMES.purple;
 
-          return (
-            <div
-              key={badge.id}
-              className="bg-white rounded-3xl border border-slate-200/80 shadow-2xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300 p-6 flex flex-col justify-between space-y-4 group"
-            >
-              <div>
-                {/* Header: Icon, Name & Category */}
-                <div className="flex items-start justify-between gap-3 mb-4">
-                  <div className="flex items-center gap-3">
-                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-md ${theme.iconBg}`}>
-                      <IconComp className="w-6 h-6" />
+            return (
+              <div
+                key={badge.id}
+                className={`bg-white rounded-3xl border ${theme.border} ${theme.bg} shadow-2xs hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 p-6 flex flex-col justify-between space-y-5 group relative overflow-hidden`}
+              >
+                <div>
+                  {/* Badge Header: Icon Avatar, Title & Points */}
+                  <div className="flex items-start justify-between gap-3 mb-4">
+                    <div className="flex items-center gap-3.5">
+                      <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${theme.iconGradient} flex items-center justify-center flex-shrink-0 shadow-lg ring-4 transition-transform duration-300 group-hover:scale-105`}>
+                        <IconComp className="w-7 h-7" />
+                      </div>
+                      <div>
+                        <span className={`inline-block mb-1 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider border ${theme.badge}`}>
+                          {badge.category}
+                        </span>
+                        <h3 className="font-black text-slate-900 text-base leading-snug group-hover:text-purple-700 transition-colors">
+                          {badge.name}
+                        </h3>
+                      </div>
                     </div>
-                    <div>
-                      <h3 className="font-extrabold text-slate-900 text-base leading-tight group-hover:text-purple-700 transition-colors">
-                        {badge.name}
-                      </h3>
-                      <span className={`inline-block mt-1 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${theme.badge}`}>
-                        {badge.category}
-                      </span>
-                    </div>
+
+                    <span className="px-3 py-1 rounded-full bg-slate-900 text-amber-300 border border-slate-800 text-xs font-black shadow-xs flex-shrink-0 flex items-center gap-1">
+                      <Zap className="w-3 h-3 text-amber-400 fill-amber-400" />
+                      <span>{badge.points || '100 XP'}</span>
+                    </span>
                   </div>
 
-                  <span className="px-2.5 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-black border border-slate-200">
-                    {badge.points || '100 XP'}
-                  </span>
+                  {/* Description */}
+                  <p className="text-xs text-slate-600 font-medium leading-relaxed mb-4">
+                    {badge.description}
+                  </p>
+
+                  {/* Criteria Box */}
+                  {badge.criteria && (
+                    <div className="p-3.5 bg-white/90 rounded-2xl border border-slate-200/80 shadow-2xs space-y-1">
+                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider block">Requirement Criteria</span>
+                      <p className="text-xs text-slate-800 font-bold flex items-center gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-500 flex-shrink-0" />
+                        <span>{badge.criteria}</span>
+                      </p>
+                    </div>
+                  )}
                 </div>
 
-                {/* Description */}
-                <p className="text-xs text-slate-600 font-medium leading-relaxed mb-4">
-                  {badge.description}
+                {/* Card Footer Actions */}
+                <div className="pt-4 border-t border-slate-200/60 flex items-center justify-between gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setAwardModalBadge(badge)}
+                    className="flex items-center gap-2 px-4 py-2 rounded-2xl text-xs font-extrabold text-white bg-slate-900 hover:bg-purple-700 shadow-md transition-all cursor-pointer"
+                  >
+                    <Award className="w-4 h-4 text-purple-400" />
+                    <span>Award Badge</span>
+                  </button>
+
+                  <div className="flex items-center gap-1">
+                    <button
+                      type="button"
+                      onClick={() => handleOpenEditModal(badge)}
+                      className="p-2 text-slate-400 hover:text-blue-600 rounded-xl hover:bg-white transition-colors cursor-pointer"
+                      title="Edit Badge"
+                    >
+                      <Edit2 className="w-4 h-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setDeleteConfirmId(badge.id)}
+                      className="p-2 text-slate-400 hover:text-rose-600 rounded-xl hover:bg-white transition-colors cursor-pointer"
+                      title="Delete Badge"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+
+          {filteredBadges.length === 0 && (
+            <div className="col-span-full bg-white p-12 rounded-3xl border border-slate-200 text-center space-y-4 shadow-2xs">
+              <div className="w-16 h-16 rounded-3xl bg-purple-50 border border-purple-100 flex items-center justify-center text-purple-500 mx-auto">
+                <Award className="w-8 h-8" />
+              </div>
+              <div className="space-y-1">
+                <h4 className="text-base font-black text-slate-800">No Badges Match Your Filter</h4>
+                <p className="text-xs text-slate-500 max-w-sm mx-auto">
+                  Try adjusting your search criteria or category filter to find badges.
                 </p>
-
-                {/* Criteria */}
-                {badge.criteria && (
-                  <div className="p-3 bg-slate-50 rounded-2xl border border-slate-100 text-xs space-y-1">
-                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider block">Requirement Criteria</span>
-                    <p className="text-slate-700 font-bold flex items-center gap-1.5">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-purple-600 flex-shrink-0" />
-                      <span>{badge.criteria}</span>
-                    </p>
-                  </div>
-                )}
               </div>
-
-              {/* Action Buttons */}
-              <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
-                <button
-                  type="button"
-                  onClick={() => setAwardModalBadge(badge)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-extrabold text-purple-700 bg-purple-50 hover:bg-purple-100 border border-purple-200 transition-colors cursor-pointer"
-                >
-                  <Award className="w-3.5 h-3.5" />
-                  <span>Award Badge</span>
-                </button>
-
-                <div className="flex items-center gap-1">
-                  <button
-                    type="button"
-                    onClick={() => handleOpenEditModal(badge)}
-                    className="p-2 text-slate-400 hover:text-blue-600 rounded-xl hover:bg-blue-50 transition-colors cursor-pointer"
-                    title="Edit Badge"
-                  >
-                    <Edit2 className="w-4 h-4" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setDeleteConfirmId(badge.id)}
-                    className="p-2 text-slate-400 hover:text-rose-600 rounded-xl hover:bg-rose-50 transition-colors cursor-pointer"
-                    title="Delete Badge"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
+              <Button variant="primary" size="sm" icon={Plus} onClick={handleOpenAddModal}>
+                Create First Badge
+              </Button>
             </div>
-          );
-        })}
+          )}
+        </div>
+      )}
 
-        {filteredBadges.length === 0 && (
-          <div className="col-span-full bg-white p-12 rounded-3xl border border-slate-200 text-center space-y-3">
-            <Award className="w-12 h-12 text-slate-300 mx-auto" />
-            <h4 className="text-base font-bold text-slate-800">No badges found</h4>
-            <p className="text-xs text-slate-500 max-w-sm mx-auto">
-              Create custom achievement badges to reward students on the LMS platform.
+      {/* STUDENT SHOWCASE VIEW MODE */}
+      {activeTab === 'showcase' && (
+        <div className="space-y-6">
+          <div className="p-6 bg-gradient-to-r from-purple-900 to-slate-900 rounded-3xl text-white space-y-2">
+            <h3 className="text-lg font-black flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-amber-400" />
+              <span>Student Profile Achievement Preview</span>
+            </h3>
+            <p className="text-xs text-purple-200 leading-relaxed max-w-2xl">
+              This preview demonstrates how badges are presented to enrolled students on their LMS profile dashboard upon achieving course milestones.
             </p>
-            <Button variant="primary" size="sm" icon={Plus} onClick={handleOpenAddModal}>
-              Create First Badge
-            </Button>
           </div>
-        )}
-      </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {badges.map((badge, idx) => {
+              const IconComp = ICON_MAP[badge.icon] || Award;
+              const theme = COLOR_THEMES[badge.color] || COLOR_THEMES.purple;
+              const isUnlocked = idx < 2; // Preview first 2 as unlocked for demo
+
+              return (
+                <div
+                  key={badge.id}
+                  className={`bg-white rounded-3xl border p-6 transition-all duration-300 ${
+                    isUnlocked
+                      ? 'border-emerald-200 shadow-md bg-gradient-to-b from-white to-emerald-50/30'
+                      : 'border-slate-200/80 opacity-80 bg-slate-50/50'
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-4">
+                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${
+                      isUnlocked
+                        ? `bg-gradient-to-br ${theme.iconGradient} shadow-lg ring-4`
+                        : 'bg-slate-200 text-slate-400'
+                    }`}>
+                      <IconComp className="w-7 h-7" />
+                    </div>
+
+                    {isUnlocked ? (
+                      <span className="px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-black flex items-center gap-1.5 border border-emerald-200">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                        <span>Unlocked</span>
+                      </span>
+                    ) : (
+                      <span className="px-3 py-1 rounded-full bg-slate-200 text-slate-600 text-xs font-black flex items-center gap-1.5 border border-slate-300">
+                        <Lock className="w-3.5 h-3.5 text-slate-500" />
+                        <span>Locked</span>
+                      </span>
+                    )}
+                  </div>
+
+                  <h4 className="font-black text-slate-900 text-base mb-1">{badge.name}</h4>
+                  <p className="text-xs text-slate-600 mb-4">{badge.description}</p>
+
+                  <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+                    <span className="font-extrabold text-slate-500">{badge.category}</span>
+                    <span className="font-black text-purple-700 bg-purple-50 px-2.5 py-0.5 rounded-full border border-purple-200">
+                      {badge.points || '100 XP'}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Add / Edit Badge Modal */}
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title={editingBadge ? 'Edit Badge' : 'Create New Skill Badge'}
-        maxWidth="max-w-lg"
+        title={editingBadge ? 'Edit Badge Details' : 'Create New Skill Badge'}
+        maxWidth="max-w-xl"
       >
-        <form onSubmit={handleFormSubmit} className="space-y-4">
+        <form onSubmit={handleFormSubmit} className="space-y-5">
           <Input
             label="Badge Name"
             type="text"
@@ -426,38 +597,6 @@ export function BadgesPage() {
               ]}
             />
 
-            <Select
-              label="Badge Icon"
-              value={formData.icon}
-              onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
-              options={[
-                { value: 'Award', label: 'Award Ribbon' },
-                { value: 'Trophy', label: 'Trophy Cup' },
-                { value: 'Star', label: 'Star' },
-                { value: 'Zap', label: 'Zap Lightning' },
-                { value: 'Medal', label: 'Medal' },
-                { value: 'Shield', label: 'Shield' },
-                { value: 'Target', label: 'Target Bullseye' },
-                { value: 'Flame', label: 'Flame Energy' }
-              ]}
-            />
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Select
-              label="Theme Color"
-              value={formData.color}
-              onChange={(e) => setFormData({ ...formData, color: e.target.value })}
-              options={[
-                { value: 'purple', label: 'Purple' },
-                { value: 'emerald', label: 'Emerald Green' },
-                { value: 'amber', label: 'Amber Gold' },
-                { value: 'blue', label: 'Royal Blue' },
-                { value: 'indigo', label: 'Indigo' },
-                { value: 'rose', label: 'Rose Red' }
-              ]}
-            />
-
             <Input
               label="XP Reward Value"
               type="text"
@@ -465,6 +604,59 @@ export function BadgesPage() {
               value={formData.points}
               onChange={(e) => setFormData({ ...formData, points: e.target.value })}
             />
+          </div>
+
+          {/* Interactive Icon Selector */}
+          <div className="space-y-2">
+            <label className="text-xs font-black text-slate-700 uppercase tracking-wider block">
+              Badge Icon Avatar
+            </label>
+            <div className="grid grid-cols-5 gap-2.5 p-3 bg-slate-50 rounded-2xl border border-slate-200">
+              {availableIcons.map((ic) => {
+                const IconC = ICON_MAP[ic.key] || Award;
+                const isSelected = formData.icon === ic.key;
+                return (
+                  <button
+                    key={ic.key}
+                    type="button"
+                    onClick={() => setFormData({ ...formData, icon: ic.key })}
+                    className={`p-3 rounded-xl flex flex-col items-center gap-1.5 transition-all cursor-pointer ${
+                      isSelected
+                        ? 'bg-purple-600 text-white shadow-md ring-2 ring-purple-600'
+                        : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
+                    }`}
+                  >
+                    <IconC className="w-5 h-5" />
+                    <span className="text-[9px] font-black tracking-tight truncate max-w-full">{ic.key}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Interactive Color Theme Selector */}
+          <div className="space-y-2">
+            <label className="text-xs font-black text-slate-700 uppercase tracking-wider block">
+              Color Theme Accent
+            </label>
+            <div className="grid grid-cols-6 gap-2 p-3 bg-slate-50 rounded-2xl border border-slate-200">
+              {availableColors.map((col) => {
+                const isSelected = formData.color === col.key;
+                return (
+                  <button
+                    key={col.key}
+                    type="button"
+                    onClick={() => setFormData({ ...formData, color: col.key })}
+                    className={`h-10 rounded-xl flex items-center justify-center transition-all cursor-pointer ${col.bg} ${
+                      isSelected ? 'ring-4 ring-offset-2 ring-purple-600 scale-105' : 'hover:scale-95 opacity-90'
+                    }`}
+                    title={col.label}
+                  >
+                    {isSelected && <Check className="w-4 h-4 text-white" />}
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
           <Input
@@ -476,7 +668,7 @@ export function BadgesPage() {
           />
 
           <div className="flex flex-col gap-1.5">
-            <label className="text-[11px] font-extrabold text-slate-700 uppercase tracking-wider">
+            <label className="text-[11px] font-black text-slate-700 uppercase tracking-wider">
               Badge Description
             </label>
             <textarea
@@ -484,7 +676,7 @@ export function BadgesPage() {
               placeholder="Brief description of what this badge recognizes..."
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-purple-500 shadow-2xs"
+              className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-2xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-purple-500 shadow-2xs font-medium"
             />
           </div>
 
@@ -492,7 +684,7 @@ export function BadgesPage() {
             <Button variant="outline" type="button" onClick={() => setIsModalOpen(false)}>
               Cancel
             </Button>
-            <Button variant="primary" type="submit">
+            <Button variant="primary" type="submit" className="bg-purple-600 hover:bg-purple-500">
               {editingBadge ? 'Save Badge' : 'Publish Badge'}
             </Button>
           </div>
@@ -507,17 +699,17 @@ export function BadgesPage() {
         maxWidth="max-w-md"
       >
         <form onSubmit={handleAwardSubmit} className="space-y-4">
-          <p className="text-xs text-slate-600 font-medium">
-            Select a student to award this badge to. The badge will appear in the student's profile & LMS portal.
+          <p className="text-xs text-slate-600 font-medium leading-relaxed">
+            Select a student from the active roster to award this badge to. The student will instantly receive the badge on their LMS profile.
           </p>
 
           <Select
-            label="Select Student"
+            label="Select Student Roster"
             value={selectedStudentId}
             onChange={(e) => setSelectedStudentId(e.target.value)}
             options={[
               { value: '', label: '-- Choose Student --' },
-              ...students.map((s) => ({ value: s.id, label: `${s.name} (${s.email})` }))
+              ...students.map((s) => ({ value: s.id, label: `${s.name} (${s.batch || 'A26W1'})` }))
             ]}
           />
 
@@ -525,7 +717,7 @@ export function BadgesPage() {
             <Button variant="outline" type="button" onClick={() => setAwardModalBadge(null)}>
               Cancel
             </Button>
-            <Button variant="primary" type="submit" icon={Award}>
+            <Button variant="primary" type="submit" icon={Award} className="bg-purple-600 hover:bg-purple-500">
               Award Badge Now
             </Button>
           </div>
@@ -540,7 +732,7 @@ export function BadgesPage() {
         maxWidth="max-w-sm"
       >
         <div className="space-y-4">
-          <p className="text-xs text-slate-600">
+          <p className="text-xs text-slate-600 font-medium">
             Are you sure you want to delete this badge? This action will remove it from the catalog.
           </p>
           <div className="flex items-center justify-end gap-3">
