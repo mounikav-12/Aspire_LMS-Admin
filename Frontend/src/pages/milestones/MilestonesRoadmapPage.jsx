@@ -496,6 +496,7 @@ export function MilestonesRoadmapPage() {
   let completedItemsCount = 0;
   let totalSubtopicsCount = 0;
   let completedSubtopicsCount = 0;
+  let totalLessonsCalculated = 0;
 
   filteredStages.forEach((stage) => {
     (stage.subtopics || []).forEach((sub) => {
@@ -511,6 +512,18 @@ export function MilestonesRoadmapPage() {
         });
       });
 
+      const matchingCourseLessons = courseLessons.filter(
+        (l) => (targetCourseId === 'ALL' || l.course_id === targetCourseId) && (l.stage_id === stage.id || l.module_id === sub.id)
+      );
+
+      const countForThisSubtopic = Math.max(
+        matchingCourseLessons.length,
+        sub.modules?.length || 0,
+        subItems.length,
+        1
+      );
+      totalLessonsCalculated += countForThisSubtopic;
+
       const isSubDone =
         sub.isCompleted ||
         completedMilestoneItemIds.includes(sub.id) ||
@@ -521,6 +534,16 @@ export function MilestonesRoadmapPage() {
       }
     });
   });
+
+  const courseLessonsCountForCourse = courseLessons.filter(
+    (l) => targetCourseId === 'ALL' || l.course_id === targetCourseId
+  ).length;
+
+  const totalLessonsDisplayCount = Math.max(
+    courseLessonsCountForCourse,
+    totalLessonsCalculated,
+    totalSubtopicsCount
+  );
 
   const totalTopicsCount = totalItemsCount > 0 ? totalItemsCount : (totalSubtopicsCount || 31);
   const completedTopicsCount = totalItemsCount > 0 ? completedItemsCount : completedSubtopicsCount;
@@ -1096,7 +1119,7 @@ export function MilestonesRoadmapPage() {
           </div>
           <div>
             <p className="text-xs text-slate-500 font-medium">Total Lessons</p>
-            <p className="text-lg font-bold text-slate-900">{totalTopicsCount}</p>
+            <p className="text-lg font-bold text-slate-900">{totalLessonsDisplayCount}</p>
           </div>
         </div>
       </div>
