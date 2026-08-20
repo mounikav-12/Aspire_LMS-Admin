@@ -371,7 +371,7 @@ export function ProjectManagementPage() {
       default:
         return (
           <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-700 border border-amber-200/60">
-            Mini Project
+            Mini
           </span>
         );
     }
