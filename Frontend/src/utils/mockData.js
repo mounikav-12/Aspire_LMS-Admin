@@ -975,14 +975,14 @@ export const INITIAL_MILESTONES = {
       "subtopics": [
         {
           "id": "py-fundamentals",
-          "title": "Python Programming Fundamentals",
+          "title": "Module - 1: Python Programming Fundamentals",
           "description": "Click to view subtopics",
-          "duration": "Python Setup, Variables, Data Types, Control Flow, Functions, Variable Scope, Built-in Data Structures (Lists, Tuples, Sets, Dicts)",
-          "modulesCount": 2,
+          "duration": "Python Setup, Variables, Data Types & Control Flow | Functions & Scope | Built-in Data Structures",
+          "modulesCount": 3,
           "modules": [
             {
               "id": "mod-py-fundamentals-1",
-              "title": "Python Syntax & Data Types",
+              "title": "Python Setup, Variables, Data Types & Control Flow",
               "items": [
                 {
                   "id": "py-fundamentals-m1-live",
@@ -990,7 +990,7 @@ export const INITIAL_MILESTONES = {
                   "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
                   "iconName": "Video",
                   "iconBg": "bg-purple-600 text-white",
-                  "title": "Python Basics & Built-in Types Workshop",
+                  "title": "Python Basics & Control Flow Workshop",
                   "actionText": "JOIN",
                   "url": "https://zoom.us/live-py-fundamentals-1",
                   "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
@@ -1012,7 +1012,7 @@ export const INITIAL_MILESTONES = {
                   "typeColor": "bg-blue-100 text-blue-700 border-blue-200",
                   "iconName": "FileCheck",
                   "iconBg": "bg-blue-600 text-white",
-                  "title": "Python Fundamentals Quiz",
+                  "title": "Python Fundamentals & Control Flow Quiz",
                   "actionText": "TAKE",
                   "url": "/assessments",
                   "btnStyle": "bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30"
@@ -1021,7 +1021,7 @@ export const INITIAL_MILESTONES = {
             },
             {
               "id": "mod-py-fundamentals-2",
-              "title": "Functions & Data Structures",
+              "title": "Functions & Variable Scope in Python",
               "items": [
                 {
                   "id": "py-fundamentals-m2-live",
@@ -1029,7 +1029,7 @@ export const INITIAL_MILESTONES = {
                   "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
                   "iconName": "Video",
                   "iconBg": "bg-purple-600 text-white",
-                  "title": "Lists, Tuples, Sets & Dicts Masterclass",
+                  "title": "Functions & Scope Masterclass",
                   "actionText": "JOIN",
                   "url": "https://zoom.us/live-py-fundamentals-2",
                   "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
@@ -1040,13 +1040,52 @@ export const INITIAL_MILESTONES = {
                   "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
                   "iconName": "Code",
                   "iconBg": "bg-amber-500 text-white",
-                  "title": "Data Structure Manipulation Lab",
+                  "title": "Functions & Scope Practical Lab",
                   "actionText": "VIEW",
                   "url": "https://lab.aspirelms.io/py-fundamentals-2",
                   "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
                 },
                 {
                   "id": "py-fundamentals-m2-quiz",
+                  "type": "ASSESSMENT",
+                  "typeColor": "bg-blue-100 text-blue-700 border-blue-200",
+                  "iconName": "FileCheck",
+                  "iconBg": "bg-blue-600 text-white",
+                  "title": "Functions & Variable Scope Quiz",
+                  "actionText": "TAKE",
+                  "url": "/assessments",
+                  "btnStyle": "bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30"
+                }
+              ]
+            },
+            {
+              "id": "mod-py-fundamentals-3",
+              "title": "Built-in Data Structures: Lists, Tuples, Sets, Dicts",
+              "items": [
+                {
+                  "id": "py-fundamentals-m3-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "Built-in Data Structures Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-py-fundamentals-3",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
+                },
+                {
+                  "id": "py-fundamentals-m3-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Data Structure Manipulation Lab",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/py-fundamentals-3",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                },
+                {
+                  "id": "py-fundamentals-m3-quiz",
                   "type": "ASSESSMENT",
                   "typeColor": "bg-blue-100 text-blue-700 border-blue-200",
                   "iconName": "FileCheck",
@@ -2197,51 +2236,51 @@ export const INITIAL_MILESTONES = {
       "id": "stage-3",
       "stageNumber": "STAGE 03",
       "phaseTag": "Phase 3 • Artificial Intelligence & Cloud",
-      "title": "Stage 3: AI",
+      "title": "Stage 3: AI, Integration & Deployment",
       "status": "AVAILABLE",
       "statusType": "available",
       "isLocked": false,
       "subtopics": [
         {
-          "id": "ai-prompt-llm",
-          "title": "Introduction to AI, Prompt Engineering & LLMs",
+          "id": "mod-stg3-m1",
+          "title": "Module 1: Introduction to AI, Prompt Engineering & LLMs",
           "description": "Click to view subtopics",
-          "duration": "What is AI/ML/DL/LLM, Generative AI Ecosystem, Google Gemini & OpenAI API Setup, Prompt Engineering Strategies & Few-Shot Prompting",
-          "modulesCount": 2,
+          "duration": "What is AI/ML/DL/LLM & Generative AI Ecosystem | Gemini & OpenAI Setup | Prompt Engineering & Few-Shot",
+          "modulesCount": 3,
           "modules": [
             {
-              "id": "mod-ai-prompt-llm-1",
-              "title": "Generative AI & LLM Ecosystem",
+              "id": "stg3-m1-mod1",
+              "title": "What is AI/ML/DL/LLM & Generative AI Ecosystem",
               "items": [
                 {
-                  "id": "ai-prompt-llm-m1-live",
+                  "id": "stg3-m1-l1-live",
                   "type": "LIVE CLASS",
                   "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
                   "iconName": "Video",
                   "iconBg": "bg-purple-600 text-white",
-                  "title": "Intro to Generative AI & OpenAI/Gemini APIs",
+                  "title": "Generative AI & LLM Ecosystem Masterclass",
                   "actionText": "JOIN",
-                  "url": "https://zoom.us/live-ai-prompt-llm-1",
+                  "url": "https://zoom.us/live-ai-1",
                   "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "ai-prompt-llm-m1-lab",
+                  "id": "stg3-m1-l1-lab",
                   "type": "PRACTICAL LAB",
                   "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
                   "iconName": "Code",
                   "iconBg": "bg-amber-500 text-white",
-                  "title": "Connecting Python to Gemini API Lab",
+                  "title": "AI Ecosystem Exploration Lab",
                   "actionText": "VIEW",
-                  "url": "https://lab.aspirelms.io/ai-prompt-llm-1",
+                  "url": "https://lab.aspirelms.io/ai-1",
                   "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
                 },
                 {
-                  "id": "ai-prompt-llm-m1-quiz",
+                  "id": "stg3-m1-l1-quiz",
                   "type": "ASSESSMENT",
                   "typeColor": "bg-blue-100 text-blue-700 border-blue-200",
                   "iconName": "FileCheck",
                   "iconBg": "bg-blue-600 text-white",
-                  "title": "Generative AI Ecosystem Quiz",
+                  "title": "AI & LLM Concepts Quiz",
                   "actionText": "TAKE",
                   "url": "/assessments",
                   "btnStyle": "bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30"
@@ -2249,38 +2288,77 @@ export const INITIAL_MILESTONES = {
               ]
             },
             {
-              "id": "mod-ai-prompt-llm-2",
-              "title": "Prompt Engineering Strategies",
+              "id": "stg3-m1-mod2",
+              "title": "Google Gemini & OpenAI API Setup and Access",
               "items": [
                 {
-                  "id": "ai-prompt-llm-m2-live",
+                  "id": "stg3-m1-l2-live",
                   "type": "LIVE CLASS",
                   "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
                   "iconName": "Video",
                   "iconBg": "bg-purple-600 text-white",
-                  "title": "Zero-Shot, Few-Shot & Chain-of-Thought Prompting",
+                  "title": "Gemini & OpenAI API Integration Workshop",
                   "actionText": "JOIN",
-                  "url": "https://zoom.us/live-ai-prompt-llm-2",
+                  "url": "https://zoom.us/live-ai-2",
                   "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "ai-prompt-llm-m2-lab",
+                  "id": "stg3-m1-l2-lab",
                   "type": "PRACTICAL LAB",
                   "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
                   "iconName": "Code",
                   "iconBg": "bg-amber-500 text-white",
-                  "title": "Prompt Engineering Optimization Lab",
+                  "title": "API Authentication & SDK Lab",
                   "actionText": "VIEW",
-                  "url": "https://lab.aspirelms.io/ai-prompt-llm-2",
+                  "url": "https://lab.aspirelms.io/ai-2",
                   "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
                 },
                 {
-                  "id": "ai-prompt-llm-m2-quiz",
+                  "id": "stg3-m1-l2-quiz",
                   "type": "ASSESSMENT",
                   "typeColor": "bg-blue-100 text-blue-700 border-blue-200",
                   "iconName": "FileCheck",
                   "iconBg": "bg-blue-600 text-white",
-                  "title": "Prompt Engineering Assessment",
+                  "title": "API Integration Assessment",
+                  "actionText": "TAKE",
+                  "url": "/assessments",
+                  "btnStyle": "bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-purple-500/30"
+                }
+              ]
+            },
+            {
+              "id": "stg3-m1-mod3",
+              "title": "Prompt Engineering Strategies & Few-Shot Prompting",
+              "items": [
+                {
+                  "id": "stg3-m1-l3-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "Advanced Prompt Engineering Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-ai-3",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
+                },
+                {
+                  "id": "stg3-m1-l3-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Few-Shot Prompting Lab",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/ai-3",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                },
+                {
+                  "id": "stg3-m1-l3-quiz",
+                  "type": "ASSESSMENT",
+                  "typeColor": "bg-blue-100 text-blue-700 border-blue-200",
+                  "iconName": "FileCheck",
+                  "iconBg": "bg-blue-600 text-white",
+                  "title": "Prompt Engineering Quiz",
                   "actionText": "TAKE",
                   "url": "/assessments",
                   "btnStyle": "bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30"
@@ -2290,45 +2368,45 @@ export const INITIAL_MILESTONES = {
           ]
         },
         {
-          "id": "ai-python-langchain",
-          "title": "AI Integration with Python & LangChain",
+          "id": "mod-stg3-m2",
+          "title": "Module 2: AI Integration with Python & LangChain",
           "description": "Click to view subtopics",
-          "duration": "LangChain Framework Basics, Prompt Templates, Chains, Integrating OpenAI/Gemini APIs in Django Backend, Building Chatbots",
-          "modulesCount": 2,
+          "duration": "LangChain Framework Basics | Django AI Integration | Intelligent AI Chatbots & LLM Interfaces",
+          "modulesCount": 3,
           "modules": [
             {
-              "id": "mod-ai-python-langchain-1",
-              "title": "LangChain Basics & Prompt Templates",
+              "id": "stg3-m2-mod1",
+              "title": "LangChain Framework Basics, Prompt Templates & Chains",
               "items": [
                 {
-                  "id": "ai-python-langchain-m1-live",
+                  "id": "stg3-m2-l1-live",
                   "type": "LIVE CLASS",
                   "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
                   "iconName": "Video",
                   "iconBg": "bg-purple-600 text-white",
-                  "title": "LangChain Framework & Prompt Pipelines",
+                  "title": "LangChain Framework & Chains Masterclass",
                   "actionText": "JOIN",
-                  "url": "https://zoom.us/live-ai-python-langchain-1",
+                  "url": "https://zoom.us/live-langchain-1",
                   "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "ai-python-langchain-m1-lab",
+                  "id": "stg3-m2-l1-lab",
                   "type": "PRACTICAL LAB",
                   "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
                   "iconName": "Code",
                   "iconBg": "bg-amber-500 text-white",
-                  "title": "LangChain Chains Implementation Lab",
+                  "title": "LangChain Chains & Templates Lab",
                   "actionText": "VIEW",
-                  "url": "https://lab.aspirelms.io/ai-python-langchain-1",
+                  "url": "https://lab.aspirelms.io/langchain-1",
                   "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
                 },
                 {
-                  "id": "ai-python-langchain-m1-quiz",
+                  "id": "stg3-m2-l1-quiz",
                   "type": "ASSESSMENT",
                   "typeColor": "bg-blue-100 text-blue-700 border-blue-200",
                   "iconName": "FileCheck",
                   "iconBg": "bg-blue-600 text-white",
-                  "title": "LangChain Core Quiz",
+                  "title": "LangChain Fundamentals Quiz",
                   "actionText": "TAKE",
                   "url": "/assessments",
                   "btnStyle": "bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30"
@@ -2336,38 +2414,77 @@ export const INITIAL_MILESTONES = {
               ]
             },
             {
-              "id": "mod-ai-python-langchain-2",
-              "title": "RAG Pipelines & AI Chatbots",
+              "id": "stg3-m2-mod2",
+              "title": "Integrating OpenAI/Gemini APIs in Django Backend",
               "items": [
                 {
-                  "id": "ai-python-langchain-m2-live",
+                  "id": "stg3-m2-l2-live",
                   "type": "LIVE CLASS",
                   "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
                   "iconName": "Video",
                   "iconBg": "bg-purple-600 text-white",
-                  "title": "Building RAG Chatbots with Django & Vector DBs",
+                  "title": "Django AI Backend Integration Workshop",
                   "actionText": "JOIN",
-                  "url": "https://zoom.us/live-ai-python-langchain-2",
+                  "url": "https://zoom.us/live-django-ai",
                   "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "ai-python-langchain-m2-lab",
+                  "id": "stg3-m2-l2-lab",
                   "type": "PRACTICAL LAB",
                   "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
                   "iconName": "Code",
                   "iconBg": "bg-amber-500 text-white",
-                  "title": "Full-Stack AI Assistant Integration",
+                  "title": "Django LLM Endpoint Integration Lab",
                   "actionText": "VIEW",
-                  "url": "https://lab.aspirelms.io/ai-python-langchain-2",
+                  "url": "https://lab.aspirelms.io/django-ai",
                   "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
                 },
                 {
-                  "id": "ai-python-langchain-m2-quiz",
+                  "id": "stg3-m2-l2-quiz",
                   "type": "ASSESSMENT",
                   "typeColor": "bg-blue-100 text-blue-700 border-blue-200",
                   "iconName": "FileCheck",
                   "iconBg": "bg-blue-600 text-white",
-                  "title": "LangChain & RAG Assessment",
+                  "title": "Django AI Backend Assessment",
+                  "actionText": "TAKE",
+                  "url": "/assessments",
+                  "btnStyle": "bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30"
+                }
+              ]
+            },
+            {
+              "id": "stg3-m2-mod3",
+              "title": "Building Intelligent AI Chatbots & LLM Interfaces",
+              "items": [
+                {
+                  "id": "stg3-m2-l3-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "AI Chatbot UI & Context Memory Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-chatbot-1",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
+                },
+                {
+                  "id": "stg3-m2-l3-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Full Stack AI Chatbot Build Lab",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/chatbot-1",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                },
+                {
+                  "id": "stg3-m2-l3-quiz",
+                  "type": "ASSESSMENT",
+                  "typeColor": "bg-blue-100 text-blue-700 border-blue-200",
+                  "iconName": "FileCheck",
+                  "iconBg": "bg-blue-600 text-white",
+                  "title": "AI Chatbot System Quiz",
                   "actionText": "TAKE",
                   "url": "/assessments",
                   "btnStyle": "bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30"
@@ -2377,45 +2494,45 @@ export const INITIAL_MILESTONES = {
           ]
         },
         {
-          "id": "docker-cloud-deploy",
-          "title": "Docker Containerization & Cloud Deployment",
+          "id": "mod-stg3-m3",
+          "title": "Module 3: Docker Containerization & Cloud Deployment",
           "description": "Click to view subtopics",
-          "duration": "Docker Concepts, Dockerfile, Containerizing Django & Apps, Docker Compose, Deploying Full Stack App to Cloud (Render/AWS/Vercel)",
-          "modulesCount": 2,
+          "duration": "Docker Concepts & Dockerfiles | Containerizing Django Applications | Cloud Deployment (Render/AWS/Vercel)",
+          "modulesCount": 3,
           "modules": [
             {
-              "id": "mod-docker-cloud-deploy-1",
-              "title": "Docker Concepts & Dockerfiles",
+              "id": "stg3-m3-mod1",
+              "title": "Docker Concepts & Creating Dockerfiles",
               "items": [
                 {
-                  "id": "docker-cloud-deploy-m1-live",
+                  "id": "stg3-m3-l1-live",
                   "type": "LIVE CLASS",
                   "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
                   "iconName": "Video",
                   "iconBg": "bg-purple-600 text-white",
-                  "title": "Docker Fundamentals & Containerization",
+                  "title": "Docker Fundamentals & Containerization Masterclass",
                   "actionText": "JOIN",
-                  "url": "https://zoom.us/live-docker-cloud-deploy-1",
+                  "url": "https://zoom.us/live-docker-1",
                   "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "docker-cloud-deploy-m1-lab",
+                  "id": "stg3-m3-l1-lab",
                   "type": "PRACTICAL LAB",
                   "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
                   "iconName": "Code",
                   "iconBg": "bg-amber-500 text-white",
-                  "title": "Dockerizing Full-Stack Python App Lab",
+                  "title": "Writing Production Dockerfiles Lab",
                   "actionText": "VIEW",
-                  "url": "https://lab.aspirelms.io/docker-cloud-deploy-1",
+                  "url": "https://lab.aspirelms.io/docker-1",
                   "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
                 },
                 {
-                  "id": "docker-cloud-deploy-m1-quiz",
+                  "id": "stg3-m3-l1-quiz",
                   "type": "ASSESSMENT",
                   "typeColor": "bg-blue-100 text-blue-700 border-blue-200",
                   "iconName": "FileCheck",
                   "iconBg": "bg-blue-600 text-white",
-                  "title": "Docker Core Concepts Quiz",
+                  "title": "Docker Concepts Quiz",
                   "actionText": "TAKE",
                   "url": "/assessments",
                   "btnStyle": "bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30"
@@ -2423,38 +2540,77 @@ export const INITIAL_MILESTONES = {
               ]
             },
             {
-              "id": "mod-docker-cloud-deploy-2",
-              "title": "Docker Compose & Production Cloud Deploy",
+              "id": "stg3-m3-mod2",
+              "title": "Containerizing Django Applications & Docker Compose",
               "items": [
                 {
-                  "id": "docker-cloud-deploy-m2-live",
+                  "id": "stg3-m3-l2-live",
                   "type": "LIVE CLASS",
                   "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
                   "iconName": "Video",
                   "iconBg": "bg-purple-600 text-white",
-                  "title": "Docker Compose & Cloud Deployment Masterclass",
+                  "title": "Docker Compose Multi-Container Orchestration",
                   "actionText": "JOIN",
-                  "url": "https://zoom.us/live-docker-cloud-deploy-2",
+                  "url": "https://zoom.us/live-docker-compose",
                   "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "docker-cloud-deploy-m2-lab",
+                  "id": "stg3-m3-l2-lab",
                   "type": "PRACTICAL LAB",
                   "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
                   "iconName": "Code",
                   "iconBg": "bg-amber-500 text-white",
-                  "title": "Deploying Full Stack App to Render/AWS",
+                  "title": "Containerizing Django, Postgres & Redis Lab",
                   "actionText": "VIEW",
-                  "url": "https://lab.aspirelms.io/docker-cloud-deploy-2",
+                  "url": "https://lab.aspirelms.io/docker-compose",
                   "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
                 },
                 {
-                  "id": "docker-cloud-deploy-m2-quiz",
+                  "id": "stg3-m3-l2-quiz",
                   "type": "ASSESSMENT",
                   "typeColor": "bg-blue-100 text-blue-700 border-blue-200",
                   "iconName": "FileCheck",
                   "iconBg": "bg-blue-600 text-white",
-                  "title": "Cloud Container Deployment Assessment",
+                  "title": "Docker Compose Assessment",
+                  "actionText": "TAKE",
+                  "url": "/assessments",
+                  "btnStyle": "bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30"
+                }
+              ]
+            },
+            {
+              "id": "stg3-m3-mod3",
+              "title": "Deploying Full Stack Applications to Cloud (Render/AWS/Vercel)",
+              "items": [
+                {
+                  "id": "stg3-m3-l3-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "Cloud Deployment & CI/CD Pipelines Workshop",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-cloud-deploy",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
+                },
+                {
+                  "id": "stg3-m3-l3-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Deploying App to Render & Vercel Lab",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/cloud-deploy",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                },
+                {
+                  "id": "stg3-m3-l3-quiz",
+                  "type": "ASSESSMENT",
+                  "typeColor": "bg-blue-100 text-blue-700 border-blue-200",
+                  "iconName": "FileCheck",
+                  "iconBg": "bg-blue-600 text-white",
+                  "title": "Cloud Deployment & DevOps Quiz",
                   "actionText": "TAKE",
                   "url": "/assessments",
                   "btnStyle": "bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30"
@@ -2634,12 +2790,94 @@ export const INITIAL_MILESTONES = {
                   "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
                 },
                 {
-                  "id": "capstone-review-1-m2-quiz",
+                  "url": "https://lab.aspirelms.io/sd-1",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                },
+                {
+                  "id": "stg4-m1-l1-quiz",
                   "type": "ASSESSMENT",
                   "typeColor": "bg-blue-100 text-blue-700 border-blue-200",
                   "iconName": "FileCheck",
                   "iconBg": "bg-blue-600 text-white",
-                  "title": "Capstone Architecture Readiness Quiz",
+                  "title": "System Design HLD/LLD Quiz",
+                  "actionText": "TAKE",
+                  "url": "/assessments",
+                  "btnStyle": "bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30"
+                }
+              ]
+            },
+            {
+              "id": "stg4-m1-mod2",
+              "title": "Load Balancing & Database Sharding",
+              "items": [
+                {
+                  "id": "stg4-m1-l2-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "Load Balancing & Database Sharding Workshop",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-sd-2",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
+                },
+                {
+                  "id": "stg4-m1-l2-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Database Sharding & Replication Lab",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/sd-2",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                },
+                {
+                  "id": "stg4-m1-l2-quiz",
+                  "type": "ASSESSMENT",
+                  "typeColor": "bg-blue-100 text-blue-700 border-blue-200",
+                  "iconName": "FileCheck",
+                  "iconBg": "bg-blue-600 text-white",
+                  "title": "Scalability & Sharding Assessment",
+                  "actionText": "TAKE",
+                  "url": "/assessments",
+                  "btnStyle": "bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30"
+                }
+              ]
+            },
+            {
+              "id": "stg4-m1-mod3",
+              "title": "Caching Strategies & Scalable Web Architecture",
+              "items": [
+                {
+                  "id": "stg4-m1-l3-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "Caching & Scalable Web Systems Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-sd-3",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
+                },
+                {
+                  "id": "stg4-m1-l3-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Redis Caching & CDN Integration Lab",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/sd-3",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                },
+                {
+                  "id": "stg4-m1-l3-quiz",
+                  "type": "ASSESSMENT",
+                  "typeColor": "bg-blue-100 text-blue-700 border-blue-200",
+                  "iconName": "FileCheck",
+                  "iconBg": "bg-blue-600 text-white",
+                  "title": "Caching Architecture Quiz",
                   "actionText": "TAKE",
                   "url": "/assessments",
                   "btnStyle": "bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30"
@@ -2649,45 +2887,45 @@ export const INITIAL_MILESTONES = {
           ]
         },
         {
-          "id": "capstone-review-2",
-          "title": "Capstone Project Development & Mentoring - 2",
+          "id": "mod-stg4-m2",
+          "title": "Module 2: Capstone Project Mentoring & Review - 1",
           "description": "Click to view subtopics",
-          "duration": "Frontend-Backend Integration, AI Feature Tuning, Bug Fixing, Security Auditing, Performance Optimization",
+          "duration": "Project Scope Finalization & Architecture Validation | Database Design Review & API Contract Definition",
           "modulesCount": 2,
           "modules": [
             {
-              "id": "mod-capstone-review-2-1",
-              "title": "Full-Stack Integration & AI Tuning",
+              "id": "stg4-m2-mod1",
+              "title": "Project Scope Finalization & Architecture Validation",
               "items": [
                 {
-                  "id": "capstone-review-2-m1-live",
+                  "id": "stg4-m2-l1-live",
                   "type": "LIVE CLASS",
                   "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
                   "iconName": "Video",
                   "iconBg": "bg-purple-600 text-white",
-                  "title": "Frontend-Backend Integration & AI Mentoring",
+                  "title": "Capstone Scope Finalization & Tech Stack Review",
                   "actionText": "JOIN",
-                  "url": "https://zoom.us/live-capstone-review-2-1",
+                  "url": "https://zoom.us/live-cap-1",
                   "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "capstone-review-2-m1-lab",
+                  "id": "stg4-m2-l1-lab",
                   "type": "PRACTICAL LAB",
                   "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
                   "iconName": "Code",
                   "iconBg": "bg-amber-500 text-white",
-                  "title": "Connecting React UI with DRF APIs & Gemini AI",
+                  "title": "Architecture Blueprint Validation Lab",
                   "actionText": "VIEW",
-                  "url": "https://lab.aspirelms.io/capstone-review-2-1",
+                  "url": "https://lab.aspirelms.io/cap-1",
                   "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
                 },
                 {
-                  "id": "capstone-review-2-m1-quiz",
+                  "id": "stg4-m2-l1-quiz",
                   "type": "ASSESSMENT",
                   "typeColor": "bg-blue-100 text-blue-700 border-blue-200",
                   "iconName": "FileCheck",
                   "iconBg": "bg-blue-600 text-white",
-                  "title": "Integration & AI Verification Quiz",
+                  "title": "Capstone Scope Review Assessment",
                   "actionText": "TAKE",
                   "url": "/assessments",
                   "btnStyle": "bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30"
@@ -2695,38 +2933,38 @@ export const INITIAL_MILESTONES = {
               ]
             },
             {
-              "id": "mod-capstone-review-2-2",
-              "title": "Security Audit & Live Demo",
+              "id": "stg4-m2-mod2",
+              "title": "Database Design Review & API Contract Definition",
               "items": [
                 {
-                  "id": "capstone-review-2-m2-live",
+                  "id": "stg4-m2-l2-live",
                   "type": "LIVE CLASS",
                   "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
                   "iconName": "Video",
                   "iconBg": "bg-purple-600 text-white",
-                  "title": "Security Audit, Bug Fixing & Code Refactoring",
+                  "title": "DB Schema Review & OpenAPI Specs Workshop",
                   "actionText": "JOIN",
-                  "url": "https://zoom.us/live-capstone-review-2-2",
+                  "url": "https://zoom.us/live-cap-2",
                   "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "capstone-review-2-m2-lab",
+                  "id": "stg4-m2-l2-lab",
                   "type": "PRACTICAL LAB",
                   "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
                   "iconName": "Code",
                   "iconBg": "bg-amber-500 text-white",
-                  "title": "Production Build & Final Demo Recording",
+                  "title": "Database & API Specifications Lab",
                   "actionText": "VIEW",
-                  "url": "https://lab.aspirelms.io/capstone-review-2-2",
+                  "url": "https://lab.aspirelms.io/cap-2",
                   "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
                 },
                 {
-                  "id": "capstone-review-2-m2-quiz",
+                  "id": "stg4-m2-l2-quiz",
                   "type": "ASSESSMENT",
                   "typeColor": "bg-blue-100 text-blue-700 border-blue-200",
                   "iconName": "FileCheck",
                   "iconBg": "bg-blue-600 text-white",
-                  "title": "Capstone Completion Audit",
+                  "title": "API Specification Check",
                   "actionText": "TAKE",
                   "url": "/assessments",
                   "btnStyle": "bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30"
@@ -2736,45 +2974,45 @@ export const INITIAL_MILESTONES = {
           ]
         },
         {
-          "id": "resume-portfolio",
-          "title": "Resume Building, LinkedIn & GitHub Portfolio",
+          "id": "mod-stg4-m3",
+          "title": "Module 3: Capstone Project Development & Mentoring - 2",
           "description": "Click to view subtopics",
-          "duration": "Creating ATS-Compliant Resume, GitHub Repository Presentation, README Design, LinkedIn Profile Optimization & Branding",
-          "modulesCount": 2,
+          "duration": "Frontend-Backend Integration & AI Feature Tuning | Bug Fixing & Security Auditing | Performance Optimization",
+          "modulesCount": 3,
           "modules": [
             {
-              "id": "mod-resume-portfolio-1",
-              "title": "ATS Resume & GitHub Branding",
+              "id": "stg4-m3-mod1",
+              "title": "Frontend-Backend Integration & AI Feature Tuning",
               "items": [
                 {
-                  "id": "resume-portfolio-m1-live",
+                  "id": "stg4-m3-l1-live",
                   "type": "LIVE CLASS",
                   "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
                   "iconName": "Video",
                   "iconBg": "bg-purple-600 text-white",
-                  "title": "ATS-Compliant Resume & GitHub Presentation",
+                  "title": "Full-Stack Integration & AI Tuning Workshop",
                   "actionText": "JOIN",
-                  "url": "https://zoom.us/live-resume-portfolio-1",
+                  "url": "https://zoom.us/live-cap-dev-1",
                   "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "resume-portfolio-m1-lab",
+                  "id": "stg4-m3-l1-lab",
                   "type": "PRACTICAL LAB",
                   "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
                   "iconName": "Code",
                   "iconBg": "bg-amber-500 text-white",
-                  "title": "Crafting Developer Resume & README Showcase",
+                  "title": "Integration & AI Endpoint Connection Lab",
                   "actionText": "VIEW",
-                  "url": "https://lab.aspirelms.io/resume-portfolio-1",
+                  "url": "https://lab.aspirelms.io/cap-dev-1",
                   "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
                 },
                 {
-                  "id": "resume-portfolio-m1-quiz",
+                  "id": "stg4-m3-l1-quiz",
                   "type": "ASSESSMENT",
                   "typeColor": "bg-blue-100 text-blue-700 border-blue-200",
                   "iconName": "FileCheck",
                   "iconBg": "bg-blue-600 text-white",
-                  "title": "ATS Resume Best Practices Check",
+                  "title": "Full Stack Integration Quiz",
                   "actionText": "TAKE",
                   "url": "/assessments",
                   "btnStyle": "bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30"
@@ -2782,33 +3020,159 @@ export const INITIAL_MILESTONES = {
               ]
             },
             {
-              "id": "mod-resume-portfolio-2",
-              "title": "LinkedIn Optimization & Personal Branding",
+              "id": "stg4-m3-mod2",
+              "title": "Bug Fixing & Security Auditing",
               "items": [
                 {
-                  "id": "resume-portfolio-m2-live",
+                  "id": "stg4-m3-l2-live",
                   "type": "LIVE CLASS",
                   "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
                   "iconName": "Video",
                   "iconBg": "bg-purple-600 text-white",
-                  "title": "LinkedIn Branding & Portfolio Showcase Workshop",
+                  "title": "Security Auditing & OWASP Vulnerability Check",
                   "actionText": "JOIN",
-                  "url": "https://zoom.us/live-resume-portfolio-2",
+                  "url": "https://zoom.us/live-cap-dev-2",
                   "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "resume-portfolio-m2-lab",
+                  "id": "stg4-m3-l2-lab",
                   "type": "PRACTICAL LAB",
                   "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
                   "iconName": "Code",
                   "iconBg": "bg-amber-500 text-white",
-                  "title": "Publishing Developer Portfolio & Profile",
+                  "title": "Security Audit & Sanitization Lab",
                   "actionText": "VIEW",
-                  "url": "https://lab.aspirelms.io/resume-portfolio-2",
+                  "url": "https://lab.aspirelms.io/cap-dev-2",
                   "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
                 },
                 {
-                  "id": "resume-portfolio-m2-quiz",
+                  "id": "stg4-m3-l2-quiz",
+                  "type": "ASSESSMENT",
+                  "typeColor": "bg-blue-100 text-blue-700 border-blue-200",
+                  "iconName": "FileCheck",
+                  "iconBg": "bg-blue-600 text-white",
+                  "title": "Security Audit Assessment",
+                  "actionText": "TAKE",
+                  "url": "/assessments",
+                  "btnStyle": "bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30"
+                }
+              ]
+            },
+            {
+              "id": "stg4-m3-mod3",
+              "title": "Performance Optimization",
+              "items": [
+                {
+                  "id": "stg4-m3-l3-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "Latency Reduction & DB Query Tuning Workshop",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-cap-dev-3",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
+                },
+                {
+                  "id": "stg4-m3-l3-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Stress Testing & Latency Benchmarking Lab",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/cap-dev-3",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                },
+                {
+                  "id": "stg4-m3-l3-quiz",
+                  "type": "ASSESSMENT",
+                  "typeColor": "bg-blue-100 text-blue-700 border-blue-200",
+                  "iconName": "FileCheck",
+                  "iconBg": "bg-blue-600 text-white",
+                  "title": "Performance Optimization Quiz",
+                  "actionText": "TAKE",
+                  "url": "/assessments",
+                  "btnStyle": "bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "mod-stg4-m4",
+          "title": "Module 4: Resume Building, LinkedIn & GitHub Portfolio",
+          "description": "Click to view subtopics",
+          "duration": "Creating ATS-Compliant Resume & GitHub Presentation | README Design, Linkedin Profile Optimization & Branding",
+          "modulesCount": 2,
+          "modules": [
+            {
+              "id": "stg4-m4-mod1",
+              "title": "Creating ATS-Compliant Resume & GitHub Presentation",
+              "items": [
+                {
+                  "id": "stg4-m4-l1-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "ATS-Compliant Resume & GitHub Workshop",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-resume-1",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
+                },
+                {
+                  "id": "stg4-m4-l1-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Drafting Tech Resume & GitHub Showcase Lab",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/resume-1",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                },
+                {
+                  "id": "stg4-m4-l1-quiz",
+                  "type": "ASSESSMENT",
+                  "typeColor": "bg-blue-100 text-blue-700 border-blue-200",
+                  "iconName": "FileCheck",
+                  "iconBg": "bg-blue-600 text-white",
+                  "title": "ATS Resume Review Check",
+                  "actionText": "TAKE",
+                  "url": "/assessments",
+                  "btnStyle": "bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30"
+                }
+              ]
+            },
+            {
+              "id": "stg4-m4-mod2",
+              "title": "README Design, Linkedin Profile Optimization & Branding",
+              "items": [
+                {
+                  "id": "stg4-m4-l2-live",
+                  "type": "LIVE CLASS",
+                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "iconName": "Video",
+                  "iconBg": "bg-purple-600 text-white",
+                  "title": "LinkedIn Optimization & README Design Masterclass",
+                  "actionText": "JOIN",
+                  "url": "https://zoom.us/live-resume-2",
+                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
+                },
+                {
+                  "id": "stg4-m4-l2-lab",
+                  "type": "PRACTICAL LAB",
+                  "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
+                  "iconName": "Code",
+                  "iconBg": "bg-amber-500 text-white",
+                  "title": "Publishing Developer Portfolio & Profile Lab",
+                  "actionText": "VIEW",
+                  "url": "https://lab.aspirelms.io/resume-2",
+                  "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
+                },
+                {
+                  "id": "stg4-m4-l2-quiz",
                   "type": "ASSESSMENT",
                   "typeColor": "bg-blue-100 text-blue-700 border-blue-200",
                   "iconName": "FileCheck",
@@ -2823,40 +3187,40 @@ export const INITIAL_MILESTONES = {
           ]
         },
         {
-          "id": "mock-interviews",
-          "title": "Mock Technical Interviews & Valedictory",
+          "id": "mod-stg4-m5",
+          "title": "Module 5: Mock Technical Interviews & Valedictory",
           "description": "Click to view subtopics",
-          "duration": "Technical Coding Practice, DSA Live Problem Solving, HR Interview Prep, Capstone Project Demonstrations & Certification",
+          "duration": "Technical Coding Practice & DSA Live Problem Solving | HR Interview Prep, Capstone Demos, & Certification",
           "modulesCount": 2,
           "modules": [
             {
-              "id": "mod-mock-interviews-1",
-              "title": "DSA Coding & System Design Interviews",
+              "id": "stg4-m5-mod1",
+              "title": "Technical Coding Practice & DSA Live Problem Solving",
               "items": [
                 {
-                  "id": "mock-interviews-m1-live",
+                  "id": "stg4-m5-l1-live",
                   "type": "LIVE CLASS",
                   "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
                   "iconName": "Video",
                   "iconBg": "bg-purple-600 text-white",
                   "title": "1-on-1 Mock Technical Coding Interview",
                   "actionText": "JOIN",
-                  "url": "https://zoom.us/live-mock-interviews-1",
+                  "url": "https://zoom.us/live-mock-1",
                   "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "mock-interviews-m1-lab",
+                  "id": "stg4-m5-l1-lab",
                   "type": "PRACTICAL LAB",
                   "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
                   "iconName": "Code",
                   "iconBg": "bg-amber-500 text-white",
-                  "title": "Live Problem Solving & Whiteboarding",
+                  "title": "Live Problem Solving & Whiteboarding Lab",
                   "actionText": "VIEW",
-                  "url": "https://lab.aspirelms.io/mock-interviews-1",
+                  "url": "https://lab.aspirelms.io/mock-1",
                   "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
                 },
                 {
-                  "id": "mock-interviews-m1-quiz",
+                  "id": "stg4-m5-l1-quiz",
                   "type": "ASSESSMENT",
                   "typeColor": "bg-blue-100 text-blue-700 border-blue-200",
                   "iconName": "FileCheck",
@@ -2869,33 +3233,33 @@ export const INITIAL_MILESTONES = {
               ]
             },
             {
-              "id": "mod-mock-interviews-2",
-              "title": "HR Interview & Valedictory Ceremony",
+              "id": "stg4-m5-mod2",
+              "title": "HR Interview Prep, Capstone Demos, & Certification",
               "items": [
                 {
-                  "id": "mock-interviews-m2-live",
+                  "id": "stg4-m5-l2-live",
                   "type": "LIVE CLASS",
                   "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
                   "iconName": "Video",
                   "iconBg": "bg-purple-600 text-white",
                   "title": "HR Interview Prep & Graduation Ceremony",
                   "actionText": "JOIN",
-                  "url": "https://zoom.us/live-mock-interviews-2",
+                  "url": "https://zoom.us/live-mock-2",
                   "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30"
                 },
                 {
-                  "id": "mock-interviews-m2-lab",
+                  "id": "stg4-m5-l2-lab",
                   "type": "PRACTICAL LAB",
                   "typeColor": "bg-amber-100 text-amber-700 border-amber-200",
                   "iconName": "Code",
                   "iconBg": "bg-amber-500 text-white",
-                  "title": "Capstone Project Final Presentation",
+                  "title": "Capstone Project Final Presentation Lab",
                   "actionText": "VIEW",
-                  "url": "https://lab.aspirelms.io/mock-interviews-2",
+                  "url": "https://lab.aspirelms.io/mock-2",
                   "btnStyle": "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30"
                 },
                 {
-                  "id": "mock-interviews-m2-quiz",
+                  "id": "stg4-m5-l2-quiz",
                   "type": "ASSESSMENT",
                   "typeColor": "bg-blue-100 text-blue-700 border-blue-200",
                   "iconName": "FileCheck",

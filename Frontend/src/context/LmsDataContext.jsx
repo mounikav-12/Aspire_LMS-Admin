@@ -1016,7 +1016,7 @@ export function LmsDataProvider({ children }) {
           const next = { 'Weekday Batch': [], 'Weekend Batch': [] };
           mappedProjects.forEach(p => {
             const target = (p.targetBatch || '').toUpperCase();
-            if (target === 'ALL BATCHES' || target === 'ALL') {
+            if (target === 'ALL BATCHES' || target === 'ALL' || !p.targetBatch || target === '') {
               next['Weekday Batch'].push(p);
               next['Weekend Batch'].push(p);
             } else if (target === 'WEEKEND BATCH' || target.includes('WEEKEND') || target.includes('A26S')) {
@@ -2092,6 +2092,7 @@ export function LmsDataProvider({ children }) {
 
     // --- PROJECTS ---
   const addProject = async (projectData, targetBatch = activeBatchFilter) => {
+    const batchTargetVal = projectData.targetBatch || 'ALL BATCHES';
     const bKey = resolveBatchKey(targetBatch);
     const techStackArray = Array.isArray(projectData.techStack)
       ? projectData.techStack
@@ -2101,7 +2102,7 @@ export function LmsDataProvider({ children }) {
 
     const newProject = {
       id: `proj-${Date.now()}-${bKey === 'Weekday Batch' ? 'w' : 's'}`,
-      targetBatch: bKey,
+      targetBatch: batchTargetVal,
       assignedCount: projectData.assignedCount || 1,
       submittedCount: projectData.submittedCount || 0,
       feedbackCount: projectData.feedbackCount || 0,
@@ -2113,11 +2114,18 @@ export function LmsDataProvider({ children }) {
       techStack: techStackArray
     };
 
-    setProjectsByBatch((prev) => ({
-      ...prev,
-      [bKey]: [newProject, ...(prev[bKey] || [])]
-    }));
-    logActivity(`Published new project: "${newProject.title}" (${bKey})`, 'project');
+    setProjectsByBatch((prev) => {
+      const next = { ...prev };
+      const keysToUpdate = (batchTargetVal === 'ALL BATCHES' || batchTargetVal === 'ALL')
+        ? ['Weekday Batch', 'Weekend Batch']
+        : [bKey];
+      keysToUpdate.forEach(k => {
+        next[k] = [newProject, ...(next[k] || []).filter(p => p.id !== newProject.id)];
+      });
+      return next;
+    });
+
+    logActivity(`Published new project: "${newProject.title}" (${batchTargetVal})`, 'project');
     try {
       const { error } = await supabase.from('projects').upsert([{
         id: newProject.id,
@@ -2137,7 +2145,7 @@ export function LmsDataProvider({ children }) {
         avg_grade: newProject.avgGrade,
         is_locked: newProject.isLocked,
         submissions: newProject.submissions,
-        target_batch: newProject.targetBatch,
+        target_batch: batchTargetVal,
         overview: newProject.overview || newProject.description || '',
         requirements: newProject.requirements || [],
         steps: newProject.steps || [],

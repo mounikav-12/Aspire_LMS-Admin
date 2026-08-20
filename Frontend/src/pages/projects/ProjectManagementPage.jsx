@@ -40,7 +40,7 @@ import {
 } from 'lucide-react';
 
 export function ProjectManagementPage() {
-  const { projects = [], courses = [], courseLessons = [], milestones = {}, addProject, updateProject, deleteProject, gradeSubmission, activeBatchFilter, getLessonLockStatus } = useLmsData();
+  const { projects = [], courses = [], courseLessons = [], milestones = {}, addProject, updateProject, deleteProject, gradeSubmission, activeBatchFilter, getLessonLockStatus, availableBatches } = useLmsData();
   const { addToast } = useToast();
 
   // Navigation & Filter States
@@ -207,19 +207,13 @@ export function ProjectManagementPage() {
 
     const matchesSearch = title.includes(query) || desc.includes(query) || cat.includes(query);
 
-    // Type Match
+    // Type Match using selectedType
     let matchesType = true;
-    if (projectTypeTab === 'Mini Projects') matchesType = (proj.type || 'Mini').toLowerCase().includes('mini');
-    else if (projectTypeTab === 'Major Projects') matchesType = (proj.type || 'Mini').toLowerCase().includes('major');
-    else if (projectTypeTab === 'Capstone Projects') matchesType = (proj.type || 'Mini').toLowerCase().includes('capstone');
+    if (selectedType && selectedType !== 'All') {
+      matchesType = (proj.type || 'Mini').toLowerCase().includes(selectedType.toLowerCase());
+    }
 
-    // Status Match
-    let matchesStatus = true;
-    if (statusFilterTab === 'Assigned') matchesStatus = proj.status === 'Assigned' || proj.status === 'Published';
-    else if (statusFilterTab === 'Submitted') matchesStatus = (proj.submittedCount || 0) > 0;
-    else if (statusFilterTab === 'Mentor Feedback') matchesStatus = (proj.feedbackCount || 0) > 0;
-
-    return matchesSearch && matchesType && matchesStatus;
+    return matchesSearch && matchesType;
   });
 
   const handleOpenCreateModal = () => {
@@ -342,6 +336,7 @@ export function ProjectManagementPage() {
     } else {
       await addProject(payload);
       addToast(`Published project: "${formData.title}"`, 'success');
+      setActiveTab('assigned');
     }
 
     setIsCreateModalOpen(false);
@@ -579,15 +574,10 @@ export function ProjectManagementPage() {
                     </div>
                   </div>
                   <div className="flex flex-col items-end gap-1">
-                    {lockStatus.isLocked ? (
+                    {lockStatus.isLocked && (
                       <span className="inline-flex items-center gap-1 bg-rose-50 text-rose-700 font-bold px-2 py-0.5 rounded-lg border border-rose-200/60 text-[10px]">
                         <Lock className="w-3 h-3 text-rose-600 flex-shrink-0" />
                         <span>{lockStatus.label}</span>
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 font-bold px-2 py-0.5 rounded-lg border border-emerald-200/60 text-[10px]">
-                        <Unlock className="w-3 h-3 text-emerald-600 flex-shrink-0" />
-                        <span>Unlocked</span>
                       </span>
                     )}
                     {getTypeBadge(proj.type || 'Mini')}
@@ -953,14 +943,6 @@ export function ProjectManagementPage() {
           />
 
           <Input
-            label="Due Date Label"
-            type="text"
-            placeholder="Due Aug 20"
-            value={formData.dueDate}
-            onChange={(e) => setFormData({ ...formData, dueDate: e.target.value })}
-          />
-
-          <Input
             label="Starter Template Repo URL"
             type="text"
             placeholder="https://github.com/aspire-lms/ecommerce-starter"
@@ -1292,7 +1274,7 @@ export function ProjectManagementPage() {
                   Check or uncheck Weekday batch numbers for this project:
                 </p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {['A26W1', 'A26W2', 'A26W3', 'A26W4'].map((bCode) => {
+                  {((availableBatches && availableBatches.length > 0 ? availableBatches : ['A26W1', 'A26W2', 'A26W3']).filter(b => b.startsWith('A26W') && !b.startsWith('A26S') && !b.startsWith('A26WE'))).map((bCode) => {
                     const isSelected = selectedWeekdayBatches.includes(bCode);
                     return (
                       <div

@@ -39,7 +39,7 @@ export function StudentManagementPage() {
 
   const batchList = availableBatches && availableBatches.length > 0
     ? availableBatches
-    : ['A26W1', 'A26W2', 'A26W3', 'A26W4', 'A26S1', 'A26S2', 'A26S3'];
+    : ['A26W1', 'A26W2', 'A26W3', 'A26S1', 'A26S2', 'A26S3'];
 
   const [searchTerm, setSearchTerm] = useState('');
   const [batchFilter, setBatchFilter] = useState(() => {

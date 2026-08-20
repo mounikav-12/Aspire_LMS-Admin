@@ -86,7 +86,7 @@ export function CourseDetailPage() {
   // Dynamic Batch Category Lists
   const allBatches = availableBatches && availableBatches.length > 0
     ? availableBatches
-    : ['A26W1', 'A26W2', 'A26W3', 'A26W4', 'A26S1', 'A26S2', 'A26S3'];
+    : ['A26W1', 'A26W2', 'A26W3', 'A26S1', 'A26S2', 'A26S3'];
 
   const weekdayBatches = allBatches.filter((b) => b.startsWith('A26W') && !b.startsWith('A26S'));
   const weekendBatches = allBatches.filter((b) => b.startsWith('A26S'));
@@ -224,7 +224,7 @@ export function CourseDetailPage() {
 
   const toggleExpandModule = (moduleId) => {
     setExpandedModuleIds((prev) =>
-      prev.includes(moduleId) ? prev.filter((id) => id !== moduleId) : [...prev, moduleId]
+      prev.includes(moduleId) ? [] : [moduleId]
     );
   };
 

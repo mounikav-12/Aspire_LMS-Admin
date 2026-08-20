@@ -590,7 +590,7 @@ export function CourseListPage() {
                 Check or uncheck Weekday batch numbers for this course:
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {((availableBatches && availableBatches.length > 0 ? availableBatches : ['A26W1', 'A26W2', 'A26W3', 'A26W4']).filter(b => b.startsWith('A26W') && !b.startsWith('A26S') && !b.startsWith('A26WE'))).map((bCode) => {
+                {((availableBatches && availableBatches.length > 0 ? availableBatches : ['A26W1', 'A26W2', 'A26W3']).filter(b => b.startsWith('A26W') && !b.startsWith('A26S') && !b.startsWith('A26WE'))).map((bCode) => {
                   const isSelected = selectedWeekdayBatches.includes(bCode);
 
                   return (
