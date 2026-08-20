@@ -29,6 +29,7 @@ export const PERMISSION_LIST = [
   { id: 'manage_jobs', name: 'Job Portal & Hiring Pipeline', category: 'Live & Placement' },
   { id: 'manage_recordings', name: 'Recording Video Library', category: 'Live & Placement' },
   { id: 'manage_placement', name: 'Placement Prep & Career Content', category: 'Live & Placement' },
+  { id: 'manage_badges', name: 'Badges & Milestone Rewards', category: 'Live & Placement' },
   { id: 'inspect_api_feed', name: 'Student LMS Feed Sync API', category: 'Live & Placement' }
 ];
 
@@ -50,6 +51,7 @@ export const INITIAL_ROLE_PERMISSIONS = {
     'manage_jobs',
     'manage_recordings',
     'manage_placement',
+    'manage_badges',
     'inspect_api_feed'
   ],
   [ROLES.MANAGER]: [
@@ -63,6 +65,7 @@ export const INITIAL_ROLE_PERMISSIONS = {
     'manage_live_sessions',
     'manage_jobs',
     'manage_recordings',
+    'manage_badges',
     'inspect_api_feed'
   ],
   [ROLES.INSTRUCTOR]: [
@@ -76,9 +79,68 @@ export const INITIAL_ROLE_PERMISSIONS = {
     'manage_projects',
     'manage_live_sessions',
     'manage_recordings',
+    'manage_badges',
     'inspect_api_feed'
   ]
 };
+
+export const INITIAL_BADGES = [
+  {
+    id: 'badge-1',
+    name: 'Python Master',
+    description: 'Completed Python Programming Fundamentals with 90%+ score',
+    icon: 'Award',
+    color: 'purple',
+    category: 'Academic',
+    criteria: 'Score >= 90% in Stage 2 Python Assessment',
+    points: '150 XP',
+    targetBatch: 'ALL BATCHES'
+  },
+  {
+    id: 'badge-2',
+    name: 'Full Stack Ninja',
+    description: 'Successfully deployed a full-stack Django + React web app',
+    icon: 'Zap',
+    color: 'emerald',
+    category: 'Skill',
+    criteria: 'Submit Capstone Project 1',
+    points: '200 XP',
+    targetBatch: 'ALL BATCHES'
+  },
+  {
+    id: 'badge-3',
+    name: 'Problem Solver',
+    description: 'Solved 25+ DSA coding challenges on Coding Portal',
+    icon: 'Star',
+    color: 'amber',
+    category: 'Achievement',
+    criteria: 'Complete 25 DSA Challenges',
+    points: '100 XP',
+    targetBatch: 'ALL BATCHES'
+  },
+  {
+    id: 'badge-4',
+    name: 'Code Artisan',
+    description: 'Maintained 100% clean code & passing unit tests',
+    icon: 'Shield',
+    color: 'blue',
+    category: 'Skill',
+    criteria: 'Pass 5 Code Reviews',
+    points: '120 XP',
+    targetBatch: 'ALL BATCHES'
+  },
+  {
+    id: 'badge-5',
+    name: 'Live Class Champion',
+    description: 'Attended 10 consecutive live interactive sessions',
+    icon: 'Trophy',
+    color: 'indigo',
+    category: 'Milestone',
+    criteria: '10 Live Session Attendance',
+    points: '80 XP',
+    targetBatch: 'ALL BATCHES'
+  }
+];
 
 export const INITIAL_USERS = [
   {

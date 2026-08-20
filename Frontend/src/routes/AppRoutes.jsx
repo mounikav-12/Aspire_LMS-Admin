@@ -29,6 +29,7 @@ const StudentDashboardPage = lazy(() => import('../pages/student/StudentDashboar
 const StudentManagementPage = lazy(() => import('../pages/student/StudentManagementPage').then(m => ({ default: m.StudentManagementPage })));
 const MilestonesRoadmapPage = lazy(() => import('../pages/milestones/MilestonesRoadmapPage').then(m => ({ default: m.MilestonesRoadmapPage })));
 const BatchManagementPage = lazy(() => import('../pages/batches/BatchManagementPage').then(m => ({ default: m.BatchManagementPage })));
+const BadgesPage = lazy(() => import('../pages/badges/BadgesPage').then(m => ({ default: m.BadgesPage })));
 
 function PageLoader() {
   return (
@@ -102,6 +103,9 @@ export function AppRoutes() {
 
           {/* Placement Preparation */}
           <Route path="/placement" element={<PlacementPrepPage />} />
+
+          {/* Badges & Milestone Rewards */}
+          <Route path="/badges" element={<BadgesPage />} />
 
           {/* Student Specific View */}
           <Route path="/student-dashboard" element={<StudentDashboardPage />} />
