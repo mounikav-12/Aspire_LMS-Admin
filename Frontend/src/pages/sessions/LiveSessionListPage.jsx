@@ -567,149 +567,73 @@ export function LiveSessionListPage() {
             );
           })()}
 
-          {/* 3. BATCH ALLOCATION: WEEKDAY & WEEKEND BATCHES */}
-          <div className="bg-white p-3.5 sm:p-4 rounded-2xl border border-slate-200/90 shadow-2xs space-y-3">
-            {/* Header & Tabs */}
-            <div className="flex flex-wrap items-center justify-between gap-2.5 pb-2.5 border-b border-slate-100">
-              <div className="flex items-center gap-2">
-                {/* Weekday Batches Tab */}
-                <button
-                  type="button"
-                  onClick={() => setBatchActiveTab('Weekdays')}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all flex items-center gap-2 cursor-pointer ${
-                    batchActiveTab === 'Weekdays'
-                      ? 'bg-purple-600 text-white shadow-md shadow-purple-500/20'
-                      : 'bg-slate-100/80 text-slate-600 hover:bg-slate-200/80 hover:text-slate-900'
-                  }`}
-                >
-                  <Calendar className="w-3.5 h-3.5" />
-                  <span>Weekday Batches</span>
-                  <span
-                    className={`px-1.5 py-0.5 rounded-full text-[10px] font-extrabold ${
-                      batchActiveTab === 'Weekdays'
-                        ? 'bg-white/25 text-white'
-                        : 'bg-slate-200 text-slate-700'
-                    }`}
-                  >
-                    {selectedWeekdayBatches.length}
-                  </span>
-                </button>
-
-                {/* Weekend Batches Tab */}
-                <button
-                  type="button"
-                  onClick={() => setBatchActiveTab('Weekends')}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all flex items-center gap-2 cursor-pointer ${
-                    batchActiveTab === 'Weekends'
-                      ? 'bg-purple-600 text-white shadow-md shadow-purple-500/20'
-                      : 'bg-slate-100/80 text-slate-600 hover:bg-slate-200/80 hover:text-slate-900'
-                  }`}
-                >
-                  <Calendar className="w-3.5 h-3.5" />
-                  <span>Weekend Batches</span>
-                  <span
-                    className={`px-1.5 py-0.5 rounded-full text-[10px] font-extrabold ${
-                      batchActiveTab === 'Weekends'
-                        ? 'bg-white/25 text-white'
-                        : 'bg-slate-200 text-slate-700'
-                    }`}
-                  >
-                    {selectedWeekendBatches.length}
-                  </span>
-                </button>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (batchActiveTab === 'Weekdays') {
-                      setSelectedWeekdayBatches(
-                        selectedWeekdayBatches.length === allWeekdayBatchesList.length
-                          ? []
-                          : allWeekdayBatchesList
-                      );
-                    } else {
-                      setSelectedWeekendBatches(
-                        selectedWeekendBatches.length === allWeekendBatchesList.length
-                          ? []
-                          : allWeekendBatchesList
-                      );
-                    }
-                  }}
-                  className="text-[11px] font-bold text-purple-600 hover:text-purple-700 hover:underline cursor-pointer"
-                >
-                  {batchActiveTab === 'Weekdays'
-                    ? selectedWeekdayBatches.length === allWeekdayBatchesList.length
-                      ? 'Deselect All'
-                      : 'Select All'
-                    : selectedWeekendBatches.length === allWeekendBatchesList.length
-                    ? 'Deselect All'
-                    : 'Select All'}
-                </button>
-              </div>
+          {/* 3. BATCH ALLOCATION DROPDOWNS: WEEKDAY & WEEKEND */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+            <div className="bg-white/95 p-2.5 sm:p-3 rounded-xl border border-purple-100/90 shadow-2xs">
+              <Select
+                label="Weekday Batches"
+                value={
+                  selectedWeekdayBatches.length === 0
+                    ? 'NONE'
+                    : selectedWeekdayBatches.length === allWeekdayBatchesList.length
+                    ? 'ALL'
+                    : selectedWeekdayBatches.length === 1
+                    ? selectedWeekdayBatches[0]
+                    : selectedWeekdayBatches.join(',')
+                }
+                onChange={(e) => {
+                  const val = e.target.value;
+                  if (val === 'ALL') {
+                    setSelectedWeekdayBatches(allWeekdayBatchesList);
+                  } else if (val === 'NONE') {
+                    setSelectedWeekdayBatches([]);
+                  } else {
+                    setSelectedWeekdayBatches(val.split(',').filter(Boolean));
+                  }
+                }}
+                options={[
+                  { value: 'ALL', label: `All Weekday Batches (${allWeekdayBatchesList.join(', ')})` },
+                  ...allWeekdayBatchesList.map((b) => ({ value: b, label: `Weekday Batch ${b}` })),
+                  ...(selectedWeekdayBatches.length > 1 && selectedWeekdayBatches.length < allWeekdayBatchesList.length
+                    ? [{ value: selectedWeekdayBatches.join(','), label: `Selected: ${selectedWeekdayBatches.join(', ')}` }]
+                    : []),
+                  { value: 'NONE', label: 'None (Exclude Weekday Batches)' }
+                ]}
+              />
             </div>
 
-            {/* Checkbox Grid - 4 Columns */}
-            {batchActiveTab === 'Weekdays' ? (
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
-                {allWeekdayBatchesList.map((bCode) => {
-                  const isSelected = selectedWeekdayBatches.includes(bCode);
-
-                  return (
-                    <div
-                      key={bCode}
-                      onClick={() => {
-                        setSelectedWeekdayBatches((prev) =>
-                          prev.includes(bCode) ? prev.filter((b) => b !== bCode) : [...prev, bCode]
-                        );
-                      }}
-                      className={`flex items-center gap-2.5 p-2 rounded-xl border transition-all cursor-pointer select-none ${
-                        isSelected
-                          ? 'bg-purple-50/80 border-purple-300 ring-2 ring-purple-500/20 text-purple-900 font-bold shadow-2xs'
-                          : 'bg-slate-50/60 border-slate-200 hover:bg-white hover:border-slate-300 text-slate-700 font-medium'
-                      }`}
-                    >
-                      {isSelected ? (
-                        <CheckSquare className="w-3.5 h-3.5 text-purple-600 flex-shrink-0" />
-                      ) : (
-                        <Square className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
-                      )}
-                      <span className="text-xs font-black tracking-wide">{bCode}</span>
-                    </div>
-                  );
-                })}
-              </div>
-            ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
-                {allWeekendBatchesList.map((bCode) => {
-                  const isSelected = selectedWeekendBatches.includes(bCode);
-
-                  return (
-                    <div
-                      key={bCode}
-                      onClick={() => {
-                        setSelectedWeekendBatches((prev) =>
-                          prev.includes(bCode) ? prev.filter((b) => b !== bCode) : [...prev, bCode]
-                        );
-                      }}
-                      className={`flex items-center gap-2.5 p-2 rounded-xl border transition-all cursor-pointer select-none ${
-                        isSelected
-                          ? 'bg-purple-50/80 border-purple-300 ring-2 ring-purple-500/20 text-purple-900 font-bold shadow-2xs'
-                          : 'bg-slate-50/60 border-slate-200 hover:bg-white hover:border-slate-300 text-slate-700 font-medium'
-                      }`}
-                    >
-                      {isSelected ? (
-                        <CheckSquare className="w-3.5 h-3.5 text-purple-600 flex-shrink-0" />
-                      ) : (
-                        <Square className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
-                      )}
-                      <span className="text-xs font-black tracking-wide">{bCode}</span>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
+            <div className="bg-white/95 p-2.5 sm:p-3 rounded-xl border border-purple-100/90 shadow-2xs">
+              <Select
+                label="Weekend Batches"
+                value={
+                  selectedWeekendBatches.length === 0
+                    ? 'NONE'
+                    : selectedWeekendBatches.length === allWeekendBatchesList.length
+                    ? 'ALL'
+                    : selectedWeekendBatches.length === 1
+                    ? selectedWeekendBatches[0]
+                    : selectedWeekendBatches.join(',')
+                }
+                onChange={(e) => {
+                  const val = e.target.value;
+                  if (val === 'ALL') {
+                    setSelectedWeekendBatches(allWeekendBatchesList);
+                  } else if (val === 'NONE') {
+                    setSelectedWeekendBatches([]);
+                  } else {
+                    setSelectedWeekendBatches(val.split(',').filter(Boolean));
+                  }
+                }}
+                options={[
+                  { value: 'ALL', label: `All Weekend Batches (${allWeekendBatchesList.join(', ')})` },
+                  ...allWeekendBatchesList.map((b) => ({ value: b, label: `Weekend Batch ${b}` })),
+                  ...(selectedWeekendBatches.length > 1 && selectedWeekendBatches.length < allWeekendBatchesList.length
+                    ? [{ value: selectedWeekendBatches.join(','), label: `Selected: ${selectedWeekendBatches.join(', ')}` }]
+                    : []),
+                  { value: 'NONE', label: 'None (Exclude Weekend Batches)' }
+                ]}
+              />
+            </div>
           </div>
 
           {/* 4. Cohort, Date, Time & Instructor Grid (4 columns) */}
