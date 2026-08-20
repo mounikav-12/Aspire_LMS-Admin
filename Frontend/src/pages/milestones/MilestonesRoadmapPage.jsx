@@ -335,8 +335,17 @@ export function MilestonesRoadmapPage() {
 
   // Selected subtopic for slide-over drawer
   const [selectedSubtopicState, setSelectedSubtopicState] = useState(null); // { stageId, subtopicId }
-  const [expandedModule, setExpandedModule] = useState(null);
   const [expandedStages, setExpandedStages] = useState({ 'stage-1': true, 'stage-1-w': true, 'stage-1-s': true });
+
+  const toggleStageAccordion = (stageId) => {
+    setExpandedStages((prev) => {
+      const isCurrentlyOpen = !!prev[stageId];
+      if (isCurrentlyOpen) {
+        return {};
+      }
+      return { [stageId]: true };
+    });
+  };
 
   const [searchParams] = useSearchParams();
   const queryCourseId = searchParams.get('courseId') || 'ALL';
@@ -1159,12 +1168,7 @@ export function MilestonesRoadmapPage() {
               <div className="flex-1 rounded-3xl border border-purple-200/80 shadow-md shadow-purple-600/10 overflow-hidden transition-all duration-300 bg-white">
                 {/* Main Card Header (Clickable Dropdown Banner) */}
                 <div
-                  onClick={() =>
-                    setExpandedStages((prev) => ({
-                      ...prev,
-                      [stage.id]: !prev[stage.id]
-                    }))
-                  }
+                  onClick={() => toggleStageAccordion(stage.id)}
                   className="group bg-white text-slate-900 hover:bg-purple-50 p-5 cursor-pointer select-none transition-all duration-200 relative border-b border-slate-100"
                 >
                   <div className="flex flex-wrap items-center justify-between gap-4 relative z-10">
@@ -1265,10 +1269,7 @@ export function MilestonesRoadmapPage() {
                         type="button"
                         onClick={(e) => {
                           e.stopPropagation();
-                          setExpandedStages((prev) => ({
-                            ...prev,
-                            [stage.id]: !prev[stage.id]
-                          }));
+                          toggleStageAccordion(stage.id);
                         }}
                         className="flex h-9 w-9 items-center justify-center rounded-full bg-purple-100 group-hover:bg-purple-100 text-purple-600 group-hover:text-purple-700 hover:bg-purple-200 transition-all cursor-pointer shadow-sm ml-1"
                         title={expandedStages[stage.id] ? 'Collapse Modules' : 'Expand Modules'}
