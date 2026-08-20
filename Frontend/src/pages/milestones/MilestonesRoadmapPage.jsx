@@ -140,9 +140,29 @@ export const getScheduleInfo = (item, parentSchedule = null) => {
     };
   }
 
-  const unlockDate = item.unlockDate || '';
-  const unlockTime = item.unlockTime || '';
-  const unlockDateTime = item.unlockDateTime || (unlockDate ? `${unlockDate}T${unlockTime || '00:00'}` : '');
+  let unlockDate = item.unlockDate || '';
+  let unlockTime = item.unlockTime || '';
+  let unlockDateTime = item.unlockDateTime || (unlockDate ? `${unlockDate}T${unlockTime || '00:00'}` : '');
+
+  // Extract date and time in local timezone if missing but unlockDateTime is present
+  if (unlockDateTime && (!unlockDate || !unlockTime)) {
+    try {
+      const dObj = new Date(unlockDateTime);
+      if (!isNaN(dObj.getTime())) {
+        const year = dObj.getFullYear();
+        const month = String(dObj.getMonth() + 1).padStart(2, '0');
+        const day = String(dObj.getDate()).padStart(2, '0');
+        if (!unlockDate) {
+          unlockDate = `${year}-${month}-${day}`;
+        }
+        if (!unlockTime) {
+          const hours = String(dObj.getHours()).padStart(2, '0');
+          const minutes = String(dObj.getMinutes()).padStart(2, '0');
+          unlockTime = `${hours}:${minutes}`;
+        }
+      }
+    } catch (e) {}
+  }
 
   // 2. If child item does NOT have its own specific date/time set:
   if (!unlockDate && !unlockDateTime) {
