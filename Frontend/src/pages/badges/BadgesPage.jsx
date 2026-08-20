@@ -235,38 +235,33 @@ export function BadgesPage() {
   return (
     <div className="space-y-7">
       {/* Executive Hero Banner */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-slate-950 via-slate-900 to-indigo-950 text-white p-7 sm:p-9 shadow-2xl border border-slate-800/80">
-        {/* Ambient Decorative Background Effects */}
-        <div className="absolute -top-24 -right-24 w-96 h-96 bg-blue-600/20 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-indigo-600/20 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
-
+      <div className="relative overflow-hidden rounded-3xl bg-white p-6 sm:p-8 shadow-xs border border-slate-200/80">
         <div className="relative z-10 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-          <div className="space-y-3 max-w-2xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-blue-500/20 to-indigo-500/20 border border-blue-400/30 text-blue-300 text-xs font-black uppercase tracking-wider backdrop-blur-md">
-              <Sparkles className="w-3.5 h-3.5 text-blue-400 animate-pulse" />
+          <div className="space-y-2.5 max-w-2xl">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-200/80 text-blue-700 text-xs font-black uppercase tracking-wider">
+              <Sparkles className="w-3.5 h-3.5 text-blue-600 animate-pulse" />
               <span>Gamified Recognition Engine</span>
             </div>
             
-            <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-white leading-tight">
+            <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 leading-tight">
               Badges & Achievements
             </h1>
             
-            <p className="text-sm text-slate-300/90 leading-relaxed font-medium">
+            <p className="text-xs sm:text-sm text-slate-500 font-medium leading-relaxed">
               Motivate student progress with dynamic skill badges, milestone trophies, and automated achievement rewards across all learning stages.
             </p>
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
             {/* View Switcher Pills */}
-            <div className="p-1 bg-slate-900/80 backdrop-blur-md border border-slate-800 rounded-2xl flex items-center gap-1 shadow-inner">
+            <div className="p-1 bg-slate-100/90 border border-slate-200 rounded-2xl flex items-center gap-1 shadow-2xs">
               <button
                 type="button"
                 onClick={() => setActiveTab('catalog')}
                 className={`px-3.5 py-2 rounded-xl text-xs font-extrabold transition-all cursor-pointer ${
                   activeTab === 'catalog'
-                    ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30'
-                    : 'text-slate-400 hover:text-white'
+                    ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
                 }`}
               >
                 Badge Catalog ({badges.length})
@@ -276,8 +271,8 @@ export function BadgesPage() {
                 onClick={() => setActiveTab('showcase')}
                 className={`px-3.5 py-2 rounded-xl text-xs font-extrabold transition-all cursor-pointer ${
                   activeTab === 'showcase'
-                    ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30'
-                    : 'text-slate-400 hover:text-white'
+                    ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
                 }`}
               >
                 Student View
@@ -288,7 +283,7 @@ export function BadgesPage() {
               variant="primary"
               icon={Plus}
               onClick={handleOpenAddModal}
-              className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-black shadow-lg shadow-blue-600/30 border border-blue-400/30 px-5 py-2.5 rounded-2xl cursor-pointer"
+              className="shadow-md shadow-blue-500/20"
             >
               Create Badge
             </Button>
@@ -504,12 +499,12 @@ export function BadgesPage() {
       {/* STUDENT SHOWCASE VIEW MODE */}
       {activeTab === 'showcase' && (
         <div className="space-y-6">
-          <div className="p-6 bg-gradient-to-r from-slate-950 via-slate-900 to-indigo-950 rounded-3xl text-white space-y-2 border border-slate-800">
-            <h3 className="text-lg font-black flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-amber-400" />
+          <div className="p-6 bg-blue-50/70 border border-blue-200/80 rounded-3xl text-slate-900 space-y-1.5">
+            <h3 className="text-base font-black flex items-center gap-2 text-slate-900">
+              <Sparkles className="w-4 h-4 text-blue-600" />
               <span>Student Profile Achievement Preview</span>
             </h3>
-            <p className="text-xs text-blue-200 leading-relaxed max-w-2xl">
+            <p className="text-xs text-slate-600 leading-relaxed max-w-2xl font-medium">
               This preview demonstrates how badges are presented to enrolled students on their LMS profile dashboard upon achieving course milestones.
             </p>
           </div>
