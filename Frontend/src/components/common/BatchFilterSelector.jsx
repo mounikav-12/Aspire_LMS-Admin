@@ -54,7 +54,7 @@ export function BatchFilterSelector({ activeBatch, onSelectBatch, className = ''
           }}
           className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
             currentBatch === 'ALL' && categoryTab === 'ALL'
-              ? 'bg-blue-600 text-white shadow-xs'
+              ? 'bg-purple-600 text-white shadow-xs'
               : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/70'
           }`}
         >
@@ -71,7 +71,7 @@ export function BatchFilterSelector({ activeBatch, onSelectBatch, className = ''
           }}
           className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1 ${
             categoryTab === 'WEEKDAY' || (currentBatch.startsWith('A26W') && !currentBatch.startsWith('A26S'))
-              ? 'bg-blue-600 text-white shadow-xs'
+              ? 'bg-purple-600 text-white shadow-xs'
               : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/70'
           }`}
         >
@@ -88,7 +88,7 @@ export function BatchFilterSelector({ activeBatch, onSelectBatch, className = ''
           }}
           className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1 ${
             categoryTab === 'WEEKEND' || currentBatch.startsWith('A26S')
-              ? 'bg-indigo-600 text-white shadow-xs'
+              ? 'bg-purple-600 text-white shadow-xs'
               : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/70'
           }`}
         >
@@ -110,14 +110,14 @@ export function BatchFilterSelector({ activeBatch, onSelectBatch, className = ''
               className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer border ${
                 isSelected
                   ? isWeekday
-                    ? 'bg-blue-50 text-blue-700 border-blue-300 ring-2 ring-blue-500/20'
-                    : 'bg-indigo-50 text-indigo-700 border-indigo-300 ring-2 ring-indigo-500/20'
+                    ? 'bg-purple-50 text-purple-700 border-purple-300 ring-2 ring-purple-500/20'
+                    : 'bg-purple-50 text-purple-700 border-purple-300 ring-2 ring-purple-500/20'
                   : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:bg-slate-50'
               }`}
             >
               <Layers className="w-3.5 h-3.5 text-slate-400" />
               <span>{bCode}</span>
-              {isSelected && <Check className="w-3.5 h-3.5 ml-0.5 text-blue-600" />}
+              {isSelected && <Check className="w-3.5 h-3.5 ml-0.5 text-purple-600" />}
             </button>
           );
         })}
@@ -126,7 +126,7 @@ export function BatchFilterSelector({ activeBatch, onSelectBatch, className = ''
         <button
           type="button"
           onClick={() => setIsAddModalOpen(true)}
-          className="px-2.5 py-1.5 rounded-lg text-xs font-bold text-slate-600 hover:text-blue-600 bg-white hover:bg-blue-50/50 border border-dashed border-slate-300 hover:border-blue-400 transition-all flex items-center gap-1 cursor-pointer"
+          className="px-2.5 py-1.5 rounded-lg text-xs font-bold text-slate-600 hover:text-purple-600 bg-white hover:bg-purple-50/50 border border-dashed border-slate-300 hover:border-purple-400 transition-all flex items-center gap-1 cursor-pointer"
           title="Create a new batch code"
         >
           <Plus className="w-3.5 h-3.5" />

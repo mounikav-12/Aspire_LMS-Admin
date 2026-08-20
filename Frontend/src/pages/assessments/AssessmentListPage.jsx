@@ -26,12 +26,10 @@ import {
   CheckCircle2,
   Layers,
   ListChecks,
-  Lock,
-  Unlock
 } from 'lucide-react';
 
 export function AssessmentListPage() {
-  const { assessments, courses, courseLessons, milestones, addAssessment, updateAssessment, deleteAssessment, activeBatchFilter, setActiveBatchFilter, getLessonLockStatus } = useLmsData();
+  const { assessments, courses, courseLessons, milestones, addAssessment, updateAssessment, deleteAssessment, activeBatchFilter, setActiveBatchFilter } = useLmsData();
   const { addToast } = useToast();
 
   const [selectedBatch, setSelectedBatch] = useState(activeBatchFilter || 'Weekday Batch');
@@ -477,7 +475,6 @@ export function AssessmentListPage() {
             const mcqCount = asm.mcqs?.length || asm.mcqCount || 0;
             const codingCount = asm.codingQuestions?.length || asm.codingCount || 0;
             const totalQ = asm.totalQuestions || mcqCount + codingCount;
-            const lockStatus = getLessonLockStatus(asm.innerTopicId, activeBatchFilter === 'ALL' ? 'Weekday Batch' : activeBatchFilter);
 
             return (
               <div
@@ -493,17 +490,7 @@ export function AssessmentListPage() {
                           <BookOpen className="w-3.5 h-3.5 text-blue-600 flex-shrink-0" />
                           <span className="truncate max-w-[240px]">{asm.courseName || 'Python Full Stack'}</span>
                         </span>
-                        {lockStatus.isLocked ? (
-                          <span className="inline-flex items-center gap-1.5 bg-rose-50 text-rose-700 font-bold px-2.5 py-1.5 rounded-xl border border-rose-200/60 text-xs flex-shrink-0">
-                            <Lock className="w-3.5 h-3.5 text-rose-600 flex-shrink-0" />
-                            <span>{lockStatus.label}</span>
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-700 font-bold px-2.5 py-1.5 rounded-xl border border-emerald-200/60 text-xs flex-shrink-0">
-                            <Unlock className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" />
-                            <span>Unlocked</span>
-                          </span>
-                        )}
+
                       </div>
 
                       <div className="flex items-center gap-1 bg-slate-50 p-1 rounded-xl border border-slate-100">
@@ -571,7 +558,7 @@ export function AssessmentListPage() {
 
                     <div className="flex items-center gap-2 text-xs font-semibold text-amber-900 bg-amber-50/70 p-2.5 rounded-xl border border-amber-100/80">
                       <Award className="w-4 h-4 text-amber-500 flex-shrink-0" />
-                      <span>{asm.totalMarks} Points</span>
+                      <span>{asm.totalMarks} XP Points</span>
                     </div>
 
                     <div className="flex items-center gap-2 text-xs font-semibold text-indigo-900 bg-indigo-50/70 p-2.5 rounded-xl border border-indigo-100/80">
@@ -759,7 +746,7 @@ export function AssessmentListPage() {
             />
 
             <Input
-              label="Total Marks"
+              label="XP Points"
               type="number"
               value={formData.totalMarks}
               onChange={(e) => setFormData({ ...formData, totalMarks: e.target.value })}

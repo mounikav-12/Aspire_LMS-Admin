@@ -32,15 +32,13 @@ import {
   Layers,
   BookOpen,
   EyeOff,
-  Lock,
   MessageSquare,
   Send,
   FileText,
-  Unlock
 } from 'lucide-react';
 
 export function ProjectManagementPage() {
-  const { projects = [], courses = [], courseLessons = [], milestones = {}, addProject, updateProject, deleteProject, gradeSubmission, activeBatchFilter, getLessonLockStatus } = useLmsData();
+  const { projects = [], courses = [], courseLessons = [], milestones = {}, addProject, updateProject, deleteProject, gradeSubmission, activeBatchFilter } = useLmsData();
   const { addToast } = useToast();
 
   // Navigation & Filter States
@@ -555,7 +553,6 @@ export function ProjectManagementPage() {
       {activeTab === 'assigned' && (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
           {filteredProjects.map((proj) => {
-            const lockStatus = getLessonLockStatus(proj.innerTopicId, activeBatchFilter === 'ALL' ? 'Weekday Batch' : activeBatchFilter);
 
             return (
             <div
@@ -579,17 +576,7 @@ export function ProjectManagementPage() {
                     </div>
                   </div>
                   <div className="flex flex-col items-end gap-1">
-                    {lockStatus.isLocked ? (
-                      <span className="inline-flex items-center gap-1 bg-rose-50 text-rose-700 font-bold px-2 py-0.5 rounded-lg border border-rose-200/60 text-[10px]">
-                        <Lock className="w-3 h-3 text-rose-600 flex-shrink-0" />
-                        <span>{lockStatus.label}</span>
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 font-bold px-2 py-0.5 rounded-lg border border-emerald-200/60 text-[10px]">
-                        <Unlock className="w-3 h-3 text-emerald-600 flex-shrink-0" />
-                        <span>Unlocked</span>
-                      </span>
-                    )}
+
                     {getTypeBadge(proj.type || 'Mini')}
                     {getDifficultyBadge(proj.difficulty)}
                   </div>

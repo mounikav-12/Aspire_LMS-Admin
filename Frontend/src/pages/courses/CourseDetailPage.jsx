@@ -25,7 +25,8 @@ import {
   Calendar,
   CheckSquare,
   Square,
-  BookOpen
+  BookOpen,
+  Clock
 } from 'lucide-react';
 import { INITIAL_COURSES, INITIAL_MILESTONES } from '../../utils/mockData';
 
@@ -128,14 +129,14 @@ export function CourseDetailPage() {
   const [isAddModuleModalOpen, setIsAddModuleModalOpen] = useState(false);
   const [activeStageTopicId, setActiveStageTopicId] = useState(null);
   const [editingModuleIndex, setEditingModuleIndex] = useState(null);
-  const [moduleFormData, setModuleFormData] = useState({ title: '', duration: '' });
+  const [moduleFormData, setModuleFormData] = useState({ title: '', duration: '', durationHours: '' });
 
   // --- LESSONS (Sub-modules inside Modules) STATE ---
   const [expandedModuleIds, setExpandedModuleIds] = useState([]);
   const [isAddLessonModalOpen, setIsAddLessonModalOpen] = useState(false);
   const [activeLessonContext, setActiveLessonContext] = useState({ stageId: null, moduleId: null });
   const [editingLesson, setEditingLesson] = useState(null);
-  const [lessonFormData, setLessonFormData] = useState({ title: '', description: '' });
+  const [lessonFormData, setLessonFormData] = useState({ title: '', description: '', durationHours: '' });
 
   // Seed mock stages to database if course has no stages in Supabase yet
   React.useEffect(() => {
@@ -166,7 +167,7 @@ export function CourseDetailPage() {
   const handleOpenAddModuleModal = (topicId) => {
     setActiveStageTopicId(topicId);
     setEditingModuleIndex(null);
-    setModuleFormData({ title: '', duration: '' });
+    setModuleFormData({ title: '', duration: '', durationHours: '' });
     setIsAddModuleModalOpen(true);
   };
 
@@ -175,7 +176,8 @@ export function CourseDetailPage() {
     setEditingModuleIndex(idx);
     setModuleFormData({
       title: moduleItem.title || '',
-      duration: moduleItem.duration || ''
+      duration: moduleItem.duration || '',
+      durationHours: moduleItem.durationHours || ''
     });
     setIsAddModuleModalOpen(true);
   };
@@ -201,7 +203,8 @@ export function CourseDetailPage() {
       const newMod = {
         id: `subtop-${Date.now()}`,
         title: moduleFormData.title,
-        duration: moduleFormData.duration || 'Web Architecture, Hands-on Coding & Projects'
+        duration: moduleFormData.duration || 'Web Architecture, Hands-on Coding & Projects',
+        durationHours: moduleFormData.durationHours || ''
       };
       updatedList = [...currentList, newMod];
       addToast(`Added module "${moduleFormData.title}" to Stage`, 'success');
@@ -231,14 +234,21 @@ export function CourseDetailPage() {
   const handleOpenAddLessonModal = (stageId, moduleId) => {
     setActiveLessonContext({ stageId, moduleId });
     setEditingLesson(null);
-    setLessonFormData({ title: '', description: '' });
+    setLessonFormData({ title: '', description: '', durationHours: '' });
     setIsAddLessonModalOpen(true);
   };
 
   const handleOpenEditLessonModal = (lesson) => {
     setActiveLessonContext({ stageId: lesson.stage_id, moduleId: lesson.module_id });
     setEditingLesson(lesson);
-    setLessonFormData({ title: lesson.title || '', description: lesson.description || '' });
+    const parts = lesson.description ? lesson.description.split('||') : [];
+    const lDuration = parts.length > 1 ? parts[0] : '';
+    const lDesc = parts.length > 1 ? parts[1] : (lesson.description || '');
+    setLessonFormData({
+      title: lesson.title || '',
+      description: lDesc,
+      durationHours: lDuration
+    });
     setIsAddLessonModalOpen(true);
   };
 
@@ -249,10 +259,11 @@ export function CourseDetailPage() {
       return;
     }
 
+    const packedDesc = `${lessonFormData.durationHours || ''}||${lessonFormData.description.trim()}`;
     if (editingLesson) {
       await updateCourseLesson(editingLesson.id, {
         title: lessonFormData.title.trim(),
-        description: lessonFormData.description.trim()
+        description: packedDesc
       });
       addToast(`Updated lesson "${lessonFormData.title}"`, 'success');
     } else {
@@ -261,7 +272,7 @@ export function CourseDetailPage() {
         stage_id: activeLessonContext.stageId,
         module_id: activeLessonContext.moduleId,
         title: lessonFormData.title.trim(),
-        description: lessonFormData.description.trim()
+        description: packedDesc
       });
       addToast(`Added lesson "${lessonFormData.title}"`, 'success');
     }
@@ -567,16 +578,7 @@ export function CourseDetailPage() {
                       </div>
 
                       <div className="flex flex-wrap items-center gap-2 pt-1">
-                        <Badge variant="emerald">
-                          <Video className="w-3 h-3 mr-1" /> {topic.liveClasses} Live Classes
-                        </Badge>
-                        <Badge variant="sky">
-                          <Code2 className="w-3 h-3 mr-1" /> {topic.practice} Practice Tasks
-                        </Badge>
-                        <Badge variant="purple">
-                          <FileCheck2 className="w-3 h-3 mr-1" /> {topic.assessments} Assessments
-                        </Badge>
-                        <span className="text-[11px] font-bold text-blue-600 underline decoration-blue-300 underline-offset-4 ml-1">
+                        <span className="text-[11px] font-bold text-blue-600 underline decoration-blue-300 underline-offset-4">
                           {isExpanded ? 'Hide Modules' : 'Click to view modules'}
                         </span>
                       </div>
@@ -661,11 +663,19 @@ export function CourseDetailPage() {
                                       </span>
                                       <span>{subtopic.title}</span>
                                     </h5>
-                                    {subtopic.duration && (
-                                      <p className="text-xs text-slate-500 mt-1 font-medium pl-7 leading-relaxed">
-                                        {subtopic.duration}
-                                      </p>
-                                    )}
+                                    <div className="flex flex-col gap-1 pl-7 mt-1">
+                                      {subtopic.durationHours && (
+                                        <div className="flex items-center gap-1.5 text-[11px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-lg border border-amber-200 w-fit">
+                                          <Clock className="w-3.5 h-3.5" />
+                                          <span>Duration: {subtopic.durationHours}</span>
+                                        </div>
+                                      )}
+                                      {subtopic.duration && (
+                                        <p className="text-xs text-slate-500 font-medium leading-relaxed mt-0.5">
+                                          {subtopic.duration}
+                                        </p>
+                                      )}
+                                    </div>
                                     {(() => {
                                       const moduleId = subtopic.id || `mod-${topic.id}-${sIdx}`;
                                       const lessonsList = getLessonsForModule(courseId, topic.id, moduleId);
@@ -850,31 +860,6 @@ export function CourseDetailPage() {
             required
           />
 
-          <div className="grid grid-cols-3 gap-4">
-            <Input
-              label="Live Classes"
-              type="number"
-              min="0"
-              value={topicFormData.liveClasses}
-              onChange={(e) => setTopicFormData({ ...topicFormData, liveClasses: parseInt(e.target.value) || 0 })}
-            />
-
-            <Input
-              label="Practice Tasks"
-              type="number"
-              min="0"
-              value={topicFormData.practice}
-              onChange={(e) => setTopicFormData({ ...topicFormData, practice: parseInt(e.target.value) || 0 })}
-            />
-
-            <Input
-              label="Assessments"
-              type="number"
-              min="0"
-              value={topicFormData.assessments}
-              onChange={(e) => setTopicFormData({ ...topicFormData, assessments: parseInt(e.target.value) || 0 })}
-            />
-          </div>
 
           <div className="flex justify-end gap-3 pt-4 border-t border-slate-100">
             <Button
@@ -910,6 +895,13 @@ export function CourseDetailPage() {
             value={moduleFormData.title}
             onChange={(e) => setModuleFormData({ ...moduleFormData, title: e.target.value })}
             required
+          />
+
+          <Input
+            label="Module Duration (Hours / Weeks)"
+            placeholder="e.g. 15 Hours, or 1 Week"
+            value={moduleFormData.durationHours}
+            onChange={(e) => setModuleFormData({ ...moduleFormData, durationHours: e.target.value })}
           />
 
           <div className="flex flex-col gap-1.5">
@@ -960,6 +952,13 @@ export function CourseDetailPage() {
             value={lessonFormData.title}
             onChange={(e) => setLessonFormData({ ...lessonFormData, title: e.target.value })}
             required
+          />
+
+          <Input
+            label="Lesson Duration (Hours / Time)"
+            placeholder="e.g. 2 Hours, or 1.5 Hours"
+            value={lessonFormData.durationHours}
+            onChange={(e) => setLessonFormData({ ...lessonFormData, durationHours: e.target.value })}
           />
 
           <div className="flex flex-col gap-1.5">

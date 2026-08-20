@@ -19,8 +19,7 @@ import {
   Edit2,
   Trash2,
   Users,
-  Eye,
-  Settings,
+  Flag,
   Book,
   FileText,
   Calendar,
@@ -32,6 +31,7 @@ import {
 import { useSearchParams } from 'react-router-dom';
 import { useToast } from '../../context/ToastContext';
 import { useLmsData } from '../../context/LmsDataContext';
+import { BatchFilterSelector } from '../../components/common/BatchFilterSelector';
 
 export const formatLocalDate = (d) => {
   if (!d || isNaN(new Date(d).getTime())) return '';
@@ -279,13 +279,14 @@ export function MilestonesRoadmapPage() {
     removeLessonLock = () => {},
     getLessonLockStatus = () => {},
     codingQuestions = [],
-    projects = []
+    projects = [],
+    availableBatches = []
   } = useLmsData();
 
   // Mode Toggle: 'admin' (CRUD & Schedule Setter) vs 'user' (Main LMS Student View)
-  const [viewMode, setViewMode] = useState('admin');
+
   const [selectedBatch, setSelectedBatchState] = useState(
-    activeBatchFilter && activeBatchFilter !== 'ALL' ? activeBatchFilter : 'Weekday Batch'
+    activeBatchFilter && activeBatchFilter !== 'ALL' ? activeBatchFilter : 'ALL'
   );
 
   React.useEffect(() => {
@@ -338,6 +339,9 @@ export function MilestonesRoadmapPage() {
         unlockDate: t.unlockDate || (idx === 0 ? formatLocalDate(new Date()) : null),
         unlockTime: t.unlockTime || '09:00',
         unlockDateTime: t.unlockDateTime || null,
+        liveClasses: t.liveClasses || t.live_classes || 0,
+        practice: t.practice || 0,
+        assessments: t.assessments || 0,
         subtopics: (t.subtopics || []).map((sub, sIdx) => {
           const subId = sub.id || `sub-${idx}-${sIdx}`;
           
@@ -437,6 +441,8 @@ export function MilestonesRoadmapPage() {
           return {
             id: subId,
             title: sub.title,
+            duration: sub.duration || '',
+            durationHours: sub.durationHours || '',
             isCompleted: sub.isCompleted || false,
             unlockDate: sub.unlockDate || '',
             unlockTime: sub.unlockTime || '',
@@ -655,10 +661,14 @@ export function MilestonesRoadmapPage() {
         'success'
       );
     } else if (scheduleTarget.type === 'module') {
-      setLessonLock(scheduleTarget.id, selectedBatch, {
-        unlockDate,
-        unlockTime,
-        unlockDateTime: uDateTime
+      setLessonLock({
+        lesson_id: scheduleTarget.id,
+        batch_code: selectedBatch,
+        course_id: selectedCourseId !== 'ALL' ? selectedCourseId : '',
+        stage_id: scheduleTarget.stageId || '',
+        module_id: scheduleTarget.subtopicId || '',
+        unlock_date: unlockDate,
+        unlock_time: unlockTime
       });
       addToast(
         unlockDate
@@ -962,24 +972,13 @@ export function MilestonesRoadmapPage() {
   // Action Click Handler for JOIN, VIEW, TAKE with Strict Date & Time Enforcement
   const handleActionClick = (actionText, title, url, isLocked, sInfo, itemId) => {
     if (isLocked) {
-      if (viewMode === 'admin') {
-        if (url && url.startsWith('http')) {
-          if (window.confirm(`[Admin Preview] This item is scheduled for ${sInfo.fullFormatted} (${sInfo.relativeText}). Test open link now?`)) {
-            window.open(url, '_blank');
-          }
-        } else {
-          addToast(`🔒 [Admin Preview] Scheduled for ${sInfo.fullFormatted}`, 'info');
+      if (url && url.startsWith('http')) {
+        if (window.confirm(`[Admin Preview] This item is scheduled for ${sInfo.fullFormatted} (${sInfo.relativeText}). Test open link now?`)) {
+          window.open(url, '_blank');
         }
-        return;
+      } else {
+        addToast(`🔒 [Admin Preview] Scheduled for ${sInfo.fullFormatted}`, 'info');
       }
-
-      // Student View: Strictly Locked - Shows Toast Message and Prevents Opening
-      addToast(
-        sInfo.hasSchedule
-          ? `🔒 "${title}" is locked! Available on ${sInfo.fullFormatted} (${sInfo.relativeText}).`
-          : `🔒 "${title}" is locked until release date and time!`,
-        'warning'
-      );
       return;
     }
 
@@ -997,153 +996,79 @@ export function MilestonesRoadmapPage() {
   };
 
   return (
-    <div className="space-y-6 pb-12">
-      {/* Top Bar with Title & Admin/User View Mode Toggle */}
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-black text-slate-900 tracking-tight">Milestones Roadmap</h1>
-        </div>
+    <div className="space-y-5 pb-12">
+      {/* Page Header */}
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-purple-600 text-white shadow-md shadow-purple-600/25">
+              <Flag className="w-5 h-5" />
+            </div>
+            <div>
+              <h1 className="text-xl font-bold text-slate-900">Milestones Roadmap</h1>
+              <p className="text-xs text-slate-500">Manage course stages, modules, and unlock schedules</p>
+            </div>
+          </div>
 
-        <div className="flex flex-wrap items-center gap-3">
-          {/* Course Track Selector */}
-          <div className="flex items-center gap-1 bg-white p-1 rounded-2xl border border-slate-200 shadow-2xs">
+          <div className="flex items-center gap-2">
             <select
               value={selectedCourseId}
               onChange={(e) => setSelectedCourseId(e.target.value)}
-              className="px-4 py-1.5 rounded-xl text-xs font-bold text-slate-700 bg-transparent focus:outline-none cursor-pointer border-r border-slate-100"
+              className="px-3 py-2 rounded-xl text-xs font-bold text-slate-700 bg-white border border-slate-200 shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-300 cursor-pointer"
             >
               <option value="ALL">All Courses / Python Full Stack</option>
               {courses.map((c) => (
                 <option key={c.id} value={c.id}>{c.title}</option>
               ))}
             </select>
-          </div>
-
-          {/* Batch Selector Pills */}
-          <div className="flex items-center gap-1 bg-white p-1 rounded-2xl border border-slate-200 shadow-2xs">
-            <button
-              onClick={() => setSelectedBatch('Weekday Batch')}
-              className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                selectedBatch === 'Weekday Batch'
-                  ? 'bg-purple-600 text-white shadow-xs'
-                  : 'text-slate-600 hover:text-purple-600'
-              }`}
-            >
-              Weekday (A26W)
-            </button>
-            <button
-              onClick={() => setSelectedBatch('Weekend Batch')}
-              className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                selectedBatch === 'Weekend Batch'
-                  ? 'bg-purple-600 text-white shadow-xs'
-                  : 'text-slate-600 hover:text-purple-600'
-              }`}
-            >
-              Weekend (A26S)
-            </button>
-          </div>
-
-          {/* Admin / Student View Toggle Pills */}
-          <div className="flex items-center gap-2 bg-slate-100 p-1 rounded-2xl border border-slate-200 shadow-2xs">
-            <button
-              onClick={() => setViewMode('admin')}
-              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                viewMode === 'admin'
-                  ? 'bg-purple-600 text-white shadow-md shadow-purple-600/30'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              <Settings className="w-3.5 h-3.5" />
-              <span>Admin Mode</span>
-            </button>
-
-            <button
-              onClick={() => setViewMode('user')}
-              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                viewMode === 'user'
-                  ? 'bg-purple-600 text-white shadow-md shadow-purple-600/30'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              <Eye className="w-3.5 h-3.5" />
-              <span>Student View</span>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Admin Mode Controls Banner */}
-      {viewMode === 'admin' && (
-        <div className="bg-purple-50/70 border border-purple-200 rounded-2xl p-3 flex flex-wrap items-center justify-between gap-3 text-xs">
-          
-
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => {
-                setOverviewFormData({
-                  headline: milestones?.overview?.headline || ''
-                });
-                setIsOverviewModalOpen(true);
-              }}
-              className="px-3.5 py-1.5 rounded-xl bg-white border border-purple-300 text-purple-700 hover:bg-purple-100 font-extrabold flex items-center gap-1.5 shadow-2xs transition-colors cursor-pointer"
-            >
-              <Edit2 className="w-3.5 h-3.5" />
-              <span>Edit Banner Headline</span>
-            </button>
 
             <button
               onClick={() => handleOpenStageModal(null)}
-              className="px-3.5 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-extrabold flex items-center gap-1.5 shadow-md shadow-purple-600/25 transition-all cursor-pointer"
+              className="px-3.5 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-md shadow-purple-600/25 transition-all cursor-pointer"
             >
               <Plus className="w-3.5 h-3.5" />
-              <span>Add Milestone Stage</span>
+              <span>Add Stage</span>
             </button>
           </div>
         </div>
-      )}
 
-      {/* Top Banner Card */}
-      <div className="relative overflow-hidden rounded-3xl bg-linear-to-r from-purple-600 via-indigo-600 to-purple-600 p-6 sm:p-8 text-white shadow-xl shadow-purple-600/20">
-        <div className="relative z-10 space-y-6">
-          {/* Banner Header Badges */}
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="inline-flex items-center gap-2 rounded-full bg-white/20 backdrop-blur-md px-3.5 py-1.5 text-xs font-extrabold uppercase tracking-wider text-purple-100 border border-white/20">
-              <BookOpen className="w-4 h-4" />
-              <span>{milestones?.overview?.trackTitle || 'PYTHON FULL STACK + DSA WITH AI'}</span>
-            </div>
+        {/* Batch Selector Row */}
+        <BatchFilterSelector
+          activeBatch={selectedBatch}
+          onSelectBatch={setSelectedBatch}
+        />
+      </div>
 
-            <div className="flex items-center gap-3">
-              <div className="inline-flex items-center gap-1.5 rounded-full bg-white/15 backdrop-blur-md px-3.5 py-1 text-xs font-extrabold text-purple-100 border border-white/15">
-                <Trophy className="w-3.5 h-3.5 text-amber-300" />
-                <span>
-                  {completedTopicsCount} / {totalTopicsCount} Topics Completed
-                </span>
-              </div>
-              <div className="inline-flex items-center gap-1.5 rounded-full bg-white/15 backdrop-blur-md px-3.5 py-1 text-xs font-extrabold text-purple-100 border border-white/15">
-                <Zap className="w-3.5 h-3.5 text-cyan-300" />
-                <span>{completedStagesCount} / {filteredStages.length} Stages Completed</span>
-              </div>
-            </div>
+      {/* Stats Overview Bar */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div className="bg-white rounded-2xl border border-slate-200 p-4 flex items-center gap-3 shadow-sm">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-purple-100 text-purple-600 flex-shrink-0">
+            <BookOpen className="w-5 h-5" />
           </div>
-
-          {/* Banner Main Headline */}
-          <h2 className="text-xl sm:text-2xl font-black tracking-tight text-white max-w-3xl leading-snug">
-            {milestones?.overview?.headline ||
-              'Master core engineering fundamentals, advanced AI models, full-stack frameworks, and real-world project deployments.'}
-          </h2>
-
-          {/* Banner Progress Bar */}
-          <div className="space-y-2 pt-2">
-            <div className="flex items-center justify-between text-xs font-extrabold text-purple-100">
-              <span>Overall Track Completion Progress</span>
-              <span className="font-black text-white">{completionPercentage}%</span>
-            </div>
-            <div className="h-2.5 w-full overflow-hidden rounded-full bg-white/20 backdrop-blur-sm p-0.5">
-              <div
-                className="h-full rounded-full bg-white transition-all duration-500 shadow-sm"
-                style={{ width: `${completionPercentage}%` }}
-              />
-            </div>
+          <div>
+            <p className="text-xs text-slate-500 font-medium">Total Stages</p>
+            <p className="text-lg font-bold text-slate-900">{filteredStages.length}</p>
+          </div>
+        </div>
+        <div className="bg-white rounded-2xl border border-slate-200 p-4 flex items-center gap-3 shadow-sm">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 text-emerald-600 flex-shrink-0">
+            <CheckCircle2 className="w-5 h-5" />
+          </div>
+          <div>
+            <p className="text-xs text-slate-500 font-medium">Topics Completed</p>
+            <p className="text-lg font-bold text-slate-900">{completedTopicsCount} <span className="text-xs text-slate-400 font-medium">/ {totalTopicsCount}</span></p>
+          </div>
+        </div>
+        <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-xs text-slate-500 font-medium">Overall Progress</p>
+            <p className="text-xs font-bold text-purple-600">{completionPercentage}%</p>
+          </div>
+          <div className="h-2 w-full overflow-hidden rounded-full bg-slate-100">
+            <div
+              className="h-full rounded-full bg-purple-600 transition-all duration-500"
+              style={{ width: `${completionPercentage}%` }}
+            />
           </div>
         </div>
       </div>
@@ -1192,18 +1117,15 @@ export function MilestonesRoadmapPage() {
                       [stage.id]: !prev[stage.id]
                     }))
                   }
-                  className="group bg-white text-slate-900 hover:bg-linear-to-r hover:from-purple-700 hover:via-purple-600 hover:to-indigo-700 hover:text-white p-5 sm:p-6 cursor-pointer select-none transition-all duration-300 relative overflow-hidden border-b border-slate-100 hover:border-transparent"
+                  className="group bg-white text-slate-900 hover:bg-purple-50 p-5 cursor-pointer select-none transition-all duration-200 relative border-b border-slate-100"
                 >
-                  {/* Decorative Glow */}
-                  <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-white/10 rounded-full blur-2xl pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-
                   <div className="flex flex-wrap items-center justify-between gap-4 relative z-10">
                     <div className="flex items-center gap-3.5">
                       <div
                         className={`flex h-12 w-12 items-center justify-center rounded-2xl shadow-inner flex-shrink-0 transition-all duration-300 ${
                           isStageCurrentUnlocked
-                            ? 'bg-purple-100 group-hover:bg-white/20 text-purple-600 group-hover:text-white'
-                            : 'bg-slate-100 text-slate-400 group-hover:bg-white/20 group-hover:text-white'
+                            ? 'bg-purple-100 group-hover:bg-purple-100 text-purple-600 group-hover:text-purple-700'
+                            : 'bg-slate-100 text-slate-400 group-hover:bg-purple-100 group-hover:text-purple-700'
                         }`}
                       >
                         {isStageCurrentUnlocked ? <Brain className="w-6 h-6" /> : <Lock className="w-6 h-6" />}
@@ -1213,14 +1135,15 @@ export function MilestonesRoadmapPage() {
                           <span className="text-[10px] font-black uppercase tracking-wider text-purple-700 group-hover:text-purple-900 bg-purple-100 px-2 py-0.5 rounded-md border border-purple-200 shadow-xs transition-colors duration-300">
                             {stage.stageNumber}
                           </span>
-                          <span className="text-xs font-medium text-slate-400 group-hover:text-purple-200 transition-colors duration-300">
+                          <span className="text-xs font-medium text-slate-400 group-hover:text-purple-500 transition-colors duration-300">
                             {stage.phaseTag}
                           </span>
                         </div>
-                        <h3 className="text-lg sm:text-xl font-bold text-slate-900 group-hover:text-white mt-1 leading-snug transition-colors duration-300">
+                        <h3 className="text-lg sm:text-xl font-bold text-slate-900 group-hover:text-purple-700 mt-1 leading-snug transition-colors duration-300">
                           {stage.title}
                         </h3>
-                        <p className="text-xs text-slate-400 group-hover:text-purple-200/90 font-medium mt-1 flex items-center gap-1.5 transition-colors duration-300">
+                        
+                        <p className="text-xs text-slate-400 group-hover:text-purple-500 font-medium mt-1 flex items-center gap-1.5 transition-colors duration-300">
                           <span>{visibleSubtopics.length} Modules Included</span>
                           <span>•</span>
                           <span>{expandedStages[stage.id] ? 'Click card to hide modules' : 'Click card to view modules'}</span>
@@ -1230,68 +1153,64 @@ export function MilestonesRoadmapPage() {
 
                     {/* Right Side: Admin Schedule Setter & Dropdown Chevron */}
                     <div className="flex flex-wrap items-center gap-2.5" onClick={(e) => e.stopPropagation()}>
-                      {/* Scheduled Date & Time Release Badge (Admin Mode Only) */}
-                      {viewMode === 'admin' && (
-                        <>
-                          {stageSched.hasSchedule ? (
-                            stageSched.isLocked ? (
-                              <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 group-hover:bg-amber-400/20 group-hover:backdrop-blur-md border border-amber-300 group-hover:border-amber-300/40 px-3.5 py-1.5 text-xs font-bold text-amber-800 group-hover:text-amber-100 transition-all duration-300 shadow-2xs">
-                                <Clock className="w-3.5 h-3.5 text-amber-600 group-hover:text-amber-200 animate-pulse" />
-                                <span>Unlocks: {stageSched.shortFormatted} ({stageSched.relativeText})</span>
-                              </span>
-                            ) : (
-                              <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 group-hover:bg-emerald-400/20 group-hover:backdrop-blur-md border border-emerald-300 group-hover:border-emerald-300/40 px-3.5 py-1.5 text-xs font-bold text-emerald-800 group-hover:text-emerald-100 transition-all duration-300 shadow-2xs">
-                                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 group-hover:text-emerald-200" />
-                                <span>UNLOCKED • Released {stageSched.dateFormatted}</span>
-                              </span>
-                            )
-                          ) : (
-                            <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 group-hover:bg-emerald-400/20 group-hover:backdrop-blur-md border border-emerald-300 group-hover:border-emerald-300/40 px-3.5 py-1.5 text-xs font-bold text-emerald-800 group-hover:text-emerald-100 transition-all duration-300 shadow-2xs">
-                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                              <span>UNLOCKED • Available</span>
-                            </span>
-                          )}
-
-                          {/* Admin Mode Schedule Setter and CRUD Buttons */}
-                          <div className="flex items-center gap-1.5 bg-slate-100 group-hover:bg-white/10 group-hover:backdrop-blur-md p-1.5 rounded-xl border border-slate-200 group-hover:border-white/20 transition-all duration-300">
-                            <button
-                              onClick={() => handleOpenScheduleModal('stage', stage)}
-                              title={stageSched.hasSchedule ? `Scheduled: ${stageSched.fullFormatted}` : 'Set Release Date & Time'}
-                              className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all flex items-center gap-1.5 cursor-pointer ${
-                                stageSched.hasSchedule
-                                  ? 'bg-purple-600 text-white shadow-xs border border-purple-400/50 hover:bg-purple-700'
-                                  : 'bg-white group-hover:bg-purple-950/80 text-purple-700 group-hover:text-purple-200 border border-slate-300 group-hover:border-purple-400/40 hover:bg-purple-50'
-                              }`}
-                            >
-                              <Calendar className="w-3.5 h-3.5" />
-                              <Clock className="w-3 h-3" />
-                              <span>{stageSched.hasSchedule ? 'Date Set' : 'Set Date & Time'}</span>
-                            </button>
-
-                            <button
-                              onClick={() => handleOpenSubtopicModal(stage.id, null)}
-                              title="Add Subtopic to Stage"
-                              className="p-1.5 text-slate-500 group-hover:text-white hover:bg-slate-200 group-hover:hover:bg-white/20 rounded-lg transition-all cursor-pointer"
-                            >
-                              <Plus className="w-4 h-4" />
-                            </button>
-                            <button
-                              onClick={() => handleOpenStageModal(stage)}
-                              title="Edit Stage Details"
-                              className="p-1.5 text-slate-500 group-hover:text-white hover:bg-slate-200 group-hover:hover:bg-white/20 rounded-lg transition-all cursor-pointer"
-                            >
-                              <Edit2 className="w-4 h-4" />
-                            </button>
-                            <button
-                              onClick={() => handleDeleteStage(stage.id, stage.title)}
-                              title="Delete Stage"
-                              className="p-1.5 text-rose-400 group-hover:text-rose-200 hover:bg-rose-50 group-hover:hover:bg-rose-500/30 rounded-lg transition-all cursor-pointer"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                          </div>
-                        </>
+                      {/* Scheduled Date & Time Release Badge */}
+                      {stageSched.hasSchedule ? (
+                        stageSched.isLocked ? (
+                          <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 group-hover:bg-amber-400/20 group-hover:backdrop-blur-md border border-amber-300 group-hover:border-amber-300/40 px-3.5 py-1.5 text-xs font-bold text-amber-800 group-hover:text-amber-900 transition-all duration-300 shadow-2xs">
+                            <Clock className="w-3.5 h-3.5 text-amber-600 group-hover:text-amber-700 animate-pulse" />
+                            <span>Unlocks: {stageSched.shortFormatted} ({stageSched.relativeText})</span>
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 group-hover:bg-emerald-400/20 group-hover:backdrop-blur-md border border-emerald-300 group-hover:border-emerald-300/40 px-3.5 py-1.5 text-xs font-bold text-emerald-800 group-hover:text-emerald-900 transition-all duration-300 shadow-2xs">
+                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 group-hover:text-emerald-700" />
+                            <span>UNLOCKED • Released {stageSched.dateFormatted}</span>
+                          </span>
+                        )
+                      ) : (
+                        <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 group-hover:bg-emerald-400/20 group-hover:backdrop-blur-md border border-emerald-300 group-hover:border-emerald-300/40 px-3.5 py-1.5 text-xs font-bold text-emerald-800 group-hover:text-emerald-900 transition-all duration-300 shadow-2xs">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                          <span>UNLOCKED • Available</span>
+                        </span>
                       )}
+
+                      {/* Admin Mode Schedule Setter and CRUD Buttons */}
+                      <div className="flex items-center gap-1.5 bg-slate-100 p-1.5 rounded-xl border border-slate-200 transition-all duration-300">
+                        <button
+                          onClick={() => handleOpenScheduleModal('stage', stage)}
+                          title={stageSched.hasSchedule ? `Scheduled: ${stageSched.fullFormatted}` : 'Set Release Date & Time'}
+                          className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all flex items-center gap-1.5 cursor-pointer ${
+                            stageSched.hasSchedule
+                              ? 'bg-purple-600 text-white shadow-xs border border-purple-400/50 hover:bg-purple-700'
+                              : 'bg-white text-purple-700 border border-slate-300 hover:bg-purple-50'
+                          }`}
+                        >
+                          <Calendar className="w-3.5 h-3.5" />
+                          <Clock className="w-3 h-3" />
+                          <span>{stageSched.hasSchedule ? 'Date Set' : 'Set Date & Time'}</span>
+                        </button>
+
+                        <button
+                          onClick={() => handleOpenSubtopicModal(stage.id, null)}
+                          title="Add Subtopic to Stage"
+                          className="p-1.5 text-slate-500 group-hover:text-purple-700 hover:bg-slate-200 group-hover:hover:bg-purple-100 rounded-lg transition-all cursor-pointer"
+                        >
+                          <Plus className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => handleOpenStageModal(stage)}
+                          title="Edit Stage Details"
+                          className="p-1.5 text-slate-500 group-hover:text-purple-700 hover:bg-slate-200 group-hover:hover:bg-purple-100 rounded-lg transition-all cursor-pointer"
+                        >
+                          <Edit2 className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteStage(stage.id, stage.title)}
+                          title="Delete Stage"
+                          className="p-1.5 text-rose-400 group-hover:text-rose-500 hover:bg-rose-50 group-hover:hover:bg-rose-100 rounded-lg transition-all cursor-pointer"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
 
                       {/* Interactive Chevron Toggle Button */}
                       <button
@@ -1303,7 +1222,7 @@ export function MilestonesRoadmapPage() {
                             [stage.id]: !prev[stage.id]
                           }));
                         }}
-                        className="flex h-9 w-9 items-center justify-center rounded-full bg-purple-100 group-hover:bg-white/20 group-hover:backdrop-blur-md text-purple-600 group-hover:text-white hover:bg-purple-200 group-hover:hover:bg-white group-hover:hover:text-purple-700 transition-all cursor-pointer shadow-sm ml-1"
+                        className="flex h-9 w-9 items-center justify-center rounded-full bg-purple-100 group-hover:bg-purple-100 text-purple-600 group-hover:text-purple-700 hover:bg-purple-200 transition-all cursor-pointer shadow-sm ml-1"
                         title={expandedStages[stage.id] ? 'Collapse Modules' : 'Expand Modules'}
                       >
                         <ChevronDown
@@ -1389,8 +1308,8 @@ export function MilestonesRoadmapPage() {
                                         </span>
                                       )}
 
-                                      {/* Subtopic Scheduled Date Badge (Admin Mode Only) */}
-                                      {viewMode === 'admin' && subSched.hasSchedule && !subSched.inherited && (
+                                      {/* Subtopic Scheduled Date Badge */}
+                                      {subSched.hasSchedule && !subSched.inherited && (
                                         <span className={`inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${
                                           subSched.isLocked
                                             ? 'text-amber-800 bg-amber-50 border-amber-200'
@@ -1401,6 +1320,12 @@ export function MilestonesRoadmapPage() {
                                         </span>
                                       )}
                                     </div>
+                                    {subtopic.durationHours && (
+                                      <div className="flex items-center gap-1 text-[10px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200 w-fit mt-1">
+                                        <Clock className="w-3.5 h-3.5 text-amber-600 flex-shrink-0" />
+                                        <span>Duration: {subtopic.durationHours}</span>
+                                      </div>
+                                    )}
                                     {subtopic.duration && (
                                       <span className="text-[11px] font-medium text-slate-500 block mt-0.5">
                                         {subtopic.duration}
@@ -1417,37 +1342,35 @@ export function MilestonesRoadmapPage() {
                                 </div>
                               </button>
 
-                              {viewMode === 'admin' && (
-                                <div className="flex items-center gap-1 bg-white p-1.5 rounded-xl border border-slate-200 shadow-xs flex-shrink-0">
-                                  {/* Subtopic Schedule Date & Time Button */}
-                                  <button
-                                    onClick={() => handleOpenScheduleModal('subtopic', subtopic, stage.id)}
-                                    title={subSched.hasSchedule && !subSched.inherited ? `Scheduled: ${subSched.fullFormatted}` : 'Set Release Schedule'}
-                                    className={`p-1.5 rounded-lg cursor-pointer transition-all ${
-                                      subSched.hasSchedule && !subSched.inherited
-                                        ? 'bg-purple-100 text-purple-700 hover:bg-purple-200 border border-purple-300'
-                                        : 'text-slate-600 hover:text-purple-600 hover:bg-purple-50'
-                                    }`}
-                                  >
-                                    <Calendar className="w-3.5 h-3.5" />
-                                  </button>
+                              <div className="flex items-center gap-1 bg-white p-1.5 rounded-xl border border-slate-200 shadow-xs flex-shrink-0">
+                                {/* Subtopic Schedule Date & Time Button */}
+                                <button
+                                  onClick={() => handleOpenScheduleModal('subtopic', subtopic, stage.id)}
+                                  title={subSched.hasSchedule && !subSched.inherited ? `Scheduled: ${subSched.fullFormatted}` : 'Set Release Schedule'}
+                                  className={`p-1.5 rounded-lg cursor-pointer transition-all ${
+                                    subSched.hasSchedule && !subSched.inherited
+                                      ? 'bg-purple-100 text-purple-700 hover:bg-purple-200 border border-purple-300'
+                                      : 'text-slate-600 hover:text-purple-600 hover:bg-purple-50'
+                                  }`}
+                                >
+                                  <Calendar className="w-3.5 h-3.5" />
+                                </button>
 
-                                  <button
-                                    onClick={() => handleOpenSubtopicModal(stage.id, subtopic)}
-                                    title="Edit Subtopic"
-                                    className="p-1.5 text-slate-600 hover:text-purple-600 hover:bg-purple-50 rounded-lg cursor-pointer"
-                                  >
-                                    <Edit2 className="w-3.5 h-3.5" />
-                                  </button>
-                                  <button
-                                    onClick={() => handleDeleteSubtopic(stage.id, subtopic.id, subtopic.title)}
-                                    title="Delete Subtopic"
-                                    className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg cursor-pointer"
-                                  >
-                                    <Trash2 className="w-3.5 h-3.5" />
-                                  </button>
-                                </div>
-                              )}
+                                <button
+                                  onClick={() => handleOpenSubtopicModal(stage.id, subtopic)}
+                                  title="Edit Subtopic"
+                                  className="p-1.5 text-slate-600 hover:text-purple-600 hover:bg-purple-50 rounded-lg cursor-pointer"
+                                >
+                                  <Edit2 className="w-3.5 h-3.5" />
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteSubtopic(stage.id, subtopic.id, subtopic.title)}
+                                  title="Delete Subtopic"
+                                  className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg cursor-pointer"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
                             </div>
                           </div>
                         );
@@ -1455,14 +1378,12 @@ export function MilestonesRoadmapPage() {
                     ) : (
                       <div className="text-center py-6 text-slate-500 text-xs font-medium">
                         No modules added to this stage yet.
-                        {viewMode === 'admin' && (
-                          <button
-                            onClick={() => handleOpenSubtopicModal(stage.id, null)}
-                            className="mt-3 block mx-auto border-2 border-dashed border-purple-200 hover:border-purple-400 px-4 py-2 rounded-xl text-xs font-bold text-purple-600 hover:bg-purple-50 transition-colors cursor-pointer"
-                          >
-                            Add First Module
-                          </button>
-                        )}
+                        <button
+                          onClick={() => handleOpenSubtopicModal(stage.id, null)}
+                          className="mt-3 block mx-auto border-2 border-dashed border-purple-200 hover:border-purple-400 px-4 py-2 rounded-xl text-xs font-bold text-purple-600 hover:bg-purple-50 transition-colors cursor-pointer"
+                        >
+                          + Add First Module
+                        </button>
                       </div>
                     )}
                   </div>
@@ -1533,7 +1454,7 @@ export function MilestonesRoadmapPage() {
                         );
                       })()}
 
-                      {viewMode === 'admin' && (() => {
+                      {(() => {
                         const stageSched = getScheduleInfo(activeStage);
                         const sInfo = getScheduleInfo(activeSubtopic, stageSched);
                         return (
@@ -1580,7 +1501,6 @@ export function MilestonesRoadmapPage() {
                     </span>
                   </div>
 
-                  {viewMode === 'admin' && (
                     <button
                       onClick={() => handleOpenModuleModal(null)}
                       className="px-2.5 py-1 rounded-lg bg-purple-50 hover:bg-purple-100 text-purple-700 font-bold text-[11px] flex items-center gap-1 border border-purple-200 transition-colors cursor-pointer"
@@ -1588,7 +1508,6 @@ export function MilestonesRoadmapPage() {
                       <Plus className="w-3 h-3" />
                       <span>Add Module</span>
                     </button>
-                  )}
                 </div>
 
                 {/* Modules Accordion List */}
@@ -1624,8 +1543,8 @@ export function MilestonesRoadmapPage() {
                               </span>
                               <span>{module.title}</span>
 
-                              {/* Module Schedule Badge (Admin Mode Only) */}
-                              {viewMode === 'admin' && modSched.hasSchedule && !modSched.inherited && (
+                              {/* Module Schedule Badge */}
+                              {modSched.hasSchedule && !modSched.inherited && (
                                 <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border flex items-center gap-1 ${
                                   modSched.isLocked
                                     ? 'bg-amber-100 text-amber-900 border-amber-300'
@@ -1638,7 +1557,6 @@ export function MilestonesRoadmapPage() {
                             </div>
 
                             <div className="flex items-center gap-2">
-                              {viewMode === 'admin' && (
                                 <div className="flex items-center gap-1 border-r border-white/20 pr-2 mr-1">
                                   {/* Module Schedule Button */}
                                   <button
@@ -1675,7 +1593,6 @@ export function MilestonesRoadmapPage() {
                                     <Trash2 className="w-3.5 h-3.5" />
                                   </button>
                                 </div>
-                              )}
 
                               <button onClick={() => setExpandedModule(isExpanded ? null : module.id)} className="cursor-pointer">
                                 {isExpanded ? (
@@ -1691,7 +1608,7 @@ export function MilestonesRoadmapPage() {
                           {isExpanded && (
                             <div className="p-4 space-y-3 bg-white">
                               {/* Admin Mode Schedule Info if locked */}
-                              {viewMode === 'admin' && isModLocked && (
+                              {isModLocked && (
                                 <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl text-amber-900 text-xs flex items-start gap-2.5">
                                   <Clock className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0 animate-pulse" />
                                   <div>
@@ -1819,7 +1736,6 @@ export function MilestonesRoadmapPage() {
                                             <ExternalLink className="w-3 h-3" />
                                           </button>
 
-                                          {viewMode === 'admin' && (
                                             <div className="flex items-center gap-0.5 border-l border-slate-200 pl-1">
                                               <button
                                                 onClick={() => handleOpenItemModal(module.id, item)}
@@ -1836,7 +1752,6 @@ export function MilestonesRoadmapPage() {
                                                 <Trash2 className="w-3 h-3" />
                                               </button>
                                             </div>
-                                          )}
                                         </div>
                                       </div>
                                     );
@@ -1844,7 +1759,6 @@ export function MilestonesRoadmapPage() {
                                 ) : (
                                   <div className="text-center py-4 text-xs text-slate-400 space-y-2">
                                     <p>No learning items added yet to this module.</p>
-                                    {viewMode === 'admin' && (
                                       <button
                                         onClick={() => handleOpenItemModal(module.id, null)}
                                         className="px-3 py-1.5 bg-purple-50 text-purple-700 font-bold rounded-lg hover:bg-purple-100 text-xs inline-flex items-center gap-1 cursor-pointer"
@@ -1852,12 +1766,11 @@ export function MilestonesRoadmapPage() {
                                         <Plus className="w-3.5 h-3.5" />
                                         <span>Add Learning Resource</span>
                                       </button>
-                                    )}
                                   </div>
                                 );
                               })()}
 
-                              {viewMode === 'admin' && module.items && module.items.length > 0 && (
+                              {module.items && module.items.length > 0 && (
                                 <button
                                   onClick={() => handleOpenItemModal(module.id, null)}
                                   className="w-full py-2 border border-dashed border-purple-200 text-purple-700 hover:bg-purple-50 rounded-xl text-xs font-bold flex items-center justify-center gap-1 transition-colors cursor-pointer"
@@ -1874,7 +1787,6 @@ export function MilestonesRoadmapPage() {
                   ) : (
                     <div className="text-center py-8 text-slate-400 text-xs bg-slate-50 rounded-2xl border border-dashed border-slate-200 space-y-3">
                       <p>No modules created for this subtopic yet.</p>
-                      {viewMode === 'admin' && (
                         <button
                           onClick={() => handleOpenModuleModal(null)}
                           className="px-4 py-2 bg-purple-600 text-white font-bold rounded-xl hover:bg-purple-700 inline-flex items-center gap-1.5 cursor-pointer shadow-sm"
@@ -1882,7 +1794,6 @@ export function MilestonesRoadmapPage() {
                           <Plus className="w-4 h-4" />
                           <span>Create First Module</span>
                         </button>
-                      )}
                     </div>
                   )}
                 </div>

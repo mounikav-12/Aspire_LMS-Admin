@@ -24,12 +24,10 @@ import {
   HelpCircle,
   Copy,
   Check,
-  Lock,
-  Unlock
 } from 'lucide-react';
 
 export function CodingQuestionsPage() {
-  const { codingQuestions, courses, courseLessons, addCodingQuestion, updateCodingQuestion, deleteCodingQuestion, activeBatchFilter, setActiveBatchFilter, getLessonLockStatus } = useLmsData();
+  const { codingQuestions, courses, courseLessons, addCodingQuestion, updateCodingQuestion, deleteCodingQuestion, activeBatchFilter, setActiveBatchFilter } = useLmsData();
   const { addToast } = useToast();
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -408,7 +406,6 @@ export function CodingQuestionsPage() {
       {/* Question Cards List */}
       <div className="space-y-4">
         {filteredQuestions.map((cq) => {
-          const lockStatus = getLessonLockStatus(cq.innerTopicId || cq.subtopicId, activeBatchFilter === 'ALL' ? 'Weekday Batch' : activeBatchFilter);
 
           return (
             <div
@@ -419,17 +416,7 @@ export function CodingQuestionsPage() {
                 <div className="space-y-1">
                   <div className="flex items-center gap-2 flex-wrap">
                     <h3 className="font-bold text-slate-900 text-lg leading-snug">{cq.title}</h3>
-                    {lockStatus.isLocked ? (
-                      <span className="inline-flex items-center gap-1 bg-rose-50 text-rose-700 font-bold px-2 py-0.5 rounded-lg border border-rose-200/60 text-[10px]">
-                        <Lock className="w-3 h-3 text-rose-600 flex-shrink-0" />
-                        <span>{lockStatus.label}</span>
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 font-bold px-2 py-0.5 rounded-lg border border-emerald-200/60 text-[10px]">
-                        <Unlock className="w-3 h-3 text-emerald-600 flex-shrink-0" />
-                        <span>Unlocked</span>
-                      </span>
-                    )}
+
                     {getDifficultyBadge(cq.difficulty)}
                     <span className="px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-blue-50 text-blue-700 border border-blue-100">
                       {cq.language}

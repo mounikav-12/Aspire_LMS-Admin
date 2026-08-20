@@ -463,8 +463,12 @@ export function LmsDataProvider({ children }) {
 
   const getMilestoneDataForBatch = (batchName) => {
     const bKey = (batchName && batchName !== 'ALL') ? batchName : (activeBatchFilter && activeBatchFilter !== 'ALL' ? activeBatchFilter : 'Weekday Batch');
-    if (bKey === 'Weekend Batch') return milestonesByBatch['Weekend Batch'] || createInitialMilestonesByBatch()['Weekend Batch'];
-    return milestonesByBatch['Weekday Batch'] || createInitialMilestonesByBatch()['Weekday Batch'];
+    // Support dynamic batch codes: try exact match first, then fall back to category
+    if (milestonesByBatch[bKey]) return milestonesByBatch[bKey];
+    // Map batch codes to their category: A26S* = Weekend, A26W* = Weekday
+    const isWeekend = bKey.startsWith('A26S') || bKey === 'Weekend Batch';
+    const categoryKey = isWeekend ? 'Weekend Batch' : 'Weekday Batch';
+    return milestonesByBatch[categoryKey] || createInitialMilestonesByBatch()[categoryKey];
   };
 
   const milestones = getMilestoneDataForBatch(activeBatchFilter);
