@@ -27,8 +27,6 @@ import {
   Square,
   BookOpen
 } from 'lucide-react';
-import { INITIAL_COURSES, INITIAL_MILESTONES } from '../../utils/mockData';
-
 export function CourseDetailPage() {
   const { courseId } = useParams();
   const { courses, updateCourse, milestones, availableBatches, courseLessons, addCourseLesson, updateCourseLesson, deleteCourseLesson, getLessonsForModule, updateStageSubtopics } = useLmsData();
@@ -36,8 +34,7 @@ export function CourseDetailPage() {
 
   const course = courses.find((c) => c.id === courseId);
 
-  const initialMatchingCourse = INITIAL_COURSES.find((c) => c.id === courseId);
-  const milestoneStages = milestones?.stages || INITIAL_MILESTONES?.stages || [];
+  const milestoneStages = milestones?.stages || [];
 
   const defaultTopicsFromStages = milestoneStages.map((stg, i) => ({
     id: `top-stg-${i + 1}`,
@@ -141,7 +138,6 @@ export function CourseDetailPage() {
   React.useEffect(() => {
     if (course && (!course.topics || course.topics.length === 0)) {
       const isPythonFullStackCourse = (course.title || '').toLowerCase().includes('python full') || (course.id || '').includes('1786624019154');
-      const initialMatchingCourse = INITIAL_COURSES.find((c) => c.id === course.id);
       
       const defaultTopicsFromStages = milestoneStages.map((stg, i) => ({
         id: `top-stg-${i + 1}`,
@@ -545,7 +541,7 @@ export function CourseDetailPage() {
           <div className="grid grid-cols-1 gap-4">
             {topicsToRender.map((topic, index) => {
               const isExpanded = expandedTopicIds.includes(topic.id);
-              const matchingStage = milestones?.stages?.[index] || INITIAL_MILESTONES?.stages?.[index];
+              const matchingStage = milestones?.stages?.[index];
 
               return (
                 <div
