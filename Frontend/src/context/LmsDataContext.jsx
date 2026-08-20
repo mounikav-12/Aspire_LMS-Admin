@@ -185,6 +185,8 @@ export function LmsDataProvider({ children }) {
   const [recordingsByBatch, setRecordingsByBatch] = useState(() => loadBatchDictState('aspire_lms_recordings_by_batch', INITIAL_RECORDINGS, 'aspire_lms_recordings_version', 'v6_cleared_mock_data'));
   const [placementResources, setPlacementResources] = useState(() => loadLocalState('aspire_lms_placement_resources', INITIAL_PLACEMENT_RESOURCES));
   const [projectsByBatch, setProjectsByBatch] = useState(() => loadBatchDictState('aspire_lms_projects_by_batch', INITIAL_PROJECTS, 'aspire_lms_projects_version', 'v7_student_ui_projects'));
+  const [courseLessons, setCourseLessons] = useState([]);
+  const [milestoneLocks, setMilestoneLocks] = useState([]);
 
   useEffect(() => {
     try { localStorage.setItem('aspire_lms_users', JSON.stringify(users)); } catch (e) {}
@@ -730,7 +732,8 @@ export function LmsDataProvider({ children }) {
             title: t.title || '',
             liveClasses: t.live_classes || 0,
             practice: t.practice || 0,
-            assessments: t.assessments || 0
+            assessments: t.assessments || 0,
+            subtopics: t.subtopics || [] // <-- Add this
           });
         });
       }
@@ -1073,7 +1076,11 @@ export function LmsDataProvider({ children }) {
           testCases: Array.isArray(cq.test_cases) ? cq.test_cases : (typeof cq.test_cases === 'string' ? JSON.parse(cq.test_cases) : []),
           createdDate: cq.created_date || cq.createdDate || '',
           postedBy: cq.posted_by || cq.postedBy || 'Admin Portal',
-          targetBatch: cq.target_batch || 'Weekday Batch'
+          targetBatch: cq.target_batch || 'Weekday Batch',
+          courseId: cq.course_id || '',
+          stageId: cq.stage_id || '',
+          subtopicId: cq.subtopic_id || '',
+          innerTopicId: cq.inner_topic_id || ''
         }));
         setCodingQuestionsByBatch(() => {
           const next = { 'Weekday Batch': [], 'Weekend Batch': [] };
@@ -1091,6 +1098,19 @@ export function LmsDataProvider({ children }) {
           return next;
         });
       }
+
+      // Load course lessons from Supabase
+      try {
+        const { data: lessonsData } = await supabase.from('course_lessons').select('*').order('sort_order');
+        if (lessonsData) setCourseLessons(lessonsData);
+      } catch (err) { console.warn('Course lessons load:', err); }
+
+      // Load milestone locks from Supabase
+      try {
+        const { data: locksData } = await supabase.from('milestone_locks').select('*');
+        if (locksData) setMilestoneLocks(locksData);
+      } catch (err) { console.warn('Milestone locks load:', err); }
+
     } catch (err) {
       console.warn('Supabase initial fetch using fallback mock data:', err);
     } finally {
@@ -1195,6 +1215,37 @@ export function LmsDataProvider({ children }) {
       channels.forEach(ch => {
         try { supabase.removeChannel(ch); } catch (e) {}
       });
+    };
+  }, []);
+
+  useEffect(() => {
+    const lessonsChannel = supabase.channel('course-lessons-realtime')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'course_lessons' }, (payload) => {
+        if (payload.eventType === 'INSERT') {
+          setCourseLessons(prev => [...prev, payload.new]);
+        } else if (payload.eventType === 'UPDATE') {
+          setCourseLessons(prev => prev.map(l => l.id === payload.new.id ? payload.new : l));
+        } else if (payload.eventType === 'DELETE') {
+          setCourseLessons(prev => prev.filter(l => l.id !== payload.old.id));
+        }
+      })
+      .subscribe();
+
+    const locksChannel = supabase.channel('milestone-locks-realtime')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'milestone_locks' }, (payload) => {
+        if (payload.eventType === 'INSERT') {
+          setMilestoneLocks(prev => [...prev, payload.new]);
+        } else if (payload.eventType === 'UPDATE') {
+          setMilestoneLocks(prev => prev.map(l => l.id === payload.new.id ? payload.new : l));
+        } else if (payload.eventType === 'DELETE') {
+          setMilestoneLocks(prev => prev.filter(l => l.id !== payload.old.id));
+        }
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(lessonsChannel);
+      supabase.removeChannel(locksChannel);
     };
   }, []);
 
@@ -1384,6 +1435,7 @@ export function LmsDataProvider({ children }) {
       return next;
     });
     logActivity(`Updated course properties for ID ${id} (${bKey})`, 'course');
+    
     // Persist update to Supabase
     try {
       const dbFields = {};
@@ -1398,6 +1450,22 @@ export function LmsDataProvider({ children }) {
       if (Object.keys(dbFields).length > 0) {
         const { error } = await supabase.from('courses').update(dbFields).eq('id', id);
         if (error) console.error('Supabase course update error:', error.message);
+      }
+
+      // If stages/topics are updated, upsert them to course_topics
+      if (updatedFields.topics !== undefined) {
+        for (const t of updatedFields.topics) {
+          const { error } = await supabase.from('course_topics').upsert([{
+            id: t.id,
+            course_id: id,
+            title: t.title || '',
+            live_classes: t.liveClasses || t.live_classes || 0,
+            practice: t.practice || 0,
+            assessments: t.assessments || 0,
+            subtopics: t.subtopics || []
+          }], { onConflict: 'id' });
+          if (error) console.error('Supabase course_topics upsert error:', error.message);
+        }
       }
     } catch (err) { console.warn('Course update handled:', err); }
   };
@@ -2201,7 +2269,11 @@ export function LmsDataProvider({ children }) {
         test_cases: newCq.testCases || [],
         created_date: newCq.createdDate,
         posted_by: newCq.postedBy,
-        target_batch: newCq.targetBatch
+        target_batch: newCq.targetBatch,
+        course_id: newCq.courseId || '',
+        stage_id: newCq.stageId || '',
+        subtopic_id: newCq.subtopicId || '',
+        inner_topic_id: newCq.innerTopicId || ''
       }]);
       if (error) console.error('Supabase coding question insert error:', error.message);
     } catch (err) { console.warn('Coding question insert handled:', err); }
@@ -2225,6 +2297,10 @@ export function LmsDataProvider({ children }) {
       if (updatedFields.solutionCode !== undefined) dbFields.solution_code = updatedFields.solutionCode;
       if (updatedFields.testCases !== undefined) dbFields.test_cases = updatedFields.testCases;
       if (updatedFields.targetBatch !== undefined) dbFields.target_batch = updatedFields.targetBatch;
+      if (updatedFields.courseId !== undefined) dbFields.course_id = updatedFields.courseId;
+      if (updatedFields.stageId !== undefined) dbFields.stage_id = updatedFields.stageId;
+      if (updatedFields.subtopicId !== undefined) dbFields.subtopic_id = updatedFields.subtopicId;
+      if (updatedFields.innerTopicId !== undefined) dbFields.inner_topic_id = updatedFields.innerTopicId;
       if (Object.keys(dbFields).length > 0) {
         const { error } = await supabase.from('coding_questions').update(dbFields).eq('id', id);
         if (error) console.error('Supabase coding question update error:', error.message);
@@ -2854,6 +2930,150 @@ export function LmsDataProvider({ children }) {
       console.warn('Student delete handled:', err);
     }
   };
+// --- COURSE LESSONS (Sub-modules) ---
+  const addCourseLesson = async (lessonData) => {
+    const newLesson = {
+      id: `lesson-${Date.now()}`,
+      sort_order: courseLessons.filter(l => l.module_id === lessonData.module_id).length,
+      created_at: new Date().toISOString(),
+      ...lessonData
+    };
+    setCourseLessons(prev => [...prev, newLesson]);
+    try {
+      const { error } = await supabase.from('course_lessons').insert([newLesson]);
+      if (error) console.error('Supabase lesson insert error:', error.message);
+    } catch (err) { console.warn('Lesson insert handled:', err); }
+    return newLesson;
+  };
+
+  const updateCourseLesson = async (id, updatedFields) => {
+    setCourseLessons(prev => prev.map(l => l.id === id ? { ...l, ...updatedFields } : l));
+    try {
+      const { error } = await supabase.from('course_lessons').update(updatedFields).eq('id', id);
+      if (error) console.error('Supabase lesson update error:', error.message);
+    } catch (err) { console.warn('Lesson update handled:', err); }
+  };
+
+  const deleteCourseLesson = async (id) => {
+    setCourseLessons(prev => prev.filter(l => l.id !== id));
+    try {
+      const { error } = await supabase.from('course_lessons').delete().eq('id', id);
+      if (error) console.error('Supabase lesson delete error:', error.message);
+    } catch (err) { console.warn('Lesson delete handled:', err); }
+  };
+
+  const getLessonsForModule = (courseId, stageId, moduleId) => {
+    return courseLessons
+      .filter(l => l.course_id === courseId && l.stage_id === stageId && l.module_id === moduleId)
+      .sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
+  };
+
+  // --- MILESTONE LOCKS ---
+  const setLessonLock = async (lockData) => {
+    const lockId = `lock-${lockData.lesson_id}-${lockData.batch_code}`;
+    const unlockDatetime = lockData.unlock_date && lockData.unlock_time
+      ? new Date(`${lockData.unlock_date}T${lockData.unlock_time}:00`).toISOString()
+      : null;
+    const lockRecord = {
+      id: lockId,
+      is_locked: true,
+      updated_at: new Date().toISOString(),
+      unlock_datetime: unlockDatetime,
+      ...lockData
+    };
+    setMilestoneLocks(prev => {
+      const existing = prev.findIndex(l => l.lesson_id === lockData.lesson_id && l.batch_code === lockData.batch_code);
+      if (existing >= 0) {
+        return prev.map((l, i) => i === existing ? { ...l, ...lockRecord } : l);
+      }
+      return [...prev, lockRecord];
+    });
+    try {
+      const { error } = await supabase.from('milestone_locks').upsert([lockRecord], { onConflict: 'lesson_id,batch_code' });
+      if (error) console.error('Supabase lock upsert error:', error.message);
+    } catch (err) { console.warn('Lock upsert handled:', err); }
+  };
+
+  const removeLessonLock = async (lessonId, batchCode) => {
+    setMilestoneLocks(prev => prev.filter(l => !(l.lesson_id === lessonId && l.batch_code === batchCode)));
+    try {
+      const { error } = await supabase.from('milestone_locks').delete().eq('lesson_id', lessonId).eq('batch_code', batchCode);
+      if (error) console.error('Supabase lock delete error:', error.message);
+    } catch (err) { console.warn('Lock delete handled:', err); }
+  };
+
+  const getLessonLockStatus = (lessonId, batchCode) => {
+    const lock = milestoneLocks.find(l => l.lesson_id === lessonId && l.batch_code === batchCode);
+    if (!lock) return { isLocked: false, unlockDateTime: null, label: 'UNLOCKED' };
+    const now = new Date();
+    const unlockTime = lock.unlock_datetime ? new Date(lock.unlock_datetime) : null;
+    if (unlockTime && now >= unlockTime) {
+      return { isLocked: false, unlockDateTime: lock.unlock_datetime, label: 'UNLOCKED' };
+    }
+    return {
+      isLocked: true,
+      unlockDateTime: lock.unlock_datetime,
+      label: unlockTime ? `Unlocks ${unlockTime.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })} ${lock.unlock_time || ''}` : 'LOCKED'
+    };
+  };
+
+  const getLocksForCourse = (courseId) => {
+    return milestoneLocks.filter(l => l.course_id === courseId);
+  };
+
+  const updateStageSubtopics = async (courseId, stageId, subtopicsList) => {
+    // Update local state first
+    setCoursesByBatch((prev) => {
+      const next = { ...prev };
+      Object.keys(next).forEach((key) => {
+        next[key] = (next[key] || []).map((c) => {
+          if (c.id === courseId && c.topics) {
+            const updatedTopics = c.topics.map((t) =>
+              t.id === stageId ? { ...t, subtopics: subtopicsList } : t
+            );
+            return { ...c, topics: updatedTopics };
+          }
+          return c;
+        });
+      });
+      return next;
+    });
+
+    // Find stage properties from local state to perform upsert
+    let stageTitle = 'Stage';
+    let liveClasses = 0;
+    let practice = 0;
+    let assessments = 0;
+
+    const activeCourse = courses.find(c => c.id === courseId);
+    if (activeCourse && activeCourse.topics) {
+      const matched = activeCourse.topics.find(t => t.id === stageId);
+      if (matched) {
+        stageTitle = matched.title || stageTitle;
+        liveClasses = matched.liveClasses || matched.live_classes || 0;
+        practice = matched.practice || 0;
+        assessments = matched.assessments || 0;
+      }
+    }
+
+    // Write to Supabase (using upsert to automatically create missing fallback stages)
+    try {
+      const { error } = await supabase
+        .from('course_topics')
+        .upsert([{
+          id: stageId,
+          course_id: courseId,
+          title: stageTitle,
+          live_classes: liveClasses,
+          practice: practice,
+          assessments: assessments,
+          subtopics: subtopicsList
+        }], { onConflict: 'id' });
+      if (error) console.error('Supabase updateStageSubtopics error:', error.message);
+    } catch (err) {
+      console.warn('updateStageSubtopics handled:', err);
+    }
+  };
 
   return (
     <LmsDataContext.Provider
@@ -2911,6 +3131,7 @@ export function LmsDataProvider({ children }) {
         toggleStageLock,
         updateStageStatus,
         deleteStage,
+        updateStageSubtopics,
         addSubtopic,
         updateSubtopic,
         setSubtopicSchedule,
@@ -2951,7 +3172,17 @@ export function LmsDataProvider({ children }) {
         toggleItemCompletion,
         markItemCompleted,
         unmarkItemCompleted,
-        toggleSubtopicCompletion
+        toggleSubtopicCompletion,
+        courseLessons,
+        addCourseLesson,
+        updateCourseLesson,
+        deleteCourseLesson,
+        getLessonsForModule,
+        milestoneLocks,
+        setLessonLock,
+        removeLessonLock,
+        getLessonLockStatus,
+        getLocksForCourse
       }}
     >
       {children}
@@ -2970,6 +3201,16 @@ const defaultLmsDataContext = {
   markItemCompleted: () => {},
   unmarkItemCompleted: () => {},
   toggleSubtopicCompletion: () => {},
+  courseLessons: [],
+  addCourseLesson: async () => {},
+  updateCourseLesson: async () => {},
+  deleteCourseLesson: async () => {},
+  getLessonsForModule: () => [],
+  milestoneLocks: [],
+  setLessonLock: async () => {},
+  removeLessonLock: async () => {},
+  getLessonLockStatus: () => ({ isLocked: false, unlockDateTime: null, label: 'UNLOCKED' }),
+  getLocksForCourse: () => [],
   projects: [],
   codingQuestions: [],
   activities: [],
@@ -2979,6 +3220,7 @@ const defaultLmsDataContext = {
   addCourse: async () => {},
   updateCourse: async () => {},
   deleteCourse: async () => {},
+  updateStageSubtopics: async () => {},
   addScheduleTopic: async () => {},
   updateScheduleTopic: async () => {},
   deleteScheduleTopic: async () => {},

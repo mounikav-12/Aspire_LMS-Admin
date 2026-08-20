@@ -25,54 +25,14 @@ import {
   ChevronRight,
   CheckCircle2,
   Layers,
-  ListChecks
+  ListChecks,
+  Lock,
+  Unlock
 } from 'lucide-react';
 
 export function AssessmentListPage() {
-  const { assessments, courses, milestones, addAssessment, updateAssessment, deleteAssessment, activeBatchFilter, setActiveBatchFilter } = useLmsData();
+  const { assessments, courses, courseLessons, milestones, addAssessment, updateAssessment, deleteAssessment, activeBatchFilter, setActiveBatchFilter, getLessonLockStatus } = useLmsData();
   const { addToast } = useToast();
-
-  const stagesList = (milestones && milestones.stages && milestones.stages.length > 0)
-    ? milestones.stages
-    : [
-        {
-          id: 'stage-1',
-          title: 'Stage 1: Front End + Repository',
-          subtopics: [
-            { id: 'git-github', title: 'Git & GitHub Version Control' },
-            { id: 'html5', title: 'HTML5 & Semantic Structure' },
-            { id: 'css3', title: 'CSS3 & Responsive Layouts' },
-            { id: 'javascript-es6', title: 'JavaScript Fundamentals & ES6+' },
-            { id: 'reactjs', title: 'React.js Components & Hooks' }
-          ]
-        },
-        {
-          id: 'stage-2',
-          title: 'Stage 2: Backend + DSA',
-          subtopics: [
-            { id: 'python-core', title: 'Python Syntax, OOP & Standard Library' },
-            { id: 'express-django', title: 'REST API Design with Express & Django' },
-            { id: 'postgresql', title: 'PostgreSQL Database & Relational Schemas' },
-            { id: 'dsa-core', title: 'Data Structures & Algorithms (Trees, Graphs, DP)' }
-          ]
-        },
-        {
-          id: 'stage-3',
-          title: 'Stage 3: AI & Cloud Integration',
-          subtopics: [
-            { id: 'ai-prompting', title: 'AI Model Integration & OpenAI APIs' },
-            { id: 'docker-cloud', title: 'Docker, Containers & Cloud Deployment' }
-          ]
-        },
-        {
-          id: 'stage-4',
-          title: 'Stage 4: Career Launchpad',
-          subtopics: [
-            { id: 'capstone-proj', title: 'Capstone Enterprise Full-Stack Deployment' },
-            { id: 'mock-interview', title: 'System Design & Technical Mock Interviews' }
-          ]
-        }
-      ];
 
   const [selectedBatch, setSelectedBatch] = useState(activeBatchFilter || 'Weekday Batch');
 
@@ -87,17 +47,12 @@ export function AssessmentListPage() {
   const [editingAssessment, setEditingAssessment] = useState(null);
   const [deletingAssessment, setDeletingAssessment] = useState(null);
 
-  // Form State with Dynamic Questions Array & 4-Tier Milestone Cascading Hierarchy
-  const firstStage = stagesList[0];
-  const firstSubtopic = firstStage?.subtopics?.[0];
-  const firstInner = firstSubtopic?.modules?.[0];
-
   const [formData, setFormData] = useState({
     title: '',
     courseId: courses[0]?.id || '',
-    stageId: firstStage?.id || 'stage-1',
-    subtopicId: firstSubtopic?.id || 'git-github',
-    innerTopicId: firstInner?.id || firstSubtopic?.id || '',
+    stageId: '',
+    subtopicId: '',
+    innerTopicId: '',
     durationMinutes: 45,
     totalMarks: 100,
     dueDate: '2026-08-15',
@@ -116,16 +71,80 @@ export function AssessmentListPage() {
     ]
   });
 
+  const selectedCourseObj = courses.find((c) => c.id === formData.courseId) || courses[0];
+  const stagesList = (selectedCourseObj?.topics && selectedCourseObj.topics.length > 0)
+    ? selectedCourseObj.topics
+    : [
+        {
+          id: 'stage-1',
+          title: 'Stage 1: Front End + Repository',
+          subtopics: [
+            { id: 'git-github', title: 'Git & GitHub Version Control' },
+            { id: 'html5', title: 'HTML5 & Semantic Structure' },
+            { id: 'css3-basics', title: 'CSS3 Fundamentals & Layouts' },
+            { id: 'js-essentials', title: 'JavaScript Essentials' }
+          ]
+        },
+        {
+          id: 'stage-2',
+          title: 'Stage 2: Backend + DSA',
+          subtopics: [
+            { id: 'nodejs', title: 'Node.js & Express API' },
+            { id: 'postgres', title: 'PostgreSQL & Database Design' },
+            { id: 'dsa-arrays', title: 'DSA: Arrays & Strings' },
+            { id: 'dsa-trees', title: 'DSA: Trees & Graphs' }
+          ]
+        },
+        {
+          id: 'stage-3',
+          title: 'Stage 3: AI',
+          subtopics: [
+            { id: 'ml-foundations', title: 'Machine Learning Foundations' },
+            { id: 'deep-learning', title: 'Deep Learning & Neural Networks' },
+            { id: 'generative-ai', title: 'Generative AI & LLMs' }
+          ]
+        },
+        {
+          id: 'stage-4',
+          title: 'Stage 4: Career Launchpad',
+          subtopics: [
+            { id: 'resume-building', title: 'Resume Building & Portfolio' },
+            { id: 'mock-interviews', title: 'Mock Interviews & Grooming' }
+          ]
+        }
+      ];
+
+  React.useEffect(() => {
+    if (courses && courses.length > 0 && !formData.stageId) {
+      const activeCourse = courses.find((c) => c.id === formData.courseId) || courses[0];
+      const activeStage = activeCourse?.topics?.[0] || stagesList[0];
+      const activeSub = activeStage?.subtopics?.[0];
+      const activeInner = courseLessons?.find(
+        (l) => l.course_id === activeCourse?.id && l.stage_id === activeStage?.id && l.module_id === activeSub?.id
+      );
+      setFormData((prev) => ({
+        ...prev,
+        courseId: prev.courseId || activeCourse?.id || '',
+        stageId: prev.stageId || activeStage?.id || '',
+        subtopicId: prev.subtopicId || activeSub?.id || '',
+        innerTopicId: prev.innerTopicId || activeInner?.id || ''
+      }));
+    }
+  }, [courses, formData.courseId]);
+
   const handleOpenAddModal = () => {
-    const fStage = stagesList[0];
-    const fSub = fStage?.subtopics?.[0];
-    const fInner = fSub?.modules?.[0];
+    const activeCourse = courses.find((c) => c.id === (courses[0]?.id || '')) || courses[0];
+    const activeStage = activeCourse?.topics?.[0] || stagesList[0];
+    const activeSub = activeStage?.subtopics?.[0];
+    const activeInner = courseLessons?.find(
+      (l) => l.course_id === activeCourse?.id && l.stage_id === activeStage?.id && l.module_id === activeSub?.id
+    );
     setFormData({
       title: '',
-      courseId: courses[0]?.id || '',
-      stageId: fStage?.id || 'stage-1',
-      subtopicId: fSub?.id || 'git-github',
-      innerTopicId: fInner?.id || fSub?.id || '',
+      courseId: activeCourse?.id || '',
+      stageId: activeStage?.id || '',
+      subtopicId: activeSub?.id || '',
+      innerTopicId: activeInner?.id || '',
       durationMinutes: 45,
       totalMarks: 100,
       dueDate: '2026-08-15',
@@ -143,6 +162,7 @@ export function AssessmentListPage() {
         }
       ]
     });
+    setEditingAssessment(null);
     setIsAddModalOpen(true);
   };
 
@@ -294,10 +314,17 @@ export function AssessmentListPage() {
     const selectedStage = stagesList.find((s) => s.id === formData.stageId) || stagesList[0];
     const subtopicsOfStage = selectedStage?.subtopics || [];
     const selectedSubtopic = subtopicsOfStage.find((st) => st.id === formData.subtopicId) || subtopicsOfStage[0];
-    const innerList = (selectedSubtopic && Array.isArray(selectedSubtopic.modules) && selectedSubtopic.modules.length > 0)
-      ? selectedSubtopic.modules
-      : [{ id: selectedSubtopic?.id || 'all-topics', title: selectedSubtopic?.title || 'General Overview' }];
-    const selectedInnerTopic = innerList.find((m) => m.id === formData.innerTopicId || m.title === formData.innerTopicId) || innerList[0];
+    
+    // Resolve innerList from live course lessons
+    const innerList = courseLessons?.filter(
+      (l) =>
+        l.course_id === formData.courseId &&
+        l.stage_id === formData.stageId &&
+        l.module_id === formData.subtopicId
+    ) || [];
+    
+    // Find matching lesson
+    const selectedInnerTopic = innerList.find((m) => m.id === formData.innerTopicId);
 
     const totalMcqsCount = formData.mcqs.length;
     const totalCodingCount = formData.codingQuestions.length;
@@ -450,6 +477,7 @@ export function AssessmentListPage() {
             const mcqCount = asm.mcqs?.length || asm.mcqCount || 0;
             const codingCount = asm.codingQuestions?.length || asm.codingCount || 0;
             const totalQ = asm.totalQuestions || mcqCount + codingCount;
+            const lockStatus = getLessonLockStatus(asm.innerTopicId, activeBatchFilter === 'ALL' ? 'Weekday Batch' : activeBatchFilter);
 
             return (
               <div
@@ -460,10 +488,23 @@ export function AssessmentListPage() {
                   {/* Header Badges & Action Icons */}
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <span className="inline-flex items-center gap-1.5 bg-blue-50/90 text-blue-700 font-bold px-3 py-1.5 rounded-xl border border-blue-200/60 text-xs">
-                        <BookOpen className="w-3.5 h-3.5 text-blue-600 flex-shrink-0" />
-                        <span className="truncate max-w-[240px]">{asm.courseName || 'Python Full Stack'}</span>
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className="inline-flex items-center gap-1.5 bg-blue-50/90 text-blue-700 font-bold px-3 py-1.5 rounded-xl border border-blue-200/60 text-xs">
+                          <BookOpen className="w-3.5 h-3.5 text-blue-600 flex-shrink-0" />
+                          <span className="truncate max-w-[240px]">{asm.courseName || 'Python Full Stack'}</span>
+                        </span>
+                        {lockStatus.isLocked ? (
+                          <span className="inline-flex items-center gap-1.5 bg-rose-50 text-rose-700 font-bold px-2.5 py-1.5 rounded-xl border border-rose-200/60 text-xs flex-shrink-0">
+                            <Lock className="w-3.5 h-3.5 text-rose-600 flex-shrink-0" />
+                            <span>{lockStatus.label}</span>
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-700 font-bold px-2.5 py-1.5 rounded-xl border border-emerald-200/60 text-xs flex-shrink-0">
+                            <Unlock className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" />
+                            <span>Unlocked</span>
+                          </span>
+                        )}
+                      </div>
 
                       <div className="flex items-center gap-1 bg-slate-50 p-1 rounded-xl border border-slate-100">
                         <button
@@ -586,7 +627,7 @@ export function AssessmentListPage() {
       >
         <form onSubmit={handleSaveAssessment} className="space-y-5 max-h-[75vh] overflow-y-auto pr-1">
           {/* Total Questions Header Banner */}
-          <div className="bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-900 p-4 rounded-2xl text-white flex items-center justify-between shadow-md">
+          <div className="bg-linear-to-r from-blue-900 via-indigo-900 to-slate-900 p-4 rounded-2xl text-white flex items-center justify-between shadow-md">
             <div className="flex items-center gap-2.5">
               <ListChecks className="w-5 h-5 text-blue-300" />
               <div>
@@ -619,9 +660,12 @@ export function AssessmentListPage() {
             const currentStageObj = stagesList.find((s) => s.id === formData.stageId) || stagesList[0];
             const currentSubtopicsArr = currentStageObj?.subtopics || [];
             const currentSubtopicObj = currentSubtopicsArr.find((st) => st.id === formData.subtopicId) || currentSubtopicsArr[0];
-            const currentInnerModules = (currentSubtopicObj && Array.isArray(currentSubtopicObj.modules) && currentSubtopicObj.modules.length > 0)
-              ? currentSubtopicObj.modules
-              : [{ id: currentSubtopicObj?.id || 'all-topics', title: currentSubtopicObj?.title || 'General Overview' }];
+            const currentInnerModules = courseLessons?.filter(
+              (l) =>
+                l.course_id === formData.courseId &&
+                l.stage_id === formData.stageId &&
+                l.module_id === formData.subtopicId
+            ) || [];
 
             return (
               <div className="p-4 bg-slate-50/90 rounded-2xl border border-slate-200/80 space-y-3.5">
@@ -652,12 +696,14 @@ export function AssessmentListPage() {
                       const newStageId = e.target.value;
                       const newStage = stagesList.find((s) => s.id === newStageId) || stagesList[0];
                       const firstSub = newStage?.subtopics?.[0];
-                      const firstInner = firstSub?.modules?.[0];
+                      const firstInner = courseLessons?.find(
+                        (l) => l.course_id === formData.courseId && l.stage_id === newStageId && l.module_id === firstSub?.id
+                      );
                       setFormData({
                         ...formData,
                         stageId: newStageId,
                         subtopicId: firstSub?.id || '',
-                        innerTopicId: firstInner?.id || firstSub?.id || ''
+                        innerTopicId: firstInner?.id || ''
                       });
                     }}
                     options={stagesList.map((stg) => ({
@@ -674,11 +720,13 @@ export function AssessmentListPage() {
                       const newSubId = e.target.value;
                       const targetStage = stagesList.find((s) => s.id === formData.stageId) || stagesList[0];
                       const targetSub = targetStage?.subtopics?.find((st) => st.id === newSubId) || targetStage?.subtopics?.[0];
-                      const firstInner = targetSub?.modules?.[0];
+                      const firstInner = courseLessons?.find(
+                        (l) => l.course_id === formData.courseId && l.stage_id === formData.stageId && l.module_id === newSubId
+                      );
                       setFormData({
                         ...formData,
                         subtopicId: newSubId,
-                        innerTopicId: firstInner?.id || targetSub?.id || ''
+                        innerTopicId: firstInner?.id || ''
                       });
                     }}
                     options={currentSubtopicsArr.map((sub) => ({
@@ -692,10 +740,10 @@ export function AssessmentListPage() {
                     label="4. Specific Inner Topic"
                     value={formData.innerTopicId}
                     onChange={(e) => setFormData({ ...formData, innerTopicId: e.target.value })}
-                    options={currentInnerModules.map((mod) => ({
-                      value: mod.id || mod.title,
-                      label: mod.title
-                    }))}
+                    options={[
+                      { value: '', label: 'None (Module Level)' },
+                      ...currentInnerModules.map((l) => ({ value: l.id, label: l.title }))
+                    ]}
                   />
                 </div>
               </div>

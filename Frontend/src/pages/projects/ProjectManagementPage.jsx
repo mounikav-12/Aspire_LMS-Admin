@@ -40,42 +40,8 @@ import {
 } from 'lucide-react';
 
 export function ProjectManagementPage() {
-  const { projects = [], courses = [], milestones = {}, addProject, updateProject, deleteProject, gradeSubmission } = useLmsData();
+  const { projects = [], courses = [], courseLessons = [], milestones = {}, addProject, updateProject, deleteProject, gradeSubmission, activeBatchFilter, getLessonLockStatus } = useLmsData();
   const { addToast } = useToast();
-
-  const stagesList = (milestones && milestones.stages && milestones.stages.length > 0)
-    ? milestones.stages
-    : [
-        {
-          id: 'stage-1',
-          title: 'Stage 1: Front End + Repository',
-          subtopics: [
-            { id: 'git-github', title: 'Git & GitHub Version Control' },
-            { id: 'html5', title: 'HTML5 & Semantic Structure' },
-            { id: 'css3', title: 'CSS3 & Responsive Layouts' },
-            { id: 'javascript-es6', title: 'JavaScript Fundamentals & ES6+' },
-            { id: 'reactjs', title: 'React.js Components & Hooks' }
-          ]
-        },
-        {
-          id: 'stage-2',
-          title: 'Stage 2: Backend + DSA',
-          subtopics: [
-            { id: 'python-core', title: 'Python Syntax, OOP & Standard Library' },
-            { id: 'express-django', title: 'REST API Design with Express & Django' },
-            { id: 'postgresql', title: 'PostgreSQL Database & Relational Schemas' },
-            { id: 'dsa-core', title: 'Data Structures & Algorithms (Trees, Graphs, DP)' }
-          ]
-        },
-        {
-          id: 'stage-3',
-          title: 'Stage 3: Full Stack & AI Integrations',
-          subtopics: [
-            { id: 'ai-prompting', title: 'AI Engineering & Prompt Design' },
-            { id: 'fullstack-deploy', title: 'Full Stack Integration & Cloud Deployment' }
-          ]
-        }
-      ];
 
   // Navigation & Filter States
   const [projectTypeTab, setProjectTypeTab] = useState('Mini Projects'); // 'Mini Projects' | 'Major Projects' | 'Capstone Projects' | 'Templates'
@@ -143,10 +109,10 @@ export function ProjectManagementPage() {
   const [formData, setFormData] = useState({
     title: '',
     type: 'Mini',
-    courseId: '',
-    stageId: 'stage-1',
-    subtopicId: 'git-github',
-    innerTopicId: 'git-arch',
+    courseId: courses[0]?.id || '',
+    stageId: '',
+    subtopicId: '',
+    innerTopicId: '',
     category: 'Full-Stack Web Dev',
     difficulty: 'Beginner',
     description: '',
@@ -160,6 +126,67 @@ export function ProjectManagementPage() {
     rubric: '',
     mentorTip: ''
   });
+
+  const selectedCourseObj = courses.find((c) => c.id === formData.courseId) || courses[0];
+  const stagesList = (selectedCourseObj?.topics && selectedCourseObj.topics.length > 0)
+    ? selectedCourseObj.topics
+    : [
+        {
+          id: 'stage-1',
+          title: 'Stage 1: Front End + Repository',
+          subtopics: [
+            { id: 'git-github', title: 'Git & GitHub Version Control' },
+            { id: 'html5', title: 'HTML5 & Semantic Structure' },
+            { id: 'css3-basics', title: 'CSS3 Fundamentals & Layouts' },
+            { id: 'js-essentials', title: 'JavaScript Essentials' }
+          ]
+        },
+        {
+          id: 'stage-2',
+          title: 'Stage 2: Backend + DSA',
+          subtopics: [
+            { id: 'nodejs', title: 'Node.js & Express API' },
+            { id: 'postgres', title: 'PostgreSQL & Database Design' },
+            { id: 'dsa-arrays', title: 'DSA: Arrays & Strings' },
+            { id: 'dsa-trees', title: 'DSA: Trees & Graphs' }
+          ]
+        },
+        {
+          id: 'stage-3',
+          title: 'Stage 3: AI',
+          subtopics: [
+            { id: 'ml-foundations', title: 'Machine Learning Foundations' },
+            { id: 'deep-learning', title: 'Deep Learning & Neural Networks' },
+            { id: 'generative-ai', title: 'Generative AI & LLMs' }
+          ]
+        },
+        {
+          id: 'stage-4',
+          title: 'Stage 4: Career Launchpad',
+          subtopics: [
+            { id: 'resume-building', title: 'Resume Building & Portfolio' },
+            { id: 'mock-interviews', title: 'Mock Interviews & Grooming' }
+          ]
+        }
+      ];
+
+  React.useEffect(() => {
+    if (courses && courses.length > 0 && !formData.stageId) {
+      const activeCourse = courses.find((c) => c.id === formData.courseId) || courses[0];
+      const activeStage = activeCourse?.topics?.[0] || stagesList[0];
+      const activeSub = activeStage?.subtopics?.[0];
+      const activeInner = courseLessons?.find(
+        (l) => l.course_id === activeCourse?.id && l.stage_id === activeStage?.id && l.module_id === activeSub?.id
+      );
+      setFormData((prev) => ({
+        ...prev,
+        courseId: prev.courseId || activeCourse?.id || '',
+        stageId: prev.stageId || activeStage?.id || '',
+        subtopicId: prev.subtopicId || activeSub?.id || '',
+        innerTopicId: prev.innerTopicId || activeInner?.id || ''
+      }));
+    }
+  }, [courses, formData.courseId]);
 
   // Calculate Overall Metrics
   const totalAssigned = projects.reduce((acc, p) => acc + (p.assignedCount || 1), 0);
@@ -196,14 +223,20 @@ export function ProjectManagementPage() {
   });
 
   const handleOpenCreateModal = () => {
+    const activeCourse = courses.find((c) => c.id === (courses[0]?.id || '')) || courses[0];
+    const activeStage = activeCourse?.topics?.[0] || stagesList[0];
+    const activeSub = activeStage?.subtopics?.[0];
+    const activeInner = courseLessons?.find(
+      (l) => l.course_id === activeCourse?.id && l.stage_id === activeStage?.id && l.module_id === activeSub?.id
+    );
     setEditingProject(null);
     setFormData({
       title: '',
       type: 'Mini',
-      courseId: courses[0]?.id || 'python',
-      stageId: 'stage-1',
-      subtopicId: 'git-github',
-      innerTopicId: 'git-arch',
+      courseId: activeCourse?.id || '',
+      stageId: activeStage?.id || '',
+      subtopicId: activeSub?.id || '',
+      innerTopicId: activeInner?.id || '',
       category: 'Full-Stack Web Dev',
       difficulty: 'Beginner',
       description: '',
@@ -221,14 +254,21 @@ export function ProjectManagementPage() {
   };
 
   const handleOpenEditModal = (proj) => {
+    const foundStage = stagesList.find((s) => s.id === proj.stageId) || stagesList[0];
+    const subtopicsOfStage = foundStage?.subtopics || [];
+    const foundSubtopic = subtopicsOfStage.find((st) => st.id === proj.subtopicId) || subtopicsOfStage[0];
+    const firstInner = courseLessons?.find(
+      (l) => l.course_id === proj.courseId && l.stage_id === foundStage?.id && l.module_id === foundSubtopic?.id
+    );
+
     setEditingProject(proj);
     setFormData({
       title: proj.title || '',
       type: proj.type || 'Mini',
-      courseId: proj.courseId || courses[0]?.id || 'python',
-      stageId: proj.stageId || 'stage-1',
-      subtopicId: proj.subtopicId || 'git-github',
-      innerTopicId: proj.innerTopicId || 'git-arch',
+      courseId: proj.courseId || courses[0]?.id || '',
+      stageId: foundStage?.id || '',
+      subtopicId: foundSubtopic?.id || '',
+      innerTopicId: proj.innerTopicId || firstInner?.id || '',
       category: proj.category || 'Module 2: Python Fundamentals',
       difficulty: proj.difficulty || 'Beginner',
       description: proj.description || '',
@@ -247,6 +287,7 @@ export function ProjectManagementPage() {
     });
     setIsCreateModalOpen(true);
   };
+
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
@@ -513,7 +554,10 @@ export function ProjectManagementPage() {
       {/* Main Content Area based on Active Tab */}
       {activeTab === 'assigned' && (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-          {filteredProjects.map((proj) => (
+          {filteredProjects.map((proj) => {
+            const lockStatus = getLessonLockStatus(proj.innerTopicId, activeBatchFilter === 'ALL' ? 'Weekday Batch' : activeBatchFilter);
+
+            return (
             <div
               key={proj.id}
               className="bg-white rounded-3xl border border-slate-200/80 shadow-2xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300 p-6 flex flex-col justify-between space-y-4"
@@ -535,6 +579,17 @@ export function ProjectManagementPage() {
                     </div>
                   </div>
                   <div className="flex flex-col items-end gap-1">
+                    {lockStatus.isLocked ? (
+                      <span className="inline-flex items-center gap-1 bg-rose-50 text-rose-700 font-bold px-2 py-0.5 rounded-lg border border-rose-200/60 text-[10px]">
+                        <Lock className="w-3 h-3 text-rose-600 flex-shrink-0" />
+                        <span>{lockStatus.label}</span>
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 font-bold px-2 py-0.5 rounded-lg border border-emerald-200/60 text-[10px]">
+                        <Unlock className="w-3 h-3 text-emerald-600 flex-shrink-0" />
+                        <span>Unlocked</span>
+                      </span>
+                    )}
                     {getTypeBadge(proj.type || 'Mini')}
                     {getDifficultyBadge(proj.difficulty)}
                   </div>
@@ -598,7 +653,8 @@ export function ProjectManagementPage() {
                 </div>
               </div>
             </div>
-          ))}
+          );
+          })}
 
           {filteredProjects.length === 0 && (
             <div className="col-span-full bg-white p-12 rounded-3xl border border-slate-200 text-center space-y-3">
@@ -777,9 +833,12 @@ export function ProjectManagementPage() {
             const currentStageObj = stagesList.find((s) => s.id === formData.stageId) || stagesList[0];
             const currentSubtopicsArr = currentStageObj?.subtopics || [];
             const currentSubtopicObj = currentSubtopicsArr.find((st) => st.id === formData.subtopicId) || currentSubtopicsArr[0];
-            const currentInnerModules = (currentSubtopicObj && Array.isArray(currentSubtopicObj.modules) && currentSubtopicObj.modules.length > 0)
-              ? currentSubtopicObj.modules
-              : [{ id: currentSubtopicObj?.id || 'all-topics', title: currentSubtopicObj?.title || 'General Overview' }];
+            const currentInnerModules = courseLessons?.filter(
+              (l) =>
+                l.course_id === formData.courseId &&
+                l.stage_id === formData.stageId &&
+                l.module_id === formData.subtopicId
+            ) || [];
 
             return (
               <div className="p-4 bg-slate-50/90 rounded-2xl border border-slate-200/80 space-y-3.5">
@@ -797,25 +856,27 @@ export function ProjectManagementPage() {
                   {/* Tier 1: Course Track */}
                   <Select
                     label="1. COURSE TRACK"
-                    value={formData.courseId || courses[0]?.id || 'python'}
+                    value={formData.courseId}
                     onChange={(e) => setFormData({ ...formData, courseId: e.target.value })}
-                    options={courses.length > 0 ? courses.map((c) => ({ value: c.id, label: c.title })) : [{ value: 'python', label: 'Python' }]}
+                    options={courses.map((c) => ({ value: c.id, label: c.title }))}
                   />
 
                   {/* Tier 2: Course Module / Stage */}
                   <Select
                     label="2. COURSE MODULE / STAGE"
-                    value={formData.stageId || stagesList[0]?.id || 'stage-1'}
+                    value={formData.stageId}
                     onChange={(e) => {
                       const newStageId = e.target.value;
                       const newStage = stagesList.find((s) => s.id === newStageId) || stagesList[0];
                       const firstSub = newStage?.subtopics?.[0];
-                      const firstInner = firstSub?.modules?.[0];
+                      const firstInner = courseLessons?.find(
+                        (l) => l.course_id === formData.courseId && l.stage_id === newStageId && l.module_id === firstSub?.id
+                      );
                       setFormData({
                         ...formData,
                         stageId: newStageId,
                         subtopicId: firstSub?.id || '',
-                        innerTopicId: firstInner?.id || firstSub?.id || ''
+                        innerTopicId: firstInner?.id || ''
                       });
                     }}
                     options={stagesList.map((stg) => ({
@@ -827,16 +888,18 @@ export function ProjectManagementPage() {
                   {/* Tier 3: Milestone Subtopic */}
                   <Select
                     label="3. MILESTONE SUBTOPIC"
-                    value={formData.subtopicId || currentSubtopicsArr[0]?.id || 'git-github'}
+                    value={formData.subtopicId}
                     onChange={(e) => {
                       const newSubId = e.target.value;
                       const targetStage = stagesList.find((s) => s.id === formData.stageId) || stagesList[0];
                       const targetSub = targetStage?.subtopics?.find((st) => st.id === newSubId) || targetStage?.subtopics?.[0];
-                      const firstInner = targetSub?.modules?.[0];
+                      const firstInner = courseLessons?.find(
+                        (l) => l.course_id === formData.courseId && l.stage_id === formData.stageId && l.module_id === newSubId
+                      );
                       setFormData({
                         ...formData,
                         subtopicId: newSubId,
-                        innerTopicId: firstInner?.id || targetSub?.id || ''
+                        innerTopicId: firstInner?.id || ''
                       });
                     }}
                     options={currentSubtopicsArr.map((sub) => ({
@@ -848,12 +911,12 @@ export function ProjectManagementPage() {
                   {/* Tier 4: Specific Inner Topic */}
                   <Select
                     label="4. SPECIFIC INNER TOPIC"
-                    value={formData.innerTopicId || currentInnerModules[0]?.id || 'git-arch'}
+                    value={formData.innerTopicId}
                     onChange={(e) => setFormData({ ...formData, innerTopicId: e.target.value })}
-                    options={currentInnerModules.map((mod) => ({
-                      value: mod.id || mod.title,
-                      label: mod.title
-                    }))}
+                    options={[
+                      { value: '', label: 'None (Module Level)' },
+                      ...currentInnerModules.map((l) => ({ value: l.id, label: l.title }))
+                    ]}
                   />
                 </div>
               </div>

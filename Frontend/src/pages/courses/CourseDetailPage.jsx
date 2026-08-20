@@ -24,13 +24,14 @@ import {
   ChevronUp,
   Calendar,
   CheckSquare,
-  Square
+  Square,
+  BookOpen
 } from 'lucide-react';
 import { INITIAL_COURSES, INITIAL_MILESTONES } from '../../utils/mockData';
 
 export function CourseDetailPage() {
   const { courseId } = useParams();
-  const { courses, updateCourse, milestones, availableBatches } = useLmsData();
+  const { courses, updateCourse, milestones, availableBatches, courseLessons, addCourseLesson, updateCourseLesson, deleteCourseLesson, getLessonsForModule, updateStageSubtopics } = useLmsData();
   const { addToast } = useToast();
 
   const course = courses.find((c) => c.id === courseId);
@@ -122,18 +123,45 @@ export function CourseDetailPage() {
   });
 
   // --- SUBTOPICS / MODULES STATE & HANDLERS ---
-  const [customSubtopics, setCustomSubtopics] = useState(() => {
-    try {
-      const saved = localStorage.getItem(`aspire_lms_course_subtopics_${courseId}`);
-      if (saved) return JSON.parse(saved);
-    } catch (e) {}
-    return {};
-  });
+
 
   const [isAddModuleModalOpen, setIsAddModuleModalOpen] = useState(false);
   const [activeStageTopicId, setActiveStageTopicId] = useState(null);
   const [editingModuleIndex, setEditingModuleIndex] = useState(null);
   const [moduleFormData, setModuleFormData] = useState({ title: '', duration: '' });
+
+  // --- LESSONS (Sub-modules inside Modules) STATE ---
+  const [expandedModuleIds, setExpandedModuleIds] = useState([]);
+  const [isAddLessonModalOpen, setIsAddLessonModalOpen] = useState(false);
+  const [activeLessonContext, setActiveLessonContext] = useState({ stageId: null, moduleId: null });
+  const [editingLesson, setEditingLesson] = useState(null);
+  const [lessonFormData, setLessonFormData] = useState({ title: '', description: '' });
+
+  // Seed mock stages to database if course has no stages in Supabase yet
+  React.useEffect(() => {
+    if (course && (!course.topics || course.topics.length === 0)) {
+      const isPythonFullStackCourse = (course.title || '').toLowerCase().includes('python full') || (course.id || '').includes('1786624019154');
+      const initialMatchingCourse = INITIAL_COURSES.find((c) => c.id === course.id);
+      
+      const defaultTopicsFromStages = milestoneStages.map((stg, i) => ({
+        id: `top-stg-${i + 1}`,
+        title: stg.title || `Stage ${i + 1}: ${stg.phaseTag || 'Curriculum Module'}`,
+        liveClasses: stg.subtopics?.reduce((acc, sub) => acc + (sub.modulesCount || 2), 0) || (i === 0 ? 31 : 20),
+        practice: stg.subtopics?.reduce((acc, sub) => acc + (sub.modulesCount || 2) * 2, 0) || (i === 0 ? 45 : 30),
+        assessments: (stg.subtopics?.length || 4) * 2
+      }));
+
+      const fallbackTopics = (initialMatchingCourse?.topics && initialMatchingCourse.topics.length > 0)
+        ? initialMatchingCourse.topics
+        : isPythonFullStackCourse
+        ? defaultTopicsFromStages
+        : [];
+      
+      if (fallbackTopics && fallbackTopics.length > 0) {
+        updateCourse(course.id, { topics: fallbackTopics });
+      }
+    }
+  }, [course, courseId]);
 
   const handleOpenAddModuleModal = (topicId) => {
     setActiveStageTopicId(topicId);
@@ -152,7 +180,7 @@ export function CourseDetailPage() {
     setIsAddModuleModalOpen(true);
   };
 
-  const handleSaveModule = (e) => {
+  const handleSaveModule = async (e) => {
     e.preventDefault();
     if (!moduleFormData.title.trim()) {
       addToast('Please enter module title', 'error');
@@ -160,9 +188,8 @@ export function CourseDetailPage() {
     }
 
     const stageKey = activeStageTopicId;
-    const matchingStageIndex = topicsToRender.findIndex((t) => t.id === stageKey);
-    const matchingStage = milestones?.stages?.[matchingStageIndex] || INITIAL_MILESTONES?.stages?.[matchingStageIndex];
-    const currentList = customSubtopics[stageKey] || matchingStage?.subtopics || [];
+    const matchingStage = topicsToRender.find((t) => t.id === stageKey);
+    const currentList = matchingStage?.subtopics || [];
 
     let updatedList;
     if (editingModuleIndex !== null) {
@@ -180,29 +207,72 @@ export function CourseDetailPage() {
       addToast(`Added module "${moduleFormData.title}" to Stage`, 'success');
     }
 
-    const nextSubtopics = { ...customSubtopics, [stageKey]: updatedList };
-    setCustomSubtopics(nextSubtopics);
-    try {
-      localStorage.setItem(`aspire_lms_course_subtopics_${courseId}`, JSON.stringify(nextSubtopics));
-    } catch (err) {}
+    await updateStageSubtopics(courseId, stageKey, updatedList);
 
     setIsAddModuleModalOpen(false);
     setEditingModuleIndex(null);
   };
 
-  const handleDeleteModule = (topicId, idx, moduleTitle) => {
-    const matchingStageIndex = topicsToRender.findIndex((t) => t.id === topicId);
-    const matchingStage = milestones?.stages?.[matchingStageIndex] || INITIAL_MILESTONES?.stages?.[matchingStageIndex];
-    const currentList = customSubtopics[topicId] || matchingStage?.subtopics || [];
+  const handleDeleteModule = async (topicId, idx, moduleTitle) => {
+    const matchingStage = topicsToRender.find((t) => t.id === topicId);
+    const currentList = matchingStage?.subtopics || [];
     const updatedList = currentList.filter((_, i) => i !== idx);
 
-    const nextSubtopics = { ...customSubtopics, [topicId]: updatedList };
-    setCustomSubtopics(nextSubtopics);
-    try {
-      localStorage.setItem(`aspire_lms_course_subtopics_${courseId}`, JSON.stringify(nextSubtopics));
-    } catch (err) {}
-
+    await updateStageSubtopics(courseId, topicId, updatedList);
     addToast(`Removed module "${moduleTitle}"`, 'info');
+  };
+
+  const toggleExpandModule = (moduleId) => {
+    setExpandedModuleIds((prev) =>
+      prev.includes(moduleId) ? prev.filter((id) => id !== moduleId) : [...prev, moduleId]
+    );
+  };
+
+  const handleOpenAddLessonModal = (stageId, moduleId) => {
+    setActiveLessonContext({ stageId, moduleId });
+    setEditingLesson(null);
+    setLessonFormData({ title: '', description: '' });
+    setIsAddLessonModalOpen(true);
+  };
+
+  const handleOpenEditLessonModal = (lesson) => {
+    setActiveLessonContext({ stageId: lesson.stage_id, moduleId: lesson.module_id });
+    setEditingLesson(lesson);
+    setLessonFormData({ title: lesson.title || '', description: lesson.description || '' });
+    setIsAddLessonModalOpen(true);
+  };
+
+  const handleSaveLesson = async (e) => {
+    e.preventDefault();
+    if (!lessonFormData.title.trim()) {
+      addToast('Please enter lesson title', 'error');
+      return;
+    }
+
+    if (editingLesson) {
+      await updateCourseLesson(editingLesson.id, {
+        title: lessonFormData.title.trim(),
+        description: lessonFormData.description.trim()
+      });
+      addToast(`Updated lesson "${lessonFormData.title}"`, 'success');
+    } else {
+      await addCourseLesson({
+        course_id: courseId,
+        stage_id: activeLessonContext.stageId,
+        module_id: activeLessonContext.moduleId,
+        title: lessonFormData.title.trim(),
+        description: lessonFormData.description.trim()
+      });
+      addToast(`Added lesson "${lessonFormData.title}"`, 'success');
+    }
+
+    setIsAddLessonModalOpen(false);
+    setEditingLesson(null);
+  };
+
+  const handleDeleteLesson = async (lessonId, lessonTitle) => {
+    await deleteCourseLesson(lessonId);
+    addToast(`Removed lesson "${lessonTitle}"`, 'info');
   };
 
   const toggleExpandTopic = (topicId) => {
@@ -545,7 +615,7 @@ export function CourseDetailPage() {
 
                   {/* Expanded Stage Modules Drawer */}
                   {isExpanded && (() => {
-                    const subtopicsList = customSubtopics[topic.id] || matchingStage?.subtopics || [];
+                    const subtopicsList = topic.subtopics || [];
 
                     return (
                       <div className="mt-5 pt-4 border-t border-slate-100 bg-slate-50/60 p-5 rounded-2xl space-y-4 animate-in fade-in slide-in-from-top-2 duration-200">
@@ -577,9 +647,13 @@ export function CourseDetailPage() {
                             {subtopicsList.map((subtopic, sIdx) => (
                               <div
                                 key={subtopic.id || sIdx}
-                                className="bg-white p-4.5 rounded-2xl border border-slate-200/80 shadow-2xs hover:border-blue-300 transition-all group/mod"
+                                className="bg-white rounded-2xl border border-slate-200/80 shadow-2xs hover:border-blue-300 transition-all group/mod overflow-hidden"
                               >
-                                <div className="flex items-start justify-between gap-3">
+                                {/* Module Header (clickable to expand) */}
+                                <div
+                                  className="flex items-start justify-between gap-3 p-4.5 cursor-pointer"
+                                  onClick={() => toggleExpandModule(subtopic.id || `mod-${topic.id}-${sIdx}`)}
+                                >
                                   <div className="flex-1">
                                     <h5 className="font-bold text-slate-900 text-sm flex items-center gap-2">
                                       <span className="w-5.5 h-5.5 rounded-lg bg-blue-100 text-blue-700 text-[11px] font-black flex items-center justify-center flex-shrink-0">
@@ -592,9 +666,29 @@ export function CourseDetailPage() {
                                         {subtopic.duration}
                                       </p>
                                     )}
+                                    {(() => {
+                                      const moduleId = subtopic.id || `mod-${topic.id}-${sIdx}`;
+                                      const lessonsList = getLessonsForModule(courseId, topic.id, moduleId);
+                                      return (
+                                        <span className="text-[11px] font-bold text-blue-600 pl-7 mt-1 inline-block">
+                                          {lessonsList.length} Lesson{lessonsList.length !== 1 ? 's' : ''} • {expandedModuleIds.includes(moduleId) ? 'Click to collapse' : 'Click to expand'}
+                                        </span>
+                                      );
+                                    })()}
                                   </div>
 
                                   <div className="flex items-center gap-1">
+                                    <button
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        toggleExpandModule(subtopic.id || `mod-${topic.id}-${sIdx}`);
+                                      }}
+                                      className="p-1.5 text-slate-400 hover:text-blue-600 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
+                                      title={expandedModuleIds.includes(subtopic.id || `mod-${topic.id}-${sIdx}`) ? 'Collapse Lessons' : 'Expand Lessons'}
+                                    >
+                                      {expandedModuleIds.includes(subtopic.id || `mod-${topic.id}-${sIdx}`) ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                                    </button>
                                     <button
                                       type="button"
                                       onClick={(e) => {
@@ -619,6 +713,87 @@ export function CourseDetailPage() {
                                     </button>
                                   </div>
                                 </div>
+
+                                {/* Expanded Lessons Drawer */}
+                                {expandedModuleIds.includes(subtopic.id || `mod-${topic.id}-${sIdx}`) && (() => {
+                                  const moduleId = subtopic.id || `mod-${topic.id}-${sIdx}`;
+                                  const lessonsList = getLessonsForModule(courseId, topic.id, moduleId);
+
+                                  return (
+                                    <div className="border-t border-slate-100 bg-slate-50/40 p-4 space-y-3 animate-in fade-in slide-in-from-top-1 duration-200">
+                                      <div className="flex items-center justify-between">
+                                        <span className="text-[11px] font-black uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
+                                          <BookOpen className="w-3.5 h-3.5 text-purple-600" /> Lessons / Sub-modules
+                                        </span>
+                                        <button
+                                          type="button"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleOpenAddLessonModal(topic.id, moduleId);
+                                          }}
+                                          className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-bold text-purple-700 bg-purple-50 border border-purple-200 rounded-xl hover:bg-purple-100 transition-colors cursor-pointer"
+                                        >
+                                          <Plus className="w-3 h-3" /> Add Lesson
+                                        </button>
+                                      </div>
+
+                                      {lessonsList.length > 0 ? (
+                                        <div className="space-y-2">
+                                          {lessonsList.map((lesson, lIdx) => (
+                                            <div
+                                              key={lesson.id}
+                                              className="bg-white p-3.5 rounded-xl border border-slate-200/80 shadow-2xs hover:border-purple-300 transition-all group/lesson"
+                                            >
+                                              <div className="flex items-start justify-between gap-3">
+                                                <div className="flex-1">
+                                                  <h6 className="font-semibold text-slate-800 text-[13px] flex items-center gap-2">
+                                                    <span className="w-5 h-5 rounded-md bg-purple-100 text-purple-700 text-[10px] font-black flex items-center justify-center flex-shrink-0">
+                                                      {lIdx + 1}
+                                                    </span>
+                                                    {lesson.title}
+                                                  </h6>
+                                                  {lesson.description && (
+                                                    <p className="text-[11px] text-slate-500 mt-1 font-medium pl-7 leading-relaxed">
+                                                      {lesson.description}
+                                                    </p>
+                                                  )}
+                                                </div>
+                                                <div className="flex items-center gap-1 opacity-0 group-hover/lesson:opacity-100 transition-opacity">
+                                                  <button
+                                                    type="button"
+                                                    onClick={(e) => {
+                                                      e.stopPropagation();
+                                                      handleOpenEditLessonModal(lesson);
+                                                    }}
+                                                    className="p-1 text-slate-400 hover:text-purple-600 rounded-md hover:bg-slate-100 transition-colors cursor-pointer"
+                                                    title="Edit Lesson"
+                                                  >
+                                                    <Edit2 className="w-3 h-3" />
+                                                  </button>
+                                                  <button
+                                                    type="button"
+                                                    onClick={(e) => {
+                                                      e.stopPropagation();
+                                                      handleDeleteLesson(lesson.id, lesson.title);
+                                                    }}
+                                                    className="p-1 text-slate-400 hover:text-rose-600 rounded-md hover:bg-slate-100 transition-colors cursor-pointer"
+                                                    title="Delete Lesson"
+                                                  >
+                                                    <Trash2 className="w-3 h-3" />
+                                                  </button>
+                                                </div>
+                                              </div>
+                                            </div>
+                                          ))}
+                                        </div>
+                                      ) : (
+                                        <div className="bg-white p-4 rounded-xl border border-dashed border-slate-300 text-center">
+                                          <p className="text-[11px] font-semibold text-slate-400">No lessons added yet. Click "Add Lesson" to create sub-modules.</p>
+                                        </div>
+                                      )}
+                                    </div>
+                                  );
+                                })()}
                               </div>
                             ))}
                           </div>
@@ -763,6 +938,56 @@ export function CourseDetailPage() {
             </Button>
             <Button type="submit" variant="primary">
               {editingModuleIndex !== null ? 'Save Module' : 'Add Module'}
+            </Button>
+          </div>
+        </form>
+      </Modal>
+
+      {/* Add / Edit Lesson Inside Module Modal */}
+      <Modal
+        isOpen={isAddLessonModalOpen}
+        onClose={() => {
+          setIsAddLessonModalOpen(false);
+          setEditingLesson(null);
+        }}
+        title={editingLesson ? 'Edit Lesson / Sub-module' : 'Add New Lesson to Module'}
+        subtitle="Define the lesson title and description for this sub-module"
+      >
+        <form onSubmit={handleSaveLesson} className="space-y-4">
+          <Input
+            label="Lesson Title"
+            placeholder="e.g. Git Architecture & Version Control Concepts"
+            value={lessonFormData.title}
+            onChange={(e) => setLessonFormData({ ...lessonFormData, title: e.target.value })}
+            required
+          />
+
+          <div className="flex flex-col gap-1.5">
+            <label className="text-[11px] font-extrabold text-slate-700 tracking-wider uppercase">
+              Description / Topics Covered
+            </label>
+            <textarea
+              rows={3}
+              placeholder="e.g. Understanding distributed version control, repository structure, .git internals, HEAD pointers"
+              value={lessonFormData.description}
+              onChange={(e) => setLessonFormData({ ...lessonFormData, description: e.target.value })}
+              className="w-full px-3.5 py-2.5 bg-slate-50/60 hover:bg-white border border-slate-200 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-4 focus:ring-purple-500/10 focus:border-purple-500 transition-all shadow-2xs"
+            />
+          </div>
+
+          <div className="flex justify-end gap-3 pt-4 border-t border-slate-100">
+            <Button
+              variant="outline"
+              type="button"
+              onClick={() => {
+                setIsAddLessonModalOpen(false);
+                setEditingLesson(null);
+              }}
+            >
+              Cancel
+            </Button>
+            <Button type="submit" variant="primary">
+              {editingLesson ? 'Save Lesson' : 'Add Lesson'}
             </Button>
           </div>
         </form>

@@ -15,7 +15,7 @@ export function Button({
 
   const variants = {
     primary: 'bg-blue-600 hover:bg-blue-700 text-white shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/30 focus:ring-blue-500 hover:-translate-y-0.5',
-    gradient: 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/35 focus:ring-blue-500 hover:-translate-y-0.5',
+    gradient: 'bg-linear-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/35 focus:ring-blue-500 hover:-translate-y-0.5',
     secondary: 'bg-slate-100 hover:bg-slate-200/80 text-slate-700 focus:ring-slate-400 hover:text-slate-900',
     outline: 'border border-slate-200 bg-white hover:bg-slate-50/80 text-slate-700 hover:border-blue-300 hover:text-blue-600 focus:ring-blue-400 shadow-2xs',
     danger: 'bg-rose-600 hover:bg-rose-700 text-white shadow-md shadow-rose-500/20 hover:shadow-lg hover:shadow-rose-500/30 focus:ring-rose-500 hover:-translate-y-0.5',

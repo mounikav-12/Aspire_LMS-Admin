@@ -381,6 +381,8 @@ app.get('/api/v1/student-feed', async (req, res) => {
     const { data: jobs } = await supabase.from('jobs').select('*');
     const { data: projects } = await supabase.from('projects').select('*');
     const { data: milestonesData } = await supabase.from('milestones_data').select('*');
+    const { data: lessons } = await supabase.from('course_lessons').select('*');
+    const { data: locks } = await supabase.from('milestone_locks').select('*');
 
     res.json({
       status: 'Connected & Syncing',
@@ -388,6 +390,8 @@ app.get('/api/v1/student-feed', async (req, res) => {
       lastSynced: new Date().toISOString(),
       feedPayload: {
         milestones: milestonesData || [],
+        courseLessons: lessons || [],
+        milestoneLocks: locks || [],
         courses: courses || [],
         dailySchedule: [],
         projects: projects || [],

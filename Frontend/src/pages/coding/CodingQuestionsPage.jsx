@@ -23,11 +23,13 @@ import {
   Terminal,
   HelpCircle,
   Copy,
-  Check
+  Check,
+  Lock,
+  Unlock
 } from 'lucide-react';
 
 export function CodingQuestionsPage() {
-  const { codingQuestions, courses, addCodingQuestion, updateCodingQuestion, deleteCodingQuestion, activeBatchFilter, setActiveBatchFilter } = useLmsData();
+  const { codingQuestions, courses, courseLessons, addCodingQuestion, updateCodingQuestion, deleteCodingQuestion, activeBatchFilter, setActiveBatchFilter, getLessonLockStatus } = useLmsData();
   const { addToast } = useToast();
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -48,6 +50,9 @@ export function CodingQuestionsPage() {
     timeLimitMinutes: 15,
     language: 'JavaScript',
     courseId: courses[0]?.id || '',
+    stageId: '',
+    subtopicId: '',
+    innerTopicId: '',
     tags: 'Arrays, HashMap, LeetCode',
     problemStatement: '',
     inputFormat: '',
@@ -62,6 +67,36 @@ export function CodingQuestionsPage() {
       }
     ]
   });
+
+  const selectedCourseObj = courses.find((c) => c.id === formData.courseId) || courses[0];
+  const stagesList = selectedCourseObj?.topics || [];
+  const currentStageObj = stagesList.find((s) => s.id === formData.stageId) || stagesList[0];
+  const currentSubtopicsArr = currentStageObj?.subtopics || [];
+  const currentSubtopicObj = currentSubtopicsArr.find((st) => st.id === formData.subtopicId) || currentSubtopicsArr[0];
+  const currentInnerTopicsArr = courseLessons?.filter(
+    (l) =>
+      l.course_id === formData.courseId &&
+      l.stage_id === formData.stageId &&
+      l.module_id === formData.subtopicId
+  ) || [];
+
+  React.useEffect(() => {
+    if (courses && courses.length > 0 && !formData.stageId) {
+      const activeCourse = courses.find((c) => c.id === formData.courseId) || courses[0];
+      const activeStage = activeCourse?.topics?.[0];
+      const activeSub = activeStage?.subtopics?.[0];
+      const activeInner = courseLessons?.find(
+        (l) => l.course_id === activeCourse?.id && l.stage_id === activeStage?.id && l.module_id === activeSub?.id
+      );
+      setFormData((prev) => ({
+        ...prev,
+        courseId: prev.courseId || activeCourse?.id || '',
+        stageId: prev.stageId || activeStage?.id || '',
+        subtopicId: prev.subtopicId || activeSub?.id || '',
+        innerTopicId: prev.innerTopicId || activeInner?.id || ''
+      }));
+    }
+  }, [courses, formData.courseId]);
 
   // Calculate stats
   const totalQuestionsCount = codingQuestions.length;
@@ -84,6 +119,13 @@ export function CodingQuestionsPage() {
   });
 
   const handleOpenAddModal = () => {
+    const activeCourse = courses.find((c) => c.id === (courses[0]?.id || '')) || courses[0];
+    const activeStage = activeCourse?.topics?.[0];
+    const activeSub = activeStage?.subtopics?.[0];
+    const activeInner = courseLessons?.find(
+      (l) => l.course_id === activeCourse?.id && l.stage_id === activeStage?.id && l.module_id === activeSub?.id
+    );
+
     setEditingQuestion(null);
     setFormData({
       title: '',
@@ -92,7 +134,10 @@ export function CodingQuestionsPage() {
       marks: 20,
       timeLimitMinutes: 15,
       language: 'JavaScript',
-      courseId: courses[0]?.id || '',
+      courseId: activeCourse?.id || '',
+      stageId: activeStage?.id || '',
+      subtopicId: activeSub?.id || '',
+      innerTopicId: activeInner?.id || '',
       tags: 'Arrays, HashMap',
       problemStatement: '',
       inputFormat: '',
@@ -120,6 +165,9 @@ export function CodingQuestionsPage() {
       timeLimitMinutes: cq.timeLimitMinutes || 15,
       language: cq.language || 'JavaScript',
       courseId: cq.courseId || '',
+      stageId: cq.stageId || '',
+      subtopicId: cq.subtopicId || '',
+      innerTopicId: cq.innerTopicId || '',
       tags: Array.isArray(cq.tags) ? cq.tags.join(', ') : cq.tags || '',
       problemStatement: cq.problemStatement,
       inputFormat: cq.inputFormat || '',
@@ -176,6 +224,9 @@ export function CodingQuestionsPage() {
       timeLimitMinutes: parseInt(formData.timeLimitMinutes) || 15,
       language: formData.language,
       courseId: formData.courseId,
+      stageId: formData.stageId,
+      subtopicId: formData.subtopicId,
+      innerTopicId: formData.innerTopicId,
       tags: tagsArray,
       problemStatement: formData.problemStatement,
       inputFormat: formData.inputFormat,
@@ -356,23 +407,37 @@ export function CodingQuestionsPage() {
 
       {/* Question Cards List */}
       <div className="space-y-4">
-        {filteredQuestions.map((cq) => (
-          <div
-            key={cq.id}
-            className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-2xs hover:shadow-md transition-all space-y-4"
-          >
-            <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
-              <div className="space-y-1">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <h3 className="font-bold text-slate-900 text-lg leading-snug">{cq.title}</h3>
-                  {getDifficultyBadge(cq.difficulty)}
-                  <span className="px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-blue-50 text-blue-700 border border-blue-100">
-                    {cq.language}
-                  </span>
-                  <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-100 text-slate-700">
-                    {cq.marks} Marks
-                  </span>
-                </div>
+        {filteredQuestions.map((cq) => {
+          const lockStatus = getLessonLockStatus(cq.innerTopicId || cq.subtopicId, activeBatchFilter === 'ALL' ? 'Weekday Batch' : activeBatchFilter);
+
+          return (
+            <div
+              key={cq.id}
+              className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-2xs hover:shadow-md transition-all space-y-4"
+            >
+              <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h3 className="font-bold text-slate-900 text-lg leading-snug">{cq.title}</h3>
+                    {lockStatus.isLocked ? (
+                      <span className="inline-flex items-center gap-1 bg-rose-50 text-rose-700 font-bold px-2 py-0.5 rounded-lg border border-rose-200/60 text-[10px]">
+                        <Lock className="w-3 h-3 text-rose-600 flex-shrink-0" />
+                        <span>{lockStatus.label}</span>
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 font-bold px-2 py-0.5 rounded-lg border border-emerald-200/60 text-[10px]">
+                        <Unlock className="w-3 h-3 text-emerald-600 flex-shrink-0" />
+                        <span>Unlocked</span>
+                      </span>
+                    )}
+                    {getDifficultyBadge(cq.difficulty)}
+                    <span className="px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-blue-50 text-blue-700 border border-blue-100">
+                      {cq.language}
+                    </span>
+                    <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-100 text-slate-700">
+                      {cq.marks} Marks
+                    </span>
+                  </div>
                 <p className="text-xs text-slate-500 font-medium flex items-center gap-2">
                   <span>{cq.category}</span>
                   <span>•</span>
@@ -430,7 +495,8 @@ export function CodingQuestionsPage() {
               )}
             </div>
           </div>
-        ))}
+        );
+        })}
 
         {filteredQuestions.length === 0 && (
           <div className="bg-white p-12 rounded-3xl border border-slate-200 text-center space-y-3">
@@ -460,6 +526,63 @@ export function CodingQuestionsPage() {
             onChange={(e) => setFormData({ ...formData, title: e.target.value })}
             required
           />
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <Select
+              label="1. Course Track"
+              value={formData.courseId}
+              onChange={(e) => setFormData({ ...formData, courseId: e.target.value })}
+              options={courses.map((c) => ({ value: c.id, label: c.title }))}
+            />
+            <Select
+              label="2. Course Module / Stage"
+              value={formData.stageId}
+              onChange={(e) => {
+                const newStageId = e.target.value;
+                const newStage = stagesList.find((s) => s.id === newStageId) || stagesList[0];
+                const firstSub = newStage?.subtopics?.[0];
+                const firstInner = courseLessons?.find(l => l.course_id === formData.courseId && l.stage_id === newStageId && l.module_id === firstSub?.id);
+                setFormData({
+                  ...formData,
+                  stageId: newStageId,
+                  subtopicId: firstSub?.id || '',
+                  innerTopicId: firstInner?.id || ''
+                });
+              }}
+              options={stagesList.map((stg) => ({
+                value: stg.id,
+                label: stg.title
+              }))}
+            />
+            <Select
+              label="3. Milestone Subtopic"
+              value={formData.subtopicId}
+              onChange={(e) => {
+                const newSubId = e.target.value;
+                const targetStage = stagesList.find((s) => s.id === formData.stageId) || stagesList[0];
+                const targetSub = targetStage?.subtopics?.find((st) => st.id === newSubId) || targetStage?.subtopics?.[0];
+                const firstInner = courseLessons?.find(l => l.course_id === formData.courseId && l.stage_id === formData.stageId && l.module_id === newSubId);
+                setFormData({
+                  ...formData,
+                  subtopicId: newSubId,
+                  innerTopicId: firstInner?.id || ''
+                });
+              }}
+              options={currentSubtopicsArr.map((sub) => ({
+                value: sub.id,
+                label: sub.title
+              }))}
+            />
+            <Select
+              label="4. Specific Lesson (Optional)"
+              value={formData.innerTopicId}
+              onChange={(e) => setFormData({ ...formData, innerTopicId: e.target.value })}
+              options={[
+                { value: '', label: 'None (Module Level)' },
+                ...currentInnerTopicsArr.map((l) => ({ value: l.id, label: l.title }))
+              ]}
+            />
+          </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <Select
