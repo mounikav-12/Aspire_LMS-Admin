@@ -1053,14 +1053,6 @@ export function MilestonesRoadmapPage() {
                 <option key={c.id} value={c.id}>{c.title}</option>
               ))}
             </select>
-
-            <button
-              onClick={() => handleOpenStageModal(null)}
-              className="px-3.5 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-md shadow-purple-600/25 transition-all cursor-pointer"
-            >
-              <Plus className="w-3.5 h-3.5" />
-              <span>Add Stage</span>
-            </button>
           </div>
         </div>
 
@@ -1068,6 +1060,7 @@ export function MilestonesRoadmapPage() {
         <BatchFilterSelector
           activeBatch={selectedBatch}
           onSelectBatch={setSelectedBatch}
+          showNewBatch={false}
         />
       </div>
 

@@ -5,7 +5,7 @@ import { Modal } from './Modal';
 import { Input, Select } from './Input';
 import { Button } from './Button';
 
-export function BatchFilterSelector({ activeBatch, onSelectBatch, className = '' }) {
+export function BatchFilterSelector({ activeBatch, onSelectBatch, showNewBatch = true, className = '' }) {
   const { availableBatches = [], addBatch } = useLmsData();
 
   const currentBatch = activeBatch || 'ALL';
@@ -138,15 +138,17 @@ export function BatchFilterSelector({ activeBatch, onSelectBatch, className = ''
       </div>
 
       {/* Add New Batch Button */}
-      <button
-        type="button"
-        onClick={() => setIsAddModalOpen(true)}
-        className="px-3 py-2 rounded-xl text-xs font-bold text-slate-700 hover:text-blue-600 bg-white hover:bg-blue-50/60 border border-dashed border-slate-300 hover:border-blue-400 transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs"
-        title="Create a new batch code"
-      >
-        <Plus className="w-3.5 h-3.5 text-blue-600" />
-        <span>New Batch</span>
-      </button>
+      {showNewBatch && (
+        <button
+          type="button"
+          onClick={() => setIsAddModalOpen(true)}
+          className="px-3 py-2 rounded-xl text-xs font-bold text-slate-700 hover:text-blue-600 bg-white hover:bg-blue-50/60 border border-dashed border-slate-300 hover:border-blue-400 transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs"
+          title="Create a new batch code"
+        >
+          <Plus className="w-3.5 h-3.5 text-blue-600" />
+          <span>New Batch</span>
+        </button>
+      )}
 
       {/* Add Batch Modal */}
       <Modal
