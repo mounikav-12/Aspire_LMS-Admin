@@ -27,10 +27,50 @@ import {
   Square
 } from 'lucide-react';
 
+const DEFAULT_STAGES = [
+  {
+    id: 'stage-1',
+    title: 'Stage 1: Front End + Repository',
+    subtopics: [
+      { id: 'git-github', title: 'Git & GitHub Version Control', modules: [{ id: 'mod-1', title: 'Git Staging & Remotes' }] },
+      { id: 'html5', title: 'HTML5 & Semantic Structure', modules: [{ id: 'mod-2', title: 'Semantic Tags & Accessibility' }] },
+      { id: 'css3-basics', title: 'CSS3 Fundamentals & Layouts', modules: [{ id: 'mod-3', title: 'Flexbox & Grid Systems' }] },
+      { id: 'js-essentials', title: 'JavaScript Essentials', modules: [{ id: 'mod-4', title: 'ES6+ Syntax & DOM Manipulation' }] }
+    ]
+  },
+  {
+    id: 'stage-2',
+    title: 'Stage 2: Backend + DSA',
+    subtopics: [
+      { id: 'nodejs', title: 'Node.js & Express API', modules: [{ id: 'mod-5', title: 'REST Endpoints & Middleware' }] },
+      { id: 'postgres', title: 'PostgreSQL & Database Design', modules: [{ id: 'mod-6', title: 'SQL Queries & Indexing' }] },
+      { id: 'dsa-arrays', title: 'DSA: Arrays & Strings', modules: [{ id: 'mod-7', title: 'Two Pointers & Sliding Window' }] },
+      { id: 'dsa-trees', title: 'DSA: Trees & Graphs', modules: [{ id: 'mod-8', title: 'BFS & DFS Traversals' }] }
+    ]
+  },
+  {
+    id: 'stage-3',
+    title: 'Stage 3: AI',
+    subtopics: [
+      { id: 'ml-foundations', title: 'Machine Learning Foundations', modules: [{ id: 'mod-9', title: 'Supervised Learning & Regression' }] },
+      { id: 'deep-learning', title: 'Deep Learning & Neural Networks', modules: [{ id: 'mod-10', title: 'PyTorch Model Architecture' }] },
+      { id: 'generative-ai', title: 'Generative AI & LLMs', modules: [{ id: 'mod-11', title: 'RAG Systems & Prompting' }] }
+    ]
+  },
+  {
+    id: 'stage-4',
+    title: 'Stage 4: Career Launchpad',
+    subtopics: [
+      { id: 'resume-building', title: 'Resume Building & Portfolio', modules: [{ id: 'mod-12', title: 'GitHub Portfolio Setup' }] },
+      { id: 'mock-interviews', title: 'Mock Interviews & Grooming', modules: [{ id: 'mod-13', title: 'Technical Interview Practice' }] }
+    ]
+  }
+];
+
 export function LiveSessionListPage() {
   const {
-    liveSessions,
     courses = [],
+    liveSessions = [],
     addLiveSession,
     updateLiveSession,
     deleteLiveSession,
@@ -42,7 +82,32 @@ export function LiveSessionListPage() {
   } = useLmsData();
   const { addToast } = useToast();
 
-  const stagesList = milestones?.stages || [];
+  const [formData, setFormData] = useState({
+    programName: 'Senior Engineering Cohort',
+    technology: 'Git',
+    sessionTitle: '',
+    date: new Date().toISOString().split('T')[0],
+    time: '10:00 - 11:30 AM',
+    meetingLink: 'https://meet.google.com/aspire-lms-live',
+    instructor: 'Sara Devi',
+    description: '',
+    courseId: courses[0]?.id || '',
+    courseName: courses[0]?.title || '',
+    stageId: '',
+    stageName: '',
+    subtopicId: '',
+    subtopicName: '',
+    moduleId: '',
+    moduleName: ''
+  });
+
+  const selectedCourseObj = courses.find((c) => c.id === formData.courseId) || courses[0];
+  const stagesList =
+    selectedCourseObj?.topics && selectedCourseObj.topics.length > 0
+      ? selectedCourseObj.topics
+      : milestones?.stages && milestones.stages.length > 0
+      ? milestones.stages
+      : DEFAULT_STAGES;
 
   const allWeekdayBatchesList = (
     availableBatches && availableBatches.length > 0
@@ -70,26 +135,6 @@ export function LiveSessionListPage() {
   const [batchActiveTab, setBatchActiveTab] = useState('Weekdays'); // 'Weekdays' | 'Weekends'
   const [selectedWeekdayBatches, setSelectedWeekdayBatches] = useState(allWeekdayBatchesList);
   const [selectedWeekendBatches, setSelectedWeekendBatches] = useState(allWeekendBatchesList);
-
-  // Form State
-  const [formData, setFormData] = useState({
-    programName: 'Senior Engineering Cohort',
-    technology: 'Git',
-    sessionTitle: '',
-    date: new Date().toISOString().split('T')[0],
-    time: '10:00 - 11:30 AM',
-    meetingLink: 'https://meet.google.com/aspire-lms-live',
-    instructor: 'Sara Devi',
-    description: '',
-    courseId: courses[0]?.id || '',
-    courseName: courses[0]?.title || '',
-    stageId: stagesList[0]?.id || '',
-    stageName: stagesList[0]?.title || '',
-    subtopicId: stagesList[0]?.subtopics?.[0]?.id || '',
-    subtopicName: stagesList[0]?.subtopics?.[0]?.title || '',
-    moduleId: stagesList[0]?.subtopics?.[0]?.modules?.[0]?.id || '',
-    moduleName: stagesList[0]?.subtopics?.[0]?.modules?.[0]?.title || ''
-  });
 
   const handleOpenAddModal = () => {
     const firstStage = stagesList[0];
@@ -477,11 +522,26 @@ export function LiveSessionListPage() {
                       label="1. Course Track"
                       value={formData.courseId}
                       onChange={(e) => {
-                        const selectedC = courses.find((c) => c.id === e.target.value);
+                        const newCourseId = e.target.value;
+                        const selectedC = courses.find((c) => c.id === newCourseId);
+                        const newStages = selectedC?.topics && selectedC.topics.length > 0
+                          ? selectedC.topics
+                          : milestones?.stages && milestones.stages.length > 0
+                          ? milestones.stages
+                          : DEFAULT_STAGES;
+                        const firstStage = newStages[0];
+                        const firstSub = firstStage?.subtopics?.[0];
+                        const firstMod = firstSub?.modules?.[0];
                         setFormData({
                           ...formData,
-                          courseId: e.target.value,
-                          courseName: selectedC?.title || ''
+                          courseId: newCourseId,
+                          courseName: selectedC?.title || '',
+                          stageId: firstStage?.id || '',
+                          stageName: firstStage?.title || '',
+                          subtopicId: firstSub?.id || '',
+                          subtopicName: firstSub?.title || '',
+                          moduleId: firstMod?.id || '',
+                          moduleName: firstMod?.title || ''
                         });
                       }}
                       options={courses.map((c) => ({ value: c.id, label: c.title }))}
@@ -492,7 +552,7 @@ export function LiveSessionListPage() {
                   <div className="bg-white/95 p-2.5 sm:p-3 rounded-xl border border-purple-100/90 shadow-2xs">
                     <Select
                       label="2. Course Module / Stage"
-                      value={formData.stageId}
+                      value={formData.stageId || currentStageObj?.id || ''}
                       onChange={(e) => {
                         const newStageId = e.target.value;
                         const newStage = stagesList.find((s) => s.id === newStageId) || stagesList[0];
@@ -519,10 +579,10 @@ export function LiveSessionListPage() {
                   <div className="bg-white/95 p-2.5 sm:p-3 rounded-xl border border-purple-100/90 shadow-2xs">
                     <Select
                       label="3. Milestone Subtopic"
-                      value={formData.subtopicId}
+                      value={formData.subtopicId || currentSubtopicObj?.id || ''}
                       onChange={(e) => {
                         const newSubId = e.target.value;
-                        const targetStage = stagesList.find((s) => s.id === formData.stageId) || stagesList[0];
+                        const targetStage = stagesList.find((s) => s.id === (formData.stageId || currentStageObj?.id)) || stagesList[0];
                         const targetSub = targetStage?.subtopics?.find((st) => st.id === newSubId) || targetStage?.subtopics?.[0];
                         const firstMod = targetSub?.modules?.[0];
                         setFormData({

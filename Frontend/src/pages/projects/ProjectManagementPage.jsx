@@ -6,6 +6,7 @@ import { EmptyState } from '../../components/common/EmptyState';
 import { Button } from '../../components/common/Button';
 import { Input, Select } from '../../components/common/Input';
 import { Modal } from '../../components/common/Modal';
+import { BatchMultiSelectDropdown } from '../../components/common/BatchMultiSelectDropdown';
 import { ConfirmDialog } from '../../components/common/ConfirmDialog';
 import {
   FolderGit2,
@@ -1248,121 +1249,24 @@ export function ProjectManagementPage() {
       >
         {viewingBatchesProject && (
           <div className="space-y-5 pt-2">
-            {/* Weekday / Weekend Tabs with Counts */}
-            <div className="flex items-center gap-3">
-              <button
-                type="button"
-                onClick={() => setEyeActiveTab('Weekdays')}
-                className={`flex items-center gap-2 px-5 py-2.5 rounded-2xl text-xs font-black transition-all cursor-pointer ${
-                  eyeActiveTab === 'Weekdays'
-                    ? 'bg-purple-600 text-white shadow-md shadow-purple-500/30'
-                    : 'bg-slate-100 hover:bg-slate-200/80 text-slate-700'
-                }`}
-              >
-                <Calendar className="w-4 h-4" />
-                <span>Weekday Batches</span>
-                <span className={`px-2 py-0.5 rounded-full text-[11px] font-black ${
-                  eyeActiveTab === 'Weekdays' ? 'bg-purple-700 text-white' : 'bg-slate-200 text-slate-700'
-                }`}>
-                  {selectedWeekdayBatches.length}
-                </span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setEyeActiveTab('Weekends')}
-                className={`flex items-center gap-2 px-5 py-2.5 rounded-2xl text-xs font-black transition-all cursor-pointer ${
-                  eyeActiveTab === 'Weekends'
-                    ? 'bg-purple-600 text-white shadow-md shadow-purple-500/30'
-                    : 'bg-slate-100 hover:bg-slate-200/80 text-slate-700'
-                }`}
-              >
-                <Calendar className="w-4 h-4" />
-                <span>Weekend Batches</span>
-                <span className={`px-2 py-0.5 rounded-full text-[11px] font-black ${
-                  eyeActiveTab === 'Weekends' ? 'bg-purple-700 text-white' : 'bg-slate-200 text-slate-700'
-                }`}>
-                  {selectedWeekendBatches.length}
-                </span>
-              </button>
+            <div className="py-2">
+              <BatchMultiSelectDropdown
+                selectedWeekdayBatches={selectedWeekdayBatches}
+                selectedWeekendBatches={selectedWeekendBatches}
+                onChangeWeekdayBatches={(nextWd) => {
+                  setSelectedWeekdayBatches(nextWd);
+                  if (viewingBatchesProject) {
+                    try { localStorage.setItem(`aspire_lms_proj_wd_${viewingBatchesProject.id}`, JSON.stringify(nextWd)); } catch (e) {}
+                  }
+                }}
+                onChangeWeekendBatches={(nextWe) => {
+                  setSelectedWeekendBatches(nextWe);
+                  if (viewingBatchesProject) {
+                    try { localStorage.setItem(`aspire_lms_proj_we_${viewingBatchesProject.id}`, JSON.stringify(nextWe)); } catch (e) {}
+                  }
+                }}
+              />
             </div>
-
-            {/* Checkboxes List */}
-            {eyeActiveTab === 'Weekdays' ? (
-              <div className="space-y-3">
-                <p className="text-xs text-slate-600 font-semibold">
-                  Check or uncheck Weekday batch numbers for this project:
-                </p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {((availableBatches && availableBatches.length > 0 ? availableBatches : ['A26W1', 'A26W2', 'A26W3']).filter(b => b.startsWith('A26W') && !b.startsWith('A26S') && !b.startsWith('A26WE'))).map((bCode) => {
-                    const isSelected = selectedWeekdayBatches.includes(bCode);
-                    return (
-                      <div
-                        key={bCode}
-                        onClick={() => {
-                          setSelectedWeekdayBatches((prev) => {
-                            const next = prev.includes(bCode) ? prev.filter((b) => b !== bCode) : [...prev, bCode];
-                            if (viewingBatchesProject) {
-                              try { localStorage.setItem(`aspire_lms_proj_wd_${viewingBatchesProject.id}`, JSON.stringify(next)); } catch (e) {}
-                            }
-                            return next;
-                          });
-                        }}
-                        className={`flex items-center gap-3.5 p-3.5 rounded-2xl border transition-all cursor-pointer select-none ${
-                          isSelected
-                            ? 'bg-purple-50/80 border-2 border-purple-400 text-purple-950 font-extrabold shadow-2xs'
-                            : 'bg-slate-50 border-slate-200 hover:bg-white text-slate-700 font-bold'
-                        }`}
-                      >
-                        {isSelected ? (
-                          <CheckSquare className="w-5 h-5 text-purple-600 flex-shrink-0" />
-                        ) : (
-                          <Square className="w-5 h-5 text-slate-400 flex-shrink-0" />
-                        )}
-                        <span className="text-xs font-black tracking-wide">{bCode}</span>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                <p className="text-xs text-slate-600 font-semibold">
-                  Check or uncheck Weekend batch numbers for this project:
-                </p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {['A26S1', 'A26S2', 'A26S3', 'A26S4'].map((bCode) => {
-                    const isSelected = selectedWeekendBatches.includes(bCode);
-                    return (
-                      <div
-                        key={bCode}
-                        onClick={() => {
-                          setSelectedWeekendBatches((prev) => {
-                            const next = prev.includes(bCode) ? prev.filter((b) => b !== bCode) : [...prev, bCode];
-                            if (viewingBatchesProject) {
-                              try { localStorage.setItem(`aspire_lms_proj_we_${viewingBatchesProject.id}`, JSON.stringify(next)); } catch (e) {}
-                            }
-                            return next;
-                          });
-                        }}
-                        className={`flex items-center gap-3.5 p-3.5 rounded-2xl border transition-all cursor-pointer select-none ${
-                          isSelected
-                            ? 'bg-purple-50/80 border-2 border-purple-400 text-purple-950 font-extrabold shadow-2xs'
-                            : 'bg-slate-50 border-slate-200 hover:bg-white text-slate-700 font-bold'
-                        }`}
-                      >
-                        {isSelected ? (
-                          <CheckSquare className="w-5 h-5 text-purple-600 flex-shrink-0" />
-                        ) : (
-                          <Square className="w-5 h-5 text-slate-400 flex-shrink-0" />
-                        )}
-                        <span className="text-xs font-black tracking-wide">{bCode}</span>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
 
             {/* Modal Footer */}
             <div className="flex justify-end pt-4 border-t border-slate-100">

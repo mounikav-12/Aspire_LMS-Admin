@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLmsData } from '../../context/LmsDataContext';
-import { Plus, Layers, Filter } from 'lucide-react';
+import { Plus, Layers, Filter, ChevronDown } from 'lucide-react';
 import { Modal } from './Modal';
 import { Input, Select } from './Input';
 import { Button } from './Button';
@@ -41,18 +41,18 @@ export function BatchFilterSelector({ activeBatch, onSelectBatch, showNewBatch =
     if (categoryTab === 'WEEKDAY') {
       return [
         { value: 'ALL', label: 'All Weekday Batches' },
-        ...weekdayBatches.map((b) => ({ value: b, label: `Batch ${b}` }))
+        ...weekdayBatches.map((b) => ({ value: b, label: b }))
       ];
     }
     if (categoryTab === 'WEEKEND') {
       return [
         { value: 'ALL', label: 'All Weekend Batches' },
-        ...weekendBatches.map((b) => ({ value: b, label: `Batch ${b}` }))
+        ...weekendBatches.map((b) => ({ value: b, label: b }))
       ];
     }
     return [
       { value: 'ALL', label: 'All Batches' },
-      ...availableBatches.map((b) => ({ value: b, label: `Batch ${b}` }))
+      ...availableBatches.map((b) => ({ value: b, label: b }))
     ];
   };
 
@@ -100,41 +100,47 @@ export function BatchFilterSelector({ activeBatch, onSelectBatch, showNewBatch =
   const relatedOptions = getRelatedBatchOptions();
 
   return (
-    <div className={`flex flex-wrap items-center gap-3 ${className}`}>
+    <div className={`flex items-center gap-3 ${className}`}>
       {/* Dropdown 1: Category Filter (All Batches, Weekday, Weekend) */}
       <div className="flex items-center gap-2">
-        <label className="text-xs font-bold text-slate-600 flex items-center gap-1.5">
+        <label className="text-xs font-bold text-slate-600 flex items-center gap-1.5 flex-shrink-0">
           <Filter className="w-3.5 h-3.5 text-purple-600" />
           <span>Category:</span>
         </label>
-        <select
-          value={categoryTab}
-          onChange={handleCategoryChange}
-          className="px-3 py-2 bg-slate-50 border border-slate-200 hover:border-slate-300 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:border-purple-600 focus:bg-white shadow-2xs cursor-pointer transition-all"
-        >
-          <option value="ALL">All Categories</option>
-          <option value="WEEKDAY">Weekday (A26W)</option>
-          <option value="WEEKEND">Weekend (A26S)</option>
-        </select>
+        <div className="relative">
+          <select
+            value={categoryTab}
+            onChange={handleCategoryChange}
+            className="px-3.5 py-2 pr-8 bg-slate-50 border border-slate-200 hover:border-purple-300 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:border-purple-600 focus:bg-white shadow-2xs cursor-pointer transition-all appearance-none"
+          >
+            <option value="ALL">All Categories</option>
+            <option value="WEEKDAY">Weekday (A26W)</option>
+            <option value="WEEKEND">Weekend (A26S)</option>
+          </select>
+          <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+        </div>
       </div>
 
       {/* Dropdown 2: Related Batches based on Dropdown 1 */}
       <div className="flex items-center gap-2">
-        <label className="text-xs font-bold text-slate-600 flex items-center gap-1.5">
+        <label className="text-xs font-bold text-slate-600 flex items-center gap-1.5 flex-shrink-0">
           <Layers className="w-3.5 h-3.5 text-purple-600" />
           <span>Batch:</span>
         </label>
-        <select
-          value={currentBatch}
-          onChange={handleBatchSelectChange}
-          className="px-3 py-2 bg-slate-50 border border-slate-200 hover:border-slate-300 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:border-purple-600 focus:bg-white shadow-2xs cursor-pointer transition-all min-w-[140px]"
-        >
-          {relatedOptions.map((opt) => (
-            <option key={opt.value} value={opt.value}>
-              {opt.label}
-            </option>
-          ))}
-        </select>
+        <div className="relative">
+          <select
+            value={currentBatch}
+            onChange={handleBatchSelectChange}
+            className="px-3.5 py-2 pr-8 bg-slate-50 border border-slate-200 hover:border-purple-300 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:border-purple-600 focus:bg-white shadow-2xs cursor-pointer transition-all min-w-[110px] appearance-none"
+          >
+            {relatedOptions.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
+          <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+        </div>
       </div>
 
       {/* Add New Batch Button */}

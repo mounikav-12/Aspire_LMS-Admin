@@ -658,6 +658,31 @@ export function LmsDataProvider({ children }) {
     return 'Weekday Batch';
   };
 
+  const placeItemInBatchDict = (item, dict) => {
+    if (!item || !dict) return;
+    const target = (item.targetBatch || '').toUpperCase();
+    const isAll =
+      !target ||
+      target === 'ALL BATCHES' ||
+      target === 'ALL' ||
+      target.includes('ALL') ||
+      ((target.includes('WEEKDAY') || target.includes('A26W')) &&
+       (target.includes('WEEKEND') || target.includes('A26S')));
+    const isWeekendOnly =
+      (target.includes('WEEKEND') || target.includes('A26S')) &&
+      !target.includes('WEEKDAY') &&
+      !target.includes('A26W');
+
+    if (isAll) {
+      if (Array.isArray(dict['Weekday Batch'])) dict['Weekday Batch'].push(item);
+      if (Array.isArray(dict['Weekend Batch'])) dict['Weekend Batch'].push(item);
+    } else if (isWeekendOnly) {
+      if (Array.isArray(dict['Weekend Batch'])) dict['Weekend Batch'].push(item);
+    } else {
+      if (Array.isArray(dict['Weekday Batch'])) dict['Weekday Batch'].push(item);
+    }
+  };
+
   const getBatchItems = (dict, batchName) => {
     if (!dict) return [];
     const target = batchName || activeBatchFilter || 'ALL';
@@ -1066,17 +1091,7 @@ export function LmsDataProvider({ children }) {
         });
         setAssessmentsByBatch(() => {
           const next = { 'Weekday Batch': [], 'Weekend Batch': [] };
-          mappedAsmnts.forEach(a => {
-            const target = (a.targetBatch || '').toUpperCase();
-            if (target === 'ALL BATCHES' || target === 'ALL') {
-              next['Weekday Batch'].push(a);
-              next['Weekend Batch'].push(a);
-            } else if (target === 'WEEKEND BATCH' || target.includes('WEEKEND') || target.includes('A26S')) {
-              next['Weekend Batch'].push(a);
-            } else {
-              next['Weekday Batch'].push(a);
-            }
-          });
+          mappedAsmnts.forEach((a) => placeItemInBatchDict(a, next));
           return next;
         });
       }
@@ -1203,17 +1218,7 @@ export function LmsDataProvider({ children }) {
         // REPLACE (not append) to prevent duplicates (supports All Batches target)
         setProjectsByBatch(() => {
           const next = { 'Weekday Batch': [], 'Weekend Batch': [] };
-          mappedProjects.forEach(p => {
-            const target = (p.targetBatch || '').toUpperCase();
-            if (target === 'ALL BATCHES' || target === 'ALL' || !p.targetBatch || target === '') {
-              next['Weekday Batch'].push(p);
-              next['Weekend Batch'].push(p);
-            } else if (target === 'WEEKEND BATCH' || target.includes('WEEKEND') || target.includes('A26S')) {
-              next['Weekend Batch'].push(p);
-            } else {
-              next['Weekday Batch'].push(p);
-            }
-          });
+          mappedProjects.forEach((p) => placeItemInBatchDict(p, next));
           return next;
         });
       }
@@ -1273,17 +1278,7 @@ export function LmsDataProvider({ children }) {
         }));
         setCodingQuestionsByBatch(() => {
           const next = { 'Weekday Batch': [], 'Weekend Batch': [] };
-          mappedCoding.forEach(cq => {
-            const target = (cq.targetBatch || '').toUpperCase();
-            if (target === 'ALL BATCHES' || target === 'ALL') {
-              next['Weekday Batch'].push(cq);
-              next['Weekend Batch'].push(cq);
-            } else if (target === 'WEEKEND BATCH' || target.includes('WEEKEND') || target.includes('A26S')) {
-              next['Weekend Batch'].push(cq);
-            } else {
-              next['Weekday Batch'].push(cq);
-            }
-          });
+          mappedCoding.forEach((cq) => placeItemInBatchDict(cq, next));
           return next;
         });
       }
@@ -1712,10 +1707,22 @@ export function LmsDataProvider({ children }) {
       status: 'Active',
       ...asmntData
     };
-    setAssessmentsByBatch((prev) => ({
-      ...prev,
-      [bKey]: [newAsmnt, ...(prev[bKey] || [])]
-    }));
+    setAssessmentsByBatch((prev) => {
+      const next = {
+        'Weekday Batch': [...(prev['Weekday Batch'] || [])],
+        'Weekend Batch': [...(prev['Weekend Batch'] || [])]
+      };
+      const tempDict = { 'Weekday Batch': [], 'Weekend Batch': [] };
+      placeItemInBatchDict(newAsmnt, tempDict);
+
+      if (tempDict['Weekday Batch'].length > 0) {
+        next['Weekday Batch'] = [newAsmnt, ...next['Weekday Batch'].filter((a) => a.id !== newAsmnt.id)];
+      }
+      if (tempDict['Weekend Batch'].length > 0) {
+        next['Weekend Batch'] = [newAsmnt, ...next['Weekend Batch'].filter((a) => a.id !== newAsmnt.id)];
+      }
+      return next;
+    });
     logActivity(`Created assessment: "${newAsmnt.title}" (${bKey})`, 'assessment');
 
     // Auto-sync assessment item into corresponding milestone module

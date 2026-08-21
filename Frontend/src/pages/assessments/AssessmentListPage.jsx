@@ -74,6 +74,31 @@ export function AssessmentListPage() {
   const [editingAssessment, setEditingAssessment] = useState(null);
   const [deletingAssessment, setDeletingAssessment] = useState(null);
 
+  // Form state for creating/editing assessment
+  const [formData, setFormData] = useState({
+    title: '',
+    courseId: '',
+    stageId: '',
+    subtopicId: '',
+    innerTopicId: '',
+    durationMinutes: 45,
+    totalMarks: 100,
+    dueDate: '2026-08-15',
+    mcqs: [
+      {
+        question: 'Which React hook should be used to memoize expensive calculation values?',
+        options: ['useCallback', 'useMemo', 'useEffect', 'useRef'],
+        correctIndex: 1
+      }
+    ],
+    codingQuestions: [
+      {
+        title: 'Custom `useLocalStorage` Hook Implementation',
+        description: 'Write a React custom hook named `useLocalStorage` that syncs state updates to window.localStorage with error handling.'
+      }
+    ]
+  });
+
   // Batch Selection State for Modal
   const [batchActiveTab, setBatchActiveTab] = useState('Weekdays');
   const [selectedWeekdayBatches, setSelectedWeekdayBatches] = useState(allWeekdayBatchesList);

@@ -410,77 +410,91 @@ export function CodingQuestionsPage() {
           return (
             <div
               key={cq.id}
-              className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-2xs hover:shadow-md transition-all space-y-4"
+              className="bg-white p-5 sm:p-6 rounded-3xl border border-slate-200/80 shadow-2xs hover:shadow-md transition-all space-y-4"
             >
-              <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
-                <div className="space-y-1">
+              <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+                <div className="space-y-1.5">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <h3 className="font-bold text-slate-900 text-lg leading-snug">{cq.title}</h3>
+                    <h3 className="font-extrabold text-slate-900 text-base sm:text-lg leading-snug">{cq.title}</h3>
 
-                    {getDifficultyBadge(cq.difficulty)}
-                    <span className="px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-blue-50 text-blue-700 border border-blue-100">
-                      {cq.language}
-                    </span>
-                    <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-100 text-slate-700">
-                      {cq.marks} Marks
-                    </span>
+                    {getDifficultyBadge(cq.difficulty || 'Easy')}
+                    {cq.language && (
+                      <span className="px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-blue-50 text-blue-700 border border-blue-100/80">
+                        {cq.language}
+                      </span>
+                    )}
+                    {(cq.marks || cq.points) && (
+                      <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-100 text-slate-700 border border-slate-200/60">
+                        {cq.marks || cq.points} Marks
+                      </span>
+                    )}
                   </div>
-                <p className="text-xs text-slate-500 font-medium flex items-center gap-2">
-                  <span>{cq.category}</span>
-                  <span>•</span>
-                  <span className="flex items-center gap-1">
-                    <Clock className="w-3.5 h-3.5 text-slate-400" /> {cq.timeLimitMinutes} Mins
-                  </span>
-                </p>
+
+                  <div className="text-xs text-slate-500 font-medium flex items-center gap-2 flex-wrap">
+                    <span>{cq.category || cq.topic || 'Algorithms & Data Structures'}</span>
+                    {(cq.timeLimitMinutes || cq.timeLimit || cq.duration) && (
+                      <>
+                        <span>•</span>
+                        <span className="flex items-center gap-1">
+                          <Clock className="w-3.5 h-3.5 text-slate-400" />
+                          <span>{cq.timeLimitMinutes || cq.timeLimit || cq.duration} Mins</span>
+                        </span>
+                      </>
+                    )}
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  <button
+                    onClick={() => setViewingSolution({ question: cq, tab: 'starter' })}
+                    className="px-3.5 py-2 rounded-xl border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-50 hover:border-slate-300 transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs"
+                  >
+                    <Eye className="w-3.5 h-3.5 text-slate-500" /> Code & Solution
+                  </button>
+                  <button
+                    onClick={() => handleOpenEditModal(cq)}
+                    className="p-2 text-slate-400 hover:text-blue-600 rounded-xl hover:bg-blue-50 transition-colors cursor-pointer"
+                    title="Edit Question"
+                  >
+                    <Edit2 className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => setDeletingQuestion(cq)}
+                    className="p-2 text-slate-400 hover:text-rose-600 rounded-xl hover:bg-rose-50 transition-colors cursor-pointer"
+                    title="Delete Question"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
 
-              {/* Action Buttons */}
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setViewingSolution({ question: cq, tab: 'starter' })}
-                  className="px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-50 transition-colors flex items-center gap-1.5 cursor-pointer"
-                >
-                  <Eye className="w-3.5 h-3.5 text-slate-500" /> Code & Solution
-                </button>
-                <button
-                  onClick={() => handleOpenEditModal(cq)}
-                  className="p-2 text-slate-400 hover:text-blue-600 rounded-xl hover:bg-blue-50 transition-colors cursor-pointer"
-                  title="Edit Question"
-                >
-                  <Edit2 className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={() => setDeletingQuestion(cq)}
-                  className="p-2 text-slate-400 hover:text-rose-600 rounded-xl hover:bg-rose-50 transition-colors cursor-pointer"
-                  title="Delete Question"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-
-            {/* Problem Statement */}
-            <p className="text-xs text-slate-600 leading-relaxed font-medium bg-slate-50/80 p-3.5 rounded-2xl border border-slate-100">
-              {cq.problemStatement}
-            </p>
-
-            {/* Tags & Sample Test Preview */}
-            <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
-              <div className="flex items-center gap-1.5 flex-wrap">
-                <Tag className="w-3.5 h-3.5 text-slate-400" />
-                {cq.tags && cq.tags.map((tag) => (
-                  <span key={tag} className="px-2 py-0.5 bg-slate-100 text-slate-600 rounded-lg text-[11px] font-semibold">
-                    #{tag}
-                  </span>
-                ))}
-              </div>
-
-              {cq.sampleTestCases && cq.sampleTestCases.length > 0 && (
-                <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-100">
-                  {cq.sampleTestCases.length} Sample Test Case(s) Included
-                </span>
+              {/* Problem Statement */}
+              {(cq.problemStatement || cq.description) && (
+                <div className="text-xs text-slate-600 leading-relaxed font-medium bg-slate-50/80 p-3.5 rounded-2xl border border-slate-100">
+                  {cq.problemStatement || cq.description}
+                </div>
               )}
-            </div>
+
+              {/* Tags & Sample Test Preview */}
+              <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
+                {Array.isArray(cq.tags) && cq.tags.length > 0 && (
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <Tag className="w-3.5 h-3.5 text-slate-400" />
+                    {cq.tags.map((tag) => (
+                      <span key={tag} className="px-2.5 py-0.5 bg-slate-100/80 text-slate-600 rounded-lg text-[11px] font-semibold border border-slate-200/50">
+                        #{tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                {cq.sampleTestCases && cq.sampleTestCases.length > 0 && (
+                  <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-100">
+                    {cq.sampleTestCases.length} Sample Test Case(s) Included
+                  </span>
+                )}
+              </div>
           </div>
         );
         })}
@@ -504,6 +518,7 @@ export function CodingQuestionsPage() {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         title={editingQuestion ? 'Edit Coding Question' : 'Post New Coding Question'}
+        maxWidth="max-w-4xl"
       >
         <form onSubmit={handleSubmit} className="space-y-4">
           <Input
@@ -760,6 +775,7 @@ export function CodingQuestionsPage() {
           isOpen={!!viewingSolution}
           onClose={() => setViewingSolution(null)}
           title={`Code & Solution - ${viewingSolution.question.title}`}
+          maxWidth="max-w-4xl"
         >
           <div className="space-y-4">
             <div className="flex border-b border-slate-200">
