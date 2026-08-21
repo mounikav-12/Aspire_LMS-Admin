@@ -21,7 +21,8 @@ import {
   Flag,
   Layers,
   Film,
-  Award
+  Award,
+  Gift
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useLmsData } from '../../context/LmsDataContext';
@@ -42,8 +43,8 @@ const ALL_NAV_ITEMS = [
   { label: 'Live Sessions', path: '/live-sessions', icon: Video, permissionId: 'manage_live_sessions' },
   { label: 'Job Portal', path: '/jobs', icon: Briefcase, permissionId: 'manage_jobs' },
   { label: 'Recording Library', path: '/library', icon: Film, permissionId: 'manage_recordings' },
-  { label: 'Placement Prep', path: '/placement', icon: Award, permissionId: 'manage_placement' },
   { label: 'Badges', path: '/badges', icon: Sparkles, permissionId: 'manage_badges' },
+  { label: 'Rewards', path: '/rewards', icon: Gift, permissionId: 'manage_rewards' },
   { label: 'LMS Feed Sync', path: '/student-dashboard', icon: Radio, permissionId: 'inspect_api_feed' }
 ];
 

@@ -202,6 +202,20 @@ CREATE TABLE IF NOT EXISTS public.coding_questions (
 -- 14. DROP DAILY SCHEDULES TABLE IF EXISTS
 DROP TABLE IF EXISTS public.daily_schedules CASCADE;
 
+-- 15. REWARDS & MERCHANDISE CATALOG TABLE
+CREATE TABLE IF NOT EXISTS public.rewards (
+  id TEXT PRIMARY KEY,
+  reward_title TEXT NOT NULL,
+  reward_image_url TEXT,
+  reward_required_xp_points INT DEFAULT 1000,
+  is_locked BOOLEAN DEFAULT true,
+  category TEXT DEFAULT 'ACCESSORIES',
+  stock INT DEFAULT 50,
+  description TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
 -- ============================================================
 -- ENABLE REALTIME PUBLICATION
 -- ============================================================
@@ -221,7 +235,8 @@ BEGIN
       public.audit_activities,
       public.milestones_data,
       public.projects,
-      public.coding_questions;
+      public.coding_questions,
+      public.rewards;
   END IF;
 EXCEPTION WHEN OTHERS THEN
   NULL;
@@ -242,6 +257,7 @@ ALTER TABLE public.placement_resources ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.milestones_data ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.projects ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.coding_questions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.rewards ENABLE ROW LEVEL SECURITY;
 
 -- ============================================================
 -- CREATE PERMISSIVE RLS POLICIES (FULL APP ACCESS)
@@ -286,6 +302,9 @@ BEGIN
 
   DROP POLICY IF EXISTS "Allow full app access on coding_questions" ON public.coding_questions;
   CREATE POLICY "Allow full app access on coding_questions" ON public.coding_questions FOR ALL USING (true) WITH CHECK (true);
+
+  DROP POLICY IF EXISTS "Allow full app access on rewards" ON public.rewards;
+  CREATE POLICY "Allow full app access on rewards" ON public.rewards FOR ALL USING (true) WITH CHECK (true);
 END $$;
 
 -- ============================================================

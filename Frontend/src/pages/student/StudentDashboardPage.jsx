@@ -28,7 +28,7 @@ import {
 import { getScheduleInfo } from '../milestones/MilestonesRoadmapPage';
 
 export function StudentDashboardPage() {
-  const { courses, liveSessions, jobs, recordings, projects, milestones } = useLmsData();
+  const { courses, liveSessions, jobs, recordings, projects, milestones, rewards = [] } = useLmsData();
   const { addToast } = useToast();
 
   const [isSyncing, setIsSyncing] = useState(false);
@@ -50,6 +50,17 @@ export function StudentDashboardPage() {
     endpoint: 'https://api.aspirelms.io/v1/student-feed',
     sync_frequency: 'REALTIME_WEBHOOK',
     data: {
+      rewards_and_merchandise: rewards.map((r) => ({
+        id: r.id,
+        title: r.title,
+        category: r.category,
+        required_xp: r.requiredXp,
+        image_url: r.image,
+        description: r.description,
+        is_released_by_admin: r.isReleased,
+        visible_to_students: r.isReleased,
+        stock_status: r.stock > 0 ? 'IN_STOCK' : 'OUT_OF_STOCK'
+      })),
       milestones_curriculum: (milestones?.stages || []).map((stg) => {
         const stageSched = getScheduleInfo(stg);
         return {

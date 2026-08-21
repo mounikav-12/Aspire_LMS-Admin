@@ -26,12 +26,84 @@ import {
   CheckCircle2,
   Layers,
   ListChecks,
+  CheckSquare,
+  Square
 } from 'lucide-react';
 
 export function AssessmentListPage() {
   const { assessments, courses, courseLessons, milestones, addAssessment, updateAssessment, deleteAssessment, activeBatchFilter, setActiveBatchFilter } = useLmsData();
   const { addToast } = useToast();
+    assessments,
+    courses,
+    milestones,
+    addAssessment,
+    updateAssessment,
+    deleteAssessment,
+    activeBatchFilter,
+    setActiveBatchFilter,
+    availableBatches
+  } = useLmsData();
+  const { addToast } = useToast();
 
+  const stagesList = (milestones && milestones.stages && milestones.stages.length > 0)
+    ? milestones.stages
+    : [
+        {
+          id: 'stage-1',
+          title: 'Stage 1: Front End + Repository',
+          subtopics: [
+            { id: 'git-github', title: 'Git & GitHub Version Control' },
+            { id: 'html5', title: 'HTML5 & Semantic Structure' },
+            { id: 'css3', title: 'CSS3 & Responsive Layouts' },
+            { id: 'javascript-es6', title: 'JavaScript Fundamentals & ES6+' },
+            { id: 'reactjs', title: 'React.js Components & Hooks' }
+          ]
+        },
+        {
+          id: 'stage-2',
+          title: 'Stage 2: Backend + DSA',
+          subtopics: [
+            { id: 'python-core', title: 'Python Syntax, OOP & Standard Library' },
+            { id: 'express-django', title: 'REST API Design with Express & Django' },
+            { id: 'postgresql', title: 'PostgreSQL Database & Relational Schemas' },
+            { id: 'dsa-core', title: 'Data Structures & Algorithms (Trees, Graphs, DP)' }
+          ]
+        },
+        {
+          id: 'stage-3',
+          title: 'Stage 3: AI & Cloud Integration',
+          subtopics: [
+            { id: 'ai-prompting', title: 'AI Model Integration & OpenAI APIs' },
+            { id: 'docker-cloud', title: 'Docker, Containers & Cloud Deployment' }
+          ]
+        },
+        {
+          id: 'stage-4',
+          title: 'Stage 4: Career Launchpad',
+          subtopics: [
+            { id: 'capstone-proj', title: 'Capstone Enterprise Full-Stack Deployment' },
+            { id: 'mock-interview', title: 'System Design & Technical Mock Interviews' }
+          ]
+        }
+      ];
+
+  const allWeekdayBatchesList = (
+    availableBatches && availableBatches.length > 0
+      ? availableBatches.filter(
+          (b) => b.startsWith('A26W') && !b.startsWith('A26S') && !b.startsWith('A26WE')
+        )
+      : ['A26W1', 'A26W2', 'A26W3']
+  );
+  const allWeekendBatchesList = (
+    availableBatches && availableBatches.length > 0
+      ? availableBatches
+          .filter((b) => b.startsWith('A26S') || b.startsWith('A26WE'))
+          .map((b) => b.replace(/^A26WE/, 'A26S'))
+          .filter((b, i, arr) => arr.indexOf(b) === i)
+      : ['A26S1', 'A26S2']
+  );
+
+>>>>>>> origin/manohar
   const [selectedBatch, setSelectedBatch] = useState(activeBatchFilter || 'Weekday Batch');
 
   const handleSelectBatch = (bVal) => {
@@ -45,6 +117,15 @@ export function AssessmentListPage() {
   const [editingAssessment, setEditingAssessment] = useState(null);
   const [deletingAssessment, setDeletingAssessment] = useState(null);
 
+  // Batch Selection State for Modal
+  const [batchActiveTab, setBatchActiveTab] = useState('Weekdays');
+  const [selectedWeekdayBatches, setSelectedWeekdayBatches] = useState(allWeekdayBatchesList);
+  const [selectedWeekendBatches, setSelectedWeekendBatches] = useState(allWeekendBatchesList);
+
+  // Form State with Dynamic Questions Array & 4-Tier Milestone Cascading Hierarchy
+  const firstStage = stagesList[0];
+  const firstSubtopic = firstStage?.subtopics?.[0];
+  const firstInner = firstSubtopic?.modules?.[0];
   const [formData, setFormData] = useState({
     title: '',
     courseId: courses[0]?.id || '',
@@ -137,6 +218,10 @@ export function AssessmentListPage() {
     const activeInner = courseLessons?.find(
       (l) => l.course_id === activeCourse?.id && l.stage_id === activeStage?.id && l.module_id === activeSub?.id
     );
+
+    setBatchActiveTab('Weekdays');
+    setSelectedWeekdayBatches(allWeekdayBatchesList);
+    setSelectedWeekendBatches(allWeekendBatchesList);
     setFormData({
       title: '',
       courseId: activeCourse?.id || '',
@@ -166,6 +251,28 @@ export function AssessmentListPage() {
 
   const handleOpenEditModal = (asm) => {
     setEditingAssessment(asm);
+    setBatchActiveTab('Weekdays');
+
+    let initialWd = [];
+    let initialWe = [];
+    if (Array.isArray(asm.targetBatches) && asm.targetBatches.length > 0) {
+      initialWd = asm.targetBatches.filter(
+        (b) => b.startsWith('A26W') && !b.startsWith('A26S') && !b.startsWith('A26WE')
+      );
+      initialWe = asm.targetBatches.filter((b) => b.startsWith('A26S') || b.startsWith('A26WE'));
+    } else if (typeof asm.targetBatch === 'string' && asm.targetBatch && asm.targetBatch !== 'All Batches') {
+      const parsed = asm.targetBatch.split(',').map((s) => s.trim());
+      initialWd = parsed.filter(
+        (b) => b.startsWith('A26W') && !b.startsWith('A26S') && !b.startsWith('A26WE')
+      );
+      initialWe = parsed.filter((b) => b.startsWith('A26S') || b.startsWith('A26WE'));
+    }
+    if (initialWd.length === 0 && initialWe.length === 0) {
+      initialWd = allWeekdayBatchesList;
+      initialWe = allWeekendBatchesList;
+    }
+    setSelectedWeekdayBatches(initialWd);
+    setSelectedWeekendBatches(initialWe);
 
     const initialMcqs = asm.mcqs && asm.mcqs.length > 0
       ? asm.mcqs.map((m) => ({
@@ -328,6 +435,9 @@ export function AssessmentListPage() {
     const totalCodingCount = formData.codingQuestions.length;
     const totalQuestionsCount = totalMcqsCount + totalCodingCount;
 
+    const allBatches = [...selectedWeekdayBatches, ...selectedWeekendBatches];
+    const targetBatchStr = allBatches.length > 0 ? allBatches.join(', ') : 'All Batches';
+
     const assessmentPayload = {
       title: formData.title,
       courseId: selectedCourse?.id,
@@ -345,7 +455,9 @@ export function AssessmentListPage() {
       codingCount: totalCodingCount,
       totalQuestions: totalQuestionsCount,
       mcqs: formData.mcqs,
-      codingQuestions: formData.codingQuestions
+      codingQuestions: formData.codingQuestions,
+      targetBatches: allBatches,
+      targetBatch: targetBatchStr
     };
 
     if (editingAssessment) {
@@ -611,38 +723,45 @@ export function AssessmentListPage() {
         }}
         title={editingAssessment ? 'Edit Assessment & Questions' : 'Create Assessment'}
         subtitle="Configure quiz parameters, MCQ questions, and coding task prompts"
+        maxWidth="max-w-6xl"
       >
-        <form onSubmit={handleSaveAssessment} className="space-y-5 max-h-[75vh] overflow-y-auto pr-1">
-          {/* Total Questions Header Banner */}
-          <div className="bg-linear-to-r from-blue-900 via-indigo-900 to-slate-900 p-4 rounded-2xl text-white flex items-center justify-between shadow-md">
-            <div className="flex items-center gap-2.5">
-              <ListChecks className="w-5 h-5 text-blue-300" />
-              <div>
-                <span className="text-xs font-bold text-blue-200 uppercase tracking-wider block">Assessment Capacity</span>
-                <span className="text-sm font-black text-white">
-                  Total Questions: <strong className="text-amber-300">{currentModalTotalQuestions}</strong>
+        <form onSubmit={handleSaveAssessment} className="space-y-4">
+          {/* Title & Assessment Capacity Header Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 items-end">
+            <div className="md:col-span-2">
+              <Input
+                label="Assessment Title"
+                placeholder="e.g. React Concurrent Features & Hooks Evaluation"
+                value={formData.title}
+                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                required
+              />
+            </div>
+
+            {/* Total Questions Header Banner */}
+            <div className="bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-900 p-2.5 sm:p-3 rounded-2xl text-white flex items-center justify-between shadow-md mb-0.5">
+              <div className="flex items-center gap-2">
+                <ListChecks className="w-4 h-4 text-blue-300 flex-shrink-0" />
+                <div>
+                  <span className="text-[10px] font-bold text-blue-200 uppercase tracking-wider block">Capacity</span>
+                  <span className="text-xs font-black text-white">
+                    Total Questions: <strong className="text-amber-300">{currentModalTotalQuestions}</strong>
+                  </span>
+                </div>
+              </div>
+              <div className="flex items-center gap-1.5 text-[11px]">
+                <span className="px-2 py-0.5 rounded-lg bg-white/10 text-blue-100 font-semibold border border-white/15">
+                  {currentModalMcqCount} MCQs
+                </span>
+                <span className="px-2 py-0.5 rounded-lg bg-white/10 text-blue-100 font-semibold border border-white/15">
+                  {currentModalCodingCount} Coding
+>>>>>>> origin/manohar
                 </span>
               </div>
             </div>
-            <div className="flex items-center gap-2 text-xs">
-              <span className="px-2.5 py-1 rounded-lg bg-white/10 text-blue-100 font-semibold border border-white/15">
-                {currentModalMcqCount} MCQs
-              </span>
-              <span className="px-2.5 py-1 rounded-lg bg-white/10 text-blue-100 font-semibold border border-white/15">
-                {currentModalCodingCount} Coding
-              </span>
-            </div>
           </div>
 
-          <Input
-            label="Assessment Title"
-            placeholder="e.g. React Concurrent Features & Hooks Evaluation"
-            value={formData.title}
-            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-            required
-          />
-
-          {/* 4-TIER CASCADING HIERARCHY SELECTOR */}
+          {/* 4-TIER CASCADING HIERARCHY SELECTOR (2x2 Grid) */}
           {(() => {
             const currentStageObj = stagesList.find((s) => s.id === formData.stageId) || stagesList[0];
             const currentSubtopicsArr = currentStageObj?.subtopics || [];
@@ -655,89 +774,167 @@ export function AssessmentListPage() {
             ) || [];
 
             return (
-              <div className="p-4 bg-slate-50/90 rounded-2xl border border-slate-200/80 space-y-3.5">
-                <div className="flex items-center justify-between">
-                  <label className="text-xs font-black text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
-                    <Layers className="w-4 h-4 text-blue-600" />
-                    <span>Curriculum Location & Milestone Topic Mapping</span>
-                  </label>
-                  <span className="text-[11px] font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-md border border-blue-200/60">
-                    4-Tier Milestone Cascade
-                  </span>
+              <div className="bg-gradient-to-br from-slate-50 to-blue-50/40 p-3.5 sm:p-4 rounded-2xl border border-slate-200/80 shadow-2xs space-y-3">
+                <div className="flex items-center gap-2.5 pb-2.5 border-b border-purple-100/80">
+                  <div className="w-7 h-7 rounded-lg bg-purple-600 text-white flex items-center justify-center shadow-xs flex-shrink-0">
+                    <Layers className="w-3.5 h-3.5" />
+                  </div>
+                  <div>
+                    <h4 className="text-xs font-black text-slate-900 uppercase tracking-wider">
+                      Curriculum Location & Milestone Topic Mapping
+                    </h4>
+                    <p className="text-[11px] text-slate-500 font-medium">
+                      Map this assessment evaluation to a specific course, milestone stage, subtopic, and topic module
+                    </p>
+                  </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                  {/* Tier 1: Course Track */}
-                  <Select
-                    label="1. Course Track"
-                    value={formData.courseId}
-                    onChange={(e) => setFormData({ ...formData, courseId: e.target.value })}
-                    options={courses.map((c) => ({ value: c.id, label: c.title }))}
-                  />
+                {/* 2x2 Structured Step Layout */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {/* Step 1: Course Track */}
+                  <div className="bg-white/95 p-2.5 sm:p-3 rounded-xl border border-purple-100/90 shadow-2xs">
+                    <Select
+                      label="1. Course Track"
+                      value={formData.courseId}
+                      onChange={(e) => setFormData({ ...formData, courseId: e.target.value })}
+                      options={courses.map((c) => ({ value: c.id, label: c.title }))}
+                    />
+                  </div>
 
-                  {/* Tier 2: Course Module / Stage */}
-                  <Select
-                    label="2. Course Module / Stage"
-                    value={formData.stageId}
-                    onChange={(e) => {
-                      const newStageId = e.target.value;
-                      const newStage = stagesList.find((s) => s.id === newStageId) || stagesList[0];
-                      const firstSub = newStage?.subtopics?.[0];
-                      const firstInner = courseLessons?.find(
-                        (l) => l.course_id === formData.courseId && l.stage_id === newStageId && l.module_id === firstSub?.id
-                      );
-                      setFormData({
-                        ...formData,
-                        stageId: newStageId,
-                        subtopicId: firstSub?.id || '',
-                        innerTopicId: firstInner?.id || ''
-                      });
-                    }}
-                    options={stagesList.map((stg) => ({
-                      value: stg.id,
-                      label: stg.title
-                    }))}
-                  />
+                  {/* Step 2: Course Module / Stage */}
+                  <div className="bg-white/95 p-2.5 sm:p-3 rounded-xl border border-purple-100/90 shadow-2xs">
+                    <Select
+                      label="2. Course Module / Stage"
+                      value={formData.stageId}
+                      onChange={(e) => {
+                        const newStageId = e.target.value;
+                        const newStage = stagesList.find((s) => s.id === newStageId) || stagesList[0];
+                        const firstSub = newStage?.subtopics?.[0];
+                        const firstInner = firstSub?.modules?.[0];
+                        setFormData({
+                          ...formData,
+                          stageId: newStageId,
+                          subtopicId: firstSub?.id || '',
+                          innerTopicId: firstInner?.id || firstSub?.id || ''
+                        });
+                      }}
+                      options={stagesList.map((stg) => ({
+                        value: stg.id,
+                        label: stg.title
+                      }))}
+                    />
+                  </div>
 
-                  {/* Tier 3: Milestone Subtopic */}
-                  <Select
-                    label="3. Milestone Subtopic"
-                    value={formData.subtopicId}
-                    onChange={(e) => {
-                      const newSubId = e.target.value;
-                      const targetStage = stagesList.find((s) => s.id === formData.stageId) || stagesList[0];
-                      const targetSub = targetStage?.subtopics?.find((st) => st.id === newSubId) || targetStage?.subtopics?.[0];
-                      const firstInner = courseLessons?.find(
-                        (l) => l.course_id === formData.courseId && l.stage_id === formData.stageId && l.module_id === newSubId
-                      );
-                      setFormData({
-                        ...formData,
-                        subtopicId: newSubId,
-                        innerTopicId: firstInner?.id || ''
-                      });
-                    }}
-                    options={currentSubtopicsArr.map((sub) => ({
-                      value: sub.id,
-                      label: sub.title
-                    }))}
-                  />
+                  {/* Step 3: Milestone Subtopic */}
+                  <div className="bg-white/95 p-2.5 sm:p-3 rounded-xl border border-purple-100/90 shadow-2xs">
+                    <Select
+                      label="3. Milestone Subtopic"
+                      value={formData.subtopicId}
+                      onChange={(e) => {
+                        const newSubId = e.target.value;
+                        const targetStage = stagesList.find((s) => s.id === formData.stageId) || stagesList[0];
+                        const targetSub = targetStage?.subtopics?.find((st) => st.id === newSubId) || targetStage?.subtopics?.[0];
+                        const firstInner = targetSub?.modules?.[0];
+                        setFormData({
+                          ...formData,
+                          subtopicId: newSubId,
+                          innerTopicId: firstInner?.id || targetSub?.id || ''
+                        });
+                      }}
+                      options={currentSubtopicsArr.map((sub) => ({
+                        value: sub.id,
+                        label: sub.title
+                      }))}
+                    />
+                  </div>
 
-                  {/* Tier 4: Specific Inner Topic */}
-                  <Select
-                    label="4. Specific Inner Topic"
-                    value={formData.innerTopicId}
-                    onChange={(e) => setFormData({ ...formData, innerTopicId: e.target.value })}
-                    options={[
-                      { value: '', label: 'None (Module Level)' },
-                      ...currentInnerModules.map((l) => ({ value: l.id, label: l.title }))
-                    ]}
-                  />
+                  {/* Step 4: Specific Inner Topic */}
+                  <div className="bg-white/95 p-2.5 sm:p-3 rounded-xl border border-purple-100/90 shadow-2xs">
+                    <Select
+                      label="4. Specific Inner Topic"
+                      value={formData.innerTopicId}
+                      onChange={(e) => setFormData({ ...formData, innerTopicId: e.target.value })}
+                      options={currentInnerModules.map((mod) => ({
+                        value: mod.id || mod.title,
+                        label: mod.title
+                      }))}
+                    />
+                  </div>
                 </div>
               </div>
             );
           })()}
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {/* BATCH ALLOCATION DROPDOWNS: WEEKDAY & WEEKEND */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+            <div className="bg-white/95 p-2.5 sm:p-3 rounded-xl border border-purple-100/90 shadow-2xs">
+              <Select
+                label="Weekday Batches"
+                value={
+                  selectedWeekdayBatches.length === 0
+                    ? 'NONE'
+                    : selectedWeekdayBatches.length === allWeekdayBatchesList.length
+                    ? 'ALL'
+                    : selectedWeekdayBatches.length === 1
+                    ? selectedWeekdayBatches[0]
+                    : selectedWeekdayBatches.join(',')
+                }
+                onChange={(e) => {
+                  const val = e.target.value;
+                  if (val === 'ALL') {
+                    setSelectedWeekdayBatches(allWeekdayBatchesList);
+                  } else if (val === 'NONE') {
+                    setSelectedWeekdayBatches([]);
+                  } else {
+                    setSelectedWeekdayBatches(val.split(',').filter(Boolean));
+                  }
+                }}
+                options={[
+                  { value: 'ALL', label: 'All Weekday Batches' },
+                  ...allWeekdayBatchesList.map((b) => ({ value: b, label: `Weekday Batch ${b}` })),
+                  ...(selectedWeekdayBatches.length > 1 && selectedWeekdayBatches.length < allWeekdayBatchesList.length
+                    ? [{ value: selectedWeekdayBatches.join(','), label: `Selected: ${selectedWeekdayBatches.join(', ')}` }]
+                    : []),
+                  { value: 'NONE', label: 'None (Exclude Weekday Batches)' }
+                ]}
+              />
+            </div>
+
+            <div className="bg-white/95 p-2.5 sm:p-3 rounded-xl border border-purple-100/90 shadow-2xs">
+              <Select
+                label="Weekend Batches"
+                value={
+                  selectedWeekendBatches.length === 0
+                    ? 'NONE'
+                    : selectedWeekendBatches.length === allWeekendBatchesList.length
+                    ? 'ALL'
+                    : selectedWeekendBatches.length === 1
+                    ? selectedWeekendBatches[0]
+                    : selectedWeekendBatches.join(',')
+                }
+                onChange={(e) => {
+                  const val = e.target.value;
+                  if (val === 'ALL') {
+                    setSelectedWeekendBatches(allWeekendBatchesList);
+                  } else if (val === 'NONE') {
+                    setSelectedWeekendBatches([]);
+                  } else {
+                    setSelectedWeekendBatches(val.split(',').filter(Boolean));
+                  }
+                }}
+                options={[
+                  { value: 'ALL', label: 'All Weekend Batches' },
+                  ...allWeekendBatchesList.map((b) => ({ value: b, label: `Weekend Batch ${b}` })),
+                  ...(selectedWeekendBatches.length > 1 && selectedWeekendBatches.length < allWeekendBatchesList.length
+                    ? [{ value: selectedWeekendBatches.join(','), label: `Selected: ${selectedWeekendBatches.join(', ')}` }]
+                    : []),
+                  { value: 'NONE', label: 'None (Exclude Weekend Batches)' }
+                ]}
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
             <Input
               label="Duration (Minutes)"
               type="number"

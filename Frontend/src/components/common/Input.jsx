@@ -18,13 +18,13 @@ export function Input({
   const effectiveType = isPasswordType ? (showPassword ? 'text' : 'password') : type;
 
   return (
-    <div className="w-full flex flex-col gap-1.5">
+    <div className="w-full min-w-0 flex flex-col gap-1.5">
       {label && (
-        <label htmlFor={inputId} className="text-[11px] font-extrabold text-slate-700 tracking-wider uppercase">
+        <label htmlFor={inputId} className="text-[11px] font-extrabold text-slate-700 tracking-wider uppercase truncate">
           {label}
         </label>
       )}
-      <div className="relative flex items-center">
+      <div className="relative flex items-center min-w-0">
         {Icon && (
           <div className="absolute left-3.5 text-slate-400 pointer-events-none transition-colors group-focus-within:text-blue-600 z-10">
             <Icon className="w-4 h-4" />
@@ -33,7 +33,7 @@ export function Input({
         <input
           id={inputId}
           type={effectiveType}
-          className={`w-full px-3.5 py-2.5 bg-slate-50/60 hover:bg-white border rounded-xl text-sm text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none transition-all duration-200 ${
+          className={`w-full min-w-0 px-3.5 py-2.5 bg-slate-50/60 hover:bg-white border rounded-xl text-sm text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none transition-all duration-200 ${
             Icon ? 'pl-10' : ''
           } ${
             isPasswordType ? 'pr-10' : ''
@@ -82,13 +82,13 @@ export function Select({
   const selectId = id || (label ? label.toLowerCase().replace(/\s+/g, '-') : undefined);
 
   return (
-    <div className="w-full flex flex-col gap-1.5">
+    <div className="w-full min-w-0 flex flex-col gap-1.5">
       {label && (
-        <label htmlFor={selectId} className="text-[11px] font-extrabold text-slate-700 tracking-wider uppercase">
+        <label htmlFor={selectId} className="text-[11px] font-extrabold text-slate-700 tracking-wider uppercase truncate" title={label}>
           {label}
         </label>
       )}
-      <div className="relative flex items-center">
+      <div className="relative flex items-center min-w-0">
         {Icon && (
           <div className="absolute left-3.5 text-slate-400 pointer-events-none z-10">
             <Icon className="w-4 h-4" />
@@ -96,7 +96,7 @@ export function Select({
         )}
         <select
           id={selectId}
-          className={`w-full px-3.5 py-2.5 pr-10 bg-slate-50/60 hover:bg-white border rounded-xl text-sm text-slate-800 focus:bg-white focus:outline-none transition-all duration-200 appearance-none cursor-pointer ${
+          className={`w-full min-w-0 px-3.5 py-2.5 pr-10 bg-slate-50/60 hover:bg-white border rounded-xl text-sm text-slate-800 focus:bg-white focus:outline-none transition-all duration-200 appearance-none cursor-pointer truncate ${
             Icon ? 'pl-10' : ''
           } ${
             error
@@ -107,7 +107,7 @@ export function Select({
         >
           {options.length > 0
             ? options.map((opt) => (
-                <option key={opt.value} value={opt.value}>
+                <option key={opt.value} value={opt.value} className="py-1">
                   {opt.label}
                 </option>
               ))
