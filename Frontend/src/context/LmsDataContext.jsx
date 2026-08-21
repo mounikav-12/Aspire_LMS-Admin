@@ -282,9 +282,11 @@ export function LmsDataProvider({ children }) {
     loadRewardsFromDb();
 
     // 2. Realtime subscription to postgres_changes
+    const channelName = `realtime_rewards_store_${Date.now()}`;
     const channel = supabase
-      .channel('realtime_rewards_store')
+      .channel(channelName)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'rewards' }, (payload) => {
+        if (!isMounted) return;
         if (payload.eventType === 'INSERT') {
           const row = payload.new;
           if (row) {
@@ -344,6 +346,9 @@ export function LmsDataProvider({ children }) {
 
     return () => {
       isMounted = false;
+      try {
+        supabase.removeChannel(channel);
+      } catch (e) {}
     };
   }, []);
 
