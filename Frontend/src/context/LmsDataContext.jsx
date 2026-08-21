@@ -282,7 +282,16 @@ export function LmsDataProvider({ children }) {
     loadRewardsFromDb();
 
     // 2. Realtime subscription to postgres_changes
-    const channelName = `realtime_rewards_store_${Date.now()}`;
+    try {
+      const existingChannels = supabase.getChannels();
+      existingChannels.forEach((ch) => {
+        if (ch && ch.topic && ch.topic.includes('rewards')) {
+          supabase.removeChannel(ch);
+        }
+      });
+    } catch (e) {}
+
+    const channelName = `realtime_rewards_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
     const channel = supabase
       .channel(channelName)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'rewards' }, (payload) => {

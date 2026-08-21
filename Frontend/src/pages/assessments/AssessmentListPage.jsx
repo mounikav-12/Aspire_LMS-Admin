@@ -79,35 +79,8 @@ export function AssessmentListPage() {
   const [selectedWeekdayBatches, setSelectedWeekdayBatches] = useState(allWeekdayBatchesList);
   const [selectedWeekendBatches, setSelectedWeekendBatches] = useState(allWeekendBatchesList);
 
-  // Form State with Dynamic Questions Array & 4-Tier Milestone Cascading Hierarchy
-  const firstStage = stagesList[0];
-  const firstSubtopic = firstStage?.subtopics?.[0];
-  const firstInner = firstSubtopic?.modules?.[0];
-  const [formData, setFormData] = useState({
-    title: '',
-    courseId: courses[0]?.id || '',
-    stageId: '',
-    subtopicId: '',
-    innerTopicId: '',
-    durationMinutes: 45,
-    totalMarks: 100,
-    dueDate: '2026-08-15',
-    mcqs: [
-      {
-        question: 'Which React hook should be used to memoize expensive calculation values?',
-        options: ['useCallback', 'useMemo', 'useEffect', 'useRef'],
-        correctIndex: 1
-      }
-    ],
-    codingQuestions: [
-      {
-        title: 'Custom `useLocalStorage` Hook Implementation',
-        description: 'Write a React custom hook named `useLocalStorage` that syncs state updates to window.localStorage with error handling.'
-      }
-    ]
-  });
-
-  const selectedCourseObj = courses.find((c) => c.id === formData.courseId) || courses[0];
+  const initialCourseId = courses[0]?.id || '';
+  const selectedCourseObj = courses.find((c) => c.id === initialCourseId) || courses[0];
   const stagesList = (selectedCourseObj?.topics && selectedCourseObj.topics.length > 0)
     ? selectedCourseObj.topics
     : [
