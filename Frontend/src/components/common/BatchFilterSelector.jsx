@@ -103,16 +103,16 @@ export function BatchFilterSelector({ activeBatch, onSelectBatch, showNewBatch =
     <div className={`flex flex-wrap items-center gap-3 ${className}`}>
       {/* Dropdown 1: Category Filter (All Batches, Weekday, Weekend) */}
       <div className="flex items-center gap-2">
-        <label className="text-xs font-black text-slate-700 uppercase tracking-wider flex items-center gap-1">
-          <Filter className="w-3.5 h-3.5 text-blue-600" />
-          <span>Batch Filter:</span>
+        <label className="text-xs font-bold text-slate-600 flex items-center gap-1.5">
+          <Filter className="w-3.5 h-3.5 text-purple-600" />
+          <span>Category:</span>
         </label>
         <select
           value={categoryTab}
           onChange={handleCategoryChange}
-          className="px-3.5 py-2 bg-white border border-slate-200 hover:border-slate-300 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:border-blue-500 shadow-2xs cursor-pointer transition-all"
+          className="px-3 py-2 bg-slate-50 border border-slate-200 hover:border-slate-300 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:border-purple-600 focus:bg-white shadow-2xs cursor-pointer transition-all"
         >
-          <option value="ALL">All Batches</option>
+          <option value="ALL">All Categories</option>
           <option value="WEEKDAY">Weekday (A26W)</option>
           <option value="WEEKEND">Weekend (A26S)</option>
         </select>
@@ -120,14 +120,14 @@ export function BatchFilterSelector({ activeBatch, onSelectBatch, showNewBatch =
 
       {/* Dropdown 2: Related Batches based on Dropdown 1 */}
       <div className="flex items-center gap-2">
-        <label className="text-xs font-black text-slate-700 uppercase tracking-wider flex items-center gap-1">
-          <Layers className="w-3.5 h-3.5 text-blue-600" />
-          <span>Select Batch:</span>
+        <label className="text-xs font-bold text-slate-600 flex items-center gap-1.5">
+          <Layers className="w-3.5 h-3.5 text-purple-600" />
+          <span>Batch:</span>
         </label>
         <select
           value={currentBatch}
           onChange={handleBatchSelectChange}
-          className="px-3.5 py-2 bg-white border border-slate-200 hover:border-slate-300 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:border-blue-500 shadow-2xs cursor-pointer transition-all min-w-[150px]"
+          className="px-3 py-2 bg-slate-50 border border-slate-200 hover:border-slate-300 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:border-purple-600 focus:bg-white shadow-2xs cursor-pointer transition-all min-w-[140px]"
         >
           {relatedOptions.map((opt) => (
             <option key={opt.value} value={opt.value}>

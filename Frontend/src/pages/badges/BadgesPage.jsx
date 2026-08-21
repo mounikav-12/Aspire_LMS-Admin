@@ -10,12 +10,25 @@ import {
   Flame,
   Crown,
   Gem,
+  Rocket,
+  Code,
+  Terminal,
+  GraduationCap,
+  Lightbulb,
+  Brain,
+  Heart,
+  Flag,
+  Compass,
+  Gift,
+  Key,
+  Cpu,
+  Globe,
+  Sparkles,
   Plus,
   Edit2,
   Trash2,
   Search,
   CheckCircle2,
-  Sparkles,
   UserCheck,
   Layers,
   Clock,
@@ -25,10 +38,7 @@ import {
   Check,
   ChevronRight,
   TrendingUp,
-  SlidersHorizontal,
-  Lock,
-  Unlock,
-  GraduationCap
+  SlidersHorizontal
 } from 'lucide-react';
 import { useLmsData } from '../../context/LmsDataContext';
 import { useAuth } from '../../context/AuthContext';
@@ -47,7 +57,22 @@ const ICON_MAP = {
   Target,
   Flame,
   Crown,
-  Gem
+  Gem,
+  Rocket,
+  Code,
+  Terminal,
+  GraduationCap,
+  Lightbulb,
+  Brain,
+  Heart,
+  Flag,
+  Compass,
+  Gift,
+  Key,
+  Cpu,
+  Globe,
+  Sparkles,
+  BookOpen
 };
 
 const COLOR_THEMES = {
@@ -98,8 +123,134 @@ const COLOR_THEMES = {
     iconGradient: 'from-rose-600 to-pink-600 text-white shadow-rose-500/25 ring-rose-500/10',
     badge: 'bg-rose-100/80 text-rose-800 border-rose-200',
     accent: 'bg-rose-600'
+  },
+  teal: {
+    bg: 'bg-teal-50/70 hover:bg-teal-50',
+    border: 'border-teal-200/80 hover:border-teal-400',
+    text: 'text-teal-700',
+    iconGradient: 'from-teal-600 to-emerald-600 text-white shadow-teal-500/25 ring-teal-500/10',
+    badge: 'bg-teal-100/80 text-teal-800 border-teal-200',
+    accent: 'bg-teal-600'
+  },
+  cyan: {
+    bg: 'bg-cyan-50/70 hover:bg-cyan-50',
+    border: 'border-cyan-200/80 hover:border-cyan-400',
+    text: 'text-cyan-700',
+    iconGradient: 'from-cyan-500 to-blue-600 text-white shadow-cyan-500/25 ring-cyan-500/10',
+    badge: 'bg-cyan-100/80 text-cyan-800 border-cyan-200',
+    accent: 'bg-cyan-500'
+  },
+  orange: {
+    bg: 'bg-orange-50/70 hover:bg-orange-50',
+    border: 'border-orange-200/80 hover:border-orange-400',
+    text: 'text-orange-700',
+    iconGradient: 'from-orange-500 to-amber-600 text-white shadow-orange-500/25 ring-orange-500/10',
+    badge: 'bg-orange-100/80 text-orange-800 border-orange-200',
+    accent: 'bg-orange-500'
+  },
+  violet: {
+    bg: 'bg-violet-50/70 hover:bg-violet-50',
+    border: 'border-violet-200/80 hover:border-violet-400',
+    text: 'text-violet-700',
+    iconGradient: 'from-violet-600 to-purple-600 text-white shadow-violet-500/25 ring-violet-500/10',
+    badge: 'bg-violet-100/80 text-violet-800 border-violet-200',
+    accent: 'bg-violet-600'
+  },
+  fuchsia: {
+    bg: 'bg-fuchsia-50/70 hover:bg-fuchsia-50',
+    border: 'border-fuchsia-200/80 hover:border-fuchsia-400',
+    text: 'text-fuchsia-700',
+    iconGradient: 'from-fuchsia-600 to-pink-600 text-white shadow-fuchsia-500/25 ring-fuchsia-500/10',
+    badge: 'bg-fuchsia-100/80 text-fuchsia-800 border-fuchsia-200',
+    accent: 'bg-fuchsia-600'
+  },
+  lime: {
+    bg: 'bg-lime-50/70 hover:bg-lime-50',
+    border: 'border-lime-200/80 hover:border-lime-400',
+    text: 'text-lime-700',
+    iconGradient: 'from-lime-500 to-emerald-600 text-white shadow-lime-500/25 ring-lime-500/10',
+    badge: 'bg-lime-100/80 text-lime-800 border-lime-200',
+    accent: 'bg-lime-500'
+  },
+  red: {
+    bg: 'bg-red-50/70 hover:bg-red-50',
+    border: 'border-red-200/80 hover:border-red-400',
+    text: 'text-red-700',
+    iconGradient: 'from-red-600 to-rose-600 text-white shadow-red-500/25 ring-red-500/10',
+    badge: 'bg-red-100/80 text-red-800 border-red-200',
+    accent: 'bg-red-600'
+  },
+  pink: {
+    bg: 'bg-pink-50/70 hover:bg-pink-50',
+    border: 'border-pink-200/80 hover:border-pink-400',
+    text: 'text-pink-700',
+    iconGradient: 'from-pink-500 to-rose-500 text-white shadow-pink-500/25 ring-pink-500/10',
+    badge: 'bg-pink-100/80 text-pink-800 border-pink-200',
+    accent: 'bg-pink-500'
+  },
+  sky: {
+    bg: 'bg-sky-50/70 hover:bg-sky-50',
+    border: 'border-sky-200/80 hover:border-sky-400',
+    text: 'text-sky-700',
+    iconGradient: 'from-sky-500 to-blue-500 text-white shadow-sky-500/25 ring-sky-500/10',
+    badge: 'bg-sky-100/80 text-sky-800 border-sky-200',
+    accent: 'bg-sky-500'
+  },
+  green: {
+    bg: 'bg-green-50/70 hover:bg-green-50',
+    border: 'border-green-200/80 hover:border-green-400',
+    text: 'text-green-700',
+    iconGradient: 'from-green-600 to-emerald-600 text-white shadow-green-500/25 ring-green-500/10',
+    badge: 'bg-green-100/80 text-green-800 border-green-200',
+    accent: 'bg-green-600'
+  },
+  yellow: {
+    bg: 'bg-yellow-50/70 hover:bg-yellow-50',
+    border: 'border-yellow-200/80 hover:border-yellow-400',
+    text: 'text-yellow-800',
+    iconGradient: 'from-yellow-500 to-amber-500 text-white shadow-yellow-500/25 ring-yellow-500/10',
+    badge: 'bg-yellow-100/80 text-yellow-800 border-yellow-200',
+    accent: 'bg-yellow-500'
+  },
+  slate: {
+    bg: 'bg-slate-100/80 hover:bg-slate-100',
+    border: 'border-slate-300 hover:border-slate-400',
+    text: 'text-slate-800',
+    iconGradient: 'from-slate-700 to-slate-900 text-white shadow-slate-500/25 ring-slate-500/10',
+    badge: 'bg-slate-200 text-slate-800 border-slate-300',
+    accent: 'bg-slate-700'
+  },
+  zinc: {
+    bg: 'bg-zinc-100/80 hover:bg-zinc-100',
+    border: 'border-zinc-300 hover:border-zinc-400',
+    text: 'text-zinc-800',
+    iconGradient: 'from-zinc-600 to-slate-800 text-white shadow-zinc-500/25 ring-zinc-500/10',
+    badge: 'bg-zinc-200 text-zinc-800 border-zinc-300',
+    accent: 'bg-zinc-600'
+  },
+  stone: {
+    bg: 'bg-stone-100/80 hover:bg-stone-100',
+    border: 'border-stone-300 hover:border-stone-400',
+    text: 'text-stone-800',
+    iconGradient: 'from-stone-600 to-neutral-800 text-white shadow-stone-500/25 ring-stone-500/10',
+    badge: 'bg-stone-200 text-stone-800 border-stone-300',
+    accent: 'bg-stone-600'
   }
 };
+
+const BADGE_CATEGORIES = [
+  'Academic',
+  'Skill',
+  'Achievement',
+  'Milestone',
+  'Coding',
+  'Project',
+  'Attendance',
+  'Leadership',
+  'Assessment',
+  'Placement',
+  'Special'
+];
 
 export function BadgesPage() {
   const { badges = [], addBadge, updateBadge, deleteBadge, students = [] } = useLmsData();
@@ -108,14 +259,12 @@ export function BadgesPage() {
 
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
-  const [activeTab, setActiveTab] = useState('catalog'); // 'catalog' | 'showcase'
 
   // Modal States
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingBadge, setEditingBadge] = useState(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
   const [awardModalBadge, setAwardModalBadge] = useState(null);
-  const [selectedStudentId, setSelectedStudentId] = useState('');
 
   // Form State
   const [formData, setFormData] = useState({
@@ -187,14 +336,15 @@ export function BadgesPage() {
 
   const handleAwardSubmit = async (e) => {
     e.preventDefault();
-    if (!selectedStudentId) {
-      addToast('Please select a student to award the badge', 'error');
-      return;
+    if (!awardModalBadge) return;
+
+    if (awardModalBadge.isAll) {
+      addToast(`Awarded all ${badges.length} badges to all ${students.length} active students!`, 'success');
+    } else {
+      addToast(`Awarded badge "${awardModalBadge.name}" to all ${students.length} active students!`, 'success');
     }
-    const targetStud = students.find((s) => s.id === selectedStudentId);
-    addToast(`Awarded badge "${awardModalBadge?.name}" to ${targetStud?.name || 'Student'}!`, 'success');
+
     setAwardModalBadge(null);
-    setSelectedStudentId('');
   };
 
   // Filter Logic
@@ -208,7 +358,7 @@ export function BadgesPage() {
     return matchesSearch && matchesCategory;
   });
 
-  const categories = ['All', 'Academic', 'Skill', 'Achievement', 'Milestone'];
+  const categories = ['All', ...BADGE_CATEGORIES];
 
   const availableIcons = [
     { key: 'Award', label: 'Award Ribbon' },
@@ -220,16 +370,45 @@ export function BadgesPage() {
     { key: 'Target', label: 'Target' },
     { key: 'Flame', label: 'Flame' },
     { key: 'Crown', label: 'Crown' },
-    { key: 'Gem', label: 'Gem' }
+    { key: 'Gem', label: 'Gem' },
+    { key: 'Rocket', label: 'Rocket' },
+    { key: 'Code', label: 'Code' },
+    { key: 'Terminal', label: 'Terminal' },
+    { key: 'GraduationCap', label: 'Scholar' },
+    { key: 'Lightbulb', label: 'Idea' },
+    { key: 'Brain', label: 'Mastermind' },
+    { key: 'Heart', label: 'Passion' },
+    { key: 'Flag', label: 'Milestone' },
+    { key: 'Compass', label: 'Explorer' },
+    { key: 'Gift', label: 'Reward' },
+    { key: 'Key', label: 'Key' },
+    { key: 'Cpu', label: 'Core' },
+    { key: 'Globe', label: 'Global' },
+    { key: 'Sparkles', label: 'Sparkles' },
+    { key: 'BookOpen', label: 'Reader' }
   ];
 
   const availableColors = [
     { key: 'blue', label: 'Royal Blue', bg: 'bg-blue-600' },
     { key: 'indigo', label: 'Indigo', bg: 'bg-indigo-600' },
     { key: 'emerald', label: 'Emerald', bg: 'bg-emerald-600' },
+    { key: 'teal', label: 'Teal', bg: 'bg-teal-600' },
+    { key: 'cyan', label: 'Electric Cyan', bg: 'bg-cyan-500' },
+    { key: 'sky', label: 'Sky Blue', bg: 'bg-sky-500' },
+    { key: 'green', label: 'Forest Green', bg: 'bg-green-600' },
+    { key: 'lime', label: 'Neon Lime', bg: 'bg-lime-500' },
+    { key: 'yellow', label: 'Bright Yellow', bg: 'bg-yellow-500' },
     { key: 'amber', label: 'Amber Gold', bg: 'bg-amber-500' },
+    { key: 'orange', label: 'Sunset Orange', bg: 'bg-orange-500' },
+    { key: 'red', label: 'Crimson Red', bg: 'bg-red-600' },
+    { key: 'rose', label: 'Rose Red', bg: 'bg-rose-600' },
+    { key: 'pink', label: 'Hot Pink', bg: 'bg-pink-500' },
+    { key: 'fuchsia', label: 'Magenta Fuchsia', bg: 'bg-fuchsia-600' },
     { key: 'purple', label: 'Purple', bg: 'bg-purple-600' },
-    { key: 'rose', label: 'Rose Red', bg: 'bg-rose-600' }
+    { key: 'violet', label: 'Violet', bg: 'bg-violet-600' },
+    { key: 'slate', label: 'Slate Dark', bg: 'bg-slate-700' },
+    { key: 'zinc', label: 'Metallic Zinc', bg: 'bg-zinc-600' },
+    { key: 'stone', label: 'Warm Stone', bg: 'bg-stone-600' }
   ];
 
   return (
@@ -253,31 +432,14 @@ export function BadgesPage() {
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
-            {/* View Switcher Pills */}
-            <div className="p-1 bg-slate-100/90 border border-slate-200 rounded-2xl flex items-center gap-1 shadow-2xs">
-              <button
-                type="button"
-                onClick={() => setActiveTab('catalog')}
-                className={`px-3.5 py-2 rounded-xl text-xs font-extrabold transition-all cursor-pointer ${
-                  activeTab === 'catalog'
-                    ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
-                }`}
-              >
-                Badge Catalog ({badges.length})
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveTab('showcase')}
-                className={`px-3.5 py-2 rounded-xl text-xs font-extrabold transition-all cursor-pointer ${
-                  activeTab === 'showcase'
-                    ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
-                }`}
-              >
-                Student View
-              </button>
-            </div>
+            <Button
+              variant="outline"
+              icon={Award}
+              onClick={() => setAwardModalBadge({ name: 'All Catalog Badges', isAll: true })}
+              className="shadow-2xs border-purple-300 text-purple-700 hover:bg-purple-50 cursor-pointer font-bold"
+            >
+              Award All Badges to All Students
+            </Button>
 
             <Button
               variant="primary"
@@ -292,7 +454,7 @@ export function BadgesPage() {
       </div>
 
       {/* Metric Cards Row */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="bg-white p-5 rounded-3xl border border-slate-200/80 shadow-2xs hover:shadow-md transition-all">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Badges</span>
@@ -303,21 +465,6 @@ export function BadgesPage() {
           <div className="flex items-baseline gap-2">
             <span className="text-3xl font-black text-slate-900">{badges.length}</span>
             <span className="text-xs font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">Active</span>
-          </div>
-        </div>
-
-        <div className="bg-white p-5 rounded-3xl border border-slate-200/80 shadow-2xs hover:shadow-md transition-all">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">XP Reward Pool</span>
-            <div className="w-10 h-10 rounded-2xl bg-amber-50 text-amber-600 border border-amber-100 flex items-center justify-center">
-              <Zap className="w-5 h-5" />
-            </div>
-          </div>
-          <div className="flex items-baseline gap-2">
-            <span className="text-3xl font-black text-slate-900">
-              {badges.reduce((acc, b) => acc + (parseInt(b.points) || 100), 0)}
-            </span>
-            <span className="text-xs font-bold text-slate-400">Total Points</span>
           </div>
         </div>
 
@@ -350,309 +497,254 @@ export function BadgesPage() {
         </div>
       </div>
 
-      {/* Control Bar: Category Filters & Search */}
-      <div className="bg-white p-4 rounded-3xl border border-slate-200/80 shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-4">
-        {/* Category Pills */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-1 md:pb-0 scrollbar-none">
-          {categories.map((cat) => {
-            const count = cat === 'All' ? badges.length : badges.filter((b) => b.category === cat).length;
-            const isSelected = selectedCategory === cat;
-            return (
-              <button
-                key={cat}
-                onClick={() => setSelectedCategory(cat)}
-                className={`px-4 py-2 rounded-2xl text-xs font-black transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 ${
-                  isSelected
-                    ? 'bg-purple-600 text-white shadow-md shadow-purple-600/25'
-                    : 'bg-slate-100/80 hover:bg-slate-200/80 text-slate-600 font-bold'
-                }`}
-              >
-                <span>{cat}</span>
-                <span className={`px-2 py-0.5 rounded-full text-[10px] font-black ${
-                  isSelected ? 'bg-purple-700/80 text-purple-100' : 'bg-slate-200/80 text-slate-600'
-                }`}>
-                  {count}
-                </span>
-              </button>
-            );
-          })}
+      {/* Control Bar: Category Dropdown & Search */}
+      <div className="bg-white p-4 rounded-3xl border border-slate-200/80 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        {/* Category Dropdown */}
+        <div className="relative w-full sm:w-60">
+          <select
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+            className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl text-xs font-bold text-slate-800 focus:outline-none focus:border-purple-600 focus:bg-white transition-all shadow-2xs cursor-pointer appearance-none pr-8"
+          >
+            {categories.map((cat) => {
+              const count = cat === 'All' ? badges.length : badges.filter((b) => b.category === cat).length;
+              return (
+                <option key={cat} value={cat}>
+                  {cat} ({count})
+                </option>
+              );
+            })}
+          </select>
+          <ChevronRight className="w-4 h-4 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 rotate-90 pointer-events-none" />
         </div>
 
-        {/* Search */}
-        <div className="relative w-full md:w-72">
+        {/* Search Bar */}
+        <div className="relative w-full sm:w-72">
           <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             placeholder="Search badge name or criteria..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-9 pr-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:bg-white transition-all shadow-2xs font-semibold"
+            className="w-full pl-9 pr-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-purple-600 focus:bg-white transition-all shadow-2xs font-semibold"
           />
         </div>
       </div>
 
-      {/* CATALOG VIEW MODE */}
-      {activeTab === 'catalog' && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredBadges.map((badge) => {
-            const IconComp = ICON_MAP[badge.icon] || Award;
-            const theme = COLOR_THEMES[badge.color] || COLOR_THEMES.blue;
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {filteredBadges.map((badge) => {
+          const IconComp = ICON_MAP[badge.icon] || Award;
+          const theme = COLOR_THEMES[badge.color] || COLOR_THEMES.blue;
 
-            return (
-              <div
-                key={badge.id}
-                className={`bg-white rounded-3xl border ${theme.border} ${theme.bg} shadow-2xs hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 p-6 flex flex-col justify-between space-y-5 group relative overflow-hidden`}
-              >
-                <div>
-                  {/* Badge Header: Icon Avatar, Title & Points */}
-                  <div className="flex items-start justify-between gap-3 mb-4">
-                    <div className="flex items-center gap-3.5">
-                      <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${theme.iconGradient} flex items-center justify-center flex-shrink-0 shadow-lg ring-4 transition-transform duration-300 group-hover:scale-105`}>
-                        <IconComp className="w-7 h-7" />
-                      </div>
-                      <div>
-                        <span className={`inline-block mb-1 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider border ${theme.badge}`}>
-                          {badge.category}
-                        </span>
-                        <h3 className="font-black text-slate-900 text-base leading-snug group-hover:text-blue-700 transition-colors">
-                          {badge.name}
-                        </h3>
-                      </div>
-                    </div>
-
-                    <span className="px-3 py-1 rounded-full bg-purple-600 text-amber-300 border border-purple-500/50 text-xs font-black shadow-sm shadow-purple-600/20 flex-shrink-0 flex items-center gap-1">
-                      <Zap className="w-3 h-3 text-amber-400 fill-amber-400" />
-                      <span>{badge.points || '100 XP'}</span>
-                    </span>
-                  </div>
-
-                  {/* Description */}
-                  <p className="text-xs text-slate-600 font-medium leading-relaxed mb-4">
-                    {badge.description}
-                  </p>
-
-                  {/* Criteria Box */}
-                  {badge.criteria && (
-                    <div className="p-3.5 bg-white/90 rounded-2xl border border-slate-200/80 shadow-2xs space-y-1">
-                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider block">Requirement Criteria</span>
-                      <p className="text-xs text-slate-800 font-bold flex items-center gap-2">
-                        <CheckCircle2 className="w-4 h-4 text-emerald-500 flex-shrink-0" />
-                        <span>{badge.criteria}</span>
-                      </p>
-                    </div>
-                  )}
-                </div>
-
-                {/* Card Footer Actions */}
-                <div className="pt-4 border-t border-slate-200/60 flex items-center justify-between gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setAwardModalBadge(badge)}
-                    className="flex items-center gap-2 px-4 py-2 rounded-2xl text-xs font-extrabold text-white bg-purple-600 hover:bg-purple-700 shadow-md shadow-purple-600/25 transition-all cursor-pointer"
-                  >
-                    <Award className="w-4 h-4 text-purple-200" />
-                    <span>Award Badge</span>
-                  </button>
-
-                  <div className="flex items-center gap-1">
-                    <button
-                      type="button"
-                      onClick={() => handleOpenEditModal(badge)}
-                      className="p-2 text-slate-400 hover:text-blue-600 rounded-xl hover:bg-white transition-colors cursor-pointer"
-                      title="Edit Badge"
-                    >
-                      <Edit2 className="w-4 h-4" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setDeleteConfirmId(badge.id)}
-                      className="p-2 text-slate-400 hover:text-rose-600 rounded-xl hover:bg-white transition-colors cursor-pointer"
-                      title="Delete Badge"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-
-          {filteredBadges.length === 0 && (
-            <div className="col-span-full bg-white p-12 rounded-3xl border border-slate-200 text-center space-y-4 shadow-2xs">
-              <div className="w-16 h-16 rounded-3xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 mx-auto">
-                <Award className="w-8 h-8" />
-              </div>
-              <div className="space-y-1">
-                <h4 className="text-base font-black text-slate-800">No Badges Match Your Filter</h4>
-                <p className="text-xs text-slate-500 max-w-sm mx-auto">
-                  Try adjusting your search criteria or category filter to find badges.
-                </p>
-              </div>
-              <Button variant="primary" size="sm" icon={Plus} onClick={handleOpenAddModal}>
-                Create First Badge
-              </Button>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* STUDENT SHOWCASE VIEW MODE */}
-      {activeTab === 'showcase' && (
-        <div className="space-y-6">
-          <div className="p-6 bg-blue-50/70 border border-blue-200/80 rounded-3xl text-slate-900 space-y-1.5">
-            <h3 className="text-base font-black flex items-center gap-2 text-slate-900">
-              <Sparkles className="w-4 h-4 text-blue-600" />
-              <span>Student Profile Achievement Preview</span>
-            </h3>
-            <p className="text-xs text-slate-600 leading-relaxed max-w-2xl font-medium">
-              This preview demonstrates how badges are presented to enrolled students on their LMS profile dashboard upon achieving course milestones.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {badges.map((badge, idx) => {
-              const IconComp = ICON_MAP[badge.icon] || Award;
-              const theme = COLOR_THEMES[badge.color] || COLOR_THEMES.blue;
-              const isUnlocked = idx < 2; // Preview first 2 as unlocked for demo
-
-              return (
-                <div
-                  key={badge.id}
-                  className={`bg-white rounded-3xl border p-6 transition-all duration-300 ${
-                    isUnlocked
-                      ? 'border-emerald-200 shadow-md bg-gradient-to-b from-white to-emerald-50/30'
-                      : 'border-slate-200/80 opacity-80 bg-slate-50/50'
-                  }`}
-                >
-                  <div className="flex items-center justify-between mb-4">
-                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${
-                      isUnlocked
-                        ? `bg-gradient-to-br ${theme.iconGradient} shadow-lg ring-4`
-                        : 'bg-slate-200 text-slate-400'
-                    }`}>
+          return (
+            <div
+              key={badge.id}
+              className={`bg-white rounded-3xl border ${theme.border} ${theme.bg} shadow-2xs hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 p-6 flex flex-col justify-between space-y-5 group relative overflow-hidden`}
+            >
+              <div>
+                {/* Badge Header: Icon Avatar & Title */}
+                <div className="flex items-start justify-between gap-3 mb-4">
+                  <div className="flex items-center gap-3.5">
+                    <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${theme.iconGradient} flex items-center justify-center flex-shrink-0 shadow-lg ring-4 transition-transform duration-300 group-hover:scale-105`}>
                       <IconComp className="w-7 h-7" />
                     </div>
-
-                    {isUnlocked ? (
-                      <span className="px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-black flex items-center gap-1.5 border border-emerald-200">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                        <span>Unlocked</span>
+                    <div>
+                      <span className={`inline-block mb-1 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider border ${theme.badge}`}>
+                        {badge.category}
                       </span>
-                    ) : (
-                      <span className="px-3 py-1 rounded-full bg-slate-200 text-slate-600 text-xs font-black flex items-center gap-1.5 border border-slate-300">
-                        <Lock className="w-3.5 h-3.5 text-slate-500" />
-                        <span>Locked</span>
-                      </span>
-                    )}
-                  </div>
-
-                  <h4 className="font-black text-slate-900 text-base mb-1">{badge.name}</h4>
-                  <p className="text-xs text-slate-600 mb-4">{badge.description}</p>
-
-                  <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
-                    <span className="font-extrabold text-slate-500">{badge.category}</span>
-                    <span className="font-black text-blue-700 bg-blue-50 px-2.5 py-0.5 rounded-full border border-blue-200">
-                      {badge.points || '100 XP'}
-                    </span>
+                      <h3 className="font-black text-slate-900 text-base leading-snug group-hover:text-blue-700 transition-colors">
+                        {badge.name}
+                      </h3>
+                    </div>
                   </div>
                 </div>
-              );
-            })}
+
+                {/* Description */}
+                <p className="text-xs text-slate-600 font-medium leading-relaxed mb-4">
+                  {badge.description}
+                </p>
+
+                {/* Criteria Box */}
+                {badge.criteria && (
+                  <div className="p-3.5 bg-white/90 rounded-2xl border border-slate-200/80 shadow-2xs space-y-1">
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider block">Requirement Criteria</span>
+                    <p className="text-xs text-slate-800 font-bold flex items-center gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-500 flex-shrink-0" />
+                      <span>{badge.criteria}</span>
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* Card Footer Actions */}
+              <div className="pt-4 border-t border-slate-200/60 flex items-center justify-between gap-2">
+                <button
+                  type="button"
+                  onClick={() => setAwardModalBadge(badge)}
+                  className="flex items-center gap-2 px-4 py-2 rounded-2xl text-xs font-extrabold text-white bg-purple-600 hover:bg-purple-700 shadow-md shadow-purple-600/25 transition-all cursor-pointer"
+                >
+                  <Award className="w-4 h-4 text-purple-200" />
+                  <span>Award Badge</span>
+                </button>
+
+                <div className="flex items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={() => handleOpenEditModal(badge)}
+                    className="p-2 text-slate-400 hover:text-blue-600 rounded-xl hover:bg-white transition-colors cursor-pointer"
+                    title="Edit Badge"
+                  >
+                    <Edit2 className="w-4 h-4" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setDeleteConfirmId(badge.id)}
+                    className="p-2 text-slate-400 hover:text-rose-600 rounded-xl hover:bg-white transition-colors cursor-pointer"
+                    title="Delete Badge"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+
+        {filteredBadges.length === 0 && (
+          <div className="col-span-full bg-white p-12 rounded-3xl border border-slate-200 text-center space-y-4 shadow-2xs">
+            <div className="w-16 h-16 rounded-3xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 mx-auto">
+              <Award className="w-8 h-8" />
+            </div>
+            <div className="space-y-1">
+              <h4 className="text-base font-black text-slate-800">No Badges Match Your Filter</h4>
+              <p className="text-xs text-slate-500 max-w-sm mx-auto">
+                Try adjusting your search criteria or category filter to find badges.
+              </p>
+            </div>
+            <Button variant="primary" size="sm" icon={Plus} onClick={handleOpenAddModal}>
+              Create First Badge
+            </Button>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       {/* Add / Edit Badge Modal */}
-      <Modal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        title={editingBadge ? 'Edit Badge Details' : 'Create New Skill Badge'}
-        maxWidth="max-w-xl"
-      >
-        <form onSubmit={handleFormSubmit} className="space-y-5">
-          <Input
-            label="Badge Name"
-            type="text"
-            placeholder="e.g. Python Master"
-            value={formData.name}
-            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            required
-          />
+      {(() => {
+        const activeModalTheme = COLOR_THEMES[formData.color] || COLOR_THEMES.blue;
+        const ActivePreviewIcon = ICON_MAP[formData.icon] || Award;
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Select
-              label="Category"
-              value={formData.category}
-              onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-              options={[
-                { value: 'Academic', label: 'Academic' },
-                { value: 'Skill', label: 'Skill' },
-                { value: 'Achievement', label: 'Achievement' },
-                { value: 'Milestone', label: 'Milestone' }
-              ]}
-            />
+        return (
+          <Modal
+            isOpen={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
+            title={editingBadge ? 'Edit Badge Details' : 'Create New Skill Badge'}
+            maxWidth="max-w-3xl"
+          >
+            <form onSubmit={handleFormSubmit} className="space-y-5">
+              {/* Live Badge Preview Card */}
+              <div className="p-3.5 rounded-2xl bg-slate-50/80 border border-slate-200/80 space-y-2">
+                <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider block">
+                  Live Badge Preview
+                </span>
+                <div className={`bg-white rounded-2xl border ${activeModalTheme.border} ${activeModalTheme.bg} p-4 flex items-center gap-3.5 shadow-2xs transition-all duration-300`}>
+                  <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${activeModalTheme.iconGradient} flex items-center justify-center flex-shrink-0 shadow-md`}>
+                    <ActivePreviewIcon className="w-6 h-6" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <span className={`inline-block mb-0.5 px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider border ${activeModalTheme.badge}`}>
+                      {formData.category || 'Skill'}
+                    </span>
+                    <h4 className="font-black text-slate-900 text-sm truncate">
+                      {formData.name || 'Badge Name Preview'}
+                    </h4>
+                    <p className="text-xs text-slate-500 font-medium truncate">
+                      {formData.description || 'Badge description preview...'}
+                    </p>
+                  </div>
+                </div>
+              </div>
 
-            <Input
-              label="XP Reward Value"
-              type="text"
-              placeholder="e.g. 150 XP"
-              value={formData.points}
-              onChange={(e) => setFormData({ ...formData, points: e.target.value })}
-            />
-          </div>
+              <Input
+                label="Badge Name"
+                type="text"
+                placeholder="e.g. Python Master"
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                required
+              />
 
-          {/* Interactive Icon Selector */}
-          <div className="space-y-2">
-            <label className="text-xs font-black text-slate-700 uppercase tracking-wider block">
-              Badge Icon Avatar
-            </label>
-            <div className="grid grid-cols-5 gap-2.5 p-3 bg-slate-50 rounded-2xl border border-slate-200">
-              {availableIcons.map((ic) => {
-                const IconC = ICON_MAP[ic.key] || Award;
-                const isSelected = formData.icon === ic.key;
-                return (
-                  <button
-                    key={ic.key}
-                    type="button"
-                    onClick={() => setFormData({ ...formData, icon: ic.key })}
-                    className={`p-3 rounded-xl flex flex-col items-center gap-1.5 transition-all cursor-pointer ${
-                      isSelected
-                        ? 'bg-blue-600 text-white shadow-md ring-2 ring-blue-600'
-                        : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
-                    }`}
-                  >
-                    <IconC className="w-5 h-5" />
-                    <span className="text-[9px] font-black tracking-tight truncate max-w-full">{ic.key}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <Select
+                  label="Category"
+                  value={formData.category}
+                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                  options={BADGE_CATEGORIES.map((cat) => ({ value: cat, label: cat }))}
+                />
 
-          {/* Interactive Color Theme Selector */}
-          <div className="space-y-2">
-            <label className="text-xs font-black text-slate-700 uppercase tracking-wider block">
-              Color Theme Accent
-            </label>
-            <div className="grid grid-cols-6 gap-2 p-3 bg-slate-50 rounded-2xl border border-slate-200">
-              {availableColors.map((col) => {
-                const isSelected = formData.color === col.key;
-                return (
-                  <button
-                    key={col.key}
-                    type="button"
-                    onClick={() => setFormData({ ...formData, color: col.key })}
-                    className={`h-10 rounded-xl flex items-center justify-center transition-all cursor-pointer ${col.bg} ${
-                      isSelected ? 'ring-4 ring-offset-2 ring-blue-600 scale-105' : 'hover:scale-95 opacity-90'
-                    }`}
-                    title={col.label}
-                  >
-                    {isSelected && <Check className="w-4 h-4 text-white" />}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
+                <Input
+                  label="XP Reward Value"
+                  type="text"
+                  placeholder="e.g. 150 XP"
+                  value={formData.points}
+                  onChange={(e) => setFormData({ ...formData, points: e.target.value })}
+                />
+              </div>
+
+              {/* Icon Avatar & Color Theme Side-by-Side */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5 items-start">
+                {/* Interactive Icon Selector */}
+                <div className="space-y-2">
+                  <label className="text-xs font-black text-slate-700 uppercase tracking-wider block">
+                    Badge Icon Avatar
+                  </label>
+                  <div className="grid grid-cols-4 sm:grid-cols-5 gap-2 p-2.5 bg-slate-50 rounded-2xl border border-slate-200 max-h-56 overflow-y-auto">
+                    {availableIcons.map((ic) => {
+                      const IconC = ICON_MAP[ic.key] || Award;
+                      const isSelected = formData.icon === ic.key;
+                      return (
+                        <button
+                          key={ic.key}
+                          type="button"
+                          onClick={() => setFormData({ ...formData, icon: ic.key })}
+                          className={`p-2.5 rounded-xl flex flex-col items-center gap-1 transition-all cursor-pointer ${
+                            isSelected
+                              ? `bg-gradient-to-br ${activeModalTheme.iconGradient} text-white shadow-md ring-2 ring-offset-1`
+                              : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
+                          }`}
+                        >
+                          <IconC className="w-4 h-4" />
+                          <span className="text-[9px] font-black tracking-tight truncate max-w-full">{ic.key}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Interactive Color Theme Selector */}
+                <div className="space-y-2">
+                  <label className="text-xs font-black text-slate-700 uppercase tracking-wider block">
+                    Color Theme Accent
+                  </label>
+                  <div className="grid grid-cols-4 sm:grid-cols-5 gap-2 p-2.5 bg-slate-50 rounded-2xl border border-slate-200 max-h-56 overflow-y-auto">
+                    {availableColors.map((col) => {
+                      const isSelected = formData.color === col.key;
+                      return (
+                        <button
+                          key={col.key}
+                          type="button"
+                          onClick={() => setFormData({ ...formData, color: col.key })}
+                          className={`h-11 rounded-xl flex items-center justify-center transition-all cursor-pointer ${col.bg} ${
+                            isSelected ? 'ring-4 ring-offset-2 ring-slate-800 scale-105 shadow-md' : 'hover:scale-95 opacity-80 hover:opacity-100'
+                          }`}
+                          title={col.label}
+                        >
+                          {isSelected && <Check className="w-4 h-4 text-white" />}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
 
           <Input
             label="Requirement Criteria"
@@ -685,35 +777,41 @@ export function BadgesPage() {
           </div>
         </form>
       </Modal>
+    );
+  })()}
 
       {/* Award Badge Modal */}
       <Modal
         isOpen={!!awardModalBadge}
         onClose={() => setAwardModalBadge(null)}
-        title={`Award "${awardModalBadge?.name}" Badge`}
+        title={awardModalBadge?.isAll ? 'Award All Badges to All Students' : `Award "${awardModalBadge?.name}" Badge`}
         maxWidth="max-w-md"
       >
         <form onSubmit={handleAwardSubmit} className="space-y-4">
-          <p className="text-xs text-slate-600 font-medium leading-relaxed">
-            Select a student from the active roster to award this badge to. The student will instantly receive the badge on their LMS profile.
-          </p>
+          <div className="p-4 bg-purple-50 border border-purple-200/80 rounded-2xl flex items-center gap-3.5">
+            <div className="w-10 h-10 rounded-2xl bg-purple-600 text-white flex items-center justify-center flex-shrink-0 shadow-md shadow-purple-600/20">
+              <Award className="w-5 h-5" />
+            </div>
+            <div className="space-y-0.5">
+              <h4 className="text-xs font-black text-slate-900">
+                {awardModalBadge?.isAll ? 'Award All Catalog Badges' : awardModalBadge?.name}
+              </h4>
+              <p className="text-[11px] text-purple-700 font-bold">
+                Target: All <span className="underline decoration-purple-400">{students.length} enrolled students</span>
+              </p>
+            </div>
+          </div>
 
-          <Select
-            label="Select Student Roster"
-            value={selectedStudentId}
-            onChange={(e) => setSelectedStudentId(e.target.value)}
-            options={[
-              { value: '', label: '-- Choose Student --' },
-              ...students.map((s) => ({ value: s.id, label: `${s.name} (${s.batch || 'A26W1'})` }))
-            ]}
-          />
+          <p className="text-xs text-slate-600 font-medium leading-relaxed">
+            Clicking confirm will automatically award this badge to all students across all active batches in your roster.
+          </p>
 
           <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
             <Button variant="outline" type="button" onClick={() => setAwardModalBadge(null)}>
               Cancel
             </Button>
             <Button variant="primary" type="submit" icon={Award}>
-              Award Badge Now
+              Award to All Students
             </Button>
           </div>
         </form>
