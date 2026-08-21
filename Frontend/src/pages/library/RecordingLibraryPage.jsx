@@ -237,6 +237,7 @@ export function RecordingLibraryPage() {
         }}
         title={editingRecording ? 'Edit Recording Details' : 'Add Video Recording'}
         subtitle="Specify video stream URL, lecture metadata, concept tags, and lab instructions"
+        maxWidth="max-w-3xl"
       >
         <form onSubmit={handleSaveRecording} className="space-y-4">
           <Input
