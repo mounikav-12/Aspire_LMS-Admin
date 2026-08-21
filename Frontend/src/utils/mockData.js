@@ -158,7 +158,6 @@ export const INITIAL_REWARDS = [
     unlockedCount: 0
   }
 ];
->>>>>>> origin/manohar
 
 export const INITIAL_USERS = [
   {

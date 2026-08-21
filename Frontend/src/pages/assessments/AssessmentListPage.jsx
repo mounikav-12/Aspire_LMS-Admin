@@ -31,10 +31,10 @@ import {
 } from 'lucide-react';
 
 export function AssessmentListPage() {
-  const { assessments, courses, courseLessons, milestones, addAssessment, updateAssessment, deleteAssessment, activeBatchFilter, setActiveBatchFilter } = useLmsData();
-  const { addToast } = useToast();
+  const {
     assessments,
     courses,
+    courseLessons,
     milestones,
     addAssessment,
     updateAssessment,
@@ -44,48 +44,6 @@ export function AssessmentListPage() {
     availableBatches
   } = useLmsData();
   const { addToast } = useToast();
-
-  const stagesList = (milestones && milestones.stages && milestones.stages.length > 0)
-    ? milestones.stages
-    : [
-        {
-          id: 'stage-1',
-          title: 'Stage 1: Front End + Repository',
-          subtopics: [
-            { id: 'git-github', title: 'Git & GitHub Version Control' },
-            { id: 'html5', title: 'HTML5 & Semantic Structure' },
-            { id: 'css3', title: 'CSS3 & Responsive Layouts' },
-            { id: 'javascript-es6', title: 'JavaScript Fundamentals & ES6+' },
-            { id: 'reactjs', title: 'React.js Components & Hooks' }
-          ]
-        },
-        {
-          id: 'stage-2',
-          title: 'Stage 2: Backend + DSA',
-          subtopics: [
-            { id: 'python-core', title: 'Python Syntax, OOP & Standard Library' },
-            { id: 'express-django', title: 'REST API Design with Express & Django' },
-            { id: 'postgresql', title: 'PostgreSQL Database & Relational Schemas' },
-            { id: 'dsa-core', title: 'Data Structures & Algorithms (Trees, Graphs, DP)' }
-          ]
-        },
-        {
-          id: 'stage-3',
-          title: 'Stage 3: AI & Cloud Integration',
-          subtopics: [
-            { id: 'ai-prompting', title: 'AI Model Integration & OpenAI APIs' },
-            { id: 'docker-cloud', title: 'Docker, Containers & Cloud Deployment' }
-          ]
-        },
-        {
-          id: 'stage-4',
-          title: 'Stage 4: Career Launchpad',
-          subtopics: [
-            { id: 'capstone-proj', title: 'Capstone Enterprise Full-Stack Deployment' },
-            { id: 'mock-interview', title: 'System Design & Technical Mock Interviews' }
-          ]
-        }
-      ];
 
   const allWeekdayBatchesList = (
     availableBatches && availableBatches.length > 0
@@ -103,7 +61,6 @@ export function AssessmentListPage() {
       : ['A26S1', 'A26S2']
   );
 
->>>>>>> origin/manohar
   const [selectedBatch, setSelectedBatch] = useState(activeBatchFilter || 'Weekday Batch');
 
   const handleSelectBatch = (bVal) => {
@@ -755,7 +712,6 @@ export function AssessmentListPage() {
                 </span>
                 <span className="px-2 py-0.5 rounded-lg bg-white/10 text-blue-100 font-semibold border border-white/15">
                   {currentModalCodingCount} Coding
->>>>>>> origin/manohar
                 </span>
               </div>
             </div>

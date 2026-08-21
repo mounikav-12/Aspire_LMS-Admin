@@ -344,10 +344,8 @@ export function LmsDataProvider({ children }) {
 
     return () => {
       isMounted = false;
-      supabase.removeChannel(channel);
     };
   }, []);
->>>>>>> origin/manohar
 
   useEffect(() => {
     try { localStorage.setItem('aspire_lms_users', JSON.stringify(users)); } catch (e) {}
