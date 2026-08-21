@@ -1073,8 +1073,9 @@ export function MilestonesRoadmapPage() {
     <div className="space-y-5 pb-12">
       {/* Unified Page Header & Control Bar */}
       <div className="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-2xs space-y-6">
-        <div className="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-4">
-          <div className="flex items-center gap-3.5 flex-shrink-0">
+        <div className="space-y-4">
+          {/* Top: Page Title */}
+          <div className="flex items-center gap-3.5">
             <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-purple-600 text-white shadow-md shadow-purple-600/25">
               <Flag className="w-5.5 h-5.5" />
             </div>
@@ -1084,8 +1085,8 @@ export function MilestonesRoadmapPage() {
             </div>
           </div>
 
-          {/* Controls: Course, Category, & Batch Selectors */}
-          <div className="flex flex-wrap items-center gap-3.5">
+          {/* Below Title: Course on Left, Category & Batch on Right */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-1">
             <div className="flex items-center gap-2">
               <label className="text-xs font-bold text-slate-600 flex items-center gap-1.5 flex-shrink-0">
                 <BookOpen className="w-3.5 h-3.5 text-purple-600" />
@@ -1095,7 +1096,7 @@ export function MilestonesRoadmapPage() {
                 <select
                   value={selectedCourseId || courses[0]?.id || ''}
                   onChange={(e) => setSelectedCourseId(e.target.value)}
-                  className="px-3.5 py-2 pr-8 rounded-xl text-xs font-bold text-slate-800 bg-slate-50 border border-slate-200 hover:border-purple-300 focus:outline-none focus:border-purple-600 focus:bg-white transition-all shadow-2xs cursor-pointer appearance-none max-w-[200px] sm:max-w-xs truncate"
+                  className="px-3.5 py-2 pr-8 rounded-xl text-xs font-bold text-slate-800 bg-slate-50 border border-slate-200 hover:border-purple-300 focus:outline-none focus:border-purple-600 focus:bg-white transition-all shadow-2xs cursor-pointer appearance-none min-w-[200px]"
                 >
                   {courses.map((c) => (
                     <option key={c.id} value={c.id}>{c.title}</option>
