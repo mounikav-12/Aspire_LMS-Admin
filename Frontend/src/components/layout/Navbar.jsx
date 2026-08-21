@@ -315,52 +315,8 @@ export function Navbar({ isCollapsed, onToggleSidebar }) {
           </div>
         </div>
 
-        {/* Right side: Role Indicator / Switcher, Notifications, Profile */}
+        {/* Right side: Notifications, Profile */}
         <div className="flex items-center gap-2.5 sm:gap-4">
-          {/* Conditional Role Switcher: Interactive for Super Admin ONLY */}
-          {isSuperAdmin ? (
-            <div className="relative" ref={roleDropdownRef}>
-              <button
-                onClick={() => setIsRoleDropdownOpen(!isRoleDropdownOpen)}
-                className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 bg-blue-50 hover:bg-blue-100/80 border border-blue-200 text-blue-700 rounded-xl text-xs font-bold transition-all shadow-2xs cursor-pointer"
-                title="Super Admin View Mode Switcher"
-              >
-                <UserCheck className="w-3.5 h-3.5 text-blue-600" />
-                <span className="hidden sm:inline">Role:</span>
-                <span className="font-extrabold text-blue-900">{currentRole}</span>
-                <ChevronDown className="w-3.5 h-3.5 text-blue-500" />
-              </button>
-
-              {isRoleDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-56 sm:w-60 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 z-50 animate-in fade-in duration-150">
-                  <div className="px-3 py-1.5 border-b border-slate-100 mb-1">
-                    <p className="text-[10px] uppercase font-bold text-slate-400">Super Admin Switcher</p>
-                  </div>
-                  {Object.values(ROLES).map((role) => (
-                    <button
-                      key={role}
-                      onClick={() => handleRoleChange(role)}
-                      className={`w-full flex items-center justify-between px-4 py-2 text-xs font-semibold transition-colors cursor-pointer ${
-                        currentRole === role
-                          ? 'bg-blue-50 text-blue-700 font-bold'
-                          : 'text-slate-700 hover:bg-slate-50'
-                      }`}
-                    >
-                      <span>{role}</span>
-                      {currentRole === role && <Sparkles className="w-3.5 h-3.5 text-blue-600" />}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          ) : (
-            /* Static Non-Clickable Badge for Standard Staff (Admin, Manager, Instructor) */
-            <div className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 bg-slate-100 border border-slate-200 text-slate-700 rounded-xl text-xs font-bold shadow-2xs">
-              <ShieldCheck className="w-3.5 h-3.5 text-blue-600" />
-              <span className="hidden sm:inline">Role:</span>
-              <span className="font-extrabold text-slate-900">{currentRole}</span>
-            </div>
-          )}
 
           {/* Notifications Icon */}
           <div className="relative" ref={notifDropdownRef}>

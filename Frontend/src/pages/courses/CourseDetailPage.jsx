@@ -9,6 +9,7 @@ import { Modal } from '../../components/common/Modal';
 import { Badge } from '../../components/common/Badge';
 import { Breadcrumbs } from '../../components/common/Breadcrumbs';
 import { EmptyState } from '../../components/common/EmptyState';
+import { BatchMultiSelectDropdown } from '../../components/common/BatchMultiSelectDropdown';
 import {
   ArrowLeft,
   Plus,
@@ -408,128 +409,35 @@ export function CourseDetailPage() {
         </div>
       </div>
 
-      {/* --- IN-PAGE BATCH NAVIGATION TABS & MULTI-SELECT PANEL --- */}
-      <div className="bg-white rounded-3xl border border-slate-200/80 p-6 shadow-2xs space-y-5">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
-          <div>
-            <h2 className="text-lg font-black text-slate-900 flex items-center gap-2">
-              <Calendar className="w-5 h-5 text-blue-600" /> Student Batch & Schedule Selection
-            </h2>
-            <p className="text-xs text-slate-500 font-medium mt-0.5">
-              Select active batches for Weekdays or Weekends to view student-specific curriculum modules and schedule timings.
-            </p>
-          </div>
-
-          {/* In-Page Navigation Tabs */}
-          <div className="flex items-center gap-1.5 bg-slate-100/90 p-1.5 rounded-2xl border border-slate-200/80 self-start sm:self-auto">
-            <button
-              type="button"
-              onClick={() => setActiveTab('Weekdays')}
-              className={`px-4 py-2 rounded-xl text-xs font-black transition-all flex items-center gap-2 cursor-pointer ${
-                activeTab === 'Weekdays'
-                  ? 'bg-blue-600 text-white shadow-md'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
-              }`}
-            >
-              <Calendar className="w-3.5 h-3.5" />
-              <span>Weekdays</span>
-              <span className={`px-1.5 py-0.5 rounded-md text-[10px] font-bold ${
-                activeTab === 'Weekdays' ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700'
-              }`}>
-                {selectedWeekdayBatches.length} Selected
-              </span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setActiveTab('Weekends')}
-              className={`px-4 py-2 rounded-xl text-xs font-black transition-all flex items-center gap-2 cursor-pointer ${
-                activeTab === 'Weekends'
-                  ? 'bg-indigo-600 text-white shadow-md'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
-              }`}
-            >
-              <Calendar className="w-3.5 h-3.5" />
-              <span>Weekends</span>
-              <span className={`px-1.5 py-0.5 rounded-md text-[10px] font-bold ${
-                activeTab === 'Weekends' ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700'
-              }`}>
-                {selectedWeekendBatches.length} Selected
-              </span>
-            </button>
-          </div>
+      {/* --- IN-PAGE BATCH SELECTION DROPDOWNS --- */}
+      <div className="bg-white rounded-3xl border border-slate-200/80 p-6 shadow-2xs space-y-4">
+        <div className="border-b border-slate-100 pb-3">
+          <h2 className="text-lg font-black text-slate-900 flex items-center gap-2">
+            <Calendar className="w-5 h-5 text-blue-600" /> Student Batch & Schedule Selection
+          </h2>
+          <p className="text-xs text-slate-500 font-medium mt-0.5">
+            Select active batch category and multi-select particular batch numbers to view student-specific curriculum modules and schedule timings.
+          </p>
         </div>
 
-        {/* Tab Panel Content: Weekdays */}
-        {activeTab === 'Weekdays' ? (
-          <div className="space-y-3 animate-in fade-in duration-200">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-extrabold uppercase text-slate-500 tracking-wider flex items-center gap-1.5">
-                <Layers className="w-3.5 h-3.5 text-blue-600" /> Weekday Batches (A26W Series)
-              </span>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-              {weekdayBatches.map((bCode) => {
-                const isSelected = selectedWeekdayBatches.includes(bCode);
-                const num = bCode.replace(/[^0-9]/g, '');
-
-                return (
-                  <div
-                    key={bCode}
-                    onClick={() => toggleWeekdayBatch(bCode)}
-                    className={`flex items-center gap-3 p-3.5 rounded-2xl border transition-all cursor-pointer select-none ${
-                      isSelected
-                        ? 'bg-blue-50/80 border-blue-300 ring-2 ring-blue-500/20 text-blue-900 shadow-xs'
-                        : 'bg-slate-50/60 border-slate-200 hover:border-slate-300 hover:bg-white text-slate-700'
-                    }`}
-                  >
-                    {isSelected ? (
-                      <CheckSquare className="w-4 h-4 text-blue-600 flex-shrink-0" />
-                    ) : (
-                      <Square className="w-4 h-4 text-slate-400 flex-shrink-0" />
-                    )}
-                    <span className="text-xs font-black">{bCode}</span>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        ) : (
-          /* Tab Panel Content: Weekends */
-          <div className="space-y-3 animate-in fade-in duration-200">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-extrabold uppercase text-slate-500 tracking-wider flex items-center gap-1.5">
-                <Layers className="w-3.5 h-3.5 text-indigo-600" /> Weekend Batches (A26S Series)
-              </span>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-              {weekendBatches.map((bCode) => {
-                const isSelected = selectedWeekendBatches.includes(bCode);
-
-                return (
-                  <div
-                    key={bCode}
-                    onClick={() => toggleWeekendBatch(bCode)}
-                    className={`flex items-center gap-3 p-3.5 rounded-2xl border transition-all cursor-pointer select-none ${
-                      isSelected
-                        ? 'bg-indigo-50/80 border-indigo-300 ring-2 ring-indigo-500/20 text-indigo-900 shadow-xs'
-                        : 'bg-slate-50/60 border-slate-200 hover:border-slate-300 hover:bg-white text-slate-700'
-                    }`}
-                  >
-                    {isSelected ? (
-                      <CheckSquare className="w-4 h-4 text-indigo-600 flex-shrink-0" />
-                    ) : (
-                      <Square className="w-4 h-4 text-slate-400 flex-shrink-0" />
-                    )}
-                    <span className="text-xs font-black">{bCode}</span>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
+        <div className="pt-1">
+          <BatchMultiSelectDropdown
+            selectedWeekdayBatches={selectedWeekdayBatches}
+            selectedWeekendBatches={selectedWeekendBatches}
+            onChangeWeekdayBatches={(nextWd) => {
+              setSelectedWeekdayBatches(nextWd);
+              if (courseId) {
+                try { localStorage.setItem(`aspire_lms_card_wd_${courseId}`, JSON.stringify(nextWd)); } catch (e) {}
+              }
+            }}
+            onChangeWeekendBatches={(nextWe) => {
+              setSelectedWeekendBatches(nextWe);
+              if (courseId) {
+                try { localStorage.setItem(`aspire_lms_card_we_${courseId}`, JSON.stringify(nextWe)); } catch (e) {}
+              }
+            }}
+          />
+        </div>
       </div>
 
       {/* Topic Stages & Modules Section */}

@@ -414,29 +414,23 @@ export function BadgesPage() {
   return (
     <div className="space-y-7">
       {/* Executive Hero Banner */}
-      <div className="relative overflow-hidden rounded-3xl bg-white p-6 sm:p-8 shadow-xs border border-slate-200/80">
-        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-          <div className="space-y-2.5 max-w-2xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-200/80 text-blue-700 text-xs font-black uppercase tracking-wider">
-              <Sparkles className="w-3.5 h-3.5 text-blue-600 animate-pulse" />
-              <span>Gamified Recognition Engine</span>
-            </div>
-            
-            <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 leading-tight">
+      <div className="rounded-3xl bg-white p-6 shadow-2xs border border-slate-200/80">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-black tracking-tight text-slate-900">
               Badges & Achievements
             </h1>
-            
-            <p className="text-xs sm:text-sm text-slate-500 font-medium leading-relaxed">
-              Motivate student progress with dynamic skill badges, milestone trophies, and automated achievement rewards across all learning stages.
+            <p className="text-xs text-slate-500 font-medium mt-1">
+              Manage student skill badges, milestone trophies, and achievement criteria
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex items-center gap-3 flex-wrap">
             <Button
               variant="outline"
               icon={Award}
               onClick={() => setAwardModalBadge({ name: 'All Catalog Badges', isAll: true })}
-              className="shadow-2xs border-purple-300 text-purple-700 hover:bg-purple-50 cursor-pointer font-bold"
+              className="shadow-2xs border-purple-300 text-purple-700 hover:bg-purple-50 cursor-pointer font-bold text-xs"
             >
               Award All Badges to All Students
             </Button>
@@ -445,7 +439,7 @@ export function BadgesPage() {
               variant="primary"
               icon={Plus}
               onClick={handleOpenAddModal}
-              className="shadow-md shadow-blue-500/20"
+              className="shadow-md shadow-blue-500/20 text-xs"
             >
               Create Badge
             </Button>
@@ -677,14 +671,29 @@ export function BadgesPage() {
                 <Select
                   label="Category"
                   value={formData.category}
-                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                  onChange={(e) => {
+                    const newCat = e.target.value;
+                    let newCriteria = formData.criteria;
+                    if (newCat === 'Attendance' && (!formData.criteria || !formData.criteria.includes('%'))) {
+                      newCriteria = '90% Attendance';
+                    }
+                    setFormData({
+                      ...formData,
+                      category: newCat,
+                      criteria: newCriteria
+                    });
+                  }}
                   options={BADGE_CATEGORIES.map((cat) => ({ value: cat, label: cat }))}
                 />
 
                 <Input
-                  label="Requirement Criteria"
+                  label={formData.category === 'Attendance' ? 'Requirement Criteria (Attendance %)' : 'Requirement Criteria'}
                   type="text"
-                  placeholder="e.g. Score >= 90% in Stage 2 Python Assessment"
+                  placeholder={
+                    formData.category === 'Attendance'
+                      ? 'e.g. 90% Attendance'
+                      : 'e.g. Score >= 90% in Stage 2 Python Assessment'
+                  }
                   value={formData.criteria}
                   onChange={(e) => setFormData({ ...formData, criteria: e.target.value })}
                 />
