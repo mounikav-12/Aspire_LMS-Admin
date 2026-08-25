@@ -25,9 +25,35 @@ const defaultAuthContext = {
   isSuperAdmin: false,
   isAuthenticated: false,
   registeredUsers: [],
-  register: async () => ({ success: false, message: 'Auth provider not ready' }),
-  login: async () => ({ success: false, message: 'Auth provider not ready' }),
-  logout: () => {},
+  register: async ({ name, email, password, role }) => {
+    if (!name || !email || !password || !role) {
+      return { success: false, message: 'Please fill in all required fields.' };
+    }
+    return { success: false, message: 'Registration currently initializing. Please try again.' };
+  },
+  login: async (email, password) => {
+    if (!email || !password) {
+      return { success: false, message: 'Please enter both email and password' };
+    }
+    const emailClean = email.trim().toLowerCase();
+    const foundInitial = INITIAL_USERS.find((u) => u.email.toLowerCase() === emailClean);
+    if (foundInitial) {
+      const adminPassword = import.meta.env.VITE_ADMIN_PASSWORD || 'password@123';
+      if (password !== adminPassword) {
+        return { success: false, message: 'Invalid credentials. Password incorrect.' };
+      }
+      const cleanUser = sanitizeUser({
+        ...foundInitial,
+        originalRole: foundInitial.role
+      });
+      localStorage.setItem('aspire_lms_user', JSON.stringify(cleanUser));
+      return { success: true, user: cleanUser };
+    }
+    return { success: false, message: 'Invalid email or password. Please check your credentials or register.' };
+  },
+  logout: () => {
+    localStorage.removeItem('aspire_lms_user');
+  },
   switchRole: () => {},
   updateUserProfile: async () => ({ success: false })
 };
