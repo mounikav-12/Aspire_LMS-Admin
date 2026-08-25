@@ -1500,44 +1500,11 @@ export function LmsDataProvider({ children }) {
         }
 
         if (batchData) {
-          const initialFallback = createInitialMilestonesByBatch();
-          // Self-heal & enrich any modules that are missing items or topics
-          ['Weekday Batch', 'Weekend Batch'].forEach((bKey) => {
-            if (batchData[bKey]?.stages && initialFallback[bKey]?.stages) {
-              batchData[bKey].stages = batchData[bKey].stages.map((stg) => {
-                const fbStg = initialFallback[bKey].stages.find(s => s.id === stg.id || s.title === stg.title);
-                if (!fbStg) return stg;
-                return {
-                  ...stg,
-                  subtopics: (stg.subtopics || []).map((sub) => {
-                    const fbSub = fbStg.subtopics?.find(s => s.id === sub.id || s.title === sub.title);
-                    if (!fbSub) return sub;
-                    return {
-                      ...sub,
-                      modules: (sub.modules || []).map((mod) => {
-                        const fbMod = fbSub.modules?.find(m => m.id === mod.id || m.title === mod.title);
-                        if (!fbMod) return mod;
-                        const hasItems = Array.isArray(mod.items) && mod.items.length > 0;
-                        const hasTopics = Array.isArray(mod.topics) && mod.topics.length > 0;
-                        return {
-                          ...mod,
-                          topics: hasTopics ? mod.topics : (fbMod.topics || []),
-                          items: hasItems ? mod.items : (fbMod.items || [])
-                        };
-                      })
-                    };
-                  })
-                };
-              });
-            }
-          });
-
           lastSyncedMilestonesRef.current = JSON.stringify(batchData);
           setMilestonesByBatch(prev => {
             if (JSON.stringify(prev) === JSON.stringify(batchData)) return prev;
             return batchData;
           });
-          syncMilestonesNow(batchData);
         }
 
         const compRow = milesData.find(m => m.id === 'completed_items');
@@ -3796,20 +3763,33 @@ export function LmsDataProvider({ children }) {
               modules: (sub.modules || []).map((mod) => {
                 const isModMatch = mod.id === moduleId || mod.id.replace(/-[ws]$/, '') === String(moduleId).replace(/-[ws]$/, '');
                 if (!isModMatch) return mod;
+                const newItemId = newItemData.id || `item-${Date.now()}`;
+                const desc = newItemData.description || newItemData.agenda || newItemData.overview || '';
                 const newItem = {
-                  id: `item-${Date.now()}`,
+                  id: newItemId,
                   type: newItemData.type || 'LIVE CLASS',
                   typeColor: newItemData.typeColor || 'bg-purple-100 text-purple-700 border-purple-200',
                   iconName: newItemData.iconName || 'Video',
                   iconBg: newItemData.iconBg || 'bg-purple-600 text-white',
                   title: newItemData.title || 'New Resource',
+                  description: desc,
+                  agenda: desc,
+                  overview: desc,
                   actionText: newItemData.actionText || 'JOIN',
                   url: newItemData.url || '#',
                   btnStyle: newItemData.btnStyle || 'bg-purple-600 hover:bg-purple-700 text-white shadow-sm'
                 };
+                const newTopic = {
+                  id: newItemId,
+                  title: newItem.title,
+                  description: desc,
+                  agenda: desc,
+                  overview: desc
+                };
                 return {
                   ...mod,
-                  items: [...(mod.items || []), newItem]
+                  items: [...(mod.items || []), newItem],
+                  topics: [...(mod.topics || []), newTopic]
                 };
               })
             };
@@ -3835,9 +3815,19 @@ export function LmsDataProvider({ children }) {
               modules: (sub.modules || []).map((mod) => {
                 const isModMatch = mod.id === moduleId || mod.id.replace(/-[ws]$/, '') === String(moduleId).replace(/-[ws]$/, '');
                 if (!isModMatch) return mod;
+                const desc = updatedData.description || updatedData.agenda || updatedData.overview || '';
                 return {
                   ...mod,
-                  items: (mod.items || []).map((itm) => (itm.id === itemId || itm.id.replace(/-[ws]$/, '') === String(itemId).replace(/-[ws]$/, '') ? { ...itm, ...updatedData } : itm))
+                  items: (mod.items || []).map((itm) =>
+                    itm.id === itemId || itm.id.replace(/-[ws]$/, '') === String(itemId).replace(/-[ws]$/, '')
+                      ? { ...itm, ...updatedData, description: desc || itm.description, agenda: desc || itm.agenda, overview: desc || itm.overview }
+                      : itm
+                  ),
+                  topics: (mod.topics || []).map((top) =>
+                    top.id === itemId || top.id.replace(/-[ws]$/, '') === String(itemId).replace(/-[ws]$/, '')
+                      ? { ...top, title: updatedData.title || top.title, description: desc || top.description, agenda: desc || top.agenda, overview: desc || top.overview }
+                      : top
+                  )
                 };
               })
             };
@@ -3865,7 +3855,8 @@ export function LmsDataProvider({ children }) {
                 if (!isModMatch) return mod;
                 return {
                   ...mod,
-                  items: (mod.items || []).filter((itm) => itm.id !== itemId && itm.id.replace(/-[ws]$/, '') !== String(itemId).replace(/-[ws]$/, ''))
+                  items: (mod.items || []).filter((itm) => itm.id !== itemId && itm.id.replace(/-[ws]$/, '') !== String(itemId).replace(/-[ws]$/, '')),
+                  topics: (mod.topics || []).filter((top) => top.id !== itemId && top.id.replace(/-[ws]$/, '') !== String(itemId).replace(/-[ws]$/, ''))
                 };
               })
             };

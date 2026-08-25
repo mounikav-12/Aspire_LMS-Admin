@@ -1661,20 +1661,9 @@ export function MilestonesRoadmapPage() {
 
                       const hasLiveClass = !!primaryLiveSession || rawItems.some(it => it.type === 'LIVE CLASS');
 
-                      // Live Class Topics: Dynamically derive from primaryLiveSession.topics, module.topics, or module.items
+                      // Live Class Topics: Dynamically derive from module.topics, module.items, or primaryLiveSession.topics
                       let liveClassTopics = [];
-                      if (Array.isArray(primaryLiveSession?.topics) && primaryLiveSession.topics.length > 0) {
-                        liveClassTopics = primaryLiveSession.topics.map((t, idx) => ({
-                          id: t.id || `topic-${module.id}-${idx}`,
-                          title: t.title,
-                          description: t.description || t.agenda || t.overview || '',
-                          agenda: t.agenda || t.description || t.overview || '',
-                          overview: t.overview || t.agenda || t.description || '',
-                          type: 'LIVE CLASS',
-                          actionText: 'JOIN',
-                          url: moduleJoinLink
-                        }));
-                      } else if (Array.isArray(module?.topics) && module.topics.length > 0) {
+                      if (Array.isArray(module?.topics) && module.topics.length > 0) {
                         liveClassTopics = module.topics.map((t, idx) => ({
                           id: t.id || `topic-${module.id}-${idx}`,
                           title: t.title,
@@ -1685,36 +1674,37 @@ export function MilestonesRoadmapPage() {
                           actionText: 'JOIN',
                           url: moduleJoinLink
                         }));
-                      } else {
-                        const existingLiveItems = rawItems.filter(it => it.type === 'LIVE CLASS');
-                        if (existingLiveItems.length > 0) {
-                          liveClassTopics = existingLiveItems.map((it) => ({
-                            ...it,
-                            agenda: it.agenda || it.description || it.overview || '',
-                            description: it.description || it.agenda || it.overview || '',
-                            overview: it.overview || it.agenda || it.description || ''
-                          }));
-                        } else if (rawItems.length > 0 && rawItems.some(it => !it.type || it.type === 'TOPIC')) {
-                          liveClassTopics = rawItems.filter(it => !it.type || it.type === 'TOPIC').map((it) => ({
-                            ...it,
-                            agenda: it.agenda || it.description || it.overview || '',
-                            description: it.description || it.agenda || it.overview || '',
-                            overview: it.overview || it.agenda || it.description || ''
-                          }));
-                        } else if (hasLiveClass) {
-                          liveClassTopics = [
-                            {
-                              id: `topic-${module.id}-main`,
-                              title: primaryLiveSession?.sessionTitle || module.title,
-                              description: primaryLiveSession?.description || module.description || '',
-                              agenda: primaryLiveSession?.description || module.description || '',
-                              overview: primaryLiveSession?.description || module.description || '',
-                              type: 'LIVE CLASS',
-                              actionText: 'JOIN',
-                              url: moduleJoinLink
-                            }
-                          ];
-                        }
+                      } else if (rawItems.filter(it => it.type === 'LIVE CLASS' || it.type === 'TOPIC').length > 0) {
+                        liveClassTopics = rawItems.filter(it => it.type === 'LIVE CLASS' || it.type === 'TOPIC').map((it) => ({
+                          ...it,
+                          agenda: it.agenda || it.description || it.overview || '',
+                          description: it.description || it.agenda || it.overview || '',
+                          overview: it.overview || it.agenda || it.description || ''
+                        }));
+                      } else if (Array.isArray(primaryLiveSession?.topics) && primaryLiveSession.topics.length > 0) {
+                        liveClassTopics = primaryLiveSession.topics.map((t, idx) => ({
+                          id: t.id || `topic-${module.id}-${idx}`,
+                          title: t.title,
+                          description: t.description || t.agenda || t.overview || '',
+                          agenda: t.agenda || t.description || t.overview || '',
+                          overview: t.overview || t.agenda || t.description || '',
+                          type: 'LIVE CLASS',
+                          actionText: 'JOIN',
+                          url: moduleJoinLink
+                        }));
+                      } else if (hasLiveClass) {
+                        liveClassTopics = [
+                          {
+                            id: `topic-${module.id}-main`,
+                            title: primaryLiveSession?.sessionTitle || module.title,
+                            description: primaryLiveSession?.description || module.description || '',
+                            agenda: primaryLiveSession?.description || module.description || '',
+                            overview: primaryLiveSession?.description || module.description || '',
+                            type: 'LIVE CLASS',
+                            actionText: 'JOIN',
+                            url: moduleJoinLink
+                          }
+                        ];
                       }
 
                       // Auto-match assessments, coding questions, and practice items for this module
