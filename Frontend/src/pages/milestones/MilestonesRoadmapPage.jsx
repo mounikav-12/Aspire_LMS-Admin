@@ -356,8 +356,12 @@ export function MilestonesRoadmapPage() {
   const [selectedCourseId, setSelectedCourseId] = useState(() => searchParams.get('courseId') || courses[0]?.id || '');
   const [selectedStudentAccessId, setSelectedStudentAccessId] = useState('ALL');
 
-  // Derive active milestones stages from Course Management or selected course
+  // Derive active milestones stages from current milestone state or selected course
   const getActiveMilestoneStages = () => {
+    if (Array.isArray(currentMilestones?.stages) && currentMilestones.stages.length > 0) {
+      return currentMilestones.stages;
+    }
+
     let targetCourseId = selectedCourseId;
     if (targetCourseId === 'ALL') {
       const pythonCourse = courses.find(c => c.title && c.title.toLowerCase().includes('python'));
@@ -649,33 +653,10 @@ export function MilestonesRoadmapPage() {
   };
 
   const getTopicAgendaOverview = (item) => {
-    if (item?.description && item.description.trim()) return item.description;
-    if (item?.agenda && item.agenda.trim()) return item.agenda;
-    if (item?.overview && item.overview.trim()) return item.overview;
-
-    const t = (item?.title || '').toLowerCase();
-    if (t.includes('what is version control')) {
-      return 'What is version control? Why do developers need it? What happens if multiple developers edit the same project? How does Git solve these problems? What is the difference between Git and GitHub?';
-    }
-    if (t.includes('how does git work')) {
-      return 'Understanding Git snapshot architecture, working directory, staging area (index), and local repository (.git directory). How commits create immutable snapshots in time.';
-    }
-    if (t.includes('install & configure') || t.includes('install and configure')) {
-      return 'Installing Git CLI on Windows, Mac, and Linux. Setting up global user identity (git config --global user.name and user.email), default branch naming, and credential helpers.';
-    }
-    if (t.includes('create a git repository') || t.includes('git repo')) {
-      return 'Initializing new local repositories with git init, understanding hidden .git folders, tracking project files, and cloning existing remote repositories with git clone.';
-    }
-    if (t.includes('track & commit') || t.includes('track and commit')) {
-      return 'Inspecting file status with git status, adding files to staging with git add, writing clear commit messages with git commit -m, and viewing project commit logs with git log.';
-    }
-    if (t.includes('push & pull') || t.includes('push and pull')) {
-      return 'Connecting local repositories to GitHub via git remote add, pushing branches with git push -u origin main, and fetching/merging changes from team members with git pull.';
-    }
-    if (t.includes('branch') || t.includes('merge')) {
-      return 'Creating and switching isolated feature branches with git branch and git checkout/switch, merging branches, and resolving merge conflicts cleanly.';
-    }
-    return `Comprehensive session overview covering ${item?.title || 'this core topic'}. Master core concepts, practical industry patterns, and hands-on implementation.`;
+    if (item?.agenda && typeof item.agenda === 'string' && item.agenda.trim()) return item.agenda;
+    if (item?.description && typeof item.description === 'string' && item.description.trim()) return item.description;
+    if (item?.overview && typeof item.overview === 'string' && item.overview.trim()) return item.overview;
+    return `Detailed class agenda and practical learning objectives for ${item?.title || 'this session'}. Master core concepts, practical industry patterns, and hands-on implementation.`;
   };
 
   const [isItemModalOpen, setIsItemModalOpen] = useState(false);
@@ -1060,20 +1041,39 @@ export function MilestonesRoadmapPage() {
       btnStyle = 'bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30';
     }
 
+    const desc = itemFormData.description || '';
     const payload = {
       ...itemFormData,
+      description: desc,
+      agenda: desc,
+      overview: desc,
       typeColor,
       iconName,
       iconBg,
       btnStyle
     };
+    const curMod = activeSubtopic.modules?.find(m => m.id === targetModuleIdForItem);
+    const modTitle = curMod?.title || '';
 
     if (editingItem) {
-      updateLearningItem(activeSubtopic.stageId, activeSubtopic.id, targetModuleIdForItem, editingItem.id, payload, selectedBatch);
-      addToast('Resource item updated', 'success');
+      updateLearningItem(
+        activeSubtopic.stageId,
+        activeSubtopic.id,
+        targetModuleIdForItem,
+        editingItem.id,
+        { ...payload, prevTitle: editingItem.title, moduleTitle: modTitle },
+        selectedBatch
+      );
+      addToast('Topic & agenda updated', 'success');
     } else {
-      addLearningItem(activeSubtopic.stageId, activeSubtopic.id, targetModuleIdForItem, payload, selectedBatch);
-      addToast('Resource item added to module', 'success');
+      addLearningItem(
+        activeSubtopic.stageId,
+        activeSubtopic.id,
+        targetModuleIdForItem,
+        { ...payload, moduleTitle: modTitle },
+        selectedBatch
+      );
+      addToast('Topic & agenda added to module', 'success');
     }
     setIsItemModalOpen(false);
   };
@@ -1081,7 +1081,11 @@ export function MilestonesRoadmapPage() {
   const handleDeleteItem = (moduleId, itemId, title) => {
     if (!activeSubtopic) return;
     if (window.confirm(`Delete resource item "${title}"?`)) {
-      deleteLearningItem(activeSubtopic.stageId, activeSubtopic.id, moduleId, itemId, selectedBatch);
+      const curMod = activeSubtopic.modules?.find(m => m.id === moduleId);
+      deleteLearningItem(activeSubtopic.stageId, activeSubtopic.id, moduleId, itemId, selectedBatch, {
+        title,
+        moduleTitle: curMod?.title || ''
+      });
       addToast('Resource item deleted', 'info');
     }
   };
@@ -1650,94 +1654,112 @@ export function MilestonesRoadmapPage() {
 
                       const rawItems = module.items || [];
 
+                      const cleanNorm = (str) => (str || '').toLowerCase().replace(/[^a-z0-9]/g, '').trim();
+                      const stripSuffix = (str) => (str || '').replace(/-(w|s)$/i, '').trim();
+
+                      const curModId = stripSuffix(module.id);
+                      const curModTitle = cleanNorm(module.title);
+
                       // Match associated live session if scheduled
-                      const matchedLiveSessions = (liveSessions || []).filter(
-                        (s) =>
-                          s.moduleId === module.id ||
-                          s.innerTopicId === module.id ||
-                          s.topic_id === module.id ||
-                          (s.moduleName && s.moduleName.toLowerCase().trim() === module.title.toLowerCase().trim()) ||
-                          (s.sessionTitle && s.sessionTitle.toLowerCase().trim() === module.title.toLowerCase().trim()) ||
-                          rawItems.some(
-                            (it) =>
-                              it.sessionId === s.id ||
-                              `item-live-${s.id}` === it.id ||
-                              (it.type === 'LIVE CLASS' && it.title?.toLowerCase().trim() === s.sessionTitle?.toLowerCase().trim())
-                          )
-                      );
+                      const matchedLiveSessions = (liveSessions || []).filter((s) => {
+                        const sModId = stripSuffix(s.moduleId || s.innerTopicId || s.topic_id || s.module_id);
+                        if (sModId && curModId && sModId === curModId) return true;
+
+                        const sTitle = cleanNorm(s.sessionTitle || s.session_title || s.title);
+                        const sModName = cleanNorm(s.moduleName || s.module_name);
+
+                        if (sTitle && curModTitle && (sTitle === curModTitle || sTitle.includes(curModTitle) || curModTitle.includes(sTitle))) return true;
+                        if (sModName && curModTitle && (sModName === curModTitle || sModName.includes(curModTitle) || curModTitle.includes(sModName))) return true;
+
+                        return rawItems.some(
+                          (it) =>
+                            it.sessionId === s.id ||
+                            `item-live-${s.id}` === it.id ||
+                            (it.type === 'LIVE CLASS' && cleanNorm(it.title) === sTitle)
+                        );
+                      });
 
                       const primaryLiveSession = matchedLiveSessions[0] || null;
                       const moduleJoinLink = primaryLiveSession?.meetingLink || primaryLiveSession?.meeting_link || primaryLiveSession?.joinLink || primaryLiveSession?.url || rawItems.find(it => it.type === 'LIVE CLASS' && (it.url || it.joinLink))?.url || 'https://meet.google.com/aspire-lms-live';
 
                       const hasLiveClass = !!primaryLiveSession || rawItems.some(it => it.type === 'LIVE CLASS');
 
-                      // Live Class Topics: Synchronize and link from primaryLiveSession.topics or module.items
+                      // Live Class Topics: Dynamically derive from module.topics, rawItems, or primaryLiveSession.topics
                       let liveClassTopics = [];
-                      if (Array.isArray(primaryLiveSession?.topics) && primaryLiveSession.topics.length > 0) {
-                        liveClassTopics = primaryLiveSession.topics.map((t, idx) => ({
+                      if (Array.isArray(module?.topics) && module.topics.length > 0) {
+                        liveClassTopics = module.topics.map((t, idx) => ({
                           id: t.id || `topic-${module.id}-${idx}`,
                           title: t.title,
                           description: t.description || t.agenda || t.overview || '',
-                          agenda: t.description || t.agenda || t.overview || '',
-                          overview: t.description || t.agenda || t.overview || '',
+                          agenda: t.agenda || t.description || t.overview || '',
+                          overview: t.overview || t.agenda || t.description || '',
                           type: 'LIVE CLASS',
                           actionText: 'JOIN',
                           url: moduleJoinLink
                         }));
-                      } else {
-                        const existingLiveItems = rawItems.filter(it => it.type === 'LIVE CLASS');
-                        if (
-                          existingLiveItems.length <= 1 &&
-                          (existingLiveItems.length === 0 || existingLiveItems[0]?.title?.toLowerCase().trim() === module.title?.toLowerCase().trim()) &&
-                          (module.id === 'l_git_1' || module.title?.toLowerCase().includes('git architecture') || module.title?.toLowerCase().includes('version control'))
-                        ) {
-                          liveClassTopics = [
-                            {
-                              id: 'git-top-1',
-                              title: 'What is Version Control?',
-                              type: 'LIVE CLASS',
-                              description: 'What is version control? Why do developers need it? What happens if multiple developers edit the same project? How does Git solve these problems? What is the difference between Git and GitHub?',
-                              agenda: 'What is version control? Why do developers need it? What happens if multiple developers edit the same project? How does Git solve these problems? What is the difference between Git and GitHub?',
-                              overview: 'What is version control? Why do developers need it? What happens if multiple developers edit the same project? How does Git solve these problems? What is the difference between Git and GitHub?'
-                            },
-                            {
-                              id: 'git-top-2',
-                              title: 'How Does Git Work?',
-                              type: 'LIVE CLASS',
-                              description: 'Understanding Git snapshot architecture, working directory, staging area (index), and local repository (.git directory). How commits create immutable snapshots in time.',
-                              agenda: 'Understanding Git snapshot architecture, working directory, staging area (index), and local repository (.git directory). How commits create immutable snapshots in time.',
-                              overview: 'Understanding Git snapshot architecture, working directory, staging area (index), and local repository (.git directory). How commits create immutable snapshots in time.'
-                            },
-                            {
-                              id: 'git-top-3',
-                              title: 'How Do We Install & Configure Git?',
-                              type: 'LIVE CLASS',
-                              description: 'Installing Git CLI on Windows, Mac, and Linux. Setting up global user identity (git config --global user.name and user.email), default branch naming, and credential helpers.',
-                              agenda: 'Installing Git CLI on Windows, Mac, and Linux. Setting up global user identity (git config --global user.name and user.email), default branch naming, and credential helpers.',
-                              overview: 'Installing Git CLI on Windows, Mac, and Linux. Setting up global user identity (git config --global user.name and user.email), default branch naming, and credential helpers.'
-                            },
-                            {
-                              id: 'git-top-4',
-                              title: 'How Do We Create a Git Repository?',
-                              type: 'LIVE CLASS',
-                              description: 'Initializing new local repositories with git init, understanding hidden .git folders, tracking project files, and cloning existing remote repositories with git clone.',
-                              agenda: 'Initializing new local repositories with git init, understanding hidden .git folders, tracking project files, and cloning existing remote repositories with git clone.',
-                              overview: 'Initializing new local repositories with git init, understanding hidden .git folders, tracking project files, and cloning existing remote repositories with git clone.'
-                            },
-                            {
-                              id: 'git-top-5',
-                              title: 'How Do We Track & Commit Changes?',
-                              type: 'LIVE CLASS',
-                              description: 'Inspecting file status with git status, adding files to staging with git add, writing clear commit messages with git commit -m, and viewing project commit logs with git log.',
-                              agenda: 'Inspecting file status with git status, adding files to staging with git add, writing clear commit messages with git commit -m, and viewing project commit logs with git log.',
-                              overview: 'Inspecting file status with git status, adding files to staging with git add, writing clear commit messages with git commit -m, and viewing project commit logs with git log.'
-                            }
-                          ];
-                        } else {
-                          liveClassTopics = existingLiveItems.length > 0 ? existingLiveItems : rawItems.filter(it => !it.type);
-                        }
+                      } else if (rawItems.filter(it => it.type === 'LIVE CLASS' || it.type === 'TOPIC').length > 0) {
+                        liveClassTopics = rawItems.filter(it => it.type === 'LIVE CLASS' || it.type === 'TOPIC').map((it) => ({
+                          ...it,
+                          agenda: it.agenda || it.description || it.overview || '',
+                          description: it.description || it.agenda || it.overview || '',
+                          overview: it.overview || it.agenda || it.description || ''
+                        }));
+                      } else if (Array.isArray(primaryLiveSession?.topics) && primaryLiveSession.topics.length > 0) {
+                        liveClassTopics = primaryLiveSession.topics.map((t, idx) => ({
+                          id: t.id || `topic-${module.id}-${idx}`,
+                          title: t.title,
+                          description: t.description || t.agenda || t.overview || '',
+                          agenda: t.agenda || t.description || t.overview || '',
+                          overview: t.overview || t.agenda || t.description || '',
+                          type: 'LIVE CLASS',
+                          actionText: 'JOIN',
+                          url: moduleJoinLink
+                        }));
+                      } else if (hasLiveClass) {
+                        liveClassTopics = [
+                          {
+                            id: `topic-${module.id}-main`,
+                            title: primaryLiveSession?.sessionTitle || module.title,
+                            description: primaryLiveSession?.description || module.description || '',
+                            agenda: primaryLiveSession?.description || module.description || '',
+                            overview: primaryLiveSession?.description || module.description || '',
+                            type: 'LIVE CLASS',
+                            actionText: 'JOIN',
+                            url: moduleJoinLink
+                          }
+                        ];
                       }
-                      const otherResources = rawItems.filter(it => it.type !== 'LIVE CLASS' && !liveClassTopics.some(lt => lt.id === it.id));
+
+                      // Auto-match assessments, coding questions, and practice items for this module
+                      const autoMatchedAssessments = (assessments || [])
+                        .filter(asm => {
+                          const asmModId = stripSuffix(asm.moduleId || asm.innerTopicId || asm.topic_id || asm.module_id);
+                          if (asmModId && curModId && asmModId === curModId) return true;
+                          const tName = cleanNorm(asm.topicName || asm.topic_name || asm.title);
+                          return tName && curModTitle && (tName.includes(curModTitle) || curModTitle.includes(tName));
+                        })
+                        .map(asm => ({
+                          ...asm,
+                          id: `item-asmnt-${asm.id}`,
+                          assessmentId: asm.id,
+                          type: 'ASSESSMENT',
+                          typeColor: 'bg-blue-100 text-blue-800 border-blue-200',
+                          iconName: 'FileCheck',
+                          iconBg: 'bg-blue-600 text-white',
+                          title: asm.title,
+                          actionText: 'START',
+                          url: '/assessments',
+                          btnStyle: 'bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30',
+                          dueDate: asm.dueDate || '2026-08-30',
+                          durationMinutes: asm.durationMinutes || 45,
+                          totalMarks: asm.totalMarks || 100
+                        }));
+
+                      const rawNonLive = rawItems.filter(it => it.type !== 'LIVE CLASS' && !liveClassTopics.some(lt => lt.id === it.id));
+                      const otherResources = [
+                        ...rawNonLive,
+                        ...autoMatchedAssessments.filter(asm => !rawNonLive.some(it => it.assessmentId === asm.assessmentId || it.id === asm.id || (it.type === 'ASSESSMENT' && cleanNorm(it.title) === cleanNorm(asm.title))))
+                      ];
 
                       return (
                         <div key={module.id} className="rounded-2xl border border-slate-200/90 overflow-hidden shadow-xs bg-white">
