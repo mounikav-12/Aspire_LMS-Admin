@@ -97,6 +97,10 @@ function cloneMilestoneData(milestoneData, batchSuffix) {
       tagObj(sub);
       sub.modules = (sub.modules || []).map((mod) => {
         tagObj(mod);
+        mod.topics = (mod.topics || []).map((top) => {
+          tagObj(top);
+          return top;
+        });
         mod.items = (mod.items || []).map((itm) => {
           tagObj(itm);
           return itm;
@@ -1515,11 +1519,44 @@ export function LmsDataProvider({ children }) {
         }
 
         if (batchData) {
+          const initialFallback = createInitialMilestonesByBatch();
+          // Self-heal & enrich any modules that are missing items or topics
+          ['Weekday Batch', 'Weekend Batch'].forEach((bKey) => {
+            if (batchData[bKey]?.stages && initialFallback[bKey]?.stages) {
+              batchData[bKey].stages = batchData[bKey].stages.map((stg) => {
+                const fbStg = initialFallback[bKey].stages.find(s => s.id === stg.id || s.title === stg.title);
+                if (!fbStg) return stg;
+                return {
+                  ...stg,
+                  subtopics: (stg.subtopics || []).map((sub) => {
+                    const fbSub = fbStg.subtopics?.find(s => s.id === sub.id || s.title === sub.title);
+                    if (!fbSub) return sub;
+                    return {
+                      ...sub,
+                      modules: (sub.modules || []).map((mod) => {
+                        const fbMod = fbSub.modules?.find(m => m.id === mod.id || m.title === mod.title);
+                        if (!fbMod) return mod;
+                        const hasItems = Array.isArray(mod.items) && mod.items.length > 0;
+                        const hasTopics = Array.isArray(mod.topics) && mod.topics.length > 0;
+                        return {
+                          ...mod,
+                          topics: hasTopics ? mod.topics : (fbMod.topics || []),
+                          items: hasItems ? mod.items : (fbMod.items || [])
+                        };
+                      })
+                    };
+                  })
+                };
+              });
+            }
+          });
+
           lastSyncedMilestonesRef.current = JSON.stringify(batchData);
           setMilestonesByBatch(prev => {
             if (JSON.stringify(prev) === JSON.stringify(batchData)) return prev;
             return batchData;
           });
+          syncMilestonesNow(batchData);
         }
 
         const compRow = milesData.find(m => m.id === 'completed_items');

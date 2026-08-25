@@ -224,7 +224,95 @@ export const INITIAL_MILESTONES = {
           title: 'Git & GitHub Version Control',
           duration: '5 hrs',
           modules: [
-            { id: 'l_git_1', title: 'Git Architecture & Version Control Concepts' },
+            {
+              id: 'l_git_1',
+              title: 'Git Architecture & Version Control Concepts',
+              topics: [
+                {
+                  id: 'git-top-1',
+                  title: 'What is Version Control?',
+                  description: 'What is version control? Why do developers need it? What happens if multiple developers edit the same project? How does Git solve these problems? What is the difference between Git and GitHub?',
+                  agenda: 'What is version control? Why do developers need it? What happens if multiple developers edit the same project? How does Git solve these problems? What is the difference between Git and GitHub?'
+                },
+                {
+                  id: 'git-top-2',
+                  title: 'How Does Git Work?',
+                  description: 'Understanding Git snapshot architecture, working directory, staging area (index), and local repository (.git directory). How commits create immutable snapshots in time.',
+                  agenda: 'Understanding Git snapshot architecture, working directory, staging area (index), and local repository (.git directory). How commits create immutable snapshots in time.'
+                },
+                {
+                  id: 'git-top-3',
+                  title: 'How Do We Install & Configure Git?',
+                  description: 'Installing Git CLI on Windows, Mac, and Linux. Setting up global user identity (git config --global user.name and user.email), default branch naming, and credential helpers.',
+                  agenda: 'Installing Git CLI on Windows, Mac, and Linux. Setting up global user identity (git config --global user.name and user.email), default branch naming, and credential helpers.'
+                },
+                {
+                  id: 'git-top-4',
+                  title: 'How Do We Create a Git Repository?',
+                  description: 'Initializing new local repositories with git init, understanding hidden .git folders, tracking project files, and cloning existing remote repositories with git clone.',
+                  agenda: 'Initializing new local repositories with git init, understanding hidden .git folders, tracking project files, and cloning existing remote repositories with git clone.'
+                },
+                {
+                  id: 'git-top-5',
+                  title: 'How Do We Track & Commit Changes?',
+                  description: 'Inspecting file status with git status, adding files to staging with git add, writing clear commit messages with git commit -m, and viewing project commit logs with git log.',
+                  agenda: 'Inspecting file status with git status, adding files to staging with git add, writing clear commit messages with git commit -m, and viewing project commit logs with git log.'
+                }
+              ],
+              items: [
+                {
+                  id: 'git-top-1',
+                  type: 'LIVE CLASS',
+                  title: 'What is Version Control?',
+                  agenda: 'What is version control? Why do developers need it? What happens if multiple developers edit the same project? How does Git solve these problems? What is the difference between Git and GitHub?',
+                  description: 'What is version control? Why do developers need it? What happens if multiple developers edit the same project? How does Git solve these problems? What is the difference between Git and GitHub?'
+                },
+                {
+                  id: 'git-top-2',
+                  type: 'LIVE CLASS',
+                  title: 'How Does Git Work?',
+                  agenda: 'Understanding Git snapshot architecture, working directory, staging area (index), and local repository (.git directory). How commits create immutable snapshots in time.',
+                  description: 'Understanding Git snapshot architecture, working directory, staging area (index), and local repository (.git directory). How commits create immutable snapshots in time.'
+                },
+                {
+                  id: 'git-top-3',
+                  type: 'LIVE CLASS',
+                  title: 'How Do We Install & Configure Git?',
+                  agenda: 'Installing Git CLI on Windows, Mac, and Linux. Setting up global user identity (git config --global user.name and user.email), default branch naming, and credential helpers.',
+                  description: 'Installing Git CLI on Windows, Mac, and Linux. Setting up global user identity (git config --global user.name and user.email), default branch naming, and credential helpers.'
+                },
+                {
+                  id: 'git-top-4',
+                  type: 'LIVE CLASS',
+                  title: 'How Do We Create a Git Repository?',
+                  agenda: 'Initializing new local repositories with git init, understanding hidden .git folders, tracking project files, and cloning existing remote repositories with git clone.',
+                  description: 'Initializing new local repositories with git init, understanding hidden .git folders, tracking project files, and cloning existing remote repositories with git clone.'
+                },
+                {
+                  id: 'git-top-5',
+                  type: 'LIVE CLASS',
+                  title: 'How Do We Track & Commit Changes?',
+                  agenda: 'Inspecting file status with git status, adding files to staging with git add, writing clear commit messages with git commit -m, and viewing project commit logs with git log.',
+                  description: 'Inspecting file status with git status, adding files to staging with git add, writing clear commit messages with git commit -m, and viewing project commit logs with git log.'
+                },
+                {
+                  id: 'git-intro-m1-lab',
+                  type: 'PRACTICAL LAB',
+                  title: 'Git Repository Creation & Commit History Lab',
+                  url: 'https://lab.aspirelms.io/git-intro-1',
+                  agenda: 'Hands-on practice initializing repositories, adding commits, examining git status, and exploring git history.',
+                  description: 'Hands-on practice initializing repositories, adding commits, examining git status, and exploring git history.'
+                },
+                {
+                  id: 'git-intro-m1-quiz',
+                  type: 'ASSESSMENT',
+                  title: 'Git & Version Control Core Quiz',
+                  url: '/assessments',
+                  agenda: 'Multiple-choice and practical knowledge test covering version control principles and basic Git commands.',
+                  description: 'Multiple-choice and practical knowledge test covering version control principles and basic Git commands.'
+                }
+              ]
+            },
             { id: 'l_git_2', title: 'Core Git Commands: init, add, commit, push, pull' },
             { id: 'l_git_3', title: 'Branching Strategy & Merge Conflicts' },
             { id: 'l_git_4', title: 'GitHub Pull Requests & Collaboration Workflows' }
