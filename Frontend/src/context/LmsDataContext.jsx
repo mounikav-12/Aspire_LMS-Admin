@@ -2462,6 +2462,7 @@ export function LmsDataProvider({ children }) {
                   instructor: newSession.instructor || m.instructor,
                   date: newSession.date || m.date,
                   time: newSession.time || m.time,
+                  topics: Array.isArray(newSession.topics) && newSession.topics.length > 0 ? newSession.topics : (m.topics || []),
                   items: [...liveItems, ...nonLive]
                 };
               });
@@ -2571,6 +2572,7 @@ export function LmsDataProvider({ children }) {
             return {
               ...m,
               ...(updatedFields.meetingLink ? { meetingLink: updatedFields.meetingLink } : {}),
+              topics: Array.isArray(sessionToUse.topics) && sessionToUse.topics.length > 0 ? sessionToUse.topics : (m.topics || []),
               items
             };
           })
