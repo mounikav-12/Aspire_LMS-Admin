@@ -68,6 +68,8 @@ export function AssessmentListPage() {
     if (setActiveBatchFilter) setActiveBatchFilter(bVal);
   };
 
+  const [activeMainTab, setActiveMainTab] = useState('ASSESSMENTS'); // 'ASSESSMENTS' | 'QUIZZES'
+  const [activeStatusFilter, setActiveStatusFilter] = useState('ALL'); // 'ALL' | 'PENDING' | 'COMPLETED'
   const [searchTerm, setSearchTerm] = useState('');
   const [courseFilter, setCourseFilter] = useState('ALL');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -77,6 +79,7 @@ export function AssessmentListPage() {
   // Form state for creating/editing assessment
   const [formData, setFormData] = useState({
     title: '',
+    evalType: 'assessment', // 'assessment' | 'quiz'
     courseId: '',
     stageId: '',
     subtopicId: '',
@@ -179,6 +182,7 @@ export function AssessmentListPage() {
     setSelectedWeekendBatches(allWeekendBatchesList);
     setFormData({
       title: '',
+      evalType: activeMainTab === 'QUIZZES' ? 'quiz' : 'assessment',
       courseId: activeCourse?.id || '',
       stageId: activeStage?.id || '',
       subtopicId: activeSub?.id || '',
@@ -263,8 +267,11 @@ export function AssessmentListPage() {
       : [{ id: foundSubtopic?.id || 'all', title: foundSubtopic?.title || 'General Overview' }];
     const foundInnerTopic = innerModulesOfSubtopic.find((m) => m.id === asm.innerTopicId || m.title === asm.topicName) || innerModulesOfSubtopic[0];
 
+    const detectedEvalType = asm.evalType || (asm.category?.toLowerCase().includes('quiz') || asm.title?.toLowerCase().includes('quiz') ? 'quiz' : 'assessment');
+
     setFormData({
       title: asm.title,
+      evalType: detectedEvalType,
       courseId: asm.courseId || courses[0]?.id || '',
       stageId: foundStage?.id || 'stage-1',
       subtopicId: foundSubtopic?.id || 'git-github',
@@ -386,8 +393,9 @@ export function AssessmentListPage() {
     // Find matching lesson
     const selectedInnerTopic = innerList.find((m) => m.id === formData.innerTopicId);
 
+    const isQuizEval = (formData.evalType || 'assessment') === 'quiz';
     const totalMcqsCount = formData.mcqs.length;
-    const totalCodingCount = formData.codingQuestions.length;
+    const totalCodingCount = isQuizEval ? 0 : formData.codingQuestions.length;
     const totalQuestionsCount = totalMcqsCount + totalCodingCount;
 
     const allBatches = [...selectedWeekdayBatches, ...selectedWeekendBatches];
@@ -395,6 +403,7 @@ export function AssessmentListPage() {
 
     const assessmentPayload = {
       title: formData.title,
+      evalType: formData.evalType || 'assessment',
       courseId: selectedCourse?.id,
       courseName: selectedCourse?.title,
       stageId: selectedStage?.id,
@@ -410,7 +419,7 @@ export function AssessmentListPage() {
       codingCount: totalCodingCount,
       totalQuestions: totalQuestionsCount,
       mcqs: formData.mcqs,
-      codingQuestions: formData.codingQuestions,
+      codingQuestions: isQuizEval ? [] : formData.codingQuestions,
       targetBatches: allBatches,
       targetBatch: targetBatchStr
     };
@@ -435,14 +444,26 @@ export function AssessmentListPage() {
   };
 
   const filteredAssessments = assessments.filter((a) => {
+    const isQuiz = a.evalType === 'quiz' || a.category?.toLowerCase().includes('quiz') || a.title?.toLowerCase().includes('quiz');
+    const matchesMainTab = activeMainTab === 'QUIZZES' ? isQuiz : !isQuiz;
+
     const matchesSearch =
       a.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      a.courseName?.toLowerCase().includes(searchTerm.toLowerCase());
+      a.courseName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      a.subtopicName?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCourse = courseFilter === 'ALL' || a.courseId === courseFilter;
-    return matchesSearch && matchesCourse;
+
+    let matchesStatus = true;
+    if (activeStatusFilter === 'PUBLISHED') {
+      matchesStatus = a.status === 'Published' || !a.status || a.status === 'Completed';
+    } else if (activeStatusFilter === 'DRAFT') {
+      matchesStatus = a.status === 'Draft' || a.status === 'Pending';
+    }
+
+    return matchesMainTab && matchesSearch && matchesCourse && matchesStatus;
   });
 
-  // Calculate Overall Aggregate Metrics
+  // Calculate Aggregate Metrics
   const totalQuestionsAllAssessments = assessments.reduce(
     (acc, a) => acc + (a.totalQuestions || (a.mcqs?.length || a.mcqCount || 0) + (a.codingQuestions?.length || a.codingCount || 0)),
     0
@@ -458,54 +479,94 @@ export function AssessmentListPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-xl md:text-2xl font-bold tracking-normal text-slate-900 flex items-center gap-2.5">
-            <FileCheck2 className="w-6 h-6 text-blue-600" /> Assessments & Quizzes
+            <FileCheck2 className="w-6 h-6 text-purple-600" /> Practice Hub & Evaluations
           </h1>
           <p className="text-xs text-slate-500 font-medium mt-1">
-            Author MCQ tests, code challenge prompts, and publish graded evaluations for enrolled students.
+            Topic-based practice assessments, tests, and module quizzes for enrolled students.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2.5">
-
           <NavLink to="/coding-questions">
             <Button variant="outline" size="md" icon={Code2} className="border-emerald-200 text-emerald-700 hover:bg-emerald-50 font-bold">
               Coding Bank
             </Button>
           </NavLink>
           <Button variant="primary" size="md" icon={Plus} onClick={handleOpenAddModal}>
-            Create Assessment
+            {activeMainTab === 'QUIZZES' ? 'Create Quiz' : 'Create Assessment'}
           </Button>
         </div>
       </div>
 
-      {/* Overview Metric Bar */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-2xs flex items-center gap-3">
-          <div className="p-3 rounded-xl bg-blue-50 text-blue-600">
-            <FileCheck2 className="w-5 h-5" />
+      {/* Primary Category Switcher & Secondary Status Filters */}
+      <div className="bg-white p-4 rounded-3xl border border-slate-200/80 shadow-2xs space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          {/* Top Primary Tabs: Assessments vs Quizzes */}
+          <div className="bg-slate-100/90 p-1.5 rounded-2xl inline-flex items-center gap-1.5 shadow-2xs">
+            <button
+              type="button"
+              onClick={() => {
+                setActiveMainTab('ASSESSMENTS');
+                setActiveStatusFilter('ALL');
+              }}
+              className={`px-6 py-2.5 rounded-xl text-sm transition-all cursor-pointer ${
+                activeMainTab === 'ASSESSMENTS'
+                  ? 'bg-purple-600 text-white shadow-md shadow-purple-500/25 font-extrabold'
+                  : 'text-slate-600 hover:text-purple-700 hover:bg-white/60 font-bold'
+              }`}
+            >
+              Assessments
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setActiveMainTab('QUIZZES');
+                setActiveStatusFilter('ALL');
+              }}
+              className={`px-6 py-2.5 rounded-xl text-sm transition-all cursor-pointer ${
+                activeMainTab === 'QUIZZES'
+                  ? 'bg-purple-600 text-white shadow-md shadow-purple-500/25 font-extrabold'
+                  : 'text-slate-600 hover:text-purple-700 hover:bg-white/60 font-bold'
+              }`}
+            >
+              Quizzes
+            </button>
           </div>
-          <div>
-            <p className="text-xs text-slate-400 font-medium">Total Evaluations</p>
-            <p className="text-lg font-bold text-slate-900">{assessments.length} Active Quizzes</p>
-          </div>
-        </div>
 
-        <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-2xs flex items-center gap-3">
-          <div className="p-3 rounded-xl bg-purple-50 text-purple-600">
-            <ListChecks className="w-5 h-5" />
-          </div>
-          <div>
-            <p className="text-xs text-slate-400 font-medium">Total Questions Configured</p>
-            <p className="text-lg font-bold text-purple-700">{totalQuestionsAllAssessments} Questions</p>
-          </div>
-        </div>
-
-        <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-2xs flex items-center gap-3">
-          <div className="p-3 rounded-xl bg-emerald-50 text-emerald-600">
-            <CheckCircle2 className="w-5 h-5" />
-          </div>
-          <div>
-            <p className="text-xs text-slate-400 font-medium">LMS Feed Sync</p>
-            <p className="text-lg font-bold text-emerald-600">Published Live</p>
+          {/* Secondary Sub-Filter Pills: All / Published / Drafts */}
+          <div className="bg-slate-100/80 p-1 rounded-2xl inline-flex items-center gap-1 border border-slate-200/60">
+            <button
+              type="button"
+              onClick={() => setActiveStatusFilter('ALL')}
+              className={`px-4 py-1.5 rounded-xl text-xs transition-all cursor-pointer ${
+                activeStatusFilter === 'ALL'
+                  ? 'bg-white text-purple-950 font-extrabold shadow-2xs border border-slate-200/80'
+                  : 'text-slate-500 hover:text-slate-800 font-semibold'
+              }`}
+            >
+              {activeMainTab === 'QUIZZES' ? 'All Quizzes' : 'All Assessments'}
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveStatusFilter('PUBLISHED')}
+              className={`px-4 py-1.5 rounded-xl text-xs transition-all cursor-pointer ${
+                activeStatusFilter === 'PUBLISHED'
+                  ? 'bg-white text-purple-950 font-extrabold shadow-2xs border border-slate-200/80'
+                  : 'text-slate-500 hover:text-slate-800 font-semibold'
+              }`}
+            >
+              Published
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveStatusFilter('DRAFT')}
+              className={`px-4 py-1.5 rounded-xl text-xs transition-all cursor-pointer ${
+                activeStatusFilter === 'DRAFT'
+                  ? 'bg-white text-purple-950 font-extrabold shadow-2xs border border-slate-200/80'
+                  : 'text-slate-500 hover:text-slate-800 font-semibold'
+              }`}
+            >
+              Drafts
+            </button>
           </div>
         </div>
       </div>
@@ -516,7 +577,7 @@ export function AssessmentListPage() {
           <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
             type="text"
-            placeholder="Search assessments by title, course name..."
+            placeholder={`Search ${activeMainTab === 'QUIZZES' ? 'quizzes' : 'assessments'} by title, topic, course name...`}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pl-10 pr-4 py-2 bg-slate-50/70 border border-slate-200 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all"
@@ -535,126 +596,104 @@ export function AssessmentListPage() {
         </div>
       </div>
 
-      {/* Assessment Cards */}
+      {/* Assessment / Quiz Cards */}
       {filteredAssessments.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {filteredAssessments.map((asm) => {
             const mcqCount = asm.mcqs?.length || asm.mcqCount || 0;
             const codingCount = asm.codingQuestions?.length || asm.codingCount || 0;
             const totalQ = asm.totalQuestions || mcqCount + codingCount;
+            const isQuizItem = asm.evalType === 'quiz' || asm.category?.toLowerCase().includes('quiz') || asm.title?.toLowerCase().includes('quiz');
+            const typeBadgeLabel = isQuizItem ? 'MODULE QUIZ' : codingCount > 0 ? 'CODING ASSESSMENT' : 'MCQ ASSESSMENT';
 
             return (
               <div
                 key={asm.id}
-                className="group bg-white rounded-3xl border border-slate-200/80 shadow-2xs hover:shadow-2xl hover:shadow-blue-500/10 hover:border-blue-300 transition-all duration-300 hover:-translate-y-1.5 p-6 flex flex-col justify-between h-full"
+                className="group bg-white rounded-3xl border border-slate-200/80 shadow-2xs hover:shadow-xl hover:shadow-purple-500/10 hover:border-purple-300 transition-all duration-300 hover:-translate-y-1 p-6 flex flex-col justify-between h-full"
               >
                 <div className="space-y-4">
-                  {/* Header Badges & Action Icons */}
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <span className="inline-flex items-center gap-1.5 bg-blue-50/90 text-blue-700 font-bold px-3 py-1.5 rounded-xl border border-blue-200/60 text-xs">
-                          <BookOpen className="w-3.5 h-3.5 text-blue-600 flex-shrink-0" />
-                          <span className="truncate max-w-[240px]">{asm.courseName || 'Python Full Stack'}</span>
+                  {/* Card Header: Badges on Left, Action Icons on Right */}
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-2 flex-wrap min-w-0">
+                      {/* Type Badge */}
+                      <span className="bg-purple-100/90 text-purple-700 font-extrabold text-[11px] px-3 py-1 rounded-xl tracking-wide uppercase border border-purple-200/60 flex-shrink-0">
+                        {typeBadgeLabel}
+                      </span>
+
+                      {/* Topic Tag */}
+                      {(asm.subtopicName || asm.topicName || asm.moduleName) && (
+                        <span className="bg-slate-100 text-slate-700 font-bold text-[11px] px-3 py-1 rounded-xl border border-slate-200/70 truncate max-w-[200px]">
+                          {asm.subtopicName || asm.topicName || asm.moduleName}
                         </span>
+                      )}
 
-                      </div>
-
-                      <div className="flex items-center gap-1 bg-slate-50 p-1 rounded-xl border border-slate-100">
-                        <button
-                          onClick={() => handleOpenEditModal(asm)}
-                          className="p-1.5 text-slate-400 hover:text-blue-600 rounded-lg hover:bg-white transition-colors cursor-pointer"
-                          title="Edit Assessment & Questions"
-                        >
-                          <Edit2 className="w-3.5 h-3.5" />
-                        </button>
-                        <button
-                          onClick={() => setDeletingAssessment(asm)}
-                          className="p-1.5 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-white transition-colors cursor-pointer"
-                          title="Delete Assessment"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
+                      {/* Course Tag */}
+                      {asm.courseName && (
+                        <span className="bg-blue-50 text-blue-700 font-bold text-[11px] px-2.5 py-1 rounded-xl border border-blue-200/60 truncate max-w-[180px]">
+                          {asm.courseName}
+                        </span>
+                      )}
                     </div>
 
-                    {/* Stage, Subtopic & Inner Topic Breadcrumb Pills */}
-                    {(asm.moduleName || asm.subtopicName || asm.topicName) && (
-                      <div className="flex flex-wrap items-center gap-1.5 text-[11px] font-semibold text-slate-600">
-                        {asm.moduleName && (
-                          <span className="px-2 py-0.5 bg-slate-100 text-slate-700 rounded-md border border-slate-200/80 font-bold">
-                            {asm.moduleName}
-                          </span>
-                        )}
-                        {asm.subtopicName && (
-                          <>
-                            <span className="text-slate-400">➔</span>
-                            <span className="px-2 py-0.5 bg-blue-50 text-blue-700 rounded-md border border-blue-200/80 font-bold">
-                              {asm.subtopicName}
-                            </span>
-                          </>
-                        )}
-                        {asm.topicName && (
-                          <>
-                            <span className="text-slate-400">➔</span>
-                            <span className="px-2 py-0.5 bg-purple-50 text-purple-700 rounded-md border border-purple-200/80 font-bold">
-                              Topic: {asm.topicName}
-                            </span>
-                          </>
-                        )}
-                      </div>
-                    )}
+                    {/* Edit & Delete Action Buttons */}
+                    <div className="flex items-center gap-1 bg-slate-50 p-1 rounded-xl border border-slate-200/60 flex-shrink-0">
+                      <button
+                        onClick={() => handleOpenEditModal(asm)}
+                        className="p-1.5 text-slate-400 hover:text-purple-600 rounded-lg hover:bg-white transition-colors cursor-pointer"
+                        title="Edit Evaluation"
+                      >
+                        <Edit2 className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        onClick={() => setDeletingAssessment(asm)}
+                        className="p-1.5 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-white transition-colors cursor-pointer"
+                        title="Delete Evaluation"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
                   </div>
 
-                  {/* Title & Total Questions Badge */}
-                  <div className="flex items-start justify-between gap-2">
-                    <h3 className="font-bold text-slate-900 text-base group-hover:text-blue-600 transition-colors leading-snug">
+                  {/* Title & Description */}
+                  <div className="space-y-1.5 pt-1">
+                    <h3 className="font-extrabold text-slate-900 text-base group-hover:text-purple-600 transition-colors leading-snug">
                       {asm.title}
                     </h3>
-                    <span className="px-2.5 py-1 rounded-full bg-purple-100 text-purple-800 font-black text-[11px] whitespace-nowrap border border-purple-200/60 flex-shrink-0">
-                      {totalQ} Questions
-                    </span>
+                    <p className="text-xs text-slate-500 font-medium line-clamp-2 leading-relaxed">
+                      Test your understanding of {asm.subtopicName || asm.topicName || asm.title} concepts.
+                    </p>
                   </div>
 
-                  {/* Color-Coordinated Metric Pills */}
-                  <div className="grid grid-cols-2 gap-2.5 pt-1">
-                    <div className="flex items-center gap-2 text-xs font-semibold text-blue-900 bg-blue-50/70 p-2.5 rounded-xl border border-blue-100/80">
-                      <Clock className="w-4 h-4 text-blue-600 flex-shrink-0" />
-                      <span>{asm.durationMinutes} Minutes</span>
-                    </div>
+                  {/* Clean Horizontal Metric Strip */}
+                  <div className="flex items-center gap-2 pt-1 flex-wrap">
+                    <span className="bg-slate-100/90 text-slate-700 font-bold text-xs px-3 py-1.5 rounded-xl border border-slate-200/60 flex items-center gap-1.5">
+                      <Clock className="w-3.5 h-3.5 text-purple-600" /> {asm.durationMinutes || 45} mins
+                    </span>
 
-                    <div className="flex items-center gap-2 text-xs font-semibold text-amber-900 bg-amber-50/70 p-2.5 rounded-xl border border-amber-100/80">
-                      <Award className="w-4 h-4 text-amber-500 flex-shrink-0" />
-                      <span>{asm.totalMarks} XP Points</span>
-                    </div>
+                    <span className="bg-amber-50 text-amber-700 font-extrabold text-xs px-3 py-1.5 rounded-xl border border-amber-200/80 flex items-center gap-1.5">
+                      <Award className="w-3.5 h-3.5 text-amber-500" /> +{asm.totalMarks || 100} XP
+                    </span>
 
-                    <div className="flex items-center gap-2 text-xs font-semibold text-indigo-900 bg-indigo-50/70 p-2.5 rounded-xl border border-indigo-100/80">
-                      <HelpCircle className="w-4 h-4 text-indigo-600 flex-shrink-0" />
-                      <span>{mcqCount} MCQs</span>
-                    </div>
-
-                    <div className="flex items-center gap-2 text-xs font-semibold text-emerald-900 bg-emerald-50/70 p-2.5 rounded-xl border border-emerald-100/80">
-                      <Code2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-                      <span>{codingCount} Coding Tasks</span>
-                    </div>
+                    <span className="bg-purple-50 text-purple-700 font-bold text-xs px-3 py-1.5 rounded-xl border border-purple-100 flex items-center gap-1.5">
+                      <HelpCircle className="w-3.5 h-3.5 text-purple-600" /> {mcqCount} MCQ{mcqCount !== 1 ? 's' : ''}
+                      {!isQuizItem && codingCount > 0 && ` • ${codingCount} Coding`}
+                    </span>
                   </div>
                 </div>
 
                 {/* Card Footer */}
-                <div className="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between text-xs">
-                  <span className="flex items-center gap-1.5 text-slate-500 font-medium">
-                    <Calendar className="w-3.5 h-3.5 text-slate-400" /> Due: <strong className="text-slate-800 font-bold">{asm.dueDate}</strong>
+                <div className="mt-5 pt-4 border-t border-slate-100 flex items-center justify-between text-xs">
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 font-bold border border-emerald-200/70 text-[11px]">
+                    <CheckCircle2 className="w-3 h-3 text-emerald-600" /> Live Published
                   </span>
 
-                  <div className="flex items-center gap-2">
-                    <Badge variant="emerald">Published</Badge>
-                    <button
-                      onClick={() => handleOpenEditModal(asm)}
-                      className="inline-flex items-center gap-1 font-bold text-blue-600 hover:text-blue-800 transition-all group-hover:translate-x-1 cursor-pointer"
-                    >
-                      Edit Quiz ({totalQ} Qs) <ChevronRight className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
+                  <button
+                    onClick={() => handleOpenEditModal(asm)}
+                    className="inline-flex items-center gap-1 font-extrabold text-purple-600 hover:text-purple-800 transition-all group-hover:translate-x-1 cursor-pointer"
+                  >
+                    <span>View {isQuizItem ? 'Quiz' : 'Assessment'} Details</span>
+                    <ChevronRight className="w-3.5 h-3.5" />
+                  </button>
                 </div>
               </div>
             );
@@ -662,9 +701,9 @@ export function AssessmentListPage() {
         </div>
       ) : (
         <EmptyState
-          title="No Assessments Found"
-          description="Create your first assessment evaluation quiz."
-          actionLabel="Add Assessment"
+          title={activeMainTab === 'QUIZZES' ? 'No Quizzes Found' : 'No Assessments Found'}
+          description={activeMainTab === 'QUIZZES' ? 'Create your first topic module practice quiz.' : 'Create your first practice assessment evaluation.'}
+          actionLabel={activeMainTab === 'QUIZZES' ? 'Add Quiz' : 'Add Assessment'}
           onAction={handleOpenAddModal}
         />
       )}
@@ -676,20 +715,36 @@ export function AssessmentListPage() {
           setIsAddModalOpen(false);
           setEditingAssessment(null);
         }}
-        title={editingAssessment ? 'Edit Assessment & Questions' : 'Create Assessment'}
-        subtitle="Configure quiz parameters, MCQ questions, and coding task prompts"
+        title={
+          editingAssessment
+            ? `Edit ${editingAssessment.evalType === 'quiz' ? 'Quiz' : 'Assessment'} & Questions`
+            : `Create ${activeMainTab === 'QUIZZES' ? 'Quiz' : 'Assessment'}`
+        }
+        subtitle="Configure parameters, MCQ questions, and coding task prompts"
         maxWidth="max-w-6xl"
       >
         <form onSubmit={handleSaveAssessment} className="space-y-4">
-          {/* Title & Assessment Capacity Header Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 items-end">
+          {/* Title, Type & Assessment Capacity Header Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-3.5 items-end">
             <div className="md:col-span-2">
               <Input
-                label="Assessment Title"
-                placeholder="e.g. React Concurrent Features & Hooks Evaluation"
+                label="Evaluation Title"
+                placeholder="e.g. Git Architecture & Version Control Assessment"
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                 required
+              />
+            </div>
+
+            <div>
+              <Select
+                label="Evaluation Type"
+                value={formData.evalType || 'assessment'}
+                onChange={(e) => setFormData({ ...formData, evalType: e.target.value })}
+                options={[
+                  { value: 'assessment', label: 'Practice Assessment' },
+                  { value: 'quiz', label: 'Module Quiz' }
+                ]}
               />
             </div>
 
@@ -708,9 +763,11 @@ export function AssessmentListPage() {
                 <span className="px-2 py-0.5 rounded-lg bg-white/10 text-blue-100 font-semibold border border-white/15">
                   {currentModalMcqCount} MCQs
                 </span>
-                <span className="px-2 py-0.5 rounded-lg bg-white/10 text-blue-100 font-semibold border border-white/15">
-                  {currentModalCodingCount} Coding
-                </span>
+                {formData.evalType !== 'quiz' && (
+                  <span className="px-2 py-0.5 rounded-lg bg-white/10 text-blue-100 font-semibold border border-white/15">
+                    {currentModalCodingCount} Coding
+                  </span>
+                )}
               </div>
             </div>
           </div>
@@ -986,70 +1043,72 @@ export function AssessmentListPage() {
             ))}
           </div>
 
-          {/* DYNAMIC CODING CHALLENGE BUILDER SECTION */}
-          <div className="space-y-4 pt-4 border-t border-slate-200">
-            <div className="flex items-center justify-between">
-              <div>
-                <h4 className="font-extrabold text-sm text-slate-900 flex items-center gap-2">
-                  <Code2 className="w-4 h-4 text-emerald-600" /> Coding Challenges ({formData.codingQuestions.length})
-                </h4>
-                <p className="text-[11px] text-slate-500 font-medium">Add hands-on coding challenge titles and instructions for students</p>
-              </div>
-
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                icon={Plus}
-                onClick={handleAddCoding}
-                className="border-emerald-200 text-emerald-700 hover:bg-emerald-50"
-              >
-                Add Coding Challenge
-              </Button>
-            </div>
-
-            {formData.codingQuestions.map((coding, cIndex) => (
-              <div key={cIndex} className="p-4 bg-slate-50/90 rounded-2xl border border-slate-200/90 space-y-3 relative group">
-                <div className="flex items-center justify-between">
-                  <span className="px-2.5 py-0.5 rounded-md bg-emerald-100 text-emerald-800 font-bold text-xs">
-                    Coding Task #{cIndex + 1}
-                  </span>
-                  {formData.codingQuestions.length > 1 && (
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveCoding(cIndex)}
-                      className="p-1 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-rose-50 transition-colors cursor-pointer"
-                      title="Remove Challenge"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  )}
+          {/* DYNAMIC CODING CHALLENGE BUILDER SECTION (ONLY FOR ASSESSMENTS) */}
+          {formData.evalType !== 'quiz' && (
+            <div className="space-y-4 pt-4 border-t border-slate-200">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="font-extrabold text-sm text-slate-900 flex items-center gap-2">
+                    <Code2 className="w-4 h-4 text-emerald-600" /> Coding Challenges ({formData.codingQuestions.length})
+                  </h4>
+                  <p className="text-[11px] text-slate-500 font-medium">Add hands-on coding challenge titles and instructions for students</p>
                 </div>
 
-                <Input
-                  label="Coding Question Title"
-                  placeholder="e.g. Custom `useLocalStorage` Hook Implementation"
-                  value={coding.title}
-                  onChange={(e) => handleUpdateCodingTitle(cIndex, e.target.value)}
-                  required
-                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  icon={Plus}
+                  onClick={handleAddCoding}
+                  className="border-emerald-200 text-emerald-700 hover:bg-emerald-50"
+                >
+                  Add Coding Challenge
+                </Button>
+              </div>
 
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-[11px] font-extrabold text-slate-700 uppercase tracking-wider">
-                    Coding Description / Prompt Instructions
-                  </label>
-                  <textarea
-                    rows={3}
-                    placeholder="Write a custom React hook named `useLocalStorage` that syncs state to window.localStorage..."
-                    value={coding.description}
-                    onChange={(e) => handleUpdateCodingDesc(cIndex, e.target.value)}
-                    className="w-full px-3.5 py-2.5 bg-slate-50/60 hover:bg-white border border-slate-200 rounded-xl text-xs text-slate-800 focus:bg-white focus:outline-none focus:border-blue-500 transition-all"
+              {formData.codingQuestions.map((coding, cIndex) => (
+                <div key={cIndex} className="p-4 bg-slate-50/90 rounded-2xl border border-slate-200/90 space-y-3 relative group">
+                  <div className="flex items-center justify-between">
+                    <span className="px-2.5 py-0.5 rounded-md bg-emerald-100 text-emerald-800 font-bold text-xs">
+                      Coding Task #{cIndex + 1}
+                    </span>
+                    {formData.codingQuestions.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveCoding(cIndex)}
+                        className="p-1 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-rose-50 transition-colors cursor-pointer"
+                        title="Remove Challenge"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
+
+                  <Input
+                    label="Coding Question Title"
+                    placeholder="e.g. Custom `useLocalStorage` Hook Implementation"
+                    value={coding.title}
+                    onChange={(e) => handleUpdateCodingTitle(cIndex, e.target.value)}
                     required
                   />
+
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[11px] font-extrabold text-slate-700 uppercase tracking-wider">
+                      Coding Description / Prompt Instructions
+                    </label>
+                    <textarea
+                      rows={3}
+                      placeholder="Write a custom React hook named `useLocalStorage` that syncs state to window.localStorage..."
+                      value={coding.description}
+                      onChange={(e) => handleUpdateCodingDesc(cIndex, e.target.value)}
+                      className="w-full px-3.5 py-2.5 bg-slate-50/60 hover:bg-white border border-slate-200 rounded-xl text-xs text-slate-800 focus:bg-white focus:outline-none focus:border-blue-500 transition-all"
+                      required
+                    />
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
 
           <div className="flex justify-end gap-3 pt-4 border-t border-slate-100">
             <Button

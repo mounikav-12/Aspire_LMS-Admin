@@ -49,6 +49,18 @@
     font-size: 16.5px !important;
     line-height: 1.5 !important;
   }
+  .text-lg {
+    font-size: 18.5px !important;
+    line-height: 1.4 !important;
+  }
+  .text-xl {
+    font-size: 21px !important;
+    line-height: 1.35 !important;
+  }
+  .text-2xl {
+    font-size: 25px !important;
+    line-height: 1.3 !important;
+  }
 
   /* Normalize ultra-heavy headings */
   .font-black, .font-extrabold {
