@@ -356,8 +356,12 @@ export function MilestonesRoadmapPage() {
   const [selectedCourseId, setSelectedCourseId] = useState(() => searchParams.get('courseId') || courses[0]?.id || '');
   const [selectedStudentAccessId, setSelectedStudentAccessId] = useState('ALL');
 
-  // Derive active milestones stages from Course Management or selected course
+  // Derive active milestones stages from current milestone state or selected course
   const getActiveMilestoneStages = () => {
+    if (Array.isArray(currentMilestones?.stages) && currentMilestones.stages.length > 0) {
+      return currentMilestones.stages;
+    }
+
     let targetCourseId = selectedCourseId;
     if (targetCourseId === 'ALL') {
       const pythonCourse = courses.find(c => c.title && c.title.toLowerCase().includes('python'));
@@ -1680,20 +1684,9 @@ export function MilestonesRoadmapPage() {
 
                       const hasLiveClass = !!primaryLiveSession || rawItems.some(it => it.type === 'LIVE CLASS');
 
-                      // Live Class Topics: Dynamically derive from primaryLiveSession.topics, module.topics, or module.items
+                      // Live Class Topics: Dynamically derive from module.topics, rawItems, or primaryLiveSession.topics
                       let liveClassTopics = [];
-                      if (Array.isArray(primaryLiveSession?.topics) && primaryLiveSession.topics.length > 0) {
-                        liveClassTopics = primaryLiveSession.topics.map((t, idx) => ({
-                          id: t.id || `topic-${module.id}-${idx}`,
-                          title: t.title,
-                          description: t.description || t.agenda || t.overview || '',
-                          agenda: t.agenda || t.description || t.overview || '',
-                          overview: t.overview || t.agenda || t.description || '',
-                          type: 'LIVE CLASS',
-                          actionText: 'JOIN',
-                          url: moduleJoinLink
-                        }));
-                      } else if (Array.isArray(module?.topics) && module.topics.length > 0) {
+                      if (Array.isArray(module?.topics) && module.topics.length > 0) {
                         liveClassTopics = module.topics.map((t, idx) => ({
                           id: t.id || `topic-${module.id}-${idx}`,
                           title: t.title,
@@ -1710,6 +1703,17 @@ export function MilestonesRoadmapPage() {
                           agenda: it.agenda || it.description || it.overview || '',
                           description: it.description || it.agenda || it.overview || '',
                           overview: it.overview || it.agenda || it.description || ''
+                        }));
+                      } else if (Array.isArray(primaryLiveSession?.topics) && primaryLiveSession.topics.length > 0) {
+                        liveClassTopics = primaryLiveSession.topics.map((t, idx) => ({
+                          id: t.id || `topic-${module.id}-${idx}`,
+                          title: t.title,
+                          description: t.description || t.agenda || t.overview || '',
+                          agenda: t.agenda || t.description || t.overview || '',
+                          overview: t.overview || t.agenda || t.description || '',
+                          type: 'LIVE CLASS',
+                          actionText: 'JOIN',
+                          url: moduleJoinLink
                         }));
                       } else if (hasLiveClass) {
                         liveClassTopics = [
