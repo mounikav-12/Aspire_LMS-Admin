@@ -1631,21 +1631,30 @@ export function MilestonesRoadmapPage() {
 
                       const rawItems = module.items || [];
 
+                      const cleanNorm = (str) => (str || '').toLowerCase().replace(/[^a-z0-9]/g, '').trim();
+                      const stripSuffix = (str) => (str || '').replace(/-(w|s)$/i, '').trim();
+
+                      const curModId = stripSuffix(module.id);
+                      const curModTitle = cleanNorm(module.title);
+
                       // Match associated live session if scheduled
-                      const matchedLiveSessions = (liveSessions || []).filter(
-                        (s) =>
-                          s.moduleId === module.id ||
-                          s.innerTopicId === module.id ||
-                          s.topic_id === module.id ||
-                          (s.moduleName && s.moduleName.toLowerCase().trim() === module.title.toLowerCase().trim()) ||
-                          (s.sessionTitle && s.sessionTitle.toLowerCase().trim() === module.title.toLowerCase().trim()) ||
-                          rawItems.some(
-                            (it) =>
-                              it.sessionId === s.id ||
-                              `item-live-${s.id}` === it.id ||
-                              (it.type === 'LIVE CLASS' && it.title?.toLowerCase().trim() === s.sessionTitle?.toLowerCase().trim())
-                          )
-                      );
+                      const matchedLiveSessions = (liveSessions || []).filter((s) => {
+                        const sModId = stripSuffix(s.moduleId || s.innerTopicId || s.topic_id || s.module_id);
+                        if (sModId && curModId && sModId === curModId) return true;
+
+                        const sTitle = cleanNorm(s.sessionTitle || s.session_title || s.title);
+                        const sModName = cleanNorm(s.moduleName || s.module_name);
+
+                        if (sTitle && curModTitle && (sTitle === curModTitle || sTitle.includes(curModTitle) || curModTitle.includes(sTitle))) return true;
+                        if (sModName && curModTitle && (sModName === curModTitle || sModName.includes(curModTitle) || curModTitle.includes(sModName))) return true;
+
+                        return rawItems.some(
+                          (it) =>
+                            it.sessionId === s.id ||
+                            `item-live-${s.id}` === it.id ||
+                            (it.type === 'LIVE CLASS' && cleanNorm(it.title) === sTitle)
+                        );
+                      });
 
                       const primaryLiveSession = matchedLiveSessions[0] || null;
                       const moduleJoinLink = primaryLiveSession?.meetingLink || primaryLiveSession?.meeting_link || primaryLiveSession?.joinLink || primaryLiveSession?.url || rawItems.find(it => it.type === 'LIVE CLASS' && (it.url || it.joinLink))?.url || 'https://meet.google.com/aspire-lms-live';
@@ -1707,7 +1716,37 @@ export function MilestonesRoadmapPage() {
                           ];
                         }
                       }
-                      const otherResources = rawItems.filter(it => it.type !== 'LIVE CLASS' && !liveClassTopics.some(lt => lt.id === it.id));
+
+                      // Auto-match assessments, coding questions, and practice items for this module
+                      const autoMatchedAssessments = (assessments || [])
+                        .filter(asm => {
+                          const asmModId = stripSuffix(asm.moduleId || asm.innerTopicId || asm.topic_id || asm.module_id);
+                          if (asmModId && curModId && asmModId === curModId) return true;
+                          const tName = cleanNorm(asm.topicName || asm.topic_name || asm.title);
+                          return tName && curModTitle && (tName.includes(curModTitle) || curModTitle.includes(tName));
+                        })
+                        .map(asm => ({
+                          ...asm,
+                          id: `item-asmnt-${asm.id}`,
+                          assessmentId: asm.id,
+                          type: 'ASSESSMENT',
+                          typeColor: 'bg-blue-100 text-blue-800 border-blue-200',
+                          iconName: 'FileCheck',
+                          iconBg: 'bg-blue-600 text-white',
+                          title: asm.title,
+                          actionText: 'START',
+                          url: '/assessments',
+                          btnStyle: 'bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30',
+                          dueDate: asm.dueDate || '2026-08-30',
+                          durationMinutes: asm.durationMinutes || 45,
+                          totalMarks: asm.totalMarks || 100
+                        }));
+
+                      const rawNonLive = rawItems.filter(it => it.type !== 'LIVE CLASS' && !liveClassTopics.some(lt => lt.id === it.id));
+                      const otherResources = [
+                        ...rawNonLive,
+                        ...autoMatchedAssessments.filter(asm => !rawNonLive.some(it => it.assessmentId === asm.assessmentId || it.id === asm.id || (it.type === 'ASSESSMENT' && cleanNorm(it.title) === cleanNorm(asm.title))))
+                      ];
 
                       return (
                         <div key={module.id} className="rounded-2xl border border-slate-200/90 overflow-hidden shadow-xs bg-white">
