@@ -579,56 +579,72 @@ export function LmsDataProvider({ children }) {
 
   const lastSyncedMilestonesRef = useRef('');
 
+  // Immediate Realtime Sync Helper for Milestones to Supabase & Backend API
+  const syncMilestonesNow = async (customBatchData = null) => {
+    try {
+      const dataToSync = customBatchData || milestonesByBatch;
+      if (!dataToSync) return;
+
+      const stringified = JSON.stringify(dataToSync);
+      lastSyncedMilestonesRef.current = stringified;
+
+      try {
+        localStorage.setItem('aspire_lms_milestones_by_batch', stringified);
+        if (dataToSync['Weekday Batch']) {
+          localStorage.setItem('aspire_lms_milestones', JSON.stringify(dataToSync['Weekday Batch']));
+        }
+      } catch (e) {}
+
+      const weekdayStages = dataToSync['Weekday Batch']?.stages || dataToSync['default']?.stages || [];
+      const weekdayOverview = dataToSync['Weekday Batch']?.overview || {};
+
+      // 1. Sync batch_data to Supabase PostgreSQL table
+      const p1 = supabase
+        .from('milestones_data')
+        .upsert({
+          id: 'batch_data',
+          overview: { batchData: dataToSync },
+          stages: weekdayStages,
+          updated_at: new Date().toISOString()
+        })
+        .then(() => {})
+        .catch((e) => console.warn('Supabase milestones batch sync error:', e));
+
+      // 2. Sync default fallback row to Supabase
+      const p2 = supabase
+        .from('milestones_data')
+        .upsert({
+          id: 'default',
+          overview: weekdayOverview,
+          stages: weekdayStages,
+          updated_at: new Date().toISOString()
+        })
+        .then(() => {})
+        .catch((e) => console.warn('Supabase milestones default sync error:', e));
+
+      // 3. Fallback sync to local Express backend API
+      const p3 = fetch('/api/milestones', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ batchData: dataToSync, overview: weekdayOverview })
+      }).catch(() => {});
+
+      await Promise.allSettled([p1, p2, p3]);
+    } catch (e) {
+      console.warn('syncMilestonesNow error:', e);
+    }
+  };
+
   useEffect(() => {
     try {
-      localStorage.setItem('aspire_lms_milestones_by_batch', JSON.stringify(milestonesByBatch));
-      if (milestonesByBatch && milestonesByBatch['Weekday Batch']) {
-        localStorage.setItem('aspire_lms_milestones', JSON.stringify(milestonesByBatch['Weekday Batch']));
-      }
-
       const stringified = JSON.stringify(milestonesByBatch);
       if (lastSyncedMilestonesRef.current === stringified) {
         return;
       }
 
       const timer = setTimeout(() => {
-        lastSyncedMilestonesRef.current = stringified;
-        const weekdayStages = milestonesByBatch['Weekday Batch']?.stages || milestonesByBatch['default']?.stages || [];
-        const weekdayOverview = milestonesByBatch['Weekday Batch']?.overview || {};
-
-        // 1. Sync batch_data to Supabase PostgreSQL table
-        supabase
-          .from('milestones_data')
-          .upsert({
-            id: 'batch_data',
-            overview: { batchData: milestonesByBatch },
-            stages: weekdayStages,
-            updated_at: new Date().toISOString()
-          })
-          .then(() => {})
-          .catch((e) => console.warn('Supabase milestones batch sync error:', e));
-
-        // 2. Sync default row to Supabase
-        supabase
-          .from('milestones_data')
-          .upsert({
-            id: 'default',
-            overview: weekdayOverview,
-            stages: weekdayStages,
-            updated_at: new Date().toISOString()
-          })
-          .then(() => {})
-          .catch((e) => console.warn('Supabase milestones default sync error:', e));
-
-        // 3. Fallback sync to local Express backend API
-        try {
-          fetch('/api/milestones', {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ batchData: milestonesByBatch, overview: weekdayOverview })
-          }).catch(() => {});
-        } catch (err) {}
-      }, 500);
+        syncMilestonesNow(milestonesByBatch);
+      }, 400);
 
       return () => clearTimeout(timer);
     } catch (e) {}
@@ -1114,36 +1130,51 @@ export function LmsDataProvider({ children }) {
 
   const lastSyncedCompletedRef = useRef('');
 
+  // Immediate Realtime Sync Helper for Milestones Completion to Supabase & Backend API
+  const syncCompletedItemsNow = async (customItemIds = null) => {
+    try {
+      const itemIds = customItemIds || completedMilestoneItemIds;
+      if (!Array.isArray(itemIds)) return;
+
+      const stringified = JSON.stringify([...itemIds].sort());
+      lastSyncedCompletedRef.current = stringified;
+
+      try {
+        localStorage.setItem('aspire_lms_completed_milestone_items_v1', JSON.stringify(itemIds));
+      } catch (e) {}
+
+      const p1 = supabase
+        .from('milestones_data')
+        .upsert({
+          id: 'completed_items',
+          overview: { itemIds },
+          stages: [],
+          updated_at: new Date().toISOString()
+        })
+        .then(() => {})
+        .catch((e) => console.warn('Supabase completion sync error:', e));
+
+      const p2 = fetch('/api/milestones/completion', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ completedItemIds: itemIds })
+      }).catch(() => {});
+
+      await Promise.allSettled([p1, p2]);
+    } catch (e) {
+      console.warn('syncCompletedItemsNow error:', e);
+    }
+  };
+
   useEffect(() => {
     try {
-      localStorage.setItem('aspire_lms_completed_milestone_items_v1', JSON.stringify(completedMilestoneItemIds));
-
       const stringified = JSON.stringify([...completedMilestoneItemIds].sort());
       if (lastSyncedCompletedRef.current === stringified) {
         return;
       }
 
       const timer = setTimeout(() => {
-        lastSyncedCompletedRef.current = stringified;
-
-        supabase
-          .from('milestones_data')
-          .upsert({
-            id: 'completed_items',
-            overview: { itemIds: completedMilestoneItemIds },
-            stages: [],
-            updated_at: new Date().toISOString()
-          })
-          .then(() => {})
-          .catch((e) => console.warn('Supabase completion sync error:', e));
-
-        try {
-          fetch('/api/milestones/completion', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ completedItemIds: completedMilestoneItemIds })
-          }).catch(() => {});
-        } catch (e) {}
+        syncCompletedItemsNow(completedMilestoneItemIds);
       }, 400);
 
       return () => clearTimeout(timer);
@@ -1154,11 +1185,9 @@ export function LmsDataProvider({ children }) {
     if (!itemId) return;
     setCompletedMilestoneItemIds((prev) => {
       const isAlready = prev.includes(itemId);
-      if (isAlready) {
-        return prev.filter((id) => id !== itemId);
-      } else {
-        return [...prev, itemId];
-      }
+      const updated = isAlready ? prev.filter((id) => id !== itemId) : [...prev, itemId];
+      syncCompletedItemsNow(updated);
+      return updated;
     });
   };
 
@@ -1166,7 +1195,9 @@ export function LmsDataProvider({ children }) {
     if (!itemId) return;
     setCompletedMilestoneItemIds((prev) => {
       if (!prev.includes(itemId)) {
-        return [...prev, itemId];
+        const updated = [...prev, itemId];
+        syncCompletedItemsNow(updated);
+        return updated;
       }
       return prev;
     });
@@ -1174,7 +1205,11 @@ export function LmsDataProvider({ children }) {
 
   const unmarkItemCompleted = (itemId) => {
     if (!itemId) return;
-    setCompletedMilestoneItemIds((prev) => prev.filter((id) => id !== itemId));
+    setCompletedMilestoneItemIds((prev) => {
+      const updated = prev.filter((id) => id !== itemId);
+      syncCompletedItemsNow(updated);
+      return updated;
+    });
   };
 
   const toggleSubtopicCompletion = (subtopic) => {
@@ -1191,13 +1226,16 @@ export function LmsDataProvider({ children }) {
         prev.includes(subtopic.id) ||
         (subItems.length > 0 && subItems.every((id) => prev.includes(id)));
 
+      let updated;
       if (isSubDone) {
-        const removeSet = new Set([subtopic.id, ...subItems]);
-        return prev.filter((id) => !removeSet.has(id));
+        const toRemove = new Set([subtopic.id, ...subItems]);
+        updated = prev.filter((id) => !toRemove.has(id));
       } else {
-        const nextSet = new Set([...prev, subtopic.id, ...subItems]);
-        return Array.from(nextSet);
+        const toAdd = new Set([...prev, subtopic.id, ...subItems]);
+        updated = Array.from(toAdd);
       }
+      syncCompletedItemsNow(updated);
+      return updated;
     });
   };
 
@@ -1425,19 +1463,23 @@ export function LmsDataProvider({ children }) {
         const weStages = batchData?.['Weekend Batch']?.stages;
 
         if (!wdStages || wdStages.length === 0 || !weStages || weStages.length === 0) {
+          const initialFallback = createInitialMilestonesByBatch();
           batchData = {
             'Weekday Batch': {
-              overview: wdRow?.overview || batchData?.['Weekday Batch']?.overview || defaultRow?.overview || {},
-              stages: (wdStages && wdStages.length > 0) ? wdStages : (wdRow?.stages || defaultRow?.stages || [])
+              overview: wdRow?.overview || batchData?.['Weekday Batch']?.overview || defaultRow?.overview || initialFallback['Weekday Batch']?.overview || {},
+              stages: (wdStages && wdStages.length > 0) ? wdStages : (wdRow?.stages || defaultRow?.stages || initialFallback['Weekday Batch']?.stages || [])
             },
             'Weekend Batch': {
-              overview: weRow?.overview || batchData?.['Weekend Batch']?.overview || defaultRow?.overview || {},
-              stages: (weStages && weStages.length > 0) ? weStages : (weRow?.stages || defaultRow?.stages || [])
+              overview: weRow?.overview || batchData?.['Weekend Batch']?.overview || defaultRow?.overview || initialFallback['Weekend Batch']?.overview || {},
+              stages: (weStages && weStages.length > 0) ? weStages : (weRow?.stages || defaultRow?.stages || initialFallback['Weekend Batch']?.stages || [])
             }
           };
+          // Persist the full present dataset to Supabase in real-time
+          syncMilestonesNow(batchData);
         }
 
         if (batchData) {
+          lastSyncedMilestonesRef.current = JSON.stringify(batchData);
           setMilestonesByBatch(prev => {
             if (JSON.stringify(prev) === JSON.stringify(batchData)) return prev;
             return batchData;
@@ -1446,8 +1488,13 @@ export function LmsDataProvider({ children }) {
 
         const compRow = milesData.find(m => m.id === 'completed_items');
         if (compRow && compRow.overview && Array.isArray(compRow.overview.itemIds)) {
+          lastSyncedCompletedRef.current = JSON.stringify([...compRow.overview.itemIds].sort());
           setCompletedMilestoneItemIds(compRow.overview.itemIds);
         }
+      } else {
+        // Initial seeding if table is empty
+        const initialBatchData = createInitialMilestonesByBatch();
+        syncMilestonesNow(initialBatchData);
       }
 
       // 9. Fetch Projects Catalog
@@ -1586,12 +1633,26 @@ export function LmsDataProvider({ children }) {
         if (payload?.new) {
           const row = payload.new;
           if (row.id === 'batch_data' && row.overview?.batchData) {
-            setMilestonesByBatch(prev => {
-              if (JSON.stringify(prev) === JSON.stringify(row.overview.batchData)) return prev;
-              return row.overview.batchData;
+            const incoming = row.overview.batchData;
+            lastSyncedMilestonesRef.current = JSON.stringify(incoming);
+            setMilestonesByBatch((prev) => {
+              if (JSON.stringify(prev) === JSON.stringify(incoming)) return prev;
+              return incoming;
+            });
+          } else if (row.id === 'default' && row.stages && Array.isArray(row.stages)) {
+            setMilestonesByBatch((prev) => {
+              if (prev['Weekday Batch']?.stages?.length > 0) return prev;
+              const next = {
+                'Weekday Batch': { overview: row.overview || {}, stages: row.stages },
+                'Weekend Batch': { overview: row.overview || {}, stages: row.stages }
+              };
+              lastSyncedMilestonesRef.current = JSON.stringify(next);
+              return next;
             });
           } else if (row.id === 'completed_items' && Array.isArray(row.overview?.itemIds)) {
-            setCompletedMilestoneItemIds(row.overview.itemIds);
+            const incomingIds = row.overview.itemIds;
+            lastSyncedCompletedRef.current = JSON.stringify([...incomingIds].sort());
+            setCompletedMilestoneItemIds(incomingIds);
           } else if (row.id === 'badges_data' && Array.isArray(row.overview?.badges)) {
             setBadges(row.overview.badges);
           }
@@ -3257,6 +3318,9 @@ export function LmsDataProvider({ children }) {
         applyToBatch('Weekend Batch');
       }
 
+      // Immediately sync state mutations to Supabase and Express backend in real time
+      syncMilestonesNow(next);
+
       return next;
     });
   };
@@ -4203,6 +4267,8 @@ export function LmsDataProvider({ children }) {
         milestonesByBatch,
         getMilestoneDataForBatch,
         milestones,
+        syncMilestonesNow,
+        syncCompletedItemsNow,
         addStage,
         updateStage,
         setStageSchedule,

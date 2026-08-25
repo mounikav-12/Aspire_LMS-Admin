@@ -1125,14 +1125,20 @@ export function MilestonesRoadmapPage() {
       {/* Unified Page Header & Control Bar */}
       <div className="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-2xs space-y-6">
         <div className="space-y-4">
-          {/* Top: Page Title */}
+          {/* Top: Page Title & Realtime Indicator */}
           <div className="flex items-center gap-3.5">
             <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-purple-600 text-white shadow-md shadow-purple-600/25">
               <Flag className="w-5.5 h-5.5" />
             </div>
             <div>
-              <h1 className="text-xl font-black text-slate-900 tracking-tight">Milestones Roadmap</h1>
-              <p className="text-xs text-slate-500 font-medium">Manage course stages, modules, and unlock schedules</p>
+              <div className="flex items-center gap-2.5 flex-wrap">
+                <h1 className="text-xl font-black text-slate-900 tracking-tight">Milestones Roadmap</h1>
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-50 text-emerald-700 border border-emerald-200/80 shadow-2xs">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                  Realtime Sync Active
+                </span>
+              </div>
+              <p className="text-xs text-slate-500 font-medium">Manage course stages, modules, and unlock schedules with live cloud persistence</p>
             </div>
           </div>
 
