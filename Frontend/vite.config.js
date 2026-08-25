@@ -15,7 +15,17 @@ export default defineConfig({
     proxy: {
       '/api': {
         target: 'http://localhost:5001',
-        changeOrigin: true
+        changeOrigin: true,
+        secure: false,
+        configure: (proxy) => {
+          proxy.on('error', (err, req, res) => {
+            // Silently handle proxy connection errors when backend is offline
+            if (!res.headersSent && res.writeHead) {
+              res.writeHead(503, { 'Content-Type': 'application/json' });
+              res.end(JSON.stringify({ error: 'Backend server not running on port 5001' }));
+            }
+          });
+        }
       }
     }
   }

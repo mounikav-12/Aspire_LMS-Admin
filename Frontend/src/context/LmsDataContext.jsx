@@ -655,21 +655,11 @@ export function LmsDataProvider({ children }) {
         }
       });
 
-      // 1. Direct bulk upsert to Supabase PostgreSQL table
-      const p1 = supabase
+      // Direct bulk upsert to Supabase PostgreSQL cloud table
+      await supabase
         .from('milestones_data')
         .upsert(rowsToUpsert)
-        .then(() => {})
         .catch((e) => console.warn('Supabase milestones bulk sync error:', e));
-
-      // 2. Fallback sync to local Express backend API
-      const p2 = fetch('/api/milestones', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ batchData: dataToSync, overview: weekdayOverview })
-      }).catch(() => {});
-
-      await Promise.allSettled([p1, p2]);
     } catch (e) {
       console.warn('syncMilestonesNow error:', e);
     }
@@ -1183,7 +1173,7 @@ export function LmsDataProvider({ children }) {
         localStorage.setItem('aspire_lms_completed_milestone_items_v1', JSON.stringify(itemIds));
       } catch (e) {}
 
-      const p1 = supabase
+      await supabase
         .from('milestones_data')
         .upsert({
           id: 'completed_items',
@@ -1191,16 +1181,7 @@ export function LmsDataProvider({ children }) {
           stages: [],
           updated_at: new Date().toISOString()
         })
-        .then(() => {})
         .catch((e) => console.warn('Supabase completion sync error:', e));
-
-      const p2 = fetch('/api/milestones/completion', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ completedItemIds: itemIds })
-      }).catch(() => {});
-
-      await Promise.allSettled([p1, p2]);
     } catch (e) {
       console.warn('syncCompletedItemsNow error:', e);
     }
