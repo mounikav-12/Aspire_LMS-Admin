@@ -3845,9 +3845,8 @@ export function LmsDataProvider({ children }) {
             const targetModTitle = String(topicPayload?.moduleTitle || '').toLowerCase().replace(/[^a-z0-9]/g, '');
 
             const isMatch = (sessModId && rawModId && sessModId === rawModId) ||
-              (sessTitle && targetModTitle && (sessTitle === targetModTitle || sessTitle.includes(targetModTitle) || targetModTitle.includes(sessTitle))) ||
-              (sessModName && targetModTitle && (sessModName === targetModTitle || sessModName.includes(targetModTitle) || targetModTitle.includes(sessModName))) ||
-              (sessSubName && targetModTitle && (sessSubName === targetModTitle || sessSubName.includes(targetModTitle) || targetModTitle.includes(sessSubName)));
+              (sessTitle && targetModTitle && (sessTitle === targetModTitle || (sessTitle.length > 5 && (sessTitle.includes(targetModTitle) || targetModTitle.includes(sessTitle))))) ||
+              (sessModName && targetModTitle && (sessModName === targetModTitle || (sessModName.length > 5 && (sessModName.includes(targetModTitle) || targetModTitle.includes(sessModName)))));
 
             if (!isMatch) return sess;
 

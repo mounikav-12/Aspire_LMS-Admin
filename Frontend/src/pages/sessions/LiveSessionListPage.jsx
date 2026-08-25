@@ -58,29 +58,26 @@ export const getModuleTopicsForSession = (sess, stagesList) => {
   const sessModId = cleanId(sess.moduleId || sess.module_id);
   const sessTitle = cleanStr(sess.sessionTitle || sess.session_title || sess.title);
   const sessModName = cleanStr(sess.moduleName || sess.module_name);
-  const sessSubName = cleanStr(sess.subtopicName || sess.subtopic_name);
 
   if (Array.isArray(stagesList)) {
     for (const stg of stagesList) {
       for (const sub of (stg.subtopics || [])) {
-        const subTitleClean = cleanStr(sub.title);
-        const isSubMatch = sessSubName && subTitleClean && (sessSubName === subTitleClean || sessSubName.includes(subTitleClean) || subTitleClean.includes(sessSubName));
-
         for (const mod of (sub.modules || [])) {
           const modIdClean = cleanId(mod.id);
           const modTitleClean = cleanStr(mod.title);
 
-          const isModIdMatch = sessModId && modIdClean && sessModId === modIdClean;
-          const isModTitleMatch = sessModName && modTitleClean && (sessModName === modTitleClean || sessModName.includes(modTitleClean) || modTitleClean.includes(sessModName));
-          const isSessTitleMatch = sessTitle && modTitleClean && (sessTitle === modTitleClean || sessTitle.includes(modTitleClean) || modTitleClean.includes(sessTitle));
+          const isModIdMatch = sessModId && modIdClean && (sessModId === modIdClean || cleanId(sess.id) === modIdClean);
+          const isModTitleMatch = sessModName && modTitleClean && (sessModName === modTitleClean || (sessModName.length > 5 && (sessModName.includes(modTitleClean) || modTitleClean.includes(sessModName))));
+          const isSessTitleMatch = sessTitle && modTitleClean && (sessTitle === modTitleClean || (sessTitle.length > 5 && (sessTitle.includes(modTitleClean) || modTitleClean.includes(sessTitle))));
 
-          if (isModIdMatch || isModTitleMatch || isSessTitleMatch || (isSubMatch && (isModTitleMatch || isSessTitleMatch))) {
+          if (isModIdMatch || isModTitleMatch || isSessTitleMatch) {
             if (Array.isArray(mod.topics) && mod.topics.length > 0) {
               return mod.topics;
             }
             if (Array.isArray(mod.items) && mod.items.length > 0) {
               return mod.items;
             }
+            return [];
           }
         }
       }
