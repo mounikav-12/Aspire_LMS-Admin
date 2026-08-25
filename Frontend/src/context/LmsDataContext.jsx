@@ -655,11 +655,26 @@ export function LmsDataProvider({ children }) {
         }
       });
 
-      // Direct bulk upsert to Supabase PostgreSQL cloud table
-      await supabase
-        .from('milestones_data')
-        .upsert(rowsToUpsert)
-        .catch((e) => console.warn('Supabase milestones bulk sync error:', e));
+      // 1. Direct bulk upsert to Supabase PostgreSQL cloud table
+      const { error: sbErr } = await supabase.from('milestones_data').upsert(rowsToUpsert);
+      if (sbErr) {
+        console.warn('Supabase bulk upsert warning, trying batch_data single upsert:', sbErr.message);
+        await supabase.from('milestones_data').upsert([{
+          id: 'batch_data',
+          overview: { batchData: dataToSync },
+          stages: weekdayStages,
+          updated_at: now
+        }]).catch((e) => console.warn('Single batch_data upsert error:', e));
+      }
+
+      // 2. Send payload to backend API endpoint /api/milestones for server-side persistence
+      try {
+        fetch('/api/milestones', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ batchData: dataToSync })
+        }).catch(() => {});
+      } catch (e) {}
     } catch (e) {
       console.warn('syncMilestonesNow error:', e);
     }
@@ -1471,51 +1486,68 @@ export function LmsDataProvider({ children }) {
         })));
       }
 
-      // 8. Fetch Milestones Roadmap Data & Student Progress from Supabase
-      const { data: milesData, error: milesErr } = await supabase.from('milestones_data').select('*');
-      if (!milesErr && milesData && milesData.length > 0) {
-        const batchRow = milesData.find(m => m.id === 'batch_data');
-        const wdRow = milesData.find(m => m.id === 'ml-python-full-stack');
-        const weRow = milesData.find(m => m.id === 'ml-python-weekend');
-        const defaultRow = milesData.find(m => m.id === 'default');
+      // 8. Fetch Milestones Roadmap Data & Student Progress from Supabase & Local Storage
+      let fetchedBatchData = null;
+      try {
+        const { data: milesData, error: milesErr } = await supabase.from('milestones_data').select('*');
+        if (!milesErr && milesData && milesData.length > 0) {
+          const batchRow = milesData.find(m => m.id === 'batch_data');
+          const wdRow = milesData.find(m => m.id === 'Weekday Batch') || milesData.find(m => m.id === 'ml-python-full-stack');
+          const weRow = milesData.find(m => m.id === 'Weekend Batch') || milesData.find(m => m.id === 'ml-python-weekend');
+          const defaultRow = milesData.find(m => m.id === 'default');
 
-        let batchData = batchRow?.overview?.batchData;
-        const wdStages = batchData?.['Weekday Batch']?.stages;
-        const weStages = batchData?.['Weekend Batch']?.stages;
+          let batchData = batchRow?.overview?.batchData;
+          const wdStages = batchData?.['Weekday Batch']?.stages;
+          const weStages = batchData?.['Weekend Batch']?.stages;
 
-        if (!wdStages || wdStages.length === 0 || !weStages || weStages.length === 0) {
-          const initialFallback = createInitialMilestonesByBatch();
-          batchData = {
-            'Weekday Batch': {
-              overview: wdRow?.overview || batchData?.['Weekday Batch']?.overview || defaultRow?.overview || initialFallback['Weekday Batch']?.overview || {},
-              stages: (wdStages && wdStages.length > 0) ? wdStages : (wdRow?.stages || defaultRow?.stages || initialFallback['Weekday Batch']?.stages || [])
-            },
-            'Weekend Batch': {
-              overview: weRow?.overview || batchData?.['Weekend Batch']?.overview || defaultRow?.overview || initialFallback['Weekend Batch']?.overview || {},
-              stages: (weStages && weStages.length > 0) ? weStages : (weRow?.stages || defaultRow?.stages || initialFallback['Weekend Batch']?.stages || [])
-            }
-          };
-          // Persist the full present dataset to Supabase in real-time
-          syncMilestonesNow(batchData);
+          if (!wdStages || wdStages.length === 0 || !weStages || weStages.length === 0) {
+            batchData = {
+              'Weekday Batch': {
+                overview: wdRow?.overview || batchData?.['Weekday Batch']?.overview || defaultRow?.overview || {},
+                stages: (wdStages && wdStages.length > 0) ? wdStages : (wdRow?.stages || defaultRow?.stages || [])
+              },
+              'Weekend Batch': {
+                overview: weRow?.overview || batchData?.['Weekend Batch']?.overview || defaultRow?.overview || {},
+                stages: (weStages && weStages.length > 0) ? weStages : (weRow?.stages || defaultRow?.stages || [])
+              }
+            };
+          }
+
+          if (batchData && batchData['Weekday Batch']?.stages?.length > 0) {
+            fetchedBatchData = batchData;
+          }
+
+          const compRow = milesData.find(m => m.id === 'completed_items');
+          if (compRow && compRow.overview && Array.isArray(compRow.overview.itemIds)) {
+            lastSyncedCompletedRef.current = JSON.stringify([...compRow.overview.itemIds].sort());
+            setCompletedMilestoneItemIds(compRow.overview.itemIds);
+          }
         }
+      } catch (err) {
+        console.warn('Supabase milestones fetch warning:', err);
+      }
 
-        if (batchData) {
-          lastSyncedMilestonesRef.current = JSON.stringify(batchData);
-          setMilestonesByBatch(prev => {
-            if (JSON.stringify(prev) === JSON.stringify(batchData)) return prev;
-            return batchData;
-          });
-        }
+      // Check local storage for any custom added topics/modules that are more up to date
+      const savedLocal = localStorage.getItem('aspire_lms_milestones_by_batch');
+      let localBatchData = null;
+      if (savedLocal) {
+        try {
+          const parsed = JSON.parse(savedLocal);
+          if (parsed && parsed['Weekday Batch']?.stages?.length > 0) {
+            localBatchData = parsed;
+          }
+        } catch (e) {}
+      }
 
-        const compRow = milesData.find(m => m.id === 'completed_items');
-        if (compRow && compRow.overview && Array.isArray(compRow.overview.itemIds)) {
-          lastSyncedCompletedRef.current = JSON.stringify([...compRow.overview.itemIds].sort());
-          setCompletedMilestoneItemIds(compRow.overview.itemIds);
-        }
-      } else {
-        // Initial seeding if table is empty
-        const initialBatchData = createInitialMilestonesByBatch();
-        syncMilestonesNow(initialBatchData);
+      // Choose localBatchData if present and has custom topics, or fetchedBatchData, or initial fallback
+      const finalDataToSet = fetchedBatchData || localBatchData || createInitialMilestonesByBatch();
+      if (finalDataToSet) {
+        lastSyncedMilestonesRef.current = JSON.stringify(finalDataToSet);
+        setMilestonesByBatch((prev) => {
+          if (JSON.stringify(prev) === JSON.stringify(finalDataToSet)) return prev;
+          return finalDataToSet;
+        });
+        syncMilestonesNow(finalDataToSet);
       }
 
       // 9. Fetch Projects Catalog
