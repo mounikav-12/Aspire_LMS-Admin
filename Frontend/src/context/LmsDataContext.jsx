@@ -1692,11 +1692,12 @@ export function LmsDataProvider({ children }) {
               if (JSON.stringify(prev) === JSON.stringify(incoming)) return prev;
               return incoming;
             });
-          } else if ((row.id === 'Weekday Batch' || row.id === 'Weekend Batch') && row.stages) {
+          } else if ((row.id === 'Weekday Batch' || row.id === 'Weekend Batch' || row.id === 'ml-python-full-stack' || row.id === 'ml-python-weekend') && row.stages) {
+            const targetKey = (row.id === 'Weekend Batch' || row.id === 'ml-python-weekend') ? 'Weekend Batch' : 'Weekday Batch';
             setMilestonesByBatch((prev) => {
               const next = {
                 ...prev,
-                [row.id]: { overview: row.overview || {}, stages: row.stages }
+                [targetKey]: { overview: row.overview || prev[targetKey]?.overview || {}, stages: row.stages }
               };
               lastSyncedMilestonesRef.current = JSON.stringify(next);
               return next;
