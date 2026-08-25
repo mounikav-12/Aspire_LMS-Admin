@@ -50,6 +50,46 @@ export const getInnerModulesForSubtopic = (subtopic) => {
   return [{ id: subtopic.id || 'mod-1', title: subtopic.title || 'General Module' }];
 };
 
+export const getModuleTopicsForSession = (sess, stagesList) => {
+  if (!sess) return [];
+  const cleanId = (id) => String(id || '').replace(/-(w|s)$/i, '').toLowerCase().trim();
+  const cleanStr = (str) => String(str || '').toLowerCase().replace(/[^a-z0-9]/g, '').trim();
+
+  const sessModId = cleanId(sess.moduleId || sess.module_id);
+  const sessTitle = cleanStr(sess.sessionTitle || sess.session_title || sess.title);
+  const sessModName = cleanStr(sess.moduleName || sess.module_name);
+  const sessSubName = cleanStr(sess.subtopicName || sess.subtopic_name);
+
+  if (Array.isArray(stagesList)) {
+    for (const stg of stagesList) {
+      for (const sub of (stg.subtopics || [])) {
+        const subTitleClean = cleanStr(sub.title);
+        const isSubMatch = sessSubName && subTitleClean && (sessSubName === subTitleClean || sessSubName.includes(subTitleClean) || subTitleClean.includes(sessSubName));
+
+        for (const mod of (sub.modules || [])) {
+          const modIdClean = cleanId(mod.id);
+          const modTitleClean = cleanStr(mod.title);
+
+          const isModIdMatch = sessModId && modIdClean && sessModId === modIdClean;
+          const isModTitleMatch = sessModName && modTitleClean && (sessModName === modTitleClean || sessModName.includes(modTitleClean) || modTitleClean.includes(sessModName));
+          const isSessTitleMatch = sessTitle && modTitleClean && (sessTitle === modTitleClean || sessTitle.includes(modTitleClean) || modTitleClean.includes(sessTitle));
+
+          if (isModIdMatch || isModTitleMatch || isSessTitleMatch || (isSubMatch && (isModTitleMatch || isSessTitleMatch))) {
+            if (Array.isArray(mod.topics) && mod.topics.length > 0) {
+              return mod.topics;
+            }
+            if (Array.isArray(mod.items) && mod.items.length > 0) {
+              return mod.items;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  return Array.isArray(sess.topics) ? sess.topics : [];
+};
+
 export const DEFAULT_STAGES = [
   {
     id: 's1',
@@ -943,30 +983,35 @@ export function LiveSessionListPage() {
                   </div>
                 </div>
 
-                {/* 4. Syllabus Topics Included Preview */}
-                {Array.isArray(sess.topics) && sess.topics.length > 0 && (
-                  <div className="p-2.5 bg-purple-50/40 rounded-xl border border-purple-100/80 space-y-1">
-                    <span className="text-[10px] font-black text-purple-800 uppercase tracking-wider flex items-center gap-1">
-                      <BookOpen className="w-3 h-3 text-purple-600" />
-                      <span>{sess.topics.length} Syllabus Topics Included</span>
-                    </span>
-                    <div className="flex flex-wrap gap-1 pt-0.5">
-                      {sess.topics.slice(0, 3).map((top, tIdx) => (
-                        <span
-                          key={top.id || tIdx}
-                          className="text-[10px] font-semibold text-slate-700 bg-white px-2 py-0.5 rounded-md border border-purple-100 shadow-2xs truncate max-w-full"
-                        >
-                          {tIdx + 1}. {top.title}
-                        </span>
-                      ))}
-                      {sess.topics.length > 3 && (
-                        <span className="text-[10px] font-bold text-purple-600 px-1.5 py-0.5">
-                          +{sess.topics.length - 3} more
-                        </span>
-                      )}
+                {/* 4. Syllabus Topics Included Preview (Dynamically synced from Milestones Roadmap) */}
+                {(() => {
+                  const cardTopics = getModuleTopicsForSession(sess, stagesList);
+                  if (!Array.isArray(cardTopics) || cardTopics.length === 0) return null;
+
+                  return (
+                    <div className="p-2.5 bg-purple-50/40 rounded-xl border border-purple-100/80 space-y-1">
+                      <span className="text-[10px] font-black text-purple-800 uppercase tracking-wider flex items-center gap-1">
+                        <BookOpen className="w-3 h-3 text-purple-600" />
+                        <span>{cardTopics.length} SYLLABUS TOPICS INCLUDED</span>
+                      </span>
+                      <div className="flex flex-wrap gap-1 pt-0.5">
+                        {cardTopics.slice(0, 3).map((top, tIdx) => (
+                          <span
+                            key={top.id || tIdx}
+                            className="text-[10px] font-semibold text-slate-700 bg-white px-2 py-0.5 rounded-md border border-purple-100 shadow-2xs truncate max-w-full"
+                          >
+                            {tIdx + 1}. {top.title}
+                          </span>
+                        ))}
+                        {cardTopics.length > 3 && (
+                          <span className="text-[10px] font-bold text-purple-600 px-1.5 py-0.5">
+                            +{cardTopics.length - 3} more
+                          </span>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  );
+                })()}
               </div>
 
               {/* 5. Open Meeting Room Action Button */}

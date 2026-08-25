@@ -3726,6 +3726,52 @@ export function LmsDataProvider({ children }) {
     }));
   };
 
+  const syncModuleMutationToLiveSessions = (moduleId, updatedData) => {
+    setLiveSessionsByBatch((prev) => {
+      const next = { ...prev };
+      const rawModId = String(moduleId || '').replace(/-(w|s)$/i, '').toLowerCase();
+
+      ['Weekday Batch', 'Weekend Batch'].forEach((bKey) => {
+        if (Array.isArray(next[bKey])) {
+          next[bKey] = next[bKey].map((sess) => {
+            const sessModId = String(sess.moduleId || sess.module_id || '').replace(/-(w|s)$/i, '').toLowerCase();
+            const sessModName = String(sess.moduleName || sess.module_name || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+            const prevTitleClean = String(updatedData.prevTitle || updatedData.title || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+
+            const isMatch = (sessModId && rawModId && sessModId === rawModId) ||
+              (sessModName && prevTitleClean && (sessModName === prevTitleClean || sessModName.includes(prevTitleClean) || prevTitleClean.includes(sessModName)));
+
+            if (!isMatch) return sess;
+
+            const newTitle = updatedData.title || sess.moduleName;
+            const updatedSess = {
+              ...sess,
+              moduleName: newTitle,
+              sessionTitle: sess.sessionTitle === updatedData.prevTitle ? newTitle : sess.sessionTitle,
+              topics: Array.isArray(updatedData.topics) ? updatedData.topics : sess.topics
+            };
+
+            try {
+              let meta = {};
+              try { meta = JSON.parse(sess.description || '{}'); } catch (e) {}
+              meta.moduleName = updatedSess.moduleName;
+              if (updatedData.topics) meta.topics = updatedData.topics;
+              supabase.from('live_sessions').update({
+                session_title: updatedSess.sessionTitle,
+                description: JSON.stringify(meta)
+              }).eq('id', sess.id).then();
+            } catch (err) {
+              console.warn('Sync live session module error:', err);
+            }
+
+            return updatedSess;
+          });
+        }
+      });
+      return next;
+    });
+  };
+
   const updateModule = (stageId, subtopicId, moduleId, updatedData, targetBatch = activeBatchFilter) => {
     updateBatchState(targetBatch, (batchData) => ({
       ...batchData,
@@ -3757,6 +3803,8 @@ export function LmsDataProvider({ children }) {
         };
       })
     }));
+
+    syncModuleMutationToLiveSessions(moduleId, updatedData);
   };
 
   const deleteModule = (stageId, subtopicId, moduleId, targetBatch = activeBatchFilter) => {
@@ -3791,11 +3839,15 @@ export function LmsDataProvider({ children }) {
         if (Array.isArray(next[bKey])) {
           next[bKey] = next[bKey].map((sess) => {
             const sessModId = String(sess.moduleId || sess.module_id || '').replace(/-(w|s)$/i, '').toLowerCase();
+            const sessModName = String(sess.moduleName || sess.module_name || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+            const sessSubName = String(sess.subtopicName || sess.subtopic_name || '').toLowerCase().replace(/[^a-z0-9]/g, '');
             const sessTitle = (sess.sessionTitle || sess.session_title || '').toLowerCase().replace(/[^a-z0-9]/g, '');
             const targetModTitle = String(topicPayload?.moduleTitle || '').toLowerCase().replace(/[^a-z0-9]/g, '');
 
             const isMatch = (sessModId && rawModId && sessModId === rawModId) ||
-              (sessTitle && targetModTitle && (sessTitle === targetModTitle || sessTitle.includes(targetModTitle) || targetModTitle.includes(sessTitle)));
+              (sessTitle && targetModTitle && (sessTitle === targetModTitle || sessTitle.includes(targetModTitle) || targetModTitle.includes(sessTitle))) ||
+              (sessModName && targetModTitle && (sessModName === targetModTitle || sessModName.includes(targetModTitle) || targetModTitle.includes(sessModName))) ||
+              (sessSubName && targetModTitle && (sessSubName === targetModTitle || sessSubName.includes(targetModTitle) || targetModTitle.includes(sessSubName)));
 
             if (!isMatch) return sess;
 
