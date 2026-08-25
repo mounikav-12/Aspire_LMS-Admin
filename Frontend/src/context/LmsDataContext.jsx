@@ -582,6 +582,7 @@ export function LmsDataProvider({ children }) {
   });
 
   const lastSyncedMilestonesRef = useRef('');
+  const isMilestonesHydratedRef = useRef(false);
 
   // Immediate Realtime Sync Helper for Milestones to Supabase & Backend API
   const syncMilestonesNow = async (customBatchData = null) => {
@@ -667,6 +668,7 @@ export function LmsDataProvider({ children }) {
 
   useEffect(() => {
     try {
+      if (!isMilestonesHydratedRef.current) return;
       const stringified = JSON.stringify(milestonesByBatch);
       if (lastSyncedMilestonesRef.current === stringified) {
         return;
@@ -1475,8 +1477,6 @@ export function LmsDataProvider({ children }) {
       const { data: milesData, error: milesErr } = await supabase.from('milestones_data').select('*');
       if (!milesErr && milesData && milesData.length > 0) {
         const batchRow = milesData.find(m => m.id === 'batch_data');
-        const wdRow = milesData.find(m => m.id === 'ml-python-full-stack');
-        const weRow = milesData.find(m => m.id === 'ml-python-weekend');
         const defaultRow = milesData.find(m => m.id === 'default');
 
         let batchData = batchRow?.overview?.batchData;
@@ -1484,27 +1484,26 @@ export function LmsDataProvider({ children }) {
         const weStages = batchData?.['Weekend Batch']?.stages;
 
         if (!wdStages || wdStages.length === 0 || !weStages || weStages.length === 0) {
-          const initialFallback = createInitialMilestonesByBatch();
-          batchData = {
-            'Weekday Batch': {
-              overview: wdRow?.overview || batchData?.['Weekday Batch']?.overview || defaultRow?.overview || initialFallback['Weekday Batch']?.overview || {},
-              stages: (wdStages && wdStages.length > 0) ? wdStages : (wdRow?.stages || defaultRow?.stages || initialFallback['Weekday Batch']?.stages || [])
-            },
-            'Weekend Batch': {
-              overview: weRow?.overview || batchData?.['Weekend Batch']?.overview || defaultRow?.overview || initialFallback['Weekend Batch']?.overview || {},
-              stages: (weStages && weStages.length > 0) ? weStages : (weRow?.stages || defaultRow?.stages || initialFallback['Weekend Batch']?.stages || [])
-            }
-          };
-          // Persist the full present dataset to Supabase in real-time
+          if (defaultRow?.stages && defaultRow.stages.length > 0) {
+            batchData = {
+              'Weekday Batch': { overview: defaultRow.overview || {}, stages: defaultRow.stages },
+              'Weekend Batch': { overview: defaultRow.overview || {}, stages: defaultRow.stages }
+            };
+          } else {
+            batchData = createInitialMilestonesByBatch();
+          }
           syncMilestonesNow(batchData);
         }
 
         if (batchData) {
-          lastSyncedMilestonesRef.current = JSON.stringify(batchData);
-          setMilestonesByBatch(prev => {
-            if (JSON.stringify(prev) === JSON.stringify(batchData)) return prev;
-            return batchData;
-          });
+          const stringified = JSON.stringify(batchData);
+          lastSyncedMilestonesRef.current = stringified;
+          isMilestonesHydratedRef.current = true;
+          try {
+            localStorage.setItem('aspire_lms_milestones_by_batch', stringified);
+            localStorage.setItem('aspire_lms_milestones', JSON.stringify(batchData['Weekday Batch'] || {}));
+          } catch (e) {}
+          setMilestonesByBatch(batchData);
         }
 
         const compRow = milesData.find(m => m.id === 'completed_items');
@@ -1515,6 +1514,7 @@ export function LmsDataProvider({ children }) {
       } else {
         // Initial seeding if table is empty
         const initialBatchData = createInitialMilestonesByBatch();
+        isMilestonesHydratedRef.current = true;
         syncMilestonesNow(initialBatchData);
       }
 
