@@ -597,39 +597,75 @@ export function LmsDataProvider({ children }) {
 
       const weekdayStages = dataToSync['Weekday Batch']?.stages || dataToSync['default']?.stages || [];
       const weekdayOverview = dataToSync['Weekday Batch']?.overview || {};
+      const weekendStages = dataToSync['Weekend Batch']?.stages || [];
+      const weekendOverview = dataToSync['Weekend Batch']?.overview || {};
+      const now = new Date().toISOString();
 
-      // 1. Sync batch_data to Supabase PostgreSQL table
-      const p1 = supabase
-        .from('milestones_data')
-        .upsert({
+      const rowsToUpsert = [
+        {
           id: 'batch_data',
           overview: { batchData: dataToSync },
           stages: weekdayStages,
-          updated_at: new Date().toISOString()
-        })
-        .then(() => {})
-        .catch((e) => console.warn('Supabase milestones batch sync error:', e));
-
-      // 2. Sync default fallback row to Supabase
-      const p2 = supabase
-        .from('milestones_data')
-        .upsert({
+          updated_at: now
+        },
+        {
           id: 'default',
           overview: weekdayOverview,
           stages: weekdayStages,
-          updated_at: new Date().toISOString()
-        })
-        .then(() => {})
-        .catch((e) => console.warn('Supabase milestones default sync error:', e));
+          updated_at: now
+        },
+        {
+          id: 'Weekday Batch',
+          overview: weekdayOverview,
+          stages: weekdayStages,
+          updated_at: now
+        },
+        {
+          id: 'Weekend Batch',
+          overview: weekendOverview,
+          stages: weekendStages,
+          updated_at: now
+        },
+        {
+          id: 'ml-python-full-stack',
+          overview: weekdayOverview,
+          stages: weekdayStages,
+          updated_at: now
+        },
+        {
+          id: 'ml-python-weekend',
+          overview: weekendOverview,
+          stages: weekendStages,
+          updated_at: now
+        }
+      ];
 
-      // 3. Fallback sync to local Express backend API
-      const p3 = fetch('/api/milestones', {
+      Object.keys(dataToSync).forEach((key) => {
+        if (!['batch_data', 'default', 'Weekday Batch', 'Weekend Batch', 'ml-python-full-stack', 'ml-python-weekend'].includes(key)) {
+          rowsToUpsert.push({
+            id: key,
+            overview: dataToSync[key]?.overview || {},
+            stages: dataToSync[key]?.stages || [],
+            updated_at: now
+          });
+        }
+      });
+
+      // 1. Direct bulk upsert to Supabase PostgreSQL table
+      const p1 = supabase
+        .from('milestones_data')
+        .upsert(rowsToUpsert)
+        .then(() => {})
+        .catch((e) => console.warn('Supabase milestones bulk sync error:', e));
+
+      // 2. Fallback sync to local Express backend API
+      const p2 = fetch('/api/milestones', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ batchData: dataToSync, overview: weekdayOverview })
       }).catch(() => {});
 
-      await Promise.allSettled([p1, p2, p3]);
+      await Promise.allSettled([p1, p2]);
     } catch (e) {
       console.warn('syncMilestonesNow error:', e);
     }
@@ -1638,6 +1674,15 @@ export function LmsDataProvider({ children }) {
             setMilestonesByBatch((prev) => {
               if (JSON.stringify(prev) === JSON.stringify(incoming)) return prev;
               return incoming;
+            });
+          } else if ((row.id === 'Weekday Batch' || row.id === 'Weekend Batch') && row.stages) {
+            setMilestonesByBatch((prev) => {
+              const next = {
+                ...prev,
+                [row.id]: { overview: row.overview || {}, stages: row.stages }
+              };
+              lastSyncedMilestonesRef.current = JSON.stringify(next);
+              return next;
             });
           } else if (row.id === 'default' && row.stages && Array.isArray(row.stages)) {
             setMilestonesByBatch((prev) => {
@@ -3309,9 +3354,15 @@ export function LmsDataProvider({ children }) {
       };
 
       const resolvedBatch = (!targetBatch || targetBatch === 'ALL') ? activeBatchFilter : targetBatch;
+      const bCategory =
+        resolvedBatch && (resolvedBatch.startsWith('A26S') || resolvedBatch.toLowerCase().includes('weekend'))
+          ? 'Weekend Batch'
+          : resolvedBatch && (resolvedBatch.startsWith('A26W') || resolvedBatch.toLowerCase().includes('weekday'))
+          ? 'Weekday Batch'
+          : resolvedBatch;
 
-      if (resolvedBatch === 'Weekday Batch' || resolvedBatch === 'Weekend Batch') {
-        applyToBatch(resolvedBatch);
+      if (bCategory === 'Weekday Batch' || bCategory === 'Weekend Batch') {
+        applyToBatch(bCategory);
       } else {
         // If still 'ALL', apply independently to both batches
         applyToBatch('Weekday Batch');

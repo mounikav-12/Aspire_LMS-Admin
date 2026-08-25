@@ -184,29 +184,37 @@ app.put('/api/milestones', async (req, res) => {
 
     const weekdayStages = batchData['Weekday Batch']?.stages || batchData['default']?.stages || [];
     const weekdayOverview = batchData['Weekday Batch']?.overview || overview || {};
+    const weekendStages = batchData['Weekend Batch']?.stages || [];
+    const weekendOverview = batchData['Weekend Batch']?.overview || {};
+    const now = new Date().toISOString();
 
-    // 1. Upsert batch_data record
-    const { error: batchErr } = await supabase.from('milestones_data').upsert([{
-      id: 'batch_data',
-      overview: { batchData },
-      stages: weekdayStages,
-      updated_at: new Date().toISOString()
-    }]);
-    if (batchErr) console.warn('Supabase batch_data upsert error:', batchErr.message);
+    const rows = [
+      { id: 'batch_data', overview: { batchData }, stages: weekdayStages, updated_at: now },
+      { id: 'default', overview: weekdayOverview, stages: weekdayStages, updated_at: now },
+      { id: 'Weekday Batch', overview: weekdayOverview, stages: weekdayStages, updated_at: now },
+      { id: 'Weekend Batch', overview: weekendOverview, stages: weekendStages, updated_at: now },
+      { id: 'ml-python-full-stack', overview: weekdayOverview, stages: weekdayStages, updated_at: now },
+      { id: 'ml-python-weekend', overview: weekendOverview, stages: weekendStages, updated_at: now }
+    ];
 
-    // 2. Upsert default fallback record
-    const { error: defErr } = await supabase.from('milestones_data').upsert([{
-      id: 'default',
-      overview: weekdayOverview,
-      stages: weekdayStages,
-      updated_at: new Date().toISOString()
-    }]);
-    if (defErr) console.warn('Supabase default upsert error:', defErr.message);
+    Object.keys(batchData).forEach((k) => {
+      if (!['batch_data', 'default', 'Weekday Batch', 'Weekend Batch', 'ml-python-full-stack', 'ml-python-weekend'].includes(k)) {
+        rows.push({
+          id: k,
+          overview: batchData[k]?.overview || {},
+          stages: batchData[k]?.stages || [],
+          updated_at: now
+        });
+      }
+    });
+
+    const { error: upsertErr } = await supabase.from('milestones_data').upsert(rows);
+    if (upsertErr) console.warn('Supabase milestones bulk upsert error:', upsertErr.message);
 
     res.json({
       success: true,
-      message: 'Milestones successfully saved in realtime Supabase database',
-      updatedAt: new Date().toISOString()
+      message: 'Milestones all stages, subtopics, and modules successfully saved in realtime Supabase database',
+      updatedAt: now
     });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
