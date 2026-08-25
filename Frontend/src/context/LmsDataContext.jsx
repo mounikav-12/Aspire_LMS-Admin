@@ -3864,6 +3864,8 @@ export function LmsDataProvider({ children }) {
 
   const updateLearningItem = (stageId, subtopicId, moduleId, itemId, updatedData, targetBatch = activeBatchFilter) => {
     const desc = updatedData.description || updatedData.agenda || updatedData.overview || '';
+    const cleanTargetId = String(itemId || '').replace(/-(w|s)$/i, '');
+
     updateBatchState(targetBatch, (batchData) => ({
       ...batchData,
       stages: (batchData.stages || []).map((stg) => {
@@ -3879,18 +3881,34 @@ export function LmsDataProvider({ children }) {
               modules: (sub.modules || []).map((mod) => {
                 const isModMatch = mod.id === moduleId || mod.id.replace(/-[ws]$/, '') === String(moduleId).replace(/-[ws]$/, '');
                 if (!isModMatch) return mod;
+
+                const matchFn = (t) => {
+                  const tCleanId = String(t.id || '').replace(/-(w|s)$/i, '');
+                  if (t.id === itemId || tCleanId === cleanTargetId) return true;
+                  if (updatedData.prevTitle && (t.title === updatedData.prevTitle || t.title.toLowerCase().trim() === updatedData.prevTitle.toLowerCase().trim())) return true;
+                  return false;
+                };
+
+                let curTopics = Array.isArray(mod.topics) ? [...mod.topics] : [];
+                let hasTopicMatch = curTopics.some(matchFn);
+                if (hasTopicMatch) {
+                  curTopics = curTopics.map(t => matchFn(t) ? { ...t, title: updatedData.title || t.title, description: desc || t.description, agenda: desc || t.agenda, overview: desc || t.overview } : t);
+                } else {
+                  curTopics.push({ id: itemId, title: updatedData.title, description: desc, agenda: desc, overview: desc });
+                }
+
+                let curItems = Array.isArray(mod.items) ? [...mod.items] : [];
+                let hasItemMatch = curItems.some(matchFn);
+                if (hasItemMatch) {
+                  curItems = curItems.map(itm => matchFn(itm) ? { ...itm, ...updatedData, description: desc || itm.description, agenda: desc || itm.agenda, overview: desc || itm.overview } : itm);
+                } else {
+                  curItems.push({ id: itemId, type: 'LIVE CLASS', title: updatedData.title, description: desc, agenda: desc, overview: desc, actionText: 'JOIN', url: '#' });
+                }
+
                 return {
                   ...mod,
-                  items: (mod.items || []).map((itm) =>
-                    itm.id === itemId || itm.id.replace(/-[ws]$/, '') === String(itemId).replace(/-[ws]$/, '')
-                      ? { ...itm, ...updatedData, description: desc || itm.description, agenda: desc || itm.agenda, overview: desc || itm.overview }
-                      : itm
-                  ),
-                  topics: (mod.topics || []).map((top) =>
-                    top.id === itemId || top.id.replace(/-[ws]$/, '') === String(itemId).replace(/-[ws]$/, '')
-                      ? { ...top, title: updatedData.title || top.title, description: desc || top.description, agenda: desc || top.agenda, overview: desc || top.overview }
-                      : top
-                  )
+                  items: curItems,
+                  topics: curTopics
                 };
               })
             };
@@ -3899,7 +3917,7 @@ export function LmsDataProvider({ children }) {
       })
     }));
 
-    syncTopicMutationToLiveSessions(moduleId, itemId, { title: updatedData.title, agenda: desc, description: desc, overview: desc }, 'update');
+    syncTopicMutationToLiveSessions(moduleId, itemId, { title: updatedData.title, prevTitle: updatedData.prevTitle, agenda: desc, description: desc, overview: desc }, 'update');
   };
 
   const deleteLearningItem = (stageId, subtopicId, moduleId, itemId, targetBatch = activeBatchFilter, extraMeta = {}) => {

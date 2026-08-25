@@ -1048,12 +1048,27 @@ export function MilestonesRoadmapPage() {
       iconBg,
       btnStyle
     };
+    const curMod = activeSubtopic.modules?.find(m => m.id === targetModuleIdForItem);
+    const modTitle = curMod?.title || '';
 
     if (editingItem) {
-      updateLearningItem(activeSubtopic.stageId, activeSubtopic.id, targetModuleIdForItem, editingItem.id, payload, selectedBatch);
+      updateLearningItem(
+        activeSubtopic.stageId,
+        activeSubtopic.id,
+        targetModuleIdForItem,
+        editingItem.id,
+        { ...payload, prevTitle: editingItem.title, moduleTitle: modTitle },
+        selectedBatch
+      );
       addToast('Topic & agenda updated', 'success');
     } else {
-      addLearningItem(activeSubtopic.stageId, activeSubtopic.id, targetModuleIdForItem, payload, selectedBatch);
+      addLearningItem(
+        activeSubtopic.stageId,
+        activeSubtopic.id,
+        targetModuleIdForItem,
+        { ...payload, moduleTitle: modTitle },
+        selectedBatch
+      );
       addToast('Topic & agenda added to module', 'success');
     }
     setIsItemModalOpen(false);
