@@ -28,7 +28,9 @@ import {
   CalendarClock,
   Timer,
   CheckCircle2,
-  AlertCircle
+  AlertCircle,
+  Building2,
+  FolderGit2
 } from 'lucide-react';
 import { useSearchParams } from 'react-router-dom';
 import { useToast } from '../../context/ToastContext';
@@ -392,7 +394,7 @@ export function MilestonesRoadmapPage() {
             
             // Match learning items
             const matchedSessions = liveSessions
-              .filter(ls => ls.innerTopicId === lesson.id || ls.topic_id === lesson.id)
+              .filter(ls => ls.innerTopicId === lesson.id || ls.topic_id === lesson.id || ls.moduleId === lesson.id || ls.moduleName === lesson.title)
               .map(ls => ({
                 ...ls,
                 id: `item-live-${ls.id}`,
@@ -424,40 +426,45 @@ export function MilestonesRoadmapPage() {
               }));
 
             const matchedAssess = assessments
-              .filter(asm => asm.innerTopicId === lesson.id || asm.topic_id === lesson.id)
+              .filter(asm => asm.innerTopicId === lesson.id || asm.topic_id === lesson.id || asm.moduleId === lesson.id || (asm.topicName && asm.topicName.trim() === lesson.title.trim()))
               .map(asm => ({
                 ...asm,
-                id: `item-asm-${asm.id}`,
+                id: `item-asmnt-${asm.id}`,
                 assessmentId: asm.id,
                 type: 'ASSESSMENT',
-                typeColor: 'bg-purple-100 text-purple-700 border-purple-200',
+                typeColor: 'bg-blue-100 text-blue-800 border-blue-200',
                 iconName: 'FileCheck',
-                iconBg: 'bg-purple-600 text-white',
+                iconBg: 'bg-blue-600 text-white',
                 title: asm.title,
-                actionText: 'TAKE',
+                actionText: 'START',
                 url: '/assessments',
-                btnStyle: 'bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30'
+                btnStyle: 'bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30',
+                dueDate: asm.dueDate || '2026-08-30',
+                durationMinutes: asm.durationMinutes || 45,
+                totalMarks: asm.totalMarks || 100
               }));
 
             const matchedProjects = projects
-              .filter(p => p.innerTopicId === lesson.id || p.topic_id === lesson.id)
+              .filter(p => p.innerTopicId === lesson.id || p.topic_id === lesson.id || p.moduleId === lesson.id || p.topicName === lesson.title || p.moduleName === lesson.title)
               .map(p => ({
                 ...p,
                 id: `item-proj-${p.id}`,
                 projectId: p.id,
                 type: 'PROJECT',
-                typeColor: 'bg-purple-100 text-purple-700 border-purple-200',
-                iconName: 'Code',
-                iconBg: 'bg-purple-600 text-white',
+                typeColor: 'bg-emerald-100 text-emerald-800 border-emerald-200',
+                iconName: 'Building2',
+                iconBg: 'bg-emerald-600 text-white',
                 title: p.title,
                 actionText: 'VIEW',
                 url: '/projects',
-                btnStyle: 'bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30'
+                btnStyle: 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm shadow-emerald-500/30'
               }));
 
             return {
               id: lesson.id,
               title: lesson.title,
+              duration: lesson.duration || lesson.durationHours || '1hr 30min',
+              durationHours: lesson.durationHours || '1hr 30min',
               unlockDate: lockStatus?.unlockDate || '',
               unlockTime: lockStatus?.unlockTime || '',
               unlockDateTime: lockStatus?.unlockDateTime || null,
@@ -633,12 +640,51 @@ export function MilestonesRoadmapPage() {
     unlockTime: '09:00'
   });
 
+  const [expandedTopicItemIds, setExpandedTopicItemIds] = useState([]);
+
+  const toggleTopicItemExpand = (itemId) => {
+    setExpandedTopicItemIds((prev) =>
+      prev.includes(itemId) ? prev.filter((id) => id !== itemId) : [...prev, itemId]
+    );
+  };
+
+  const getTopicAgendaOverview = (item) => {
+    if (item?.description && item.description.trim()) return item.description;
+    if (item?.agenda && item.agenda.trim()) return item.agenda;
+    if (item?.overview && item.overview.trim()) return item.overview;
+
+    const t = (item?.title || '').toLowerCase();
+    if (t.includes('what is version control')) {
+      return 'What is version control? Why do developers need it? What happens if multiple developers edit the same project? How does Git solve these problems? What is the difference between Git and GitHub?';
+    }
+    if (t.includes('how does git work')) {
+      return 'Understanding Git snapshot architecture, working directory, staging area (index), and local repository (.git directory). How commits create immutable snapshots in time.';
+    }
+    if (t.includes('install & configure') || t.includes('install and configure')) {
+      return 'Installing Git CLI on Windows, Mac, and Linux. Setting up global user identity (git config --global user.name and user.email), default branch naming, and credential helpers.';
+    }
+    if (t.includes('create a git repository') || t.includes('git repo')) {
+      return 'Initializing new local repositories with git init, understanding hidden .git folders, tracking project files, and cloning existing remote repositories with git clone.';
+    }
+    if (t.includes('track & commit') || t.includes('track and commit')) {
+      return 'Inspecting file status with git status, adding files to staging with git add, writing clear commit messages with git commit -m, and viewing project commit logs with git log.';
+    }
+    if (t.includes('push & pull') || t.includes('push and pull')) {
+      return 'Connecting local repositories to GitHub via git remote add, pushing branches with git push -u origin main, and fetching/merging changes from team members with git pull.';
+    }
+    if (t.includes('branch') || t.includes('merge')) {
+      return 'Creating and switching isolated feature branches with git branch and git checkout/switch, merging branches, and resolving merge conflicts cleanly.';
+    }
+    return `Comprehensive session overview covering ${item?.title || 'this core topic'}. Master core concepts, practical industry patterns, and hands-on implementation.`;
+  };
+
   const [isItemModalOpen, setIsItemModalOpen] = useState(false);
   const [targetModuleIdForItem, setTargetModuleIdForItem] = useState(null);
   const [editingItem, setEditingItem] = useState(null);
   const [itemFormData, setItemFormData] = useState({
     type: 'LIVE CLASS',
     title: '',
+    description: '',
     actionText: 'JOIN',
     url: ''
   });
@@ -670,6 +716,7 @@ export function MilestonesRoadmapPage() {
   const renderItemIcon = (iconName, iconBg, isLocked = false) => {
     let IconComp = Video;
     if (iconName === 'Code') IconComp = Code;
+    if (iconName === 'Building2' || iconName === 'FolderGit2') IconComp = Building2;
     if (iconName === 'FileCheck') IconComp = FileCheck;
     if (iconName === 'BookText' || iconName === 'Book' || iconName === 'FileText') IconComp = Book;
 
@@ -912,6 +959,7 @@ export function MilestonesRoadmapPage() {
       setEditingModule(module);
       setModuleFormData({
         title: module.title,
+        duration: module.duration || module.durationHours || '1hr 30min',
         unlockDate: module.unlockDate || '',
         unlockTime: module.unlockTime || '09:00'
       });
@@ -919,6 +967,7 @@ export function MilestonesRoadmapPage() {
       setEditingModule(null);
       setModuleFormData({
         title: '',
+        duration: '1hr 30min',
         unlockDate: '',
         unlockTime: '09:00'
       });
@@ -969,6 +1018,7 @@ export function MilestonesRoadmapPage() {
       setItemFormData({
         type: item.type,
         title: item.title,
+        description: item.description || item.agenda || item.overview || '',
         actionText: item.actionText,
         url: item.url || ''
       });
@@ -977,6 +1027,7 @@ export function MilestonesRoadmapPage() {
       setItemFormData({
         type: 'LIVE CLASS',
         title: '',
+        description: '',
         actionText: 'JOIN',
         url: ''
       });
@@ -1397,12 +1448,6 @@ export function MilestonesRoadmapPage() {
                                         </span>
                                       )}
                                     </div>
-                                    {subtopic.durationHours && (
-                                      <div className="flex items-center gap-1 text-[10px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200 w-fit mt-1">
-                                        <Clock className="w-3.5 h-3.5 text-amber-600 flex-shrink-0" />
-                                        <span>Duration: {subtopic.durationHours}</span>
-                                      </div>
-                                    )}
                                     {subtopic.duration && (
                                       <span className="text-[11px] font-medium text-slate-500 block mt-0.5">
                                         {subtopic.duration}
@@ -1481,8 +1526,8 @@ export function MilestonesRoadmapPage() {
           />
 
           {/* Drawer Side Panel */}
-          <div className="fixed inset-y-0 right-0 max-w-full flex pl-10">
-            <div className="w-screen max-w-md bg-white shadow-2xl flex flex-col justify-between overflow-hidden animate-in slide-in-from-right duration-300 border-l border-slate-200">
+          <div className="fixed inset-y-0 right-0 max-w-full flex pl-4 sm:pl-10">
+            <div className="w-screen max-w-3xl lg:max-w-4xl bg-white shadow-2xl flex flex-col justify-between overflow-hidden animate-in slide-in-from-right duration-300 border-l border-slate-200">
               {/* Drawer Content */}
               <div className="flex-1 overflow-y-auto p-6 space-y-6">
                 {/* Header */}
@@ -1597,96 +1642,241 @@ export function MilestonesRoadmapPage() {
                       const modSched = getScheduleInfo(module, subSched);
                       const isModLocked = modSched.isLocked;
 
+                      const rawItems = module.items || [];
+
+                      // Match associated live session if scheduled
+                      const matchedLiveSessions = (liveSessions || []).filter(
+                        (s) =>
+                          s.moduleId === module.id ||
+                          s.innerTopicId === module.id ||
+                          s.topic_id === module.id ||
+                          (s.moduleName && s.moduleName.toLowerCase().trim() === module.title.toLowerCase().trim()) ||
+                          (s.sessionTitle && s.sessionTitle.toLowerCase().trim() === module.title.toLowerCase().trim()) ||
+                          rawItems.some(
+                            (it) =>
+                              it.sessionId === s.id ||
+                              `item-live-${s.id}` === it.id ||
+                              (it.type === 'LIVE CLASS' && it.title?.toLowerCase().trim() === s.sessionTitle?.toLowerCase().trim())
+                          )
+                      );
+
+                      const primaryLiveSession = matchedLiveSessions[0] || null;
+                      const moduleJoinLink = primaryLiveSession?.meetingLink || primaryLiveSession?.meeting_link || primaryLiveSession?.joinLink || primaryLiveSession?.url || rawItems.find(it => it.type === 'LIVE CLASS' && (it.url || it.joinLink))?.url || 'https://meet.google.com/aspire-lms-live';
+
+                      const hasLiveClass = !!primaryLiveSession || rawItems.some(it => it.type === 'LIVE CLASS');
+
+                      // Live Class Topics: Synchronize and link from primaryLiveSession.topics or module.items
+                      let liveClassTopics = [];
+                      if (Array.isArray(primaryLiveSession?.topics) && primaryLiveSession.topics.length > 0) {
+                        liveClassTopics = primaryLiveSession.topics.map((t, idx) => ({
+                          id: t.id || `topic-${module.id}-${idx}`,
+                          title: t.title,
+                          description: t.description || t.agenda || t.overview || '',
+                          agenda: t.description || t.agenda || t.overview || '',
+                          overview: t.description || t.agenda || t.overview || '',
+                          type: 'LIVE CLASS',
+                          actionText: 'JOIN',
+                          url: moduleJoinLink
+                        }));
+                      } else {
+                        const existingLiveItems = rawItems.filter(it => it.type === 'LIVE CLASS');
+                        if (
+                          existingLiveItems.length <= 1 &&
+                          (existingLiveItems.length === 0 || existingLiveItems[0]?.title?.toLowerCase().trim() === module.title?.toLowerCase().trim()) &&
+                          (module.id === 'l_git_1' || module.title?.toLowerCase().includes('git architecture') || module.title?.toLowerCase().includes('version control'))
+                        ) {
+                          liveClassTopics = [
+                            {
+                              id: 'git-top-1',
+                              title: 'What is Version Control?',
+                              type: 'LIVE CLASS',
+                              description: 'What is version control? Why do developers need it? What happens if multiple developers edit the same project? How does Git solve these problems? What is the difference between Git and GitHub?',
+                              agenda: 'What is version control? Why do developers need it? What happens if multiple developers edit the same project? How does Git solve these problems? What is the difference between Git and GitHub?',
+                              overview: 'What is version control? Why do developers need it? What happens if multiple developers edit the same project? How does Git solve these problems? What is the difference between Git and GitHub?'
+                            },
+                            {
+                              id: 'git-top-2',
+                              title: 'How Does Git Work?',
+                              type: 'LIVE CLASS',
+                              description: 'Understanding Git snapshot architecture, working directory, staging area (index), and local repository (.git directory). How commits create immutable snapshots in time.',
+                              agenda: 'Understanding Git snapshot architecture, working directory, staging area (index), and local repository (.git directory). How commits create immutable snapshots in time.',
+                              overview: 'Understanding Git snapshot architecture, working directory, staging area (index), and local repository (.git directory). How commits create immutable snapshots in time.'
+                            },
+                            {
+                              id: 'git-top-3',
+                              title: 'How Do We Install & Configure Git?',
+                              type: 'LIVE CLASS',
+                              description: 'Installing Git CLI on Windows, Mac, and Linux. Setting up global user identity (git config --global user.name and user.email), default branch naming, and credential helpers.',
+                              agenda: 'Installing Git CLI on Windows, Mac, and Linux. Setting up global user identity (git config --global user.name and user.email), default branch naming, and credential helpers.',
+                              overview: 'Installing Git CLI on Windows, Mac, and Linux. Setting up global user identity (git config --global user.name and user.email), default branch naming, and credential helpers.'
+                            },
+                            {
+                              id: 'git-top-4',
+                              title: 'How Do We Create a Git Repository?',
+                              type: 'LIVE CLASS',
+                              description: 'Initializing new local repositories with git init, understanding hidden .git folders, tracking project files, and cloning existing remote repositories with git clone.',
+                              agenda: 'Initializing new local repositories with git init, understanding hidden .git folders, tracking project files, and cloning existing remote repositories with git clone.',
+                              overview: 'Initializing new local repositories with git init, understanding hidden .git folders, tracking project files, and cloning existing remote repositories with git clone.'
+                            },
+                            {
+                              id: 'git-top-5',
+                              title: 'How Do We Track & Commit Changes?',
+                              type: 'LIVE CLASS',
+                              description: 'Inspecting file status with git status, adding files to staging with git add, writing clear commit messages with git commit -m, and viewing project commit logs with git log.',
+                              agenda: 'Inspecting file status with git status, adding files to staging with git add, writing clear commit messages with git commit -m, and viewing project commit logs with git log.',
+                              overview: 'Inspecting file status with git status, adding files to staging with git add, writing clear commit messages with git commit -m, and viewing project commit logs with git log.'
+                            }
+                          ];
+                        } else {
+                          liveClassTopics = existingLiveItems.length > 0 ? existingLiveItems : rawItems.filter(it => !it.type);
+                        }
+                      }
+                      const otherResources = rawItems.filter(it => it.type !== 'LIVE CLASS' && !liveClassTopics.some(lt => lt.id === it.id));
+
                       return (
-                        <div key={module.id} className="rounded-2xl border border-slate-200/90 overflow-hidden shadow-xs">
+                        <div key={module.id} className="rounded-2xl border border-slate-200/90 overflow-hidden shadow-xs bg-white">
                           {/* Module Header Bar */}
                           <div
-                            className={`w-full p-4 flex items-center justify-between text-left font-bold text-sm transition-all ${
+                            className={`w-full p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 text-left font-bold text-sm transition-all ${
                               isExpanded
-                                ? 'bg-linear-to-r from-purple-600 to-violet-600 text-white'
-                                : 'bg-slate-50 hover:bg-slate-100 text-slate-800'
+                                ? 'bg-gradient-to-r from-purple-600 via-purple-700 to-indigo-700 text-white shadow-md'
+                                : 'bg-slate-50 hover:bg-slate-100/90 text-slate-800'
                             }`}
                           >
                             <div
                               onClick={() => setExpandedModule(isExpanded ? null : module.id)}
-                              className="flex items-center gap-2.5 flex-1 cursor-pointer flex-wrap"
+                              className="flex items-start sm:items-center gap-3.5 flex-1 cursor-pointer min-w-0"
                             >
                               <span
-                                className={`flex h-6 w-6 items-center justify-center rounded-md text-xs font-black ${
-                                  isExpanded ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700'
+                                className={`flex h-8 w-8 items-center justify-center rounded-xl text-xs font-black shrink-0 shadow-2xs ${
+                                  isExpanded ? 'bg-white/20 text-white border border-white/20' : 'bg-purple-100 text-purple-700 font-bold border border-purple-200'
                                 }`}
                               >
                                 {module.title.charAt(0).toUpperCase()}
                               </span>
-                              <span>{module.title}</span>
-
-                              {/* Module Schedule Badge */}
-                              {modSched.hasSchedule && !modSched.inherited && (
-                                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border flex items-center gap-1 ${
-                                  modSched.isLocked
-                                    ? 'bg-amber-100 text-amber-900 border-amber-300'
-                                    : 'bg-emerald-100 text-emerald-900 border-emerald-300'
-                                }`}>
-                                  {modSched.isLocked ? <Clock className="w-3 h-3 text-amber-700" /> : <CheckCircle2 className="w-3 h-3 text-emerald-700" />}
-                                  <span>{modSched.isLocked ? `Unlocks ${modSched.shortFormatted}` : `Released ${modSched.dateFormatted}`}</span>
+                              <div className="flex flex-col flex-1 min-w-0">
+                                <span className="text-sm sm:text-base font-extrabold leading-snug break-normal">
+                                  {module.title}
                                 </span>
-                              )}
+                                <div className="flex items-center gap-2 mt-1 flex-wrap">
+                                  <span className={`text-[11px] font-bold flex items-center gap-1 px-2.5 py-0.5 rounded-md ${
+                                    isExpanded ? 'bg-white/15 text-purple-100' : 'bg-white text-slate-600 border border-slate-200'
+                                  }`}>
+                                    <Clock className={`w-3 h-3 ${isExpanded ? 'text-purple-200' : 'text-slate-400'}`} />
+                                    <span>{module.duration || module.durationHours || '1hr 30min'}</span>
+                                  </span>
+
+                                  {/* Module Schedule Badge */}
+                                  {modSched.hasSchedule && !modSched.inherited && (
+                                    <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-md border flex items-center gap-1 shrink-0 ${
+                                      modSched.isLocked
+                                        ? 'bg-amber-100 text-amber-900 border-amber-300'
+                                        : 'bg-emerald-100 text-emerald-900 border-emerald-300'
+                                    }`}>
+                                      {modSched.isLocked ? <Clock className="w-3 h-3 text-amber-700" /> : <CheckCircle2 className="w-3 h-3 text-emerald-700" />}
+                                      <span>{modSched.isLocked ? `Unlocks ${modSched.shortFormatted}` : `Released ${modSched.dateFormatted}`}</span>
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
                             </div>
 
-                            <div className="flex items-center gap-2">
-                                <div className="flex items-center gap-1 border-r border-white/20 pr-2 mr-1">
-                                  {/* Module Schedule Button */}
-                                  <button
-                                    onClick={() =>
-                                      handleOpenScheduleModal('module', module, activeSubtopic.stageId, activeSubtopic.id)
-                                    }
-                                    title={modSched.hasSchedule && !modSched.inherited ? `Scheduled: ${modSched.fullFormatted}` : 'Set Release Schedule'}
-                                    className={`p-1 rounded cursor-pointer ${
-                                      modSched.hasSchedule && !modSched.inherited ? 'bg-white/30 text-amber-200' : 'hover:bg-white/20 text-white'
-                                    }`}
-                                  >
-                                    <Calendar className="w-3.5 h-3.5" />
-                                  </button>
+                            <div className="flex items-center justify-between sm:justify-end gap-2.5 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-white/10">
+                              {/* Unified Single Join Live Class Button in Header */}
+                              {hasLiveClass && (
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleActionClick('JOIN', module.title, moduleJoinLink, isModLocked, modSched, module.id);
+                                  }}
+                                  className={`px-3.5 py-1.5 rounded-xl text-xs font-black flex items-center gap-1.5 transition-all shadow-sm cursor-pointer whitespace-nowrap ${
+                                    isExpanded
+                                      ? 'bg-white text-purple-700 hover:bg-purple-50 shadow-md hover:shadow-lg active:scale-95'
+                                      : 'bg-purple-600 text-white hover:bg-purple-700 shadow-purple-500/30 active:scale-95'
+                                  }`}
+                                  title={`Join Daily Live Class for ${module.title}`}
+                                >
+                                  <Video className="w-3.5 h-3.5 animate-pulse" />
+                                  <span>JOIN CLASS</span>
+                                  <ExternalLink className="w-3 h-3 opacity-80" />
+                                </button>
+                              )}
 
-                                  <button
-                                    onClick={() => handleOpenItemModal(module.id, null)}
-                                    title="Add Resource Item"
-                                    className="p-1 hover:bg-white/20 rounded cursor-pointer text-white"
-                                  >
-                                    <Plus className="w-3.5 h-3.5" />
-                                  </button>
-                                  <button
-                                    onClick={() => handleOpenModuleModal(module)}
-                                    title="Edit Module"
-                                    className="p-1 hover:bg-white/20 rounded cursor-pointer text-white"
-                                  >
-                                    <Edit2 className="w-3.5 h-3.5" />
-                                  </button>
-                                  <button
-                                    onClick={() => handleDeleteModule(module.id, module.title)}
-                                    title="Delete Module"
-                                    className="p-1 hover:bg-white/20 rounded cursor-pointer text-rose-200"
-                                  >
-                                    <Trash2 className="w-3.5 h-3.5" />
-                                  </button>
-                                </div>
+                              <div className={`flex items-center gap-1 border-l pl-2 ${isExpanded ? 'border-white/20' : 'border-slate-200'}`}>
+                                {/* Module Schedule Button */}
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleOpenScheduleModal('module', module, activeSubtopic.stageId, activeSubtopic.id);
+                                  }}
+                                  title={modSched.hasSchedule && !modSched.inherited ? `Scheduled: ${modSched.fullFormatted}` : 'Set Release Schedule'}
+                                  className={`p-1.5 rounded-lg cursor-pointer transition-colors ${
+                                    modSched.hasSchedule && !modSched.inherited
+                                      ? isExpanded ? 'bg-white/30 text-amber-200' : 'bg-amber-50 text-amber-700 border border-amber-200'
+                                      : isExpanded ? 'hover:bg-white/20 text-white' : 'text-slate-400 hover:text-purple-700 hover:bg-purple-50'
+                                  }`}
+                                >
+                                  <Calendar className="w-3.5 h-3.5" />
+                                </button>
 
-                              <button onClick={() => setExpandedModule(isExpanded ? null : module.id)} className="cursor-pointer">
-                                {isExpanded ? (
-                                  <ChevronDown className="w-4 h-4 text-white" />
-                                ) : (
-                                  <ChevronRight className="w-4 h-4 text-slate-400" />
-                                )}
-                              </button>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleOpenItemModal(module.id, null);
+                                  }}
+                                  title="Add Resource Item"
+                                  className={`p-1.5 rounded-lg cursor-pointer transition-colors ${
+                                    isExpanded ? 'hover:bg-white/20 text-white' : 'text-slate-400 hover:text-purple-700 hover:bg-purple-50'
+                                  }`}
+                                >
+                                  <Plus className="w-3.5 h-3.5" />
+                                </button>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleOpenModuleModal(module);
+                                  }}
+                                  title="Edit Module"
+                                  className={`p-1.5 rounded-lg cursor-pointer transition-colors ${
+                                    isExpanded ? 'hover:bg-white/20 text-white' : 'text-slate-400 hover:text-purple-700 hover:bg-purple-50'
+                                  }`}
+                                >
+                                  <Edit2 className="w-3.5 h-3.5" />
+                                </button>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleDeleteModule(module.id, module.title);
+                                  }}
+                                  title="Delete Module"
+                                  className={`p-1.5 rounded-lg cursor-pointer transition-colors ${
+                                    isExpanded ? 'hover:bg-white/20 text-rose-200' : 'text-slate-400 hover:text-rose-600 hover:bg-rose-50'
+                                  }`}
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+
+                                <button
+                                  onClick={() => setExpandedModule(isExpanded ? null : module.id)}
+                                  className="p-1.5 rounded-lg cursor-pointer transition-colors ml-1"
+                                >
+                                  {isExpanded ? (
+                                    <ChevronDown className="w-4 h-4 text-white" />
+                                  ) : (
+                                    <ChevronRight className="w-4 h-4 text-slate-400" />
+                                  )}
+                                </button>
+                              </div>
                             </div>
                           </div>
 
                           {/* Module Expanded Content */}
                           {isExpanded && (
-                            <div className="p-4 space-y-3 bg-white">
+                            <div className="p-4 sm:p-5 space-y-4 bg-white">
                               {/* Admin Mode Schedule Info if locked */}
                               {isModLocked && (
-                                <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl text-amber-900 text-xs flex items-start gap-2.5">
+                                <div className="p-3.5 bg-amber-50 border border-amber-200 rounded-xl text-amber-900 text-xs flex items-start gap-2.5">
                                   <Clock className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0 animate-pulse" />
                                   <div>
                                     <span className="font-bold block">Content Scheduled Release</span>
@@ -1698,120 +1888,259 @@ export function MilestonesRoadmapPage() {
                                 </div>
                               )}
 
-                              {(() => {
-                                  const rawItems = module.items || [];
+                              {/* Top Unified Daily Live Class Info Strip */}
+                              {hasLiveClass && (
+                                <div className="bg-gradient-to-r from-purple-50 via-indigo-50/40 to-blue-50/30 px-3.5 py-2.5 sm:px-4 sm:py-3 rounded-xl border border-purple-200/90 shadow-2xs flex items-center justify-between gap-3">
+                                  {/* Left: Live Indicator & Mentor */}
+                                  <div className="flex items-center gap-2.5 flex-wrap min-w-0">
+                                    <div className="w-7 h-7 rounded-lg bg-purple-600 text-white flex items-center justify-center shadow-xs shrink-0">
+                                      <Video className="w-3.5 h-3.5 animate-pulse" />
+                                    </div>
+                                    <span className="text-[10px] font-black tracking-wider uppercase px-2.5 py-1 rounded-md bg-purple-600 text-white shadow-2xs flex items-center gap-1.5 shrink-0">
+                                      <span className="w-1.5 h-1.5 rounded-full bg-red-400 animate-ping inline-block" />
+                                      DAILY LIVE CLASS
+                                    </span>
+                                    {primaryLiveSession?.instructor && (
+                                      <span className="text-xs font-semibold text-purple-700 bg-purple-100/80 px-2.5 py-1 rounded-md border border-purple-200 shrink-0">
+                                        Mentor: {primaryLiveSession.instructor}
+                                      </span>
+                                    )}
+                                  </div>
 
-                                  // Ensure raw items with matching live session sync latest meeting link
-                                  const syncedRawItems = rawItems.map((item) => {
-                                    if (item.type === 'LIVE CLASS') {
-                                      const matchedSess = (liveSessions || []).find(
-                                        (s) =>
-                                          s.id === item.sessionId ||
-                                          `item-live-${s.id}` === item.id ||
-                                          (item.title && s.sessionTitle && item.title.toLowerCase().trim() === s.sessionTitle.toLowerCase().trim())
-                                      );
-                                      if (matchedSess && (matchedSess.meetingLink || matchedSess.meeting_link)) {
-                                        return {
-                                          ...item,
-                                          url: matchedSess.meetingLink || matchedSess.meeting_link
-                                        };
-                                      }
-                                    }
-                                    return item;
-                                  });
+                                  {/* Right side edge: Duration / Timing */}
+                                  <div className="flex items-center gap-1.5 shrink-0">
+                                    <span className="text-xs font-bold text-slate-700 flex items-center gap-1.5 bg-white px-3 py-1 rounded-md border border-purple-200 shadow-2xs">
+                                      <Clock className="w-3.5 h-3.5 text-purple-600" />
+                                      <span>{primaryLiveSession?.time || primaryLiveSession?.timing || module.duration || '1hr 30min'}</span>
+                                    </span>
+                                  </div>
+                                </div>
+                              )}
 
-                                  const ORDER = {
-                                    'LIVE CLASS': 1,
-                                    'RECORDED CLASS': 2,
-                                    'VIDEO': 2,
-                                    'ASSESSMENT': 3,
-                                    'CODING': 4,
-                                    'PROJECT': 5
-                                  };
-                                  const moduleDisplayItems = [...syncedRawItems].sort(
-                                    (a, b) => (ORDER[a.type] || 99) - (ORDER[b.type] || 99)
-                                  );
+                              {/* Daily Class Topics / Syllabus Agenda (Covered in this single Live Class) */}
+                              {liveClassTopics.length > 0 && (
+                                <div className="space-y-2.5 pt-2">
+                                  <div className="flex items-center justify-between px-1">
+                                    <span className="text-xs font-black text-slate-600 uppercase tracking-wider flex items-center gap-2">
+                                      <BookOpen className="w-4 h-4 text-purple-600" />
+                                      <span>Class Topics & Syllabus Covered ({liveClassTopics.length} Topics)</span>
+                                    </span>
+                                  </div>
 
-                                return moduleDisplayItems.length > 0 ? (
-                                  moduleDisplayItems.map((item) => {
-                                    const isItemDone = completedMilestoneItemIds.includes(item.id);
+                                   <div className="space-y-2">
+                                    {liveClassTopics.map((item, idx) => {
+                                      const isItemDone = completedMilestoneItemIds.includes(item.id);
+                                      const topicItemId = item.id || `topic-${module.id}-${idx}`;
+                                      const isTopicExpanded = expandedTopicItemIds.includes(topicItemId);
 
-                                    return (
-                                      <div
-                                        key={item.id}
-                                        className={`p-3.5 rounded-xl border flex items-center justify-between gap-3 transition-all group/item ${
-                                          isItemDone
-                                            ? 'bg-emerald-50/40 border-emerald-200'
-                                            : 'border-slate-100 bg-slate-50/50 hover:bg-slate-50'
-                                        }`}
-                                      >
-                                        <div className="flex items-center gap-3">
-                                          {/* Interactive Completion Toggle Button */}
-                                          <button
-                                            type="button"
-                                            onClick={(e) => {
-                                              e.stopPropagation();
-                                              toggleItemCompletion(item.id);
-                                              const nextDone = !isItemDone;
-                                              addToast(
-                                                nextDone
-                                                  ? `✅ Completed "${item.title}"! Progress updated.`
-                                                  : `Unmarked "${item.title}"`,
-                                                'info'
-                                              );
-                                            }}
-                                            title={isItemDone ? 'Topic Completed (Click to unmark)' : 'Click to mark as completed'}
-                                            className={`flex-shrink-0 p-1.5 rounded-lg border transition-all cursor-pointer flex items-center justify-center ${
-                                              isItemDone
-                                                ? 'bg-emerald-100 text-emerald-700 border-emerald-300 shadow-2xs hover:bg-emerald-200'
-                                                : 'bg-white text-slate-300 border-slate-200 hover:text-purple-600 hover:border-purple-300'
-                                            }`}
+                                      return (
+                                        <div
+                                          key={topicItemId}
+                                          className={`p-3.5 rounded-xl border transition-all ${
+                                            isItemDone
+                                              ? 'bg-emerald-50/50 border-emerald-200 shadow-2xs'
+                                              : isTopicExpanded
+                                              ? 'bg-purple-50/25 border-purple-300 shadow-xs'
+                                              : 'border-slate-200/80 bg-slate-50/70 hover:bg-slate-100/80'
+                                          }`}
+                                        >
+                                          <div
+                                            onClick={() => toggleTopicItemExpand(topicItemId)}
+                                            className="flex items-center justify-between gap-3.5 cursor-pointer"
                                           >
-                                            <CheckCircle2 className={`w-4 h-4 ${isItemDone ? 'text-emerald-600' : 'text-slate-300'}`} />
-                                          </button>
-
-                                          {renderItemIcon(item.iconName, item.iconBg, false)}
-                                          <div>
-                                            <div className="flex items-center gap-1.5 mb-0.5">
-                                              <span
-                                                className={`text-[9px] font-black tracking-wider uppercase px-2 py-0.5 rounded border inline-block ${
-                                                  item.typeColor || 'bg-purple-100 text-purple-700 border-purple-200'
+                                            <div className="flex items-center gap-3.5 flex-1 min-w-0">
+                                              {/* Interactive Completion Toggle Button */}
+                                              <button
+                                                type="button"
+                                                onClick={(e) => {
+                                                  e.stopPropagation();
+                                                  toggleItemCompletion(item.id);
+                                                  const nextDone = !isItemDone;
+                                                  addToast(
+                                                    nextDone
+                                                      ? `✅ Completed "${item.title}"! Progress updated.`
+                                                      : `Unmarked "${item.title}"`,
+                                                    'info'
+                                                  );
+                                                }}
+                                                title={isItemDone ? 'Topic Completed (Click to unmark)' : 'Click to mark as completed'}
+                                                className={`flex-shrink-0 p-1.5 rounded-lg border transition-all cursor-pointer flex items-center justify-center ${
+                                                  isItemDone
+                                                    ? 'bg-emerald-100 text-emerald-700 border-emerald-300 shadow-2xs hover:bg-emerald-200'
+                                                    : 'bg-white text-slate-300 border-slate-200 hover:text-purple-600 hover:border-purple-300'
                                                 }`}
                                               >
-                                                {item.type}
-                                              </span>
-                                              {isItemDone && (
-                                                <span
-                                                  onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    toggleItemCompletion(item.id);
-                                                    addToast(`⚪ Marked "${item.title}" as uncompleted`, 'info');
-                                                  }}
-                                                  title="Click to uncomplete"
-                                                  className="text-[9px] font-extrabold px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-700 border border-emerald-200 hover:bg-emerald-200 cursor-pointer transition-colors"
-                                                >
-                                                  COMPLETED ✕
-                                                </span>
-                                              )}
-                                            </div>
-                                            <h4 className="text-xs font-bold text-slate-800 leading-tight">{item.title}</h4>
-                                          </div>
-                                        </div>
+                                                <CheckCircle2 className={`w-4 h-4 ${isItemDone ? 'text-emerald-600' : 'text-slate-300'}`} />
+                                              </button>
 
-                                        <div className="flex items-center gap-1.5">
-                                          {/* Action Button: JOIN, VIEW, TAKE - Visible & Interactive */}
-                                          <button
-                                            onClick={() =>
-                                              handleActionClick(item.actionText, item.title, item.url, isModLocked, modSched, item.id)
-                                            }
-                                            className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 transition-all cursor-pointer ${
-                                              item.btnStyle || 'bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30'
-                                            }`}
-                                            title={`${item.actionText} ${item.title}`}
-                                          >
-                                            <span>{item.actionText}</span>
-                                            <ExternalLink className="w-3 h-3" />
-                                          </button>
+                                              <div className="w-7 h-7 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center text-xs font-black shrink-0 border border-purple-200">
+                                                {idx + 1}
+                                              </div>
+
+                                              <div className="flex-1 min-w-0">
+                                                <div className="flex items-center gap-2 mb-0.5">
+                                                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                                                    Topic {idx + 1}
+                                                  </span>
+                                                  {isItemDone && (
+                                                    <span
+                                                      onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        toggleItemCompletion(item.id);
+                                                        addToast(`⚪ Marked "${item.title}" as uncompleted`, 'info');
+                                                      }}
+                                                      title="Click to uncomplete"
+                                                      className="text-[9px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 border border-emerald-200 hover:bg-emerald-200 cursor-pointer transition-colors"
+                                                    >
+                                                      COMPLETED ✕
+                                                    </span>
+                                                  )}
+                                                </div>
+                                                <h4 className="text-xs sm:text-sm font-bold text-slate-800 leading-snug break-words">
+                                                  {item.title}
+                                                </h4>
+                                              </div>
+                                            </div>
+
+                                            {/* Admin Edit & Delete Actions + Expand Indicator */}
+                                            <div className="flex items-center gap-1.5 shrink-0" onClick={(e) => e.stopPropagation()}>
+                                              <button
+                                                onClick={() => handleOpenItemModal(module.id, item)}
+                                                title="Edit Topic"
+                                                className="p-1.5 text-slate-400 hover:text-purple-600 hover:bg-purple-50 rounded-lg cursor-pointer transition-colors"
+                                              >
+                                                <Edit2 className="w-3.5 h-3.5" />
+                                              </button>
+                                              <button
+                                                onClick={() => handleDeleteItem(module.id, item.id, item.title)}
+                                                title="Delete Topic"
+                                                className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg cursor-pointer transition-colors"
+                                              >
+                                                <Trash2 className="w-3.5 h-3.5" />
+                                              </button>
+                                              <button
+                                                type="button"
+                                                onClick={() => toggleTopicItemExpand(topicItemId)}
+                                                className="p-1 text-slate-400 hover:text-purple-700 rounded-lg cursor-pointer transition-colors"
+                                                title={isTopicExpanded ? 'Collapse Session Agenda' : 'View Session Agenda / Overview'}
+                                              >
+                                                {isTopicExpanded ? (
+                                                  <ChevronDown className="w-4 h-4 text-purple-600" />
+                                                ) : (
+                                                  <ChevronRight className="w-4 h-4 text-slate-400" />
+                                                )}
+                                              </button>
+                                            </div>
+                                          </div>
+
+                                          {/* Expanded Session Agenda / Overview */}
+                                          {isTopicExpanded && (
+                                            <div className="mt-3 pt-3 border-t border-purple-100/90 animate-in fade-in slide-in-from-top-1 duration-200 space-y-2">
+                                              <div className="flex items-center justify-between">
+                                                <span className="text-[11px] font-black text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                                                  <BookOpen className="w-3.5 h-3.5 text-purple-600" />
+                                                  <span>SESSION AGENDA / OVERVIEW</span>
+                                                </span>
+                                              </div>
+                                              <div className="p-3.5 rounded-xl bg-white border border-purple-100 text-xs sm:text-sm text-slate-700 leading-relaxed font-normal shadow-2xs">
+                                                {getTopicAgendaOverview(item)}
+                                              </div>
+                                            </div>
+                                          )}
+                                        </div>
+                                      );
+                                    })}
+                                  </div>
+                                </div>
+                              )}
+
+                              {/* Assessments, Coding, Projects, & Other Practice Resources */}
+                              {otherResources.length > 0 && (
+                                <div className="space-y-2 pt-2 border-t border-slate-100">
+                                  <div className="flex items-center justify-between px-1">
+                                    <span className="text-[11px] font-extrabold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+                                      <Layers className="w-3.5 h-3.5 text-blue-600" />
+                                      <span>Practice Labs, Assessments & Projects ({otherResources.length} Items)</span>
+                                    </span>
+                                  </div>
+
+                                  <div className="space-y-2">
+                                    {otherResources.map((item) => {
+                                      const isItemDone = completedMilestoneItemIds.includes(item.id);
+                                      return (
+                                        <div
+                                          key={item.id}
+                                          className={`p-3.5 rounded-xl border flex items-center justify-between gap-3 transition-all group/item ${
+                                            isItemDone
+                                              ? 'bg-emerald-50/40 border-emerald-200'
+                                              : 'border-slate-100 bg-slate-50/50 hover:bg-slate-50'
+                                          }`}
+                                        >
+                                          <div className="flex items-center gap-3">
+                                            <button
+                                              type="button"
+                                              onClick={(e) => {
+                                                e.stopPropagation();
+                                                toggleItemCompletion(item.id);
+                                                const nextDone = !isItemDone;
+                                                addToast(
+                                                  nextDone
+                                                    ? `✅ Completed "${item.title}"! Progress updated.`
+                                                    : `Unmarked "${item.title}"`,
+                                                  'info'
+                                                );
+                                              }}
+                                              title={isItemDone ? 'Completed (Click to unmark)' : 'Click to mark as completed'}
+                                              className={`flex-shrink-0 p-1.5 rounded-lg border transition-all cursor-pointer flex items-center justify-center ${
+                                                isItemDone
+                                                  ? 'bg-emerald-100 text-emerald-700 border-emerald-300 shadow-2xs hover:bg-emerald-200'
+                                                  : 'bg-white text-slate-300 border-slate-200 hover:text-purple-600 hover:border-purple-300'
+                                              }`}
+                                            >
+                                              <CheckCircle2 className={`w-4 h-4 ${isItemDone ? 'text-emerald-600' : 'text-slate-300'}`} />
+                                            </button>
+
+                                            {renderItemIcon(item.iconName, item.iconBg, false)}
+                                            <div>
+                                              <div className="flex items-center gap-1.5 mb-0.5">
+                                                <span
+                                                  className={`text-[9px] font-black tracking-wider uppercase px-2 py-0.5 rounded border inline-block ${
+                                                    item.typeColor || 'bg-purple-100 text-purple-700 border-purple-200'
+                                                  }`}
+                                                >
+                                                  {item.type}
+                                                </span>
+                                                {isItemDone && (
+                                                  <span
+                                                    onClick={(e) => {
+                                                      e.stopPropagation();
+                                                      toggleItemCompletion(item.id);
+                                                      addToast(`⚪ Marked "${item.title}" as uncompleted`, 'info');
+                                                    }}
+                                                    title="Click to uncomplete"
+                                                    className="text-[9px] font-extrabold px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-700 border border-emerald-200 hover:bg-emerald-200 cursor-pointer transition-colors"
+                                                  >
+                                                    COMPLETED ✕
+                                                  </span>
+                                                )}
+                                              </div>
+                                              <h4 className="text-xs font-bold text-slate-800 leading-tight">{item.title}</h4>
+                                            </div>
+                                          </div>
+
+                                          <div className="flex items-center gap-1.5">
+                                            <button
+                                              onClick={() =>
+                                                handleActionClick(item.actionText, item.title, item.url, isModLocked, modSched, item.id)
+                                              }
+                                              className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 transition-all cursor-pointer ${
+                                                item.btnStyle || 'bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30'
+                                              }`}
+                                              title={`${item.actionText} ${item.title}`}
+                                            >
+                                              <span>{item.actionText}</span>
+                                              <ExternalLink className="w-3 h-3" />
+                                            </button>
 
                                             <div className="flex items-center gap-0.5 border-l border-slate-200 pl-1">
                                               <button
@@ -1829,23 +2158,26 @@ export function MilestonesRoadmapPage() {
                                                 <Trash2 className="w-3 h-3" />
                                               </button>
                                             </div>
+                                          </div>
                                         </div>
-                                      </div>
-                                    );
-                                  })
-                                ) : (
-                                  <div className="text-center py-4 text-xs text-slate-400 space-y-2">
-                                    <p>No learning items added yet to this module.</p>
-                                      <button
-                                        onClick={() => handleOpenItemModal(module.id, null)}
-                                        className="px-3 py-1.5 bg-purple-50 text-purple-700 font-bold rounded-lg hover:bg-purple-100 text-xs inline-flex items-center gap-1 cursor-pointer"
-                                      >
-                                        <Plus className="w-3.5 h-3.5" />
-                                        <span>Add Learning Resource</span>
-                                      </button>
+                                      );
+                                    })}
                                   </div>
-                                );
-                              })()}
+                                </div>
+                              )}
+
+                              {liveClassTopics.length === 0 && otherResources.length === 0 && !hasLiveClass && (
+                                <div className="text-center py-4 text-xs text-slate-400 space-y-2">
+                                  <p>No learning items or live class scheduled yet for this module.</p>
+                                  <button
+                                    onClick={() => handleOpenItemModal(module.id, null)}
+                                    className="px-3 py-1.5 bg-purple-50 text-purple-700 font-bold rounded-lg hover:bg-purple-100 text-xs inline-flex items-center gap-1 cursor-pointer"
+                                  >
+                                    <Plus className="w-3.5 h-3.5" />
+                                    <span>Add First Resource</span>
+                                  </button>
+                                </div>
+                              )}
 
                               {module.items && module.items.length > 0 && (
                                 <button
@@ -2210,6 +2542,20 @@ export function MilestonesRoadmapPage() {
                 />
               </div>
 
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">Estimated Duration</label>
+                <div className="relative">
+                  <Clock className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+                  <input
+                    type="text"
+                    value={moduleFormData.duration || '1hr 30min'}
+                    onChange={(e) => setModuleFormData({ ...moduleFormData, duration: e.target.value })}
+                    placeholder="e.g. 1hr 30min"
+                    className="w-full pl-9 pr-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 font-semibold text-xs"
+                  />
+                </div>
+              </div>
+
               {/* Scheduled Date & Time for Inner Module */}
               <div className="p-3 bg-purple-50/50 rounded-2xl border border-purple-100 space-y-2">
                 <label className="block font-extrabold text-purple-900 flex items-center gap-1">
@@ -2314,6 +2660,17 @@ export function MilestonesRoadmapPage() {
                   onChange={(e) => setItemFormData({ ...itemFormData, title: e.target.value })}
                   placeholder="e.g. Variables Live Workshop or Dockerfile Hands-on Lab"
                   className="w-full px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 font-semibold"
+                />
+              </div>
+
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">Session Agenda / Overview (Optional)</label>
+                <textarea
+                  rows={3}
+                  value={itemFormData.description}
+                  onChange={(e) => setItemFormData({ ...itemFormData, description: e.target.value })}
+                  placeholder="Enter detailed session agenda, key questions answered, or topic overview..."
+                  className="w-full px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 font-medium"
                 />
               </div>
 

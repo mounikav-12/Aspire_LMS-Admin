@@ -9,6 +9,7 @@ import { ConfirmDialog } from '../../components/common/ConfirmDialog';
 import { Badge } from '../../components/common/Badge';
 import { EmptyState } from '../../components/common/EmptyState';
 import { BatchFilterSelector } from '../../components/common/BatchFilterSelector';
+import { DEFAULT_STAGES, getSubtopicsForStage, getInnerModulesForSubtopic } from '../sessions/LiveSessionListPage';
 import {
   FileCheck2,
   Plus,
@@ -27,7 +28,10 @@ import {
   Layers,
   ListChecks,
   CheckSquare,
-  Square
+  Square,
+  Video,
+  Code,
+  FileCheck
 } from 'lucide-react';
 
 export function AssessmentListPage() {
@@ -78,23 +82,27 @@ export function AssessmentListPage() {
   const [formData, setFormData] = useState({
     title: '',
     courseId: '',
+    courseName: '',
     stageId: '',
+    stageName: '',
     subtopicId: '',
+    subtopicName: '',
     innerTopicId: '',
+    topicName: '',
     durationMinutes: 45,
     totalMarks: 100,
-    dueDate: '2026-08-15',
+    dueDate: '2026-08-30',
     mcqs: [
       {
-        question: 'Which React hook should be used to memoize expensive calculation values?',
-        options: ['useCallback', 'useMemo', 'useEffect', 'useRef'],
+        question: 'Which Git command initializes a new local repository?',
+        options: ['git create', 'git init', 'git start', 'git repo'],
         correctIndex: 1
       }
     ],
     codingQuestions: [
       {
-        title: 'Custom `useLocalStorage` Hook Implementation',
-        description: 'Write a React custom hook named `useLocalStorage` that syncs state updates to window.localStorage with error handling.'
+        title: 'Git Version Management Script',
+        description: 'Write a script or function to verify branch commit states and checkout safely.'
       }
     ]
   });
@@ -104,99 +112,48 @@ export function AssessmentListPage() {
   const [selectedWeekdayBatches, setSelectedWeekdayBatches] = useState(allWeekdayBatchesList);
   const [selectedWeekendBatches, setSelectedWeekendBatches] = useState(allWeekendBatchesList);
 
-  const initialCourseId = courses[0]?.id || '';
-  const selectedCourseObj = courses.find((c) => c.id === initialCourseId) || courses[0];
-  const stagesList = (selectedCourseObj?.topics && selectedCourseObj.topics.length > 0)
-    ? selectedCourseObj.topics
-    : [
-        {
-          id: 'stage-1',
-          title: 'Stage 1: Front End + Repository',
-          subtopics: [
-            { id: 'git-github', title: 'Git & GitHub Version Control' },
-            { id: 'html5', title: 'HTML5 & Semantic Structure' },
-            { id: 'css3-basics', title: 'CSS3 Fundamentals & Layouts' },
-            { id: 'js-essentials', title: 'JavaScript Essentials' }
-          ]
-        },
-        {
-          id: 'stage-2',
-          title: 'Stage 2: Backend + DSA',
-          subtopics: [
-            { id: 'nodejs', title: 'Node.js & Express API' },
-            { id: 'postgres', title: 'PostgreSQL & Database Design' },
-            { id: 'dsa-arrays', title: 'DSA: Arrays & Strings' },
-            { id: 'dsa-trees', title: 'DSA: Trees & Graphs' }
-          ]
-        },
-        {
-          id: 'stage-3',
-          title: 'Stage 3: AI',
-          subtopics: [
-            { id: 'ml-foundations', title: 'Machine Learning Foundations' },
-            { id: 'deep-learning', title: 'Deep Learning & Neural Networks' },
-            { id: 'generative-ai', title: 'Generative AI & LLMs' }
-          ]
-        },
-        {
-          id: 'stage-4',
-          title: 'Stage 4: Career Launchpad',
-          subtopics: [
-            { id: 'resume-building', title: 'Resume Building & Portfolio' },
-            { id: 'mock-interviews', title: 'Mock Interviews & Grooming' }
-          ]
-        }
-      ];
-
-  React.useEffect(() => {
-    if (courses && courses.length > 0 && !formData.stageId) {
-      const activeCourse = courses.find((c) => c.id === formData.courseId) || courses[0];
-      const activeStage = activeCourse?.topics?.[0] || stagesList[0];
-      const activeSub = activeStage?.subtopics?.[0];
-      const activeInner = courseLessons?.find(
-        (l) => l.course_id === activeCourse?.id && l.stage_id === activeStage?.id && l.module_id === activeSub?.id
-      );
-      setFormData((prev) => ({
-        ...prev,
-        courseId: prev.courseId || activeCourse?.id || '',
-        stageId: prev.stageId || activeStage?.id || '',
-        subtopicId: prev.subtopicId || activeSub?.id || '',
-        innerTopicId: prev.innerTopicId || activeInner?.id || ''
-      }));
-    }
-  }, [courses, formData.courseId]);
+  const selectedCourseObj = courses.find((c) => c.id === formData.courseId) || courses[0];
+  const stagesList =
+    milestones?.stages && milestones.stages.length > 0
+      ? milestones.stages
+      : selectedCourseObj?.topics && selectedCourseObj.topics.length > 0
+      ? selectedCourseObj.topics
+      : DEFAULT_STAGES;
 
   const handleOpenAddModal = () => {
-    const activeCourse = courses.find((c) => c.id === (courses[0]?.id || '')) || courses[0];
-    const activeStage = activeCourse?.topics?.[0] || stagesList[0];
-    const activeSub = activeStage?.subtopics?.[0];
-    const activeInner = courseLessons?.find(
-      (l) => l.course_id === activeCourse?.id && l.stage_id === activeStage?.id && l.module_id === activeSub?.id
-    );
+    const firstStage = stagesList[0];
+    const stageSubs = getSubtopicsForStage(firstStage);
+    const firstSub = stageSubs[0];
+    const subLessons = getInnerModulesForSubtopic(firstSub);
+    const firstMod = subLessons[0];
 
     setBatchActiveTab('Weekdays');
     setSelectedWeekdayBatches(allWeekdayBatchesList);
     setSelectedWeekendBatches(allWeekendBatchesList);
     setFormData({
       title: '',
-      courseId: activeCourse?.id || '',
-      stageId: activeStage?.id || '',
-      subtopicId: activeSub?.id || '',
-      innerTopicId: activeInner?.id || '',
+      courseId: courses[0]?.id || '',
+      courseName: courses[0]?.title || '',
+      stageId: firstStage?.id || '',
+      stageName: firstStage?.title || '',
+      subtopicId: firstSub?.id || '',
+      subtopicName: firstSub?.title || '',
+      innerTopicId: firstMod?.id || '',
+      topicName: firstMod?.title || '',
       durationMinutes: 45,
       totalMarks: 100,
-      dueDate: '2026-08-15',
+      dueDate: '2026-08-30',
       mcqs: [
         {
-          question: 'Which React hook should be used to memoize expensive calculation values?',
-          options: ['useCallback', 'useMemo', 'useEffect', 'useRef'],
+          question: 'Which Git command initializes a new local repository?',
+          options: ['git create', 'git init', 'git start', 'git repo'],
           correctIndex: 1
         }
       ],
       codingQuestions: [
         {
-          title: 'Custom `useLocalStorage` Hook Implementation',
-          description: 'Write a React custom hook named `useLocalStorage` that syncs state updates to window.localStorage with error handling.'
+          title: 'Git Version Management Script',
+          description: 'Write a script or function to verify branch commit states and checkout safely.'
         }
       ]
     });
@@ -237,8 +194,8 @@ export function AssessmentListPage() {
         }))
       : [
           {
-            question: 'Which React hook handles side effects?',
-            options: ['useState', 'useEffect', 'useMemo', 'useContext'],
+            question: 'Which Git command initializes a new repository?',
+            options: ['git create', 'git init', 'git start', 'git repo'],
             correctIndex: 1
           }
         ];
@@ -250,28 +207,30 @@ export function AssessmentListPage() {
         }))
       : [
           {
-            title: 'Implement Custom Debounce Function',
-            description: 'Write a TypeScript debounce helper function with generic parameters.'
+            title: 'Implement Git Workflow Automation',
+            description: 'Write a helper function to validate branch merges without conflict.'
           }
         ];
 
-    const foundStage = stagesList.find((s) => s.id === asm.stageId || s.title === asm.moduleName) || stagesList[0];
-    const subtopicsOfStage = foundStage?.subtopics || [];
-    const foundSubtopic = subtopicsOfStage.find((st) => st.id === asm.subtopicId || st.title === asm.subtopicName || st.title === asm.topicName) || subtopicsOfStage[0];
-    const innerModulesOfSubtopic = (foundSubtopic && Array.isArray(foundSubtopic.modules) && foundSubtopic.modules.length > 0)
-      ? foundSubtopic.modules
-      : [{ id: foundSubtopic?.id || 'all', title: foundSubtopic?.title || 'General Overview' }];
-    const foundInnerTopic = innerModulesOfSubtopic.find((m) => m.id === asm.innerTopicId || m.title === asm.topicName) || innerModulesOfSubtopic[0];
+    const targetStage = stagesList.find((s) => s.id === asm.stageId || s.title === asm.stageName || s.title === asm.moduleName) || stagesList[0];
+    const stageSubs = getSubtopicsForStage(targetStage);
+    const targetSub = stageSubs.find((st) => st.id === asm.subtopicId || st.title === asm.subtopicName) || stageSubs[0];
+    const subLessons = getInnerModulesForSubtopic(targetSub);
+    const targetMod = subLessons.find((m) => (m.id || m.title) === (asm.innerTopicId || asm.moduleId || asm.topicName)) || subLessons[0];
 
     setFormData({
       title: asm.title,
       courseId: asm.courseId || courses[0]?.id || '',
-      stageId: foundStage?.id || 'stage-1',
-      subtopicId: foundSubtopic?.id || 'git-github',
-      innerTopicId: foundInnerTopic?.id || foundSubtopic?.id || '',
+      courseName: asm.courseName || courses.find((c) => c.id === asm.courseId)?.title || '',
+      stageId: targetStage?.id || '',
+      stageName: targetStage?.title || '',
+      subtopicId: targetSub?.id || '',
+      subtopicName: targetSub?.title || '',
+      innerTopicId: targetMod?.id || '',
+      topicName: targetMod?.title || '',
       durationMinutes: asm.durationMinutes || 45,
       totalMarks: asm.totalMarks || 100,
-      dueDate: asm.dueDate || '2026-08-15',
+      dueDate: asm.dueDate || '2026-08-30',
       mcqs: initialMcqs,
       codingQuestions: initialCoding
     });
@@ -371,20 +330,11 @@ export function AssessmentListPage() {
     }
 
     const selectedCourse = courses.find((c) => c.id === formData.courseId) || courses[0];
-    const selectedStage = stagesList.find((s) => s.id === formData.stageId) || stagesList[0];
-    const subtopicsOfStage = selectedStage?.subtopics || [];
-    const selectedSubtopic = subtopicsOfStage.find((st) => st.id === formData.subtopicId) || subtopicsOfStage[0];
-    
-    // Resolve innerList from live course lessons
-    const innerList = courseLessons?.filter(
-      (l) =>
-        l.course_id === formData.courseId &&
-        l.stage_id === formData.stageId &&
-        l.module_id === formData.subtopicId
-    ) || [];
-    
-    // Find matching lesson
-    const selectedInnerTopic = innerList.find((m) => m.id === formData.innerTopicId);
+    const currentStageObj = stagesList.find((s) => s.id === formData.stageId || s.title === formData.stageName) || stagesList[0];
+    const stageSubs = getSubtopicsForStage(currentStageObj);
+    const currentSubObj = stageSubs.find((st) => st.id === formData.subtopicId || st.title === formData.subtopicName) || stageSubs[0];
+    const subLessons = getInnerModulesForSubtopic(currentSubObj);
+    const currentModObj = subLessons.find((m) => (m.id || m.title) === (formData.innerTopicId || formData.moduleId || formData.topicName)) || subLessons[0];
 
     const totalMcqsCount = formData.mcqs.length;
     const totalCodingCount = formData.codingQuestions.length;
@@ -395,17 +345,19 @@ export function AssessmentListPage() {
 
     const assessmentPayload = {
       title: formData.title,
-      courseId: selectedCourse?.id,
-      courseName: selectedCourse?.title,
-      stageId: selectedStage?.id,
-      moduleName: selectedStage?.title,
-      subtopicId: selectedSubtopic?.id,
-      subtopicName: selectedSubtopic?.title,
-      innerTopicId: selectedInnerTopic?.id,
-      topicName: selectedInnerTopic?.title || selectedSubtopic?.title,
+      courseId: selectedCourse?.id || formData.courseId,
+      courseName: selectedCourse?.title || formData.courseName,
+      stageId: currentStageObj?.id || formData.stageId,
+      stageName: currentStageObj?.title || formData.stageName,
+      moduleName: currentStageObj?.title || formData.stageName,
+      subtopicId: currentSubObj?.id || formData.subtopicId,
+      subtopicName: currentSubObj?.title || formData.subtopicName,
+      innerTopicId: currentModObj?.id || formData.innerTopicId || formData.moduleId,
+      moduleId: currentModObj?.id || formData.innerTopicId || formData.moduleId,
+      topicName: currentModObj?.title || formData.topicName,
       durationMinutes: parseInt(formData.durationMinutes) || 45,
       totalMarks: parseInt(formData.totalMarks) || 100,
-      dueDate: formData.dueDate,
+      dueDate: formData.dueDate || '2026-08-30',
       mcqCount: totalMcqsCount,
       codingCount: totalCodingCount,
       totalQuestions: totalQuestionsCount,
@@ -421,7 +373,7 @@ export function AssessmentListPage() {
       setEditingAssessment(null);
     } else {
       addAssessment(assessmentPayload);
-      addToast(`Published assessment "${formData.title}" (${totalQuestionsCount} Questions)!`, 'success');
+      addToast(`Published assessment "${formData.title}" (${totalQuestionsCount} Questions) & linked to Milestone!`, 'success');
       setIsAddModalOpen(false);
     }
   };
@@ -434,13 +386,20 @@ export function AssessmentListPage() {
     }
   };
 
-  const filteredAssessments = assessments.filter((a) => {
-    const matchesSearch =
-      a.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      a.courseName?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCourse = courseFilter === 'ALL' || a.courseId === courseFilter;
-    return matchesSearch && matchesCourse;
-  });
+  const filteredAssessments = [...assessments]
+    .filter((a) => {
+      const matchesSearch =
+        a.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        a.courseName?.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesCourse = courseFilter === 'ALL' || a.courseId === courseFilter;
+      return matchesSearch && matchesCourse;
+    })
+    .sort((a, b) => {
+      const timeA = a.createdAt ? new Date(a.createdAt).getTime() : (a.created_at ? new Date(a.created_at).getTime() : 0);
+      const timeB = b.createdAt ? new Date(b.createdAt).getTime() : (b.created_at ? new Date(b.created_at).getTime() : 0);
+      if (timeA && timeB) return timeA - timeB;
+      return 0;
+    });
 
   // Calculate Overall Aggregate Metrics
   const totalQuestionsAllAssessments = assessments.reduce(
@@ -677,7 +636,6 @@ export function AssessmentListPage() {
           setEditingAssessment(null);
         }}
         title={editingAssessment ? 'Edit Assessment & Questions' : 'Create Assessment'}
-        subtitle="Configure quiz parameters, MCQ questions, and coding task prompts"
         maxWidth="max-w-6xl"
       >
         <form onSubmit={handleSaveAssessment} className="space-y-4">
@@ -717,59 +675,117 @@ export function AssessmentListPage() {
 
           {/* 4-TIER CASCADING HIERARCHY SELECTOR (2x2 Grid) */}
           {(() => {
-            const currentStageObj = stagesList.find((s) => s.id === formData.stageId) || stagesList[0];
-            const currentSubtopicsArr = currentStageObj?.subtopics || [];
-            const currentSubtopicObj = currentSubtopicsArr.find((st) => st.id === formData.subtopicId) || currentSubtopicsArr[0];
-            const currentInnerModules = courseLessons?.filter(
-              (l) =>
-                l.course_id === formData.courseId &&
-                l.stage_id === formData.stageId &&
-                l.module_id === formData.subtopicId
-            ) || [];
+            const currentStageObj = stagesList.find((s) => s.id === formData.stageId || s.title === formData.stageName) || stagesList[0];
+            const currentSubtopicsArr = getSubtopicsForStage(currentStageObj);
+            const currentSubtopicObj = currentSubtopicsArr.find((st) => st.id === formData.subtopicId || st.title === formData.subtopicName) || currentSubtopicsArr[0];
+            const currentInnerModules = getInnerModulesForSubtopic(currentSubtopicObj);
+            const currentModObj = currentInnerModules.find((m) => (m.id || m.title) === (formData.innerTopicId || formData.moduleId || formData.topicName)) || currentInnerModules[0];
+            const existingItems = currentModObj?.items || [];
+
+            const handleAutoFillFromMilestone = () => {
+              const subTitleClean = currentSubtopicObj?.title ? currentSubtopicObj.title.replace(/^Module\s+\d+:\s*/i, '') : '';
+              const modTitle = currentModObj?.title || '';
+              const combinedTitle = subTitleClean && modTitle && !modTitle.toLowerCase().includes(subTitleClean.toLowerCase())
+                ? `${subTitleClean}: ${modTitle} Evaluation`
+                : (modTitle ? `${modTitle} Evaluation` : (subTitleClean ? `${subTitleClean} Assessment` : 'Interactive Module Evaluation'));
+
+              setFormData((prev) => ({
+                ...prev,
+                title: combinedTitle,
+                stageId: currentStageObj?.id || prev.stageId,
+                stageName: currentStageObj?.title || prev.stageName,
+                subtopicId: currentSubtopicObj?.id || prev.subtopicId,
+                subtopicName: currentSubtopicObj?.title || prev.subtopicName,
+                innerTopicId: currentModObj?.id || prev.innerTopicId,
+                topicName: currentModObj?.title || prev.topicName
+              }));
+              addToast(`Auto-filled: "${combinedTitle}"`, 'info');
+            };
 
             return (
-              <div className="bg-gradient-to-br from-slate-50 to-blue-50/40 p-3.5 sm:p-4 rounded-2xl border border-slate-200/80 shadow-2xs space-y-3">
-                <div className="flex items-center gap-2.5 pb-2.5 border-b border-purple-100/80">
-                  <div className="w-7 h-7 rounded-lg bg-purple-600 text-white flex items-center justify-center shadow-xs flex-shrink-0">
-                    <Layers className="w-3.5 h-3.5" />
+              <div className="bg-gradient-to-br from-slate-50 via-blue-50/20 to-purple-50/40 p-3.5 sm:p-4 rounded-2xl border border-slate-200/80 shadow-2xs space-y-3">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2.5 border-b border-blue-100/80">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-7 h-7 rounded-lg bg-blue-600 text-white flex items-center justify-center shadow-xs flex-shrink-0">
+                      <Layers className="w-3.5 h-3.5" />
+                    </div>
+                    <div>
+                      <h4 className="text-xs font-black text-slate-900 uppercase tracking-wider">
+                        Curriculum Location & Milestone Topic Mapping
+                      </h4>
+                      <p className="text-[11px] text-slate-500 font-medium">
+                        Assessments automatically sync to this Milestone topic in real-time
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <h4 className="text-xs font-black text-slate-900 uppercase tracking-wider">
-                      Curriculum Location & Milestone Topic Mapping
-                    </h4>
-                    <p className="text-[11px] text-slate-500 font-medium">
-                      Map this assessment evaluation to a specific course, milestone stage, subtopic, and topic module
-                    </p>
-                  </div>
+
+                  <button
+                    type="button"
+                    onClick={handleAutoFillFromMilestone}
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold text-blue-700 bg-blue-100/80 hover:bg-blue-200 border border-blue-300 rounded-lg transition-colors shadow-2xs self-start sm:self-auto cursor-pointer"
+                    title="Auto-populate Assessment Title from selected Milestone content"
+                  >
+                    <Sparkles className="w-3.5 h-3.5 text-blue-600 animate-pulse" />
+                    <span>Auto-Fill from Milestone</span>
+                  </button>
                 </div>
 
                 {/* 2x2 Structured Step Layout */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {/* Step 1: Course Track */}
-                  <div className="bg-white/95 p-2.5 sm:p-3 rounded-xl border border-purple-100/90 shadow-2xs">
+                  <div className="bg-white/95 p-2.5 sm:p-3 rounded-xl border border-blue-100/90 shadow-2xs">
                     <Select
                       label="1. Course Track"
                       value={formData.courseId}
-                      onChange={(e) => setFormData({ ...formData, courseId: e.target.value })}
+                      onChange={(e) => {
+                        const newCourseId = e.target.value;
+                        const selectedC = courses.find((c) => c.id === newCourseId);
+                        const newStages = milestones?.stages && milestones.stages.length > 0
+                          ? milestones.stages
+                          : selectedC?.topics && selectedC.topics.length > 0
+                          ? selectedC.topics
+                          : DEFAULT_STAGES;
+                        const firstStage = newStages[0];
+                        const firstSubs = getSubtopicsForStage(firstStage);
+                        const firstSub = firstSubs[0];
+                        const firstLessons = getInnerModulesForSubtopic(firstSub);
+                        const firstMod = firstLessons[0];
+                        setFormData({
+                          ...formData,
+                          courseId: newCourseId,
+                          courseName: selectedC?.title || '',
+                          stageId: firstStage?.id || '',
+                          stageName: firstStage?.title || '',
+                          subtopicId: firstSub?.id || '',
+                          subtopicName: firstSub?.title || '',
+                          innerTopicId: firstMod?.id || '',
+                          topicName: firstMod?.title || ''
+                        });
+                      }}
                       options={courses.map((c) => ({ value: c.id, label: c.title }))}
                     />
                   </div>
 
                   {/* Step 2: Course Module / Stage */}
-                  <div className="bg-white/95 p-2.5 sm:p-3 rounded-xl border border-purple-100/90 shadow-2xs">
+                  <div className="bg-white/95 p-2.5 sm:p-3 rounded-xl border border-blue-100/90 shadow-2xs">
                     <Select
-                      label="2. Course Module / Stage"
-                      value={formData.stageId}
+                      label="2. Milestone Stage"
+                      value={formData.stageId || currentStageObj?.id || ''}
                       onChange={(e) => {
                         const newStageId = e.target.value;
                         const newStage = stagesList.find((s) => s.id === newStageId) || stagesList[0];
-                        const firstSub = newStage?.subtopics?.[0];
-                        const firstInner = firstSub?.modules?.[0];
+                        const newSubs = getSubtopicsForStage(newStage);
+                        const firstSub = newSubs[0];
+                        const firstLessons = getInnerModulesForSubtopic(firstSub);
+                        const firstMod = firstLessons[0];
                         setFormData({
                           ...formData,
                           stageId: newStageId,
+                          stageName: newStage?.title || '',
                           subtopicId: firstSub?.id || '',
-                          innerTopicId: firstInner?.id || firstSub?.id || ''
+                          subtopicName: firstSub?.title || '',
+                          innerTopicId: firstMod?.id || '',
+                          topicName: firstMod?.title || ''
                         });
                       }}
                       options={stagesList.map((stg) => ({
@@ -779,35 +795,45 @@ export function AssessmentListPage() {
                     />
                   </div>
 
-                  {/* Step 3: Milestone Subtopic */}
-                  <div className="bg-white/95 p-2.5 sm:p-3 rounded-xl border border-purple-100/90 shadow-2xs">
+                  {/* Step 3: Milestone Subtopic / Module Track */}
+                  <div className="bg-white/95 p-2.5 sm:p-3 rounded-xl border border-blue-100/90 shadow-2xs">
                     <Select
-                      label="3. Milestone Subtopic"
-                      value={formData.subtopicId}
+                      label="3. Milestone Subtopic / Module Track"
+                      value={formData.subtopicId || currentSubtopicObj?.id || ''}
                       onChange={(e) => {
                         const newSubId = e.target.value;
-                        const targetStage = stagesList.find((s) => s.id === formData.stageId) || stagesList[0];
-                        const targetSub = targetStage?.subtopics?.find((st) => st.id === newSubId) || targetStage?.subtopics?.[0];
-                        const firstInner = targetSub?.modules?.[0];
+                        const targetSub = currentSubtopicsArr.find((st) => st.id === newSubId) || currentSubtopicsArr[0];
+                        const targetLessons = getInnerModulesForSubtopic(targetSub);
+                        const firstMod = targetLessons[0];
                         setFormData({
                           ...formData,
                           subtopicId: newSubId,
-                          innerTopicId: firstInner?.id || targetSub?.id || ''
+                          subtopicName: targetSub?.title || '',
+                          innerTopicId: firstMod?.id || '',
+                          topicName: firstMod?.title || ''
                         });
                       }}
-                      options={currentSubtopicsArr.map((sub) => ({
+                      options={currentSubtopicsArr.map((sub, idx) => ({
                         value: sub.id,
-                        label: sub.title
+                        label: `${idx + 1}. ${sub.title}`
                       }))}
                     />
                   </div>
 
-                  {/* Step 4: Specific Inner Topic */}
-                  <div className="bg-white/95 p-2.5 sm:p-3 rounded-xl border border-purple-100/90 shadow-2xs">
+                  {/* Step 4: Specific Topic Module */}
+                  <div className="bg-white/95 p-2.5 sm:p-3 rounded-xl border border-blue-100/90 shadow-2xs">
                     <Select
-                      label="4. Specific Inner Topic"
-                      value={formData.innerTopicId}
-                      onChange={(e) => setFormData({ ...formData, innerTopicId: e.target.value })}
+                      label="4. Specific Topic Module"
+                      value={formData.innerTopicId || currentModObj?.id || ''}
+                      onChange={(e) => {
+                        const newModId = e.target.value;
+                        const targetMod = currentInnerModules.find((m) => (m.id || m.title) === newModId) || currentInnerModules[0];
+                        setFormData({
+                          ...formData,
+                          innerTopicId: newModId,
+                          topicName: targetMod?.title || ''
+                        });
+                      }}
                       options={currentInnerModules.map((mod) => ({
                         value: mod.id || mod.title,
                         label: mod.title
@@ -982,71 +1008,6 @@ export function AssessmentListPage() {
                     label: `Option ${idx + 1}: ${opt || `Choice ${idx + 1}`}`
                   }))}
                 />
-              </div>
-            ))}
-          </div>
-
-          {/* DYNAMIC CODING CHALLENGE BUILDER SECTION */}
-          <div className="space-y-4 pt-4 border-t border-slate-200">
-            <div className="flex items-center justify-between">
-              <div>
-                <h4 className="font-extrabold text-sm text-slate-900 flex items-center gap-2">
-                  <Code2 className="w-4 h-4 text-emerald-600" /> Coding Challenges ({formData.codingQuestions.length})
-                </h4>
-                <p className="text-[11px] text-slate-500 font-medium">Add hands-on coding challenge titles and instructions for students</p>
-              </div>
-
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                icon={Plus}
-                onClick={handleAddCoding}
-                className="border-emerald-200 text-emerald-700 hover:bg-emerald-50"
-              >
-                Add Coding Challenge
-              </Button>
-            </div>
-
-            {formData.codingQuestions.map((coding, cIndex) => (
-              <div key={cIndex} className="p-4 bg-slate-50/90 rounded-2xl border border-slate-200/90 space-y-3 relative group">
-                <div className="flex items-center justify-between">
-                  <span className="px-2.5 py-0.5 rounded-md bg-emerald-100 text-emerald-800 font-bold text-xs">
-                    Coding Task #{cIndex + 1}
-                  </span>
-                  {formData.codingQuestions.length > 1 && (
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveCoding(cIndex)}
-                      className="p-1 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-rose-50 transition-colors cursor-pointer"
-                      title="Remove Challenge"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  )}
-                </div>
-
-                <Input
-                  label="Coding Question Title"
-                  placeholder="e.g. Custom `useLocalStorage` Hook Implementation"
-                  value={coding.title}
-                  onChange={(e) => handleUpdateCodingTitle(cIndex, e.target.value)}
-                  required
-                />
-
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-[11px] font-extrabold text-slate-700 uppercase tracking-wider">
-                    Coding Description / Prompt Instructions
-                  </label>
-                  <textarea
-                    rows={3}
-                    placeholder="Write a custom React hook named `useLocalStorage` that syncs state to window.localStorage..."
-                    value={coding.description}
-                    onChange={(e) => handleUpdateCodingDesc(cIndex, e.target.value)}
-                    className="w-full px-3.5 py-2.5 bg-slate-50/60 hover:bg-white border border-slate-200 rounded-xl text-xs text-slate-800 focus:bg-white focus:outline-none focus:border-blue-500 transition-all"
-                    required
-                  />
-                </div>
               </div>
             ))}
           </div>
