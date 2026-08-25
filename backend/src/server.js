@@ -311,9 +311,51 @@ app.post('/api/jobs', async (req, res) => {
   }
 });
 
+const formatDbLiveSession = (payload, existingId) => {
+  const id = existingId || payload.id || `sess-${Date.now()}`;
+  let meta = {};
+  if (typeof payload.description === 'string' && payload.description.trim().startsWith('{')) {
+    try { meta = JSON.parse(payload.description); } catch(e) {}
+  } else {
+    meta = {
+      text: payload.description || '',
+      courseId: payload.courseId || '',
+      courseName: payload.courseName || '',
+      stageId: payload.stageId || '',
+      stageName: payload.stageName || '',
+      subtopicId: payload.subtopicId || '',
+      subtopicName: payload.subtopicName || '',
+      moduleId: payload.moduleId || '',
+      moduleName: payload.moduleName || '',
+      isLocked: payload.isLocked !== undefined ? payload.isLocked : false,
+      targetBatches: payload.targetBatches || []
+    };
+  }
+
+  const targetBatchStr = payload.targetBatch || payload.target_batch || (Array.isArray(payload.targetBatches) ? payload.targetBatches.join(', ') : 'Weekday Batch');
+
+  return {
+    id,
+    program_name: payload.programName || payload.program_name || 'Senior Engineering Cohort',
+    technology: payload.technology || 'General',
+    session_title: payload.sessionTitle || payload.session_title || payload.title || 'Live Session',
+    date: payload.date || '',
+    time: payload.time || '',
+    meeting_link: payload.meetingLink || payload.meeting_link || '',
+    status: payload.status || 'Upcoming',
+    publish_status: payload.publishStatus || payload.publish_status || 'Published to Student LMS',
+    instructor: payload.instructor || 'Sara Devi',
+    description: typeof payload.description === 'string' && payload.description.trim().startsWith('{') ? payload.description : JSON.stringify(meta),
+    target_batch: targetBatchStr,
+    batch_code: payload.batchCode || payload.batch_code || 'A26W1',
+    duration: payload.duration || '1h 30m'
+  };
+};
+
 app.get('/api/live-sessions', async (req, res) => {
   try {
-    const { data, error } = await supabase.from('live_sessions').select('*');
+    const { data, error } = await supabase.from('live_sessions').select('*').order('created_at', { ascending: true });
+    if (error) throw error;
     res.json({ success: true, data: data || [] });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -322,9 +364,129 @@ app.get('/api/live-sessions', async (req, res) => {
 
 app.post('/api/live-sessions', async (req, res) => {
   try {
-    const newSess = { id: `sess-${Date.now()}`, ...req.body };
-    const { data, error } = await supabase.from('live_sessions').upsert([newSess]).select();
-    res.status(201).json({ success: true, data: data ? data[0] : newSess });
+    const dbItem = formatDbLiveSession(req.body);
+    const { data, error } = await supabase.from('live_sessions').upsert([dbItem]).select();
+    if (error) throw error;
+    res.status(201).json({ success: true, data: data ? data[0] : dbItem });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+app.put('/api/live-sessions/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const dbItem = formatDbLiveSession(req.body, id);
+    const { data, error } = await supabase.from('live_sessions').update(dbItem).eq('id', id).select();
+    if (error) throw error;
+    res.json({ success: true, data: data ? data[0] : dbItem });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+app.delete('/api/live-sessions/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { error } = await supabase.from('live_sessions').delete().eq('id', id);
+    if (error) throw error;
+    res.json({ success: true, message: `Live session ${id} deleted successfully` });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+app.put('/api/live-sessions/:id/toggle-lock', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { data: existing } = await supabase.from('live_sessions').select('*').eq('id', id).single();
+    if (!existing) return res.status(404).json({ success: false, message: 'Session not found' });
+
+    let meta = {};
+    if (existing.description && existing.description.trim().startsWith('{')) {
+      try { meta = JSON.parse(existing.description); } catch(e) {}
+    }
+    meta.isLocked = !meta.isLocked;
+
+    const { data, error } = await supabase.from('live_sessions').update({
+      description: JSON.stringify(meta)
+    }).eq('id', id).select();
+
+    if (error) throw error;
+    res.json({ success: true, isLocked: meta.isLocked, data: data ? data[0] : existing });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// =========================================================
+// 4B. ASSESSMENTS API
+// =========================================================
+const formatDbAssessment = (payload, id = null) => {
+  const packedTopicName = `${payload.moduleName || payload.stageName || ''}||${payload.subtopicName || ''}||${payload.topicName || payload.innerTopicTitle || ''}`;
+  const packedTopicId = `${payload.stageId || ''}||${payload.subtopicId || ''}||${payload.innerTopicId || payload.moduleId || ''}`;
+
+  return {
+    id: id || payload.id || `asmnt-${Date.now()}`,
+    title: payload.title || 'Untitled Assessment',
+    course_id: payload.courseId || payload.course_id || null,
+    course_name: payload.courseName || payload.course_name || '',
+    topic_id: packedTopicId,
+    topic_name: packedTopicName,
+    duration_minutes: Number(payload.durationMinutes || payload.duration_minutes || 45),
+    total_marks: Number(payload.totalMarks || payload.total_marks || 100),
+    mcq_count: Number(payload.mcqCount || payload.mcq_count || (Array.isArray(payload.mcqs) ? payload.mcqs.length : 0)),
+    coding_count: Number(payload.codingCount || payload.coding_count || (Array.isArray(payload.codingQuestions) ? payload.codingQuestions.length : (Array.isArray(payload.coding_questions) ? payload.coding_questions.length : 0))),
+    status: payload.status || 'Active',
+    publish_status: payload.publishStatus || payload.publish_status || 'Published',
+    due_date: payload.dueDate || payload.due_date || '2026-08-15',
+    mcqs: Array.isArray(payload.mcqs) ? payload.mcqs : (typeof payload.mcqs === 'string' ? JSON.parse(payload.mcqs) : []),
+    coding_questions: Array.isArray(payload.codingQuestions)
+      ? payload.codingQuestions
+      : (Array.isArray(payload.coding_questions) ? payload.coding_questions : (typeof payload.coding_questions === 'string' ? JSON.parse(payload.coding_questions) : [])),
+    target_batch: payload.targetBatch || payload.target_batch || 'Weekday Batch'
+  };
+};
+
+app.get('/api/assessments', async (req, res) => {
+  try {
+    const { data, error } = await supabase.from('assessments').select('*').order('created_at', { ascending: true });
+    if (error) throw error;
+    res.json({ success: true, data: data || [] });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+app.post('/api/assessments', async (req, res) => {
+  try {
+    const dbItem = formatDbAssessment(req.body);
+    const { data, error } = await supabase.from('assessments').upsert([dbItem]).select();
+    if (error) throw error;
+    res.status(201).json({ success: true, data: data ? data[0] : dbItem });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+app.put('/api/assessments/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const dbItem = formatDbAssessment(req.body, id);
+    const { data, error } = await supabase.from('assessments').update(dbItem).eq('id', id).select();
+    if (error) throw error;
+    res.json({ success: true, data: data ? data[0] : dbItem });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+app.delete('/api/assessments/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { error } = await supabase.from('assessments').delete().eq('id', id);
+    if (error) throw error;
+    res.json({ success: true, message: `Assessment ${id} deleted successfully` });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
@@ -340,9 +502,70 @@ app.get('/api/mcq/:subtopicId', (req, res) => {
 // =========================================================
 // 5. PROJECTS API
 // =========================================================
+const formatDbProject = (payload) => {
+  const meta = {
+    text: payload.description || '',
+    courseId: payload.courseId || '',
+    courseName: payload.courseName || '',
+    stageId: payload.stageId || '',
+    stageName: payload.stageName || '',
+    subtopicId: payload.subtopicId || '',
+    subtopicName: payload.subtopicName || '',
+    moduleId: payload.innerTopicId || payload.moduleId || '',
+    moduleName: payload.moduleName || payload.topicName || '',
+    isLocked: !!payload.isLocked,
+    targetBatches: payload.targetBatches || [],
+    requirements: payload.requirements || [],
+    steps: payload.steps || [],
+    rubric: payload.rubric || [],
+    mentorTip: payload.mentorTip || ''
+  };
+
+  const techStack = Array.isArray(payload.techStack)
+    ? payload.techStack
+    : (Array.isArray(payload.tech_stack)
+        ? payload.tech_stack
+        : (typeof payload.techStack === 'string'
+            ? payload.techStack.split(',').map((s) => s.trim())
+            : ['React', 'Node.js', 'PostgreSQL']));
+
+  const targetBatchStr = payload.targetBatch || payload.target_batch || (Array.isArray(payload.targetBatches) ? payload.targetBatches.join(', ') : 'Weekday Batch');
+
+  return {
+    id: payload.id || `proj-${Date.now()}`,
+    title: payload.title || 'Untitled Project',
+    type: payload.type || 'Mini',
+    category: payload.category || 'Full-Stack Web Dev',
+    difficulty: payload.difficulty || 'Intermediate',
+    description: JSON.stringify(meta),
+    tech_stack: techStack,
+    due_date: payload.dueDate || payload.due_date || 'Due Aug 30',
+    status: payload.status || 'Published',
+    template_url: payload.templateUrl || payload.template_url || '',
+    guidelines: payload.guidelines || '',
+    assigned_count: Number(payload.assignedCount || payload.assigned_count) || 1,
+    submitted_count: Number(payload.submittedCount || payload.submitted_count) || 0,
+    feedback_count: Number(payload.feedbackCount || payload.feedback_count) || 0,
+    avg_grade: Number(payload.avgGrade || payload.avg_grade) || 0,
+    is_locked: !!(payload.isLocked !== undefined ? payload.isLocked : payload.is_locked),
+    submissions: Array.isArray(payload.submissions) ? payload.submissions : [],
+    target_batch: targetBatchStr,
+    overview: payload.overview || payload.description || '',
+    requirements: Array.isArray(payload.requirements) ? payload.requirements : [],
+    steps: Array.isArray(payload.steps) ? payload.steps : [],
+    rubric: Array.isArray(payload.rubric) ? payload.rubric : [],
+    mentor_tip: payload.mentorTip || payload.mentor_tip || '',
+    course_id: payload.courseId || payload.course_id || 'crs-1786624019154-w',
+    stage_id: payload.stageId || payload.stage_id || 's1',
+    subtopic_id: payload.subtopicId || payload.subtopic_id || 'm1_git',
+    inner_topic_id: payload.innerTopicId || payload.inner_topic_id || payload.moduleId || 'l_git_1'
+  };
+};
+
 app.get('/api/projects', async (req, res) => {
   try {
-    const { data, error } = await supabase.from('projects').select('*');
+    const { data, error } = await supabase.from('projects').select('*').order('created_at', { ascending: true });
+    if (error) throw error;
     res.json({ success: true, data: data || [] });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -351,9 +574,33 @@ app.get('/api/projects', async (req, res) => {
 
 app.post('/api/projects', async (req, res) => {
   try {
-    const newProj = { id: `proj-${Date.now()}`, ...req.body };
-    const { data, error } = await supabase.from('projects').upsert([newProj]).select();
-    res.status(201).json({ success: true, data: data ? data[0] : newProj });
+    const dbItem = formatDbProject(req.body);
+    const { data, error } = await supabase.from('projects').upsert([dbItem]).select();
+    if (error) throw error;
+    res.status(201).json({ success: true, data: data ? data[0] : dbItem });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+app.put('/api/projects/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const dbItem = formatDbProject({ ...req.body, id });
+    const { data, error } = await supabase.from('projects').update(dbItem).eq('id', id).select();
+    if (error) throw error;
+    res.json({ success: true, data: data ? data[0] : dbItem });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+app.delete('/api/projects/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { error } = await supabase.from('projects').delete().eq('id', id);
+    if (error) throw error;
+    res.json({ success: true, message: `Project ${id} deleted` });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }

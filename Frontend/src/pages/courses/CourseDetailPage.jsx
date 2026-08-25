@@ -568,12 +568,6 @@ export function CourseDetailPage() {
                                       <span>{subtopic.title}</span>
                                     </h5>
                                     <div className="flex flex-col gap-1 pl-7 mt-1">
-                                      {subtopic.durationHours && (
-                                        <div className="flex items-center gap-1.5 text-[11px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-lg border border-amber-200 w-fit">
-                                          <Clock className="w-3.5 h-3.5" />
-                                          <span>Duration: {subtopic.durationHours}</span>
-                                        </div>
-                                      )}
                                       {subtopic.duration && (
                                         <p className="text-xs text-slate-500 font-medium leading-relaxed mt-0.5">
                                           {subtopic.duration}

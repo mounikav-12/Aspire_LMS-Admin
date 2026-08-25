@@ -673,14 +673,347 @@ export function LmsDataProvider({ children }) {
       !target.includes('WEEKDAY') &&
       !target.includes('A26W');
 
+    const appendOrUpdate = (arr, newItem) => {
+      const idx = arr.findIndex((x) => x.id === newItem.id);
+      if (idx >= 0) {
+        // In-place update to preserve its place!
+        arr[idx] = { ...arr[idx], ...newItem };
+      } else {
+        // Append at the end so existing items never change their place!
+        arr.push(newItem);
+      }
+    };
+
     if (isAll) {
-      if (Array.isArray(dict['Weekday Batch'])) dict['Weekday Batch'].push(item);
-      if (Array.isArray(dict['Weekend Batch'])) dict['Weekend Batch'].push(item);
+      if (Array.isArray(dict['Weekday Batch'])) appendOrUpdate(dict['Weekday Batch'], item);
+      if (Array.isArray(dict['Weekend Batch'])) appendOrUpdate(dict['Weekend Batch'], item);
     } else if (isWeekendOnly) {
-      if (Array.isArray(dict['Weekend Batch'])) dict['Weekend Batch'].push(item);
+      if (Array.isArray(dict['Weekend Batch'])) appendOrUpdate(dict['Weekend Batch'], item);
     } else {
-      if (Array.isArray(dict['Weekday Batch'])) dict['Weekday Batch'].push(item);
+      if (Array.isArray(dict['Weekday Batch'])) appendOrUpdate(dict['Weekday Batch'], item);
     }
+  };
+
+  const normalizeLiveSession = (row) => {
+    if (!row) return null;
+    let meta = {};
+    let cleanDescription = row.description || '';
+    if (row.description && typeof row.description === 'string' && row.description.trim().startsWith('{')) {
+      try {
+        meta = JSON.parse(row.description);
+        cleanDescription = meta.text || meta.description || '';
+      } catch (e) {
+        cleanDescription = row.description;
+      }
+    }
+
+    const targetBatch = row.target_batch || row.targetBatch || meta.targetBatch || 'Weekday Batch';
+    const targetBatches = Array.isArray(meta.targetBatches) && meta.targetBatches.length > 0
+      ? meta.targetBatches
+      : (Array.isArray(row.target_batches) && row.target_batches.length > 0
+          ? row.target_batches
+          : (typeof targetBatch === 'string' && targetBatch.includes(',')
+              ? targetBatch.split(',').map(s => s.trim())
+              : (targetBatch === 'All Batches' || targetBatch === 'ALL' ? ['ALL'] : [targetBatch])));
+
+    return {
+      id: row.id,
+      programName: row.program_name || row.programName || meta.programName || 'Senior Engineering Cohort',
+      technology: row.technology || meta.technology || 'General',
+      sessionTitle: row.session_title || row.sessionTitle || row.title || meta.sessionTitle || 'Live Session',
+      title: row.session_title || row.sessionTitle || row.title || meta.sessionTitle || 'Live Session',
+      date: row.date || meta.date || '',
+      time: row.time || meta.time || '',
+      meetingLink: row.meeting_link || row.meetingLink || meta.meetingLink || '',
+      status: row.status || meta.status || 'Upcoming',
+      publishStatus: row.publish_status || row.publishStatus || meta.publishStatus || 'Published to Student LMS',
+      instructor: row.instructor || meta.instructor || 'Sara Devi',
+      description: cleanDescription,
+      targetBatch: targetBatch,
+      targetBatches: targetBatches,
+      batchCode: row.batch_code || row.batchCode || meta.batchCode || 'A26W1',
+      duration: row.duration || meta.duration || '1h 30m',
+      isLocked: meta.isLocked !== undefined ? meta.isLocked : (row.is_locked !== undefined ? row.is_locked : false),
+      courseId: row.course_id || meta.courseId || '',
+      courseName: row.course_name || meta.courseName || '',
+      stageId: row.stage_id || meta.stageId || '',
+      stageName: row.stage_name || meta.stageName || '',
+      subtopicId: row.subtopic_id || meta.subtopicId || '',
+      subtopicName: row.subtopic_name || meta.subtopicName || '',
+      moduleId: row.module_id || meta.moduleId || '',
+      moduleName: row.module_name || meta.moduleName || '',
+      topics: (Array.isArray(row.topics) && row.topics.length > 0)
+        ? row.topics
+        : (Array.isArray(meta.topics) && meta.topics.length > 0 ? meta.topics : []),
+      createdAt: row.created_at || row.createdAt || meta.createdAt || ''
+    };
+  };
+
+  const toDbLiveSession = (session) => {
+    const meta = {
+      text: session.description || '',
+      courseId: session.courseId || '',
+      courseName: session.courseName || '',
+      stageId: session.stageId || '',
+      stageName: session.stageName || '',
+      subtopicId: session.subtopicId || '',
+      subtopicName: session.subtopicName || '',
+      moduleId: session.moduleId || '',
+      moduleName: session.moduleName || '',
+      isLocked: !!session.isLocked,
+      targetBatches: session.targetBatches || [],
+      topics: session.topics || []
+    };
+
+    const targetBatchStr = session.targetBatch || (Array.isArray(session.targetBatches) ? session.targetBatches.join(', ') : 'Weekday Batch');
+
+    return {
+      id: session.id,
+      program_name: session.programName || 'Senior Engineering Cohort',
+      technology: session.technology || 'General',
+      session_title: session.sessionTitle || session.title || 'Live Session',
+      date: session.date || '',
+      time: session.time || '',
+      meeting_link: session.meetingLink || '',
+      status: session.status || 'Upcoming',
+      publish_status: session.publishStatus || 'Published to Student LMS',
+      instructor: session.instructor || 'Sara Devi',
+      description: JSON.stringify(meta),
+      target_batch: targetBatchStr,
+      batch_code: session.batchCode || 'A26W1',
+      duration: session.duration || '1h 30m'
+    };
+  };
+
+  const normalizeAssessment = (row) => {
+    if (!row) return null;
+    let stageId = row.stage_id || '';
+    let moduleName = row.module_name || '';
+    let subtopicId = row.subtopic_id || '';
+    let subtopicName = row.subtopic_name || '';
+    let innerTopicId = row.inner_topic_id || '';
+    let topicName = row.topic_name || '';
+
+    if (topicName && topicName.includes('||')) {
+      const parts = topicName.split('||');
+      moduleName = parts[0] || moduleName;
+      subtopicName = parts[1] || subtopicName;
+      topicName = parts[2] || topicName;
+    }
+
+    if (row.topic_id && row.topic_id.includes('||')) {
+      const parts = row.topic_id.split('||');
+      stageId = parts[0] || stageId;
+      subtopicId = parts[1] || subtopicId;
+      innerTopicId = parts[2] || innerTopicId;
+    }
+
+    const mcqs = Array.isArray(row.mcqs) ? row.mcqs : (typeof row.mcqs === 'string' ? JSON.parse(row.mcqs || '[]') : []);
+    const codingQuestions = Array.isArray(row.coding_questions)
+      ? row.coding_questions
+      : (Array.isArray(row.codingQuestions) ? row.codingQuestions : (typeof row.coding_questions === 'string' ? JSON.parse(row.coding_questions || '[]') : []));
+
+    const targetBatch = row.target_batch || 'Weekday Batch';
+    const targetBatches = Array.isArray(row.target_batches) && row.target_batches.length > 0
+      ? row.target_batches
+      : (typeof targetBatch === 'string' && targetBatch.includes(',')
+          ? targetBatch.split(',').map((s) => s.trim())
+          : (targetBatch === 'All Batches' || targetBatch === 'ALL' ? ['ALL'] : [targetBatch]));
+
+    return {
+      id: row.id,
+      title: row.title || 'Untitled Assessment',
+      courseId: row.course_id || 'crs-1786624019154-w',
+      courseName: row.course_name || 'Python Full Stack + DSA with AI',
+      stageId: stageId || 's1',
+      stageName: moduleName || 'Stage 1: Frontend & Programming Foundations',
+      moduleName: moduleName || 'Stage 1: Frontend & Programming Foundations',
+      subtopicId: subtopicId || 'm1_git',
+      subtopicName: subtopicName || 'Git & GitHub Version Control',
+      innerTopicId: innerTopicId || 'l_git_1',
+      moduleId: innerTopicId || 'l_git_1',
+      topicName: topicName || 'Git Architecture & Version Control Concepts',
+      durationMinutes: Number(row.duration_minutes) || 45,
+      totalMarks: Number(row.total_marks) || 100,
+      mcqCount: Number(row.mcq_count) || mcqs.length,
+      codingCount: Number(row.coding_count) || codingQuestions.length,
+      totalQuestions: (Number(row.mcq_count) || mcqs.length) + (Number(row.coding_count) || codingQuestions.length),
+      status: row.status || 'Active',
+      publishStatus: row.publish_status || 'Published',
+      dueDate: row.due_date || '2026-08-15',
+      mcqs,
+      codingQuestions,
+      targetBatch,
+      targetBatches,
+      createdAt: row.created_at || row.createdAt || ''
+    };
+  };
+
+  const toDbAssessment = (a) => {
+    if (!a) return null;
+    const packedTopicName = `${a.moduleName || a.stageName || ''}||${a.subtopicName || ''}||${a.topicName || a.innerTopicTitle || ''}`;
+    const packedTopicId = `${a.stageId || ''}||${a.subtopicId || ''}||${a.innerTopicId || a.moduleId || ''}`;
+    const targetBatchStr = a.targetBatch || (Array.isArray(a.targetBatches) ? a.targetBatches.join(', ') : 'Weekday Batch');
+
+    return {
+      id: String(a.id),
+      title: a.title || 'Untitled Assessment',
+      course_id: a.courseId || null,
+      course_name: a.courseName || '',
+      topic_id: packedTopicId,
+      topic_name: packedTopicName,
+      duration_minutes: Number(a.durationMinutes || 45),
+      total_marks: Number(a.totalMarks || 100),
+      mcq_count: Number(a.mcqCount || (Array.isArray(a.mcqs) ? a.mcqs.length : 0)),
+      coding_count: Number(a.codingCount || (Array.isArray(a.codingQuestions) ? a.codingQuestions.length : 0)),
+      status: a.status || 'Active',
+      publish_status: a.publishStatus || 'Published',
+      due_date: a.dueDate || '2026-08-15',
+      mcqs: Array.isArray(a.mcqs) ? a.mcqs : [],
+      coding_questions: Array.isArray(a.codingQuestions) ? a.codingQuestions : [],
+      target_batch: targetBatchStr
+    };
+  };
+
+  const normalizeProject = (row) => {
+    if (!row) return null;
+    let meta = {};
+    let cleanDescription = row.description || '';
+    if (row.description && typeof row.description === 'string' && row.description.trim().startsWith('{')) {
+      try {
+        meta = JSON.parse(row.description);
+        cleanDescription = meta.text || meta.description || '';
+      } catch (e) {
+        cleanDescription = row.description;
+      }
+    }
+
+    const techStack = Array.isArray(row.tech_stack)
+      ? row.tech_stack
+      : (Array.isArray(row.techStack)
+          ? row.techStack
+          : (typeof row.tech_stack === 'string'
+              ? (row.tech_stack.startsWith('[') ? JSON.parse(row.tech_stack) : row.tech_stack.split(',').map((s) => s.trim()))
+              : ['React', 'Node.js', 'PostgreSQL']));
+
+    const targetBatch = row.target_batch || row.targetBatch || meta.targetBatch || 'Weekday Batch';
+    const targetBatches = Array.isArray(meta.targetBatches) && meta.targetBatches.length > 0
+      ? meta.targetBatches
+      : (Array.isArray(row.target_batches) && row.target_batches.length > 0
+          ? row.target_batches
+          : (typeof targetBatch === 'string' && targetBatch.includes(',')
+              ? targetBatch.split(',').map((s) => s.trim())
+              : (targetBatch === 'All Batches' || targetBatch === 'ALL' ? ['ALL'] : [targetBatch])));
+
+    const requirements = Array.isArray(row.requirements)
+      ? row.requirements
+      : (typeof row.requirements === 'string' ? JSON.parse(row.requirements || '[]') : (meta.requirements || []));
+
+    const steps = Array.isArray(row.steps)
+      ? row.steps
+      : (typeof row.steps === 'string' ? JSON.parse(row.steps || '[]') : (meta.steps || []));
+
+    const rubric = Array.isArray(row.rubric)
+      ? row.rubric
+      : (typeof row.rubric === 'string' ? JSON.parse(row.rubric || '[]') : (meta.rubric || []));
+
+    const submissions = Array.isArray(row.submissions)
+      ? row.submissions
+      : (typeof row.submissions === 'string' ? JSON.parse(row.submissions || '[]') : (meta.submissions || []));
+
+    return {
+      id: row.id,
+      title: row.title || 'Untitled Project',
+      type: row.type || meta.type || 'Mini',
+      category: row.category || meta.category || 'Full-Stack Web Dev',
+      difficulty: row.difficulty || meta.difficulty || 'Intermediate',
+      description: cleanDescription,
+      techStack,
+      dueDate: row.due_date || row.dueDate || meta.dueDate || 'Due Aug 30',
+      status: row.status || meta.status || 'Published',
+      templateUrl: row.template_url || row.templateUrl || meta.templateUrl || 'https://github.com/aspire-lms/starter-repo',
+      guidelines: row.guidelines || meta.guidelines || 'Include clean setup instructions and unit tests.',
+      assignedCount: row.assigned_count !== undefined ? Number(row.assigned_count) : (row.assignedCount !== undefined ? Number(row.assignedCount) : 1),
+      submittedCount: row.submitted_count !== undefined ? Number(row.submitted_count) : (row.submittedCount !== undefined ? Number(row.submittedCount) : 0),
+      feedbackCount: row.feedback_count !== undefined ? Number(row.feedback_count) : (row.feedbackCount !== undefined ? Number(row.feedbackCount) : 0),
+      avgGrade: row.avg_grade !== undefined ? Number(row.avg_grade) : (row.avgGrade !== undefined ? Number(row.avgGrade) : 0),
+      isLocked: meta.isLocked !== undefined ? meta.isLocked : (row.is_locked !== undefined ? row.is_locked : false),
+      submissions,
+      targetBatch,
+      targetBatches,
+      overview: row.overview || meta.overview || cleanDescription,
+      requirements,
+      steps,
+      rubric,
+      mentorTip: row.mentor_tip || row.mentorTip || meta.mentorTip || 'Test code thoroughly before submitting drive link.',
+      courseId: row.course_id || row.courseId || meta.courseId || 'crs-1786624019154-w',
+      courseName: row.course_name || row.courseName || meta.courseName || 'Python Full Stack + DSA with AI',
+      stageId: row.stage_id || row.stageId || meta.stageId || 's1',
+      stageName: row.stage_name || row.stageName || meta.stageName || 'Stage 1: Frontend & Programming Foundations',
+      subtopicId: row.subtopic_id || row.subtopicId || meta.subtopicId || 'm1_git',
+      subtopicName: row.subtopic_name || row.subtopicName || meta.subtopicName || 'Git & GitHub Version Control',
+      innerTopicId: row.inner_topic_id || row.innerTopicId || row.moduleId || meta.innerTopicId || meta.moduleId || 'l_git_1',
+      moduleId: row.inner_topic_id || row.innerTopicId || row.moduleId || meta.innerTopicId || meta.moduleId || 'l_git_1',
+      moduleName: row.module_name || row.moduleName || meta.moduleName || meta.innerTopicTitle || 'Git Architecture & Version Control Concepts',
+      topicName: row.module_name || row.moduleName || meta.moduleName || meta.innerTopicTitle || 'Git Architecture & Version Control Concepts',
+      createdAt: row.created_at || row.createdAt || meta.createdAt || ''
+    };
+  };
+
+  const toDbProject = (p) => {
+    if (!p) return null;
+    const meta = {
+      text: p.description || '',
+      courseId: p.courseId || '',
+      courseName: p.courseName || '',
+      stageId: p.stageId || '',
+      stageName: p.stageName || '',
+      subtopicId: p.subtopicId || '',
+      subtopicName: p.subtopicName || '',
+      moduleId: p.innerTopicId || p.moduleId || '',
+      moduleName: p.moduleName || p.topicName || '',
+      isLocked: !!p.isLocked,
+      targetBatches: p.targetBatches || [],
+      requirements: p.requirements || [],
+      steps: p.steps || [],
+      rubric: p.rubric || [],
+      mentorTip: p.mentorTip || ''
+    };
+
+    const targetBatchStr = p.targetBatch || (Array.isArray(p.targetBatches) ? p.targetBatches.join(', ') : 'Weekday Batch');
+    const techStack = Array.isArray(p.techStack)
+      ? p.techStack
+      : (typeof p.techStack === 'string' ? p.techStack.split(',').map((s) => s.trim()) : []);
+
+    return {
+      id: String(p.id),
+      title: p.title || 'Untitled Project',
+      type: p.type || 'Mini',
+      category: p.category || 'Full-Stack Web Dev',
+      difficulty: p.difficulty || 'Intermediate',
+      description: JSON.stringify(meta),
+      tech_stack: techStack,
+      due_date: p.dueDate || 'Due Aug 30',
+      status: p.status || 'Published',
+      template_url: p.templateUrl || '',
+      guidelines: p.guidelines || '',
+      assigned_count: Number(p.assignedCount) || 1,
+      submitted_count: Number(p.submittedCount) || 0,
+      feedback_count: Number(p.feedbackCount) || 0,
+      avg_grade: Number(p.avgGrade) || 0,
+      is_locked: !!p.isLocked,
+      submissions: Array.isArray(p.submissions) ? p.submissions : [],
+      target_batch: targetBatchStr,
+      overview: p.overview || p.description || '',
+      requirements: Array.isArray(p.requirements) ? p.requirements : [],
+      steps: Array.isArray(p.steps) ? p.steps : [],
+      rubric: Array.isArray(p.rubric) ? p.rubric : [],
+      mentor_tip: p.mentorTip || '',
+      course_id: p.courseId || 'crs-1786624019154-w',
+      stage_id: p.stageId || 's1',
+      subtopic_id: p.subtopicId || 'm1_git',
+      inner_topic_id: p.innerTopicId || p.moduleId || 'l_git_1'
+    };
   };
 
   const getBatchItems = (dict, batchName) => {
@@ -1041,54 +1374,9 @@ export function LmsDataProvider({ children }) {
       }
 
       // 6. Fetch Assessments Roster from Supabase
-      const { data: assessmentsData, error: asmntErr } = await supabase.from('assessments').select('*');
+      const { data: assessmentsData, error: asmntErr } = await supabase.from('assessments').select('*').order('created_at', { ascending: true });
       if (!asmntErr && assessmentsData && assessmentsData.length > 0) {
-        const mappedAsmnts = assessmentsData.map(a => {
-          let stageId = a.stage_id || '';
-          let moduleName = a.module_name || '';
-          let subtopicId = a.subtopic_id || '';
-          let subtopicName = a.subtopic_name || '';
-          let innerTopicId = a.inner_topic_id || '';
-          let topicName = a.topic_name || '';
-
-          if (topicName && topicName.includes('||')) {
-            const parts = topicName.split('||');
-            moduleName = parts[0] || moduleName;
-            subtopicName = parts[1] || subtopicName;
-            topicName = parts[2] || topicName;
-          }
-
-          if (a.topic_id && a.topic_id.includes('||')) {
-            const parts = a.topic_id.split('||');
-            stageId = parts[0] || stageId;
-            subtopicId = parts[1] || subtopicId;
-            innerTopicId = parts[2] || innerTopicId;
-          }
-
-          return {
-            id: a.id,
-            title: a.title || '',
-            courseId: a.course_id || '',
-            courseName: a.course_name || 'Python Full Stack + DSA with AI',
-            stageId,
-            moduleName,
-            subtopicId,
-            subtopicName,
-            innerTopicId,
-            topicName,
-            durationMinutes: a.duration_minutes || 45,
-            totalMarks: a.total_marks || 100,
-            mcqCount: a.mcq_count || (Array.isArray(a.mcqs) ? a.mcqs.length : 0),
-            codingCount: a.coding_count || (Array.isArray(a.coding_questions) ? a.coding_questions.length : 0),
-            totalQuestions: (a.mcq_count || (Array.isArray(a.mcqs) ? a.mcqs.length : 0)) + (a.coding_count || (Array.isArray(a.coding_questions) ? a.coding_questions.length : 0)),
-            status: a.status || 'Active',
-            publishStatus: a.publish_status || 'Published',
-            dueDate: a.due_date || '2026-08-15',
-            mcqs: Array.isArray(a.mcqs) ? a.mcqs : (typeof a.mcqs === 'string' ? JSON.parse(a.mcqs) : []),
-            codingQuestions: Array.isArray(a.coding_questions) ? a.coding_questions : (typeof a.coding_questions === 'string' ? JSON.parse(a.coding_questions) : []),
-            targetBatch: a.target_batch || 'Weekday Batch'
-          };
-        });
+        const mappedAsmnts = assessmentsData.map(normalizeAssessment).filter(Boolean);
         setAssessmentsByBatch(() => {
           const next = { 'Weekday Batch': [], 'Weekend Batch': [] };
           mappedAsmnts.forEach((a) => placeItemInBatchDict(a, next));
@@ -1097,29 +1385,13 @@ export function LmsDataProvider({ children }) {
       }
 
       // 7. Fetch Live Sessions
-      const { data: sessionsData, error: sessionsErr } = await supabase.from('live_sessions').select('*');
+      const { data: sessionsData, error: sessionsErr } = await supabase.from('live_sessions').select('*').order('created_at', { ascending: true });
       if (!sessionsErr && sessionsData && sessionsData.length > 0) {
-        const mappedSessions = sessionsData.map(s => ({
-          id: s.id,
-          programName: s.program_name || s.programName || '',
-          technology: s.technology || '',
-          sessionTitle: s.session_title || s.sessionTitle || '',
-          date: s.date || '',
-          time: s.time || '',
-          meetingLink: s.meeting_link || s.meetingLink || '',
-          status: s.status || 'Upcoming',
-          publishStatus: s.publish_status || s.publishStatus || 'Published to Student LMS',
-          instructor: s.instructor || '',
-          description: s.description || '',
-          targetBatch: s.target_batch || 'Weekday Batch'
-        }));
+        const mappedSessions = sessionsData.map(normalizeLiveSession).filter(Boolean);
         // REPLACE (not append) to prevent duplicates
         setLiveSessionsByBatch(() => {
           const next = { 'Weekday Batch': [], 'Weekend Batch': [] };
-          mappedSessions.forEach(s => {
-            const bKey = s.targetBatch === 'Weekend Batch' ? 'Weekend Batch' : 'Weekday Batch';
-            next[bKey].push(s);
-          });
+          mappedSessions.forEach(s => placeItemInBatchDict(s, next));
           return next;
         });
       }
@@ -1144,25 +1416,32 @@ export function LmsDataProvider({ children }) {
       const { data: milesData, error: milesErr } = await supabase.from('milestones_data').select('*');
       if (!milesErr && milesData && milesData.length > 0) {
         const batchRow = milesData.find(m => m.id === 'batch_data');
-        if (batchRow && batchRow.overview && batchRow.overview.batchData) {
+        const wdRow = milesData.find(m => m.id === 'ml-python-full-stack');
+        const weRow = milesData.find(m => m.id === 'ml-python-weekend');
+        const defaultRow = milesData.find(m => m.id === 'default');
+
+        let batchData = batchRow?.overview?.batchData;
+        const wdStages = batchData?.['Weekday Batch']?.stages;
+        const weStages = batchData?.['Weekend Batch']?.stages;
+
+        if (!wdStages || wdStages.length === 0 || !weStages || weStages.length === 0) {
+          batchData = {
+            'Weekday Batch': {
+              overview: wdRow?.overview || batchData?.['Weekday Batch']?.overview || defaultRow?.overview || {},
+              stages: (wdStages && wdStages.length > 0) ? wdStages : (wdRow?.stages || defaultRow?.stages || [])
+            },
+            'Weekend Batch': {
+              overview: weRow?.overview || batchData?.['Weekend Batch']?.overview || defaultRow?.overview || {},
+              stages: (weStages && weStages.length > 0) ? weStages : (weRow?.stages || defaultRow?.stages || [])
+            }
+          };
+        }
+
+        if (batchData) {
           setMilestonesByBatch(prev => {
-            const nextData = batchRow.overview.batchData;
-            if (JSON.stringify(prev) === JSON.stringify(nextData)) return prev;
-            return nextData;
+            if (JSON.stringify(prev) === JSON.stringify(batchData)) return prev;
+            return batchData;
           });
-        } else {
-          const defaultRow = milesData.find(m => m.id === 'default');
-          if (defaultRow && defaultRow.stages && defaultRow.stages.length > 0) {
-            const overview = defaultRow.overview || {};
-            const nextData = {
-              'Weekday Batch': { overview, stages: defaultRow.stages },
-              'Weekend Batch': { overview, stages: defaultRow.stages }
-            };
-            setMilestonesByBatch(prev => {
-              if (JSON.stringify(prev) === JSON.stringify(nextData)) return prev;
-              return nextData;
-            });
-          }
         }
 
         const compRow = milesData.find(m => m.id === 'completed_items');
@@ -1172,49 +1451,9 @@ export function LmsDataProvider({ children }) {
       }
 
       // 9. Fetch Projects Catalog
-      const { data: projectsData, error: projectsErr } = await supabase.from('projects').select('*');
+      const { data: projectsData, error: projectsErr } = await supabase.from('projects').select('*').order('created_at', { ascending: true });
       if (!projectsErr && projectsData && projectsData.length > 0) {
-        const mappedProjects = projectsData.map(p => ({
-          id: p.id,
-          title: p.title || '',
-          type: p.type || 'Mini',
-          category: p.category || 'Full-Stack Web Dev',
-          difficulty: p.difficulty || 'Intermediate',
-          description: p.description || '',
-          techStack: Array.isArray(p.tech_stack)
-            ? p.tech_stack
-            : (typeof p.tech_stack === 'string'
-                ? p.tech_stack.split(',').map((s) => s.trim())
-                : (p.techStack || ['React', 'Node.js', 'PostgreSQL'])),
-          dueDate: p.due_date || p.dueDate || 'Due Aug 30',
-          status: p.status || 'Published',
-          templateUrl: p.template_url || p.templateUrl || 'https://github.com/aspire-lms/starter-repo',
-          guidelines: p.guidelines || 'Include clean setup instructions and unit tests.',
-          assignedCount: p.assigned_count !== undefined ? p.assigned_count : (p.assignedCount || 1),
-          submittedCount: p.submitted_count !== undefined ? p.submitted_count : (p.submittedCount || 0),
-          feedbackCount: p.feedback_count !== undefined ? p.feedback_count : (p.feedbackCount || 0),
-          avgGrade: p.avg_grade !== undefined ? p.avg_grade : (p.avgGrade || 0),
-          isLocked: p.is_locked !== undefined ? p.is_locked : (p.isLocked || false),
-          submissions: Array.isArray(p.submissions)
-            ? p.submissions
-            : (typeof p.submissions === 'string' ? JSON.parse(p.submissions) : (p.submissions || [])),
-          targetBatch: p.target_batch || 'Weekday Batch',
-          overview: p.overview || p.description || '',
-          requirements: Array.isArray(p.requirements)
-            ? p.requirements
-            : (typeof p.requirements === 'string' ? JSON.parse(p.requirements) : (p.requirements || [])),
-          steps: Array.isArray(p.steps)
-            ? p.steps
-            : (typeof p.steps === 'string' ? JSON.parse(p.steps) : (p.steps || [])),
-          rubric: Array.isArray(p.rubric)
-            ? p.rubric
-            : (typeof p.rubric === 'string' ? JSON.parse(p.rubric) : (p.rubric || [])),
-          mentorTip: p.mentor_tip || p.mentorTip || 'Test code thoroughly before submitting drive link.',
-          courseId: p.course_id || p.courseId || '',
-          stageId: p.stage_id || p.stageId || '',
-          subtopicId: p.subtopic_id || p.subtopicId || '',
-          innerTopicId: p.inner_topic_id || p.innerTopicId || ''
-        }));
+        const mappedProjects = projectsData.map(normalizeProject).filter(Boolean);
         // REPLACE (not append) to prevent duplicates (supports All Batches target)
         setProjectsByBatch(() => {
           const next = { 'Weekday Batch': [], 'Weekend Batch': [] };
@@ -1358,31 +1597,116 @@ export function LmsDataProvider({ children }) {
           }
         }
       });
-      makeChannel('courses', () => fetchSupabaseData());
-      makeChannel('assessments', () => fetchSupabaseData());
-      makeChannel('coding_questions', () => fetchSupabaseData());
-      makeChannel('projects', () => fetchSupabaseData());
-      makeChannel('badges', () => fetchSupabaseData());
-
-      // Live Sessions — delta update
-      makeChannel('live_sessions', (payload) => {
-        setLiveSessionsByBatch(prev => {
-          const next = { ...prev };
-          const getBKey = (row) => row?.target_batch === 'Weekend Batch' ? 'Weekend Batch' : 'Weekday Batch';
-          if (payload.eventType === 'INSERT') {
-            const bKey = getBKey(payload.new);
-            if (!next[bKey].find(x => x.id === payload.new.id))
-              next[bKey] = [payload.new, ...next[bKey]];
-          } else if (payload.eventType === 'UPDATE') {
-            const bKey = getBKey(payload.new);
-            next[bKey] = next[bKey].map(x => x.id === payload.new.id ? { ...x, ...payload.new } : x);
-          } else if (payload.eventType === 'DELETE') {
-            ['Weekday Batch', 'Weekend Batch'].forEach(k => {
-              next[k] = next[k].filter(x => x.id !== payload.old.id);
+      // Assessments — delta update with in-place update to preserve position
+      makeChannel('assessments', (payload) => {
+        if (payload.eventType === 'INSERT') {
+          const newAsmnt = normalizeAssessment(payload.new);
+          if (newAsmnt) {
+            setAssessmentsByBatch((prev) => {
+              const next = {
+                'Weekday Batch': [...(prev['Weekday Batch'] || [])],
+                'Weekend Batch': [...(prev['Weekend Batch'] || [])]
+              };
+              placeItemInBatchDict(newAsmnt, next);
+              return next;
             });
           }
-          return next;
-        });
+        } else if (payload.eventType === 'UPDATE') {
+          const updated = normalizeAssessment(payload.new);
+          if (updated) {
+            setAssessmentsByBatch((prev) => {
+              const updateInPlace = (arr) => (arr || []).map((x) => (x.id === updated.id ? { ...x, ...updated } : x));
+              return {
+                'Weekday Batch': updateInPlace(prev['Weekday Batch']),
+                'Weekend Batch': updateInPlace(prev['Weekend Batch'])
+              };
+            });
+          }
+        } else if (payload.eventType === 'DELETE') {
+          const deletedId = payload.old?.id;
+          if (deletedId) {
+            setAssessmentsByBatch((prev) => ({
+              'Weekday Batch': (prev['Weekday Batch'] || []).filter((x) => x.id !== deletedId),
+              'Weekend Batch': (prev['Weekend Batch'] || []).filter((x) => x.id !== deletedId)
+            }));
+          }
+        }
+      });
+
+      // Projects — delta update with in-place update to preserve position
+      makeChannel('projects', (payload) => {
+        if (payload.eventType === 'INSERT') {
+          const newProj = normalizeProject(payload.new);
+          if (newProj) {
+            setProjectsByBatch((prev) => {
+              const next = {
+                'Weekday Batch': [...(prev['Weekday Batch'] || [])],
+                'Weekend Batch': [...(prev['Weekend Batch'] || [])]
+              };
+              placeItemInBatchDict(newProj, next);
+              return next;
+            });
+          }
+        } else if (payload.eventType === 'UPDATE') {
+          const updated = normalizeProject(payload.new);
+          if (updated) {
+            setProjectsByBatch((prev) => {
+              const updateInPlace = (arr) => (arr || []).map((x) => (x.id === updated.id ? { ...x, ...updated } : x));
+              return {
+                'Weekday Batch': updateInPlace(prev['Weekday Batch']),
+                'Weekend Batch': updateInPlace(prev['Weekend Batch'])
+              };
+            });
+          }
+        } else if (payload.eventType === 'DELETE') {
+          const deletedId = payload.old?.id;
+          if (deletedId) {
+            setProjectsByBatch((prev) => ({
+              'Weekday Batch': (prev['Weekday Batch'] || []).filter((x) => x.id !== deletedId),
+              'Weekend Batch': (prev['Weekend Batch'] || []).filter((x) => x.id !== deletedId)
+            }));
+          }
+        }
+      });
+
+      makeChannel('courses', () => fetchSupabaseData());
+      makeChannel('coding_questions', () => fetchSupabaseData());
+      makeChannel('badges', () => fetchSupabaseData());
+
+      // Live Sessions — delta update with in-place update to preserve position
+      makeChannel('live_sessions', (payload) => {
+        if (payload.eventType === 'INSERT') {
+          const newSession = normalizeLiveSession(payload.new);
+          if (newSession) {
+            setLiveSessionsByBatch((prev) => {
+              const next = {
+                'Weekday Batch': [...(prev['Weekday Batch'] || [])],
+                'Weekend Batch': [...(prev['Weekend Batch'] || [])]
+              };
+              placeItemInBatchDict(newSession, next);
+              return next;
+            });
+          }
+        } else if (payload.eventType === 'UPDATE') {
+          const updated = normalizeLiveSession(payload.new);
+          if (updated) {
+            setLiveSessionsByBatch((prev) => {
+              const updateInPlace = (arr) => (arr || []).map((x) => (x.id === updated.id ? { ...x, ...updated } : x));
+              return {
+                'Weekday Batch': updateInPlace(prev['Weekday Batch']),
+                'Weekend Batch': updateInPlace(prev['Weekend Batch'])
+              };
+            });
+          }
+        } else if (payload.eventType === 'DELETE') {
+          const deletedId = payload.old?.id;
+          if (deletedId) {
+            setLiveSessionsByBatch((prev) => ({
+              'Weekday Batch': (prev['Weekday Batch'] || []).filter((x) => x.id !== deletedId),
+              'Weekend Batch': (prev['Weekend Batch'] || []).filter((x) => x.id !== deletedId)
+            }));
+          }
+        }
       });
 
       // Jobs — delta update
@@ -1698,167 +2022,237 @@ export function LmsDataProvider({ children }) {
   const addAssessment = async (asmntData, targetBatch = activeBatchFilter) => {
     const bKey = resolveBatchKey(targetBatch);
     const newAsmnt = {
-      id: `asmnt-${Date.now()}-${bKey === 'Weekday Batch' ? 'w' : 's'}`,
-      targetBatch: bKey,
+      id: asmntData.id || `asmnt-${Date.now()}-${bKey === 'Weekday Batch' ? 'w' : 's'}`,
+      targetBatch: asmntData.targetBatch || bKey,
       createdDate: new Date().toISOString().split('T')[0],
       assignedCount: 0,
       submittedCount: 0,
       avgScore: 0,
       status: 'Active',
+      publishStatus: 'Published',
       ...asmntData
     };
+
     setAssessmentsByBatch((prev) => {
       const next = {
         'Weekday Batch': [...(prev['Weekday Batch'] || [])],
         'Weekend Batch': [...(prev['Weekend Batch'] || [])]
       };
-      const tempDict = { 'Weekday Batch': [], 'Weekend Batch': [] };
-      placeItemInBatchDict(newAsmnt, tempDict);
-
-      if (tempDict['Weekday Batch'].length > 0) {
-        next['Weekday Batch'] = [newAsmnt, ...next['Weekday Batch'].filter((a) => a.id !== newAsmnt.id)];
-      }
-      if (tempDict['Weekend Batch'].length > 0) {
-        next['Weekend Batch'] = [newAsmnt, ...next['Weekend Batch'].filter((a) => a.id !== newAsmnt.id)];
-      }
+      placeItemInBatchDict(newAsmnt, next);
       return next;
     });
     logActivity(`Created assessment: "${newAsmnt.title}" (${bKey})`, 'assessment');
 
-    // Auto-sync assessment item into corresponding milestone module
-    if (newAsmnt.stageId || newAsmnt.moduleName || newAsmnt.topicName) {
-      updateBatchState(bKey, (batchData) => {
-        const stages = batchData.stages || [];
-        const stageMatch = stages.find(s => s.id === newAsmnt.stageId || s.title === newAsmnt.moduleName) || stages[0];
-        if (!stageMatch) return batchData;
+    // Determine target batch scope for milestones update
+    const targetBatchScope = (newAsmnt.targetBatch && (
+      newAsmnt.targetBatch.toUpperCase().includes('ALL') ||
+      (newAsmnt.targetBatch.toUpperCase().includes('WEEKDAY') && newAsmnt.targetBatch.toUpperCase().includes('WEEKEND')) ||
+      (newAsmnt.targetBatch.toUpperCase().includes('A26W') && newAsmnt.targetBatch.toUpperCase().includes('A26S'))
+    )) ? 'ALL' : bKey;
 
-        const subtopics = stageMatch.subtopics || [];
-        const subtopicMatch = subtopics.find(st => st.id === newAsmnt.subtopicId || st.title === newAsmnt.subtopicName || st.title === newAsmnt.topicName) || subtopics[0];
-        if (!subtopicMatch) return batchData;
+    const asmItem = {
+      id: `item-asmnt-${newAsmnt.id}`,
+      assessmentId: newAsmnt.id,
+      type: 'ASSESSMENT',
+      typeColor: 'bg-blue-100 text-blue-800 border-blue-200',
+      iconName: 'FileCheck',
+      iconBg: 'bg-blue-600 text-white',
+      title: newAsmnt.title || 'Graded Assessment Evaluation',
+      actionText: 'START',
+      url: '/assessments',
+      btnStyle: 'bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30',
+      dueDate: newAsmnt.dueDate || '2026-08-15',
+      durationMinutes: newAsmnt.durationMinutes || 45,
+      totalMarks: newAsmnt.totalMarks || 100,
+      mcqCount: newAsmnt.mcqCount || (newAsmnt.mcqs?.length || 0),
+      codingCount: newAsmnt.codingCount || (newAsmnt.codingQuestions?.length || 0),
+      totalQuestions: (newAsmnt.mcqCount || (newAsmnt.mcqs?.length || 0)) + (newAsmnt.codingCount || (newAsmnt.codingQuestions?.length || 0))
+    };
 
-        const modules = subtopicMatch.modules || [];
-        let modMatch = modules.find(m => m.id === newAsmnt.innerTopicId || m.title === newAsmnt.topicName);
+    // Auto-sync assessment item into corresponding milestone module in real-time
+    updateBatchState(targetBatchScope, (batchData) => {
+      const stages = batchData.stages || [];
+      const targetStageId = newAsmnt.stageId;
+      const targetStageName = newAsmnt.moduleName || newAsmnt.stageName;
+      const stageMatch = stages.find(s => s.id === targetStageId || s.title === targetStageName) || stages[0];
+      if (!stageMatch) return batchData;
 
-        const asmItem = {
-          id: `item-asm-${newAsmnt.id}`,
-          assessmentId: newAsmnt.id,
-          type: 'ASSESSMENT',
-          typeColor: 'bg-purple-100 text-purple-700 border-purple-200',
-          iconName: 'FileCheck',
-          iconBg: 'bg-purple-600 text-white',
-          title: newAsmnt.title,
-          actionText: 'TAKE',
-          url: '/assessments',
-          btnStyle: 'bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30'
+      const subtopics = stageMatch.subtopics || stageMatch.modules || [];
+      const targetSubId = newAsmnt.subtopicId;
+      const targetSubName = newAsmnt.subtopicName;
+      const subtopicMatch = subtopics.find(st => st.id === targetSubId || st.title === targetSubName) || subtopics[0];
+      if (!subtopicMatch) return batchData;
+
+      const targetModId = newAsmnt.innerTopicId || newAsmnt.moduleId;
+      const targetModName = newAsmnt.topicName;
+      const modules = subtopicMatch.modules || subtopicMatch.lessons || [];
+      let modMatch = modules.find(m => m.id === targetModId || m.title === targetModName);
+
+      const updatedStages = stages.map(stg => {
+        if (stg.id !== stageMatch.id) return stg;
+        const transformSubtopic = (sub) => {
+          if (sub.id !== subtopicMatch.id && sub.title !== subtopicMatch.title) return sub;
+          let existingMods = [...(sub.modules || sub.lessons || [])];
+          if (!modMatch) {
+            const newMod = {
+              id: targetModId || `mod-${Date.now()}`,
+              title: targetModName || 'Assessment Evaluation Module',
+              items: [asmItem]
+            };
+            existingMods.push(newMod);
+          } else {
+            existingMods = existingMods.map(m => {
+              if (m.id !== modMatch.id && m.title !== modMatch.title) return m;
+              const hasItem = (m.items || []).some(it => it.id === asmItem.id || it.assessmentId === newAsmnt.id);
+              return {
+                ...m,
+                items: hasItem
+                  ? (m.items || []).map(it => (it.id === asmItem.id || it.assessmentId === newAsmnt.id ? { ...it, ...asmItem } : it))
+                  : [asmItem, ...(m.items || [])]
+              };
+            });
+          }
+          return {
+            ...sub,
+            modulesCount: existingMods.length,
+            modules: existingMods,
+            lessons: existingMods
+          };
         };
 
-        const updatedStages = stages.map(stg => {
-          if (stg.id !== stageMatch.id) return stg;
-          return {
-            ...stg,
-            subtopics: (stg.subtopics || []).map(sub => {
-              if (sub.id !== subtopicMatch.id) return sub;
-              let existingMods = [...(sub.modules || [])];
-              if (!modMatch) {
-                const newMod = {
-                  id: `mod-${Date.now()}`,
-                  title: newAsmnt.topicName || 'Assessment Module',
-                  items: [asmItem]
-                };
-                existingMods.push(newMod);
-              } else {
-                existingMods = existingMods.map(m => {
-                  if (m.id !== modMatch.id && m.title !== modMatch.title) return m;
-                  const hasItem = (m.items || []).some(it => it.id === asmItem.id || it.assessmentId === newAsmnt.id);
-                  return {
-                    ...m,
-                    items: hasItem
-                      ? (m.items || []).map(it => (it.id === asmItem.id || it.assessmentId === newAsmnt.id ? { ...it, title: newAsmnt.title } : it))
-                      : [...(m.items || []), asmItem]
-                  };
-                });
-              }
-              return {
-                ...sub,
-                modulesCount: existingMods.length,
-                modules: existingMods
-              };
-            })
-          };
-        });
-
-        return { ...batchData, stages: updatedStages };
+        return {
+          ...stg,
+          subtopics: (stg.subtopics || []).map(transformSubtopic),
+          modules: (stg.modules || []).map(transformSubtopic)
+        };
       });
-    }
+
+      return { ...batchData, stages: updatedStages };
+    });
 
     try {
-      const packedTopicName = `${newAsmnt.moduleName || ''}||${newAsmnt.subtopicName || ''}||${newAsmnt.topicName || ''}`;
-      const packedTopicId = `${newAsmnt.stageId || ''}||${newAsmnt.subtopicId || ''}||${newAsmnt.innerTopicId || ''}`;
-
-      const { error } = await supabase.from('assessments').upsert([{
-        id: newAsmnt.id,
-        title: newAsmnt.title,
-        course_id: newAsmnt.courseId || null,
-        course_name: newAsmnt.courseName || '',
-        topic_id: packedTopicId,
-        topic_name: packedTopicName,
-        duration_minutes: newAsmnt.durationMinutes || 45,
-        total_marks: newAsmnt.totalMarks || 100,
-        mcq_count: newAsmnt.mcqCount || 5,
-        coding_count: newAsmnt.codingCount || 1,
-        status: newAsmnt.status || 'Active',
-        publish_status: newAsmnt.publishStatus || 'Published',
-        due_date: newAsmnt.dueDate || null,
-        mcqs: newAsmnt.mcqs || [],
-        coding_questions: newAsmnt.codingQuestions || [],
-        target_batch: newAsmnt.targetBatch
-      }]);
+      const dbRow = toDbAssessment(newAsmnt);
+      const { error } = await supabase.from('assessments').upsert([dbRow]);
       if (error) console.error('Supabase assessment insert error:', error.message);
     } catch (err) { console.warn('Assessment insert handled:', err); }
   };
 
   const updateAssessment = async (id, updatedFields, targetBatch = activeBatchFilter) => {
     const bKey = resolveBatchKey(targetBatch);
-    setAssessmentsByBatch((prev) => ({
-      ...prev,
-      [bKey]: (prev[bKey] || []).map((a) => (a.id === id ? { ...a, ...updatedFields } : a))
-    }));
+    let mergedAsmnt = null;
+
+    setAssessmentsByBatch((prev) => {
+      const next = {
+        'Weekday Batch': (prev['Weekday Batch'] || []).map((a) => {
+          if (a.id === id) {
+            mergedAsmnt = { ...a, ...updatedFields };
+            return mergedAsmnt;
+          }
+          return a;
+        }),
+        'Weekend Batch': (prev['Weekend Batch'] || []).map((a) => {
+          if (a.id === id) {
+            mergedAsmnt = { ...a, ...updatedFields };
+            return mergedAsmnt;
+          }
+          return a;
+        })
+      };
+      return next;
+    });
     logActivity(`Updated assessment ID ${id} (${bKey})`, 'assessment');
+
+    // Update milestone module item if present across all batches
+    const targetBatchScope = (mergedAsmnt?.targetBatch && (
+      mergedAsmnt.targetBatch.toUpperCase().includes('ALL') ||
+      (mergedAsmnt.targetBatch.toUpperCase().includes('WEEKDAY') && mergedAsmnt.targetBatch.toUpperCase().includes('WEEKEND'))
+    )) ? 'ALL' : bKey;
+
+    updateBatchState(targetBatchScope, (batchData) => {
+      const stages = (batchData.stages || []).map(stg => {
+        const updateItemInSub = (sub) => ({
+          ...sub,
+          modules: (sub.modules || []).map(m => ({
+            ...m,
+            items: (m.items || []).map(it => {
+              if (it.id === `item-asmnt-${id}` || it.assessmentId === id) {
+                return {
+                  ...it,
+                  title: updatedFields.title !== undefined ? updatedFields.title : it.title,
+                  dueDate: updatedFields.dueDate !== undefined ? updatedFields.dueDate : it.dueDate,
+                  durationMinutes: updatedFields.durationMinutes !== undefined ? updatedFields.durationMinutes : it.durationMinutes,
+                  totalMarks: updatedFields.totalMarks !== undefined ? updatedFields.totalMarks : it.totalMarks
+                };
+              }
+              return it;
+            })
+          })),
+          lessons: (sub.lessons || []).map(m => ({
+            ...m,
+            items: (m.items || []).map(it => {
+              if (it.id === `item-asmnt-${id}` || it.assessmentId === id) {
+                return {
+                  ...it,
+                  title: updatedFields.title !== undefined ? updatedFields.title : it.title,
+                  dueDate: updatedFields.dueDate !== undefined ? updatedFields.dueDate : it.dueDate,
+                  durationMinutes: updatedFields.durationMinutes !== undefined ? updatedFields.durationMinutes : it.durationMinutes,
+                  totalMarks: updatedFields.totalMarks !== undefined ? updatedFields.totalMarks : it.totalMarks
+                };
+              }
+              return it;
+            })
+          }))
+        });
+
+        return {
+          ...stg,
+          subtopics: (stg.subtopics || []).map(updateItemInSub),
+          modules: (stg.modules || []).map(updateItemInSub)
+        };
+      });
+      return { ...batchData, stages };
+    });
+
     try {
-      const dbFields = {};
-      if (updatedFields.title !== undefined) dbFields.title = updatedFields.title;
-      if (updatedFields.courseId !== undefined) dbFields.course_id = updatedFields.courseId;
-      if (updatedFields.courseName !== undefined) dbFields.course_name = updatedFields.courseName;
-      if (updatedFields.moduleName !== undefined || updatedFields.subtopicName !== undefined || updatedFields.topicName !== undefined) {
-        dbFields.topic_name = `${updatedFields.moduleName || ''}||${updatedFields.subtopicName || ''}||${updatedFields.topicName || ''}`;
-      }
-      if (updatedFields.stageId !== undefined || updatedFields.subtopicId !== undefined || updatedFields.innerTopicId !== undefined) {
-        dbFields.topic_id = `${updatedFields.stageId || ''}||${updatedFields.subtopicId || ''}||${updatedFields.innerTopicId || ''}`;
-      }
-      if (updatedFields.durationMinutes !== undefined) dbFields.duration_minutes = updatedFields.durationMinutes;
-      if (updatedFields.totalMarks !== undefined) dbFields.total_marks = updatedFields.totalMarks;
-      if (updatedFields.mcqCount !== undefined) dbFields.mcq_count = updatedFields.mcqCount;
-      if (updatedFields.codingCount !== undefined) dbFields.coding_count = updatedFields.codingCount;
-      if (updatedFields.status !== undefined) dbFields.status = updatedFields.status;
-      if (updatedFields.publishStatus !== undefined) dbFields.publish_status = updatedFields.publishStatus;
-      if (updatedFields.dueDate !== undefined) dbFields.due_date = updatedFields.dueDate;
-      if (updatedFields.mcqs !== undefined) dbFields.mcqs = updatedFields.mcqs;
-      if (updatedFields.codingQuestions !== undefined) dbFields.coding_questions = updatedFields.codingQuestions;
-      if (updatedFields.targetBatch !== undefined) dbFields.target_batch = updatedFields.targetBatch;
-      if (Object.keys(dbFields).length > 0) {
-        const { error } = await supabase.from('assessments').update(dbFields).eq('id', id);
-        if (error) console.error('Supabase assessment update error:', error.message);
-      }
+      const assessmentToSave = mergedAsmnt || { id, ...updatedFields };
+      const dbRow = toDbAssessment(assessmentToSave);
+      const { error } = await supabase.from('assessments').upsert([dbRow]);
+      if (error) console.error('Supabase assessment update error:', error.message);
     } catch (err) { console.warn('Assessment update handled:', err); }
   };
 
   const deleteAssessment = async (id, targetBatch = activeBatchFilter) => {
     const bKey = resolveBatchKey(targetBatch);
     setAssessmentsByBatch((prev) => ({
-      ...prev,
-      [bKey]: (prev[bKey] || []).filter((a) => a.id !== id)
+      'Weekday Batch': (prev['Weekday Batch'] || []).filter((a) => a.id !== id),
+      'Weekend Batch': (prev['Weekend Batch'] || []).filter((a) => a.id !== id)
     }));
     logActivity(`Deleted assessment ID ${id} (${bKey})`, 'assessment');
+
+    // Remove from milestone module items across all batches
+    updateBatchState('ALL', (batchData) => {
+      const stages = (batchData.stages || []).map(stg => {
+        const filterItemsInSub = (sub) => ({
+          ...sub,
+          modules: (sub.modules || []).map(m => ({
+            ...m,
+            items: (m.items || []).filter(it => it.id !== `item-asmnt-${id}` && it.assessmentId !== id)
+          })),
+          lessons: (sub.lessons || []).map(m => ({
+            ...m,
+            items: (m.items || []).filter(it => it.id !== `item-asmnt-${id}` && it.assessmentId !== id)
+          }))
+        });
+
+        return {
+          ...stg,
+          subtopics: (stg.subtopics || []).map(filterItemsInSub),
+          modules: (stg.modules || []).map(filterItemsInSub)
+        };
+      });
+      return { ...batchData, stages };
+    });
+
     try {
       const { error } = await supabase.from('assessments').delete().eq('id', id);
       if (error) console.error('Supabase assessment delete error:', error.message);
@@ -1872,32 +2266,51 @@ export function LmsDataProvider({ children }) {
     const bKey = resolveBatchKey(targetBatch);
     const newSession = {
       id: `session-${Date.now()}-${bKey === 'Weekday Batch' ? 'w' : 's'}`,
-      targetBatch: bKey,
-      status: 'Scheduled',
+      targetBatch: sessionData.targetBatch || bKey,
+      status: 'Upcoming',
       attendeesCount: 0,
+      isLocked: false,
       ...sessionData
     };
-    setLiveSessionsByBatch((prev) => ({
-      ...prev,
-      [bKey]: [newSession, ...(prev[bKey] || [])]
-    }));
+
+    setLiveSessionsByBatch((prev) => {
+      const next = {
+        'Weekday Batch': [...(prev['Weekday Batch'] || [])],
+        'Weekend Batch': [...(prev['Weekend Batch'] || [])]
+      };
+      placeItemInBatchDict(newSession, next);
+      return next;
+    });
     logActivity(`Scheduled live session: "${newSession.sessionTitle || newSession.title}" (${bKey})`, 'session');
 
-    // Auto-sync live session item into corresponding milestone module
-    if (newSession.stageId || newSession.subtopicId || newSession.technology || newSession.sessionTitle) {
-      updateBatchState(bKey, (batchData) => {
-        const stages = batchData.stages || [];
-        const stageMatch = stages.find(s => s.id === newSession.stageId || s.title === newSession.stageName || (newSession.technology && s.title?.toLowerCase().includes(newSession.technology.toLowerCase()))) || stages[0];
-        if (!stageMatch) return batchData;
+    // Determine target batch scope for milestones update
+    const targetBatchScope = (newSession.targetBatch && (
+      newSession.targetBatch.toUpperCase().includes('ALL') ||
+      (newSession.targetBatch.toUpperCase().includes('WEEKDAY') && newSession.targetBatch.toUpperCase().includes('WEEKEND')) ||
+      (newSession.targetBatch.toUpperCase().includes('A26W') && newSession.targetBatch.toUpperCase().includes('A26S'))
+    )) ? 'ALL' : bKey;
 
-        const subtopics = stageMatch.subtopics || [];
-        const subtopicMatch = subtopics.find(st => st.id === newSession.subtopicId || st.title === newSession.subtopicName || (newSession.technology && st.title?.toLowerCase().includes(newSession.technology.toLowerCase())) || (newSession.sessionTitle && st.title?.toLowerCase().includes(newSession.sessionTitle.toLowerCase().split(' ')[0]))) || subtopics[0];
-        if (!subtopicMatch) return batchData;
-
-        const modules = subtopicMatch.modules || [];
-        let modMatch = modules.find(m => m.id === newSession.moduleId || m.title === newSession.moduleName) || modules[0];
-
-        const liveItem = {
+    const liveItems = (Array.isArray(newSession.topics) && newSession.topics.length > 0)
+      ? newSession.topics.filter(t => t && t.title && t.title.trim()).map((t, idx) => ({
+          id: t.id || `item-live-${newSession.id}-${idx}`,
+          sessionId: newSession.id,
+          type: 'LIVE CLASS',
+          typeColor: 'bg-purple-100 text-purple-700 border-purple-200',
+          iconName: 'Video',
+          iconBg: 'bg-purple-600 text-white',
+          title: t.title,
+          description: t.description || t.agenda || t.overview || '',
+          agenda: t.description || t.agenda || t.overview || '',
+          overview: t.description || t.agenda || t.overview || '',
+          actionText: 'JOIN',
+          url: newSession.meetingLink || 'https://meet.google.com/aspire-lms-live',
+          btnStyle: 'bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30',
+          date: newSession.date || '',
+          time: newSession.time || '',
+          instructor: newSession.instructor || '',
+          technology: newSession.technology || ''
+        }))
+      : [{
           id: `item-live-${newSession.id}`,
           sessionId: newSession.id,
           type: 'LIVE CLASS',
@@ -1905,133 +2318,194 @@ export function LmsDataProvider({ children }) {
           iconName: 'Video',
           iconBg: 'bg-purple-600 text-white',
           title: newSession.sessionTitle || newSession.title || 'Live Class Session',
+          description: newSession.description || '',
+          agenda: newSession.description || '',
+          overview: newSession.description || '',
           actionText: 'JOIN',
           url: newSession.meetingLink || 'https://meet.google.com/aspire-lms-live',
-          btnStyle: 'bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30'
-        };
+          btnStyle: 'bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30',
+          date: newSession.date || '',
+          time: newSession.time || '',
+          instructor: newSession.instructor || '',
+          technology: newSession.technology || ''
+        }];
 
-        const updatedStages = stages.map(stg => {
-          if (stg.id !== stageMatch.id) return stg;
-          return {
-            ...stg,
-            subtopics: (stg.subtopics || []).map(sub => {
-              if (sub.id !== subtopicMatch.id) return sub;
-              let existingMods = [...(sub.modules || [])];
-              if (!modMatch) {
-                const newMod = {
-                  id: `mod-${Date.now()}`,
-                  title: newSession.moduleName || 'Live Class Sessions',
-                  items: [liveItem]
-                };
-                existingMods.push(newMod);
-              } else {
-                existingMods = existingMods.map(m => {
-                  if (m.id !== modMatch.id && m.title !== modMatch.title) return m;
-                  const hasItem = (m.items || []).some(it => it.id === liveItem.id || it.sessionId === newSession.id);
-                  return {
-                    ...m,
-                    items: hasItem
-                      ? (m.items || []).map(it => (it.id === liveItem.id || it.sessionId === newSession.id ? { ...it, title: liveItem.title, url: liveItem.url } : it))
-                      : [liveItem, ...(m.items || [])]
-                  };
-                });
-              }
-              return {
-                ...sub,
-                modulesCount: existingMods.length,
-                modules: existingMods
+    // Auto-sync live session item into corresponding milestone module in real-time
+    updateBatchState(targetBatchScope, (batchData) => {
+      const stages = batchData.stages || [];
+      const stageMatch = stages.find(s => s.id === newSession.stageId || s.title === newSession.stageName || (newSession.technology && s.title?.toLowerCase().includes(newSession.technology.toLowerCase()))) || stages[0];
+      if (!stageMatch) return batchData;
+
+      const subtopics = stageMatch.subtopics || [];
+      const subtopicMatch = subtopics.find(st => st.id === newSession.subtopicId || st.title === newSession.subtopicName || (newSession.technology && st.title?.toLowerCase().includes(newSession.technology.toLowerCase())) || (newSession.sessionTitle && st.title?.toLowerCase().includes(newSession.sessionTitle.toLowerCase().split(' ')[0]))) || subtopics[0];
+      if (!subtopicMatch) return batchData;
+
+      const modules = subtopicMatch.modules || [];
+      let modMatch = modules.find(m => m.id === newSession.moduleId || m.title === newSession.moduleName);
+
+      const updatedStages = stages.map(stg => {
+        if (stg.id !== stageMatch.id) return stg;
+        return {
+          ...stg,
+          subtopics: (stg.subtopics || []).map(sub => {
+            if (sub.id !== subtopicMatch.id) return sub;
+            let existingMods = [...(sub.modules || [])];
+            if (!modMatch) {
+              const newMod = {
+                id: newSession.moduleId || `mod-${Date.now()}`,
+                title: newSession.moduleName || 'Live Class Sessions',
+                meetingLink: newSession.meetingLink,
+                instructor: newSession.instructor,
+                date: newSession.date,
+                time: newSession.time,
+                items: liveItems
               };
-            })
-          };
-        });
-
-        return { ...batchData, stages: updatedStages };
+              existingMods.push(newMod);
+            } else {
+              existingMods = existingMods.map(m => {
+                if (m.id !== modMatch.id && m.title !== modMatch.title) return m;
+                const nonLive = (m.items || []).filter(it => it.type !== 'LIVE CLASS' && it.sessionId !== newSession.id);
+                return {
+                  ...m,
+                  meetingLink: newSession.meetingLink,
+                  instructor: newSession.instructor || m.instructor,
+                  date: newSession.date || m.date,
+                  time: newSession.time || m.time,
+                  items: [...liveItems, ...nonLive]
+                };
+              });
+            }
+            return {
+              ...sub,
+              modulesCount: existingMods.length,
+              modules: existingMods
+            };
+          })
+        };
       });
-    }
+
+      return { ...batchData, stages: updatedStages };
+    });
 
     try {
-      const packedTopicName = `${newSession.stageName || ''}||${newSession.subtopicName || ''}||${newSession.moduleName || ''}`;
-      const packedTopicId = `${newSession.stageId || ''}||${newSession.subtopicId || ''}||${newSession.moduleId || ''}`;
-
-      const { error } = await supabase.from('live_sessions').upsert([{
-        id: newSession.id,
-        program_name: newSession.programName || '',
-        technology: newSession.technology || '',
-        session_title: newSession.sessionTitle || newSession.title || '',
-        date: newSession.date || '',
-        time: newSession.time || '',
-        meeting_link: newSession.meetingLink || '',
-        status: newSession.status || 'Scheduled',
-        publish_status: newSession.publishStatus || 'Published to Student LMS',
-        instructor: newSession.instructor || '',
-        description: newSession.description || '',
-        target_batch: newSession.targetBatch,
-        topic_id: packedTopicId,
-        topic_name: packedTopicName
-      }]);
+      const dbRow = toDbLiveSession(newSession);
+      const { error } = await supabase.from('live_sessions').upsert([dbRow]);
       if (error) console.error('Supabase live session insert error:', error.message);
     } catch (err) { console.warn('Live session insert handled:', err); }
   };
 
   const updateLiveSession = async (id, updatedFields, targetBatch = activeBatchFilter) => {
     const bKey = resolveBatchKey(targetBatch);
-    setLiveSessionsByBatch((prev) => ({
-      ...prev,
-      [bKey]: (prev[bKey] || []).map((s) => (s.id === id ? { ...s, ...updatedFields } : s))
-    }));
+    let mergedSession = null;
+
+    setLiveSessionsByBatch((prev) => {
+      const next = {
+        'Weekday Batch': (prev['Weekday Batch'] || []).map((s) => {
+          if (s.id === id) {
+            mergedSession = { ...s, ...updatedFields };
+            return mergedSession;
+          }
+          return s;
+        }),
+        'Weekend Batch': (prev['Weekend Batch'] || []).map((s) => {
+          if (s.id === id) {
+            mergedSession = { ...s, ...updatedFields };
+            return mergedSession;
+          }
+          return s;
+        })
+      };
+      return next;
+    });
     logActivity(`Updated live session ID ${id} (${bKey})`, 'session');
 
-    // Update milestone module item if present
-    updateBatchState(bKey, (batchData) => {
+    // Update milestone module items if present across all batches
+    const targetBatchScope = (mergedSession?.targetBatch && (
+      mergedSession.targetBatch.toUpperCase().includes('ALL') ||
+      (mergedSession.targetBatch.toUpperCase().includes('WEEKDAY') && mergedSession.targetBatch.toUpperCase().includes('WEEKEND'))
+    )) ? 'ALL' : bKey;
+
+    const sessionToUse = mergedSession || { id, ...updatedFields };
+    const updatedLiveItems = (Array.isArray(sessionToUse.topics) && sessionToUse.topics.length > 0)
+      ? sessionToUse.topics.filter(t => t && t.title && t.title.trim()).map((t, idx) => ({
+          id: t.id || `item-live-${id}-${idx}`,
+          sessionId: id,
+          type: 'LIVE CLASS',
+          typeColor: 'bg-purple-100 text-purple-700 border-purple-200',
+          iconName: 'Video',
+          iconBg: 'bg-purple-600 text-white',
+          title: t.title,
+          description: t.description || t.agenda || t.overview || '',
+          agenda: t.description || t.agenda || t.overview || '',
+          overview: t.description || t.agenda || t.overview || '',
+          actionText: 'JOIN',
+          url: sessionToUse.meetingLink || 'https://meet.google.com/aspire-lms-live',
+          btnStyle: 'bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30',
+          date: sessionToUse.date || '',
+          time: sessionToUse.time || '',
+          instructor: sessionToUse.instructor || '',
+          technology: sessionToUse.technology || ''
+        }))
+      : null;
+
+    updateBatchState(targetBatchScope, (batchData) => {
       const stages = (batchData.stages || []).map(stg => ({
         ...stg,
         subtopics: (stg.subtopics || []).map(sub => ({
           ...sub,
-          modules: (sub.modules || []).map(m => ({
-            ...m,
-            items: (m.items || []).map(it => {
-              if (it.id === `item-live-${id}` || it.sessionId === id) {
-                return {
-                  ...it,
-                  title: updatedFields.sessionTitle !== undefined ? updatedFields.sessionTitle : it.title,
-                  url: updatedFields.meetingLink !== undefined ? updatedFields.meetingLink : it.url
-                };
-              }
-              return it;
-            })
-          }))
+          modules: (sub.modules || []).map(m => {
+            const hasTargetSession = (m.items || []).some(it => it.id === `item-live-${id}` || it.sessionId === id) || m.id === updatedFields.moduleId || m.title === updatedFields.moduleName;
+            if (!hasTargetSession) return m;
+
+            let items = m.items || [];
+            if (updatedLiveItems && updatedLiveItems.length > 0) {
+              const nonLive = items.filter(it => it.type !== 'LIVE CLASS' && it.sessionId !== id);
+              items = [...updatedLiveItems, ...nonLive];
+            } else {
+              items = items.map(it => {
+                if (it.id === `item-live-${id}` || it.sessionId === id) {
+                  return {
+                    ...it,
+                    title: updatedFields.sessionTitle !== undefined ? updatedFields.sessionTitle : it.title,
+                    url: updatedFields.meetingLink !== undefined ? updatedFields.meetingLink : it.url,
+                    date: updatedFields.date !== undefined ? updatedFields.date : it.date,
+                    time: updatedFields.time !== undefined ? updatedFields.time : it.time,
+                    instructor: updatedFields.instructor !== undefined ? updatedFields.instructor : it.instructor
+                  };
+                }
+                return it;
+              });
+            }
+
+            return {
+              ...m,
+              ...(updatedFields.meetingLink ? { meetingLink: updatedFields.meetingLink } : {}),
+              items
+            };
+          })
         }))
       }));
       return { ...batchData, stages };
     });
 
     try {
-      const dbFields = {};
-      if (updatedFields.sessionTitle !== undefined) dbFields.session_title = updatedFields.sessionTitle;
-      if (updatedFields.date !== undefined) dbFields.date = updatedFields.date;
-      if (updatedFields.time !== undefined) dbFields.time = updatedFields.time;
-      if (updatedFields.meetingLink !== undefined) dbFields.meeting_link = updatedFields.meetingLink;
-      if (updatedFields.status !== undefined) dbFields.status = updatedFields.status;
-      if (updatedFields.publishStatus !== undefined) dbFields.publish_status = updatedFields.publishStatus;
-      if (updatedFields.instructor !== undefined) dbFields.instructor = updatedFields.instructor;
-      if (updatedFields.description !== undefined) dbFields.description = updatedFields.description;
-      if (Object.keys(dbFields).length > 0) {
-        const { error } = await supabase.from('live_sessions').update(dbFields).eq('id', id);
-        if (error) console.error('Supabase live session update error:', error.message);
-      }
+      const sessionToSave = mergedSession || { id, ...updatedFields };
+      const dbRow = toDbLiveSession(sessionToSave);
+      const { error } = await supabase.from('live_sessions').update(dbRow).eq('id', id);
+      if (error) console.error('Supabase live session update error:', error.message);
     } catch (err) { console.warn('Live session update handled:', err); }
   };
 
   const deleteLiveSession = async (id, targetBatch = activeBatchFilter) => {
     const bKey = resolveBatchKey(targetBatch);
     setLiveSessionsByBatch((prev) => ({
-      ...prev,
-      [bKey]: (prev[bKey] || []).filter((s) => s.id !== id)
+      'Weekday Batch': (prev['Weekday Batch'] || []).filter((s) => s.id !== id),
+      'Weekend Batch': (prev['Weekend Batch'] || []).filter((s) => s.id !== id)
     }));
     logActivity(`Deleted live session ID ${id} (${bKey})`, 'session');
 
-    // Remove from milestone module items
-    updateBatchState(bKey, (batchData) => {
+    // Remove from milestone module items across all batches
+    updateBatchState('ALL', (batchData) => {
       const stages = (batchData.stages || []).map(stg => ({
         ...stg,
         subtopics: (stg.subtopics || []).map(sub => ({
@@ -2053,16 +2527,36 @@ export function LmsDataProvider({ children }) {
 
   const toggleLiveSessionLock = async (id, targetBatch = activeBatchFilter) => {
     const bKey = resolveBatchKey(targetBatch);
-    let newLocked;
-    setLiveSessionsByBatch((prev) => ({
-      ...prev,
-      [bKey]: (prev[bKey] || []).map((s) => {
-        if (s.id !== id) return s;
-        newLocked = !s.isLocked;
-        return { ...s, isLocked: newLocked };
-      })
-    }));
+    let targetSession = null;
+
+    setLiveSessionsByBatch((prev) => {
+      const next = {
+        'Weekday Batch': (prev['Weekday Batch'] || []).map((s) => {
+          if (s.id === id) {
+            targetSession = { ...s, isLocked: !s.isLocked };
+            return targetSession;
+          }
+          return s;
+        }),
+        'Weekend Batch': (prev['Weekend Batch'] || []).map((s) => {
+          if (s.id === id) {
+            targetSession = { ...s, isLocked: !s.isLocked };
+            return targetSession;
+          }
+          return s;
+        })
+      };
+      return next;
+    });
     logActivity(`Toggled lock on live session ID ${id} (${bKey})`, 'session');
+
+    if (targetSession) {
+      try {
+        const dbRow = toDbLiveSession(targetSession);
+        const { error } = await supabase.from('live_sessions').update(dbRow).eq('id', id);
+        if (error) console.error('Supabase live session toggle lock error:', error.message);
+      } catch (err) { console.warn('Live session toggle lock handled:', err); }
+    }
   };
 
 
@@ -2323,7 +2817,7 @@ export function LmsDataProvider({ children }) {
           : ['React', 'Node.js', 'PostgreSQL']);
 
     const newProject = {
-      id: `proj-${Date.now()}-${bKey === 'Weekday Batch' ? 'w' : 's'}`,
+      id: projectData.id || `proj-${Date.now()}-${bKey === 'Weekday Batch' ? 'w' : 's'}`,
       targetBatch: batchTargetVal,
       assignedCount: projectData.assignedCount || 1,
       submittedCount: projectData.submittedCount || 0,
@@ -2332,52 +2826,111 @@ export function LmsDataProvider({ children }) {
       status: projectData.status || 'Published',
       submissions: projectData.submissions || [],
       isLocked: projectData.isLocked || false,
+      createdAt: new Date().toISOString(),
       ...projectData,
       techStack: techStackArray
     };
 
     setProjectsByBatch((prev) => {
-      const next = { ...prev };
-      const keysToUpdate = (batchTargetVal === 'ALL BATCHES' || batchTargetVal === 'ALL')
-        ? ['Weekday Batch', 'Weekend Batch']
-        : [bKey];
-      keysToUpdate.forEach(k => {
-        next[k] = [newProject, ...(next[k] || []).filter(p => p.id !== newProject.id)];
-      });
+      const next = {
+        'Weekday Batch': [...(prev['Weekday Batch'] || [])],
+        'Weekend Batch': [...(prev['Weekend Batch'] || [])]
+      };
+      placeItemInBatchDict(newProject, next);
       return next;
     });
 
     logActivity(`Published new project: "${newProject.title}" (${batchTargetVal})`, 'project');
+
+    // Determine target batch scope for milestones update
+    const targetBatchScope = (newProject.targetBatch && (
+      newProject.targetBatch.toUpperCase().includes('ALL') ||
+      (newProject.targetBatch.toUpperCase().includes('WEEKDAY') && newProject.targetBatch.toUpperCase().includes('WEEKEND')) ||
+      (newProject.targetBatch.toUpperCase().includes('A26W') && newProject.targetBatch.toUpperCase().includes('A26S'))
+    )) ? 'ALL' : bKey;
+
+    const projItem = {
+      id: `item-proj-${newProject.id}`,
+      projectId: newProject.id,
+      type: 'PROJECT',
+      typeColor: 'bg-emerald-100 text-emerald-800 border-emerald-200',
+      iconName: 'Building2',
+      iconBg: 'bg-emerald-600 text-white',
+      title: newProject.title || 'Practical Capstone Project',
+      actionText: 'VIEW',
+      url: '/projects',
+      btnStyle: 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm shadow-emerald-500/30',
+      category: newProject.category || 'Full-Stack Web Dev',
+      difficulty: newProject.difficulty || 'Intermediate',
+      techStack: newProject.techStack || ['React', 'Node.js', 'PostgreSQL'],
+      dueDate: newProject.dueDate || 'Due Aug 30'
+    };
+
+    // Auto-sync project item into corresponding milestone module in real-time
+    updateBatchState(targetBatchScope, (batchData) => {
+      const stages = batchData.stages || [];
+      const targetStageId = newProject.stageId;
+      const targetStageName = newProject.moduleName || newProject.stageName;
+      const stageMatch = stages.find((s) => s.id === targetStageId || s.title === targetStageName) || stages[0];
+      if (!stageMatch) return batchData;
+
+      const subtopics = stageMatch.subtopics || stageMatch.modules || [];
+      const targetSubId = newProject.subtopicId;
+      const targetSubName = newProject.subtopicName;
+      const subtopicMatch = subtopics.find((st) => st.id === targetSubId || st.title === targetSubName) || subtopics[0];
+      if (!subtopicMatch) return batchData;
+
+      const targetModId = newProject.innerTopicId || newProject.moduleId;
+      const targetModName = newProject.topicName || newProject.moduleName;
+      const modules = subtopicMatch.modules || subtopicMatch.lessons || [];
+      let modMatch = modules.find((m) => m.id === targetModId || m.title === targetModName);
+
+      const updatedStages = stages.map((stg) => {
+        if (stg.id !== stageMatch.id) return stg;
+        const transformSubtopic = (sub) => {
+          if (sub.id !== subtopicMatch.id && sub.title !== subtopicMatch.title) return sub;
+          let existingMods = [...(sub.modules || sub.lessons || [])];
+          if (!modMatch) {
+            const newMod = {
+              id: targetModId || `mod-${Date.now()}`,
+              title: targetModName || 'Hands-On Project Module',
+              duration: '1hr 30min',
+              items: [projItem]
+            };
+            existingMods.push(newMod);
+          } else {
+            existingMods = existingMods.map((m) => {
+              if (m.id !== modMatch.id && m.title !== modMatch.title) return m;
+              const hasItem = (m.items || []).some((it) => it.id === projItem.id || it.projectId === newProject.id);
+              return {
+                ...m,
+                items: hasItem
+                  ? (m.items || []).map((it) => (it.id === projItem.id || it.projectId === newProject.id ? { ...it, ...projItem } : it))
+                  : [projItem, ...(m.items || [])]
+              };
+            });
+          }
+          return {
+            ...sub,
+            modulesCount: existingMods.length,
+            modules: existingMods,
+            lessons: existingMods
+          };
+        };
+
+        return {
+          ...stg,
+          subtopics: (stg.subtopics || []).map(transformSubtopic),
+          modules: (stg.modules || []).map(transformSubtopic)
+        };
+      });
+
+      return { ...batchData, stages: updatedStages };
+    });
+
     try {
-      const { error } = await supabase.from('projects').upsert([{
-        id: newProject.id,
-        title: newProject.title,
-        type: newProject.type || 'Mini',
-        category: newProject.category || 'Full-Stack Web Dev',
-        difficulty: newProject.difficulty || 'Intermediate',
-        description: newProject.description || '',
-        tech_stack: newProject.techStack,
-        due_date: newProject.dueDate || null,
-        status: newProject.status,
-        template_url: newProject.templateUrl || '',
-        guidelines: newProject.guidelines || '',
-        assigned_count: newProject.assignedCount,
-        submitted_count: newProject.submittedCount,
-        feedback_count: newProject.feedbackCount,
-        avg_grade: newProject.avgGrade,
-        is_locked: newProject.isLocked,
-        submissions: newProject.submissions,
-        target_batch: batchTargetVal,
-        overview: newProject.overview || newProject.description || '',
-        requirements: newProject.requirements || [],
-        steps: newProject.steps || [],
-        rubric: newProject.rubric || [],
-        mentor_tip: newProject.mentorTip || '',
-        course_id: newProject.courseId || '',
-        stage_id: newProject.stageId || '',
-        subtopic_id: newProject.subtopicId || '',
-        inner_topic_id: newProject.innerTopicId || ''
-      }]);
+      const dbRow = toDbProject(newProject);
+      const { error } = await supabase.from('projects').upsert([dbRow]);
       if (error) console.error('Supabase project insert error:', error.message);
     } catch (err) { console.warn('Project insert handled:', err); }
   };
@@ -2395,46 +2948,85 @@ export function LmsDataProvider({ children }) {
     };
 
     setProjectsByBatch((prev) => ({
-      ...prev,
-      [bKey]: (prev[bKey] || []).map((p) => (p.id === id ? { ...p, ...fieldsToApply } : p))
+      'Weekday Batch': (prev['Weekday Batch'] || []).map((p) => (p.id === id ? { ...p, ...fieldsToApply } : p)),
+      'Weekend Batch': (prev['Weekend Batch'] || []).map((p) => (p.id === id ? { ...p, ...fieldsToApply } : p))
     }));
     logActivity(`Updated project listing ID ${id} (${bKey})`, 'project');
-    try {
-      const dbFields = {};
-      if (updatedFields.title !== undefined) dbFields.title = updatedFields.title;
-      if (updatedFields.type !== undefined) dbFields.type = updatedFields.type;
-      if (updatedFields.category !== undefined) dbFields.category = updatedFields.category;
-      if (updatedFields.difficulty !== undefined) dbFields.difficulty = updatedFields.difficulty;
-      if (updatedFields.status !== undefined) dbFields.status = updatedFields.status;
-      if (updatedFields.isLocked !== undefined) dbFields.is_locked = updatedFields.isLocked;
-      if (updatedFields.description !== undefined) dbFields.description = updatedFields.description;
-      if (fieldsToApply.techStack !== undefined) dbFields.tech_stack = fieldsToApply.techStack;
-      if (updatedFields.dueDate !== undefined) dbFields.due_date = updatedFields.dueDate;
-      if (updatedFields.templateUrl !== undefined) dbFields.template_url = updatedFields.templateUrl;
-      if (updatedFields.overview !== undefined) dbFields.overview = updatedFields.overview;
-      if (updatedFields.requirements !== undefined) dbFields.requirements = updatedFields.requirements;
-      if (updatedFields.steps !== undefined) dbFields.steps = updatedFields.steps;
-      if (updatedFields.rubric !== undefined) dbFields.rubric = updatedFields.rubric;
-      if (updatedFields.mentorTip !== undefined) dbFields.mentor_tip = updatedFields.mentorTip;
-      if (updatedFields.courseId !== undefined) dbFields.course_id = updatedFields.courseId;
-      if (updatedFields.stageId !== undefined) dbFields.stage_id = updatedFields.stageId;
-      if (updatedFields.subtopicId !== undefined) dbFields.subtopic_id = updatedFields.subtopicId;
-      if (updatedFields.innerTopicId !== undefined) dbFields.inner_topic_id = updatedFields.innerTopicId;
 
-      if (Object.keys(dbFields).length > 0) {
-        const { error } = await supabase.from('projects').update(dbFields).eq('id', id);
-        if (error) console.error('Supabase project update error:', error.message);
-      }
+    // Determine target batch scope
+    const targetBatchScope = (fieldsToApply.targetBatch && (
+      fieldsToApply.targetBatch.toUpperCase().includes('ALL') ||
+      (fieldsToApply.targetBatch.toUpperCase().includes('WEEKDAY') && fieldsToApply.targetBatch.toUpperCase().includes('WEEKEND'))
+    )) ? 'ALL' : bKey;
+
+    const projItem = {
+      id: `item-proj-${id}`,
+      projectId: id,
+      type: 'PROJECT',
+      typeColor: 'bg-emerald-100 text-emerald-800 border-emerald-200',
+      iconName: 'Building2',
+      iconBg: 'bg-emerald-600 text-white',
+      title: fieldsToApply.title || 'Practical Capstone Project',
+      actionText: 'VIEW',
+      url: '/projects',
+      btnStyle: 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm shadow-emerald-500/30',
+      category: fieldsToApply.category || 'Full-Stack Web Dev',
+      difficulty: fieldsToApply.difficulty || 'Intermediate',
+      techStack: fieldsToApply.techStack || ['React', 'Node.js', 'PostgreSQL'],
+      dueDate: fieldsToApply.dueDate || 'Due Aug 30'
+    };
+
+    // Auto-sync update into milestones in real-time
+    updateBatchState(targetBatchScope, (batchData) => {
+      const stages = (batchData.stages || []).map((stg) => {
+        const subtopics = (stg.subtopics || stg.modules || []).map((sub) => {
+          const modules = (sub.modules || sub.lessons || []).map((m) => {
+            const hasItem = (m.items || []).some((it) => it.id === projItem.id || it.projectId === id);
+            if (!hasItem) return m;
+            return {
+              ...m,
+              items: (m.items || []).map((it) => (it.id === projItem.id || it.projectId === id ? { ...it, ...projItem } : it))
+            };
+          });
+          return { ...sub, modules, lessons: modules };
+        });
+        return { ...stg, subtopics, modules: subtopics };
+      });
+      return { ...batchData, stages };
+    });
+
+    try {
+      const dbRow = toDbProject({ id, ...fieldsToApply });
+      const { error } = await supabase.from('projects').upsert([dbRow]);
+      if (error) console.error('Supabase project update error:', error.message);
     } catch (err) { console.warn('Project update handled:', err); }
   };
 
   const deleteProject = async (id, targetBatch = activeBatchFilter) => {
     const bKey = resolveBatchKey(targetBatch);
     setProjectsByBatch((prev) => ({
-      ...prev,
-      [bKey]: (prev[bKey] || []).filter((p) => p.id !== id)
+      'Weekday Batch': (prev['Weekday Batch'] || []).filter((p) => p.id !== id),
+      'Weekend Batch': (prev['Weekend Batch'] || []).filter((p) => p.id !== id)
     }));
     logActivity(`Deleted project ID ${id} (${bKey})`, 'project');
+
+    // Remove project item from all milestone batches in real-time
+    ['ALL', 'Weekday Batch', 'Weekend Batch'].forEach((batchName) => {
+      updateBatchState(batchName, (batchData) => {
+        const stages = (batchData.stages || []).map((stg) => {
+          const subtopics = (stg.subtopics || stg.modules || []).map((sub) => {
+            const modules = (sub.modules || sub.lessons || []).map((m) => ({
+              ...m,
+              items: (m.items || []).filter((it) => it.id !== `item-proj-${id}` && it.projectId !== id)
+            }));
+            return { ...sub, modules, lessons: modules };
+          });
+          return { ...stg, subtopics, modules: subtopics };
+        });
+        return { ...batchData, stages };
+      });
+    });
+
     try {
       const { error } = await supabase.from('projects').delete().eq('id', id);
       if (error) console.error('Supabase project delete error:', error.message);
@@ -2979,6 +3571,8 @@ export function LmsDataProvider({ children }) {
             const newMod = {
               id: `mod-${Date.now()}`,
               title: newModuleData.title || 'New Module',
+              duration: newModuleData.duration || '1hr 30min',
+              durationHours: newModuleData.duration || '1hr 30min',
               unlockDate: uDate,
               unlockTime: uTime,
               unlockDateTime: newModuleData.unlockDateTime || (uDate ? `${uDate}T${uTime || '00:00'}` : null),
