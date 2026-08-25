@@ -1062,7 +1062,11 @@ export function MilestonesRoadmapPage() {
   const handleDeleteItem = (moduleId, itemId, title) => {
     if (!activeSubtopic) return;
     if (window.confirm(`Delete resource item "${title}"?`)) {
-      deleteLearningItem(activeSubtopic.stageId, activeSubtopic.id, moduleId, itemId, selectedBatch);
+      const curMod = activeSubtopic.modules?.find(m => m.id === moduleId);
+      deleteLearningItem(activeSubtopic.stageId, activeSubtopic.id, moduleId, itemId, selectedBatch, {
+        title,
+        moduleTitle: curMod?.title || ''
+      });
       addToast('Resource item deleted', 'info');
     }
   };

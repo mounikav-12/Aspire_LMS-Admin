@@ -3749,7 +3749,89 @@ export function LmsDataProvider({ children }) {
     }));
   };
 
+  const syncTopicMutationToLiveSessions = (moduleId, itemId, topicPayload, actionType = 'update') => {
+    setLiveSessionsByBatch((prev) => {
+      const next = { ...prev };
+      const rawModId = String(moduleId || '').replace(/-(w|s)$/i, '').toLowerCase();
+
+      ['Weekday Batch', 'Weekend Batch'].forEach((bKey) => {
+        if (Array.isArray(next[bKey])) {
+          next[bKey] = next[bKey].map((sess) => {
+            const sessModId = String(sess.moduleId || sess.module_id || '').replace(/-(w|s)$/i, '').toLowerCase();
+            const sessTitle = (sess.sessionTitle || sess.session_title || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+            const targetModTitle = String(topicPayload?.moduleTitle || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+
+            const isMatch = (sessModId && rawModId && sessModId === rawModId) ||
+              (sessTitle && targetModTitle && (sessTitle === targetModTitle || sessTitle.includes(targetModTitle) || targetModTitle.includes(sessTitle)));
+
+            if (!isMatch) return sess;
+
+            let curTopics = Array.isArray(sess.topics) ? [...sess.topics] : [];
+            const cleanItemId = String(itemId || '').replace(/-(w|s)$/i, '');
+
+            if (actionType === 'delete') {
+              curTopics = curTopics.filter((t, idx) => {
+                const tId = String(t.id || `topic-${moduleId}-${idx}`).replace(/-(w|s)$/i, '');
+                const titleMatch = topicPayload?.title && (t.title === topicPayload.title || t.title.toLowerCase().trim() === topicPayload.title.toLowerCase().trim());
+                return tId !== cleanItemId && String(t.id) !== String(itemId) && !titleMatch;
+              });
+            } else if (actionType === 'update') {
+              curTopics = curTopics.map((t, idx) => {
+                const tId = String(t.id || `topic-${moduleId}-${idx}`).replace(/-(w|s)$/i, '');
+                const titleMatch = topicPayload?.prevTitle && (t.title === topicPayload.prevTitle || t.title.toLowerCase().trim() === topicPayload.prevTitle.toLowerCase().trim());
+                if (tId === cleanItemId || String(t.id) === String(itemId) || titleMatch) {
+                  return { ...t, ...topicPayload };
+                }
+                return t;
+              });
+            } else if (actionType === 'add') {
+              curTopics.push({ id: itemId, ...topicPayload });
+            }
+
+            const updatedSess = { ...sess, topics: curTopics };
+
+            try {
+              let meta = {};
+              try { meta = JSON.parse(sess.description || '{}'); } catch(e) {}
+              meta.topics = curTopics;
+              supabase.from('live_sessions').update({ description: JSON.stringify(meta) }).eq('id', sess.id).then();
+            } catch (err) {
+              console.warn('Sync live session topic error:', err);
+            }
+
+            return updatedSess;
+          });
+        }
+      });
+      return next;
+    });
+  };
+
   const addLearningItem = (stageId, subtopicId, moduleId, newItemData, targetBatch = activeBatchFilter) => {
+    const newItemId = newItemData.id || `item-${Date.now()}`;
+    const desc = newItemData.description || newItemData.agenda || newItemData.overview || '';
+    const newItem = {
+      id: newItemId,
+      type: newItemData.type || 'LIVE CLASS',
+      typeColor: newItemData.typeColor || 'bg-purple-100 text-purple-700 border-purple-200',
+      iconName: newItemData.iconName || 'Video',
+      iconBg: newItemData.iconBg || 'bg-purple-600 text-white',
+      title: newItemData.title || 'New Resource',
+      description: desc,
+      agenda: desc,
+      overview: desc,
+      actionText: newItemData.actionText || 'JOIN',
+      url: newItemData.url || '#',
+      btnStyle: newItemData.btnStyle || 'bg-purple-600 hover:bg-purple-700 text-white shadow-sm'
+    };
+    const newTopic = {
+      id: newItemId,
+      title: newItem.title,
+      description: desc,
+      agenda: desc,
+      overview: desc
+    };
+
     updateBatchState(targetBatch, (batchData) => ({
       ...batchData,
       stages: (batchData.stages || []).map((stg) => {
@@ -3765,29 +3847,6 @@ export function LmsDataProvider({ children }) {
               modules: (sub.modules || []).map((mod) => {
                 const isModMatch = mod.id === moduleId || mod.id.replace(/-[ws]$/, '') === String(moduleId).replace(/-[ws]$/, '');
                 if (!isModMatch) return mod;
-                const newItemId = newItemData.id || `item-${Date.now()}`;
-                const desc = newItemData.description || newItemData.agenda || newItemData.overview || '';
-                const newItem = {
-                  id: newItemId,
-                  type: newItemData.type || 'LIVE CLASS',
-                  typeColor: newItemData.typeColor || 'bg-purple-100 text-purple-700 border-purple-200',
-                  iconName: newItemData.iconName || 'Video',
-                  iconBg: newItemData.iconBg || 'bg-purple-600 text-white',
-                  title: newItemData.title || 'New Resource',
-                  description: desc,
-                  agenda: desc,
-                  overview: desc,
-                  actionText: newItemData.actionText || 'JOIN',
-                  url: newItemData.url || '#',
-                  btnStyle: newItemData.btnStyle || 'bg-purple-600 hover:bg-purple-700 text-white shadow-sm'
-                };
-                const newTopic = {
-                  id: newItemId,
-                  title: newItem.title,
-                  description: desc,
-                  agenda: desc,
-                  overview: desc
-                };
                 return {
                   ...mod,
                   items: [...(mod.items || []), newItem],
@@ -3799,9 +3858,12 @@ export function LmsDataProvider({ children }) {
         };
       })
     }));
+
+    syncTopicMutationToLiveSessions(moduleId, newItemId, newTopic, 'add');
   };
 
   const updateLearningItem = (stageId, subtopicId, moduleId, itemId, updatedData, targetBatch = activeBatchFilter) => {
+    const desc = updatedData.description || updatedData.agenda || updatedData.overview || '';
     updateBatchState(targetBatch, (batchData) => ({
       ...batchData,
       stages: (batchData.stages || []).map((stg) => {
@@ -3817,7 +3879,6 @@ export function LmsDataProvider({ children }) {
               modules: (sub.modules || []).map((mod) => {
                 const isModMatch = mod.id === moduleId || mod.id.replace(/-[ws]$/, '') === String(moduleId).replace(/-[ws]$/, '');
                 if (!isModMatch) return mod;
-                const desc = updatedData.description || updatedData.agenda || updatedData.overview || '';
                 return {
                   ...mod,
                   items: (mod.items || []).map((itm) =>
@@ -3837,9 +3898,11 @@ export function LmsDataProvider({ children }) {
         };
       })
     }));
+
+    syncTopicMutationToLiveSessions(moduleId, itemId, { title: updatedData.title, agenda: desc, description: desc, overview: desc }, 'update');
   };
 
-  const deleteLearningItem = (stageId, subtopicId, moduleId, itemId, targetBatch = activeBatchFilter) => {
+  const deleteLearningItem = (stageId, subtopicId, moduleId, itemId, targetBatch = activeBatchFilter, extraMeta = {}) => {
     updateBatchState(targetBatch, (batchData) => ({
       ...batchData,
       stages: (batchData.stages || []).map((stg) => {
@@ -3857,8 +3920,8 @@ export function LmsDataProvider({ children }) {
                 if (!isModMatch) return mod;
                 return {
                   ...mod,
-                  items: (mod.items || []).filter((itm) => itm.id !== itemId && itm.id.replace(/-[ws]$/, '') !== String(itemId).replace(/-[ws]$/, '')),
-                  topics: (mod.topics || []).filter((top) => top.id !== itemId && top.id.replace(/-[ws]$/, '') !== String(itemId).replace(/-[ws]$/, ''))
+                  items: (mod.items || []).filter((itm) => itm.id !== itemId && itm.id.replace(/-[ws]$/, '') !== String(itemId).replace(/-[ws]$/, '') && (!extraMeta.title || itm.title !== extraMeta.title)),
+                  topics: (mod.topics || []).filter((top) => top.id !== itemId && top.id.replace(/-[ws]$/, '') !== String(itemId).replace(/-[ws]$/, '') && (!extraMeta.title || top.title !== extraMeta.title))
                 };
               })
             };
@@ -3866,6 +3929,8 @@ export function LmsDataProvider({ children }) {
         };
       })
     }));
+
+    syncTopicMutationToLiveSessions(moduleId, itemId, extraMeta, 'delete');
   };
 
   const updateMilestonesOverview = (updatedOverview, targetBatch = activeBatchFilter) => {

@@ -735,9 +735,9 @@ export const INITIAL_LIVE_SESSIONS = [
     "id": "session-1787586048016-w",
     "sessionTitle": "Git Architecture & Version Control Concepts",
     "title": "Git Architecture & Version Control Concepts",
-    "stageId": "s1-w",
+    "stageId": "s1",
     "stageName": "Stage 1: Frontend & Programming Foundations",
-    "subtopicId": "m1_git-w",
+    "subtopicId": "m1_git",
     "subtopicName": "Git & GitHub Version Control",
     "moduleId": "l_git_1",
     "moduleName": "Git Architecture & Version Control Concepts",
@@ -789,7 +789,7 @@ export const INITIAL_LIVE_SESSIONS = [
         "overview": "Inspecting file status with git status, adding files to staging with git add, writing clear commit messages with git commit -m, and viewing project commit logs with git log."
       }
     ],
-    "description": "{\"text\":\"Comprehensive daily masterclass covering core Git concepts and version control architecture.\",\"courseId\":\"crs-1786624019154-w\",\"courseName\":\"Python Full Stack + DSA with AI\",\"stageId\":\"s1-w\",\"stageName\":\"Stage 1: Frontend & Programming Foundations\",\"subtopicId\":\"m1_git-w\",\"subtopicName\":\"Git & GitHub Version Control\",\"moduleId\":\"l_git_1\",\"moduleName\":\"Git Architecture & Version Control Concepts\",\"isLocked\":false,\"targetBatches\":[\"A26W1\",\"A26W2\",\"A26W3\",\"A26S1\",\"A26S2\",\"A26S3\",\"A26S4\"],\"topics\":[{\"id\":\"git-top-1\",\"title\":\"What is Version Control?\",\"description\":\"What is version control? Why do developers need it? What happens if multiple developers edit the same project? How does Git solve these problems? What is the difference between Git and GitHub?\",\"agenda\":\"What is version control? Why do developers need it? What happens if multiple developers edit the same project? How does Git solve these problems? What is the difference between Git and GitHub?\",\"overview\":\"What is version control? Why do developers need it? What happens if multiple developers edit the same project? How does Git solve these problems? What is the difference between Git and GitHub?\"},{\"id\":\"git-top-2\",\"title\":\"How Does Git Work?\",\"description\":\"Understanding Git snapshot architecture, working directory, staging area (index), and local repository (.git directory). How commits create immutable snapshots in time.\",\"agenda\":\"Understanding Git snapshot architecture, working directory, staging area (index), and local repository (.git directory). How commits create immutable snapshots in time.\",\"overview\":\"Understanding Git snapshot architecture, working directory, staging area (index), and local repository (.git directory). How commits create immutable snapshots in time.\"},{\"id\":\"git-top-3\",\"title\":\"How Do We Install & Configure Git?\",\"description\":\"Installing Git CLI on Windows, Mac, and Linux. Setting up global user identity (git config --global user.name and user.email), default branch naming, and credential helpers.\",\"agenda\":\"Installing Git CLI on Windows, Mac, and Linux. Setting up global user identity (git config --global user.name and user.email), default branch naming, and credential helpers.\",\"overview\":\"Installing Git CLI on Windows, Mac, and Linux. Setting up global user identity (git config --global user.name and user.email), default branch naming, and credential helpers.\"},{\"id\":\"git-top-4\",\"title\":\"How Do We Create a Git Repository?\",\"description\":\"Initializing new local repositories with git init, understanding hidden .git folders, tracking project files, and cloning existing remote repositories with git clone.\",\"agenda\":\"Initializing new local repositories with git init, understanding hidden .git folders, tracking project files, and cloning existing remote repositories with git clone.\",\"overview\":\"Initializing new local repositories with git init, understanding hidden .git folders, tracking project files, and cloning existing remote repositories with git clone.\"},{\"id\":\"git-top-5\",\"title\":\"How Do We Track & Commit Changes?\",\"description\":\"Inspecting file status with git status, adding files to staging with git add, writing clear commit messages with git commit -m, and viewing project commit logs with git log.\",\"agenda\":\"Inspecting file status with git status, adding files to staging with git add, writing clear commit messages with git commit -m, and viewing project commit logs with git log.\",\"overview\":\"Inspecting file status with git status, adding files to staging with git add, writing clear commit messages with git commit -m, and viewing project commit logs with git log.\"}]}"
+    "description": "{\"text\":\"Comprehensive daily masterclass covering core Git concepts and version control architecture.\",\"courseId\":\"crs-1786624019154-w\",\"courseName\":\"Python Full Stack + DSA with AI\",\"stageId\":\"s1\",\"stageName\":\"Stage 1: Frontend & Programming Foundations\",\"subtopicId\":\"m1_git\",\"subtopicName\":\"Git & GitHub Version Control\",\"moduleId\":\"l_git_1\",\"moduleName\":\"Git Architecture & Version Control Concepts\",\"isLocked\":false,\"targetBatches\":[\"A26W1\",\"A26W2\",\"A26W3\",\"A26S1\",\"A26S2\",\"A26S3\",\"A26S4\"],\"topics\":[{\"id\":\"git-top-1\",\"title\":\"What is Version Control?\",\"description\":\"What is version control? Why do developers need it? What happens if multiple developers edit the same project? How does Git solve these problems? What is the difference between Git and GitHub?\",\"agenda\":\"What is version control? Why do developers need it? What happens if multiple developers edit the same project? How does Git solve these problems? What is the difference between Git and GitHub?\",\"overview\":\"What is version control? Why do developers need it? What happens if multiple developers edit the same project? How does Git solve these problems? What is the difference between Git and GitHub?\"},{\"id\":\"git-top-2\",\"title\":\"How Does Git Work?\",\"description\":\"Understanding Git snapshot architecture, working directory, staging area (index), and local repository (.git directory). How commits create immutable snapshots in time.\",\"agenda\":\"Understanding Git snapshot architecture, working directory, staging area (index), and local repository (.git directory). How commits create immutable snapshots in time.\",\"overview\":\"Understanding Git snapshot architecture, working directory, staging area (index), and local repository (.git directory). How commits create immutable snapshots in time.\"},{\"id\":\"git-top-3\",\"title\":\"How Do We Install & Configure Git?\",\"description\":\"Installing Git CLI on Windows, Mac, and Linux. Setting up global user identity (git config --global user.name and user.email), default branch naming, and credential helpers.\",\"agenda\":\"Installing Git CLI on Windows, Mac, and Linux. Setting up global user identity (git config --global user.name and user.email), default branch naming, and credential helpers.\",\"overview\":\"Installing Git CLI on Windows, Mac, and Linux. Setting up global user identity (git config --global user.name and user.email), default branch naming, and credential helpers.\"},{\"id\":\"git-top-4\",\"title\":\"How Do We Create a Git Repository?\",\"description\":\"Initializing new local repositories with git init, understanding hidden .git folders, tracking project files, and cloning existing remote repositories with git clone.\",\"agenda\":\"Initializing new local repositories with git init, understanding hidden .git folders, tracking project files, and cloning existing remote repositories with git clone.\",\"overview\":\"Initializing new local repositories with git init, understanding hidden .git folders, tracking project files, and cloning existing remote repositories with git clone.\"},{\"id\":\"git-top-5\",\"title\":\"How Do We Track & Commit Changes?\",\"description\":\"Inspecting file status with git status, adding files to staging with git add, writing clear commit messages with git commit -m, and viewing project commit logs with git log.\",\"agenda\":\"Inspecting file status with git status, adding files to staging with git add, writing clear commit messages with git commit -m, and viewing project commit logs with git log.\",\"overview\":\"Inspecting file status with git status, adding files to staging with git add, writing clear commit messages with git commit -m, and viewing project commit logs with git log.\"}]}"
   },
   {
     "id": "session-1787639889057-w",
@@ -956,128 +956,691 @@ export const INITIAL_MILESTONES = {
           "lessons": [
             {
               "id": "l_git_1",
-              "items": [],
-              "title": "Git Architecture & Version Control Concepts"
+              "items": [
+                {
+                  "id": "item-asmnt-asmnt-1787657513434-w",
+                  "url": "/assessments",
+                  "type": "ASSESSMENT",
+                  "title": "gfdszx nbvcxz",
+                  "iconBg": "bg-blue-600 text-white",
+                  "dueDate": "2026-08-30",
+                  "btnStyle": "bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30",
+                  "iconName": "FileCheck",
+                  "mcqCount": 1,
+                  "typeColor": "bg-blue-100 text-blue-800 border-blue-200",
+                  "actionText": "START",
+                  "totalMarks": 100,
+                  "codingCount": 1,
+                  "assessmentId": "asmnt-1787657513434-w",
+                  "totalQuestions": 2,
+                  "durationMinutes": 45
+                },
+                {
+                  "id": "top-git1-1-w",
+                  "url": "https://meet.google.com/aspire-lms-live",
+                  "type": "LIVE CLASS",
+                  "title": "What is Version Control?",
+                  "agenda": "What is version control? Why do developers need it? What happens if multiple developers edit the same project? Difference between Git and GitHub.",
+                  "actionText": "JOIN",
+                  "description": "What is version control? Why do developers need it? What happens if multiple developers edit the same project? Difference between Git and GitHub."
+                },
+                {
+                  "id": "top-git1-2-w",
+                  "url": "https://meet.google.com/aspire-lms-live",
+                  "type": "LIVE CLASS",
+                  "title": "How Does Git Work?",
+                  "agenda": "Understanding Git snapshot architecture, working directory, staging area (index), and local repository (.git directory).",
+                  "actionText": "JOIN",
+                  "description": "Understanding Git snapshot architecture, working directory, staging area (index), and local repository (.git directory)."
+                },
+                {
+                  "id": "top-git1-3-w",
+                  "url": "https://meet.google.com/aspire-lms-live",
+                  "type": "LIVE CLASS",
+                  "title": "How Do We Install & Configure Git?",
+                  "agenda": "Installing Git CLI on Windows, Mac, and Linux. Setting up global user identity and default branch configuration.",
+                  "actionText": "JOIN",
+                  "description": "Installing Git CLI on Windows, Mac, and Linux. Setting up global user identity and default branch configuration."
+                },
+                {
+                  "id": "top-git1-4-w",
+                  "url": "https://meet.google.com/aspire-lms-live",
+                  "type": "LIVE CLASS",
+                  "title": "How Do We Create a Git Repository?",
+                  "agenda": "Initializing new local repositories with git init, hidden .git folder structure, and cloning remote repos with git clone.",
+                  "actionText": "JOIN",
+                  "description": "Initializing new local repositories with git init, hidden .git folder structure, and cloning remote repos with git clone."
+                },
+                {
+                  "id": "top-git1-5-w",
+                  "url": "https://meet.google.com/aspire-lms-live",
+                  "type": "LIVE CLASS",
+                  "title": "How Do We Track & Commit Changes?",
+                  "agenda": "Inspecting file status with git status, staging with git add, committing with git commit -m, and reading git log history.",
+                  "actionText": "JOIN",
+                  "description": "Inspecting file status with git status, staging with git add, committing with git commit -m, and reading git log history."
+                }
+              ],
+              "title": "Git Architecture & Version Control Concepts",
+              "topics": [
+                {
+                  "id": "top-git1-1-w",
+                  "title": "What is Version Control?",
+                  "agenda": "What is version control? Why do developers need it? What happens if multiple developers edit the same project? Difference between Git and GitHub.",
+                  "description": "What is version control? Why do developers need it? What happens if multiple developers edit the same project? Difference between Git and GitHub."
+                },
+                {
+                  "id": "top-git1-2-w",
+                  "title": "How Does Git Work?",
+                  "agenda": "Understanding Git snapshot architecture, working directory, staging area (index), and local repository (.git directory).",
+                  "description": "Understanding Git snapshot architecture, working directory, staging area (index), and local repository (.git directory)."
+                },
+                {
+                  "id": "top-git1-3-w",
+                  "title": "How Do We Install & Configure Git?",
+                  "agenda": "Installing Git CLI on Windows, Mac, and Linux. Setting up global user identity and default branch configuration.",
+                  "description": "Installing Git CLI on Windows, Mac, and Linux. Setting up global user identity and default branch configuration."
+                },
+                {
+                  "id": "top-git1-4-w",
+                  "title": "How Do We Create a Git Repository?",
+                  "agenda": "Initializing new local repositories with git init, hidden .git folder structure, and cloning remote repos with git clone.",
+                  "description": "Initializing new local repositories with git init, hidden .git folder structure, and cloning remote repos with git clone."
+                },
+                {
+                  "id": "top-git1-5-w",
+                  "title": "How Do We Track & Commit Changes?",
+                  "agenda": "Inspecting file status with git status, staging with git add, committing with git commit -m, and reading git log history.",
+                  "description": "Inspecting file status with git status, staging with git add, committing with git commit -m, and reading git log history."
+                }
+              ]
             },
             {
               "id": "l_git_2",
-              "items": [],
-              "title": "Core Git Commands: init, add, commit, push, pull"
+              "items": [
+                {
+                  "id": "top-git2-1-w",
+                  "url": "https://meet.google.com/aspire-lms-live",
+                  "type": "LIVE CLASS",
+                  "title": "Git Initialization & Staging Deep-Dive",
+                  "agenda": "Mastering git init, git add (single, multiple, wildcards, .), and .gitignore patterns.",
+                  "actionText": "JOIN",
+                  "description": "Mastering git init, git add (single, multiple, wildcards, .), and .gitignore patterns."
+                },
+                {
+                  "id": "top-git2-2-w",
+                  "url": "https://meet.google.com/aspire-lms-live",
+                  "type": "LIVE CLASS",
+                  "title": "Crafting Atomic Commits",
+                  "agenda": "Writing conventional commit messages, understanding commit hashes (SHA-1), and commit authoring best practices.",
+                  "actionText": "JOIN",
+                  "description": "Writing conventional commit messages, understanding commit hashes (SHA-1), and commit authoring best practices."
+                },
+                {
+                  "id": "top-git2-3-w",
+                  "url": "https://meet.google.com/aspire-lms-live",
+                  "type": "LIVE CLASS",
+                  "title": "Remote Repository Connections",
+                  "agenda": "Configuring remotes with git remote add origin, inspecting remotes with git remote -v, and SSH vs HTTPS auth.",
+                  "actionText": "JOIN",
+                  "description": "Configuring remotes with git remote add origin, inspecting remotes with git remote -v, and SSH vs HTTPS auth."
+                },
+                {
+                  "id": "top-git2-4-w",
+                  "url": "https://meet.google.com/aspire-lms-live",
+                  "type": "LIVE CLASS",
+                  "title": "Pushing Code to GitHub",
+                  "agenda": "Upstream branch tracking with git push -u origin main, force push dangers, and protecting main branches.",
+                  "actionText": "JOIN",
+                  "description": "Upstream branch tracking with git push -u origin main, force push dangers, and protecting main branches."
+                },
+                {
+                  "id": "top-git2-5-w",
+                  "url": "https://meet.google.com/aspire-lms-live",
+                  "type": "LIVE CLASS",
+                  "title": "Pulling & Fetching Updates",
+                  "agenda": "Difference between git fetch and git pull, understanding fast-forward merges, and keeping local branches in sync.",
+                  "actionText": "JOIN",
+                  "description": "Difference between git fetch and git pull, understanding fast-forward merges, and keeping local branches in sync."
+                }
+              ],
+              "title": "Core Git Commands: init, add, commit, push, pull",
+              "topics": [
+                {
+                  "id": "top-git2-1-w",
+                  "title": "Git Initialization & Staging Deep-Dive",
+                  "agenda": "Mastering git init, git add (single, multiple, wildcards, .), and .gitignore patterns.",
+                  "description": "Mastering git init, git add (single, multiple, wildcards, .), and .gitignore patterns."
+                },
+                {
+                  "id": "top-git2-2-w",
+                  "title": "Crafting Atomic Commits",
+                  "agenda": "Writing conventional commit messages, understanding commit hashes (SHA-1), and commit authoring best practices.",
+                  "description": "Writing conventional commit messages, understanding commit hashes (SHA-1), and commit authoring best practices."
+                },
+                {
+                  "id": "top-git2-3-w",
+                  "title": "Remote Repository Connections",
+                  "agenda": "Configuring remotes with git remote add origin, inspecting remotes with git remote -v, and SSH vs HTTPS auth.",
+                  "description": "Configuring remotes with git remote add origin, inspecting remotes with git remote -v, and SSH vs HTTPS auth."
+                },
+                {
+                  "id": "top-git2-4-w",
+                  "title": "Pushing Code to GitHub",
+                  "agenda": "Upstream branch tracking with git push -u origin main, force push dangers, and protecting main branches.",
+                  "description": "Upstream branch tracking with git push -u origin main, force push dangers, and protecting main branches."
+                },
+                {
+                  "id": "top-git2-5-w",
+                  "title": "Pulling & Fetching Updates",
+                  "agenda": "Difference between git fetch and git pull, understanding fast-forward merges, and keeping local branches in sync.",
+                  "description": "Difference between git fetch and git pull, understanding fast-forward merges, and keeping local branches in sync."
+                }
+              ]
             },
             {
               "id": "l_git_3",
-              "items": [],
-              "title": "Branching Strategy & Merge Conflicts"
+              "items": [
+                {
+                  "id": "item-proj-proj-1787657794899-w",
+                  "url": "/projects",
+                  "type": "PROJECT",
+                  "title": "tree",
+                  "iconBg": "bg-emerald-600 text-white",
+                  "dueDate": "Aug 30",
+                  "btnStyle": "bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm shadow-emerald-500/30",
+                  "category": "Full-Stack Web Dev",
+                  "iconName": "Building2",
+                  "projectId": "proj-1787657794899-w",
+                  "techStack": [
+                    "React",
+                    "Node.js",
+                    "PostgreSQL"
+                  ],
+                  "typeColor": "bg-emerald-100 text-emerald-800 border-emerald-200",
+                  "actionText": "VIEW",
+                  "difficulty": "Intermediate"
+                },
+                {
+                  "id": "top-git3-1-w",
+                  "url": "https://meet.google.com/aspire-lms-live",
+                  "type": "LIVE CLASS",
+                  "title": "Branching Fundamentals in Git",
+                  "agenda": "Why isolated feature branches matter, creating branches with git branch, and switching with git switch/checkout.",
+                  "actionText": "JOIN",
+                  "description": "Why isolated feature branches matter, creating branches with git branch, and switching with git switch/checkout."
+                },
+                {
+                  "id": "top-git3-2-w",
+                  "url": "https://meet.google.com/aspire-lms-live",
+                  "type": "LIVE CLASS",
+                  "title": "Git Merge Strategies",
+                  "agenda": "Fast-forward merges vs 3-way merge commits, executing git merge, and clean branching trees.",
+                  "actionText": "JOIN",
+                  "description": "Fast-forward merges vs 3-way merge commits, executing git merge, and clean branching trees."
+                },
+                {
+                  "id": "top-git3-3-w",
+                  "url": "https://meet.google.com/aspire-lms-live",
+                  "type": "LIVE CLASS",
+                  "title": "Understanding Merge Conflicts",
+                  "agenda": "Why conflicts happen, conflict markers (<<<<<<< HEAD, =======, >>>>>>>), and analyzing differing edits.",
+                  "actionText": "JOIN",
+                  "description": "Why conflicts happen, conflict markers (<<<<<<< HEAD, =======, >>>>>>>), and analyzing differing edits."
+                },
+                {
+                  "id": "top-git3-4-w",
+                  "url": "https://meet.google.com/aspire-lms-live",
+                  "type": "LIVE CLASS",
+                  "title": "Resolving Conflicts Hands-on",
+                  "agenda": "Manual conflict resolution in VS Code, staging resolved files, and finalizing merge commits safely.",
+                  "actionText": "JOIN",
+                  "description": "Manual conflict resolution in VS Code, staging resolved files, and finalizing merge commits safely."
+                },
+                {
+                  "id": "top-git3-5-w",
+                  "url": "https://meet.google.com/aspire-lms-live",
+                  "type": "LIVE CLASS",
+                  "title": "Branch Cleanup & Maintenance",
+                  "agenda": "Deleting merged local branches with git branch -d and remote branches with git push origin --delete.",
+                  "actionText": "JOIN",
+                  "description": "Deleting merged local branches with git branch -d and remote branches with git push origin --delete."
+                }
+              ],
+              "title": "Branching Strategy & Merge Conflicts",
+              "topics": [
+                {
+                  "id": "top-git3-1-w",
+                  "title": "Branching Fundamentals in Git",
+                  "agenda": "Why isolated feature branches matter, creating branches with git branch, and switching with git switch/checkout.",
+                  "description": "Why isolated feature branches matter, creating branches with git branch, and switching with git switch/checkout."
+                },
+                {
+                  "id": "top-git3-2-w",
+                  "title": "Git Merge Strategies",
+                  "agenda": "Fast-forward merges vs 3-way merge commits, executing git merge, and clean branching trees.",
+                  "description": "Fast-forward merges vs 3-way merge commits, executing git merge, and clean branching trees."
+                },
+                {
+                  "id": "top-git3-3-w",
+                  "title": "Understanding Merge Conflicts",
+                  "agenda": "Why conflicts happen, conflict markers (<<<<<<< HEAD, =======, >>>>>>>), and analyzing differing edits.",
+                  "description": "Why conflicts happen, conflict markers (<<<<<<< HEAD, =======, >>>>>>>), and analyzing differing edits."
+                },
+                {
+                  "id": "top-git3-4-w",
+                  "title": "Resolving Conflicts Hands-on",
+                  "agenda": "Manual conflict resolution in VS Code, staging resolved files, and finalizing merge commits safely.",
+                  "description": "Manual conflict resolution in VS Code, staging resolved files, and finalizing merge commits safely."
+                },
+                {
+                  "id": "top-git3-5-w",
+                  "title": "Branch Cleanup & Maintenance",
+                  "agenda": "Deleting merged local branches with git branch -d and remote branches with git push origin --delete.",
+                  "description": "Deleting merged local branches with git branch -d and remote branches with git push origin --delete."
+                }
+              ]
             },
             {
               "id": "l_git_4",
               "items": [
                 {
-                  "id": "t-1",
+                  "id": "top-git4-1-w",
                   "url": "https://meet.google.com/aspire-lms-live",
-                  "date": "2026-08-24",
-                  "time": "10:00 - 11:30 AM",
                   "type": "LIVE CLASS",
-                  "title": "What Are Professional Git Practices?",
-                  "agenda": "Why should commits be small and meaningful? Why should developers avoid direct pushes to main? How should branches be named? Why should we pull before starting work? What are protected branches? What makes a good Pull Request?",
-                  "iconBg": "bg-purple-600 text-white",
-                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30",
-                  "iconName": "Video",
-                  "overview": "Why should commits be small and meaningful? Why should developers avoid direct pushes to main? How should branches be named? Why should we pull before starting work? What are protected branches? What makes a good Pull Request?",
-                  "sessionId": "session-1787589566809-w",
-                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "title": "GitHub PR Lifecycle",
+                  "agenda": "Creating Pull Requests from feature branches into main, writing PR descriptions, and linking issues.",
                   "actionText": "JOIN",
-                  "instructor": "Siva Veludurthi",
-                  "technology": "Git & Github Version Control",
-                  "description": "Why should commits be small and meaningful? Why should developers avoid direct pushes to main? How should branches be named? Why should we pull before starting work? What are protected branches? What makes a good Pull Request?"
+                  "description": "Creating Pull Requests from feature branches into main, writing PR descriptions, and linking issues."
                 },
                 {
-                  "id": "t-2",
+                  "id": "top-git4-2-w",
                   "url": "https://meet.google.com/aspire-lms-live",
-                  "date": "2026-08-24",
-                  "time": "10:00 - 11:30 AM",
                   "type": "LIVE CLASS",
-                  "title": "Can You Complete a Real GitHub Workflow?",
-                  "agenda": "Can you create a repository? Can you initialize Git? Can you configure .gitignore? Can you make and push commits? Can you create a feature branch? Can you push the branch? Can you create a Pull Request? Can you resolve a merge conflict? Can you merge the feature into main? Can you synchronize the local repository with GitHub?",
-                  "iconBg": "bg-purple-600 text-white",
-                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30",
-                  "iconName": "Video",
-                  "overview": "Can you create a repository? Can you initialize Git? Can you configure .gitignore? Can you make and push commits? Can you create a feature branch? Can you push the branch? Can you create a Pull Request? Can you resolve a merge conflict? Can you merge the feature into main? Can you synchronize the local repository with GitHub?",
-                  "sessionId": "session-1787589566809-w",
-                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "title": "Code Review Workflows",
+                  "agenda": "Inline commenting, requesting changes, approving PRs, and team code review ethics.",
                   "actionText": "JOIN",
-                  "instructor": "Siva Veludurthi",
-                  "technology": "Git & Github Version Control",
-                  "description": "Can you create a repository? Can you initialize Git? Can you configure .gitignore? Can you make and push commits? Can you create a feature branch? Can you push the branch? Can you create a Pull Request? Can you resolve a merge conflict? Can you merge the feature into main? Can you synchronize the local repository with GitHub?"
+                  "description": "Inline commenting, requesting changes, approving PRs, and team code review ethics."
+                },
+                {
+                  "id": "top-git4-3-w",
+                  "url": "https://meet.google.com/aspire-lms-live",
+                  "type": "LIVE CLASS",
+                  "title": "Squash & Rebase Merges",
+                  "agenda": "Comparing Merge Commit, Squash & Merge, and Rebase & Merge on GitHub.",
+                  "actionText": "JOIN",
+                  "description": "Comparing Merge Commit, Squash & Merge, and Rebase & Merge on GitHub."
                 }
               ],
               "title": "GitHub Pull Requests & Collaboration Workflows",
+              "topics": [
+                {
+                  "id": "top-git4-1-w",
+                  "title": "GitHub PR Lifecycle",
+                  "agenda": "Creating Pull Requests from feature branches into main, writing PR descriptions, and linking issues.",
+                  "description": "Creating Pull Requests from feature branches into main, writing PR descriptions, and linking issues."
+                },
+                {
+                  "id": "top-git4-2-w",
+                  "title": "Code Review Workflows",
+                  "agenda": "Inline commenting, requesting changes, approving PRs, and team code review ethics.",
+                  "description": "Inline commenting, requesting changes, approving PRs, and team code review ethics."
+                },
+                {
+                  "id": "top-git4-3-w",
+                  "title": "Squash & Rebase Merges",
+                  "agenda": "Comparing Merge Commit, Squash & Merge, and Rebase & Merge on GitHub.",
+                  "description": "Comparing Merge Commit, Squash & Merge, and Rebase & Merge on GitHub."
+                }
+              ],
               "meetingLink": "https://meet.google.com/aspire-lms-live"
             }
           ],
           "modules": [
             {
               "id": "l_git_1",
-              "items": [],
-              "title": "Git Architecture & Version Control Concepts"
+              "items": [
+                {
+                  "id": "item-asmnt-asmnt-1787657513434-w",
+                  "url": "/assessments",
+                  "type": "ASSESSMENT",
+                  "title": "gfdszx nbvcxz",
+                  "iconBg": "bg-blue-600 text-white",
+                  "dueDate": "2026-08-30",
+                  "btnStyle": "bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30",
+                  "iconName": "FileCheck",
+                  "mcqCount": 1,
+                  "typeColor": "bg-blue-100 text-blue-800 border-blue-200",
+                  "actionText": "START",
+                  "totalMarks": 100,
+                  "codingCount": 1,
+                  "assessmentId": "asmnt-1787657513434-w",
+                  "totalQuestions": 2,
+                  "durationMinutes": 45
+                },
+                {
+                  "id": "top-git1-1-w",
+                  "url": "https://meet.google.com/aspire-lms-live",
+                  "type": "LIVE CLASS",
+                  "title": "What is Version Control?",
+                  "agenda": "What is version control? Why do developers need it? What happens if multiple developers edit the same project? Difference between Git and GitHub.",
+                  "actionText": "JOIN",
+                  "description": "What is version control? Why do developers need it? What happens if multiple developers edit the same project? Difference between Git and GitHub."
+                },
+                {
+                  "id": "top-git1-2-w",
+                  "url": "https://meet.google.com/aspire-lms-live",
+                  "type": "LIVE CLASS",
+                  "title": "How Does Git Work?",
+                  "agenda": "Understanding Git snapshot architecture, working directory, staging area (index), and local repository (.git directory).",
+                  "actionText": "JOIN",
+                  "description": "Understanding Git snapshot architecture, working directory, staging area (index), and local repository (.git directory)."
+                },
+                {
+                  "id": "top-git1-3-w",
+                  "url": "https://meet.google.com/aspire-lms-live",
+                  "type": "LIVE CLASS",
+                  "title": "How Do We Install & Configure Git?",
+                  "agenda": "Installing Git CLI on Windows, Mac, and Linux. Setting up global user identity and default branch configuration.",
+                  "actionText": "JOIN",
+                  "description": "Installing Git CLI on Windows, Mac, and Linux. Setting up global user identity and default branch configuration."
+                },
+                {
+                  "id": "top-git1-4-w",
+                  "url": "https://meet.google.com/aspire-lms-live",
+                  "type": "LIVE CLASS",
+                  "title": "How Do We Create a Git Repository?",
+                  "agenda": "Initializing new local repositories with git init, hidden .git folder structure, and cloning remote repos with git clone.",
+                  "actionText": "JOIN",
+                  "description": "Initializing new local repositories with git init, hidden .git folder structure, and cloning remote repos with git clone."
+                },
+                {
+                  "id": "top-git1-5-w",
+                  "url": "https://meet.google.com/aspire-lms-live",
+                  "type": "LIVE CLASS",
+                  "title": "How Do We Track & Commit Changes?",
+                  "agenda": "Inspecting file status with git status, staging with git add, committing with git commit -m, and reading git log history.",
+                  "actionText": "JOIN",
+                  "description": "Inspecting file status with git status, staging with git add, committing with git commit -m, and reading git log history."
+                }
+              ],
+              "title": "Git Architecture & Version Control Concepts",
+              "topics": [
+                {
+                  "id": "top-git1-1-w",
+                  "title": "What is Version Control?",
+                  "agenda": "What is version control? Why do developers need it? What happens if multiple developers edit the same project? Difference between Git and GitHub.",
+                  "description": "What is version control? Why do developers need it? What happens if multiple developers edit the same project? Difference between Git and GitHub."
+                },
+                {
+                  "id": "top-git1-2-w",
+                  "title": "How Does Git Work?",
+                  "agenda": "Understanding Git snapshot architecture, working directory, staging area (index), and local repository (.git directory).",
+                  "description": "Understanding Git snapshot architecture, working directory, staging area (index), and local repository (.git directory)."
+                },
+                {
+                  "id": "top-git1-3-w",
+                  "title": "How Do We Install & Configure Git?",
+                  "agenda": "Installing Git CLI on Windows, Mac, and Linux. Setting up global user identity and default branch configuration.",
+                  "description": "Installing Git CLI on Windows, Mac, and Linux. Setting up global user identity and default branch configuration."
+                },
+                {
+                  "id": "top-git1-4-w",
+                  "title": "How Do We Create a Git Repository?",
+                  "agenda": "Initializing new local repositories with git init, hidden .git folder structure, and cloning remote repos with git clone.",
+                  "description": "Initializing new local repositories with git init, hidden .git folder structure, and cloning remote repos with git clone."
+                },
+                {
+                  "id": "top-git1-5-w",
+                  "title": "How Do We Track & Commit Changes?",
+                  "agenda": "Inspecting file status with git status, staging with git add, committing with git commit -m, and reading git log history.",
+                  "description": "Inspecting file status with git status, staging with git add, committing with git commit -m, and reading git log history."
+                }
+              ]
             },
             {
               "id": "l_git_2",
-              "items": [],
-              "title": "Core Git Commands: init, add, commit, push, pull"
+              "items": [
+                {
+                  "id": "top-git2-1-w",
+                  "url": "https://meet.google.com/aspire-lms-live",
+                  "type": "LIVE CLASS",
+                  "title": "Git Initialization & Staging Deep-Dive",
+                  "agenda": "Mastering git init, git add (single, multiple, wildcards, .), and .gitignore patterns.",
+                  "actionText": "JOIN",
+                  "description": "Mastering git init, git add (single, multiple, wildcards, .), and .gitignore patterns."
+                },
+                {
+                  "id": "top-git2-2-w",
+                  "url": "https://meet.google.com/aspire-lms-live",
+                  "type": "LIVE CLASS",
+                  "title": "Crafting Atomic Commits",
+                  "agenda": "Writing conventional commit messages, understanding commit hashes (SHA-1), and commit authoring best practices.",
+                  "actionText": "JOIN",
+                  "description": "Writing conventional commit messages, understanding commit hashes (SHA-1), and commit authoring best practices."
+                },
+                {
+                  "id": "top-git2-3-w",
+                  "url": "https://meet.google.com/aspire-lms-live",
+                  "type": "LIVE CLASS",
+                  "title": "Remote Repository Connections",
+                  "agenda": "Configuring remotes with git remote add origin, inspecting remotes with git remote -v, and SSH vs HTTPS auth.",
+                  "actionText": "JOIN",
+                  "description": "Configuring remotes with git remote add origin, inspecting remotes with git remote -v, and SSH vs HTTPS auth."
+                },
+                {
+                  "id": "top-git2-4-w",
+                  "url": "https://meet.google.com/aspire-lms-live",
+                  "type": "LIVE CLASS",
+                  "title": "Pushing Code to GitHub",
+                  "agenda": "Upstream branch tracking with git push -u origin main, force push dangers, and protecting main branches.",
+                  "actionText": "JOIN",
+                  "description": "Upstream branch tracking with git push -u origin main, force push dangers, and protecting main branches."
+                },
+                {
+                  "id": "top-git2-5-w",
+                  "url": "https://meet.google.com/aspire-lms-live",
+                  "type": "LIVE CLASS",
+                  "title": "Pulling & Fetching Updates",
+                  "agenda": "Difference between git fetch and git pull, understanding fast-forward merges, and keeping local branches in sync.",
+                  "actionText": "JOIN",
+                  "description": "Difference between git fetch and git pull, understanding fast-forward merges, and keeping local branches in sync."
+                }
+              ],
+              "title": "Core Git Commands: init, add, commit, push, pull",
+              "topics": [
+                {
+                  "id": "top-git2-1-w",
+                  "title": "Git Initialization & Staging Deep-Dive",
+                  "agenda": "Mastering git init, git add (single, multiple, wildcards, .), and .gitignore patterns.",
+                  "description": "Mastering git init, git add (single, multiple, wildcards, .), and .gitignore patterns."
+                },
+                {
+                  "id": "top-git2-2-w",
+                  "title": "Crafting Atomic Commits",
+                  "agenda": "Writing conventional commit messages, understanding commit hashes (SHA-1), and commit authoring best practices.",
+                  "description": "Writing conventional commit messages, understanding commit hashes (SHA-1), and commit authoring best practices."
+                },
+                {
+                  "id": "top-git2-3-w",
+                  "title": "Remote Repository Connections",
+                  "agenda": "Configuring remotes with git remote add origin, inspecting remotes with git remote -v, and SSH vs HTTPS auth.",
+                  "description": "Configuring remotes with git remote add origin, inspecting remotes with git remote -v, and SSH vs HTTPS auth."
+                },
+                {
+                  "id": "top-git2-4-w",
+                  "title": "Pushing Code to GitHub",
+                  "agenda": "Upstream branch tracking with git push -u origin main, force push dangers, and protecting main branches.",
+                  "description": "Upstream branch tracking with git push -u origin main, force push dangers, and protecting main branches."
+                },
+                {
+                  "id": "top-git2-5-w",
+                  "title": "Pulling & Fetching Updates",
+                  "agenda": "Difference between git fetch and git pull, understanding fast-forward merges, and keeping local branches in sync.",
+                  "description": "Difference between git fetch and git pull, understanding fast-forward merges, and keeping local branches in sync."
+                }
+              ]
             },
             {
               "id": "l_git_3",
-              "items": [],
-              "title": "Branching Strategy & Merge Conflicts"
+              "items": [
+                {
+                  "id": "item-proj-proj-1787657794899-w",
+                  "url": "/projects",
+                  "type": "PROJECT",
+                  "title": "tree",
+                  "iconBg": "bg-emerald-600 text-white",
+                  "dueDate": "Aug 30",
+                  "btnStyle": "bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm shadow-emerald-500/30",
+                  "category": "Full-Stack Web Dev",
+                  "iconName": "Building2",
+                  "projectId": "proj-1787657794899-w",
+                  "techStack": [
+                    "React",
+                    "Node.js",
+                    "PostgreSQL"
+                  ],
+                  "typeColor": "bg-emerald-100 text-emerald-800 border-emerald-200",
+                  "actionText": "VIEW",
+                  "difficulty": "Intermediate"
+                },
+                {
+                  "id": "top-git3-1-w",
+                  "url": "https://meet.google.com/aspire-lms-live",
+                  "type": "LIVE CLASS",
+                  "title": "Branching Fundamentals in Git",
+                  "agenda": "Why isolated feature branches matter, creating branches with git branch, and switching with git switch/checkout.",
+                  "actionText": "JOIN",
+                  "description": "Why isolated feature branches matter, creating branches with git branch, and switching with git switch/checkout."
+                },
+                {
+                  "id": "top-git3-2-w",
+                  "url": "https://meet.google.com/aspire-lms-live",
+                  "type": "LIVE CLASS",
+                  "title": "Git Merge Strategies",
+                  "agenda": "Fast-forward merges vs 3-way merge commits, executing git merge, and clean branching trees.",
+                  "actionText": "JOIN",
+                  "description": "Fast-forward merges vs 3-way merge commits, executing git merge, and clean branching trees."
+                },
+                {
+                  "id": "top-git3-3-w",
+                  "url": "https://meet.google.com/aspire-lms-live",
+                  "type": "LIVE CLASS",
+                  "title": "Understanding Merge Conflicts",
+                  "agenda": "Why conflicts happen, conflict markers (<<<<<<< HEAD, =======, >>>>>>>), and analyzing differing edits.",
+                  "actionText": "JOIN",
+                  "description": "Why conflicts happen, conflict markers (<<<<<<< HEAD, =======, >>>>>>>), and analyzing differing edits."
+                },
+                {
+                  "id": "top-git3-4-w",
+                  "url": "https://meet.google.com/aspire-lms-live",
+                  "type": "LIVE CLASS",
+                  "title": "Resolving Conflicts Hands-on",
+                  "agenda": "Manual conflict resolution in VS Code, staging resolved files, and finalizing merge commits safely.",
+                  "actionText": "JOIN",
+                  "description": "Manual conflict resolution in VS Code, staging resolved files, and finalizing merge commits safely."
+                },
+                {
+                  "id": "top-git3-5-w",
+                  "url": "https://meet.google.com/aspire-lms-live",
+                  "type": "LIVE CLASS",
+                  "title": "Branch Cleanup & Maintenance",
+                  "agenda": "Deleting merged local branches with git branch -d and remote branches with git push origin --delete.",
+                  "actionText": "JOIN",
+                  "description": "Deleting merged local branches with git branch -d and remote branches with git push origin --delete."
+                }
+              ],
+              "title": "Branching Strategy & Merge Conflicts",
+              "topics": [
+                {
+                  "id": "top-git3-1-w",
+                  "title": "Branching Fundamentals in Git",
+                  "agenda": "Why isolated feature branches matter, creating branches with git branch, and switching with git switch/checkout.",
+                  "description": "Why isolated feature branches matter, creating branches with git branch, and switching with git switch/checkout."
+                },
+                {
+                  "id": "top-git3-2-w",
+                  "title": "Git Merge Strategies",
+                  "agenda": "Fast-forward merges vs 3-way merge commits, executing git merge, and clean branching trees.",
+                  "description": "Fast-forward merges vs 3-way merge commits, executing git merge, and clean branching trees."
+                },
+                {
+                  "id": "top-git3-3-w",
+                  "title": "Understanding Merge Conflicts",
+                  "agenda": "Why conflicts happen, conflict markers (<<<<<<< HEAD, =======, >>>>>>>), and analyzing differing edits.",
+                  "description": "Why conflicts happen, conflict markers (<<<<<<< HEAD, =======, >>>>>>>), and analyzing differing edits."
+                },
+                {
+                  "id": "top-git3-4-w",
+                  "title": "Resolving Conflicts Hands-on",
+                  "agenda": "Manual conflict resolution in VS Code, staging resolved files, and finalizing merge commits safely.",
+                  "description": "Manual conflict resolution in VS Code, staging resolved files, and finalizing merge commits safely."
+                },
+                {
+                  "id": "top-git3-5-w",
+                  "title": "Branch Cleanup & Maintenance",
+                  "agenda": "Deleting merged local branches with git branch -d and remote branches with git push origin --delete.",
+                  "description": "Deleting merged local branches with git branch -d and remote branches with git push origin --delete."
+                }
+              ]
             },
             {
               "id": "l_git_4",
               "items": [
                 {
-                  "id": "t-1",
+                  "id": "top-git4-1-w",
                   "url": "https://meet.google.com/aspire-lms-live",
-                  "date": "2026-08-24",
-                  "time": "10:00 - 11:30 AM",
                   "type": "LIVE CLASS",
-                  "title": "What Are Professional Git Practices?",
-                  "agenda": "Why should commits be small and meaningful? Why should developers avoid direct pushes to main? How should branches be named? Why should we pull before starting work? What are protected branches? What makes a good Pull Request?",
-                  "iconBg": "bg-purple-600 text-white",
-                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30",
-                  "iconName": "Video",
-                  "overview": "Why should commits be small and meaningful? Why should developers avoid direct pushes to main? How should branches be named? Why should we pull before starting work? What are protected branches? What makes a good Pull Request?",
-                  "sessionId": "session-1787589566809-w",
-                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "title": "GitHub PR Lifecycle",
+                  "agenda": "Creating Pull Requests from feature branches into main, writing PR descriptions, and linking issues.",
                   "actionText": "JOIN",
-                  "instructor": "Siva Veludurthi",
-                  "technology": "Git & Github Version Control",
-                  "description": "Why should commits be small and meaningful? Why should developers avoid direct pushes to main? How should branches be named? Why should we pull before starting work? What are protected branches? What makes a good Pull Request?"
+                  "description": "Creating Pull Requests from feature branches into main, writing PR descriptions, and linking issues."
                 },
                 {
-                  "id": "t-2",
+                  "id": "top-git4-2-w",
                   "url": "https://meet.google.com/aspire-lms-live",
-                  "date": "2026-08-24",
-                  "time": "10:00 - 11:30 AM",
                   "type": "LIVE CLASS",
-                  "title": "Can You Complete a Real GitHub Workflow?",
-                  "agenda": "Can you create a repository? Can you initialize Git? Can you configure .gitignore? Can you make and push commits? Can you create a feature branch? Can you push the branch? Can you create a Pull Request? Can you resolve a merge conflict? Can you merge the feature into main? Can you synchronize the local repository with GitHub?",
-                  "iconBg": "bg-purple-600 text-white",
-                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30",
-                  "iconName": "Video",
-                  "overview": "Can you create a repository? Can you initialize Git? Can you configure .gitignore? Can you make and push commits? Can you create a feature branch? Can you push the branch? Can you create a Pull Request? Can you resolve a merge conflict? Can you merge the feature into main? Can you synchronize the local repository with GitHub?",
-                  "sessionId": "session-1787589566809-w",
-                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "title": "Code Review Workflows",
+                  "agenda": "Inline commenting, requesting changes, approving PRs, and team code review ethics.",
                   "actionText": "JOIN",
-                  "instructor": "Siva Veludurthi",
-                  "technology": "Git & Github Version Control",
-                  "description": "Can you create a repository? Can you initialize Git? Can you configure .gitignore? Can you make and push commits? Can you create a feature branch? Can you push the branch? Can you create a Pull Request? Can you resolve a merge conflict? Can you merge the feature into main? Can you synchronize the local repository with GitHub?"
+                  "description": "Inline commenting, requesting changes, approving PRs, and team code review ethics."
+                },
+                {
+                  "id": "top-git4-3-w",
+                  "url": "https://meet.google.com/aspire-lms-live",
+                  "type": "LIVE CLASS",
+                  "title": "Squash & Rebase Merges",
+                  "agenda": "Comparing Merge Commit, Squash & Merge, and Rebase & Merge on GitHub.",
+                  "actionText": "JOIN",
+                  "description": "Comparing Merge Commit, Squash & Merge, and Rebase & Merge on GitHub."
                 }
               ],
               "title": "GitHub Pull Requests & Collaboration Workflows",
+              "topics": [
+                {
+                  "id": "top-git4-1-w",
+                  "title": "GitHub PR Lifecycle",
+                  "agenda": "Creating Pull Requests from feature branches into main, writing PR descriptions, and linking issues.",
+                  "description": "Creating Pull Requests from feature branches into main, writing PR descriptions, and linking issues."
+                },
+                {
+                  "id": "top-git4-2-w",
+                  "title": "Code Review Workflows",
+                  "agenda": "Inline commenting, requesting changes, approving PRs, and team code review ethics.",
+                  "description": "Inline commenting, requesting changes, approving PRs, and team code review ethics."
+                },
+                {
+                  "id": "top-git4-3-w",
+                  "title": "Squash & Rebase Merges",
+                  "agenda": "Comparing Merge Commit, Squash & Merge, and Rebase & Merge on GitHub.",
+                  "description": "Comparing Merge Commit, Squash & Merge, and Rebase & Merge on GitHub."
+                }
+              ],
               "meetingLink": "https://meet.google.com/aspire-lms-live"
             }
           ],
-          "duration": "5 hrs"
+          "duration": "5 hrs",
+          "modulesCount": 4
         },
         {
           "id": "m1_html",
@@ -1089,102 +1652,54 @@ export const INITIAL_MILESTONES = {
               "time": "06:00 - 07:30 PM",
               "items": [
                 {
-                  "id": "t-1",
+                  "id": "top-html1-1-w",
                   "url": "https://meet.google.com/aspire-lms-live",
-                  "date": "2026-08-25",
-                  "time": "06:00 - 07:30 PM",
                   "type": "LIVE CLASS",
-                  "title": "What Is the Web?",
-                  "agenda": "What is the Internet? What is the World Wide Web? How does a browser communicate with a server? What are client and server? What happens when we enter a URL in a browser?",
-                  "iconBg": "bg-purple-600 text-white",
-                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30",
-                  "iconName": "Video",
-                  "overview": "What is the Internet? What is the World Wide Web? How does a browser communicate with a server? What are client and server? What happens when we enter a URL in a browser?",
-                  "sessionId": "session-1787638229564-w",
-                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "title": "How the Web Works",
+                  "agenda": "Client-Server architecture, role of browsers, web servers, DNS lookup, and IP addressing.",
                   "actionText": "JOIN",
-                  "instructor": "Siva Veludurthi",
-                  "technology": "HTML5 & Web Architecture",
-                  "description": "What is the Internet? What is the World Wide Web? How does a browser communicate with a server? What are client and server? What happens when we enter a URL in a browser?"
+                  "description": "Client-Server architecture, role of browsers, web servers, DNS lookup, and IP addressing."
                 },
                 {
-                  "id": "t-2",
+                  "id": "top-html1-2-w",
                   "url": "https://meet.google.com/aspire-lms-live",
-                  "date": "2026-08-25",
-                  "time": "06:00 - 07:30 PM",
                   "type": "LIVE CLASS",
-                  "title": "How Does Web Architecture Work?",
-                  "agenda": "What is the client-server model? What is a request and response? What are HTTP and HTTPS? What are URLs, domains, ports, and protocols? How does a browser receive and render a webpage?",
-                  "iconBg": "bg-purple-600 text-white",
-                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30",
-                  "iconName": "Video",
-                  "overview": "What is the client-server model? What is a request and response? What are HTTP and HTTPS? What are URLs, domains, ports, and protocols? How does a browser receive and render a webpage?",
-                  "sessionId": "session-1787638229564-w",
-                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "title": "HTTP/HTTPS Protocol Basics",
+                  "agenda": "HTTP methods (GET, POST, PUT, DELETE), status codes (200, 301, 404, 500), headers and payloads.",
                   "actionText": "JOIN",
-                  "instructor": "Siva Veludurthi",
-                  "technology": "HTML5 & Web Architecture",
-                  "description": "What is the client-server model? What is a request and response? What are HTTP and HTTPS? What are URLs, domains, ports, and protocols? How does a browser receive and render a webpage?"
+                  "description": "HTTP methods (GET, POST, PUT, DELETE), status codes (200, 301, 404, 500), headers and payloads."
                 },
                 {
-                  "id": "t-3",
+                  "id": "top-html1-3-w",
                   "url": "https://meet.google.com/aspire-lms-live",
-                  "date": "2026-08-25",
-                  "time": "06:00 - 07:30 PM",
                   "type": "LIVE CLASS",
-                  "title": "What Is HTML5?",
-                  "agenda": "What is HTML? Why is HTML called a markup language? What changed with HTML5? How is HTML different from CSS and JavaScript? How does HTML define webpage structure?",
-                  "iconBg": "bg-purple-600 text-white",
-                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30",
-                  "iconName": "Video",
-                  "overview": "What is HTML? Why is HTML called a markup language? What changed with HTML5? How is HTML different from CSS and JavaScript? How does HTML define webpage structure?",
-                  "sessionId": "session-1787638229564-w",
-                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "title": "HTML Document Structure",
+                  "agenda": "Doctype html, html, head, meta charset, title, and body tag responsibilities.",
                   "actionText": "JOIN",
-                  "instructor": "Siva Veludurthi",
-                  "technology": "HTML5 & Web Architecture",
-                  "description": "What is HTML? Why is HTML called a markup language? What changed with HTML5? How is HTML different from CSS and JavaScript? How does HTML define webpage structure?"
-                },
-                {
-                  "id": "t-4",
-                  "url": "https://meet.google.com/aspire-lms-live",
-                  "date": "2026-08-25",
-                  "time": "06:00 - 07:30 PM",
-                  "type": "LIVE CLASS",
-                  "title": "How Do We Create an HTML Page?",
-                  "agenda": "How do we create an .html file? What tools can we use? How do we open HTML in a browser? What is <!DOCTYPE html>? Why is the document declaration required?",
-                  "iconBg": "bg-purple-600 text-white",
-                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30",
-                  "iconName": "Video",
-                  "overview": "How do we create an .html file? What tools can we use? How do we open HTML in a browser? What is <!DOCTYPE html>? Why is the document declaration required?",
-                  "sessionId": "session-1787638229564-w",
-                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
-                  "actionText": "JOIN",
-                  "instructor": "Siva Veludurthi",
-                  "technology": "HTML5 & Web Architecture",
-                  "description": "How do we create an .html file? What tools can we use? How do we open HTML in a browser? What is <!DOCTYPE html>? Why is the document declaration required?"
-                },
-                {
-                  "id": "t-5",
-                  "url": "https://meet.google.com/aspire-lms-live",
-                  "date": "2026-08-25",
-                  "time": "06:00 - 07:30 PM",
-                  "type": "LIVE CLASS",
-                  "title": "What Is the Basic HTML5 Document Structure?",
-                  "agenda": "What are <html>, <head>, <meta>, <title>, and <body>? What belongs inside <head>? What belongs inside <body>? What is the viewport meta tag? How should an HTML document be structured?",
-                  "iconBg": "bg-purple-600 text-white",
-                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30",
-                  "iconName": "Video",
-                  "overview": "What are <html>, <head>, <meta>, <title>, and <body>? What belongs inside <head>? What belongs inside <body>? What is the viewport meta tag? How should an HTML document be structured?",
-                  "sessionId": "session-1787638229564-w",
-                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
-                  "actionText": "JOIN",
-                  "instructor": "Siva Veludurthi",
-                  "technology": "HTML5 & Web Architecture",
-                  "description": "What are <html>, <head>, <meta>, <title>, and <body>? What belongs inside <head>? What belongs inside <body>? What is the viewport meta tag? How should an HTML document be structured?"
+                  "description": "Doctype html, html, head, meta charset, title, and body tag responsibilities."
                 }
               ],
               "title": "Web Architecture & Client-Server Communication Model",
+              "topics": [
+                {
+                  "id": "top-html1-1-w",
+                  "title": "How the Web Works",
+                  "agenda": "Client-Server architecture, role of browsers, web servers, DNS lookup, and IP addressing.",
+                  "description": "Client-Server architecture, role of browsers, web servers, DNS lookup, and IP addressing."
+                },
+                {
+                  "id": "top-html1-2-w",
+                  "title": "HTTP/HTTPS Protocol Basics",
+                  "agenda": "HTTP methods (GET, POST, PUT, DELETE), status codes (200, 301, 404, 500), headers and payloads.",
+                  "description": "HTTP methods (GET, POST, PUT, DELETE), status codes (200, 301, 404, 500), headers and payloads."
+                },
+                {
+                  "id": "top-html1-3-w",
+                  "title": "HTML Document Structure",
+                  "agenda": "Doctype html, html, head, meta charset, title, and body tag responsibilities.",
+                  "description": "Doctype html, html, head, meta charset, title, and body tag responsibilities."
+                }
+              ],
               "instructor": "Siva Veludurthi",
               "meetingLink": "https://meet.google.com/aspire-lms-live"
             },
@@ -1194,83 +1709,54 @@ export const INITIAL_MILESTONES = {
               "time": "06:00 - 07:30 PM",
               "items": [
                 {
-                  "id": "t-1",
+                  "id": "top-html2-1-w",
                   "url": "https://meet.google.com/aspire-lms-live",
-                  "date": "2026-08-25",
-                  "time": "06:00 - 07:30 PM",
                   "type": "LIVE CLASS",
-                  "title": "How Do HTML Elements & Attributes Work?",
-                  "agenda": "What is an HTML element? What are opening and closing tags? What are attributes? What is the difference between block and inline elements? How do id, class, title, and style attributes work?",
-                  "iconBg": "bg-purple-600 text-white",
-                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30",
-                  "iconName": "Video",
-                  "overview": "What is an HTML element? What are opening and closing tags? What are attributes? What is the difference between block and inline elements? How do id, class, title, and style attributes work?",
-                  "sessionId": "session-1787638823996-w",
-                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "title": "Semantic vs Non-Semantic HTML",
+                  "agenda": "Why clean semantic layout improves SEO and accessibility; adopting header, nav, main, section, article, aside, and footer.",
                   "actionText": "JOIN",
-                  "instructor": "Siva Veludurthi",
-                  "technology": "HTML5 & Web Architecture",
-                  "description": "What is an HTML element? What are opening and closing tags? What are attributes? What is the difference between block and inline elements? How do id, class, title, and style attributes work?"
+                  "description": "Why clean semantic layout improves SEO and accessibility; adopting header, nav, main, section, article, aside, and footer."
                 },
                 {
-                  "id": "t-2",
+                  "id": "top-html2-2-w",
                   "url": "https://meet.google.com/aspire-lms-live",
-                  "date": "2026-08-25",
-                  "time": "06:00 - 07:30 PM",
                   "type": "LIVE CLASS",
-                  "title": "How Do We Add Text & Links?",
-                  "agenda": "How do headings work with <h1>–<h6>? How are paragraphs created? What are <strong>, <em>, <br>, and <hr>? How do we create links with <a>? What are href, target, and relative vs absolute paths?",
-                  "iconBg": "bg-purple-600 text-white",
-                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30",
-                  "iconName": "Video",
-                  "overview": "How do headings work with <h1>–<h6>? How are paragraphs created? What are <strong>, <em>, <br>, and <hr>? How do we create links with <a>? What are href, target, and relative vs absolute paths?",
-                  "sessionId": "session-1787638823996-w",
-                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "title": "Text Hierarchy & Formatting",
+                  "agenda": "Proper h1 to h6 hierarchy, paragraphs, spans, strong, em, blockquotes, and inline formatting.",
                   "actionText": "JOIN",
-                  "instructor": "Siva Veludurthi",
-                  "technology": "HTML5 & Web Architecture",
-                  "description": "How do headings work with <h1>–<h6>? How are paragraphs created? What are <strong>, <em>, <br>, and <hr>? How do we create links with <a>? What are href, target, and relative vs absolute paths?"
+                  "description": "Proper h1 to h6 hierarchy, paragraphs, spans, strong, em, blockquotes, and inline formatting."
                 },
                 {
-                  "id": "t-3",
+                  "id": "top-html2-3-w",
                   "url": "https://meet.google.com/aspire-lms-live",
-                  "date": "2026-08-25",
-                  "time": "06:00 - 07:30 PM",
                   "type": "LIVE CLASS",
-                  "title": "How Do We Add Lists & Images?",
-                  "agenda": "How do <ul>, <ol>, and <li> work? How do we add images using <img>? What are src and alt? Why is alternative text important? How do image paths work?",
-                  "iconBg": "bg-purple-600 text-white",
-                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30",
-                  "iconName": "Video",
-                  "overview": "How do <ul>, <ol>, and <li> work? How do we add images using <img>? What are src and alt? Why is alternative text important? How do image paths work?",
-                  "sessionId": "session-1787638823996-w",
-                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "title": "Hyperlinks & Navigational Anchors",
+                  "agenda": "Absolute vs relative links, target _blank security, and internal anchor jumps.",
                   "actionText": "JOIN",
-                  "instructor": "Siva Veludurthi",
-                  "technology": "HTML5 & Web Architecture",
-                  "description": "How do <ul>, <ol>, and <li> work? How do we add images using <img>? What are src and alt? Why is alternative text important? How do image paths work?"
-                },
-                {
-                  "id": "t-4",
-                  "url": "https://meet.google.com/aspire-lms-live",
-                  "date": "2026-08-25",
-                  "time": "06:00 - 07:30 PM",
-                  "type": "LIVE CLASS",
-                  "title": "What Are Semantic HTML Elements?",
-                  "agenda": "Why is semantic HTML important? What are <header>, <nav>, <main>, <section>, <article>, <aside>, and <footer>? What is the difference between semantic and non-semantic elements? How does semantic HTML improve accessibility and SEO?",
-                  "iconBg": "bg-purple-600 text-white",
-                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30",
-                  "iconName": "Video",
-                  "overview": "Why is semantic HTML important? What are <header>, <nav>, <main>, <section>, <article>, <aside>, and <footer>? What is the difference between semantic and non-semantic elements? How does semantic HTML improve accessibility and SEO?",
-                  "sessionId": "session-1787638823996-w",
-                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
-                  "actionText": "JOIN",
-                  "instructor": "Siva Veludurthi",
-                  "technology": "HTML5 & Web Architecture",
-                  "description": "Why is semantic HTML important? What are <header>, <nav>, <main>, <section>, <article>, <aside>, and <footer>? What is the difference between semantic and non-semantic elements? How does semantic HTML improve accessibility and SEO?"
+                  "description": "Absolute vs relative links, target _blank security, and internal anchor jumps."
                 }
               ],
               "title": "HTML5 Document Structure & Semantic Elements",
+              "topics": [
+                {
+                  "id": "top-html2-1-w",
+                  "title": "Semantic vs Non-Semantic HTML",
+                  "agenda": "Why clean semantic layout improves SEO and accessibility; adopting header, nav, main, section, article, aside, and footer.",
+                  "description": "Why clean semantic layout improves SEO and accessibility; adopting header, nav, main, section, article, aside, and footer."
+                },
+                {
+                  "id": "top-html2-2-w",
+                  "title": "Text Hierarchy & Formatting",
+                  "agenda": "Proper h1 to h6 hierarchy, paragraphs, spans, strong, em, blockquotes, and inline formatting.",
+                  "description": "Proper h1 to h6 hierarchy, paragraphs, spans, strong, em, blockquotes, and inline formatting."
+                },
+                {
+                  "id": "top-html2-3-w",
+                  "title": "Hyperlinks & Navigational Anchors",
+                  "agenda": "Absolute vs relative links, target _blank security, and internal anchor jumps.",
+                  "description": "Absolute vs relative links, target _blank security, and internal anchor jumps."
+                }
+              ],
               "instructor": "Siva Veludurthi",
               "meetingLink": "https://meet.google.com/aspire-lms-live"
             },
@@ -1280,90 +1766,109 @@ export const INITIAL_MILESTONES = {
               "time": "06:00 - 07:30 AM",
               "items": [
                 {
-                  "id": "t-1",
+                  "id": "top-html3-1-w",
                   "url": "https://meet.google.com/aspire-lms-live",
-                  "date": "2026-08-25",
-                  "time": "06:00 - 07:30 AM",
                   "type": "LIVE CLASS",
-                  "title": "How Do We Build Tables?",
-                  "agenda": "When should tables be used? How do <table>, <tr>, <th>, and <td> work? How do <thead>, <tbody>, and <tfoot> improve structure? How do colspan and rowspan work? How can table data be structured semantically?",
-                  "iconBg": "bg-purple-600 text-white",
-                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30",
-                  "iconName": "Video",
-                  "overview": "When should tables be used? How do <table>, <tr>, <th>, and <td> work? How do <thead>, <tbody>, and <tfoot> improve structure? How do colspan and rowspan work? How can table data be structured semantically?",
-                  "sessionId": "session-1787639889057-w",
-                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "title": "Form Architecture & Attributes",
+                  "agenda": "Form action and method POST/GET, label association with input IDs, and form submission lifecycle.",
                   "actionText": "JOIN",
-                  "instructor": "Siva Veludurthi",
-                  "technology": "HTML5 & Web Architecture",
-                  "description": "When should tables be used? How do <table>, <tr>, <th>, and <td> work? How do <thead>, <tbody>, and <tfoot> improve structure? How do colspan and rowspan work? How can table data be structured semantically?"
+                  "description": "Form action and method POST/GET, label association with input IDs, and form submission lifecycle."
                 },
                 {
-                  "id": "t-2",
+                  "id": "top-html3-2-w",
                   "url": "https://meet.google.com/aspire-lms-live",
-                  "date": "2026-08-25",
-                  "time": "06:00 - 07:30 AM",
                   "type": "LIVE CLASS",
-                  "title": "How Do HTML Forms Work?",
-                  "agenda": "What is a form? How do <form>, <label>, <input>, <textarea>, <select>, and <button> work? What are action and method? How are form controls connected to labels?",
-                  "iconBg": "bg-purple-600 text-white",
-                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30",
-                  "iconName": "Video",
-                  "overview": "What is a form? How do <form>, <label>, <input>, <textarea>, <select>, and <button> work? What are action and method? How are form controls connected to labels?",
-                  "sessionId": "session-1787639889057-w",
-                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "title": "HTML5 Input Variety",
+                  "agenda": "text, email, password, number, tel, date, checkbox, radio, select dropdowns, and textarea.",
                   "actionText": "JOIN",
-                  "instructor": "Siva Veludurthi",
-                  "technology": "HTML5 & Web Architecture",
-                  "description": "What is a form? How do <form>, <label>, <input>, <textarea>, <select>, and <button> work? What are action and method? How are form controls connected to labels?"
+                  "description": "text, email, password, number, tel, date, checkbox, radio, select dropdowns, and textarea."
                 },
                 {
-                  "id": "t-3",
+                  "id": "top-html3-3-w",
                   "url": "https://meet.google.com/aspire-lms-live",
-                  "date": "2026-08-25",
-                  "time": "06:00 - 07:30 AM",
                   "type": "LIVE CLASS",
-                  "title": "What HTML5 Input Types Should We Use?",
-                  "agenda": "What is the difference between text, email, password, number, tel, date, time, url, file, radio, and checkbox? When should each input type be used? How do name, value, placeholder, and autocomplete work?",
-                  "iconBg": "bg-purple-600 text-white",
-                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30",
-                  "iconName": "Video",
-                  "overview": "What is the difference between text, email, password, number, tel, date, time, url, file, radio, and checkbox? When should each input type be used? How do name, value, placeholder, and autocomplete work?",
-                  "sessionId": "session-1787639889057-w",
-                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "title": "Native Validation Attributes",
+                  "agenda": "required, minlength, maxlength, min, max, pattern regular expressions, and client-side validation UI.",
                   "actionText": "JOIN",
-                  "instructor": "Siva Veludurthi",
-                  "technology": "HTML5 & Web Architecture",
-                  "description": "What is the difference between text, email, password, number, tel, date, time, url, file, radio, and checkbox? When should each input type be used? How do name, value, placeholder, and autocomplete work?"
-                },
-                {
-                  "id": "t-4",
-                  "url": "https://meet.google.com/aspire-lms-live",
-                  "date": "2026-08-25",
-                  "time": "06:00 - 07:30 AM",
-                  "type": "LIVE CLASS",
-                  "title": "How Does HTML5 Form Validation Work?",
-                  "agenda": "What does required do? How do minlength and maxlength work? How are min and max used? What does pattern do? How does type=\"email\" provide validation? How can disabled, readonly, and checked be used?",
-                  "iconBg": "bg-purple-600 text-white",
-                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30",
-                  "iconName": "Video",
-                  "overview": "What does required do? How do minlength and maxlength work? How are min and max used? What does pattern do? How does type=\"email\" provide validation? How can disabled, readonly, and checked be used?",
-                  "sessionId": "session-1787639889057-w",
-                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
-                  "actionText": "JOIN",
-                  "instructor": "Siva Veludurthi",
-                  "technology": "HTML5 & Web Architecture",
-                  "description": "What does required do? How do minlength and maxlength work? How are min and max used? What does pattern do? How does type=\"email\" provide validation? How can disabled, readonly, and checked be used?"
+                  "description": "required, minlength, maxlength, min, max, pattern regular expressions, and client-side validation UI."
                 }
               ],
               "title": "HTML Forms, Input Types, & Client-Side Validation",
+              "topics": [
+                {
+                  "id": "top-html3-1-w",
+                  "title": "Form Architecture & Attributes",
+                  "agenda": "Form action and method POST/GET, label association with input IDs, and form submission lifecycle.",
+                  "description": "Form action and method POST/GET, label association with input IDs, and form submission lifecycle."
+                },
+                {
+                  "id": "top-html3-2-w",
+                  "title": "HTML5 Input Variety",
+                  "agenda": "text, email, password, number, tel, date, checkbox, radio, select dropdowns, and textarea.",
+                  "description": "text, email, password, number, tel, date, checkbox, radio, select dropdowns, and textarea."
+                },
+                {
+                  "id": "top-html3-3-w",
+                  "title": "Native Validation Attributes",
+                  "agenda": "required, minlength, maxlength, min, max, pattern regular expressions, and client-side validation UI.",
+                  "description": "required, minlength, maxlength, min, max, pattern regular expressions, and client-side validation UI."
+                }
+              ],
               "instructor": "Siva Veludurthi",
               "meetingLink": "https://meet.google.com/aspire-lms-live"
             },
             {
               "id": "l_html_4",
-              "items": [],
-              "title": "HTML Tables, Media Tags & Accessibility"
+              "items": [
+                {
+                  "id": "top-html4-1-w",
+                  "url": "https://meet.google.com/aspire-lms-live",
+                  "type": "LIVE CLASS",
+                  "title": "Data Tables Structure",
+                  "agenda": "table, thead, tbody, tfoot, tr, th, td, colspan, and rowspan attributes.",
+                  "actionText": "JOIN",
+                  "description": "table, thead, tbody, tfoot, tr, th, td, colspan, and rowspan attributes."
+                },
+                {
+                  "id": "top-html4-2-w",
+                  "url": "https://meet.google.com/aspire-lms-live",
+                  "type": "LIVE CLASS",
+                  "title": "Embedding Media",
+                  "agenda": "img with alt attributes for accessibility, audio, video with controls, and iframe embeddings.",
+                  "actionText": "JOIN",
+                  "description": "img with alt attributes for accessibility, audio, video with controls, and iframe embeddings."
+                },
+                {
+                  "id": "top-html4-3-w",
+                  "url": "https://meet.google.com/aspire-lms-live",
+                  "type": "LIVE CLASS",
+                  "title": "Web Accessibility (a11y) Basics",
+                  "agenda": "ARIA roles, tabindex, semantic landmark navigation, and screen-reader testing fundamentals.",
+                  "actionText": "JOIN",
+                  "description": "ARIA roles, tabindex, semantic landmark navigation, and screen-reader testing fundamentals."
+                }
+              ],
+              "title": "HTML Tables, Media Tags & Accessibility",
+              "topics": [
+                {
+                  "id": "top-html4-1-w",
+                  "title": "Data Tables Structure",
+                  "agenda": "table, thead, tbody, tfoot, tr, th, td, colspan, and rowspan attributes.",
+                  "description": "table, thead, tbody, tfoot, tr, th, td, colspan, and rowspan attributes."
+                },
+                {
+                  "id": "top-html4-2-w",
+                  "title": "Embedding Media",
+                  "agenda": "img with alt attributes for accessibility, audio, video with controls, and iframe embeddings.",
+                  "description": "img with alt attributes for accessibility, audio, video with controls, and iframe embeddings."
+                },
+                {
+                  "id": "top-html4-3-w",
+                  "title": "Web Accessibility (a11y) Basics",
+                  "agenda": "ARIA roles, tabindex, semantic landmark navigation, and screen-reader testing fundamentals.",
+                  "description": "ARIA roles, tabindex, semantic landmark navigation, and screen-reader testing fundamentals."
+                }
+              ]
             }
           ],
           "modules": [
@@ -1373,102 +1878,54 @@ export const INITIAL_MILESTONES = {
               "time": "06:00 - 07:30 PM",
               "items": [
                 {
-                  "id": "t-1",
+                  "id": "top-html1-1-w",
                   "url": "https://meet.google.com/aspire-lms-live",
-                  "date": "2026-08-25",
-                  "time": "06:00 - 07:30 PM",
                   "type": "LIVE CLASS",
-                  "title": "What Is the Web?",
-                  "agenda": "What is the Internet? What is the World Wide Web? How does a browser communicate with a server? What are client and server? What happens when we enter a URL in a browser?",
-                  "iconBg": "bg-purple-600 text-white",
-                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30",
-                  "iconName": "Video",
-                  "overview": "What is the Internet? What is the World Wide Web? How does a browser communicate with a server? What are client and server? What happens when we enter a URL in a browser?",
-                  "sessionId": "session-1787638229564-w",
-                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "title": "How the Web Works",
+                  "agenda": "Client-Server architecture, role of browsers, web servers, DNS lookup, and IP addressing.",
                   "actionText": "JOIN",
-                  "instructor": "Siva Veludurthi",
-                  "technology": "HTML5 & Web Architecture",
-                  "description": "What is the Internet? What is the World Wide Web? How does a browser communicate with a server? What are client and server? What happens when we enter a URL in a browser?"
+                  "description": "Client-Server architecture, role of browsers, web servers, DNS lookup, and IP addressing."
                 },
                 {
-                  "id": "t-2",
+                  "id": "top-html1-2-w",
                   "url": "https://meet.google.com/aspire-lms-live",
-                  "date": "2026-08-25",
-                  "time": "06:00 - 07:30 PM",
                   "type": "LIVE CLASS",
-                  "title": "How Does Web Architecture Work?",
-                  "agenda": "What is the client-server model? What is a request and response? What are HTTP and HTTPS? What are URLs, domains, ports, and protocols? How does a browser receive and render a webpage?",
-                  "iconBg": "bg-purple-600 text-white",
-                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30",
-                  "iconName": "Video",
-                  "overview": "What is the client-server model? What is a request and response? What are HTTP and HTTPS? What are URLs, domains, ports, and protocols? How does a browser receive and render a webpage?",
-                  "sessionId": "session-1787638229564-w",
-                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "title": "HTTP/HTTPS Protocol Basics",
+                  "agenda": "HTTP methods (GET, POST, PUT, DELETE), status codes (200, 301, 404, 500), headers and payloads.",
                   "actionText": "JOIN",
-                  "instructor": "Siva Veludurthi",
-                  "technology": "HTML5 & Web Architecture",
-                  "description": "What is the client-server model? What is a request and response? What are HTTP and HTTPS? What are URLs, domains, ports, and protocols? How does a browser receive and render a webpage?"
+                  "description": "HTTP methods (GET, POST, PUT, DELETE), status codes (200, 301, 404, 500), headers and payloads."
                 },
                 {
-                  "id": "t-3",
+                  "id": "top-html1-3-w",
                   "url": "https://meet.google.com/aspire-lms-live",
-                  "date": "2026-08-25",
-                  "time": "06:00 - 07:30 PM",
                   "type": "LIVE CLASS",
-                  "title": "What Is HTML5?",
-                  "agenda": "What is HTML? Why is HTML called a markup language? What changed with HTML5? How is HTML different from CSS and JavaScript? How does HTML define webpage structure?",
-                  "iconBg": "bg-purple-600 text-white",
-                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30",
-                  "iconName": "Video",
-                  "overview": "What is HTML? Why is HTML called a markup language? What changed with HTML5? How is HTML different from CSS and JavaScript? How does HTML define webpage structure?",
-                  "sessionId": "session-1787638229564-w",
-                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "title": "HTML Document Structure",
+                  "agenda": "Doctype html, html, head, meta charset, title, and body tag responsibilities.",
                   "actionText": "JOIN",
-                  "instructor": "Siva Veludurthi",
-                  "technology": "HTML5 & Web Architecture",
-                  "description": "What is HTML? Why is HTML called a markup language? What changed with HTML5? How is HTML different from CSS and JavaScript? How does HTML define webpage structure?"
-                },
-                {
-                  "id": "t-4",
-                  "url": "https://meet.google.com/aspire-lms-live",
-                  "date": "2026-08-25",
-                  "time": "06:00 - 07:30 PM",
-                  "type": "LIVE CLASS",
-                  "title": "How Do We Create an HTML Page?",
-                  "agenda": "How do we create an .html file? What tools can we use? How do we open HTML in a browser? What is <!DOCTYPE html>? Why is the document declaration required?",
-                  "iconBg": "bg-purple-600 text-white",
-                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30",
-                  "iconName": "Video",
-                  "overview": "How do we create an .html file? What tools can we use? How do we open HTML in a browser? What is <!DOCTYPE html>? Why is the document declaration required?",
-                  "sessionId": "session-1787638229564-w",
-                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
-                  "actionText": "JOIN",
-                  "instructor": "Siva Veludurthi",
-                  "technology": "HTML5 & Web Architecture",
-                  "description": "How do we create an .html file? What tools can we use? How do we open HTML in a browser? What is <!DOCTYPE html>? Why is the document declaration required?"
-                },
-                {
-                  "id": "t-5",
-                  "url": "https://meet.google.com/aspire-lms-live",
-                  "date": "2026-08-25",
-                  "time": "06:00 - 07:30 PM",
-                  "type": "LIVE CLASS",
-                  "title": "What Is the Basic HTML5 Document Structure?",
-                  "agenda": "What are <html>, <head>, <meta>, <title>, and <body>? What belongs inside <head>? What belongs inside <body>? What is the viewport meta tag? How should an HTML document be structured?",
-                  "iconBg": "bg-purple-600 text-white",
-                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30",
-                  "iconName": "Video",
-                  "overview": "What are <html>, <head>, <meta>, <title>, and <body>? What belongs inside <head>? What belongs inside <body>? What is the viewport meta tag? How should an HTML document be structured?",
-                  "sessionId": "session-1787638229564-w",
-                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
-                  "actionText": "JOIN",
-                  "instructor": "Siva Veludurthi",
-                  "technology": "HTML5 & Web Architecture",
-                  "description": "What are <html>, <head>, <meta>, <title>, and <body>? What belongs inside <head>? What belongs inside <body>? What is the viewport meta tag? How should an HTML document be structured?"
+                  "description": "Doctype html, html, head, meta charset, title, and body tag responsibilities."
                 }
               ],
               "title": "Web Architecture & Client-Server Communication Model",
+              "topics": [
+                {
+                  "id": "top-html1-1-w",
+                  "title": "How the Web Works",
+                  "agenda": "Client-Server architecture, role of browsers, web servers, DNS lookup, and IP addressing.",
+                  "description": "Client-Server architecture, role of browsers, web servers, DNS lookup, and IP addressing."
+                },
+                {
+                  "id": "top-html1-2-w",
+                  "title": "HTTP/HTTPS Protocol Basics",
+                  "agenda": "HTTP methods (GET, POST, PUT, DELETE), status codes (200, 301, 404, 500), headers and payloads.",
+                  "description": "HTTP methods (GET, POST, PUT, DELETE), status codes (200, 301, 404, 500), headers and payloads."
+                },
+                {
+                  "id": "top-html1-3-w",
+                  "title": "HTML Document Structure",
+                  "agenda": "Doctype html, html, head, meta charset, title, and body tag responsibilities.",
+                  "description": "Doctype html, html, head, meta charset, title, and body tag responsibilities."
+                }
+              ],
               "instructor": "Siva Veludurthi",
               "meetingLink": "https://meet.google.com/aspire-lms-live"
             },
@@ -1478,83 +1935,54 @@ export const INITIAL_MILESTONES = {
               "time": "06:00 - 07:30 PM",
               "items": [
                 {
-                  "id": "t-1",
+                  "id": "top-html2-1-w",
                   "url": "https://meet.google.com/aspire-lms-live",
-                  "date": "2026-08-25",
-                  "time": "06:00 - 07:30 PM",
                   "type": "LIVE CLASS",
-                  "title": "How Do HTML Elements & Attributes Work?",
-                  "agenda": "What is an HTML element? What are opening and closing tags? What are attributes? What is the difference between block and inline elements? How do id, class, title, and style attributes work?",
-                  "iconBg": "bg-purple-600 text-white",
-                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30",
-                  "iconName": "Video",
-                  "overview": "What is an HTML element? What are opening and closing tags? What are attributes? What is the difference between block and inline elements? How do id, class, title, and style attributes work?",
-                  "sessionId": "session-1787638823996-w",
-                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "title": "Semantic vs Non-Semantic HTML",
+                  "agenda": "Why clean semantic layout improves SEO and accessibility; adopting header, nav, main, section, article, aside, and footer.",
                   "actionText": "JOIN",
-                  "instructor": "Siva Veludurthi",
-                  "technology": "HTML5 & Web Architecture",
-                  "description": "What is an HTML element? What are opening and closing tags? What are attributes? What is the difference between block and inline elements? How do id, class, title, and style attributes work?"
+                  "description": "Why clean semantic layout improves SEO and accessibility; adopting header, nav, main, section, article, aside, and footer."
                 },
                 {
-                  "id": "t-2",
+                  "id": "top-html2-2-w",
                   "url": "https://meet.google.com/aspire-lms-live",
-                  "date": "2026-08-25",
-                  "time": "06:00 - 07:30 PM",
                   "type": "LIVE CLASS",
-                  "title": "How Do We Add Text & Links?",
-                  "agenda": "How do headings work with <h1>–<h6>? How are paragraphs created? What are <strong>, <em>, <br>, and <hr>? How do we create links with <a>? What are href, target, and relative vs absolute paths?",
-                  "iconBg": "bg-purple-600 text-white",
-                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30",
-                  "iconName": "Video",
-                  "overview": "How do headings work with <h1>–<h6>? How are paragraphs created? What are <strong>, <em>, <br>, and <hr>? How do we create links with <a>? What are href, target, and relative vs absolute paths?",
-                  "sessionId": "session-1787638823996-w",
-                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "title": "Text Hierarchy & Formatting",
+                  "agenda": "Proper h1 to h6 hierarchy, paragraphs, spans, strong, em, blockquotes, and inline formatting.",
                   "actionText": "JOIN",
-                  "instructor": "Siva Veludurthi",
-                  "technology": "HTML5 & Web Architecture",
-                  "description": "How do headings work with <h1>–<h6>? How are paragraphs created? What are <strong>, <em>, <br>, and <hr>? How do we create links with <a>? What are href, target, and relative vs absolute paths?"
+                  "description": "Proper h1 to h6 hierarchy, paragraphs, spans, strong, em, blockquotes, and inline formatting."
                 },
                 {
-                  "id": "t-3",
+                  "id": "top-html2-3-w",
                   "url": "https://meet.google.com/aspire-lms-live",
-                  "date": "2026-08-25",
-                  "time": "06:00 - 07:30 PM",
                   "type": "LIVE CLASS",
-                  "title": "How Do We Add Lists & Images?",
-                  "agenda": "How do <ul>, <ol>, and <li> work? How do we add images using <img>? What are src and alt? Why is alternative text important? How do image paths work?",
-                  "iconBg": "bg-purple-600 text-white",
-                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30",
-                  "iconName": "Video",
-                  "overview": "How do <ul>, <ol>, and <li> work? How do we add images using <img>? What are src and alt? Why is alternative text important? How do image paths work?",
-                  "sessionId": "session-1787638823996-w",
-                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "title": "Hyperlinks & Navigational Anchors",
+                  "agenda": "Absolute vs relative links, target _blank security, and internal anchor jumps.",
                   "actionText": "JOIN",
-                  "instructor": "Siva Veludurthi",
-                  "technology": "HTML5 & Web Architecture",
-                  "description": "How do <ul>, <ol>, and <li> work? How do we add images using <img>? What are src and alt? Why is alternative text important? How do image paths work?"
-                },
-                {
-                  "id": "t-4",
-                  "url": "https://meet.google.com/aspire-lms-live",
-                  "date": "2026-08-25",
-                  "time": "06:00 - 07:30 PM",
-                  "type": "LIVE CLASS",
-                  "title": "What Are Semantic HTML Elements?",
-                  "agenda": "Why is semantic HTML important? What are <header>, <nav>, <main>, <section>, <article>, <aside>, and <footer>? What is the difference between semantic and non-semantic elements? How does semantic HTML improve accessibility and SEO?",
-                  "iconBg": "bg-purple-600 text-white",
-                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30",
-                  "iconName": "Video",
-                  "overview": "Why is semantic HTML important? What are <header>, <nav>, <main>, <section>, <article>, <aside>, and <footer>? What is the difference between semantic and non-semantic elements? How does semantic HTML improve accessibility and SEO?",
-                  "sessionId": "session-1787638823996-w",
-                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
-                  "actionText": "JOIN",
-                  "instructor": "Siva Veludurthi",
-                  "technology": "HTML5 & Web Architecture",
-                  "description": "Why is semantic HTML important? What are <header>, <nav>, <main>, <section>, <article>, <aside>, and <footer>? What is the difference between semantic and non-semantic elements? How does semantic HTML improve accessibility and SEO?"
+                  "description": "Absolute vs relative links, target _blank security, and internal anchor jumps."
                 }
               ],
               "title": "HTML5 Document Structure & Semantic Elements",
+              "topics": [
+                {
+                  "id": "top-html2-1-w",
+                  "title": "Semantic vs Non-Semantic HTML",
+                  "agenda": "Why clean semantic layout improves SEO and accessibility; adopting header, nav, main, section, article, aside, and footer.",
+                  "description": "Why clean semantic layout improves SEO and accessibility; adopting header, nav, main, section, article, aside, and footer."
+                },
+                {
+                  "id": "top-html2-2-w",
+                  "title": "Text Hierarchy & Formatting",
+                  "agenda": "Proper h1 to h6 hierarchy, paragraphs, spans, strong, em, blockquotes, and inline formatting.",
+                  "description": "Proper h1 to h6 hierarchy, paragraphs, spans, strong, em, blockquotes, and inline formatting."
+                },
+                {
+                  "id": "top-html2-3-w",
+                  "title": "Hyperlinks & Navigational Anchors",
+                  "agenda": "Absolute vs relative links, target _blank security, and internal anchor jumps.",
+                  "description": "Absolute vs relative links, target _blank security, and internal anchor jumps."
+                }
+              ],
               "instructor": "Siva Veludurthi",
               "meetingLink": "https://meet.google.com/aspire-lms-live"
             },
@@ -1564,90 +1992,109 @@ export const INITIAL_MILESTONES = {
               "time": "06:00 - 07:30 AM",
               "items": [
                 {
-                  "id": "t-1",
+                  "id": "top-html3-1-w",
                   "url": "https://meet.google.com/aspire-lms-live",
-                  "date": "2026-08-25",
-                  "time": "06:00 - 07:30 AM",
                   "type": "LIVE CLASS",
-                  "title": "How Do We Build Tables?",
-                  "agenda": "When should tables be used? How do <table>, <tr>, <th>, and <td> work? How do <thead>, <tbody>, and <tfoot> improve structure? How do colspan and rowspan work? How can table data be structured semantically?",
-                  "iconBg": "bg-purple-600 text-white",
-                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30",
-                  "iconName": "Video",
-                  "overview": "When should tables be used? How do <table>, <tr>, <th>, and <td> work? How do <thead>, <tbody>, and <tfoot> improve structure? How do colspan and rowspan work? How can table data be structured semantically?",
-                  "sessionId": "session-1787639889057-w",
-                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "title": "Form Architecture & Attributes",
+                  "agenda": "Form action and method POST/GET, label association with input IDs, and form submission lifecycle.",
                   "actionText": "JOIN",
-                  "instructor": "Siva Veludurthi",
-                  "technology": "HTML5 & Web Architecture",
-                  "description": "When should tables be used? How do <table>, <tr>, <th>, and <td> work? How do <thead>, <tbody>, and <tfoot> improve structure? How do colspan and rowspan work? How can table data be structured semantically?"
+                  "description": "Form action and method POST/GET, label association with input IDs, and form submission lifecycle."
                 },
                 {
-                  "id": "t-2",
+                  "id": "top-html3-2-w",
                   "url": "https://meet.google.com/aspire-lms-live",
-                  "date": "2026-08-25",
-                  "time": "06:00 - 07:30 AM",
                   "type": "LIVE CLASS",
-                  "title": "How Do HTML Forms Work?",
-                  "agenda": "What is a form? How do <form>, <label>, <input>, <textarea>, <select>, and <button> work? What are action and method? How are form controls connected to labels?",
-                  "iconBg": "bg-purple-600 text-white",
-                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30",
-                  "iconName": "Video",
-                  "overview": "What is a form? How do <form>, <label>, <input>, <textarea>, <select>, and <button> work? What are action and method? How are form controls connected to labels?",
-                  "sessionId": "session-1787639889057-w",
-                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "title": "HTML5 Input Variety",
+                  "agenda": "text, email, password, number, tel, date, checkbox, radio, select dropdowns, and textarea.",
                   "actionText": "JOIN",
-                  "instructor": "Siva Veludurthi",
-                  "technology": "HTML5 & Web Architecture",
-                  "description": "What is a form? How do <form>, <label>, <input>, <textarea>, <select>, and <button> work? What are action and method? How are form controls connected to labels?"
+                  "description": "text, email, password, number, tel, date, checkbox, radio, select dropdowns, and textarea."
                 },
                 {
-                  "id": "t-3",
+                  "id": "top-html3-3-w",
                   "url": "https://meet.google.com/aspire-lms-live",
-                  "date": "2026-08-25",
-                  "time": "06:00 - 07:30 AM",
                   "type": "LIVE CLASS",
-                  "title": "What HTML5 Input Types Should We Use?",
-                  "agenda": "What is the difference between text, email, password, number, tel, date, time, url, file, radio, and checkbox? When should each input type be used? How do name, value, placeholder, and autocomplete work?",
-                  "iconBg": "bg-purple-600 text-white",
-                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30",
-                  "iconName": "Video",
-                  "overview": "What is the difference between text, email, password, number, tel, date, time, url, file, radio, and checkbox? When should each input type be used? How do name, value, placeholder, and autocomplete work?",
-                  "sessionId": "session-1787639889057-w",
-                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "title": "Native Validation Attributes",
+                  "agenda": "required, minlength, maxlength, min, max, pattern regular expressions, and client-side validation UI.",
                   "actionText": "JOIN",
-                  "instructor": "Siva Veludurthi",
-                  "technology": "HTML5 & Web Architecture",
-                  "description": "What is the difference between text, email, password, number, tel, date, time, url, file, radio, and checkbox? When should each input type be used? How do name, value, placeholder, and autocomplete work?"
-                },
-                {
-                  "id": "t-4",
-                  "url": "https://meet.google.com/aspire-lms-live",
-                  "date": "2026-08-25",
-                  "time": "06:00 - 07:30 AM",
-                  "type": "LIVE CLASS",
-                  "title": "How Does HTML5 Form Validation Work?",
-                  "agenda": "What does required do? How do minlength and maxlength work? How are min and max used? What does pattern do? How does type=\"email\" provide validation? How can disabled, readonly, and checked be used?",
-                  "iconBg": "bg-purple-600 text-white",
-                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30",
-                  "iconName": "Video",
-                  "overview": "What does required do? How do minlength and maxlength work? How are min and max used? What does pattern do? How does type=\"email\" provide validation? How can disabled, readonly, and checked be used?",
-                  "sessionId": "session-1787639889057-w",
-                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
-                  "actionText": "JOIN",
-                  "instructor": "Siva Veludurthi",
-                  "technology": "HTML5 & Web Architecture",
-                  "description": "What does required do? How do minlength and maxlength work? How are min and max used? What does pattern do? How does type=\"email\" provide validation? How can disabled, readonly, and checked be used?"
+                  "description": "required, minlength, maxlength, min, max, pattern regular expressions, and client-side validation UI."
                 }
               ],
               "title": "HTML Forms, Input Types, & Client-Side Validation",
+              "topics": [
+                {
+                  "id": "top-html3-1-w",
+                  "title": "Form Architecture & Attributes",
+                  "agenda": "Form action and method POST/GET, label association with input IDs, and form submission lifecycle.",
+                  "description": "Form action and method POST/GET, label association with input IDs, and form submission lifecycle."
+                },
+                {
+                  "id": "top-html3-2-w",
+                  "title": "HTML5 Input Variety",
+                  "agenda": "text, email, password, number, tel, date, checkbox, radio, select dropdowns, and textarea.",
+                  "description": "text, email, password, number, tel, date, checkbox, radio, select dropdowns, and textarea."
+                },
+                {
+                  "id": "top-html3-3-w",
+                  "title": "Native Validation Attributes",
+                  "agenda": "required, minlength, maxlength, min, max, pattern regular expressions, and client-side validation UI.",
+                  "description": "required, minlength, maxlength, min, max, pattern regular expressions, and client-side validation UI."
+                }
+              ],
               "instructor": "Siva Veludurthi",
               "meetingLink": "https://meet.google.com/aspire-lms-live"
             },
             {
               "id": "l_html_4",
-              "items": [],
-              "title": "HTML Tables, Media Tags & Accessibility"
+              "items": [
+                {
+                  "id": "top-html4-1-w",
+                  "url": "https://meet.google.com/aspire-lms-live",
+                  "type": "LIVE CLASS",
+                  "title": "Data Tables Structure",
+                  "agenda": "table, thead, tbody, tfoot, tr, th, td, colspan, and rowspan attributes.",
+                  "actionText": "JOIN",
+                  "description": "table, thead, tbody, tfoot, tr, th, td, colspan, and rowspan attributes."
+                },
+                {
+                  "id": "top-html4-2-w",
+                  "url": "https://meet.google.com/aspire-lms-live",
+                  "type": "LIVE CLASS",
+                  "title": "Embedding Media",
+                  "agenda": "img with alt attributes for accessibility, audio, video with controls, and iframe embeddings.",
+                  "actionText": "JOIN",
+                  "description": "img with alt attributes for accessibility, audio, video with controls, and iframe embeddings."
+                },
+                {
+                  "id": "top-html4-3-w",
+                  "url": "https://meet.google.com/aspire-lms-live",
+                  "type": "LIVE CLASS",
+                  "title": "Web Accessibility (a11y) Basics",
+                  "agenda": "ARIA roles, tabindex, semantic landmark navigation, and screen-reader testing fundamentals.",
+                  "actionText": "JOIN",
+                  "description": "ARIA roles, tabindex, semantic landmark navigation, and screen-reader testing fundamentals."
+                }
+              ],
+              "title": "HTML Tables, Media Tags & Accessibility",
+              "topics": [
+                {
+                  "id": "top-html4-1-w",
+                  "title": "Data Tables Structure",
+                  "agenda": "table, thead, tbody, tfoot, tr, th, td, colspan, and rowspan attributes.",
+                  "description": "table, thead, tbody, tfoot, tr, th, td, colspan, and rowspan attributes."
+                },
+                {
+                  "id": "top-html4-2-w",
+                  "title": "Embedding Media",
+                  "agenda": "img with alt attributes for accessibility, audio, video with controls, and iframe embeddings.",
+                  "description": "img with alt attributes for accessibility, audio, video with controls, and iframe embeddings."
+                },
+                {
+                  "id": "top-html4-3-w",
+                  "title": "Web Accessibility (a11y) Basics",
+                  "agenda": "ARIA roles, tabindex, semantic landmark navigation, and screen-reader testing fundamentals.",
+                  "description": "ARIA roles, tabindex, semantic landmark navigation, and screen-reader testing fundamentals."
+                }
+              ]
             }
           ],
           "duration": "1 Week",
@@ -1659,228 +2106,324 @@ export const INITIAL_MILESTONES = {
           "lessons": [
             {
               "id": "l_css_1",
-              "items": [],
-              "title": "CSS Syntax, Rules, and Element/Class/ID Selectors"
+              "items": [
+                {
+                  "id": "top-css1-1-w",
+                  "url": "https://meet.google.com/aspire-lms-live",
+                  "type": "LIVE CLASS",
+                  "title": "CSS Inclusion Methods",
+                  "agenda": "Inline styles, internal style tags, and external stylesheet linking.",
+                  "actionText": "JOIN",
+                  "description": "Inline styles, internal style tags, and external stylesheet linking."
+                },
+                {
+                  "id": "top-css1-2-w",
+                  "url": "https://meet.google.com/aspire-lms-live",
+                  "type": "LIVE CLASS",
+                  "title": "CSS Selectors & Specificity",
+                  "agenda": "Element, class, id, universal, attribute, and pseudo-classes (:hover, :focus, :active). Specificity score calculation.",
+                  "actionText": "JOIN",
+                  "description": "Element, class, id, universal, attribute, and pseudo-classes (:hover, :focus, :active). Specificity score calculation."
+                },
+                {
+                  "id": "top-css1-3-w",
+                  "url": "https://meet.google.com/aspire-lms-live",
+                  "type": "LIVE CLASS",
+                  "title": "The Cascade & Inheritance",
+                  "agenda": "How CSS rules resolve, source order, !important hazards, and inherited vs non-inherited properties.",
+                  "actionText": "JOIN",
+                  "description": "How CSS rules resolve, source order, !important hazards, and inherited vs non-inherited properties."
+                }
+              ],
+              "title": "CSS Syntax, Rules, and Element/Class/ID Selectors",
+              "topics": [
+                {
+                  "id": "top-css1-1-w",
+                  "title": "CSS Inclusion Methods",
+                  "agenda": "Inline styles, internal style tags, and external stylesheet linking.",
+                  "description": "Inline styles, internal style tags, and external stylesheet linking."
+                },
+                {
+                  "id": "top-css1-2-w",
+                  "title": "CSS Selectors & Specificity",
+                  "agenda": "Element, class, id, universal, attribute, and pseudo-classes (:hover, :focus, :active). Specificity score calculation.",
+                  "description": "Element, class, id, universal, attribute, and pseudo-classes (:hover, :focus, :active). Specificity score calculation."
+                },
+                {
+                  "id": "top-css1-3-w",
+                  "title": "The Cascade & Inheritance",
+                  "agenda": "How CSS rules resolve, source order, !important hazards, and inherited vs non-inherited properties.",
+                  "description": "How CSS rules resolve, source order, !important hazards, and inherited vs non-inherited properties."
+                }
+              ]
             },
             {
               "id": "l_css_2",
-              "items": [],
-              "title": "The CSS Box Model: Margin, Padding, Border, & Content"
+              "items": [
+                {
+                  "id": "top-css2-1-w",
+                  "url": "https://meet.google.com/aspire-lms-live",
+                  "type": "LIVE CLASS",
+                  "title": "Box Model Anatomy",
+                  "agenda": "Content dimensions (width/height), padding, border, and margin areas.",
+                  "actionText": "JOIN",
+                  "description": "Content dimensions (width/height), padding, border, and margin areas."
+                },
+                {
+                  "id": "top-css2-2-w",
+                  "url": "https://meet.google.com/aspire-lms-live",
+                  "type": "LIVE CLASS",
+                  "title": "box-sizing: border-box Standard",
+                  "agenda": "Difference between content-box and border-box sizing and universal resetting (* { box-sizing: border-box; }).",
+                  "actionText": "JOIN",
+                  "description": "Difference between content-box and border-box sizing and universal resetting (* { box-sizing: border-box; })."
+                },
+                {
+                  "id": "top-css2-3-w",
+                  "url": "https://meet.google.com/aspire-lms-live",
+                  "type": "LIVE CLASS",
+                  "title": "Margin Collapsing & Spacing",
+                  "agenda": "Vertical margin collapse behavior, padding vs margin usage rules, and outline vs border.",
+                  "actionText": "JOIN",
+                  "description": "Vertical margin collapse behavior, padding vs margin usage rules, and outline vs border."
+                }
+              ],
+              "title": "The CSS Box Model: Margin, Padding, Border, & Content",
+              "topics": [
+                {
+                  "id": "top-css2-1-w",
+                  "title": "Box Model Anatomy",
+                  "agenda": "Content dimensions (width/height), padding, border, and margin areas.",
+                  "description": "Content dimensions (width/height), padding, border, and margin areas."
+                },
+                {
+                  "id": "top-css2-2-w",
+                  "title": "box-sizing: border-box Standard",
+                  "agenda": "Difference between content-box and border-box sizing and universal resetting (* { box-sizing: border-box; }).",
+                  "description": "Difference between content-box and border-box sizing and universal resetting (* { box-sizing: border-box; })."
+                },
+                {
+                  "id": "top-css2-3-w",
+                  "title": "Margin Collapsing & Spacing",
+                  "agenda": "Vertical margin collapse behavior, padding vs margin usage rules, and outline vs border.",
+                  "description": "Vertical margin collapse behavior, padding vs margin usage rules, and outline vs border."
+                }
+              ]
             },
             {
               "id": "l_css_3",
               "items": [
                 {
-                  "id": "t-1",
+                  "id": "top-css3-1-w",
                   "url": "https://meet.google.com/aspire-lms-live",
-                  "date": "2026-08-25",
-                  "time": "06:00 - 07:30 PM",
                   "type": "LIVE CLASS",
-                  "title": "How Do We Work With Colors & Backgrounds?",
-                  "agenda": "How do named colors, HEX, RGB, RGBA, HSL, and HSLA work? How do we set background-color? How do background-image, background-repeat, background-position, background-size, and background shorthand work?",
-                  "iconBg": "bg-purple-600 text-white",
-                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30",
-                  "iconName": "Video",
-                  "overview": "How do named colors, HEX, RGB, RGBA, HSL, and HSLA work? How do we set background-color? How do background-image, background-repeat, background-position, background-size, and background shorthand work?",
-                  "sessionId": "session-1787643722016-w",
-                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "title": "Color Systems in CSS",
+                  "agenda": "Named colors, Hexadecimal (#rrggbb), RGB/RGBA, HSL/HSLA, and CSS custom color variables.",
                   "actionText": "JOIN",
-                  "instructor": "Siva Veludurthi",
-                  "technology": "CSS",
-                  "description": "How do named colors, HEX, RGB, RGBA, HSL, and HSLA work? How do we set background-color? How do background-image, background-repeat, background-position, background-size, and background shorthand work?"
+                  "description": "Named colors, Hexadecimal (#rrggbb), RGB/RGBA, HSL/HSLA, and CSS custom color variables."
                 },
                 {
-                  "id": "t-2",
+                  "id": "top-css3-2-w",
                   "url": "https://meet.google.com/aspire-lms-live",
-                  "date": "2026-08-25",
-                  "time": "06:00 - 07:30 PM",
                   "type": "LIVE CLASS",
-                  "title": "How Do We Style Typography?",
-                  "agenda": "How do font-family, font-size, font-weight, and font-style work? How do line-height, letter-spacing, and word-spacing affect readability? How do we use text-align, text-decoration, text-transform, and text-shadow?",
-                  "iconBg": "bg-purple-600 text-white",
-                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30",
-                  "iconName": "Video",
-                  "overview": "How do font-family, font-size, font-weight, and font-style work? How do line-height, letter-spacing, and word-spacing affect readability? How do we use text-align, text-decoration, text-transform, and text-shadow?",
-                  "sessionId": "session-1787643722016-w",
-                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "title": "Typography & Web Fonts",
+                  "agenda": "font-family stacks, Google Fonts @import/link, font-weight, font-size (px, rem, em), and line-height.",
                   "actionText": "JOIN",
-                  "instructor": "Siva Veludurthi",
-                  "technology": "CSS",
-                  "description": "How do font-family, font-size, font-weight, and font-style work? How do line-height, letter-spacing, and word-spacing affect readability? How do we use text-align, text-decoration, text-transform, and text-shadow?"
+                  "description": "font-family stacks, Google Fonts @import/link, font-weight, font-size (px, rem, em), and line-height."
                 },
                 {
-                  "id": "t-3",
+                  "id": "top-css3-3-w",
                   "url": "https://meet.google.com/aspire-lms-live",
-                  "date": "2026-08-25",
-                  "time": "06:00 - 07:30 PM",
                   "type": "LIVE CLASS",
-                  "title": "How Do We Combine CSS Concepts to Build a Layout?",
-                  "agenda": "How do selectors, spacing, colors, typography, borders, backgrounds, and the Box Model work together? How can we structure a landing page section? How do we style navigation, hero content, buttons, and cards?",
-                  "iconBg": "bg-purple-600 text-white",
-                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30",
-                  "iconName": "Video",
-                  "overview": "How do selectors, spacing, colors, typography, borders, backgrounds, and the Box Model work together? How can we structure a landing page section? How do we style navigation, hero content, buttons, and cards?",
-                  "sessionId": "session-1787643722016-w",
-                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "title": "Backgrounds & Gradients",
+                  "agenda": "background-color, background-image, background-size (cover/contain), linear and radial gradients.",
                   "actionText": "JOIN",
-                  "instructor": "Siva Veludurthi",
-                  "technology": "CSS",
-                  "description": "How do selectors, spacing, colors, typography, borders, backgrounds, and the Box Model work together? How can we structure a landing page section? How do we style navigation, hero content, buttons, and cards?"
-                },
-                {
-                  "id": "t-4",
-                  "url": "https://meet.google.com/aspire-lms-live",
-                  "date": "2026-08-25",
-                  "time": "06:00 - 07:30 PM",
-                  "type": "LIVE CLASS",
-                  "title": "How Do We Write Maintainable CSS?",
-                  "agenda": "How should CSS classes be named? Why should reusable classes be preferred? How can duplicate CSS be avoided? Why should !important be minimized? How should stylesheets be organized for maintainability?",
-                  "iconBg": "bg-purple-600 text-white",
-                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30",
-                  "iconName": "Video",
-                  "overview": "How should CSS classes be named? Why should reusable classes be preferred? How can duplicate CSS be avoided? Why should !important be minimized? How should stylesheets be organized for maintainability?",
-                  "sessionId": "session-1787643722016-w",
-                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
-                  "actionText": "JOIN",
-                  "instructor": "Siva Veludurthi",
-                  "technology": "CSS",
-                  "description": "How should CSS classes be named? Why should reusable classes be preferred? How can duplicate CSS be avoided? Why should !important be minimized? How should stylesheets be organized for maintainability?"
-                },
-                {
-                  "id": "t-5",
-                  "url": "https://meet.google.com/aspire-lms-live",
-                  "date": "2026-08-25",
-                  "time": "06:00 - 07:30 PM",
-                  "type": "LIVE CLASS",
-                  "title": "Final Hands-On Project — Styled Landing Page",
-                  "agenda": "Create a complete landing page using HTML and CSS? Can you build a navigation bar, hero section, call-to-action button, feature cards, typography system, backgrounds, borders, spacing, and consistent Box Model styling? Can you inspect and debug the final layout using Developer Tools?",
-                  "iconBg": "bg-purple-600 text-white",
-                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30",
-                  "iconName": "Video",
-                  "overview": "Create a complete landing page using HTML and CSS? Can you build a navigation bar, hero section, call-to-action button, feature cards, typography system, backgrounds, borders, spacing, and consistent Box Model styling? Can you inspect and debug the final layout using Developer Tools?",
-                  "sessionId": "session-1787643722016-w",
-                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
-                  "actionText": "JOIN",
-                  "instructor": "Siva Veludurthi",
-                  "technology": "CSS",
-                  "description": "Create a complete landing page using HTML and CSS? Can you build a navigation bar, hero section, call-to-action button, feature cards, typography system, backgrounds, borders, spacing, and consistent Box Model styling? Can you inspect and debug the final layout using Developer Tools?"
+                  "description": "background-color, background-image, background-size (cover/contain), linear and radial gradients."
                 }
               ],
               "title": "CSS Colors, Typography, & Visual Backgrounds",
+              "topics": [
+                {
+                  "id": "top-css3-1-w",
+                  "title": "Color Systems in CSS",
+                  "agenda": "Named colors, Hexadecimal (#rrggbb), RGB/RGBA, HSL/HSLA, and CSS custom color variables.",
+                  "description": "Named colors, Hexadecimal (#rrggbb), RGB/RGBA, HSL/HSLA, and CSS custom color variables."
+                },
+                {
+                  "id": "top-css3-2-w",
+                  "title": "Typography & Web Fonts",
+                  "agenda": "font-family stacks, Google Fonts @import/link, font-weight, font-size (px, rem, em), and line-height.",
+                  "description": "font-family stacks, Google Fonts @import/link, font-weight, font-size (px, rem, em), and line-height."
+                },
+                {
+                  "id": "top-css3-3-w",
+                  "title": "Backgrounds & Gradients",
+                  "agenda": "background-color, background-image, background-size (cover/contain), linear and radial gradients.",
+                  "description": "background-color, background-image, background-size (cover/contain), linear and radial gradients."
+                }
+              ],
               "meetingLink": "https://meet.google.com/aspire-lms-live"
             }
           ],
           "modules": [
             {
               "id": "l_css_1",
-              "items": [],
-              "title": "CSS Syntax, Rules, and Element/Class/ID Selectors"
+              "items": [
+                {
+                  "id": "top-css1-1-w",
+                  "url": "https://meet.google.com/aspire-lms-live",
+                  "type": "LIVE CLASS",
+                  "title": "CSS Inclusion Methods",
+                  "agenda": "Inline styles, internal style tags, and external stylesheet linking.",
+                  "actionText": "JOIN",
+                  "description": "Inline styles, internal style tags, and external stylesheet linking."
+                },
+                {
+                  "id": "top-css1-2-w",
+                  "url": "https://meet.google.com/aspire-lms-live",
+                  "type": "LIVE CLASS",
+                  "title": "CSS Selectors & Specificity",
+                  "agenda": "Element, class, id, universal, attribute, and pseudo-classes (:hover, :focus, :active). Specificity score calculation.",
+                  "actionText": "JOIN",
+                  "description": "Element, class, id, universal, attribute, and pseudo-classes (:hover, :focus, :active). Specificity score calculation."
+                },
+                {
+                  "id": "top-css1-3-w",
+                  "url": "https://meet.google.com/aspire-lms-live",
+                  "type": "LIVE CLASS",
+                  "title": "The Cascade & Inheritance",
+                  "agenda": "How CSS rules resolve, source order, !important hazards, and inherited vs non-inherited properties.",
+                  "actionText": "JOIN",
+                  "description": "How CSS rules resolve, source order, !important hazards, and inherited vs non-inherited properties."
+                }
+              ],
+              "title": "CSS Syntax, Rules, and Element/Class/ID Selectors",
+              "topics": [
+                {
+                  "id": "top-css1-1-w",
+                  "title": "CSS Inclusion Methods",
+                  "agenda": "Inline styles, internal style tags, and external stylesheet linking.",
+                  "description": "Inline styles, internal style tags, and external stylesheet linking."
+                },
+                {
+                  "id": "top-css1-2-w",
+                  "title": "CSS Selectors & Specificity",
+                  "agenda": "Element, class, id, universal, attribute, and pseudo-classes (:hover, :focus, :active). Specificity score calculation.",
+                  "description": "Element, class, id, universal, attribute, and pseudo-classes (:hover, :focus, :active). Specificity score calculation."
+                },
+                {
+                  "id": "top-css1-3-w",
+                  "title": "The Cascade & Inheritance",
+                  "agenda": "How CSS rules resolve, source order, !important hazards, and inherited vs non-inherited properties.",
+                  "description": "How CSS rules resolve, source order, !important hazards, and inherited vs non-inherited properties."
+                }
+              ]
             },
             {
               "id": "l_css_2",
-              "items": [],
-              "title": "The CSS Box Model: Margin, Padding, Border, & Content"
+              "items": [
+                {
+                  "id": "top-css2-1-w",
+                  "url": "https://meet.google.com/aspire-lms-live",
+                  "type": "LIVE CLASS",
+                  "title": "Box Model Anatomy",
+                  "agenda": "Content dimensions (width/height), padding, border, and margin areas.",
+                  "actionText": "JOIN",
+                  "description": "Content dimensions (width/height), padding, border, and margin areas."
+                },
+                {
+                  "id": "top-css2-2-w",
+                  "url": "https://meet.google.com/aspire-lms-live",
+                  "type": "LIVE CLASS",
+                  "title": "box-sizing: border-box Standard",
+                  "agenda": "Difference between content-box and border-box sizing and universal resetting (* { box-sizing: border-box; }).",
+                  "actionText": "JOIN",
+                  "description": "Difference between content-box and border-box sizing and universal resetting (* { box-sizing: border-box; })."
+                },
+                {
+                  "id": "top-css2-3-w",
+                  "url": "https://meet.google.com/aspire-lms-live",
+                  "type": "LIVE CLASS",
+                  "title": "Margin Collapsing & Spacing",
+                  "agenda": "Vertical margin collapse behavior, padding vs margin usage rules, and outline vs border.",
+                  "actionText": "JOIN",
+                  "description": "Vertical margin collapse behavior, padding vs margin usage rules, and outline vs border."
+                }
+              ],
+              "title": "The CSS Box Model: Margin, Padding, Border, & Content",
+              "topics": [
+                {
+                  "id": "top-css2-1-w",
+                  "title": "Box Model Anatomy",
+                  "agenda": "Content dimensions (width/height), padding, border, and margin areas.",
+                  "description": "Content dimensions (width/height), padding, border, and margin areas."
+                },
+                {
+                  "id": "top-css2-2-w",
+                  "title": "box-sizing: border-box Standard",
+                  "agenda": "Difference between content-box and border-box sizing and universal resetting (* { box-sizing: border-box; }).",
+                  "description": "Difference between content-box and border-box sizing and universal resetting (* { box-sizing: border-box; })."
+                },
+                {
+                  "id": "top-css2-3-w",
+                  "title": "Margin Collapsing & Spacing",
+                  "agenda": "Vertical margin collapse behavior, padding vs margin usage rules, and outline vs border.",
+                  "description": "Vertical margin collapse behavior, padding vs margin usage rules, and outline vs border."
+                }
+              ]
             },
             {
               "id": "l_css_3",
               "items": [
                 {
-                  "id": "t-1",
+                  "id": "top-css3-1-w",
                   "url": "https://meet.google.com/aspire-lms-live",
-                  "date": "2026-08-25",
-                  "time": "06:00 - 07:30 PM",
                   "type": "LIVE CLASS",
-                  "title": "How Do We Work With Colors & Backgrounds?",
-                  "agenda": "How do named colors, HEX, RGB, RGBA, HSL, and HSLA work? How do we set background-color? How do background-image, background-repeat, background-position, background-size, and background shorthand work?",
-                  "iconBg": "bg-purple-600 text-white",
-                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30",
-                  "iconName": "Video",
-                  "overview": "How do named colors, HEX, RGB, RGBA, HSL, and HSLA work? How do we set background-color? How do background-image, background-repeat, background-position, background-size, and background shorthand work?",
-                  "sessionId": "session-1787643722016-w",
-                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "title": "Color Systems in CSS",
+                  "agenda": "Named colors, Hexadecimal (#rrggbb), RGB/RGBA, HSL/HSLA, and CSS custom color variables.",
                   "actionText": "JOIN",
-                  "instructor": "Siva Veludurthi",
-                  "technology": "CSS",
-                  "description": "How do named colors, HEX, RGB, RGBA, HSL, and HSLA work? How do we set background-color? How do background-image, background-repeat, background-position, background-size, and background shorthand work?"
+                  "description": "Named colors, Hexadecimal (#rrggbb), RGB/RGBA, HSL/HSLA, and CSS custom color variables."
                 },
                 {
-                  "id": "t-2",
+                  "id": "top-css3-2-w",
                   "url": "https://meet.google.com/aspire-lms-live",
-                  "date": "2026-08-25",
-                  "time": "06:00 - 07:30 PM",
                   "type": "LIVE CLASS",
-                  "title": "How Do We Style Typography?",
-                  "agenda": "How do font-family, font-size, font-weight, and font-style work? How do line-height, letter-spacing, and word-spacing affect readability? How do we use text-align, text-decoration, text-transform, and text-shadow?",
-                  "iconBg": "bg-purple-600 text-white",
-                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30",
-                  "iconName": "Video",
-                  "overview": "How do font-family, font-size, font-weight, and font-style work? How do line-height, letter-spacing, and word-spacing affect readability? How do we use text-align, text-decoration, text-transform, and text-shadow?",
-                  "sessionId": "session-1787643722016-w",
-                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "title": "Typography & Web Fonts",
+                  "agenda": "font-family stacks, Google Fonts @import/link, font-weight, font-size (px, rem, em), and line-height.",
                   "actionText": "JOIN",
-                  "instructor": "Siva Veludurthi",
-                  "technology": "CSS",
-                  "description": "How do font-family, font-size, font-weight, and font-style work? How do line-height, letter-spacing, and word-spacing affect readability? How do we use text-align, text-decoration, text-transform, and text-shadow?"
+                  "description": "font-family stacks, Google Fonts @import/link, font-weight, font-size (px, rem, em), and line-height."
                 },
                 {
-                  "id": "t-3",
+                  "id": "top-css3-3-w",
                   "url": "https://meet.google.com/aspire-lms-live",
-                  "date": "2026-08-25",
-                  "time": "06:00 - 07:30 PM",
                   "type": "LIVE CLASS",
-                  "title": "How Do We Combine CSS Concepts to Build a Layout?",
-                  "agenda": "How do selectors, spacing, colors, typography, borders, backgrounds, and the Box Model work together? How can we structure a landing page section? How do we style navigation, hero content, buttons, and cards?",
-                  "iconBg": "bg-purple-600 text-white",
-                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30",
-                  "iconName": "Video",
-                  "overview": "How do selectors, spacing, colors, typography, borders, backgrounds, and the Box Model work together? How can we structure a landing page section? How do we style navigation, hero content, buttons, and cards?",
-                  "sessionId": "session-1787643722016-w",
-                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "title": "Backgrounds & Gradients",
+                  "agenda": "background-color, background-image, background-size (cover/contain), linear and radial gradients.",
                   "actionText": "JOIN",
-                  "instructor": "Siva Veludurthi",
-                  "technology": "CSS",
-                  "description": "How do selectors, spacing, colors, typography, borders, backgrounds, and the Box Model work together? How can we structure a landing page section? How do we style navigation, hero content, buttons, and cards?"
-                },
-                {
-                  "id": "t-4",
-                  "url": "https://meet.google.com/aspire-lms-live",
-                  "date": "2026-08-25",
-                  "time": "06:00 - 07:30 PM",
-                  "type": "LIVE CLASS",
-                  "title": "How Do We Write Maintainable CSS?",
-                  "agenda": "How should CSS classes be named? Why should reusable classes be preferred? How can duplicate CSS be avoided? Why should !important be minimized? How should stylesheets be organized for maintainability?",
-                  "iconBg": "bg-purple-600 text-white",
-                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30",
-                  "iconName": "Video",
-                  "overview": "How should CSS classes be named? Why should reusable classes be preferred? How can duplicate CSS be avoided? Why should !important be minimized? How should stylesheets be organized for maintainability?",
-                  "sessionId": "session-1787643722016-w",
-                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
-                  "actionText": "JOIN",
-                  "instructor": "Siva Veludurthi",
-                  "technology": "CSS",
-                  "description": "How should CSS classes be named? Why should reusable classes be preferred? How can duplicate CSS be avoided? Why should !important be minimized? How should stylesheets be organized for maintainability?"
-                },
-                {
-                  "id": "t-5",
-                  "url": "https://meet.google.com/aspire-lms-live",
-                  "date": "2026-08-25",
-                  "time": "06:00 - 07:30 PM",
-                  "type": "LIVE CLASS",
-                  "title": "Final Hands-On Project — Styled Landing Page",
-                  "agenda": "Create a complete landing page using HTML and CSS? Can you build a navigation bar, hero section, call-to-action button, feature cards, typography system, backgrounds, borders, spacing, and consistent Box Model styling? Can you inspect and debug the final layout using Developer Tools?",
-                  "iconBg": "bg-purple-600 text-white",
-                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30",
-                  "iconName": "Video",
-                  "overview": "Create a complete landing page using HTML and CSS? Can you build a navigation bar, hero section, call-to-action button, feature cards, typography system, backgrounds, borders, spacing, and consistent Box Model styling? Can you inspect and debug the final layout using Developer Tools?",
-                  "sessionId": "session-1787643722016-w",
-                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
-                  "actionText": "JOIN",
-                  "instructor": "Siva Veludurthi",
-                  "technology": "CSS",
-                  "description": "Create a complete landing page using HTML and CSS? Can you build a navigation bar, hero section, call-to-action button, feature cards, typography system, backgrounds, borders, spacing, and consistent Box Model styling? Can you inspect and debug the final layout using Developer Tools?"
+                  "description": "background-color, background-image, background-size (cover/contain), linear and radial gradients."
                 }
               ],
               "title": "CSS Colors, Typography, & Visual Backgrounds",
+              "topics": [
+                {
+                  "id": "top-css3-1-w",
+                  "title": "Color Systems in CSS",
+                  "agenda": "Named colors, Hexadecimal (#rrggbb), RGB/RGBA, HSL/HSLA, and CSS custom color variables.",
+                  "description": "Named colors, Hexadecimal (#rrggbb), RGB/RGBA, HSL/HSLA, and CSS custom color variables."
+                },
+                {
+                  "id": "top-css3-2-w",
+                  "title": "Typography & Web Fonts",
+                  "agenda": "font-family stacks, Google Fonts @import/link, font-weight, font-size (px, rem, em), and line-height.",
+                  "description": "font-family stacks, Google Fonts @import/link, font-weight, font-size (px, rem, em), and line-height."
+                },
+                {
+                  "id": "top-css3-3-w",
+                  "title": "Backgrounds & Gradients",
+                  "agenda": "background-color, background-image, background-size (cover/contain), linear and radial gradients.",
+                  "description": "background-color, background-image, background-size (cover/contain), linear and radial gradients."
+                }
+              ],
               "meetingLink": "https://meet.google.com/aspire-lms-live"
             }
           ],
@@ -1892,8 +2435,86 @@ export const INITIAL_MILESTONES = {
           "lessons": [
             {
               "id": "l_css_adv_1",
-              "items": [],
-              "title": "Flexbox Architecture & Practical Alignments"
+              "items": [
+                {
+                  "id": "top-flex-1-w",
+                  "url": "https://meet.google.com/aspire-lms-live",
+                  "type": "LIVE CLASS",
+                  "title": "Flex Container & Main/Cross Axis",
+                  "agenda": "display: flex, flex-direction (row, column), and understanding primary vs cross alignment axes.",
+                  "actionText": "JOIN",
+                  "description": "display: flex, flex-direction (row, column), and understanding primary vs cross alignment axes."
+                },
+                {
+                  "id": "top-flex-2-w",
+                  "url": "https://meet.google.com/aspire-lms-live",
+                  "type": "LIVE CLASS",
+                  "title": "Aligning & Distributing Items",
+                  "agenda": "justify-content (flex-start, center, space-between, space-around, space-evenly) and align-items (stretch, center, flex-start, flex-end).",
+                  "actionText": "JOIN",
+                  "description": "justify-content (flex-start, center, space-between, space-around, space-evenly) and align-items (stretch, center, flex-start, flex-end)."
+                },
+                {
+                  "id": "top-flex-3-w",
+                  "url": "https://meet.google.com/aspire-lms-live",
+                  "type": "LIVE CLASS",
+                  "title": "Multi-Line Wrapping & Align-Content",
+                  "agenda": "flex-wrap: wrap, row-gap, column-gap, and align-content multi-line spacing.",
+                  "actionText": "JOIN",
+                  "description": "flex-wrap: wrap, row-gap, column-gap, and align-content multi-line spacing."
+                },
+                {
+                  "id": "top-flex-4-w",
+                  "url": "https://meet.google.com/aspire-lms-live",
+                  "type": "LIVE CLASS",
+                  "title": "Flex Item Sizing Controls",
+                  "agenda": "flex-grow, flex-shrink, flex-basis shorthand (flex: 1), and align-self individual overrides.",
+                  "actionText": "JOIN",
+                  "description": "flex-grow, flex-shrink, flex-basis shorthand (flex: 1), and align-self individual overrides."
+                },
+                {
+                  "id": "top-flex-5-w",
+                  "url": "https://meet.google.com/aspire-lms-live",
+                  "type": "LIVE CLASS",
+                  "title": "Real-world Flexbox Layouts",
+                  "agenda": "Building responsive navigation bars, centered cards, holy grail layouts, and sticky footers with Flexbox.",
+                  "actionText": "JOIN",
+                  "description": "Building responsive navigation bars, centered cards, holy grail layouts, and sticky footers with Flexbox."
+                }
+              ],
+              "title": "Flexbox Architecture & Practical Alignments",
+              "topics": [
+                {
+                  "id": "top-flex-1-w",
+                  "title": "Flex Container & Main/Cross Axis",
+                  "agenda": "display: flex, flex-direction (row, column), and understanding primary vs cross alignment axes.",
+                  "description": "display: flex, flex-direction (row, column), and understanding primary vs cross alignment axes."
+                },
+                {
+                  "id": "top-flex-2-w",
+                  "title": "Aligning & Distributing Items",
+                  "agenda": "justify-content (flex-start, center, space-between, space-around, space-evenly) and align-items (stretch, center, flex-start, flex-end).",
+                  "description": "justify-content (flex-start, center, space-between, space-around, space-evenly) and align-items (stretch, center, flex-start, flex-end)."
+                },
+                {
+                  "id": "top-flex-3-w",
+                  "title": "Multi-Line Wrapping & Align-Content",
+                  "agenda": "flex-wrap: wrap, row-gap, column-gap, and align-content multi-line spacing.",
+                  "description": "flex-wrap: wrap, row-gap, column-gap, and align-content multi-line spacing."
+                },
+                {
+                  "id": "top-flex-4-w",
+                  "title": "Flex Item Sizing Controls",
+                  "agenda": "flex-grow, flex-shrink, flex-basis shorthand (flex: 1), and align-self individual overrides.",
+                  "description": "flex-grow, flex-shrink, flex-basis shorthand (flex: 1), and align-self individual overrides."
+                },
+                {
+                  "id": "top-flex-5-w",
+                  "title": "Real-world Flexbox Layouts",
+                  "agenda": "Building responsive navigation bars, centered cards, holy grail layouts, and sticky footers with Flexbox.",
+                  "description": "Building responsive navigation bars, centered cards, holy grail layouts, and sticky footers with Flexbox."
+                }
+              ]
             },
             {
               "id": "l_css_adv_2",
@@ -1914,8 +2535,86 @@ export const INITIAL_MILESTONES = {
           "modules": [
             {
               "id": "l_css_adv_1",
-              "items": [],
-              "title": "Flexbox Architecture & Practical Alignments"
+              "items": [
+                {
+                  "id": "top-flex-1-w",
+                  "url": "https://meet.google.com/aspire-lms-live",
+                  "type": "LIVE CLASS",
+                  "title": "Flex Container & Main/Cross Axis",
+                  "agenda": "display: flex, flex-direction (row, column), and understanding primary vs cross alignment axes.",
+                  "actionText": "JOIN",
+                  "description": "display: flex, flex-direction (row, column), and understanding primary vs cross alignment axes."
+                },
+                {
+                  "id": "top-flex-2-w",
+                  "url": "https://meet.google.com/aspire-lms-live",
+                  "type": "LIVE CLASS",
+                  "title": "Aligning & Distributing Items",
+                  "agenda": "justify-content (flex-start, center, space-between, space-around, space-evenly) and align-items (stretch, center, flex-start, flex-end).",
+                  "actionText": "JOIN",
+                  "description": "justify-content (flex-start, center, space-between, space-around, space-evenly) and align-items (stretch, center, flex-start, flex-end)."
+                },
+                {
+                  "id": "top-flex-3-w",
+                  "url": "https://meet.google.com/aspire-lms-live",
+                  "type": "LIVE CLASS",
+                  "title": "Multi-Line Wrapping & Align-Content",
+                  "agenda": "flex-wrap: wrap, row-gap, column-gap, and align-content multi-line spacing.",
+                  "actionText": "JOIN",
+                  "description": "flex-wrap: wrap, row-gap, column-gap, and align-content multi-line spacing."
+                },
+                {
+                  "id": "top-flex-4-w",
+                  "url": "https://meet.google.com/aspire-lms-live",
+                  "type": "LIVE CLASS",
+                  "title": "Flex Item Sizing Controls",
+                  "agenda": "flex-grow, flex-shrink, flex-basis shorthand (flex: 1), and align-self individual overrides.",
+                  "actionText": "JOIN",
+                  "description": "flex-grow, flex-shrink, flex-basis shorthand (flex: 1), and align-self individual overrides."
+                },
+                {
+                  "id": "top-flex-5-w",
+                  "url": "https://meet.google.com/aspire-lms-live",
+                  "type": "LIVE CLASS",
+                  "title": "Real-world Flexbox Layouts",
+                  "agenda": "Building responsive navigation bars, centered cards, holy grail layouts, and sticky footers with Flexbox.",
+                  "actionText": "JOIN",
+                  "description": "Building responsive navigation bars, centered cards, holy grail layouts, and sticky footers with Flexbox."
+                }
+              ],
+              "title": "Flexbox Architecture & Practical Alignments",
+              "topics": [
+                {
+                  "id": "top-flex-1-w",
+                  "title": "Flex Container & Main/Cross Axis",
+                  "agenda": "display: flex, flex-direction (row, column), and understanding primary vs cross alignment axes.",
+                  "description": "display: flex, flex-direction (row, column), and understanding primary vs cross alignment axes."
+                },
+                {
+                  "id": "top-flex-2-w",
+                  "title": "Aligning & Distributing Items",
+                  "agenda": "justify-content (flex-start, center, space-between, space-around, space-evenly) and align-items (stretch, center, flex-start, flex-end).",
+                  "description": "justify-content (flex-start, center, space-between, space-around, space-evenly) and align-items (stretch, center, flex-start, flex-end)."
+                },
+                {
+                  "id": "top-flex-3-w",
+                  "title": "Multi-Line Wrapping & Align-Content",
+                  "agenda": "flex-wrap: wrap, row-gap, column-gap, and align-content multi-line spacing.",
+                  "description": "flex-wrap: wrap, row-gap, column-gap, and align-content multi-line spacing."
+                },
+                {
+                  "id": "top-flex-4-w",
+                  "title": "Flex Item Sizing Controls",
+                  "agenda": "flex-grow, flex-shrink, flex-basis shorthand (flex: 1), and align-self individual overrides.",
+                  "description": "flex-grow, flex-shrink, flex-basis shorthand (flex: 1), and align-self individual overrides."
+                },
+                {
+                  "id": "top-flex-5-w",
+                  "title": "Real-world Flexbox Layouts",
+                  "agenda": "Building responsive navigation bars, centered cards, holy grail layouts, and sticky footers with Flexbox.",
+                  "description": "Building responsive navigation bars, centered cards, holy grail layouts, and sticky footers with Flexbox."
+                }
+              ]
             },
             {
               "id": "l_css_adv_2",
@@ -2140,62 +2839,343 @@ export const INITIAL_MILESTONES = {
           "lessons": [
             {
               "id": "l_git_1",
-              "items": [],
-              "title": "Git Architecture & Version Control Concepts"
+              "items": [
+                {
+                  "id": "item-asmnt-asmnt-1787657513434-w",
+                  "url": "/assessments",
+                  "type": "ASSESSMENT",
+                  "title": "gfdszx nbvcxz",
+                  "iconBg": "bg-blue-600 text-white",
+                  "dueDate": "2026-08-30",
+                  "btnStyle": "bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30",
+                  "iconName": "FileCheck",
+                  "mcqCount": 1,
+                  "typeColor": "bg-blue-100 text-blue-800 border-blue-200",
+                  "actionText": "START",
+                  "totalMarks": 100,
+                  "codingCount": 1,
+                  "assessmentId": "asmnt-1787657513434-w",
+                  "totalQuestions": 2,
+                  "durationMinutes": 45
+                },
+                {
+                  "id": "top-git1-1-w",
+                  "url": "https://meet.google.com/aspire-lms-live",
+                  "type": "LIVE CLASS",
+                  "title": "What is Version Control?",
+                  "agenda": "What is version control? Why do developers need it? What happens if multiple developers edit the same project? Difference between Git and GitHub.",
+                  "actionText": "JOIN",
+                  "description": "What is version control? Why do developers need it? What happens if multiple developers edit the same project? Difference between Git and GitHub."
+                },
+                {
+                  "id": "top-git1-2-w",
+                  "url": "https://meet.google.com/aspire-lms-live",
+                  "type": "LIVE CLASS",
+                  "title": "How Does Git Work?",
+                  "agenda": "Understanding Git snapshot architecture, working directory, staging area (index), and local repository (.git directory).",
+                  "actionText": "JOIN",
+                  "description": "Understanding Git snapshot architecture, working directory, staging area (index), and local repository (.git directory)."
+                },
+                {
+                  "id": "top-git1-3-w",
+                  "url": "https://meet.google.com/aspire-lms-live",
+                  "type": "LIVE CLASS",
+                  "title": "How Do We Install & Configure Git?",
+                  "agenda": "Installing Git CLI on Windows, Mac, and Linux. Setting up global user identity and default branch configuration.",
+                  "actionText": "JOIN",
+                  "description": "Installing Git CLI on Windows, Mac, and Linux. Setting up global user identity and default branch configuration."
+                },
+                {
+                  "id": "top-git1-4-w",
+                  "url": "https://meet.google.com/aspire-lms-live",
+                  "type": "LIVE CLASS",
+                  "title": "How Do We Create a Git Repository?",
+                  "agenda": "Initializing new local repositories with git init, hidden .git folder structure, and cloning remote repos with git clone.",
+                  "actionText": "JOIN",
+                  "description": "Initializing new local repositories with git init, hidden .git folder structure, and cloning remote repos with git clone."
+                },
+                {
+                  "id": "top-git1-5-w",
+                  "url": "https://meet.google.com/aspire-lms-live",
+                  "type": "LIVE CLASS",
+                  "title": "How Do We Track & Commit Changes?",
+                  "agenda": "Inspecting file status with git status, staging with git add, committing with git commit -m, and reading git log history.",
+                  "actionText": "JOIN",
+                  "description": "Inspecting file status with git status, staging with git add, committing with git commit -m, and reading git log history."
+                }
+              ],
+              "title": "Git Architecture & Version Control Concepts",
+              "topics": [
+                {
+                  "id": "top-git1-1-w",
+                  "title": "What is Version Control?",
+                  "agenda": "What is version control? Why do developers need it? What happens if multiple developers edit the same project? Difference between Git and GitHub.",
+                  "description": "What is version control? Why do developers need it? What happens if multiple developers edit the same project? Difference between Git and GitHub."
+                },
+                {
+                  "id": "top-git1-2-w",
+                  "title": "How Does Git Work?",
+                  "agenda": "Understanding Git snapshot architecture, working directory, staging area (index), and local repository (.git directory).",
+                  "description": "Understanding Git snapshot architecture, working directory, staging area (index), and local repository (.git directory)."
+                },
+                {
+                  "id": "top-git1-3-w",
+                  "title": "How Do We Install & Configure Git?",
+                  "agenda": "Installing Git CLI on Windows, Mac, and Linux. Setting up global user identity and default branch configuration.",
+                  "description": "Installing Git CLI on Windows, Mac, and Linux. Setting up global user identity and default branch configuration."
+                },
+                {
+                  "id": "top-git1-4-w",
+                  "title": "How Do We Create a Git Repository?",
+                  "agenda": "Initializing new local repositories with git init, hidden .git folder structure, and cloning remote repos with git clone.",
+                  "description": "Initializing new local repositories with git init, hidden .git folder structure, and cloning remote repos with git clone."
+                },
+                {
+                  "id": "top-git1-5-w",
+                  "title": "How Do We Track & Commit Changes?",
+                  "agenda": "Inspecting file status with git status, staging with git add, committing with git commit -m, and reading git log history.",
+                  "description": "Inspecting file status with git status, staging with git add, committing with git commit -m, and reading git log history."
+                }
+              ]
             },
             {
               "id": "l_git_2",
-              "items": [],
-              "title": "Core Git Commands: init, add, commit, push, pull"
+              "items": [
+                {
+                  "id": "top-git2-1-w",
+                  "url": "https://meet.google.com/aspire-lms-live",
+                  "type": "LIVE CLASS",
+                  "title": "Git Initialization & Staging Deep-Dive",
+                  "agenda": "Mastering git init, git add (single, multiple, wildcards, .), and .gitignore patterns.",
+                  "actionText": "JOIN",
+                  "description": "Mastering git init, git add (single, multiple, wildcards, .), and .gitignore patterns."
+                },
+                {
+                  "id": "top-git2-2-w",
+                  "url": "https://meet.google.com/aspire-lms-live",
+                  "type": "LIVE CLASS",
+                  "title": "Crafting Atomic Commits",
+                  "agenda": "Writing conventional commit messages, understanding commit hashes (SHA-1), and commit authoring best practices.",
+                  "actionText": "JOIN",
+                  "description": "Writing conventional commit messages, understanding commit hashes (SHA-1), and commit authoring best practices."
+                },
+                {
+                  "id": "top-git2-3-w",
+                  "url": "https://meet.google.com/aspire-lms-live",
+                  "type": "LIVE CLASS",
+                  "title": "Remote Repository Connections",
+                  "agenda": "Configuring remotes with git remote add origin, inspecting remotes with git remote -v, and SSH vs HTTPS auth.",
+                  "actionText": "JOIN",
+                  "description": "Configuring remotes with git remote add origin, inspecting remotes with git remote -v, and SSH vs HTTPS auth."
+                },
+                {
+                  "id": "top-git2-4-w",
+                  "url": "https://meet.google.com/aspire-lms-live",
+                  "type": "LIVE CLASS",
+                  "title": "Pushing Code to GitHub",
+                  "agenda": "Upstream branch tracking with git push -u origin main, force push dangers, and protecting main branches.",
+                  "actionText": "JOIN",
+                  "description": "Upstream branch tracking with git push -u origin main, force push dangers, and protecting main branches."
+                },
+                {
+                  "id": "top-git2-5-w",
+                  "url": "https://meet.google.com/aspire-lms-live",
+                  "type": "LIVE CLASS",
+                  "title": "Pulling & Fetching Updates",
+                  "agenda": "Difference between git fetch and git pull, understanding fast-forward merges, and keeping local branches in sync.",
+                  "actionText": "JOIN",
+                  "description": "Difference between git fetch and git pull, understanding fast-forward merges, and keeping local branches in sync."
+                }
+              ],
+              "title": "Core Git Commands: init, add, commit, push, pull",
+              "topics": [
+                {
+                  "id": "top-git2-1-w",
+                  "title": "Git Initialization & Staging Deep-Dive",
+                  "agenda": "Mastering git init, git add (single, multiple, wildcards, .), and .gitignore patterns.",
+                  "description": "Mastering git init, git add (single, multiple, wildcards, .), and .gitignore patterns."
+                },
+                {
+                  "id": "top-git2-2-w",
+                  "title": "Crafting Atomic Commits",
+                  "agenda": "Writing conventional commit messages, understanding commit hashes (SHA-1), and commit authoring best practices.",
+                  "description": "Writing conventional commit messages, understanding commit hashes (SHA-1), and commit authoring best practices."
+                },
+                {
+                  "id": "top-git2-3-w",
+                  "title": "Remote Repository Connections",
+                  "agenda": "Configuring remotes with git remote add origin, inspecting remotes with git remote -v, and SSH vs HTTPS auth.",
+                  "description": "Configuring remotes with git remote add origin, inspecting remotes with git remote -v, and SSH vs HTTPS auth."
+                },
+                {
+                  "id": "top-git2-4-w",
+                  "title": "Pushing Code to GitHub",
+                  "agenda": "Upstream branch tracking with git push -u origin main, force push dangers, and protecting main branches.",
+                  "description": "Upstream branch tracking with git push -u origin main, force push dangers, and protecting main branches."
+                },
+                {
+                  "id": "top-git2-5-w",
+                  "title": "Pulling & Fetching Updates",
+                  "agenda": "Difference between git fetch and git pull, understanding fast-forward merges, and keeping local branches in sync.",
+                  "description": "Difference between git fetch and git pull, understanding fast-forward merges, and keeping local branches in sync."
+                }
+              ]
             },
             {
               "id": "l_git_3",
-              "items": [],
-              "title": "Branching Strategy & Merge Conflicts"
+              "items": [
+                {
+                  "id": "item-proj-proj-1787657794899-w",
+                  "url": "/projects",
+                  "type": "PROJECT",
+                  "title": "tree",
+                  "iconBg": "bg-emerald-600 text-white",
+                  "dueDate": "Aug 30",
+                  "btnStyle": "bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm shadow-emerald-500/30",
+                  "category": "Full-Stack Web Dev",
+                  "iconName": "Building2",
+                  "projectId": "proj-1787657794899-w",
+                  "techStack": [
+                    "React",
+                    "Node.js",
+                    "PostgreSQL"
+                  ],
+                  "typeColor": "bg-emerald-100 text-emerald-800 border-emerald-200",
+                  "actionText": "VIEW",
+                  "difficulty": "Intermediate"
+                },
+                {
+                  "id": "top-git3-1-w",
+                  "url": "https://meet.google.com/aspire-lms-live",
+                  "type": "LIVE CLASS",
+                  "title": "Branching Fundamentals in Git",
+                  "agenda": "Why isolated feature branches matter, creating branches with git branch, and switching with git switch/checkout.",
+                  "actionText": "JOIN",
+                  "description": "Why isolated feature branches matter, creating branches with git branch, and switching with git switch/checkout."
+                },
+                {
+                  "id": "top-git3-2-w",
+                  "url": "https://meet.google.com/aspire-lms-live",
+                  "type": "LIVE CLASS",
+                  "title": "Git Merge Strategies",
+                  "agenda": "Fast-forward merges vs 3-way merge commits, executing git merge, and clean branching trees.",
+                  "actionText": "JOIN",
+                  "description": "Fast-forward merges vs 3-way merge commits, executing git merge, and clean branching trees."
+                },
+                {
+                  "id": "top-git3-3-w",
+                  "url": "https://meet.google.com/aspire-lms-live",
+                  "type": "LIVE CLASS",
+                  "title": "Understanding Merge Conflicts",
+                  "agenda": "Why conflicts happen, conflict markers (<<<<<<< HEAD, =======, >>>>>>>), and analyzing differing edits.",
+                  "actionText": "JOIN",
+                  "description": "Why conflicts happen, conflict markers (<<<<<<< HEAD, =======, >>>>>>>), and analyzing differing edits."
+                },
+                {
+                  "id": "top-git3-4-w",
+                  "url": "https://meet.google.com/aspire-lms-live",
+                  "type": "LIVE CLASS",
+                  "title": "Resolving Conflicts Hands-on",
+                  "agenda": "Manual conflict resolution in VS Code, staging resolved files, and finalizing merge commits safely.",
+                  "actionText": "JOIN",
+                  "description": "Manual conflict resolution in VS Code, staging resolved files, and finalizing merge commits safely."
+                },
+                {
+                  "id": "top-git3-5-w",
+                  "url": "https://meet.google.com/aspire-lms-live",
+                  "type": "LIVE CLASS",
+                  "title": "Branch Cleanup & Maintenance",
+                  "agenda": "Deleting merged local branches with git branch -d and remote branches with git push origin --delete.",
+                  "actionText": "JOIN",
+                  "description": "Deleting merged local branches with git branch -d and remote branches with git push origin --delete."
+                }
+              ],
+              "title": "Branching Strategy & Merge Conflicts",
+              "topics": [
+                {
+                  "id": "top-git3-1-w",
+                  "title": "Branching Fundamentals in Git",
+                  "agenda": "Why isolated feature branches matter, creating branches with git branch, and switching with git switch/checkout.",
+                  "description": "Why isolated feature branches matter, creating branches with git branch, and switching with git switch/checkout."
+                },
+                {
+                  "id": "top-git3-2-w",
+                  "title": "Git Merge Strategies",
+                  "agenda": "Fast-forward merges vs 3-way merge commits, executing git merge, and clean branching trees.",
+                  "description": "Fast-forward merges vs 3-way merge commits, executing git merge, and clean branching trees."
+                },
+                {
+                  "id": "top-git3-3-w",
+                  "title": "Understanding Merge Conflicts",
+                  "agenda": "Why conflicts happen, conflict markers (<<<<<<< HEAD, =======, >>>>>>>), and analyzing differing edits.",
+                  "description": "Why conflicts happen, conflict markers (<<<<<<< HEAD, =======, >>>>>>>), and analyzing differing edits."
+                },
+                {
+                  "id": "top-git3-4-w",
+                  "title": "Resolving Conflicts Hands-on",
+                  "agenda": "Manual conflict resolution in VS Code, staging resolved files, and finalizing merge commits safely.",
+                  "description": "Manual conflict resolution in VS Code, staging resolved files, and finalizing merge commits safely."
+                },
+                {
+                  "id": "top-git3-5-w",
+                  "title": "Branch Cleanup & Maintenance",
+                  "agenda": "Deleting merged local branches with git branch -d and remote branches with git push origin --delete.",
+                  "description": "Deleting merged local branches with git branch -d and remote branches with git push origin --delete."
+                }
+              ]
             },
             {
               "id": "l_git_4",
               "items": [
                 {
-                  "id": "t-1",
+                  "id": "top-git4-1-w",
                   "url": "https://meet.google.com/aspire-lms-live",
-                  "date": "2026-08-24",
-                  "time": "10:00 - 11:30 AM",
                   "type": "LIVE CLASS",
-                  "title": "What Are Professional Git Practices?",
-                  "agenda": "Why should commits be small and meaningful? Why should developers avoid direct pushes to main? How should branches be named? Why should we pull before starting work? What are protected branches? What makes a good Pull Request?",
-                  "iconBg": "bg-purple-600 text-white",
-                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30",
-                  "iconName": "Video",
-                  "overview": "Why should commits be small and meaningful? Why should developers avoid direct pushes to main? How should branches be named? Why should we pull before starting work? What are protected branches? What makes a good Pull Request?",
-                  "sessionId": "session-1787589566809-w",
-                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "title": "GitHub PR Lifecycle",
+                  "agenda": "Creating Pull Requests from feature branches into main, writing PR descriptions, and linking issues.",
                   "actionText": "JOIN",
-                  "instructor": "Siva Veludurthi",
-                  "technology": "Git & Github Version Control",
-                  "description": "Why should commits be small and meaningful? Why should developers avoid direct pushes to main? How should branches be named? Why should we pull before starting work? What are protected branches? What makes a good Pull Request?"
+                  "description": "Creating Pull Requests from feature branches into main, writing PR descriptions, and linking issues."
                 },
                 {
-                  "id": "t-2",
+                  "id": "top-git4-2-w",
                   "url": "https://meet.google.com/aspire-lms-live",
-                  "date": "2026-08-24",
-                  "time": "10:00 - 11:30 AM",
                   "type": "LIVE CLASS",
-                  "title": "Can You Complete a Real GitHub Workflow?",
-                  "agenda": "Can you create a repository? Can you initialize Git? Can you configure .gitignore? Can you make and push commits? Can you create a feature branch? Can you push the branch? Can you create a Pull Request? Can you resolve a merge conflict? Can you merge the feature into main? Can you synchronize the local repository with GitHub?",
-                  "iconBg": "bg-purple-600 text-white",
-                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30",
-                  "iconName": "Video",
-                  "overview": "Can you create a repository? Can you initialize Git? Can you configure .gitignore? Can you make and push commits? Can you create a feature branch? Can you push the branch? Can you create a Pull Request? Can you resolve a merge conflict? Can you merge the feature into main? Can you synchronize the local repository with GitHub?",
-                  "sessionId": "session-1787589566809-w",
-                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "title": "Code Review Workflows",
+                  "agenda": "Inline commenting, requesting changes, approving PRs, and team code review ethics.",
                   "actionText": "JOIN",
-                  "instructor": "Siva Veludurthi",
-                  "technology": "Git & Github Version Control",
-                  "description": "Can you create a repository? Can you initialize Git? Can you configure .gitignore? Can you make and push commits? Can you create a feature branch? Can you push the branch? Can you create a Pull Request? Can you resolve a merge conflict? Can you merge the feature into main? Can you synchronize the local repository with GitHub?"
+                  "description": "Inline commenting, requesting changes, approving PRs, and team code review ethics."
+                },
+                {
+                  "id": "top-git4-3-w",
+                  "url": "https://meet.google.com/aspire-lms-live",
+                  "type": "LIVE CLASS",
+                  "title": "Squash & Rebase Merges",
+                  "agenda": "Comparing Merge Commit, Squash & Merge, and Rebase & Merge on GitHub.",
+                  "actionText": "JOIN",
+                  "description": "Comparing Merge Commit, Squash & Merge, and Rebase & Merge on GitHub."
                 }
               ],
               "title": "GitHub Pull Requests & Collaboration Workflows",
+              "topics": [
+                {
+                  "id": "top-git4-1-w",
+                  "title": "GitHub PR Lifecycle",
+                  "agenda": "Creating Pull Requests from feature branches into main, writing PR descriptions, and linking issues.",
+                  "description": "Creating Pull Requests from feature branches into main, writing PR descriptions, and linking issues."
+                },
+                {
+                  "id": "top-git4-2-w",
+                  "title": "Code Review Workflows",
+                  "agenda": "Inline commenting, requesting changes, approving PRs, and team code review ethics.",
+                  "description": "Inline commenting, requesting changes, approving PRs, and team code review ethics."
+                },
+                {
+                  "id": "top-git4-3-w",
+                  "title": "Squash & Rebase Merges",
+                  "agenda": "Comparing Merge Commit, Squash & Merge, and Rebase & Merge on GitHub.",
+                  "description": "Comparing Merge Commit, Squash & Merge, and Rebase & Merge on GitHub."
+                }
+              ],
               "meetingLink": "https://meet.google.com/aspire-lms-live"
             }
           ],
@@ -2203,6 +3183,24 @@ export const INITIAL_MILESTONES = {
             {
               "id": "l_git_1",
               "items": [
+                {
+                  "id": "item-asmnt-asmnt-1787657513434",
+                  "url": "/assessments",
+                  "type": "ASSESSMENT",
+                  "title": "gfdszx nbvcxz",
+                  "iconBg": "bg-blue-600 text-white",
+                  "dueDate": "2026-08-30",
+                  "btnStyle": "bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30",
+                  "iconName": "FileCheck",
+                  "mcqCount": 1,
+                  "typeColor": "bg-blue-100 text-blue-800 border-blue-200",
+                  "actionText": "START",
+                  "totalMarks": 100,
+                  "codingCount": 1,
+                  "assessmentId": "asmnt-1787657513434-w",
+                  "totalQuestions": 2,
+                  "durationMinutes": 45
+                },
                 {
                   "id": "top-git1-1",
                   "url": "https://meet.google.com/aspire-lms-live",
@@ -2370,6 +3368,26 @@ export const INITIAL_MILESTONES = {
               "id": "l_git_3",
               "items": [
                 {
+                  "id": "item-proj-proj-1787657794899",
+                  "url": "/projects",
+                  "type": "PROJECT",
+                  "title": "tree",
+                  "iconBg": "bg-emerald-600 text-white",
+                  "dueDate": "Aug 30",
+                  "btnStyle": "bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm shadow-emerald-500/30",
+                  "category": "Full-Stack Web Dev",
+                  "iconName": "Building2",
+                  "projectId": "proj-1787657794899-w",
+                  "techStack": [
+                    "React",
+                    "Node.js",
+                    "PostgreSQL"
+                  ],
+                  "typeColor": "bg-emerald-100 text-emerald-800 border-emerald-200",
+                  "actionText": "VIEW",
+                  "difficulty": "Intermediate"
+                },
+                {
                   "id": "top-git3-1",
                   "url": "https://meet.google.com/aspire-lms-live",
                   "type": "LIVE CLASS",
@@ -2504,7 +3522,8 @@ export const INITIAL_MILESTONES = {
               "meetingLink": "https://meet.google.com/aspire-lms-live"
             }
           ],
-          "duration": "5 hrs"
+          "duration": "5 hrs",
+          "modulesCount": 4
         },
         {
           "id": "m1_html",
@@ -2516,102 +3535,54 @@ export const INITIAL_MILESTONES = {
               "time": "06:00 - 07:30 PM",
               "items": [
                 {
-                  "id": "t-1",
+                  "id": "top-html1-1-w",
                   "url": "https://meet.google.com/aspire-lms-live",
-                  "date": "2026-08-25",
-                  "time": "06:00 - 07:30 PM",
                   "type": "LIVE CLASS",
-                  "title": "What Is the Web?",
-                  "agenda": "What is the Internet? What is the World Wide Web? How does a browser communicate with a server? What are client and server? What happens when we enter a URL in a browser?",
-                  "iconBg": "bg-purple-600 text-white",
-                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30",
-                  "iconName": "Video",
-                  "overview": "What is the Internet? What is the World Wide Web? How does a browser communicate with a server? What are client and server? What happens when we enter a URL in a browser?",
-                  "sessionId": "session-1787638229564-w",
-                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "title": "How the Web Works",
+                  "agenda": "Client-Server architecture, role of browsers, web servers, DNS lookup, and IP addressing.",
                   "actionText": "JOIN",
-                  "instructor": "Siva Veludurthi",
-                  "technology": "HTML5 & Web Architecture",
-                  "description": "What is the Internet? What is the World Wide Web? How does a browser communicate with a server? What are client and server? What happens when we enter a URL in a browser?"
+                  "description": "Client-Server architecture, role of browsers, web servers, DNS lookup, and IP addressing."
                 },
                 {
-                  "id": "t-2",
+                  "id": "top-html1-2-w",
                   "url": "https://meet.google.com/aspire-lms-live",
-                  "date": "2026-08-25",
-                  "time": "06:00 - 07:30 PM",
                   "type": "LIVE CLASS",
-                  "title": "How Does Web Architecture Work?",
-                  "agenda": "What is the client-server model? What is a request and response? What are HTTP and HTTPS? What are URLs, domains, ports, and protocols? How does a browser receive and render a webpage?",
-                  "iconBg": "bg-purple-600 text-white",
-                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30",
-                  "iconName": "Video",
-                  "overview": "What is the client-server model? What is a request and response? What are HTTP and HTTPS? What are URLs, domains, ports, and protocols? How does a browser receive and render a webpage?",
-                  "sessionId": "session-1787638229564-w",
-                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "title": "HTTP/HTTPS Protocol Basics",
+                  "agenda": "HTTP methods (GET, POST, PUT, DELETE), status codes (200, 301, 404, 500), headers and payloads.",
                   "actionText": "JOIN",
-                  "instructor": "Siva Veludurthi",
-                  "technology": "HTML5 & Web Architecture",
-                  "description": "What is the client-server model? What is a request and response? What are HTTP and HTTPS? What are URLs, domains, ports, and protocols? How does a browser receive and render a webpage?"
+                  "description": "HTTP methods (GET, POST, PUT, DELETE), status codes (200, 301, 404, 500), headers and payloads."
                 },
                 {
-                  "id": "t-3",
+                  "id": "top-html1-3-w",
                   "url": "https://meet.google.com/aspire-lms-live",
-                  "date": "2026-08-25",
-                  "time": "06:00 - 07:30 PM",
                   "type": "LIVE CLASS",
-                  "title": "What Is HTML5?",
-                  "agenda": "What is HTML? Why is HTML called a markup language? What changed with HTML5? How is HTML different from CSS and JavaScript? How does HTML define webpage structure?",
-                  "iconBg": "bg-purple-600 text-white",
-                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30",
-                  "iconName": "Video",
-                  "overview": "What is HTML? Why is HTML called a markup language? What changed with HTML5? How is HTML different from CSS and JavaScript? How does HTML define webpage structure?",
-                  "sessionId": "session-1787638229564-w",
-                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "title": "HTML Document Structure",
+                  "agenda": "Doctype html, html, head, meta charset, title, and body tag responsibilities.",
                   "actionText": "JOIN",
-                  "instructor": "Siva Veludurthi",
-                  "technology": "HTML5 & Web Architecture",
-                  "description": "What is HTML? Why is HTML called a markup language? What changed with HTML5? How is HTML different from CSS and JavaScript? How does HTML define webpage structure?"
-                },
-                {
-                  "id": "t-4",
-                  "url": "https://meet.google.com/aspire-lms-live",
-                  "date": "2026-08-25",
-                  "time": "06:00 - 07:30 PM",
-                  "type": "LIVE CLASS",
-                  "title": "How Do We Create an HTML Page?",
-                  "agenda": "How do we create an .html file? What tools can we use? How do we open HTML in a browser? What is <!DOCTYPE html>? Why is the document declaration required?",
-                  "iconBg": "bg-purple-600 text-white",
-                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30",
-                  "iconName": "Video",
-                  "overview": "How do we create an .html file? What tools can we use? How do we open HTML in a browser? What is <!DOCTYPE html>? Why is the document declaration required?",
-                  "sessionId": "session-1787638229564-w",
-                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
-                  "actionText": "JOIN",
-                  "instructor": "Siva Veludurthi",
-                  "technology": "HTML5 & Web Architecture",
-                  "description": "How do we create an .html file? What tools can we use? How do we open HTML in a browser? What is <!DOCTYPE html>? Why is the document declaration required?"
-                },
-                {
-                  "id": "t-5",
-                  "url": "https://meet.google.com/aspire-lms-live",
-                  "date": "2026-08-25",
-                  "time": "06:00 - 07:30 PM",
-                  "type": "LIVE CLASS",
-                  "title": "What Is the Basic HTML5 Document Structure?",
-                  "agenda": "What are <html>, <head>, <meta>, <title>, and <body>? What belongs inside <head>? What belongs inside <body>? What is the viewport meta tag? How should an HTML document be structured?",
-                  "iconBg": "bg-purple-600 text-white",
-                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30",
-                  "iconName": "Video",
-                  "overview": "What are <html>, <head>, <meta>, <title>, and <body>? What belongs inside <head>? What belongs inside <body>? What is the viewport meta tag? How should an HTML document be structured?",
-                  "sessionId": "session-1787638229564-w",
-                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
-                  "actionText": "JOIN",
-                  "instructor": "Siva Veludurthi",
-                  "technology": "HTML5 & Web Architecture",
-                  "description": "What are <html>, <head>, <meta>, <title>, and <body>? What belongs inside <head>? What belongs inside <body>? What is the viewport meta tag? How should an HTML document be structured?"
+                  "description": "Doctype html, html, head, meta charset, title, and body tag responsibilities."
                 }
               ],
               "title": "Web Architecture & Client-Server Communication Model",
+              "topics": [
+                {
+                  "id": "top-html1-1-w",
+                  "title": "How the Web Works",
+                  "agenda": "Client-Server architecture, role of browsers, web servers, DNS lookup, and IP addressing.",
+                  "description": "Client-Server architecture, role of browsers, web servers, DNS lookup, and IP addressing."
+                },
+                {
+                  "id": "top-html1-2-w",
+                  "title": "HTTP/HTTPS Protocol Basics",
+                  "agenda": "HTTP methods (GET, POST, PUT, DELETE), status codes (200, 301, 404, 500), headers and payloads.",
+                  "description": "HTTP methods (GET, POST, PUT, DELETE), status codes (200, 301, 404, 500), headers and payloads."
+                },
+                {
+                  "id": "top-html1-3-w",
+                  "title": "HTML Document Structure",
+                  "agenda": "Doctype html, html, head, meta charset, title, and body tag responsibilities.",
+                  "description": "Doctype html, html, head, meta charset, title, and body tag responsibilities."
+                }
+              ],
               "instructor": "Siva Veludurthi",
               "meetingLink": "https://meet.google.com/aspire-lms-live"
             },
@@ -2621,83 +3592,54 @@ export const INITIAL_MILESTONES = {
               "time": "06:00 - 07:30 PM",
               "items": [
                 {
-                  "id": "t-1",
+                  "id": "top-html2-1-w",
                   "url": "https://meet.google.com/aspire-lms-live",
-                  "date": "2026-08-25",
-                  "time": "06:00 - 07:30 PM",
                   "type": "LIVE CLASS",
-                  "title": "How Do HTML Elements & Attributes Work?",
-                  "agenda": "What is an HTML element? What are opening and closing tags? What are attributes? What is the difference between block and inline elements? How do id, class, title, and style attributes work?",
-                  "iconBg": "bg-purple-600 text-white",
-                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30",
-                  "iconName": "Video",
-                  "overview": "What is an HTML element? What are opening and closing tags? What are attributes? What is the difference between block and inline elements? How do id, class, title, and style attributes work?",
-                  "sessionId": "session-1787638823996-w",
-                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "title": "Semantic vs Non-Semantic HTML",
+                  "agenda": "Why clean semantic layout improves SEO and accessibility; adopting header, nav, main, section, article, aside, and footer.",
                   "actionText": "JOIN",
-                  "instructor": "Siva Veludurthi",
-                  "technology": "HTML5 & Web Architecture",
-                  "description": "What is an HTML element? What are opening and closing tags? What are attributes? What is the difference between block and inline elements? How do id, class, title, and style attributes work?"
+                  "description": "Why clean semantic layout improves SEO and accessibility; adopting header, nav, main, section, article, aside, and footer."
                 },
                 {
-                  "id": "t-2",
+                  "id": "top-html2-2-w",
                   "url": "https://meet.google.com/aspire-lms-live",
-                  "date": "2026-08-25",
-                  "time": "06:00 - 07:30 PM",
                   "type": "LIVE CLASS",
-                  "title": "How Do We Add Text & Links?",
-                  "agenda": "How do headings work with <h1>–<h6>? How are paragraphs created? What are <strong>, <em>, <br>, and <hr>? How do we create links with <a>? What are href, target, and relative vs absolute paths?",
-                  "iconBg": "bg-purple-600 text-white",
-                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30",
-                  "iconName": "Video",
-                  "overview": "How do headings work with <h1>–<h6>? How are paragraphs created? What are <strong>, <em>, <br>, and <hr>? How do we create links with <a>? What are href, target, and relative vs absolute paths?",
-                  "sessionId": "session-1787638823996-w",
-                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "title": "Text Hierarchy & Formatting",
+                  "agenda": "Proper h1 to h6 hierarchy, paragraphs, spans, strong, em, blockquotes, and inline formatting.",
                   "actionText": "JOIN",
-                  "instructor": "Siva Veludurthi",
-                  "technology": "HTML5 & Web Architecture",
-                  "description": "How do headings work with <h1>–<h6>? How are paragraphs created? What are <strong>, <em>, <br>, and <hr>? How do we create links with <a>? What are href, target, and relative vs absolute paths?"
+                  "description": "Proper h1 to h6 hierarchy, paragraphs, spans, strong, em, blockquotes, and inline formatting."
                 },
                 {
-                  "id": "t-3",
+                  "id": "top-html2-3-w",
                   "url": "https://meet.google.com/aspire-lms-live",
-                  "date": "2026-08-25",
-                  "time": "06:00 - 07:30 PM",
                   "type": "LIVE CLASS",
-                  "title": "How Do We Add Lists & Images?",
-                  "agenda": "How do <ul>, <ol>, and <li> work? How do we add images using <img>? What are src and alt? Why is alternative text important? How do image paths work?",
-                  "iconBg": "bg-purple-600 text-white",
-                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30",
-                  "iconName": "Video",
-                  "overview": "How do <ul>, <ol>, and <li> work? How do we add images using <img>? What are src and alt? Why is alternative text important? How do image paths work?",
-                  "sessionId": "session-1787638823996-w",
-                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "title": "Hyperlinks & Navigational Anchors",
+                  "agenda": "Absolute vs relative links, target _blank security, and internal anchor jumps.",
                   "actionText": "JOIN",
-                  "instructor": "Siva Veludurthi",
-                  "technology": "HTML5 & Web Architecture",
-                  "description": "How do <ul>, <ol>, and <li> work? How do we add images using <img>? What are src and alt? Why is alternative text important? How do image paths work?"
-                },
-                {
-                  "id": "t-4",
-                  "url": "https://meet.google.com/aspire-lms-live",
-                  "date": "2026-08-25",
-                  "time": "06:00 - 07:30 PM",
-                  "type": "LIVE CLASS",
-                  "title": "What Are Semantic HTML Elements?",
-                  "agenda": "Why is semantic HTML important? What are <header>, <nav>, <main>, <section>, <article>, <aside>, and <footer>? What is the difference between semantic and non-semantic elements? How does semantic HTML improve accessibility and SEO?",
-                  "iconBg": "bg-purple-600 text-white",
-                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30",
-                  "iconName": "Video",
-                  "overview": "Why is semantic HTML important? What are <header>, <nav>, <main>, <section>, <article>, <aside>, and <footer>? What is the difference between semantic and non-semantic elements? How does semantic HTML improve accessibility and SEO?",
-                  "sessionId": "session-1787638823996-w",
-                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
-                  "actionText": "JOIN",
-                  "instructor": "Siva Veludurthi",
-                  "technology": "HTML5 & Web Architecture",
-                  "description": "Why is semantic HTML important? What are <header>, <nav>, <main>, <section>, <article>, <aside>, and <footer>? What is the difference between semantic and non-semantic elements? How does semantic HTML improve accessibility and SEO?"
+                  "description": "Absolute vs relative links, target _blank security, and internal anchor jumps."
                 }
               ],
               "title": "HTML5 Document Structure & Semantic Elements",
+              "topics": [
+                {
+                  "id": "top-html2-1-w",
+                  "title": "Semantic vs Non-Semantic HTML",
+                  "agenda": "Why clean semantic layout improves SEO and accessibility; adopting header, nav, main, section, article, aside, and footer.",
+                  "description": "Why clean semantic layout improves SEO and accessibility; adopting header, nav, main, section, article, aside, and footer."
+                },
+                {
+                  "id": "top-html2-2-w",
+                  "title": "Text Hierarchy & Formatting",
+                  "agenda": "Proper h1 to h6 hierarchy, paragraphs, spans, strong, em, blockquotes, and inline formatting.",
+                  "description": "Proper h1 to h6 hierarchy, paragraphs, spans, strong, em, blockquotes, and inline formatting."
+                },
+                {
+                  "id": "top-html2-3-w",
+                  "title": "Hyperlinks & Navigational Anchors",
+                  "agenda": "Absolute vs relative links, target _blank security, and internal anchor jumps.",
+                  "description": "Absolute vs relative links, target _blank security, and internal anchor jumps."
+                }
+              ],
               "instructor": "Siva Veludurthi",
               "meetingLink": "https://meet.google.com/aspire-lms-live"
             },
@@ -2707,90 +3649,109 @@ export const INITIAL_MILESTONES = {
               "time": "06:00 - 07:30 AM",
               "items": [
                 {
-                  "id": "t-1",
+                  "id": "top-html3-1-w",
                   "url": "https://meet.google.com/aspire-lms-live",
-                  "date": "2026-08-25",
-                  "time": "06:00 - 07:30 AM",
                   "type": "LIVE CLASS",
-                  "title": "How Do We Build Tables?",
-                  "agenda": "When should tables be used? How do <table>, <tr>, <th>, and <td> work? How do <thead>, <tbody>, and <tfoot> improve structure? How do colspan and rowspan work? How can table data be structured semantically?",
-                  "iconBg": "bg-purple-600 text-white",
-                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30",
-                  "iconName": "Video",
-                  "overview": "When should tables be used? How do <table>, <tr>, <th>, and <td> work? How do <thead>, <tbody>, and <tfoot> improve structure? How do colspan and rowspan work? How can table data be structured semantically?",
-                  "sessionId": "session-1787639889057-w",
-                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "title": "Form Architecture & Attributes",
+                  "agenda": "Form action and method POST/GET, label association with input IDs, and form submission lifecycle.",
                   "actionText": "JOIN",
-                  "instructor": "Siva Veludurthi",
-                  "technology": "HTML5 & Web Architecture",
-                  "description": "When should tables be used? How do <table>, <tr>, <th>, and <td> work? How do <thead>, <tbody>, and <tfoot> improve structure? How do colspan and rowspan work? How can table data be structured semantically?"
+                  "description": "Form action and method POST/GET, label association with input IDs, and form submission lifecycle."
                 },
                 {
-                  "id": "t-2",
+                  "id": "top-html3-2-w",
                   "url": "https://meet.google.com/aspire-lms-live",
-                  "date": "2026-08-25",
-                  "time": "06:00 - 07:30 AM",
                   "type": "LIVE CLASS",
-                  "title": "How Do HTML Forms Work?",
-                  "agenda": "What is a form? How do <form>, <label>, <input>, <textarea>, <select>, and <button> work? What are action and method? How are form controls connected to labels?",
-                  "iconBg": "bg-purple-600 text-white",
-                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30",
-                  "iconName": "Video",
-                  "overview": "What is a form? How do <form>, <label>, <input>, <textarea>, <select>, and <button> work? What are action and method? How are form controls connected to labels?",
-                  "sessionId": "session-1787639889057-w",
-                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "title": "HTML5 Input Variety",
+                  "agenda": "text, email, password, number, tel, date, checkbox, radio, select dropdowns, and textarea.",
                   "actionText": "JOIN",
-                  "instructor": "Siva Veludurthi",
-                  "technology": "HTML5 & Web Architecture",
-                  "description": "What is a form? How do <form>, <label>, <input>, <textarea>, <select>, and <button> work? What are action and method? How are form controls connected to labels?"
+                  "description": "text, email, password, number, tel, date, checkbox, radio, select dropdowns, and textarea."
                 },
                 {
-                  "id": "t-3",
+                  "id": "top-html3-3-w",
                   "url": "https://meet.google.com/aspire-lms-live",
-                  "date": "2026-08-25",
-                  "time": "06:00 - 07:30 AM",
                   "type": "LIVE CLASS",
-                  "title": "What HTML5 Input Types Should We Use?",
-                  "agenda": "What is the difference between text, email, password, number, tel, date, time, url, file, radio, and checkbox? When should each input type be used? How do name, value, placeholder, and autocomplete work?",
-                  "iconBg": "bg-purple-600 text-white",
-                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30",
-                  "iconName": "Video",
-                  "overview": "What is the difference between text, email, password, number, tel, date, time, url, file, radio, and checkbox? When should each input type be used? How do name, value, placeholder, and autocomplete work?",
-                  "sessionId": "session-1787639889057-w",
-                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "title": "Native Validation Attributes",
+                  "agenda": "required, minlength, maxlength, min, max, pattern regular expressions, and client-side validation UI.",
                   "actionText": "JOIN",
-                  "instructor": "Siva Veludurthi",
-                  "technology": "HTML5 & Web Architecture",
-                  "description": "What is the difference between text, email, password, number, tel, date, time, url, file, radio, and checkbox? When should each input type be used? How do name, value, placeholder, and autocomplete work?"
-                },
-                {
-                  "id": "t-4",
-                  "url": "https://meet.google.com/aspire-lms-live",
-                  "date": "2026-08-25",
-                  "time": "06:00 - 07:30 AM",
-                  "type": "LIVE CLASS",
-                  "title": "How Does HTML5 Form Validation Work?",
-                  "agenda": "What does required do? How do minlength and maxlength work? How are min and max used? What does pattern do? How does type=\"email\" provide validation? How can disabled, readonly, and checked be used?",
-                  "iconBg": "bg-purple-600 text-white",
-                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30",
-                  "iconName": "Video",
-                  "overview": "What does required do? How do minlength and maxlength work? How are min and max used? What does pattern do? How does type=\"email\" provide validation? How can disabled, readonly, and checked be used?",
-                  "sessionId": "session-1787639889057-w",
-                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
-                  "actionText": "JOIN",
-                  "instructor": "Siva Veludurthi",
-                  "technology": "HTML5 & Web Architecture",
-                  "description": "What does required do? How do minlength and maxlength work? How are min and max used? What does pattern do? How does type=\"email\" provide validation? How can disabled, readonly, and checked be used?"
+                  "description": "required, minlength, maxlength, min, max, pattern regular expressions, and client-side validation UI."
                 }
               ],
               "title": "HTML Forms, Input Types, & Client-Side Validation",
+              "topics": [
+                {
+                  "id": "top-html3-1-w",
+                  "title": "Form Architecture & Attributes",
+                  "agenda": "Form action and method POST/GET, label association with input IDs, and form submission lifecycle.",
+                  "description": "Form action and method POST/GET, label association with input IDs, and form submission lifecycle."
+                },
+                {
+                  "id": "top-html3-2-w",
+                  "title": "HTML5 Input Variety",
+                  "agenda": "text, email, password, number, tel, date, checkbox, radio, select dropdowns, and textarea.",
+                  "description": "text, email, password, number, tel, date, checkbox, radio, select dropdowns, and textarea."
+                },
+                {
+                  "id": "top-html3-3-w",
+                  "title": "Native Validation Attributes",
+                  "agenda": "required, minlength, maxlength, min, max, pattern regular expressions, and client-side validation UI.",
+                  "description": "required, minlength, maxlength, min, max, pattern regular expressions, and client-side validation UI."
+                }
+              ],
               "instructor": "Siva Veludurthi",
               "meetingLink": "https://meet.google.com/aspire-lms-live"
             },
             {
               "id": "l_html_4",
-              "items": [],
-              "title": "HTML Tables, Media Tags & Accessibility"
+              "items": [
+                {
+                  "id": "top-html4-1-w",
+                  "url": "https://meet.google.com/aspire-lms-live",
+                  "type": "LIVE CLASS",
+                  "title": "Data Tables Structure",
+                  "agenda": "table, thead, tbody, tfoot, tr, th, td, colspan, and rowspan attributes.",
+                  "actionText": "JOIN",
+                  "description": "table, thead, tbody, tfoot, tr, th, td, colspan, and rowspan attributes."
+                },
+                {
+                  "id": "top-html4-2-w",
+                  "url": "https://meet.google.com/aspire-lms-live",
+                  "type": "LIVE CLASS",
+                  "title": "Embedding Media",
+                  "agenda": "img with alt attributes for accessibility, audio, video with controls, and iframe embeddings.",
+                  "actionText": "JOIN",
+                  "description": "img with alt attributes for accessibility, audio, video with controls, and iframe embeddings."
+                },
+                {
+                  "id": "top-html4-3-w",
+                  "url": "https://meet.google.com/aspire-lms-live",
+                  "type": "LIVE CLASS",
+                  "title": "Web Accessibility (a11y) Basics",
+                  "agenda": "ARIA roles, tabindex, semantic landmark navigation, and screen-reader testing fundamentals.",
+                  "actionText": "JOIN",
+                  "description": "ARIA roles, tabindex, semantic landmark navigation, and screen-reader testing fundamentals."
+                }
+              ],
+              "title": "HTML Tables, Media Tags & Accessibility",
+              "topics": [
+                {
+                  "id": "top-html4-1-w",
+                  "title": "Data Tables Structure",
+                  "agenda": "table, thead, tbody, tfoot, tr, th, td, colspan, and rowspan attributes.",
+                  "description": "table, thead, tbody, tfoot, tr, th, td, colspan, and rowspan attributes."
+                },
+                {
+                  "id": "top-html4-2-w",
+                  "title": "Embedding Media",
+                  "agenda": "img with alt attributes for accessibility, audio, video with controls, and iframe embeddings.",
+                  "description": "img with alt attributes for accessibility, audio, video with controls, and iframe embeddings."
+                },
+                {
+                  "id": "top-html4-3-w",
+                  "title": "Web Accessibility (a11y) Basics",
+                  "agenda": "ARIA roles, tabindex, semantic landmark navigation, and screen-reader testing fundamentals.",
+                  "description": "ARIA roles, tabindex, semantic landmark navigation, and screen-reader testing fundamentals."
+                }
+              ]
             }
           ],
           "modules": [
@@ -3028,114 +3989,162 @@ export const INITIAL_MILESTONES = {
           "lessons": [
             {
               "id": "l_css_1",
-              "items": [],
-              "title": "CSS Syntax, Rules, and Element/Class/ID Selectors"
+              "items": [
+                {
+                  "id": "top-css1-1-w",
+                  "url": "https://meet.google.com/aspire-lms-live",
+                  "type": "LIVE CLASS",
+                  "title": "CSS Inclusion Methods",
+                  "agenda": "Inline styles, internal style tags, and external stylesheet linking.",
+                  "actionText": "JOIN",
+                  "description": "Inline styles, internal style tags, and external stylesheet linking."
+                },
+                {
+                  "id": "top-css1-2-w",
+                  "url": "https://meet.google.com/aspire-lms-live",
+                  "type": "LIVE CLASS",
+                  "title": "CSS Selectors & Specificity",
+                  "agenda": "Element, class, id, universal, attribute, and pseudo-classes (:hover, :focus, :active). Specificity score calculation.",
+                  "actionText": "JOIN",
+                  "description": "Element, class, id, universal, attribute, and pseudo-classes (:hover, :focus, :active). Specificity score calculation."
+                },
+                {
+                  "id": "top-css1-3-w",
+                  "url": "https://meet.google.com/aspire-lms-live",
+                  "type": "LIVE CLASS",
+                  "title": "The Cascade & Inheritance",
+                  "agenda": "How CSS rules resolve, source order, !important hazards, and inherited vs non-inherited properties.",
+                  "actionText": "JOIN",
+                  "description": "How CSS rules resolve, source order, !important hazards, and inherited vs non-inherited properties."
+                }
+              ],
+              "title": "CSS Syntax, Rules, and Element/Class/ID Selectors",
+              "topics": [
+                {
+                  "id": "top-css1-1-w",
+                  "title": "CSS Inclusion Methods",
+                  "agenda": "Inline styles, internal style tags, and external stylesheet linking.",
+                  "description": "Inline styles, internal style tags, and external stylesheet linking."
+                },
+                {
+                  "id": "top-css1-2-w",
+                  "title": "CSS Selectors & Specificity",
+                  "agenda": "Element, class, id, universal, attribute, and pseudo-classes (:hover, :focus, :active). Specificity score calculation.",
+                  "description": "Element, class, id, universal, attribute, and pseudo-classes (:hover, :focus, :active). Specificity score calculation."
+                },
+                {
+                  "id": "top-css1-3-w",
+                  "title": "The Cascade & Inheritance",
+                  "agenda": "How CSS rules resolve, source order, !important hazards, and inherited vs non-inherited properties.",
+                  "description": "How CSS rules resolve, source order, !important hazards, and inherited vs non-inherited properties."
+                }
+              ]
             },
             {
               "id": "l_css_2",
-              "items": [],
-              "title": "The CSS Box Model: Margin, Padding, Border, & Content"
+              "items": [
+                {
+                  "id": "top-css2-1-w",
+                  "url": "https://meet.google.com/aspire-lms-live",
+                  "type": "LIVE CLASS",
+                  "title": "Box Model Anatomy",
+                  "agenda": "Content dimensions (width/height), padding, border, and margin areas.",
+                  "actionText": "JOIN",
+                  "description": "Content dimensions (width/height), padding, border, and margin areas."
+                },
+                {
+                  "id": "top-css2-2-w",
+                  "url": "https://meet.google.com/aspire-lms-live",
+                  "type": "LIVE CLASS",
+                  "title": "box-sizing: border-box Standard",
+                  "agenda": "Difference between content-box and border-box sizing and universal resetting (* { box-sizing: border-box; }).",
+                  "actionText": "JOIN",
+                  "description": "Difference between content-box and border-box sizing and universal resetting (* { box-sizing: border-box; })."
+                },
+                {
+                  "id": "top-css2-3-w",
+                  "url": "https://meet.google.com/aspire-lms-live",
+                  "type": "LIVE CLASS",
+                  "title": "Margin Collapsing & Spacing",
+                  "agenda": "Vertical margin collapse behavior, padding vs margin usage rules, and outline vs border.",
+                  "actionText": "JOIN",
+                  "description": "Vertical margin collapse behavior, padding vs margin usage rules, and outline vs border."
+                }
+              ],
+              "title": "The CSS Box Model: Margin, Padding, Border, & Content",
+              "topics": [
+                {
+                  "id": "top-css2-1-w",
+                  "title": "Box Model Anatomy",
+                  "agenda": "Content dimensions (width/height), padding, border, and margin areas.",
+                  "description": "Content dimensions (width/height), padding, border, and margin areas."
+                },
+                {
+                  "id": "top-css2-2-w",
+                  "title": "box-sizing: border-box Standard",
+                  "agenda": "Difference between content-box and border-box sizing and universal resetting (* { box-sizing: border-box; }).",
+                  "description": "Difference between content-box and border-box sizing and universal resetting (* { box-sizing: border-box; })."
+                },
+                {
+                  "id": "top-css2-3-w",
+                  "title": "Margin Collapsing & Spacing",
+                  "agenda": "Vertical margin collapse behavior, padding vs margin usage rules, and outline vs border.",
+                  "description": "Vertical margin collapse behavior, padding vs margin usage rules, and outline vs border."
+                }
+              ]
             },
             {
               "id": "l_css_3",
               "items": [
                 {
-                  "id": "t-1",
+                  "id": "top-css3-1-w",
                   "url": "https://meet.google.com/aspire-lms-live",
-                  "date": "2026-08-25",
-                  "time": "06:00 - 07:30 PM",
                   "type": "LIVE CLASS",
-                  "title": "How Do We Work With Colors & Backgrounds?",
-                  "agenda": "How do named colors, HEX, RGB, RGBA, HSL, and HSLA work? How do we set background-color? How do background-image, background-repeat, background-position, background-size, and background shorthand work?",
-                  "iconBg": "bg-purple-600 text-white",
-                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30",
-                  "iconName": "Video",
-                  "overview": "How do named colors, HEX, RGB, RGBA, HSL, and HSLA work? How do we set background-color? How do background-image, background-repeat, background-position, background-size, and background shorthand work?",
-                  "sessionId": "session-1787643722016-w",
-                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "title": "Color Systems in CSS",
+                  "agenda": "Named colors, Hexadecimal (#rrggbb), RGB/RGBA, HSL/HSLA, and CSS custom color variables.",
                   "actionText": "JOIN",
-                  "instructor": "Siva Veludurthi",
-                  "technology": "CSS",
-                  "description": "How do named colors, HEX, RGB, RGBA, HSL, and HSLA work? How do we set background-color? How do background-image, background-repeat, background-position, background-size, and background shorthand work?"
+                  "description": "Named colors, Hexadecimal (#rrggbb), RGB/RGBA, HSL/HSLA, and CSS custom color variables."
                 },
                 {
-                  "id": "t-2",
+                  "id": "top-css3-2-w",
                   "url": "https://meet.google.com/aspire-lms-live",
-                  "date": "2026-08-25",
-                  "time": "06:00 - 07:30 PM",
                   "type": "LIVE CLASS",
-                  "title": "How Do We Style Typography?",
-                  "agenda": "How do font-family, font-size, font-weight, and font-style work? How do line-height, letter-spacing, and word-spacing affect readability? How do we use text-align, text-decoration, text-transform, and text-shadow?",
-                  "iconBg": "bg-purple-600 text-white",
-                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30",
-                  "iconName": "Video",
-                  "overview": "How do font-family, font-size, font-weight, and font-style work? How do line-height, letter-spacing, and word-spacing affect readability? How do we use text-align, text-decoration, text-transform, and text-shadow?",
-                  "sessionId": "session-1787643722016-w",
-                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "title": "Typography & Web Fonts",
+                  "agenda": "font-family stacks, Google Fonts @import/link, font-weight, font-size (px, rem, em), and line-height.",
                   "actionText": "JOIN",
-                  "instructor": "Siva Veludurthi",
-                  "technology": "CSS",
-                  "description": "How do font-family, font-size, font-weight, and font-style work? How do line-height, letter-spacing, and word-spacing affect readability? How do we use text-align, text-decoration, text-transform, and text-shadow?"
+                  "description": "font-family stacks, Google Fonts @import/link, font-weight, font-size (px, rem, em), and line-height."
                 },
                 {
-                  "id": "t-3",
+                  "id": "top-css3-3-w",
                   "url": "https://meet.google.com/aspire-lms-live",
-                  "date": "2026-08-25",
-                  "time": "06:00 - 07:30 PM",
                   "type": "LIVE CLASS",
-                  "title": "How Do We Combine CSS Concepts to Build a Layout?",
-                  "agenda": "How do selectors, spacing, colors, typography, borders, backgrounds, and the Box Model work together? How can we structure a landing page section? How do we style navigation, hero content, buttons, and cards?",
-                  "iconBg": "bg-purple-600 text-white",
-                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30",
-                  "iconName": "Video",
-                  "overview": "How do selectors, spacing, colors, typography, borders, backgrounds, and the Box Model work together? How can we structure a landing page section? How do we style navigation, hero content, buttons, and cards?",
-                  "sessionId": "session-1787643722016-w",
-                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
+                  "title": "Backgrounds & Gradients",
+                  "agenda": "background-color, background-image, background-size (cover/contain), linear and radial gradients.",
                   "actionText": "JOIN",
-                  "instructor": "Siva Veludurthi",
-                  "technology": "CSS",
-                  "description": "How do selectors, spacing, colors, typography, borders, backgrounds, and the Box Model work together? How can we structure a landing page section? How do we style navigation, hero content, buttons, and cards?"
-                },
-                {
-                  "id": "t-4",
-                  "url": "https://meet.google.com/aspire-lms-live",
-                  "date": "2026-08-25",
-                  "time": "06:00 - 07:30 PM",
-                  "type": "LIVE CLASS",
-                  "title": "How Do We Write Maintainable CSS?",
-                  "agenda": "How should CSS classes be named? Why should reusable classes be preferred? How can duplicate CSS be avoided? Why should !important be minimized? How should stylesheets be organized for maintainability?",
-                  "iconBg": "bg-purple-600 text-white",
-                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30",
-                  "iconName": "Video",
-                  "overview": "How should CSS classes be named? Why should reusable classes be preferred? How can duplicate CSS be avoided? Why should !important be minimized? How should stylesheets be organized for maintainability?",
-                  "sessionId": "session-1787643722016-w",
-                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
-                  "actionText": "JOIN",
-                  "instructor": "Siva Veludurthi",
-                  "technology": "CSS",
-                  "description": "How should CSS classes be named? Why should reusable classes be preferred? How can duplicate CSS be avoided? Why should !important be minimized? How should stylesheets be organized for maintainability?"
-                },
-                {
-                  "id": "t-5",
-                  "url": "https://meet.google.com/aspire-lms-live",
-                  "date": "2026-08-25",
-                  "time": "06:00 - 07:30 PM",
-                  "type": "LIVE CLASS",
-                  "title": "Final Hands-On Project — Styled Landing Page",
-                  "agenda": "Create a complete landing page using HTML and CSS? Can you build a navigation bar, hero section, call-to-action button, feature cards, typography system, backgrounds, borders, spacing, and consistent Box Model styling? Can you inspect and debug the final layout using Developer Tools?",
-                  "iconBg": "bg-purple-600 text-white",
-                  "btnStyle": "bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30",
-                  "iconName": "Video",
-                  "overview": "Create a complete landing page using HTML and CSS? Can you build a navigation bar, hero section, call-to-action button, feature cards, typography system, backgrounds, borders, spacing, and consistent Box Model styling? Can you inspect and debug the final layout using Developer Tools?",
-                  "sessionId": "session-1787643722016-w",
-                  "typeColor": "bg-purple-100 text-purple-700 border-purple-200",
-                  "actionText": "JOIN",
-                  "instructor": "Siva Veludurthi",
-                  "technology": "CSS",
-                  "description": "Create a complete landing page using HTML and CSS? Can you build a navigation bar, hero section, call-to-action button, feature cards, typography system, backgrounds, borders, spacing, and consistent Box Model styling? Can you inspect and debug the final layout using Developer Tools?"
+                  "description": "background-color, background-image, background-size (cover/contain), linear and radial gradients."
                 }
               ],
               "title": "CSS Colors, Typography, & Visual Backgrounds",
+              "topics": [
+                {
+                  "id": "top-css3-1-w",
+                  "title": "Color Systems in CSS",
+                  "agenda": "Named colors, Hexadecimal (#rrggbb), RGB/RGBA, HSL/HSLA, and CSS custom color variables.",
+                  "description": "Named colors, Hexadecimal (#rrggbb), RGB/RGBA, HSL/HSLA, and CSS custom color variables."
+                },
+                {
+                  "id": "top-css3-2-w",
+                  "title": "Typography & Web Fonts",
+                  "agenda": "font-family stacks, Google Fonts @import/link, font-weight, font-size (px, rem, em), and line-height.",
+                  "description": "font-family stacks, Google Fonts @import/link, font-weight, font-size (px, rem, em), and line-height."
+                },
+                {
+                  "id": "top-css3-3-w",
+                  "title": "Backgrounds & Gradients",
+                  "agenda": "background-color, background-image, background-size (cover/contain), linear and radial gradients.",
+                  "description": "background-color, background-image, background-size (cover/contain), linear and radial gradients."
+                }
+              ],
               "meetingLink": "https://meet.google.com/aspire-lms-live"
             }
           ],
@@ -3309,8 +4318,86 @@ export const INITIAL_MILESTONES = {
           "lessons": [
             {
               "id": "l_css_adv_1",
-              "items": [],
-              "title": "Flexbox Architecture & Practical Alignments"
+              "items": [
+                {
+                  "id": "top-flex-1-w",
+                  "url": "https://meet.google.com/aspire-lms-live",
+                  "type": "LIVE CLASS",
+                  "title": "Flex Container & Main/Cross Axis",
+                  "agenda": "display: flex, flex-direction (row, column), and understanding primary vs cross alignment axes.",
+                  "actionText": "JOIN",
+                  "description": "display: flex, flex-direction (row, column), and understanding primary vs cross alignment axes."
+                },
+                {
+                  "id": "top-flex-2-w",
+                  "url": "https://meet.google.com/aspire-lms-live",
+                  "type": "LIVE CLASS",
+                  "title": "Aligning & Distributing Items",
+                  "agenda": "justify-content (flex-start, center, space-between, space-around, space-evenly) and align-items (stretch, center, flex-start, flex-end).",
+                  "actionText": "JOIN",
+                  "description": "justify-content (flex-start, center, space-between, space-around, space-evenly) and align-items (stretch, center, flex-start, flex-end)."
+                },
+                {
+                  "id": "top-flex-3-w",
+                  "url": "https://meet.google.com/aspire-lms-live",
+                  "type": "LIVE CLASS",
+                  "title": "Multi-Line Wrapping & Align-Content",
+                  "agenda": "flex-wrap: wrap, row-gap, column-gap, and align-content multi-line spacing.",
+                  "actionText": "JOIN",
+                  "description": "flex-wrap: wrap, row-gap, column-gap, and align-content multi-line spacing."
+                },
+                {
+                  "id": "top-flex-4-w",
+                  "url": "https://meet.google.com/aspire-lms-live",
+                  "type": "LIVE CLASS",
+                  "title": "Flex Item Sizing Controls",
+                  "agenda": "flex-grow, flex-shrink, flex-basis shorthand (flex: 1), and align-self individual overrides.",
+                  "actionText": "JOIN",
+                  "description": "flex-grow, flex-shrink, flex-basis shorthand (flex: 1), and align-self individual overrides."
+                },
+                {
+                  "id": "top-flex-5-w",
+                  "url": "https://meet.google.com/aspire-lms-live",
+                  "type": "LIVE CLASS",
+                  "title": "Real-world Flexbox Layouts",
+                  "agenda": "Building responsive navigation bars, centered cards, holy grail layouts, and sticky footers with Flexbox.",
+                  "actionText": "JOIN",
+                  "description": "Building responsive navigation bars, centered cards, holy grail layouts, and sticky footers with Flexbox."
+                }
+              ],
+              "title": "Flexbox Architecture & Practical Alignments",
+              "topics": [
+                {
+                  "id": "top-flex-1-w",
+                  "title": "Flex Container & Main/Cross Axis",
+                  "agenda": "display: flex, flex-direction (row, column), and understanding primary vs cross alignment axes.",
+                  "description": "display: flex, flex-direction (row, column), and understanding primary vs cross alignment axes."
+                },
+                {
+                  "id": "top-flex-2-w",
+                  "title": "Aligning & Distributing Items",
+                  "agenda": "justify-content (flex-start, center, space-between, space-around, space-evenly) and align-items (stretch, center, flex-start, flex-end).",
+                  "description": "justify-content (flex-start, center, space-between, space-around, space-evenly) and align-items (stretch, center, flex-start, flex-end)."
+                },
+                {
+                  "id": "top-flex-3-w",
+                  "title": "Multi-Line Wrapping & Align-Content",
+                  "agenda": "flex-wrap: wrap, row-gap, column-gap, and align-content multi-line spacing.",
+                  "description": "flex-wrap: wrap, row-gap, column-gap, and align-content multi-line spacing."
+                },
+                {
+                  "id": "top-flex-4-w",
+                  "title": "Flex Item Sizing Controls",
+                  "agenda": "flex-grow, flex-shrink, flex-basis shorthand (flex: 1), and align-self individual overrides.",
+                  "description": "flex-grow, flex-shrink, flex-basis shorthand (flex: 1), and align-self individual overrides."
+                },
+                {
+                  "id": "top-flex-5-w",
+                  "title": "Real-world Flexbox Layouts",
+                  "agenda": "Building responsive navigation bars, centered cards, holy grail layouts, and sticky footers with Flexbox.",
+                  "description": "Building responsive navigation bars, centered cards, holy grail layouts, and sticky footers with Flexbox."
+                }
+              ]
             },
             {
               "id": "l_css_adv_2",
