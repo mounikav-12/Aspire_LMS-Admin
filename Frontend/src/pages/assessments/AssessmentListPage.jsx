@@ -101,6 +101,12 @@ export function AssessmentListPage() {
         options: ['git create', 'git init', 'git start', 'git repo'],
         correctIndex: 1
       }
+    ],
+    codingQuestions: [
+      {
+        title: 'Git Version Control Setup',
+        problemStatement: 'Initialize a Git repository and commit an initial index.html file with basic boilerplate.'
+      }
     ]
   });
 
@@ -147,6 +153,12 @@ export function AssessmentListPage() {
           options: ['git create', 'git init', 'git start', 'git repo'],
           correctIndex: 1
         }
+      ],
+      codingQuestions: [
+        {
+          title: 'Git Version Control Setup',
+          problemStatement: 'Initialize a Git repository and commit an initial index.html file with basic boilerplate.'
+        }
       ]
     });
     setEditingAssessment(null);
@@ -192,6 +204,18 @@ export function AssessmentListPage() {
           }
         ];
 
+    const initialCoding = Array.isArray(asm.codingQuestions) && asm.codingQuestions.length > 0
+      ? asm.codingQuestions.map((c) => ({
+          title: c.title || '',
+          problemStatement: c.problemStatement || c.instructions || ''
+        }))
+      : [
+          {
+            title: 'Git Version Control Setup',
+            problemStatement: 'Initialize a Git repository and commit an initial index.html file with basic boilerplate.'
+          }
+        ];
+
     const targetStage = stagesList.find((s) => s.id === asm.stageId || s.title === asm.stageName || s.title === asm.moduleName) || stagesList[0];
     const stageSubs = getSubtopicsForStage(targetStage);
     const targetSub = stageSubs.find((st) => st.id === asm.subtopicId || st.title === asm.subtopicName) || stageSubs[0];
@@ -214,7 +238,8 @@ export function AssessmentListPage() {
       durationMinutes: asm.durationMinutes || 45,
       totalMarks: asm.totalMarks || 100,
       dueDate: asm.dueDate || '2026-08-30',
-      mcqs: initialMcqs
+      mcqs: initialMcqs,
+      codingQuestions: initialCoding
     });
   };
 
@@ -1013,7 +1038,7 @@ export function AssessmentListPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <h4 className="font-extrabold text-sm text-slate-900 flex items-center gap-2">
-                    <Code2 className="w-4 h-4 text-emerald-600" /> Coding Challenges ({formData.codingQuestions.length})
+                    <Code2 className="w-4 h-4 text-emerald-600" /> Coding Challenges ({(formData.codingQuestions || []).length})
                   </h4>
                   <p className="text-[11px] text-slate-500 font-medium">Add hands-on coding challenge titles and instructions for students</p>
                 </div>
@@ -1030,13 +1055,13 @@ export function AssessmentListPage() {
                 </Button>
               </div>
 
-              {formData.codingQuestions.map((coding, cIndex) => (
+              {(formData.codingQuestions || []).map((coding, cIndex) => (
                 <div key={cIndex} className="p-4 bg-slate-50/90 rounded-2xl border border-slate-200/90 space-y-3 relative group">
                   <div className="flex items-center justify-between">
                     <span className="px-2.5 py-0.5 rounded-md bg-emerald-100 text-emerald-800 font-bold text-xs">
                       Coding Task #{cIndex + 1}
                     </span>
-                    {formData.codingQuestions.length > 1 && (
+                    {(formData.codingQuestions || []).length > 1 && (
                       <button
                         type="button"
                         onClick={() => handleRemoveCoding(cIndex)}
