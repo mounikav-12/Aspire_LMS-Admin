@@ -192,13 +192,11 @@ app.put('/api/milestones', async (req, res) => {
       { id: 'batch_data', overview: { batchData }, stages: weekdayStages, updated_at: now },
       { id: 'default', overview: weekdayOverview, stages: weekdayStages, updated_at: now },
       { id: 'Weekday Batch', overview: weekdayOverview, stages: weekdayStages, updated_at: now },
-      { id: 'Weekend Batch', overview: weekendOverview, stages: weekendStages, updated_at: now },
-      { id: 'ml-python-full-stack', overview: weekdayOverview, stages: weekdayStages, updated_at: now },
-      { id: 'ml-python-weekend', overview: weekendOverview, stages: weekendStages, updated_at: now }
+      { id: 'Weekend Batch', overview: weekendOverview, stages: weekendStages, updated_at: now }
     ];
 
     Object.keys(batchData).forEach((k) => {
-      if (!['batch_data', 'default', 'Weekday Batch', 'Weekend Batch', 'ml-python-full-stack', 'ml-python-weekend'].includes(k)) {
+      if (!['batch_data', 'default', 'Weekday Batch', 'Weekend Batch'].includes(k)) {
         rows.push({
           id: k,
           overview: batchData[k]?.overview || {},
@@ -336,8 +334,13 @@ const formatDbLiveSession = (payload, existingId) => {
       moduleId: payload.moduleId || '',
       moduleName: payload.moduleName || '',
       isLocked: payload.isLocked !== undefined ? payload.isLocked : false,
-      targetBatches: payload.targetBatches || []
+      targetBatches: payload.targetBatches || [],
+      topics: payload.topics || []
     };
+  }
+
+  if (Array.isArray(payload.topics)) {
+    meta.topics = payload.topics;
   }
 
   const targetBatchStr = payload.targetBatch || payload.target_batch || (Array.isArray(payload.targetBatches) ? payload.targetBatches.join(', ') : 'Weekday Batch');
@@ -353,7 +356,7 @@ const formatDbLiveSession = (payload, existingId) => {
     status: payload.status || 'Upcoming',
     publish_status: payload.publishStatus || payload.publish_status || 'Published to Student LMS',
     instructor: payload.instructor || 'Sara Devi',
-    description: typeof payload.description === 'string' && payload.description.trim().startsWith('{') ? payload.description : JSON.stringify(meta),
+    description: JSON.stringify(meta),
     target_batch: targetBatchStr,
     batch_code: payload.batchCode || payload.batch_code || 'A26W1',
     duration: payload.duration || '1h 30m'
@@ -564,9 +567,9 @@ const formatDbProject = (payload) => {
     rubric: Array.isArray(payload.rubric) ? payload.rubric : [],
     mentor_tip: payload.mentorTip || payload.mentor_tip || '',
     course_id: payload.courseId || payload.course_id || 'crs-1786624019154-w',
-    stage_id: payload.stageId || payload.stage_id || 's1',
-    subtopic_id: payload.subtopicId || payload.subtopic_id || 'm1_git',
-    inner_topic_id: payload.innerTopicId || payload.inner_topic_id || payload.moduleId || 'l_git_1'
+    stage_id: payload.stageId || payload.stage_id || 'top-stg-1',
+    subtopic_id: payload.subtopicId || payload.subtopic_id || 'mod-git',
+    inner_topic_id: payload.innerTopicId || payload.inner_topic_id || payload.moduleId || 'lesson-1787196281985-0'
   };
 };
 
