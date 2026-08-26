@@ -365,8 +365,9 @@ export function AssessmentListPage() {
     0
   );
 
-  const currentModalMcqCount = formData.mcqs.length;
-  const currentModalTotalQuestions = currentModalMcqCount;
+  const currentModalMcqCount = formData.mcqs?.length || 0;
+  const currentModalCodingCount = formData.evalType === 'quiz' ? 0 : (formData.codingQuestions?.length || 0);
+  const currentModalTotalQuestions = currentModalMcqCount + currentModalCodingCount;
 
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
