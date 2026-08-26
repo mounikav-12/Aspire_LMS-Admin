@@ -147,9 +147,7 @@ export function CourseDetailPage() {
         assessments: (stg.subtopics?.length || 4) * 2
       }));
 
-      const fallbackTopics = (initialMatchingCourse?.topics && initialMatchingCourse.topics.length > 0)
-        ? initialMatchingCourse.topics
-        : isPythonFullStackCourse
+      const fallbackTopics = isPythonFullStackCourse
         ? defaultTopicsFromStages
         : [];
       
