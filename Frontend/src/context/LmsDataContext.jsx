@@ -583,49 +583,27 @@ export function LmsDataProvider({ children }) {
       const stringified = JSON.stringify(dataToSync);
       lastSyncedMilestonesRef.current = stringified;
 
-      const weekdayStages = dataToSync['Weekday Batch']?.stages || dataToSync['default']?.stages || [];
-      const weekdayOverview = dataToSync['Weekday Batch']?.overview || { trackTitle: 'Curriculum & Milestones Roadmap' };
-      const weekendStages = dataToSync['Weekend Batch']?.stages || [];
-      const weekendOverview = dataToSync['Weekend Batch']?.overview || { trackTitle: 'Curriculum & Milestones Roadmap' };
       const now = new Date().toISOString();
-
-      const rowsToUpsert = [
-        {
-          id: 'batch_data',
-          overview: { batchData: dataToSync },
-          stages: weekdayStages,
-          updated_at: now
-        },
-        {
-          id: 'default',
-          overview: weekdayOverview,
-          stages: weekdayStages,
-          updated_at: now
-        },
-        {
-          id: 'Weekday Batch',
-          overview: weekdayOverview,
-          stages: weekdayStages,
-          updated_at: now
-        },
-        {
-          id: 'Weekend Batch',
-          overview: weekendOverview,
-          stages: weekendStages,
-          updated_at: now
-        }
-      ];
+      const rowsToUpsert = [];
 
       Object.keys(dataToSync).forEach((key) => {
-        if (!['batch_data', 'default', 'Weekday Batch', 'Weekend Batch', 'ml-python-full-stack', 'ml-python-weekend', 'badges_data', 'completed_items'].includes(key)) {
+        if (!['batch_data', 'badges_data', 'completed_items'].includes(key)) {
+          const overviewObj = dataToSync[key]?.overview || { trackTitle: 'Curriculum & Milestones Roadmap' };
+          const targetBatchVal = overviewObj.targetBatch || dataToSync[key]?.targetBatch || (key === 'Weekend Batch' ? 'Weekend Batch' : key === 'Weekday Batch' ? 'Weekday Batch' : 'ALL');
           rowsToUpsert.push({
             id: key,
-            overview: dataToSync[key]?.overview || {},
+            overview: {
+              ...overviewObj,
+              targetBatch: targetBatchVal
+            },
             stages: dataToSync[key]?.stages || [],
+            target_batch: targetBatchVal,
             updated_at: now
           });
         }
       });
+
+      if (rowsToUpsert.length === 0) return;
 
       // Direct upsert to Supabase PostgreSQL cloud table
       const { error: sbErr } = await supabase
@@ -638,7 +616,7 @@ export function LmsDataProvider({ children }) {
           await fetch('/api/milestones', {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ batchData: dataToSync, overview: weekdayOverview })
+            body: JSON.stringify({ batchData: dataToSync })
           });
         } catch (apiErr) {
           console.warn('Backend API /api/milestones fallback error:', apiErr);
@@ -847,8 +825,17 @@ export function LmsDataProvider({ children }) {
 
   const getMilestoneDataForBatch = (batchName) => {
     const bKey = (batchName && batchName !== 'ALL') ? batchName : (activeBatchFilter && activeBatchFilter !== 'ALL' ? activeBatchFilter : 'Weekday Batch');
-    // Support dynamic batch codes: try exact match first, then fall back to category
     if (milestonesByBatch[bKey]) return milestonesByBatch[bKey];
+
+    // Check if any course-specific milestone record targets this batch or ALL batches
+    const matchingCourseMilestone = Object.values(milestonesByBatch).find(m => {
+      const tb = String(m?.targetBatch || m?.overview?.targetBatch || 'ALL').toUpperCase();
+      return tb === 'ALL' || tb.includes('ALL') || tb === bKey.toUpperCase() ||
+             (bKey.startsWith('A26S') && tb.includes('WEEKEND')) ||
+             (bKey.startsWith('A26W') && tb.includes('WEEKDAY'));
+    });
+    if (matchingCourseMilestone) return matchingCourseMilestone;
+
     // Map batch codes to their category: A26S* = Weekend, A26W* = Weekday
     const isWeekend = bKey.startsWith('A26S') || bKey === 'Weekend Batch';
     const categoryKey = isWeekend ? 'Weekend Batch' : 'Weekday Batch';
@@ -1667,22 +1654,35 @@ export function LmsDataProvider({ children }) {
       }
 
       if (!milesErr && milesData && milesData.length > 0) {
+        let batchData = {};
+        milesData.forEach(row => {
+          if (!['badges_data', 'completed_items', 'batch_data'].includes(row.id)) {
+            batchData[row.id] = {
+              overview: row.overview || { trackTitle: 'Curriculum & Milestones Roadmap' },
+              stages: Array.isArray(row.stages) ? row.stages : []
+            };
+          }
+        });
+
         const batchRow = milesData.find(m => m.id === 'batch_data');
-        const weekdayRow = milesData.find(m => m.id === 'Weekday Batch');
-        const weekendRow = milesData.find(m => m.id === 'Weekend Batch');
+        if (batchRow?.overview?.batchData && typeof batchRow.overview.batchData === 'object') {
+          batchData = { ...batchRow.overview.batchData, ...batchData };
+        }
+
+        const weekdayRow = milesData.find(m => m.id === 'Weekday Batch') || milesData.find(m => m.id === 'ml-python-full-stack');
+        const weekendRow = milesData.find(m => m.id === 'Weekend Batch') || milesData.find(m => m.id === 'ml-python-weekend');
         const defaultRow = milesData.find(m => m.id === 'default');
 
-        let batchData = batchRow?.overview?.batchData;
-        if (!batchData || typeof batchData !== 'object') {
-          batchData = {
-            'Weekday Batch': {
-              overview: weekdayRow?.overview || defaultRow?.overview || { trackTitle: 'Curriculum & Milestones Roadmap' },
-              stages: Array.isArray(weekdayRow?.stages) ? weekdayRow.stages : (Array.isArray(defaultRow?.stages) ? defaultRow.stages : [])
-            },
-            'Weekend Batch': {
-              overview: weekendRow?.overview || weekdayRow?.overview || { trackTitle: 'Curriculum & Milestones Roadmap' },
-              stages: Array.isArray(weekendRow?.stages) ? weekendRow.stages : []
-            }
+        if (!batchData['Weekday Batch']) {
+          batchData['Weekday Batch'] = {
+            overview: weekdayRow?.overview || defaultRow?.overview || { trackTitle: 'Curriculum & Milestones Roadmap' },
+            stages: Array.isArray(weekdayRow?.stages) ? weekdayRow.stages : (Array.isArray(defaultRow?.stages) ? defaultRow.stages : [])
+          };
+        }
+        if (!batchData['Weekend Batch']) {
+          batchData['Weekend Batch'] = {
+            overview: weekendRow?.overview || weekdayRow?.overview || { trackTitle: 'Curriculum & Milestones Roadmap' },
+            stages: Array.isArray(weekendRow?.stages) ? weekendRow.stages : []
           };
         }
 
@@ -2756,37 +2756,8 @@ export function LmsDataProvider({ children }) {
     } catch (err) { console.warn('Live session insert handled:', err); }
 
     // 2. Persist updated milestones to Supabase milestones_data table in real time
-    try {
-      const now = new Date().toISOString();
-      const rowsToUpsert = [];
-      targetBatches.forEach(batchKey => {
-        const batchObj = nextMilestonesDict?.[batchKey] || { overview: {}, stages: [] };
-        rowsToUpsert.push({
-          id: batchKey,
-          overview: batchObj.overview || { trackTitle: 'Curriculum & Milestones Roadmap' },
-          stages: batchObj.stages || [],
-          updated_at: now
-        });
-      });
-
-      const weekdayStages = nextMilestonesDict?.['Weekday Batch']?.stages || [];
-      rowsToUpsert.push({
-        id: 'batch_data',
-        overview: { batchData: nextMilestonesDict },
-        stages: weekdayStages,
-        updated_at: now
-      });
-
-      await supabase.from('milestones_data').upsert(rowsToUpsert, { onConflict: 'id' });
-      try {
-        await fetch('/api/milestones', {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ batchData: nextMilestonesDict })
-        });
-      } catch (e) {}
-    } catch (err) {
-      console.warn('Milestones live persist error:', err);
+    if (nextMilestonesDict) {
+      syncMilestonesNow(nextMilestonesDict);
     }
   };
 
@@ -2844,37 +2815,8 @@ export function LmsDataProvider({ children }) {
     } catch (err) { console.warn('Live session update handled:', err); }
 
     // 2. Persist updated milestones to Supabase in real time
-    try {
-      const now = new Date().toISOString();
-      const rowsToUpsert = [];
-      targetBatches.forEach(batchKey => {
-        const batchObj = nextMilestonesDict?.[batchKey] || { overview: {}, stages: [] };
-        rowsToUpsert.push({
-          id: batchKey,
-          overview: batchObj.overview || { trackTitle: 'Curriculum & Milestones Roadmap' },
-          stages: batchObj.stages || [],
-          updated_at: now
-        });
-      });
-
-      const weekdayStages = nextMilestonesDict?.['Weekday Batch']?.stages || [];
-      rowsToUpsert.push({
-        id: 'batch_data',
-        overview: { batchData: nextMilestonesDict },
-        stages: weekdayStages,
-        updated_at: now
-      });
-
-      await supabase.from('milestones_data').upsert(rowsToUpsert, { onConflict: 'id' });
-      try {
-        await fetch('/api/milestones', {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ batchData: nextMilestonesDict })
-        });
-      } catch (e) {}
-    } catch (err) {
-      console.warn('Milestones live update persist error:', err);
+    if (nextMilestonesDict) {
+      syncMilestonesNow(nextMilestonesDict);
     }
   };
 
@@ -2923,38 +2865,8 @@ export function LmsDataProvider({ children }) {
     } catch (err) { console.warn('Live session delete handled:', err); }
 
     // 2. Persist updated milestones to Supabase in real time
-    try {
-      const now = new Date().toISOString();
-      const rowsToUpsert = [
-        {
-          id: 'Weekday Batch',
-          overview: nextMilestonesDict?.['Weekday Batch']?.overview || {},
-          stages: nextMilestonesDict?.['Weekday Batch']?.stages || [],
-          updated_at: now
-        },
-        {
-          id: 'Weekend Batch',
-          overview: nextMilestonesDict?.['Weekend Batch']?.overview || {},
-          stages: nextMilestonesDict?.['Weekend Batch']?.stages || [],
-          updated_at: now
-        },
-        {
-          id: 'batch_data',
-          overview: { batchData: nextMilestonesDict },
-          stages: nextMilestonesDict?.['Weekday Batch']?.stages || [],
-          updated_at: now
-        }
-      ];
-      await supabase.from('milestones_data').upsert(rowsToUpsert, { onConflict: 'id' });
-      try {
-        await fetch('/api/milestones', {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ batchData: nextMilestonesDict })
-        });
-      } catch (e) {}
-    } catch (err) {
-      console.warn('Milestones delete persist error:', err);
+    if (nextMilestonesDict) {
+      syncMilestonesNow(nextMilestonesDict);
     }
   };
 

@@ -177,37 +177,29 @@ app.get('/api/milestones', async (req, res) => {
 
 app.put('/api/milestones', async (req, res) => {
   try {
-    const { batchData, overview } = req.body;
+    const { batchData } = req.body;
     if (!batchData) {
       return res.status(400).json({ success: false, message: 'batchData is required' });
     }
 
-    const weekdayStages = batchData['Weekday Batch']?.stages || batchData['default']?.stages || [];
-    const weekdayOverview = batchData['Weekday Batch']?.overview || overview || {};
-    const weekendStages = batchData['Weekend Batch']?.stages || [];
-    const weekendOverview = batchData['Weekend Batch']?.overview || {};
     const now = new Date().toISOString();
-
-    const rows = [
-      { id: 'batch_data', overview: { batchData }, stages: weekdayStages, updated_at: now },
-      { id: 'default', overview: weekdayOverview, stages: weekdayStages, updated_at: now },
-      { id: 'Weekday Batch', overview: weekdayOverview, stages: weekdayStages, updated_at: now },
-      { id: 'Weekend Batch', overview: weekendOverview, stages: weekendStages, updated_at: now }
-    ];
+    const rows = [];
 
     Object.keys(batchData).forEach((k) => {
-      if (!['batch_data', 'default', 'Weekday Batch', 'Weekend Batch'].includes(k)) {
+      if (!['batch_data', 'badges_data', 'completed_items'].includes(k)) {
         rows.push({
           id: k,
-          overview: batchData[k]?.overview || {},
+          overview: batchData[k]?.overview || { trackTitle: 'Curriculum & Milestones Roadmap' },
           stages: batchData[k]?.stages || [],
           updated_at: now
         });
       }
     });
 
-    const { error: upsertErr } = await supabase.from('milestones_data').upsert(rows);
-    if (upsertErr) console.warn('Supabase milestones bulk upsert error:', upsertErr.message);
+    if (rows.length > 0) {
+      const { error: upsertErr } = await supabase.from('milestones_data').upsert(rows);
+      if (upsertErr) console.warn('Supabase milestones bulk upsert error:', upsertErr.message);
+    }
 
     res.json({
       success: true,
