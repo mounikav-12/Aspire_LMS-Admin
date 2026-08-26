@@ -291,6 +291,40 @@ export function AssessmentListPage() {
     });
   };
 
+  // Coding Question Array Handlers
+  const handleAddCoding = () => {
+    setFormData((prev) => ({
+      ...prev,
+      codingQuestions: [
+        ...(prev.codingQuestions || []),
+        { title: '', description: '' }
+      ]
+    }));
+  };
+
+  const handleRemoveCoding = (index) => {
+    setFormData((prev) => ({
+      ...prev,
+      codingQuestions: (prev.codingQuestions || []).filter((_, i) => i !== index)
+    }));
+  };
+
+  const handleUpdateCodingTitle = (index, value) => {
+    setFormData((prev) => {
+      const updated = [...(prev.codingQuestions || [])];
+      updated[index] = { ...updated[index], title: value };
+      return { ...prev, codingQuestions: updated };
+    });
+  };
+
+  const handleUpdateCodingDesc = (index, value) => {
+    setFormData((prev) => {
+      const updated = [...(prev.codingQuestions || [])];
+      updated[index] = { ...updated[index], description: value, problemStatement: value };
+      return { ...prev, codingQuestions: updated };
+    });
+  };
+
   // Save / Update Assessment
   const handleSaveAssessment = (e) => {
     e.preventDefault();
