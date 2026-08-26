@@ -412,21 +412,34 @@ export function MilestonesRoadmapPage() {
 
     if (!baseStages || baseStages.length === 0) return [];
 
-    return baseStages.map((stage, idx) => {
+    // Filter out rogue stages (Stage 5, 6, 7, etc.)
+    const cleanStages = baseStages.filter(s => {
+      if (!s) return false;
+      const sNum = (s.stageNumber || '').toUpperCase();
+      const sTitle = (s.title || '').toLowerCase();
+      const sId = (s.id || '').toLowerCase();
+      return !sNum.includes('05') && !sNum.includes('06') && !sNum.includes('07') &&
+             !sTitle.includes('stage 5') && !sTitle.includes('stage 6') && !sTitle.includes('stage 7') &&
+             !sTitle.includes('git foundations') && !sTitle.includes('general foundations') &&
+             !sId.startsWith('stage-178773');
+    });
+
+    return cleanStages.map((stage, idx) => {
       const stageId = stage.id || `stg-${idx}`;
       return {
         ...stage,
         id: stageId,
         subtopics: (stage.subtopics || []).map((sub, sIdx) => {
           const subId = sub.id || sub._id || sub.subtopic_id || `sub-${idx}-${sIdx}`;
+          const cleanSubTitle = String(sub.title || '').replace(/^Module\s*\d+\s*:\s*/i, '').trim();
           let modules = Array.isArray(sub.modules) && sub.modules.length > 0 ? sub.modules : [];
 
           if (modules.length === 0) {
-            const lessons = resolveLessonsForSubtopic(subId, sub.title, stageId);
+            const lessons = resolveLessonsForSubtopic(subId, cleanSubTitle, stageId);
             if (lessons.length > 0) {
               modules = lessons.map(lesson => ({
                 id: lesson.id,
-                title: lesson.title,
+                title: String(lesson.title || '').replace(/^Module\s*\d+\s*:\s*/i, '').trim(),
                 description: lesson.description || '',
                 duration: lesson.duration || lesson.durationHours || '1hr 30min',
                 durationHours: lesson.durationHours || '1hr 30min',
@@ -439,6 +452,7 @@ export function MilestonesRoadmapPage() {
           return {
             ...sub,
             id: subId,
+            title: cleanSubTitle,
             modulesCount: modules.length,
             modules: modules
           };
