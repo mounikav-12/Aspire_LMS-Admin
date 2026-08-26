@@ -30,7 +30,8 @@ import {
   CheckCircle2,
   AlertCircle,
   Building2,
-  FolderGit2
+  FolderGit2,
+  HelpCircle
 } from 'lucide-react';
 import { useSearchParams } from 'react-router-dom';
 import { useToast } from '../../context/ToastContext';
@@ -298,6 +299,7 @@ export function MilestonesRoadmapPage() {
     activeBatchFilter,
     setActiveBatchFilter,
     assessments = [],
+    quizzes = [],
     liveSessions = [],
     completedMilestoneItemIds = [],
     toggleItemCompletion = () => {},
@@ -726,6 +728,7 @@ export function MilestonesRoadmapPage() {
     if (iconName === 'Code') IconComp = Code;
     if (iconName === 'Building2' || iconName === 'FolderGit2') IconComp = Building2;
     if (iconName === 'FileCheck') IconComp = FileCheck;
+    if (iconName === 'HelpCircle' || iconName === 'Help') IconComp = HelpCircle;
     if (iconName === 'BookText' || iconName === 'Book' || iconName === 'FileText') IconComp = Book;
 
     return (
@@ -1822,10 +1825,37 @@ export function MilestonesRoadmapPage() {
                           totalMarks: asm.totalMarks || 100
                         }));
 
+                      // Auto-match quizzes for this module
+                      const autoMatchedQuizzes = (quizzes || [])
+                        .filter(qz => {
+                          const qzModId = stripSuffix(qz.moduleId || qz.innerTopicId || qz.topic_id || qz.module_id);
+                          if (qzModId && curModId && (qzModId === curModId || qzModId.includes(curModId) || curModId.includes(qzModId))) return true;
+                          const tName = cleanNorm(qz.topicName || qz.topic_name || qz.title);
+                          return tName && curModTitle && (tName.includes(curModTitle) || curModTitle.includes(tName));
+                        })
+                        .map(qz => ({
+                          ...qz,
+                          id: `item-quiz-${qz.id}`,
+                          quizId: qz.id,
+                          assessmentId: qz.id,
+                          type: 'QUIZ',
+                          typeColor: 'bg-purple-100 text-purple-800 border-purple-200',
+                          iconName: 'HelpCircle',
+                          iconBg: 'bg-purple-600 text-white',
+                          title: qz.title,
+                          actionText: 'TAKE QUIZ',
+                          url: '/assessments',
+                          btnStyle: 'bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30',
+                          dueDate: qz.dueDate || '2026-08-30',
+                          durationMinutes: qz.durationMinutes || 45,
+                          totalMarks: qz.totalMarks || 100
+                        }));
+
                       const rawNonLive = rawItems.filter(it => it.type !== 'LIVE CLASS' && !liveClassTopics.some(lt => lt.id === it.id));
                       const otherResources = [
                         ...rawNonLive,
-                        ...autoMatchedAssessments.filter(asm => !rawNonLive.some(it => it.assessmentId === asm.assessmentId || it.id === asm.id || (it.type === 'ASSESSMENT' && cleanNorm(it.title) === cleanNorm(asm.title))))
+                        ...autoMatchedAssessments.filter(asm => !rawNonLive.some(it => it.assessmentId === asm.assessmentId || it.id === asm.id || (it.type === 'ASSESSMENT' && cleanNorm(it.title) === cleanNorm(asm.title)))),
+                        ...autoMatchedQuizzes.filter(qz => !rawNonLive.some(it => it.quizId === qz.quizId || it.id === qz.id || (it.type === 'QUIZ' && cleanNorm(it.title) === cleanNorm(qz.title))))
                       ];
 
                       return (

@@ -186,6 +186,7 @@ export function LmsDataProvider({ children }) {
   const [rolePermissions, setRolePermissions] = useState(INITIAL_ROLE_PERMISSIONS);
   const [coursesByBatch, setCoursesByBatch] = useState(() => loadBatchDictState('aspire_lms_courses_by_batch', INITIAL_COURSES, 'aspire_lms_courses_version', 'v8_single_course'));
   const [assessmentsByBatch, setAssessmentsByBatch] = useState(() => loadBatchDictState('aspire_lms_assessments_by_batch', INITIAL_ASSESSMENTS, 'aspire_lms_assessments_version', 'v6_cleared_mock_data'));
+  const [quizzesByBatch, setQuizzesByBatch] = useState(() => loadBatchDictState('aspire_lms_quizzes_by_batch', [], 'aspire_lms_quizzes_version', 'v1_quizzes'));
   const [liveSessionsByBatch, setLiveSessionsByBatch] = useState(() => loadBatchDictState('aspire_lms_live_sessions_by_batch', INITIAL_LIVE_SESSIONS, 'aspire_lms_sessions_version', 'v6_cleared_mock_data'));
   const [jobsByBatch, setJobsByBatch] = useState(() => loadBatchDictState('aspire_lms_jobs_by_batch', INITIAL_JOBS, 'aspire_lms_jobs_version', 'v8_cleared_jobs'));
   const [recordingsByBatch, setRecordingsByBatch] = useState(() => loadBatchDictState('aspire_lms_recordings_by_batch', INITIAL_RECORDINGS, 'aspire_lms_recordings_version', 'v6_cleared_mock_data'));
@@ -478,6 +479,10 @@ export function LmsDataProvider({ children }) {
   useEffect(() => {
     try { localStorage.setItem('aspire_lms_assessments_by_batch', JSON.stringify(assessmentsByBatch)); } catch (e) {}
   }, [assessmentsByBatch]);
+
+  useEffect(() => {
+    try { localStorage.setItem('aspire_lms_quizzes_by_batch', JSON.stringify(quizzesByBatch)); } catch (e) {}
+  }, [quizzesByBatch]);
 
   useEffect(() => {
     try { localStorage.setItem('aspire_lms_live_sessions_by_batch', JSON.stringify(liveSessionsByBatch)); } catch (e) {}
@@ -1056,18 +1061,58 @@ export function LmsDataProvider({ children }) {
     return {
       id: String(a.id),
       title: a.title || 'Untitled Assessment',
+      eval_type: a.evalType || 'quiz',
       course_id: a.courseId || null,
       course_name: a.courseName || '',
+      stage_id: a.stageId || null,
+      stage_name: a.stageName || a.moduleName || '',
+      subtopic_id: a.subtopicId || null,
+      subtopic_name: a.subtopicName || '',
+      inner_topic_id: a.innerTopicId || a.moduleId || null,
+      module_id: a.innerTopicId || a.moduleId || null,
+      topic_name: a.topicName || '',
       topic_id: packedTopicId,
-      topic_name: packedTopicName,
       duration_minutes: Number(a.durationMinutes || 45),
       total_marks: Number(a.totalMarks || 100),
       mcq_count: Number(a.mcqCount || (Array.isArray(a.mcqs) ? a.mcqs.length : 0)),
+      total_questions: Number(a.totalQuestions || (Array.isArray(a.mcqs) ? a.mcqs.length : 0)),
       status: a.status || 'Active',
       publish_status: a.publishStatus || 'Published',
       due_date: a.dueDate || '2026-08-30',
       mcqs: Array.isArray(a.mcqs) ? a.mcqs : [],
+      target_batches: Array.isArray(a.targetBatches) ? a.targetBatches : [targetBatchStr],
       target_batch: targetBatchStr
+    };
+  };
+
+  const toDbQuiz = (a) => {
+    if (!a) return null;
+    const packedTopicName = `${a.moduleName || a.stageName || ''}||${a.subtopicName || ''}||${a.topicName || a.innerTopicTitle || ''}`;
+    const packedTopicId = `${a.stageId || ''}||${a.subtopicId || ''}||${a.innerTopicId || a.moduleId || ''}`;
+    const targetBatchStr = a.targetBatch || (Array.isArray(a.targetBatches) ? a.targetBatches.join(', ') : 'Weekday Batch');
+
+    return {
+      id: String(a.id),
+      title: a.title || 'Untitled Quiz',
+      eval_type: 'quiz',
+      course_id: a.courseId || null,
+      course_name: a.courseName || '',
+      stage_id: a.stageId || null,
+      stage_name: a.stageName || a.moduleName || '',
+      subtopic_id: a.subtopicId || null,
+      subtopic_name: a.subtopicName || '',
+      inner_topic_id: a.innerTopicId || a.moduleId || null,
+      module_id: a.innerTopicId || a.moduleId || null,
+      topic_name: a.topicName || '',
+      duration_minutes: Number(a.durationMinutes || 45),
+      total_marks: Number(a.totalMarks || 100),
+      due_date: a.dueDate || '2026-08-30',
+      mcq_count: Number(a.mcqCount || (Array.isArray(a.mcqs) ? a.mcqs.length : 0)),
+      total_questions: Number(a.totalQuestions || (Array.isArray(a.mcqs) ? a.mcqs.length : 0)),
+      mcqs: Array.isArray(a.mcqs) ? a.mcqs : [],
+      target_batches: Array.isArray(a.targetBatches) ? a.targetBatches : [targetBatchStr],
+      target_batch: targetBatchStr,
+      status: a.status || 'Published'
     };
   };
 
@@ -1282,6 +1327,7 @@ export function LmsDataProvider({ children }) {
 
   const getCoursesForBatch = (batchName) => getBatchItems(coursesByBatch, batchName);
   const getAssessmentsForBatch = (batchName) => getBatchItems(assessmentsByBatch, batchName);
+  const getQuizzesForBatch = (batchName) => getBatchItems(quizzesByBatch, batchName);
   const getLiveSessionsForBatch = (batchName) => getBatchItems(liveSessionsByBatch, batchName);
   const getJobsForBatch = (batchName) => getBatchItems(jobsByBatch, batchName);
   const getRecordingsForBatch = (batchName) => getBatchItems(recordingsByBatch, batchName);
@@ -1290,6 +1336,7 @@ export function LmsDataProvider({ children }) {
 
   const courses = getCoursesForBatch(activeBatchFilter);
   const assessments = getAssessmentsForBatch(activeBatchFilter);
+  const quizzes = getQuizzesForBatch(activeBatchFilter);
   const liveSessions = getLiveSessionsForBatch(activeBatchFilter);
   const jobs = getJobsForBatch(activeBatchFilter);
   const recordings = getRecordingsForBatch(activeBatchFilter);
@@ -1593,6 +1640,21 @@ export function LmsDataProvider({ children }) {
           mappedAsmnts.forEach((a) => placeItemInBatchDict(a, next));
           return next;
         });
+      }
+
+      // 6b. Fetch Quizzes Roster from Supabase
+      try {
+        const { data: quizzesData, error: quizErr } = await supabase.from('quizzes').select('*').order('created_at', { ascending: true });
+        if (!quizErr && quizzesData && quizzesData.length > 0) {
+          const mappedQuizzes = quizzesData.map(normalizeAssessment).filter(Boolean);
+          setQuizzesByBatch(() => {
+            const next = { 'Weekday Batch': [], 'Weekend Batch': [] };
+            mappedQuizzes.forEach((q) => placeItemInBatchDict(q, next));
+            return next;
+          });
+        }
+      } catch (e) {
+        console.warn('Quizzes table fetch error:', e);
       }
 
       // 7. Fetch Live Sessions
@@ -2700,6 +2762,260 @@ export function LmsDataProvider({ children }) {
       const { error } = await supabase.from('assessments').delete().eq('id', id);
       if (error) console.error('Supabase assessment delete error:', error.message);
     } catch (err) { console.warn('Assessment delete handled:', err); }
+  };
+
+  // --- QUIZZES (public.quizzes table) ---
+  const addQuiz = async (quizData, targetBatch = activeBatchFilter) => {
+    const bKey = resolveBatchKey(targetBatch);
+    const newQuiz = {
+      ...quizData,
+      id: quizData.id || `quiz-${Date.now()}-${bKey === 'Weekday Batch' ? 'w' : 's'}`,
+      evalType: 'quiz',
+      targetBatch: quizData.targetBatch || bKey
+    };
+
+    setQuizzesByBatch((prev) => ({
+      'Weekday Batch': bKey === 'Weekday Batch' || (newQuiz.targetBatch && newQuiz.targetBatch.toUpperCase().includes('ALL'))
+        ? [newQuiz, ...(prev['Weekday Batch'] || []).filter(q => q.id !== newQuiz.id)]
+        : (prev['Weekday Batch'] || []),
+      'Weekend Batch': bKey === 'Weekend Batch' || (newQuiz.targetBatch && newQuiz.targetBatch.toUpperCase().includes('ALL'))
+        ? [newQuiz, ...(prev['Weekend Batch'] || []).filter(q => q.id !== newQuiz.id)]
+        : (prev['Weekend Batch'] || [])
+    }));
+    logActivity(`Created quiz "${newQuiz.title}" (${bKey})`, 'quiz');
+
+    // Auto-sync quiz item into corresponding milestone module in real-time
+    const targetBatchScope = (newQuiz.targetBatch && (
+      newQuiz.targetBatch.toUpperCase().includes('ALL') ||
+      (newQuiz.targetBatch.toUpperCase().includes('WEEKDAY') && newQuiz.targetBatch.toUpperCase().includes('WEEKEND')) ||
+      (newQuiz.targetBatch.toUpperCase().includes('A26W') && newQuiz.targetBatch.toUpperCase().includes('A26S'))
+    )) ? 'ALL' : bKey;
+
+    const quizItem = {
+      id: `item-quiz-${newQuiz.id}`,
+      quizId: newQuiz.id,
+      assessmentId: newQuiz.id,
+      type: 'QUIZ',
+      typeColor: 'bg-purple-100 text-purple-800 border-purple-200',
+      iconName: 'HelpCircle',
+      iconBg: 'bg-purple-600 text-white',
+      title: newQuiz.title || 'Module Quiz',
+      actionText: 'TAKE QUIZ',
+      url: '/assessments',
+      btnStyle: 'bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30',
+      dueDate: newQuiz.dueDate || '2026-08-30',
+      durationMinutes: newQuiz.durationMinutes || 45,
+      totalMarks: newQuiz.totalMarks || 100,
+      mcqCount: newQuiz.mcqCount || (newQuiz.mcqs?.length || 0),
+      totalQuestions: newQuiz.mcqCount || (newQuiz.mcqs?.length || 0)
+    };
+
+    const targetScopeKey = (newQuiz.courseId && newQuiz.courseId !== 'ALL') ? newQuiz.courseId : targetBatchScope;
+
+    updateBatchState(targetScopeKey, (batchData) => {
+      const stages = batchData.stages || [];
+      const targetStageId = newQuiz.stageId;
+      const targetStageName = newQuiz.moduleName || newQuiz.stageName;
+      const stageMatch = stages.find(s => s.id === targetStageId || s.title === targetStageName) || stages[0];
+      if (!stageMatch) return batchData;
+
+      const subtopics = stageMatch.subtopics || stageMatch.modules || [];
+      const targetSubId = newQuiz.subtopicId;
+      const targetSubName = newQuiz.subtopicName;
+      const subtopicMatch = subtopics.find(st => st.id === targetSubId || st.title === targetSubName) || subtopics[0];
+      if (!subtopicMatch) return batchData;
+
+      const targetModId = newQuiz.innerTopicId || newQuiz.moduleId;
+      const targetModName = newQuiz.topicName;
+      const modules = subtopicMatch.modules || subtopicMatch.lessons || [];
+      let modMatch = modules.find(m => m.id === targetModId || m.title === targetModName);
+
+      const updatedStages = stages.map(stg => {
+        if (stg.id !== stageMatch.id) return stg;
+        const transformSubtopic = (sub) => {
+          if (sub.id !== subtopicMatch.id && sub.title !== subtopicMatch.title) return sub;
+          let existingMods = [...(sub.modules || sub.lessons || [])];
+          if (!modMatch) {
+            const newMod = {
+              id: targetModId || `mod-${Date.now()}`,
+              title: targetModName || 'Module Quiz Topic',
+              items: [quizItem]
+            };
+            existingMods.push(newMod);
+          } else {
+            existingMods = existingMods.map(m => {
+              if (m.id !== modMatch.id && m.title !== modMatch.title) return m;
+              const hasItem = (m.items || []).some(it => it.id === quizItem.id || it.quizId === newQuiz.id || it.assessmentId === newQuiz.id);
+              return {
+                ...m,
+                items: hasItem
+                  ? (m.items || []).map(it => (it.id === quizItem.id || it.quizId === newQuiz.id || it.assessmentId === newQuiz.id ? { ...it, ...quizItem } : it))
+                  : [quizItem, ...(m.items || [])]
+              };
+            });
+          }
+          return {
+            ...sub,
+            modulesCount: existingMods.length,
+            modules: existingMods,
+            lessons: existingMods
+          };
+        };
+
+        return {
+          ...stg,
+          subtopics: (stg.subtopics || []).map(transformSubtopic),
+          modules: (stg.modules || []).map(transformSubtopic)
+        };
+      });
+
+      return { ...batchData, stages: updatedStages };
+    });
+
+    try {
+      const dbRow = toDbQuiz(newQuiz);
+      const { data, error } = await supabase.from('quizzes').upsert([dbRow]).select();
+      if (error) {
+        console.error('Supabase quiz insert error:', error.message, error);
+        const coreRow = {
+          id: String(newQuiz.id),
+          title: newQuiz.title || 'Untitled Quiz',
+          eval_type: 'quiz',
+          course_id: newQuiz.courseId || null,
+          course_name: newQuiz.courseName || '',
+          duration_minutes: Number(newQuiz.durationMinutes || 45),
+          total_marks: Number(newQuiz.totalMarks || 100),
+          status: newQuiz.status || 'Published',
+          due_date: newQuiz.dueDate || '2026-08-30',
+          mcq_count: Number(newQuiz.mcqCount || (Array.isArray(newQuiz.mcqs) ? newQuiz.mcqs.length : 0)),
+          total_questions: Number(newQuiz.totalQuestions || (Array.isArray(newQuiz.mcqs) ? newQuiz.mcqs.length : 0)),
+          mcqs: Array.isArray(newQuiz.mcqs) ? newQuiz.mcqs : [],
+          target_batch: dbRow.target_batch
+        };
+        const { data: data2, error: err2 } = await supabase.from('quizzes').upsert([coreRow]).select();
+        if (err2) {
+          const minimalRow = {
+            id: String(newQuiz.id),
+            title: newQuiz.title || 'Untitled Quiz',
+            mcqs: Array.isArray(newQuiz.mcqs) ? newQuiz.mcqs : [],
+            target_batch: dbRow.target_batch
+          };
+          await supabase.from('quizzes').upsert([minimalRow]);
+        }
+      }
+    } catch (err) { console.warn('Quiz insert handled exception:', err); }
+  };
+
+  const updateQuiz = async (id, updatedFields, targetBatch = activeBatchFilter) => {
+    const bKey = resolveBatchKey(targetBatch);
+    let mergedQuiz = null;
+
+    setQuizzesByBatch((prev) => ({
+      'Weekday Batch': (prev['Weekday Batch'] || []).map((q) => {
+        if (q.id === id) {
+          mergedQuiz = { ...q, ...updatedFields };
+          return mergedQuiz;
+        }
+        return q;
+      }),
+      'Weekend Batch': (prev['Weekend Batch'] || []).map((q) => {
+        if (q.id === id) {
+          mergedQuiz = { ...q, ...updatedFields };
+          return mergedQuiz;
+        }
+        return q;
+      })
+    }));
+    logActivity(`Updated quiz ID ${id} (${bKey})`, 'quiz');
+
+    const targetScopeKey = (mergedQuiz?.courseId && mergedQuiz.courseId !== 'ALL') ? mergedQuiz.courseId : bKey;
+    updateBatchState(targetScopeKey, (batchData) => {
+      const stages = (batchData.stages || []).map(stg => {
+        const updateItemInSub = (sub) => ({
+          ...sub,
+          modules: (sub.modules || []).map(m => ({
+            ...m,
+            items: (m.items || []).map(it => {
+              if (it.id === `item-quiz-${id}` || it.quizId === id || it.assessmentId === id) {
+                return {
+                  ...it,
+                  title: updatedFields.title !== undefined ? updatedFields.title : it.title,
+                  dueDate: updatedFields.dueDate !== undefined ? updatedFields.dueDate : it.dueDate,
+                  durationMinutes: updatedFields.durationMinutes !== undefined ? updatedFields.durationMinutes : it.durationMinutes,
+                  totalMarks: updatedFields.totalMarks !== undefined ? updatedFields.totalMarks : it.totalMarks
+                };
+              }
+              return it;
+            })
+          })),
+          lessons: (sub.lessons || []).map(m => ({
+            ...m,
+            items: (m.items || []).map(it => {
+              if (it.id === `item-quiz-${id}` || it.quizId === id || it.assessmentId === id) {
+                return {
+                  ...it,
+                  title: updatedFields.title !== undefined ? updatedFields.title : it.title,
+                  dueDate: updatedFields.dueDate !== undefined ? updatedFields.dueDate : it.dueDate,
+                  durationMinutes: updatedFields.durationMinutes !== undefined ? updatedFields.durationMinutes : it.durationMinutes,
+                  totalMarks: updatedFields.totalMarks !== undefined ? updatedFields.totalMarks : it.totalMarks
+                };
+              }
+              return it;
+            })
+          }))
+        });
+
+        return {
+          ...stg,
+          subtopics: (stg.subtopics || []).map(updateItemInSub),
+          modules: (stg.modules || []).map(updateItemInSub)
+        };
+      });
+      return { ...batchData, stages };
+    });
+
+    try {
+      const quizToSave = mergedQuiz || { id, ...updatedFields, evalType: 'quiz' };
+      const dbRow = toDbQuiz(quizToSave);
+      await supabase.from('quizzes').upsert([dbRow]).select();
+    } catch (err) { console.warn('Quiz update handled exception:', err); }
+  };
+
+  const deleteQuiz = async (id, targetBatch = activeBatchFilter) => {
+    const bKey = resolveBatchKey(targetBatch);
+    setQuizzesByBatch((prev) => ({
+      'Weekday Batch': (prev['Weekday Batch'] || []).filter((q) => q.id !== id),
+      'Weekend Batch': (prev['Weekend Batch'] || []).filter((q) => q.id !== id)
+    }));
+    logActivity(`Deleted quiz ID ${id} (${bKey})`, 'quiz');
+
+    // Remove from milestone module items across all batches
+    updateBatchState('ALL', (batchData) => {
+      const stages = (batchData.stages || []).map(stg => {
+        const filterItemsInSub = (sub) => ({
+          ...sub,
+          modules: (sub.modules || []).map(m => ({
+            ...m,
+            items: (m.items || []).filter(it => it.id !== `item-quiz-${id}` && it.quizId !== id && it.assessmentId !== id)
+          })),
+          lessons: (sub.lessons || []).map(m => ({
+            ...m,
+            items: (m.items || []).filter(it => it.id !== `item-quiz-${id}` && it.quizId !== id && it.assessmentId !== id)
+          }))
+        });
+
+        return {
+          ...stg,
+          subtopics: (stg.subtopics || []).map(filterItemsInSub),
+          modules: (stg.modules || []).map(filterItemsInSub)
+        };
+      });
+      return { ...batchData, stages };
+    });
+
+    try {
+      await supabase.from('quizzes').delete().eq('id', id);
+    } catch (err) { console.warn('Quiz delete handled exception:', err); }
   };
 
 
@@ -4796,6 +5112,10 @@ export function LmsDataProvider({ children }) {
         addAssessment,
         updateAssessment,
         deleteAssessment,
+        quizzes,
+        addQuiz,
+        updateQuiz,
+        deleteQuiz,
         codingQuestions,
         addCodingQuestion,
         updateCodingQuestion,
@@ -4855,6 +5175,8 @@ export function LmsDataProvider({ children }) {
         getCoursesForBatch,
         assessmentsByBatch,
         getAssessmentsForBatch,
+        quizzesByBatch,
+        getQuizzesForBatch,
         liveSessionsByBatch,
         getLiveSessionsForBatch,
         jobsByBatch,

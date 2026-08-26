@@ -491,6 +491,51 @@ app.delete('/api/assessments/:id', async (req, res) => {
   }
 });
 
+// QUIZZES ENDPOINTS
+app.get('/api/quizzes', async (req, res) => {
+  try {
+    const { data, error } = await supabase.from('quizzes').select('*').order('created_at', { ascending: true });
+    if (error) throw error;
+    res.json({ success: true, data: data || [] });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+app.post('/api/quizzes', async (req, res) => {
+  try {
+    const dbItem = formatDbAssessment(req.body);
+    const { data, error } = await supabase.from('quizzes').upsert([dbItem]).select();
+    if (error) throw error;
+    res.status(201).json({ success: true, data: data ? data[0] : dbItem });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+app.put('/api/quizzes/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const dbItem = formatDbAssessment(req.body, id);
+    const { data, error } = await supabase.from('quizzes').update(dbItem).eq('id', id).select();
+    if (error) throw error;
+    res.json({ success: true, data: data ? data[0] : dbItem });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+app.delete('/api/quizzes/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { error } = await supabase.from('quizzes').delete().eq('id', id);
+    if (error) throw error;
+    res.json({ success: true, message: `Quiz ${id} deleted successfully` });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
 // =========================================================
 // 5. MCQ TESTS API
 // =========================================================

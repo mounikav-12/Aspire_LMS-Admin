@@ -37,12 +37,16 @@ import {
 export function AssessmentListPage() {
   const {
     assessments,
+    quizzes,
     courses,
     courseLessons,
     milestones,
     addAssessment,
     updateAssessment,
     deleteAssessment,
+    addQuiz,
+    updateQuiz,
+    deleteQuiz,
     activeBatchFilter,
     setActiveBatchFilter,
     availableBatches
@@ -192,13 +196,17 @@ export function AssessmentListPage() {
 
     const initialMcqs = asm.mcqs && asm.mcqs.length > 0
       ? asm.mcqs.map((m) => ({
+          mcqType: m.mcqType || (m.codeSnippet ? 'coding' : 'theoretical'),
           question: m.question || '',
+          codeSnippet: m.codeSnippet || '',
           options: Array.isArray(m.options) ? [...m.options] : ['Option A', 'Option B', 'Option C', 'Option D'],
           correctIndex: m.correctIndex !== undefined ? m.correctIndex : 0
         }))
       : [
           {
+            mcqType: 'theoretical',
             question: 'Which Git command initializes a new repository?',
+            codeSnippet: '',
             options: ['git create', 'git init', 'git start', 'git repo'],
             correctIndex: 1
           }
@@ -244,13 +252,15 @@ export function AssessmentListPage() {
   };
 
   // MCQ Question Array Handlers
-  const handleAddMcq = () => {
+  const handleAddMcq = (type = 'theoretical') => {
     setFormData((prev) => ({
       ...prev,
       mcqs: [
         ...prev.mcqs,
         {
+          mcqType: typeof type === 'string' ? type : 'theoretical',
           question: '',
+          codeSnippet: '',
           options: ['', '', '', ''],
           correctIndex: 0
         }
@@ -263,6 +273,22 @@ export function AssessmentListPage() {
       ...prev,
       mcqs: prev.mcqs.filter((_, i) => i !== index)
     }));
+  };
+
+  const handleUpdateMcqType = (mcqIndex, value) => {
+    setFormData((prev) => {
+      const updated = [...prev.mcqs];
+      updated[mcqIndex] = { ...updated[mcqIndex], mcqType: value };
+      return { ...prev, mcqs: updated };
+    });
+  };
+
+  const handleUpdateMcqCodeSnippet = (mcqIndex, value) => {
+    setFormData((prev) => {
+      const updated = [...prev.mcqs];
+      updated[mcqIndex] = { ...updated[mcqIndex], codeSnippet: value };
+      return { ...prev, mcqs: updated };
+    });
   };
 
   const handleUpdateMcqQuestion = (index, value) => {
@@ -372,30 +398,47 @@ export function AssessmentListPage() {
       targetBatch: targetBatchStr
     };
 
+    const isQuizTarget = isQuizEval || activeMainTab === 'QUIZZES';
+
     if (editingAssessment) {
-      updateAssessment(editingAssessment.id, assessmentPayload);
-      addToast(`Updated assessment "${formData.title}" (${totalQuestionsCount} MCQs)`, 'success');
+      if (isQuizTarget) {
+        updateQuiz(editingAssessment.id, { ...assessmentPayload, evalType: 'quiz' });
+        addToast(`Updated quiz "${formData.title}" (${totalQuestionsCount} MCQs)`, 'success');
+      } else {
+        updateAssessment(editingAssessment.id, assessmentPayload);
+        addToast(`Updated assessment "${formData.title}" (${totalQuestionsCount} MCQs)`, 'success');
+      }
       setEditingAssessment(null);
     } else {
-      addAssessment(assessmentPayload);
-      addToast(`Published assessment "${formData.title}" (${totalQuestionsCount} MCQs) & linked to Milestone!`, 'success');
+      if (isQuizTarget) {
+        addQuiz({ ...assessmentPayload, evalType: 'quiz' });
+        addToast(`Published quiz "${formData.title}" (${totalQuestionsCount} MCQs) to quizzes table!`, 'success');
+      } else {
+        addAssessment(assessmentPayload);
+        addToast(`Published assessment "${formData.title}" (${totalQuestionsCount} MCQs) & linked to Milestone!`, 'success');
+      }
       setIsAddModalOpen(false);
     }
   };
 
   const handleDeleteConfirm = () => {
     if (deletingAssessment) {
-      deleteAssessment(deletingAssessment.id);
-      addToast(`Deleted assessment "${deletingAssessment.title}"`, 'info');
+      const isQuizItem = deletingAssessment.evalType === 'quiz' || activeMainTab === 'QUIZZES';
+      if (isQuizItem) {
+        deleteQuiz(deletingAssessment.id);
+        addToast(`Deleted quiz "${deletingAssessment.title}"`, 'info');
+      } else {
+        deleteAssessment(deletingAssessment.id);
+        addToast(`Deleted assessment "${deletingAssessment.title}"`, 'info');
+      }
       setDeletingAssessment(null);
     }
   };
 
-  const filteredAssessments = [...assessments]
-    .filter((a) => {
-      const isQuiz = a.evalType === 'quiz' || a.category?.toLowerCase().includes('quiz') || a.title?.toLowerCase().includes('quiz');
-      const matchesMainTab = activeMainTab === 'QUIZZES' ? isQuiz : !isQuiz;
+  const currentTabItems = activeMainTab === 'QUIZZES' ? (quizzes || []) : (assessments || []);
 
+  const filteredAssessments = [...currentTabItems]
+    .filter((a) => {
       const matchesSearch =
         a.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         a.courseName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -409,7 +452,7 @@ export function AssessmentListPage() {
         matchesStatus = a.status === 'Draft' || a.status === 'Pending';
       }
 
-      return matchesMainTab && matchesSearch && matchesCourse && matchesStatus;
+      return matchesSearch && matchesCourse && matchesStatus;
     })
     .sort((a, b) => {
       const timeA = a.createdAt ? new Date(a.createdAt).getTime() : (a.created_at ? new Date(a.created_at).getTime() : 0);
@@ -424,9 +467,9 @@ export function AssessmentListPage() {
     0
   );
 
-  const currentModalMcqCount = formData.mcqs?.length || 0;
-  const currentModalCodingCount = formData.evalType === 'quiz' ? 0 : (formData.codingQuestions?.length || 0);
-  const currentModalTotalQuestions = currentModalMcqCount + currentModalCodingCount;
+  const currentModalTheoryCount = (formData.mcqs || []).filter(m => m.mcqType !== 'coding').length;
+  const currentModalCodingMcqCount = (formData.mcqs || []).filter(m => m.mcqType === 'coding').length;
+  const currentModalTotalQuestions = (formData.mcqs || []).length;
 
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
@@ -716,11 +759,11 @@ export function AssessmentListPage() {
               </div>
               <div className="flex items-center gap-1.5 text-[11px]">
                 <span className="px-2.5 py-0.5 rounded-lg bg-white/10 text-blue-100 font-semibold border border-white/15">
-                  {currentModalMcqCount} MCQs
+                  {currentModalTheoryCount} Theory MCQs
                 </span>
-                {formData.evalType !== 'quiz' && (
-                  <span className="px-2 py-0.5 rounded-lg bg-white/10 text-blue-100 font-semibold border border-white/15">
-                    {currentModalCodingCount} Coding
+                {currentModalCodingMcqCount > 0 && (
+                  <span className="px-2.5 py-0.5 rounded-lg bg-emerald-500/20 text-emerald-200 font-semibold border border-emerald-500/30">
+                    {currentModalCodingMcqCount} Coding MCQs
                   </span>
                 )}
               </div>
@@ -993,145 +1036,136 @@ export function AssessmentListPage() {
 
           {/* DYNAMIC MCQ QUESTION BUILDER SECTION */}
           <div className="space-y-4 pt-2 border-t border-slate-200">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <div>
                 <h4 className="font-extrabold text-sm text-slate-900 flex items-center gap-2">
                   <HelpCircle className="w-4 h-4 text-indigo-600" /> Multiple Choice Questions ({formData.mcqs.length})
                 </h4>
-                <p className="text-[11px] text-slate-500 font-medium">Add MCQ question prompts, 4 choices, and select the correct answer</p>
+                <p className="text-[11px] text-slate-500 font-medium">Add theoretical or coding code-snippet MCQs with 4 choices and select the correct answer</p>
               </div>
 
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                icon={Plus}
-                onClick={handleAddMcq}
-                className="border-indigo-200 text-indigo-700 hover:bg-indigo-50"
-              >
-                Add MCQ Question
-              </Button>
-            </div>
-
-            {formData.mcqs.map((mcq, mIndex) => (
-              <div key={mIndex} className="p-4 bg-slate-50/90 rounded-2xl border border-slate-200/90 space-y-3 relative group">
-                <div className="flex items-center justify-between">
-                  <span className="px-2.5 py-0.5 rounded-md bg-indigo-100 text-indigo-800 font-bold text-xs">
-                    MCQ #{mIndex + 1}
-                  </span>
-                  {formData.mcqs.length > 1 && (
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveMcq(mIndex)}
-                      className="p-1 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-rose-50 transition-colors cursor-pointer"
-                      title="Remove Question"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  )}
-                </div>
-
-                <Input
-                  label="Question Text"
-                  placeholder="e.g. Which React hook memoizes values?"
-                  value={mcq.question}
-                  onChange={(e) => handleUpdateMcqQuestion(mIndex, e.target.value)}
-                  required
-                />
-
-                {/* 4 Options Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
-                  {mcq.options.map((opt, oIndex) => (
-                    <Input
-                      key={oIndex}
-                      label={`Option ${oIndex + 1}`}
-                      placeholder={`Choice ${oIndex + 1}`}
-                      value={opt}
-                      onChange={(e) => handleUpdateMcqOption(mIndex, oIndex, e.target.value)}
-                      required
-                    />
-                  ))}
-                </div>
-
-                <Select
-                  label="Correct Option"
-                  value={mcq.correctIndex}
-                  onChange={(e) => handleUpdateMcqCorrectIndex(mIndex, e.target.value)}
-                  options={mcq.options.map((opt, idx) => ({
-                    value: idx,
-                    label: `Option ${idx + 1}: ${opt || `Choice ${idx + 1}`}`
-                  }))}
-                />
-              </div>
-            ))}
-          </div>
-
-          {/* DYNAMIC CODING CHALLENGE BUILDER SECTION (ONLY FOR ASSESSMENTS) */}
-          {formData.evalType !== 'quiz' && (
-            <div className="space-y-4 pt-4 border-t border-slate-200">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h4 className="font-extrabold text-sm text-slate-900 flex items-center gap-2">
-                    <Code2 className="w-4 h-4 text-emerald-600" /> Coding Challenges ({(formData.codingQuestions || []).length})
-                  </h4>
-                  <p className="text-[11px] text-slate-500 font-medium">Add hands-on coding challenge titles and instructions for students</p>
-                </div>
-
+              <div className="flex items-center gap-2">
                 <Button
                   type="button"
                   variant="outline"
                   size="sm"
                   icon={Plus}
-                  onClick={handleAddCoding}
+                  onClick={() => handleAddMcq('theoretical')}
+                  className="border-indigo-200 text-indigo-700 hover:bg-indigo-50"
+                >
+                  Add Theoretical MCQ
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  icon={Code2}
+                  onClick={() => handleAddMcq('coding')}
                   className="border-emerald-200 text-emerald-700 hover:bg-emerald-50"
                 >
-                  Add Coding Challenge
+                  Add Coding MCQ
                 </Button>
               </div>
+            </div>
 
-              {(formData.codingQuestions || []).map((coding, cIndex) => (
-                <div key={cIndex} className="p-4 bg-slate-50/90 rounded-2xl border border-slate-200/90 space-y-3 relative group">
+            {formData.mcqs.map((mcq, mIndex) => {
+              const isCodingMcq = mcq.mcqType === 'coding';
+              return (
+                <div key={mIndex} className="p-4 bg-slate-50/90 rounded-2xl border border-slate-200/90 space-y-3.5 relative group">
                   <div className="flex items-center justify-between">
-                    <span className="px-2.5 py-0.5 rounded-md bg-emerald-100 text-emerald-800 font-bold text-xs">
-                      Coding Task #{cIndex + 1}
-                    </span>
-                    {(formData.codingQuestions || []).length > 1 && (
+                    <div className="flex items-center gap-2">
+                      <span className="px-2.5 py-0.5 rounded-md bg-indigo-100 text-indigo-800 font-bold text-xs">
+                        MCQ #{mIndex + 1}
+                      </span>
+                      <span className={`px-2.5 py-0.5 rounded-md font-extrabold text-[11px] border ${isCodingMcq ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-blue-50 text-blue-700 border-blue-200'}`}>
+                        {isCodingMcq ? '💻 Coding MCQ' : '📖 Theoretical MCQ'}
+                      </span>
+                    </div>
+
+                    {formData.mcqs.length > 1 && (
                       <button
                         type="button"
-                        onClick={() => handleRemoveCoding(cIndex)}
+                        onClick={() => handleRemoveMcq(mIndex)}
                         className="p-1 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-rose-50 transition-colors cursor-pointer"
-                        title="Remove Challenge"
+                        title="Remove Question"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
                     )}
                   </div>
 
-                  <Input
-                    label="Coding Question Title"
-                    placeholder="e.g. Custom `useLocalStorage` Hook Implementation"
-                    value={coding.title}
-                    onChange={(e) => handleUpdateCodingTitle(cIndex, e.target.value)}
-                    required
-                  />
-
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-[11px] font-extrabold text-slate-700 uppercase tracking-wider">
-                      Coding Description / Prompt Instructions
-                    </label>
-                    <textarea
-                      rows={3}
-                      placeholder="Write a custom React hook named `useLocalStorage` that syncs state to window.localStorage..."
-                      value={coding.description}
-                      onChange={(e) => handleUpdateCodingDesc(cIndex, e.target.value)}
-                      className="w-full px-3.5 py-2.5 bg-slate-50/60 hover:bg-white border border-slate-200 rounded-xl text-xs text-slate-800 focus:bg-white focus:outline-none focus:border-blue-500 transition-all"
-                      required
-                    />
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <div className="md:col-span-1">
+                      <Select
+                        label="MCQ Category / Format"
+                        value={mcq.mcqType || 'theoretical'}
+                        onChange={(e) => handleUpdateMcqType(mIndex, e.target.value)}
+                        options={[
+                          { value: 'theoretical', label: '📖 Theoretical MCQ' },
+                          { value: 'coding', label: '💻 Coding MCQ (Code Snippet)' }
+                        ]}
+                      />
+                    </div>
+                    <div className="md:col-span-2">
+                      <Input
+                        label="Question Prompt"
+                        placeholder={isCodingMcq ? "e.g. What will be the output of the code snippet below?" : "e.g. Which Git command initializes a repository?"}
+                        value={mcq.question}
+                        onChange={(e) => handleUpdateMcqQuestion(mIndex, e.target.value)}
+                        required
+                      />
+                    </div>
                   </div>
+
+                  {/* Code Snippet Box for Coding MCQs */}
+                  {isCodingMcq && (
+                    <div className="flex flex-col gap-1.5 pt-1">
+                      <label className="text-[11px] font-extrabold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                        <Code2 className="w-3.5 h-3.5 text-emerald-600" /> Code Snippet / Problem Code Box
+                      </label>
+                      <textarea
+                        rows={4}
+                        placeholder={`# Write or paste your problem code snippet here\ndef calculate_total(a, b):\n    return a + b\n\nprint(calculate_total(10, 20))`}
+                        value={mcq.codeSnippet || ''}
+                        onChange={(e) => handleUpdateMcqCodeSnippet(mIndex, e.target.value)}
+                        className="w-full px-3.5 py-2.5 bg-slate-900 text-emerald-400 font-mono text-xs border border-slate-700 rounded-xl focus:outline-none focus:border-emerald-500 transition-all shadow-inner"
+                      />
+                    </div>
+                  )}
+
+                  {/* 4 Options Grid */}
+                  <div className="space-y-1.5 pt-1">
+                    <label className="text-[11px] font-extrabold text-slate-700 uppercase tracking-wider">
+                      Answer Choices (Options)
+                    </label>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                      {mcq.options.map((opt, oIndex) => (
+                        <Input
+                          key={oIndex}
+                          label={`Option ${oIndex + 1}`}
+                          placeholder={`Choice ${oIndex + 1}`}
+                          value={opt}
+                          onChange={(e) => handleUpdateMcqOption(mIndex, oIndex, e.target.value)}
+                          required
+                        />
+                      ))}
+                    </div>
+                  </div>
+
+                  <Select
+                    label="Correct Option (Mark Correct Answer)"
+                    value={mcq.correctIndex}
+                    onChange={(e) => handleUpdateMcqCorrectIndex(mIndex, e.target.value)}
+                    options={mcq.options.map((opt, idx) => ({
+                      value: idx,
+                      label: `Option ${idx + 1}: ${opt || `Choice ${idx + 1}`}`
+                    }))}
+                  />
                 </div>
-              ))}
-            </div>
-          )}
+              );
+            })}
+          </div>
+
           <div className="flex justify-end gap-3 pt-4 border-t border-slate-100">
             <Button
               variant="outline"
