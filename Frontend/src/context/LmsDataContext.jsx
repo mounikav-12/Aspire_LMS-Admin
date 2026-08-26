@@ -1010,10 +1010,6 @@ export function LmsDataProvider({ children }) {
     }
 
     const mcqs = Array.isArray(row.mcqs) ? row.mcqs : (typeof row.mcqs === 'string' ? JSON.parse(row.mcqs || '[]') : []);
-    const codingQuestions = Array.isArray(row.coding_questions)
-      ? row.coding_questions
-      : (Array.isArray(row.codingQuestions) ? row.codingQuestions : (typeof row.coding_questions === 'string' ? JSON.parse(row.coding_questions || '[]') : []));
-
 
     const targetBatch = row.target_batch || 'Weekday Batch';
     const targetBatches = Array.isArray(row.target_batches) && row.target_batches.length > 0
@@ -1021,6 +1017,8 @@ export function LmsDataProvider({ children }) {
       : (typeof targetBatch === 'string' && targetBatch.includes(',')
           ? targetBatch.split(',').map((s) => s.trim())
           : (targetBatch === 'All Batches' || targetBatch === 'ALL' ? ['ALL'] : [targetBatch]));
+
+    const mcqCount = Number(row.mcq_count) || mcqs.length;
 
     return {
       id: row.id,
@@ -1037,14 +1035,12 @@ export function LmsDataProvider({ children }) {
       topicName: topicName || 'Git Architecture & Version Control Concepts',
       durationMinutes: Number(row.duration_minutes) || 45,
       totalMarks: Number(row.total_marks) || 100,
-      mcqCount: Number(row.mcq_count) || mcqs.length,
-      codingCount: Number(row.coding_count) || codingQuestions.length,
-      totalQuestions: (Number(row.mcq_count) || mcqs.length) + (Number(row.coding_count) || codingQuestions.length),
+      mcqCount: mcqCount,
+      totalQuestions: mcqCount,
       status: row.status || 'Active',
       publishStatus: row.publish_status || 'Published',
-      dueDate: row.due_date || '2026-08-15',
+      dueDate: row.due_date || '2026-08-30',
       mcqs,
-      codingQuestions,
       targetBatch,
       targetBatches,
       createdAt: row.created_at || row.createdAt || ''
@@ -1067,12 +1063,10 @@ export function LmsDataProvider({ children }) {
       duration_minutes: Number(a.durationMinutes || 45),
       total_marks: Number(a.totalMarks || 100),
       mcq_count: Number(a.mcqCount || (Array.isArray(a.mcqs) ? a.mcqs.length : 0)),
-      coding_count: Number(a.codingCount || (Array.isArray(a.codingQuestions) ? a.codingQuestions.length : 0)),
       status: a.status || 'Active',
       publish_status: a.publishStatus || 'Published',
-      due_date: a.dueDate || '2026-08-15',
+      due_date: a.dueDate || '2026-08-30',
       mcqs: Array.isArray(a.mcqs) ? a.mcqs : [],
-      coding_questions: Array.isArray(a.codingQuestions) ? a.codingQuestions : [],
       target_batch: targetBatchStr
     };
   };
@@ -2511,12 +2505,11 @@ export function LmsDataProvider({ children }) {
       actionText: 'START',
       url: '/assessments',
       btnStyle: 'bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30',
-      dueDate: newAsmnt.dueDate || '2026-08-15',
+      dueDate: newAsmnt.dueDate || '2026-08-30',
       durationMinutes: newAsmnt.durationMinutes || 45,
       totalMarks: newAsmnt.totalMarks || 100,
       mcqCount: newAsmnt.mcqCount || (newAsmnt.mcqs?.length || 0),
-      codingCount: newAsmnt.codingCount || (newAsmnt.codingQuestions?.length || 0),
-      totalQuestions: (newAsmnt.mcqCount || (newAsmnt.mcqs?.length || 0)) + (newAsmnt.codingCount || (newAsmnt.codingQuestions?.length || 0))
+      totalQuestions: newAsmnt.mcqCount || (newAsmnt.mcqs?.length || 0)
     };
 
     // Auto-sync assessment item into corresponding milestone module in real-time

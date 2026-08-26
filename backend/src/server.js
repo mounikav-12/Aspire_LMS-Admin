@@ -439,14 +439,10 @@ const formatDbAssessment = (payload, id = null) => {
     duration_minutes: Number(payload.durationMinutes || payload.duration_minutes || 45),
     total_marks: Number(payload.totalMarks || payload.total_marks || 100),
     mcq_count: Number(payload.mcqCount || payload.mcq_count || (Array.isArray(payload.mcqs) ? payload.mcqs.length : 0)),
-    coding_count: Number(payload.codingCount || payload.coding_count || (Array.isArray(payload.codingQuestions) ? payload.codingQuestions.length : (Array.isArray(payload.coding_questions) ? payload.coding_questions.length : 0))),
     status: payload.status || 'Active',
     publish_status: payload.publishStatus || payload.publish_status || 'Published',
-    due_date: payload.dueDate || payload.due_date || '2026-08-15',
+    due_date: payload.dueDate || payload.due_date || '2026-08-30',
     mcqs: Array.isArray(payload.mcqs) ? payload.mcqs : (typeof payload.mcqs === 'string' ? JSON.parse(payload.mcqs) : []),
-    coding_questions: Array.isArray(payload.codingQuestions)
-      ? payload.codingQuestions
-      : (Array.isArray(payload.coding_questions) ? payload.coding_questions : (typeof payload.coding_questions === 'string' ? JSON.parse(payload.coding_questions) : [])),
     target_batch: payload.targetBatch || payload.target_batch || 'Weekday Batch'
   };
 };

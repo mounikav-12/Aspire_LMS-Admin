@@ -101,12 +101,6 @@ export function AssessmentListPage() {
         options: ['git create', 'git init', 'git start', 'git repo'],
         correctIndex: 1
       }
-    ],
-    codingQuestions: [
-      {
-        title: 'Git Version Management Script',
-        description: 'Write a script or function to verify branch commit states and checkout safely.'
-      }
     ]
   });
 
@@ -153,12 +147,6 @@ export function AssessmentListPage() {
           options: ['git create', 'git init', 'git start', 'git repo'],
           correctIndex: 1
         }
-      ],
-      codingQuestions: [
-        {
-          title: 'Git Version Management Script',
-          description: 'Write a script or function to verify branch commit states and checkout safely.'
-        }
       ]
     });
     setEditingAssessment(null);
@@ -204,18 +192,6 @@ export function AssessmentListPage() {
           }
         ];
 
-    const initialCoding = asm.codingQuestions && asm.codingQuestions.length > 0
-      ? asm.codingQuestions.map((c) => ({
-          title: c.title || '',
-          description: c.description || ''
-        }))
-      : [
-          {
-            title: 'Implement Git Workflow Automation',
-            description: 'Write a helper function to validate branch merges without conflict.'
-          }
-        ];
-
     const targetStage = stagesList.find((s) => s.id === asm.stageId || s.title === asm.stageName || s.title === asm.moduleName) || stagesList[0];
     const stageSubs = getSubtopicsForStage(targetStage);
     const targetSub = stageSubs.find((st) => st.id === asm.subtopicId || st.title === asm.subtopicName) || stageSubs[0];
@@ -238,8 +214,7 @@ export function AssessmentListPage() {
       durationMinutes: asm.durationMinutes || 45,
       totalMarks: asm.totalMarks || 100,
       dueDate: asm.dueDate || '2026-08-30',
-      mcqs: initialMcqs,
-      codingQuestions: initialCoding
+      mcqs: initialMcqs
     });
   };
 
@@ -291,43 +266,6 @@ export function AssessmentListPage() {
     });
   };
 
-  // Coding Challenge Array Handlers
-  const handleAddCoding = () => {
-    setFormData((prev) => ({
-      ...prev,
-      codingQuestions: [
-        ...prev.codingQuestions,
-        {
-          title: '',
-          description: ''
-        }
-      ]
-    }));
-  };
-
-  const handleRemoveCoding = (index) => {
-    setFormData((prev) => ({
-      ...prev,
-      codingQuestions: prev.codingQuestions.filter((_, i) => i !== index)
-    }));
-  };
-
-  const handleUpdateCodingTitle = (index, value) => {
-    setFormData((prev) => {
-      const updated = [...prev.codingQuestions];
-      updated[index] = { ...updated[index], title: value };
-      return { ...prev, codingQuestions: updated };
-    });
-  };
-
-  const handleUpdateCodingDesc = (index, value) => {
-    setFormData((prev) => {
-      const updated = [...prev.codingQuestions];
-      updated[index] = { ...updated[index], description: value };
-      return { ...prev, codingQuestions: updated };
-    });
-  };
-
   // Save / Update Assessment
   const handleSaveAssessment = (e) => {
     e.preventDefault();
@@ -345,7 +283,7 @@ export function AssessmentListPage() {
 
     const isQuizEval = (formData.evalType || 'assessment') === 'quiz';
     const totalMcqsCount = formData.mcqs.length;
-    const totalCodingCount = isQuizEval ? 0 : formData.codingQuestions.length;
+    const totalCodingCount = isQuizEval ? 0 : (formData.codingQuestions?.length || 0);
     const totalQuestionsCount = totalMcqsCount + totalCodingCount;
 
     const allBatches = [...selectedWeekdayBatches, ...selectedWeekendBatches];
@@ -368,7 +306,6 @@ export function AssessmentListPage() {
       totalMarks: parseInt(formData.totalMarks) || 100,
       dueDate: formData.dueDate || '2026-08-30',
       mcqCount: totalMcqsCount,
-      codingCount: totalCodingCount,
       totalQuestions: totalQuestionsCount,
       mcqs: formData.mcqs,
       codingQuestions: isQuizEval ? [] : formData.codingQuestions,
@@ -378,11 +315,11 @@ export function AssessmentListPage() {
 
     if (editingAssessment) {
       updateAssessment(editingAssessment.id, assessmentPayload);
-      addToast(`Updated assessment "${formData.title}" (${totalQuestionsCount} Questions)`, 'success');
+      addToast(`Updated assessment "${formData.title}" (${totalQuestionsCount} MCQs)`, 'success');
       setEditingAssessment(null);
     } else {
       addAssessment(assessmentPayload);
-      addToast(`Published assessment "${formData.title}" (${totalQuestionsCount} Questions) & linked to Milestone!`, 'success');
+      addToast(`Published assessment "${formData.title}" (${totalQuestionsCount} MCQs) & linked to Milestone!`, 'success');
       setIsAddModalOpen(false);
     }
   };
@@ -424,13 +361,12 @@ export function AssessmentListPage() {
 
   // Calculate Aggregate Metrics
   const totalQuestionsAllAssessments = assessments.reduce(
-    (acc, a) => acc + (a.totalQuestions || (a.mcqs?.length || a.mcqCount || 0) + (a.codingQuestions?.length || a.codingCount || 0)),
+    (acc, a) => acc + (a.mcqs?.length || a.mcqCount || a.totalQuestions || 0),
     0
   );
 
   const currentModalMcqCount = formData.mcqs.length;
-  const currentModalCodingCount = formData.codingQuestions.length;
-  const currentModalTotalQuestions = currentModalMcqCount + currentModalCodingCount;
+  const currentModalTotalQuestions = currentModalMcqCount;
 
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
@@ -719,7 +655,7 @@ export function AssessmentListPage() {
                 </div>
               </div>
               <div className="flex items-center gap-1.5 text-[11px]">
-                <span className="px-2 py-0.5 rounded-lg bg-white/10 text-blue-100 font-semibold border border-white/15">
+                <span className="px-2.5 py-0.5 rounded-lg bg-white/10 text-blue-100 font-semibold border border-white/15">
                   {currentModalMcqCount} MCQs
                 </span>
                 {formData.evalType !== 'quiz' && (
