@@ -586,8 +586,11 @@ export function LmsDataProvider({ children }) {
       const now = new Date().toISOString();
       const rowsToUpsert = [];
 
+      const hasCourseKeys = Object.keys(dataToSync).some(k => !['batch_data', 'badges_data', 'completed_items', 'default', 'Weekday Batch', 'Weekend Batch'].includes(k));
+
       Object.keys(dataToSync).forEach((key) => {
-        if (!['batch_data', 'badges_data', 'completed_items'].includes(key)) {
+        const isLegacyBatchKey = key === 'Weekday Batch' || key === 'Weekend Batch';
+        if (!['batch_data', 'badges_data', 'completed_items'].includes(key) && (!hasCourseKeys || !isLegacyBatchKey)) {
           const overviewObj = dataToSync[key]?.overview || { trackTitle: 'Curriculum & Milestones Roadmap' };
           const targetBatchVal = overviewObj.targetBatch || dataToSync[key]?.targetBatch || (key === 'Weekend Batch' ? 'Weekend Batch' : key === 'Weekday Batch' ? 'Weekday Batch' : 'ALL');
           rowsToUpsert.push({
@@ -1669,21 +1672,25 @@ export function LmsDataProvider({ children }) {
           batchData = { ...batchRow.overview.batchData, ...batchData };
         }
 
-        const weekdayRow = milesData.find(m => m.id === 'Weekday Batch') || milesData.find(m => m.id === 'ml-python-full-stack');
-        const weekendRow = milesData.find(m => m.id === 'Weekend Batch') || milesData.find(m => m.id === 'ml-python-weekend');
-        const defaultRow = milesData.find(m => m.id === 'default');
+        const hasCourseKeysInMiles = Object.keys(batchData).some(k => !['batch_data', 'badges_data', 'completed_items', 'default', 'Weekday Batch', 'Weekend Batch'].includes(k));
 
-        if (!batchData['Weekday Batch']) {
-          batchData['Weekday Batch'] = {
-            overview: weekdayRow?.overview || defaultRow?.overview || { trackTitle: 'Curriculum & Milestones Roadmap' },
-            stages: Array.isArray(weekdayRow?.stages) ? weekdayRow.stages : (Array.isArray(defaultRow?.stages) ? defaultRow.stages : [])
-          };
-        }
-        if (!batchData['Weekend Batch']) {
-          batchData['Weekend Batch'] = {
-            overview: weekendRow?.overview || weekdayRow?.overview || { trackTitle: 'Curriculum & Milestones Roadmap' },
-            stages: Array.isArray(weekendRow?.stages) ? weekendRow.stages : []
-          };
+        if (!hasCourseKeysInMiles) {
+          const weekdayRow = milesData.find(m => m.id === 'Weekday Batch') || milesData.find(m => m.id === 'ml-python-full-stack');
+          const weekendRow = milesData.find(m => m.id === 'Weekend Batch') || milesData.find(m => m.id === 'ml-python-weekend');
+          const defaultRow = milesData.find(m => m.id === 'default');
+
+          if (!batchData['Weekday Batch']) {
+            batchData['Weekday Batch'] = {
+              overview: weekdayRow?.overview || defaultRow?.overview || { trackTitle: 'Curriculum & Milestones Roadmap' },
+              stages: Array.isArray(weekdayRow?.stages) ? weekdayRow.stages : (Array.isArray(defaultRow?.stages) ? defaultRow.stages : [])
+            };
+          }
+          if (!batchData['Weekend Batch']) {
+            batchData['Weekend Batch'] = {
+              overview: weekendRow?.overview || weekdayRow?.overview || { trackTitle: 'Curriculum & Milestones Roadmap' },
+              stages: Array.isArray(weekendRow?.stages) ? weekendRow.stages : []
+            };
+          }
         }
 
         // Reconcile milestone modules with active live sessions from database
