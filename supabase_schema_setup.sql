@@ -195,6 +195,9 @@ CREATE TABLE IF NOT EXISTS public.assessments (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+ALTER TABLE public.assessments DROP COLUMN IF EXISTS coding_count;
+ALTER TABLE public.assessments DROP COLUMN IF EXISTS coding_questions;
+
 -- 15. RECORDINGS TABLE
 CREATE TABLE IF NOT EXISTS public.recordings (
   id TEXT PRIMARY KEY,

@@ -67,14 +67,15 @@ CREATE TABLE IF NOT EXISTS public.assessments (
   duration_minutes INTEGER DEFAULT 45,
   total_marks INTEGER DEFAULT 100,
   mcq_count INTEGER DEFAULT 5,
-  coding_count INTEGER DEFAULT 1,
   status VARCHAR(50) DEFAULT 'Active',
   publish_status VARCHAR(50) DEFAULT 'Published',
-  due_date DATE DEFAULT '2026-08-15',
+  due_date DATE DEFAULT '2026-08-30',
   mcqs JSONB DEFAULT '[]'::jsonb,
-  coding_questions JSONB DEFAULT '[]'::jsonb,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
+
+ALTER TABLE public.assessments DROP COLUMN IF EXISTS coding_count;
+ALTER TABLE public.assessments DROP COLUMN IF EXISTS coding_questions;
 
 -- 6. LIVE SESSIONS SCHEDULE TABLE
 CREATE TABLE IF NOT EXISTS public.live_sessions (
