@@ -431,14 +431,15 @@ export function MilestonesRoadmapPage() {
         id: stageId,
         subtopics: (stage.subtopics || []).map((sub, sIdx) => {
           const subId = sub.id || sub._id || sub.subtopic_id || `sub-${idx}-${sIdx}`;
+          const cleanSubTitle = String(sub.title || '').replace(/^Module\s*\d+\s*:\s*/i, '').trim();
           let modules = Array.isArray(sub.modules) && sub.modules.length > 0 ? sub.modules : [];
 
           if (modules.length === 0) {
-            const lessons = resolveLessonsForSubtopic(subId, sub.title, stageId);
+            const lessons = resolveLessonsForSubtopic(subId, cleanSubTitle, stageId);
             if (lessons.length > 0) {
               modules = lessons.map(lesson => ({
                 id: lesson.id,
-                title: lesson.title,
+                title: String(lesson.title || '').replace(/^Module\s*\d+\s*:\s*/i, '').trim(),
                 description: lesson.description || '',
                 duration: lesson.duration || lesson.durationHours || '1hr 30min',
                 durationHours: lesson.durationHours || '1hr 30min',
@@ -451,6 +452,7 @@ export function MilestonesRoadmapPage() {
           return {
             ...sub,
             id: subId,
+            title: cleanSubTitle,
             modulesCount: modules.length,
             modules: modules
           };
