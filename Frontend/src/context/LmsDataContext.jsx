@@ -1720,7 +1720,6 @@ export function LmsDataProvider({ children }) {
         isMilestonesHydratedRef.current = true;
         syncMilestonesNow(initialBatchData);
       }
-      }
 
       // 9. Fetch Projects Catalog
       const { data: projectsData, error: projectsErr } = await supabase.from('projects').select('*').order('created_at', { ascending: true });

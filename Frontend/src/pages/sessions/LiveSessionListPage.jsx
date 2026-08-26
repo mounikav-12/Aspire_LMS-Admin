@@ -718,7 +718,8 @@ export function LiveSessionListPage() {
                           subtopicId: firstSub?.id || '',
                           subtopicName: firstSub?.title || '',
                           moduleId: firstMod?.id || '',
-                          moduleName: firstMod?.title || ''
+                          moduleName: firstMod?.title || '',
+                          sessionTitle: firstMod?.title || formData.sessionTitle
                         });
                       }}
                       options={courses.map((c) => ({ value: c.id, label: c.title }))}
@@ -757,7 +758,8 @@ export function LiveSessionListPage() {
                             subtopicId: firstSub?.id || '',
                             subtopicName: firstSub?.title || '',
                             moduleId: firstMod?.id || '',
-                            moduleName: firstMod?.title || ''
+                            moduleName: firstMod?.title || '',
+                            sessionTitle: firstMod?.title || formData.sessionTitle
                           });
                         }}
                         options={[
@@ -817,7 +819,8 @@ export function LiveSessionListPage() {
                             subtopicId: newSubId,
                             subtopicName: targetSub?.title || '',
                             moduleId: firstMod?.id || '',
-                            moduleName: firstMod?.title || ''
+                            moduleName: firstMod?.title || '',
+                            sessionTitle: firstMod?.title || formData.sessionTitle
                           });
                         }}
                         options={[
@@ -892,7 +895,7 @@ export function LiveSessionListPage() {
                             ...formData,
                             moduleId: newModId,
                             moduleName: targetMod?.title || '',
-                            sessionTitle: targetMod?.title || formData.sessionTitle || '',
+                            sessionTitle: targetMod?.title || formData.sessionTitle,
                             topics: updatedTopics
                           });
                         }}
