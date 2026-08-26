@@ -383,31 +383,56 @@ export function MilestonesRoadmapPage() {
     };
 
     let baseStages = [];
-    if (Array.isArray(currentMilestones?.stages) && currentMilestones.stages.length > 0) {
-      baseStages = currentMilestones.stages;
-    } else {
-      let targetCourseId = selectedCourseId;
-      if (targetCourseId === 'ALL') {
-        const pythonCourse = courses.find(c => c.title && c.title.toLowerCase().includes('python'));
-        targetCourseId = pythonCourse ? pythonCourse.id : courses[0]?.id;
-      }
 
-      const targetCourse = courses.find(c => c.id === targetCourseId);
-      if (targetCourse && Array.isArray(targetCourse.topics) && targetCourse.topics.length > 0) {
-        baseStages = targetCourse.topics.map((t, idx) => ({
-          id: t.id || `stg-${idx}`,
-          stageNumber: `STAGE 0${idx + 1}`,
-          phaseTag: `${targetCourse.title} • Stage ${idx + 1}`,
-          title: t.title,
-          unlockDate: t.unlockDate || (idx === 0 ? formatLocalDate(new Date()) : null),
-          unlockTime: t.unlockTime || '09:00',
-          unlockDateTime: t.unlockDateTime || null,
-          liveClasses: t.liveClasses || t.live_classes || 0,
-          practice: t.practice || 0,
-          assessments: t.assessments || 0,
-          subtopics: t.subtopics || []
-        }));
+    // 1. If a specific course is selected in the Course dropdown
+    if (selectedCourseId && selectedCourseId !== 'ALL') {
+      const courseMilestones = milestonesByBatch?.[selectedCourseId];
+      if (Array.isArray(courseMilestones?.stages) && courseMilestones.stages.length > 0) {
+        baseStages = courseMilestones.stages;
+      } else {
+        const targetCourse = courses.find(c => c.id === selectedCourseId || c.title?.toLowerCase() === selectedCourseId.toLowerCase());
+        if (targetCourse && Array.isArray(targetCourse.topics) && targetCourse.topics.length > 0) {
+          baseStages = targetCourse.topics.map((t, idx) => ({
+            id: t.id || `stg-${idx}`,
+            stageNumber: `STAGE 0${idx + 1}`,
+            phaseTag: `${targetCourse.title} • Stage ${idx + 1}`,
+            title: t.title,
+            unlockDate: t.unlockDate || (idx === 0 ? formatLocalDate(new Date()) : null),
+            unlockTime: t.unlockTime || '09:00',
+            unlockDateTime: t.unlockDateTime || null,
+            liveClasses: t.liveClasses || t.live_classes || 0,
+            practice: t.practice || 0,
+            assessments: t.assessments || 0,
+            subtopics: t.subtopics || []
+          }));
+        } else if (targetCourse) {
+          baseStages = [
+            {
+              id: `stg-${targetCourse.id}-1`,
+              stageNumber: 'STAGE 01',
+              phaseTag: `${targetCourse.title} • Stage 1`,
+              title: `Stage 1: ${targetCourse.title} Foundations`,
+              unlockDate: formatLocalDate(new Date()),
+              unlockTime: '09:00',
+              liveClasses: 0,
+              practice: 0,
+              assessments: 0,
+              subtopics: [
+                {
+                  id: `sub-${targetCourse.id}-1`,
+                  title: `${targetCourse.title} Overview & Getting Started`,
+                  modules: []
+                }
+              ]
+            }
+          ];
+        }
       }
+    }
+
+    // 2. Fall back to active batch milestones if no course-specific stages resolved
+    if ((!baseStages || baseStages.length === 0) && Array.isArray(currentMilestones?.stages) && currentMilestones.stages.length > 0) {
+      baseStages = currentMilestones.stages;
     }
 
     if (!baseStages || baseStages.length === 0) return [];
