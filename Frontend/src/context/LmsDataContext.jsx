@@ -691,21 +691,39 @@ export function LmsDataProvider({ children }) {
       technology: session.technology || ''
     }));
 
-    // 1. Match or create Stage
+    // 1. Match Stage (Strictly within the 4 legitimate curriculum stages, NEVER create Stage 5, 6, 7)
+    const isClean = (v) => v && v !== 'undefined' && v !== 'null' && String(v).trim() !== '';
+    const cleanStageId = isClean(session.stageId) ? stripSuffix(session.stageId) : '';
+    const cleanStageName = isClean(session.stageName) ? cleanNorm(session.stageName) : (isClean(session.stage_name) ? cleanNorm(session.stage_name) : '');
+    const cleanTech = isClean(session.technology) ? cleanNorm(session.technology) : '';
+    const cleanTitle = isClean(session.sessionTitle) ? cleanNorm(session.sessionTitle) : (isClean(session.title) ? cleanNorm(session.title) : '');
+
     let stageMatch = stages.find(s =>
-      (session.stageId && stripSuffix(s.id) === stripSuffix(session.stageId)) ||
-      (session.stageName && cleanNorm(s.title) === cleanNorm(session.stageName)) ||
-      (session.stage_name && cleanNorm(s.title) === cleanNorm(session.stage_name))
+      (cleanStageId && (stripSuffix(s.id) === cleanStageId || cleanNorm(s.id) === cleanNorm(cleanStageId))) ||
+      (cleanStageName && (cleanNorm(s.title) === cleanStageName || cleanNorm(s.title).includes(cleanStageName) || cleanStageName.includes(cleanNorm(s.title))))
     );
 
-    if (!stageMatch) {
-      const stageNum = `STAGE 0${stages.length + 1}`;
-      const stageTitle = session.stageName || session.stage_name || (session.technology ? `Stage ${stages.length + 1}: ${session.technology} Foundations` : `Stage ${stages.length + 1}: Core Curriculum`);
+    // If not matched by explicit ID/Name, map to appropriate standard stage by tech / title keywords
+    if (!stageMatch && stages.length > 0) {
+      if (cleanTech.includes('git') || cleanTech.includes('html') || cleanTech.includes('css') || cleanTech.includes('bootstrap') || cleanTech.includes('javascript') || cleanTech.includes('js') || cleanTitle.includes('git') || cleanTitle.includes('html') || cleanTitle.includes('css') || cleanTitle.includes('javascript')) {
+        stageMatch = stages.find(s => s.id === 'top-stg-1' || s.id === 's1' || cleanNorm(s.title).includes('frontend') || cleanNorm(s.title).includes('stage 1')) || stages[0];
+      } else if (cleanTech.includes('python') || cleanTech.includes('django') || cleanTech.includes('sql') || cleanTech.includes('dsa') || cleanTitle.includes('python') || cleanTitle.includes('django') || cleanTitle.includes('sql') || cleanTitle.includes('dsa')) {
+        stageMatch = stages.find(s => s.id === 'top-stg-2' || s.id === 's2' || cleanNorm(s.title).includes('backend') || cleanNorm(s.title).includes('stage 2')) || stages[1] || stages[0];
+      } else if (cleanTech.includes('ai') || cleanTech.includes('docker') || cleanTech.includes('cloud') || cleanTech.includes('langchain') || cleanTitle.includes('ai') || cleanTitle.includes('docker')) {
+        stageMatch = stages.find(s => s.id === 'top-stg-3' || s.id === 's3' || cleanNorm(s.title).includes('ai') || cleanNorm(s.title).includes('stage 3')) || stages[2] || stages[0];
+      } else if (cleanTech.includes('career') || cleanTech.includes('resume') || cleanTech.includes('system design') || cleanTech.includes('interview') || cleanTitle.includes('resume') || cleanTitle.includes('interview')) {
+        stageMatch = stages.find(s => s.id === 'top-stg-4' || s.id === 's4' || cleanNorm(s.title).includes('career') || cleanNorm(s.title).includes('stage 4')) || stages[3] || stages[0];
+      } else {
+        stageMatch = stages[0]; // Fallback safely to Stage 1 without creating any rogue stages
+      }
+    }
+
+    if (!stageMatch && stages.length === 0) {
       stageMatch = {
-        id: session.stageId || `stage-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
-        stageNumber: stageNum,
-        phaseTag: session.programName || `${stageTitle} • Live Cohort`,
-        title: stageTitle,
+        id: 'top-stg-1',
+        stageNumber: 'STAGE 01',
+        phaseTag: 'Python Full Stack + DSA with AI • Stage 1',
+        title: 'Stage 1: Frontend & Programming Foundations',
         targetBatch: batchName,
         status: 'AVAILABLE',
         statusType: 'available',
@@ -718,56 +736,71 @@ export function LmsDataProvider({ children }) {
       stages.push(stageMatch);
     }
 
-    // 2. Match or create Subtopic
+    // 2. Match or find Subtopic
     let subtopics = stageMatch.subtopics || [];
+    const cleanSubId = isClean(session.subtopicId) ? stripSuffix(session.subtopicId) : '';
+    const cleanSubName = isClean(session.subtopicName) ? cleanNorm(session.subtopicName) : (isClean(session.subtopic_name) ? cleanNorm(session.subtopic_name) : '');
+
     let subtopicMatch = subtopics.find(st =>
-      (session.subtopicId && stripSuffix(st.id) === stripSuffix(session.subtopicId)) ||
-      (session.subtopicName && cleanNorm(st.title) === cleanNorm(session.subtopicName)) ||
-      (session.subtopic_name && cleanNorm(st.title) === cleanNorm(session.subtopic_name)) ||
-      (session.technology && cleanNorm(st.title) === cleanNorm(session.technology))
+      (cleanSubId && (stripSuffix(st.id) === cleanSubId || cleanNorm(st.id) === cleanNorm(cleanSubId))) ||
+      (cleanSubName && (cleanNorm(st.title) === cleanSubName || cleanNorm(st.title).includes(cleanSubName) || cleanSubName.includes(cleanNorm(st.title)))) ||
+      (cleanTech && cleanNorm(st.title).includes(cleanTech)) ||
+      (cleanTitle && cleanNorm(st.title).includes(cleanTitle))
     );
 
     if (!subtopicMatch) {
-      const subTitle = session.subtopicName || session.subtopic_name || session.technology || session.sessionTitle || session.session_title || `Topic ${subtopics.length + 1}`;
-      subtopicMatch = {
-        id: session.subtopicId || `sub-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
-        title: subTitle,
-        duration: session.duration || '4 hrs',
-        isLocked: false,
-        modulesCount: 0,
-        modules: []
-      };
-      subtopics.push(subtopicMatch);
+      if (subtopics.length > 0) {
+        subtopicMatch = subtopics[0];
+      } else {
+        const subTitle = session.subtopicName || session.subtopic_name || session.technology || 'Git & GitHub Version Control';
+        subtopicMatch = {
+          id: cleanSubId || 'mod-git',
+          title: subTitle,
+          duration: session.duration || '1 Week',
+          isLocked: false,
+          modulesCount: 0,
+          modules: []
+        };
+        subtopics.push(subtopicMatch);
+      }
     }
 
-    // 3. Match or create Module
+    // 3. Match or find Module
     let modules = subtopicMatch.modules || [];
+    const cleanModId = isClean(session.moduleId) ? stripSuffix(session.moduleId) : (isClean(session.innerTopicId) ? stripSuffix(session.innerTopicId) : '');
+    const cleanModName = isClean(session.moduleName) ? cleanNorm(session.moduleName) : (isClean(session.module_name) ? cleanNorm(session.module_name) : '');
+
     let modMatch = modules.find(m =>
-      (session.moduleId && stripSuffix(m.id) === stripSuffix(session.moduleId)) ||
-      (session.moduleName && cleanNorm(m.title) === cleanNorm(session.moduleName)) ||
-      (session.module_name && cleanNorm(m.title) === cleanNorm(session.module_name)) ||
-      (cleanNorm(m.title) === cleanNorm(session.sessionTitle || session.session_title)) ||
+      (cleanModId && (stripSuffix(m.id) === cleanModId || cleanNorm(m.id) === cleanNorm(cleanModId))) ||
+      (cleanModName && (cleanNorm(m.title) === cleanModName || cleanNorm(m.title).includes(cleanModName) || cleanModName.includes(cleanNorm(m.title)))) ||
+      (cleanTitle && (cleanNorm(m.title) === cleanTitle || cleanNorm(m.title).includes(cleanTitle) || cleanTitle.includes(cleanNorm(m.title)))) ||
       (m.items || []).some(it => it.sessionId === session.id || it.id === `item-live-${session.id}`)
     );
 
     if (!modMatch) {
-      const newMod = {
-        id: session.moduleId || `mod-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
-        title: session.moduleName || session.module_name || session.sessionTitle || session.session_title || 'Live Class Sessions',
-        meetingLink: session.meetingLink || session.meeting_link,
-        instructor: session.instructor,
-        date: session.date,
-        time: session.time,
-        duration: session.duration || '1hr 30min',
-        topics: validTopics,
-        items: liveItems
-      };
-      modules.push(newMod);
-    } else {
+      if (modules.length > 0) {
+        modMatch = modules[0];
+      } else {
+        const newMod = {
+          id: cleanModId || `lesson-${Date.now()}-0`,
+          title: session.moduleName || session.module_name || session.sessionTitle || session.session_title || 'Git Architecture & Version Control Concepts',
+          meetingLink: session.meetingLink || session.meeting_link,
+          instructor: session.instructor,
+          date: session.date,
+          time: session.time,
+          duration: session.duration || '1hr 30min',
+          topics: validTopics,
+          items: liveItems
+        };
+        modules.push(newMod);
+        modMatch = newMod;
+      }
+    }
+
+    if (modMatch) {
       const nonLive = (modMatch.items || []).filter(it => it.type !== 'LIVE CLASS' && it.sessionId !== session.id);
       const updatedMod = {
         ...modMatch,
-        title: session.moduleName || session.module_name || session.sessionTitle || session.session_title || modMatch.title,
         meetingLink: session.meetingLink || session.meeting_link || modMatch.meetingLink,
         instructor: session.instructor || modMatch.instructor,
         date: session.date || modMatch.date,
@@ -777,14 +810,23 @@ export function LmsDataProvider({ children }) {
         items: [...liveItems, ...nonLive]
       };
       const mIdx = modules.findIndex(m => m === modMatch);
-      modules[mIdx] = updatedMod;
+      if (mIdx !== -1) modules[mIdx] = updatedMod;
     }
 
     subtopicMatch.modules = modules;
     subtopicMatch.modulesCount = modules.length;
     stageMatch.subtopics = subtopics;
 
-    return stages;
+    // Filter to ensure strictly no rogue stages (Stage 5, 6, 7) are returned
+    const finalStages = stages.filter(s => {
+      const sNum = (s.stageNumber || '').toUpperCase();
+      const sTitle = (s.title || '').toLowerCase();
+      return !sNum.includes('05') && !sNum.includes('06') && !sNum.includes('07') &&
+             !sTitle.includes('stage 5') && !sTitle.includes('stage 6') && !sTitle.includes('stage 7') &&
+             !sTitle.includes('git foundations') && !sTitle.includes('general foundations');
+    });
+
+    return finalStages;
   };
 
   useEffect(() => {
@@ -903,14 +945,14 @@ export function LmsDataProvider({ children }) {
       batchCode: row.batch_code || row.batchCode || meta.batchCode || 'A26W1',
       duration: row.duration || meta.duration || '1h 30m',
       isLocked: meta.isLocked !== undefined ? meta.isLocked : (row.is_locked !== undefined ? row.is_locked : false),
-      courseId: row.course_id || meta.courseId || '',
-      courseName: row.course_name || meta.courseName || '',
-      stageId: row.stage_id || meta.stageId || '',
-      stageName: row.stage_name || meta.stageName || '',
-      subtopicId: row.subtopic_id || meta.subtopicId || '',
-      subtopicName: row.subtopic_name || meta.subtopicName || '',
-      moduleId: row.module_id || meta.moduleId || '',
-      moduleName: row.module_name || meta.moduleName || '',
+      courseId: (row.course_id && row.course_id !== 'undefined') ? row.course_id : ((meta.courseId && meta.courseId !== 'undefined') ? meta.courseId : 'crs-1786624019154-w'),
+      courseName: (row.course_name && row.course_name !== 'undefined') ? row.course_name : ((meta.courseName && meta.courseName !== 'undefined') ? meta.courseName : 'Python Full Stack + DSA with AI'),
+      stageId: (row.stage_id && row.stage_id !== 'undefined') ? row.stage_id : ((meta.stageId && meta.stageId !== 'undefined') ? meta.stageId : 'top-stg-1'),
+      stageName: (row.stage_name && row.stage_name !== 'undefined') ? row.stage_name : ((meta.stageName && meta.stageName !== 'undefined') ? meta.stageName : 'Stage 1: Frontend & Programming Foundations'),
+      subtopicId: (row.subtopic_id && row.subtopic_id !== 'undefined') ? row.subtopic_id : ((meta.subtopicId && meta.subtopicId !== 'undefined') ? meta.subtopicId : 'mod-git'),
+      subtopicName: (row.subtopic_name && row.subtopic_name !== 'undefined') ? row.subtopic_name : ((meta.subtopicName && meta.subtopicName !== 'undefined') ? meta.subtopicName : 'Git & GitHub Version Control'),
+      moduleId: (row.module_id && row.module_id !== 'undefined') ? row.module_id : ((meta.moduleId && meta.moduleId !== 'undefined') ? meta.moduleId : 'lesson-1787196281985-0'),
+      moduleName: (row.module_name && row.module_name !== 'undefined') ? row.module_name : ((meta.moduleName && meta.moduleName !== 'undefined') ? meta.moduleName : 'Git Architecture & Version Control Concepts'),
       topics: (Array.isArray(row.topics) && row.topics.length > 0)
         ? row.topics
         : (Array.isArray(meta.topics) && meta.topics.length > 0 ? meta.topics : []),
@@ -921,14 +963,14 @@ export function LmsDataProvider({ children }) {
   const toDbLiveSession = (session) => {
     const meta = {
       text: session.description || '',
-      courseId: session.courseId || '',
-      courseName: session.courseName || '',
-      stageId: session.stageId || '',
-      stageName: session.stageName || '',
-      subtopicId: session.subtopicId || '',
-      subtopicName: session.subtopicName || '',
-      moduleId: session.moduleId || '',
-      moduleName: session.moduleName || '',
+      courseId: (session.courseId && session.courseId !== 'undefined') ? session.courseId : 'crs-1786624019154-w',
+      courseName: (session.courseName && session.courseName !== 'undefined') ? session.courseName : 'Python Full Stack + DSA with AI',
+      stageId: (session.stageId && session.stageId !== 'undefined') ? session.stageId : 'top-stg-1',
+      stageName: (session.stageName && session.stageName !== 'undefined') ? session.stageName : 'Stage 1: Frontend & Programming Foundations',
+      subtopicId: (session.subtopicId && session.subtopicId !== 'undefined') ? session.subtopicId : 'mod-git',
+      subtopicName: (session.subtopicName && session.subtopicName !== 'undefined') ? session.subtopicName : 'Git & GitHub Version Control',
+      moduleId: (session.moduleId && session.moduleId !== 'undefined') ? session.moduleId : 'lesson-1787196281985-0',
+      moduleName: (session.moduleName && session.moduleName !== 'undefined') ? session.moduleName : 'Git Architecture & Version Control Concepts',
       isLocked: !!session.isLocked,
       targetBatches: session.targetBatches || [],
       topics: session.topics || []
@@ -981,6 +1023,7 @@ export function LmsDataProvider({ children }) {
     const codingQuestions = Array.isArray(row.coding_questions)
       ? row.coding_questions
       : (Array.isArray(row.codingQuestions) ? row.codingQuestions : (typeof row.coding_questions === 'string' ? JSON.parse(row.coding_questions || '[]') : []));
+
 
     const targetBatch = row.target_batch || 'Weekday Batch';
     const targetBatches = Array.isArray(row.target_batches) && row.target_batches.length > 0
