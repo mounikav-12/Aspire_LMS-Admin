@@ -412,7 +412,19 @@ export function MilestonesRoadmapPage() {
 
     if (!baseStages || baseStages.length === 0) return [];
 
-    return baseStages.map((stage, idx) => {
+    // Filter out rogue stages (Stage 5, 6, 7, etc.)
+    const cleanStages = baseStages.filter(s => {
+      if (!s) return false;
+      const sNum = (s.stageNumber || '').toUpperCase();
+      const sTitle = (s.title || '').toLowerCase();
+      const sId = (s.id || '').toLowerCase();
+      return !sNum.includes('05') && !sNum.includes('06') && !sNum.includes('07') &&
+             !sTitle.includes('stage 5') && !sTitle.includes('stage 6') && !sTitle.includes('stage 7') &&
+             !sTitle.includes('git foundations') && !sTitle.includes('general foundations') &&
+             !sId.startsWith('stage-178773');
+    });
+
+    return cleanStages.map((stage, idx) => {
       const stageId = stage.id || `stg-${idx}`;
       return {
         ...stage,
