@@ -50,8 +50,6 @@ export function CourseDetailPage() {
 
   const topicsToRender = (course?.topics && course.topics.length > 0)
     ? course.topics
-    : (initialMatchingCourse?.topics && initialMatchingCourse.topics.length > 0)
-    ? initialMatchingCourse.topics
     : isPythonFullStackCourse
     ? defaultTopicsFromStages
     : [];
