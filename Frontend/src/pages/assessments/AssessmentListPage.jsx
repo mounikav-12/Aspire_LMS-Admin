@@ -98,12 +98,6 @@ export function AssessmentListPage() {
         options: ['git create', 'git init', 'git start', 'git repo'],
         correctIndex: 1
       }
-    ],
-    codingQuestions: [
-      {
-        title: 'Git Version Management Script',
-        description: 'Write a script or function to verify branch commit states and checkout safely.'
-      }
     ]
   });
 
@@ -148,12 +142,6 @@ export function AssessmentListPage() {
           question: 'Which Git command initializes a new local repository?',
           options: ['git create', 'git init', 'git start', 'git repo'],
           correctIndex: 1
-        }
-      ],
-      codingQuestions: [
-        {
-          title: 'Git Version Management Script',
-          description: 'Write a script or function to verify branch commit states and checkout safely.'
         }
       ]
     });
@@ -200,18 +188,6 @@ export function AssessmentListPage() {
           }
         ];
 
-    const initialCoding = asm.codingQuestions && asm.codingQuestions.length > 0
-      ? asm.codingQuestions.map((c) => ({
-          title: c.title || '',
-          description: c.description || ''
-        }))
-      : [
-          {
-            title: 'Implement Git Workflow Automation',
-            description: 'Write a helper function to validate branch merges without conflict.'
-          }
-        ];
-
     const targetStage = stagesList.find((s) => s.id === asm.stageId || s.title === asm.stageName || s.title === asm.moduleName) || stagesList[0];
     const stageSubs = getSubtopicsForStage(targetStage);
     const targetSub = stageSubs.find((st) => st.id === asm.subtopicId || st.title === asm.subtopicName) || stageSubs[0];
@@ -231,8 +207,7 @@ export function AssessmentListPage() {
       durationMinutes: asm.durationMinutes || 45,
       totalMarks: asm.totalMarks || 100,
       dueDate: asm.dueDate || '2026-08-30',
-      mcqs: initialMcqs,
-      codingQuestions: initialCoding
+      mcqs: initialMcqs
     });
   };
 
@@ -284,43 +259,6 @@ export function AssessmentListPage() {
     });
   };
 
-  // Coding Challenge Array Handlers
-  const handleAddCoding = () => {
-    setFormData((prev) => ({
-      ...prev,
-      codingQuestions: [
-        ...prev.codingQuestions,
-        {
-          title: '',
-          description: ''
-        }
-      ]
-    }));
-  };
-
-  const handleRemoveCoding = (index) => {
-    setFormData((prev) => ({
-      ...prev,
-      codingQuestions: prev.codingQuestions.filter((_, i) => i !== index)
-    }));
-  };
-
-  const handleUpdateCodingTitle = (index, value) => {
-    setFormData((prev) => {
-      const updated = [...prev.codingQuestions];
-      updated[index] = { ...updated[index], title: value };
-      return { ...prev, codingQuestions: updated };
-    });
-  };
-
-  const handleUpdateCodingDesc = (index, value) => {
-    setFormData((prev) => {
-      const updated = [...prev.codingQuestions];
-      updated[index] = { ...updated[index], description: value };
-      return { ...prev, codingQuestions: updated };
-    });
-  };
-
   // Save / Update Assessment
   const handleSaveAssessment = (e) => {
     e.preventDefault();
@@ -337,8 +275,7 @@ export function AssessmentListPage() {
     const currentModObj = subLessons.find((m) => (m.id || m.title) === (formData.innerTopicId || formData.moduleId || formData.topicName)) || subLessons[0];
 
     const totalMcqsCount = formData.mcqs.length;
-    const totalCodingCount = formData.codingQuestions.length;
-    const totalQuestionsCount = totalMcqsCount + totalCodingCount;
+    const totalQuestionsCount = totalMcqsCount;
 
     const allBatches = [...selectedWeekdayBatches, ...selectedWeekendBatches];
     const targetBatchStr = allBatches.length > 0 ? allBatches.join(', ') : 'All Batches';
@@ -359,21 +296,19 @@ export function AssessmentListPage() {
       totalMarks: parseInt(formData.totalMarks) || 100,
       dueDate: formData.dueDate || '2026-08-30',
       mcqCount: totalMcqsCount,
-      codingCount: totalCodingCount,
       totalQuestions: totalQuestionsCount,
       mcqs: formData.mcqs,
-      codingQuestions: formData.codingQuestions,
       targetBatches: allBatches,
       targetBatch: targetBatchStr
     };
 
     if (editingAssessment) {
       updateAssessment(editingAssessment.id, assessmentPayload);
-      addToast(`Updated assessment "${formData.title}" (${totalQuestionsCount} Questions)`, 'success');
+      addToast(`Updated assessment "${formData.title}" (${totalQuestionsCount} MCQs)`, 'success');
       setEditingAssessment(null);
     } else {
       addAssessment(assessmentPayload);
-      addToast(`Published assessment "${formData.title}" (${totalQuestionsCount} Questions) & linked to Milestone!`, 'success');
+      addToast(`Published assessment "${formData.title}" (${totalQuestionsCount} MCQs) & linked to Milestone!`, 'success');
       setIsAddModalOpen(false);
     }
   };
@@ -403,13 +338,12 @@ export function AssessmentListPage() {
 
   // Calculate Overall Aggregate Metrics
   const totalQuestionsAllAssessments = assessments.reduce(
-    (acc, a) => acc + (a.totalQuestions || (a.mcqs?.length || a.mcqCount || 0) + (a.codingQuestions?.length || a.codingCount || 0)),
+    (acc, a) => acc + (a.mcqs?.length || a.mcqCount || a.totalQuestions || 0),
     0
   );
 
   const currentModalMcqCount = formData.mcqs.length;
-  const currentModalCodingCount = formData.codingQuestions.length;
-  const currentModalTotalQuestions = currentModalMcqCount + currentModalCodingCount;
+  const currentModalTotalQuestions = currentModalMcqCount;
 
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
@@ -499,8 +433,7 @@ export function AssessmentListPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {filteredAssessments.map((asm) => {
             const mcqCount = asm.mcqs?.length || asm.mcqCount || 0;
-            const codingCount = asm.codingQuestions?.length || asm.codingCount || 0;
-            const totalQ = asm.totalQuestions || mcqCount + codingCount;
+            const totalQ = asm.totalQuestions || mcqCount;
 
             return (
               <div
@@ -576,7 +509,7 @@ export function AssessmentListPage() {
                   </div>
 
                   {/* Color-Coordinated Metric Pills */}
-                  <div className="grid grid-cols-2 gap-2.5 pt-1">
+                  <div className="grid grid-cols-3 gap-2.5 pt-1">
                     <div className="flex items-center gap-2 text-xs font-semibold text-blue-900 bg-blue-50/70 p-2.5 rounded-xl border border-blue-100/80">
                       <Clock className="w-4 h-4 text-blue-600 flex-shrink-0" />
                       <span>{asm.durationMinutes} Minutes</span>
@@ -590,11 +523,6 @@ export function AssessmentListPage() {
                     <div className="flex items-center gap-2 text-xs font-semibold text-indigo-900 bg-indigo-50/70 p-2.5 rounded-xl border border-indigo-100/80">
                       <HelpCircle className="w-4 h-4 text-indigo-600 flex-shrink-0" />
                       <span>{mcqCount} MCQs</span>
-                    </div>
-
-                    <div className="flex items-center gap-2 text-xs font-semibold text-emerald-900 bg-emerald-50/70 p-2.5 rounded-xl border border-emerald-100/80">
-                      <Code2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-                      <span>{codingCount} Coding Tasks</span>
                     </div>
                   </div>
                 </div>
@@ -663,11 +591,8 @@ export function AssessmentListPage() {
                 </div>
               </div>
               <div className="flex items-center gap-1.5 text-[11px]">
-                <span className="px-2 py-0.5 rounded-lg bg-white/10 text-blue-100 font-semibold border border-white/15">
+                <span className="px-2.5 py-0.5 rounded-lg bg-white/10 text-blue-100 font-semibold border border-white/15">
                   {currentModalMcqCount} MCQs
-                </span>
-                <span className="px-2 py-0.5 rounded-lg bg-white/10 text-blue-100 font-semibold border border-white/15">
-                  {currentModalCodingCount} Coding
                 </span>
               </div>
             </div>
