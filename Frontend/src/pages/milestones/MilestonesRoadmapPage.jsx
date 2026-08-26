@@ -337,7 +337,7 @@ export function MilestonesRoadmapPage() {
   const currentMilestones = getMilestoneDataForBatch ? getMilestoneDataForBatch(selectedBatch) : milestones;
 
   const [selectedSubtopicState, setSelectedSubtopicState] = useState(null); // { stageId, subtopicId }
-  const [expandedStages, setExpandedStages] = useState({ 'stage-1': true, 'stage-1-w': true, 'stage-1-s': true });
+  const [expandedStages, setExpandedStages] = useState({ 'stage-1': true, 'stage-1-w': true, 'stage-1-s': true, 's1': true, 's1-w': true, 's1-s': true });
   const [expandedModule, setExpandedModule] = useState(null);
 
   const toggleStageAccordion = (stageId) => {
@@ -358,146 +358,89 @@ export function MilestonesRoadmapPage() {
 
   // Derive active milestones stages from current milestone state or selected course
   const getActiveMilestoneStages = () => {
+    const cleanNorm = (str) => String(str || '').toLowerCase().replace(/[^a-z0-9]/g, '').trim();
+    const stripSuffix = (str) => String(str || '').replace(/-(w|s)$/i, '').trim();
+
+    // Helper to resolve lessons for a specific subtopic
+    const resolveLessonsForSubtopic = (subId, subTitle, stageId) => {
+      if (!Array.isArray(courseLessons) || courseLessons.length === 0) return [];
+      const subNorm = cleanNorm(subTitle);
+      const subIdNorm = cleanNorm(subId);
+      const stageIdNorm = cleanNorm(stageId);
+
+      return courseLessons.filter(l => {
+        const lModId = cleanNorm(l.module_id);
+        const lStgId = cleanNorm(l.stage_id);
+        if (lModId === subIdNorm || stripSuffix(l.module_id) === stripSuffix(subId)) return true;
+        if (subNorm.includes('git') && (lModId.includes('git') || cleanNorm(l.title).includes('git'))) return true;
+        if (subNorm.includes('html') && (lModId.includes('html') || cleanNorm(l.title).includes('html'))) return true;
+        if (subNorm.includes('css') && (lModId.includes('css') || lModId.includes('advcss') || cleanNorm(l.title).includes('css'))) return true;
+        if (subNorm.includes('bootstrap') && (lModId.includes('bootstrap') || cleanNorm(l.title).includes('bootstrap'))) return true;
+        if (subNorm.includes('javascript') && (lModId.includes('js') || lModId.includes('dom') || lModId.includes('es6') || cleanNorm(l.title).includes('javascript'))) return true;
+        if (lStgId && (lStgId === stageIdNorm || stripSuffix(l.stage_id) === stripSuffix(stageId)) && (lModId === subIdNorm || stripSuffix(l.module_id) === stripSuffix(subId))) return true;
+        return false;
+      });
+    };
+
+    let baseStages = [];
     if (Array.isArray(currentMilestones?.stages) && currentMilestones.stages.length > 0) {
-      return currentMilestones.stages;
+      baseStages = currentMilestones.stages;
+    } else {
+      let targetCourseId = selectedCourseId;
+      if (targetCourseId === 'ALL') {
+        const pythonCourse = courses.find(c => c.title && c.title.toLowerCase().includes('python'));
+        targetCourseId = pythonCourse ? pythonCourse.id : courses[0]?.id;
+      }
+
+      const targetCourse = courses.find(c => c.id === targetCourseId);
+      if (targetCourse && Array.isArray(targetCourse.topics) && targetCourse.topics.length > 0) {
+        baseStages = targetCourse.topics.map((t, idx) => ({
+          id: t.id || `stg-${idx}`,
+          stageNumber: `STAGE 0${idx + 1}`,
+          phaseTag: `${targetCourse.title} • Stage ${idx + 1}`,
+          title: t.title,
+          unlockDate: t.unlockDate || (idx === 0 ? formatLocalDate(new Date()) : null),
+          unlockTime: t.unlockTime || '09:00',
+          unlockDateTime: t.unlockDateTime || null,
+          liveClasses: t.liveClasses || t.live_classes || 0,
+          practice: t.practice || 0,
+          assessments: t.assessments || 0,
+          subtopics: t.subtopics || []
+        }));
+      }
     }
 
-    let targetCourseId = selectedCourseId;
-    if (targetCourseId === 'ALL') {
-      const pythonCourse = courses.find(c => c.title && c.title.toLowerCase().includes('python'));
-      targetCourseId = pythonCourse ? pythonCourse.id : courses[0]?.id;
-    }
+    if (!baseStages || baseStages.length === 0) return [];
 
-    const targetCourse = courses.find(c => c.id === targetCourseId);
-    if (!targetCourse || !Array.isArray(targetCourse.topics)) {
-      return currentMilestones?.stages || [];
-    }
-
-    return targetCourse.topics.map((t, idx) => {
-      const stageId = t.id || `stg-${idx}`;
+    return baseStages.map((stage, idx) => {
+      const stageId = stage.id || `stg-${idx}`;
       return {
+        ...stage,
         id: stageId,
-        stageNumber: `STAGE 0${idx + 1}`,
-        phaseTag: `${targetCourse.title} • Stage ${idx + 1}`,
-        title: t.title,
-        unlockDate: t.unlockDate || (idx === 0 ? formatLocalDate(new Date()) : null),
-        unlockTime: t.unlockTime || '09:00',
-        unlockDateTime: t.unlockDateTime || null,
-        liveClasses: t.liveClasses || t.live_classes || 0,
-        practice: t.practice || 0,
-        assessments: t.assessments || 0,
-        subtopics: (t.subtopics || []).map((sub, sIdx) => {
-          const subId = sub.id || `sub-${idx}-${sIdx}`;
-          
-          const lessonsForSubtopic = courseLessons.filter(
-            l => l.course_id === targetCourseId && l.stage_id === stageId && l.module_id === subId
-          );
+        subtopics: (stage.subtopics || []).map((sub, sIdx) => {
+          const subId = sub.id || sub._id || sub.subtopic_id || `sub-${idx}-${sIdx}`;
+          let modules = Array.isArray(sub.modules) && sub.modules.length > 0 ? sub.modules : [];
 
-          const modules = lessonsForSubtopic.map(lesson => {
-            const lockStatus = getLessonLockStatus ? getLessonLockStatus(lesson.id, selectedBatch) : null;
-            
-            // Match learning items
-            const matchedSessions = liveSessions
-              .filter(ls => ls.innerTopicId === lesson.id || ls.topic_id === lesson.id || ls.moduleId === lesson.id || ls.moduleName === lesson.title)
-              .map(ls => ({
-                ...ls,
-                id: `item-live-${ls.id}`,
-                sessionId: ls.id,
-                type: 'LIVE CLASS',
-                typeColor: 'bg-purple-100 text-purple-700 border-purple-200',
-                iconName: 'Video',
-                iconBg: 'bg-purple-600 text-white',
-                title: ls.sessionTitle || ls.title || 'Live Class Masterclass',
-                actionText: 'JOIN',
-                url: ls.joinLink || ls.url,
-                btnStyle: 'bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30'
+          if (modules.length === 0) {
+            const lessons = resolveLessonsForSubtopic(subId, sub.title, stageId);
+            if (lessons.length > 0) {
+              modules = lessons.map(lesson => ({
+                id: lesson.id,
+                title: lesson.title,
+                description: lesson.description || '',
+                duration: lesson.duration || lesson.durationHours || '1hr 30min',
+                durationHours: lesson.durationHours || '1hr 30min',
+                topics: [],
+                items: []
               }));
-
-            const matchedCoding = codingQuestions
-              .filter(cq => cq.innerTopicId === lesson.id || cq.topic_id === lesson.id)
-              .map(cq => ({
-                ...cq,
-                id: `item-code-${cq.id}`,
-                codingId: cq.id,
-                type: 'CODING',
-                typeColor: 'bg-purple-100 text-purple-700 border-purple-200',
-                iconName: 'Code',
-                iconBg: 'bg-purple-600 text-white',
-                title: cq.title,
-                actionText: 'SOLVE',
-                url: '/coding-questions',
-                btnStyle: 'bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30'
-              }));
-
-            const matchedAssess = assessments
-              .filter(asm => asm.innerTopicId === lesson.id || asm.topic_id === lesson.id || asm.moduleId === lesson.id || (asm.topicName && asm.topicName.trim() === lesson.title.trim()))
-              .map(asm => ({
-                ...asm,
-                id: `item-asmnt-${asm.id}`,
-                assessmentId: asm.id,
-                type: 'ASSESSMENT',
-                typeColor: 'bg-blue-100 text-blue-800 border-blue-200',
-                iconName: 'FileCheck',
-                iconBg: 'bg-blue-600 text-white',
-                title: asm.title,
-                actionText: 'START',
-                url: '/assessments',
-                btnStyle: 'bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30',
-                dueDate: asm.dueDate || '2026-08-30',
-                durationMinutes: asm.durationMinutes || 45,
-                totalMarks: asm.totalMarks || 100
-              }));
-
-            const matchedProjects = projects
-              .filter(p => p.innerTopicId === lesson.id || p.topic_id === lesson.id || p.moduleId === lesson.id || p.topicName === lesson.title || p.moduleName === lesson.title)
-              .map(p => ({
-                ...p,
-                id: `item-proj-${p.id}`,
-                projectId: p.id,
-                type: 'PROJECT',
-                typeColor: 'bg-emerald-100 text-emerald-800 border-emerald-200',
-                iconName: 'Building2',
-                iconBg: 'bg-emerald-600 text-white',
-                title: p.title,
-                actionText: 'VIEW',
-                url: '/projects',
-                btnStyle: 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm shadow-emerald-500/30'
-              }));
-
-            return {
-              id: lesson.id,
-              title: lesson.title,
-              duration: lesson.duration || lesson.durationHours || '1hr 30min',
-              durationHours: lesson.durationHours || '1hr 30min',
-              unlockDate: lockStatus?.unlockDate || '',
-              unlockTime: lockStatus?.unlockTime || '',
-              unlockDateTime: lockStatus?.unlockDateTime || null,
-              items: (() => {
-                const list = [...matchedSessions, ...matchedCoding, ...matchedAssess, ...matchedProjects];
-                const ORDER = {
-                  'LIVE CLASS': 1,
-                  'RECORDED CLASS': 2,
-                  'VIDEO': 2,
-                  'ASSESSMENT': 3,
-                  'CODING': 4,
-                  'PROJECT': 5
-                };
-                return list.sort((a, b) => (ORDER[a.type] || 99) - (ORDER[b.type] || 99));
-              })()
-            };
-          });
+            }
+          }
 
           return {
+            ...sub,
             id: subId,
-            title: sub.title,
-            duration: sub.duration || '',
-            durationHours: sub.durationHours || '',
-            isCompleted: sub.isCompleted || false,
-            unlockDate: sub.unlockDate || '',
-            unlockTime: sub.unlockTime || '',
-            unlockDateTime: sub.unlockDateTime || null,
-            modulesCount: modules.length || 1,
-            modules: modules.length > 0 ? modules : sub.modules || []
+            modulesCount: modules.length,
+            modules: modules
           };
         })
       };
@@ -656,7 +599,7 @@ export function MilestonesRoadmapPage() {
     if (item?.agenda && typeof item.agenda === 'string' && item.agenda.trim()) return item.agenda;
     if (item?.description && typeof item.description === 'string' && item.description.trim()) return item.description;
     if (item?.overview && typeof item.overview === 'string' && item.overview.trim()) return item.overview;
-    return `Detailed class agenda and practical learning objectives for ${item?.title || 'this session'}. Master core concepts, practical industry patterns, and hands-on implementation.`;
+    return item?.title ? `${item.title} - In-depth discussion and live hands-on implementation.` : 'No session agenda specified.';
   };
 
   const [isItemModalOpen, setIsItemModalOpen] = useState(false);
@@ -678,16 +621,61 @@ export function MilestonesRoadmapPage() {
   // Derived current active subtopic object and parent stage
   const getActiveSubtopicAndStage = () => {
     if (!selectedSubtopicState) return { activeStage: null, activeSubtopic: null };
+    const cleanNorm = (str) => String(str || '').toLowerCase().replace(/[^a-z0-9]/g, '').trim();
+    const stripSuffix = (str) => String(str || '').replace(/-(w|s)$/i, '').trim();
+
     const stage = filteredStages.find(
-      (s) => s.id === selectedSubtopicState.stageId || s.id.replace(/-[ws]$/, '') === String(selectedSubtopicState.stageId).replace(/-[ws]$/, '')
-    );
+      (s) => s.id === selectedSubtopicState.stageId ||
+             stripSuffix(s.id) === stripSuffix(selectedSubtopicState.stageId) ||
+             cleanNorm(s.title) === cleanNorm(selectedSubtopicState.stageId)
+    ) || filteredStages.find(s => (s.subtopics || []).some(st => st.id === selectedSubtopicState.subtopicId || stripSuffix(st.id) === stripSuffix(selectedSubtopicState.subtopicId) || cleanNorm(st.title) === cleanNorm(selectedSubtopicState.subtopicId)));
+
     if (!stage) return { activeStage: null, activeSubtopic: null };
+
     const sub = (stage.subtopics || []).find(
-      (st) => st.id === selectedSubtopicState.subtopicId || st.id.replace(/-[ws]$/, '') === String(selectedSubtopicState.subtopicId).replace(/-[ws]$/, '')
+      (st) => st.id === selectedSubtopicState.subtopicId ||
+              stripSuffix(st.id) === stripSuffix(selectedSubtopicState.subtopicId) ||
+              cleanNorm(st.title) === cleanNorm(selectedSubtopicState.subtopicId)
     );
+
+    if (!sub) return { activeStage: stage, activeSubtopic: null };
+
+    // Robust module resolution: If sub.modules is empty, retrieve lessons from courseLessons database table
+    let subModules = Array.isArray(sub.modules) && sub.modules.length > 0 ? sub.modules : [];
+    if (subModules.length === 0 && Array.isArray(courseLessons) && courseLessons.length > 0) {
+      const subNorm = cleanNorm(sub.title);
+      const subIdNorm = cleanNorm(sub.id);
+      const stageIdNorm = cleanNorm(stage.id);
+
+      const matchedLessons = courseLessons.filter(l => {
+        const lModId = cleanNorm(l.module_id);
+        const lStgId = cleanNorm(l.stage_id);
+        if (lModId === subIdNorm || stripSuffix(l.module_id) === stripSuffix(sub.id)) return true;
+        if (subNorm.includes('git') && (lModId.includes('git') || cleanNorm(l.title).includes('git'))) return true;
+        if (subNorm.includes('html') && (lModId.includes('html') || cleanNorm(l.title).includes('html'))) return true;
+        if (subNorm.includes('css') && (lModId.includes('css') || lModId.includes('advcss') || cleanNorm(l.title).includes('css'))) return true;
+        if (subNorm.includes('bootstrap') && (lModId.includes('bootstrap') || cleanNorm(l.title).includes('bootstrap'))) return true;
+        if (subNorm.includes('javascript') && (lModId.includes('js') || lModId.includes('dom') || lModId.includes('es6') || cleanNorm(l.title).includes('javascript'))) return true;
+        if (lStgId && (lStgId === stageIdNorm || stripSuffix(l.stage_id) === stripSuffix(stage.id)) && (lModId === subIdNorm || stripSuffix(l.module_id) === stripSuffix(sub.id))) return true;
+        return false;
+      });
+
+      if (matchedLessons.length > 0) {
+        subModules = matchedLessons.map(l => ({
+          id: l.id,
+          title: l.title,
+          description: l.description || '',
+          duration: l.duration || l.durationHours || '1hr 30min',
+          durationHours: l.durationHours || '1hr 30min',
+          items: [],
+          topics: []
+        }));
+      }
+    }
+
     return {
       activeStage: stage,
-      activeSubtopic: sub ? { stageId: stage.id, ...sub } : null
+      activeSubtopic: { stageId: stage.id, ...sub, modules: subModules }
     };
   };
 
@@ -772,6 +760,13 @@ export function MilestonesRoadmapPage() {
         unlock_date: unlockDate,
         unlock_time: unlockTime
       });
+      if (scheduleTarget.stageId && scheduleTarget.subtopicId) {
+        setModuleSchedule(scheduleTarget.stageId, scheduleTarget.subtopicId, scheduleTarget.id, {
+          unlockDate,
+          unlockTime,
+          unlockDateTime: uDateTime
+        }, selectedBatch);
+      }
       addToast(
         unlockDate
           ? `📅 Lesson release scheduled for ${unlockDate} at ${unlockTime}`
@@ -802,6 +797,13 @@ export function MilestonesRoadmapPage() {
       addToast('Subtopic schedule cleared (Inherits stage release)', 'info');
     } else if (scheduleTarget.type === 'module') {
       removeLessonLock(scheduleTarget.id, selectedBatch);
+      if (scheduleTarget.stageId && scheduleTarget.subtopicId) {
+        setModuleSchedule(scheduleTarget.stageId, scheduleTarget.subtopicId, scheduleTarget.id, {
+          unlockDate: '',
+          unlockTime: '',
+          unlockDateTime: null
+        }, selectedBatch);
+      }
       addToast('Lesson schedule cleared (Inherits subtopic release)', 'info');
     }
 
@@ -1061,7 +1063,7 @@ export function MilestonesRoadmapPage() {
         activeSubtopic.id,
         targetModuleIdForItem,
         editingItem.id,
-        { ...payload, prevTitle: editingItem.title, moduleTitle: modTitle },
+        { ...payload, prevTitle: editingItem.title, topicIndex: editingItem.topicIndex, moduleTitle: modTitle },
         selectedBatch
       );
       addToast('Topic & agenda updated', 'success');
@@ -1078,12 +1080,13 @@ export function MilestonesRoadmapPage() {
     setIsItemModalOpen(false);
   };
 
-  const handleDeleteItem = (moduleId, itemId, title) => {
+  const handleDeleteItem = (moduleId, itemId, title, topicIndex = undefined) => {
     if (!activeSubtopic) return;
     if (window.confirm(`Delete resource item "${title}"?`)) {
       const curMod = activeSubtopic.modules?.find(m => m.id === moduleId);
       deleteLearningItem(activeSubtopic.stageId, activeSubtopic.id, moduleId, itemId, selectedBatch, {
         title,
+        topicIndex,
         moduleTitle: curMod?.title || ''
       });
       addToast('Resource item deleted', 'info');
@@ -1221,7 +1224,35 @@ export function MilestonesRoadmapPage() {
 
       {/* Stage Timeline (Pure Time-Based Lock/Unlock System) */}
       <div className="relative pt-4">
-        {filteredStages.map((stage, stageIndex) => {
+        {filteredStages.length === 0 ? (
+          <div className="bg-white rounded-3xl border border-slate-200/80 p-12 text-center shadow-xs">
+            <div className="w-16 h-16 bg-purple-50 text-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-purple-100">
+              <Layers className="w-8 h-8" />
+            </div>
+            <h3 className="text-base font-extrabold text-slate-800 mb-1">No milestones available</h3>
+            <p className="text-xs text-slate-500 max-w-md mx-auto mb-6">
+              Schedule live sessions or add milestones to populate the curriculum roadmap for this batch.
+            </p>
+            <Button
+              onClick={() => {
+                setEditingStage(null);
+                setStageFormData({
+                  title: '',
+                  stageNumber: 'STAGE 01',
+                  phaseTag: 'Senior Engineering Cohort • Stage 1',
+                  unlockDate: formatLocalDate(new Date()),
+                  unlockTime: '09:00'
+                });
+                setIsStageModalOpen(true);
+              }}
+              className="bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold px-4 py-2 rounded-xl cursor-pointer"
+            >
+              <Plus className="w-4 h-4 mr-1.5" />
+              Create First Stage
+            </Button>
+          </div>
+        ) : (
+          filteredStages.map((stage, stageIndex) => {
           const stageSched = getScheduleInfo(stage);
           const isStageCurrentUnlocked = stageSched.isUnlocked;
 
@@ -1523,7 +1554,7 @@ export function MilestonesRoadmapPage() {
               </div>
             </div>
           );
-        })}
+        }))}
       </div>
 
       {/* Slide-Over Right Drawer (Picture 2 Content) */}
@@ -1684,50 +1715,47 @@ export function MilestonesRoadmapPage() {
 
                       const hasLiveClass = !!primaryLiveSession || rawItems.some(it => it.type === 'LIVE CLASS');
 
-                      // Live Class Topics: Dynamically derive from module.topics, rawItems, or primaryLiveSession.topics
+                      // Live Class Topics: Prioritize module.topics (the active Milestones state), then primaryLiveSession.topics or module.items
                       let liveClassTopics = [];
                       if (Array.isArray(module?.topics) && module.topics.length > 0) {
-                        liveClassTopics = module.topics.map((t, idx) => ({
-                          id: t.id || `topic-${module.id}-${idx}`,
-                          title: t.title,
-                          description: t.description || t.agenda || t.overview || '',
-                          agenda: t.agenda || t.description || t.overview || '',
-                          overview: t.overview || t.agenda || t.description || '',
-                          type: 'LIVE CLASS',
-                          actionText: 'JOIN',
-                          url: moduleJoinLink
-                        }));
-                      } else if (rawItems.filter(it => it.type === 'LIVE CLASS' || it.type === 'TOPIC').length > 0) {
-                        liveClassTopics = rawItems.filter(it => it.type === 'LIVE CLASS' || it.type === 'TOPIC').map((it) => ({
-                          ...it,
-                          agenda: it.agenda || it.description || it.overview || '',
-                          description: it.description || it.agenda || it.overview || '',
-                          overview: it.overview || it.agenda || it.description || ''
-                        }));
-                      } else if (Array.isArray(primaryLiveSession?.topics) && primaryLiveSession.topics.length > 0) {
-                        liveClassTopics = primaryLiveSession.topics.map((t, idx) => ({
-                          id: t.id || `topic-${module.id}-${idx}`,
-                          title: t.title,
-                          description: t.description || t.agenda || t.overview || '',
-                          agenda: t.agenda || t.description || t.overview || '',
-                          overview: t.overview || t.agenda || t.description || '',
-                          type: 'LIVE CLASS',
-                          actionText: 'JOIN',
-                          url: moduleJoinLink
-                        }));
-                      } else if (hasLiveClass) {
-                        liveClassTopics = [
-                          {
-                            id: `topic-${module.id}-main`,
-                            title: primaryLiveSession?.sessionTitle || module.title,
-                            description: primaryLiveSession?.description || module.description || '',
-                            agenda: primaryLiveSession?.description || module.description || '',
-                            overview: primaryLiveSession?.description || module.description || '',
+                        liveClassTopics = module.topics
+                          .filter((t) => t && t.title && t.title.trim())
+                          .map((t, idx) => ({
+                            id: t.id || `topic-${module.id}-${idx}`,
+                            topicIndex: idx,
+                            title: t.title.trim(),
+                            description: t.description || t.agenda || t.overview || '',
+                            agenda: t.agenda || t.description || t.overview || '',
+                            overview: t.overview || t.agenda || t.description || '',
                             type: 'LIVE CLASS',
                             actionText: 'JOIN',
                             url: moduleJoinLink
-                          }
-                        ];
+                          }));
+                      } else if (Array.isArray(primaryLiveSession?.topics) && primaryLiveSession.topics.length > 0) {
+                        liveClassTopics = primaryLiveSession.topics
+                          .filter((t) => t && t.title && t.title.trim())
+                          .map((t, idx) => ({
+                            id: t.id || `topic-${module.id}-${idx}`,
+                            topicIndex: idx,
+                            title: t.title.trim(),
+                            description: t.description || t.agenda || t.overview || '',
+                            agenda: t.agenda || t.description || t.overview || '',
+                            overview: t.overview || t.agenda || t.description || '',
+                            type: 'LIVE CLASS',
+                            actionText: 'JOIN',
+                            url: moduleJoinLink
+                          }));
+                      } else if (rawItems.filter(it => it.type === 'LIVE CLASS' || it.type === 'TOPIC').length > 0) {
+                        liveClassTopics = rawItems
+                          .filter(it => (it.type === 'LIVE CLASS' || it.type === 'TOPIC') && it.title && it.title.trim())
+                          .map((it, idx) => ({
+                            ...it,
+                            title: it.title.trim(),
+                            topicIndex: idx,
+                            agenda: it.agenda || it.description || it.overview || '',
+                            description: it.description || it.agenda || it.overview || '',
+                            overview: it.overview || it.agenda || it.description || ''
+                          }));
                       }
 
                       // Auto-match assessments, coding questions, and practice items for this module
@@ -2040,7 +2068,7 @@ export function MilestonesRoadmapPage() {
                                                 <Edit2 className="w-3.5 h-3.5" />
                                               </button>
                                               <button
-                                                onClick={() => handleDeleteItem(module.id, item.id, item.title)}
+                                                onClick={() => handleDeleteItem(module.id, item.id, item.title, item.topicIndex)}
                                                 title="Delete Topic"
                                                 className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg cursor-pointer transition-colors"
                                               >
@@ -2194,26 +2222,31 @@ export function MilestonesRoadmapPage() {
                                 </div>
                               )}
 
-                              {liveClassTopics.length === 0 && otherResources.length === 0 && !hasLiveClass && (
-                                <div className="text-center py-4 text-xs text-slate-400 space-y-2">
-                                  <p>No learning items or live class scheduled yet for this module.</p>
-                                  <button
-                                    onClick={() => handleOpenItemModal(module.id, null)}
-                                    className="px-3 py-1.5 bg-purple-50 text-purple-700 font-bold rounded-lg hover:bg-purple-100 text-xs inline-flex items-center gap-1 cursor-pointer"
-                                  >
-                                    <Plus className="w-3.5 h-3.5" />
-                                    <span>Add First Resource</span>
-                                  </button>
+                              {liveClassTopics.length === 0 && otherResources.length === 0 && (
+                                <div className="text-center py-6 px-4 rounded-xl bg-slate-50/60 border border-dashed border-slate-200 space-y-2.5">
+                                  <BookOpen className="w-5 h-5 mx-auto text-slate-300" />
+                                  <p className="text-xs font-semibold text-slate-600">No class topics or learning resources added yet for this module.</p>
+                                  <p className="text-[11px] text-slate-400">Topics scheduled in Live Sessions or added here will appear in real-time.</p>
+                                  <div className="pt-1 flex items-center justify-center gap-2">
+                                    <button
+                                      type="button"
+                                      onClick={() => handleOpenItemModal(module.id, null)}
+                                      className="px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-lg text-xs inline-flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
+                                    >
+                                      <Plus className="w-3.5 h-3.5" />
+                                      <span>Add Topic / Resource</span>
+                                    </button>
+                                  </div>
                                 </div>
                               )}
 
-                              {module.items && module.items.length > 0 && (
+                              {(liveClassTopics.length > 0 || otherResources.length > 0 || (module.items && module.items.length > 0)) && (
                                 <button
                                   onClick={() => handleOpenItemModal(module.id, null)}
                                   className="w-full py-2 border border-dashed border-purple-200 text-purple-700 hover:bg-purple-50 rounded-xl text-xs font-bold flex items-center justify-center gap-1 transition-colors cursor-pointer"
                                 >
                                   <Plus className="w-3.5 h-3.5" />
-                                  <span> Add Resource to {module.title}</span>
+                                  <span> Add Topic / Resource to {module.title}</span>
                                 </button>
                               )}
                             </div>

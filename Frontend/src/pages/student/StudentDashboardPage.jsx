@@ -28,27 +28,33 @@ import {
 import { getScheduleInfo } from '../milestones/MilestonesRoadmapPage';
 
 export function StudentDashboardPage() {
-  const { courses, liveSessions, jobs, recordings, projects, milestones, rewards = [] } = useLmsData();
+  const { courses, liveSessions, jobs, recordings, projects, milestones, rewards = [], refreshData } = useLmsData();
   const { addToast } = useToast();
 
   const [isSyncing, setIsSyncing] = useState(false);
   const [copied, setCopied] = useState(false);
   const [activeTab, setActiveTab] = useState('courses');
 
-  const handleForceSync = () => {
+  const handleForceSync = async () => {
     setIsSyncing(true);
-    setTimeout(() => {
+    try {
+      if (refreshData) {
+        await refreshData();
+      }
+      addToast('Successfully synced milestone curriculum and data feed from database endpoint!', 'success');
+    } catch (err) {
+      addToast('Failed to refresh data from database', 'error');
+    } finally {
       setIsSyncing(false);
-      addToast('Successfully synced data feed & milestone schedules with Student LMS Portal!', 'success');
-    }, 1000);
+    }
   };
 
   const rawApiPayload = {
     api_version: 'v1.5.0',
     timestamp: new Date().toISOString(),
     status: 'ACTIVE_BROADCAST',
-    endpoint: 'https://api.aspirelms.io/v1/student-feed',
-    sync_frequency: 'REALTIME_WEBHOOK',
+    endpoint: '/api/v1/student-feed',
+    sync_frequency: 'REALTIME_DATABASE_SYNC',
     data: {
       rewards_and_merchandise: rewards.map((r) => ({
         id: r.id,
@@ -418,7 +424,7 @@ export function StudentDashboardPage() {
             <h3 className="text-base font-black text-blue-400 flex items-center gap-2">
               <Code2 className="w-5 h-5" /> Live JSON API Feed Output (Broadcast to Student LMS)
             </h3>
-            <p className="text-xs text-slate-400 font-mono mt-1">GET https://api.aspirelms.io/v1/student-feed</p>
+            <p className="text-xs text-slate-400 font-mono mt-1">GET /api/v1/student-feed (Database Table: milestones_data)</p>
           </div>
 
           <Button
