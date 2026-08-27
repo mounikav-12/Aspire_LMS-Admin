@@ -47,6 +47,46 @@ export const formatLocalDate = (d) => {
   return `${year}-${month}-${day}`;
 };
 
+export const SUBTOPIC_MODULE_MAP = {
+  'm1_git': 'mod-git',
+  'm1_html': 'mod-html',
+  'm1_css_fund': 'mod-css',
+  'm1_css_adv': 'mod-advcss',
+  'm1_bootstrap': 'mod-bootstrap',
+  'm1_js_ess': 'mod-jsess',
+  'm1_js_func': 'mod-jsfunc',
+  'm1_dom': 'mod-dom',
+  'm1_es6': 'mod-es6async',
+  'm2_py_fund': 'subtop-1787202208426',
+  'm2_py_oop': 'subtop-1787203469178',
+  'm2_postgres': 'subtop-1787203490227',
+  'm2_django_api': 'subtop-1787203534393',
+  'm2_dsa_arrays': 'subtop-1787203669226',
+  'm2_dsa_linkedlist': 'subtop-1787203763954',
+  'm2_dsa_trees': 'subtop-1787203763954',
+  'm2_dsa_dp': 'subtop-1787203763954',
+  'mod-stg3-m1': 'mod-stg3-m1',
+  'mod-stg3-m2': 'mod-stg3-m2',
+  'mod-stg3-m3': 'mod-stg3-m3',
+  'mod-stg4-m1': 'mod-stg4-m1',
+  'mod-stg4-m2': 'mod-stg4-m2',
+  'mod-stg4-m3': 'mod-stg4-m3',
+  'mod-stg4-m4': 'mod-stg4-m4',
+  'mod-stg4-m5': 'mod-stg4-m5'
+};
+
+export const isMatchingStage = (stageA, stageB) => {
+  if (!stageA || !stageB) return true;
+  const cleanA = String(stageA || '').replace(/-(w|s)$/i, '').trim().toLowerCase();
+  const cleanB = String(stageB || '').replace(/-(w|s)$/i, '').trim().toLowerCase();
+  if (cleanA === cleanB) return true;
+  if ((cleanA === 's1' || cleanA === 'top-stg-1') && (cleanB === 's1' || cleanB === 'top-stg-1')) return true;
+  if ((cleanA === 's2' || cleanA === 'top-stg-2') && (cleanB === 's2' || cleanB === 'top-stg-2')) return true;
+  if ((cleanA === 's3' || cleanA === 'top-stg-3') && (cleanB === 's3' || cleanB === 'top-stg-3')) return true;
+  if ((cleanA === 's4' || cleanA === 'top-stg-4') && (cleanB === 's4' || cleanB === 'top-stg-4')) return true;
+  return false;
+};
+
 // Pure Date & Time Release Determination Helper with Hierarchy Inheritance
 export const parseUnlockTimestamp = (unlockDate, unlockTime, unlockDateTime) => {
   if (!unlockDate && !unlockDateTime) return null;
@@ -363,31 +403,41 @@ export function MilestonesRoadmapPage() {
     const cleanNorm = (str) => String(str || '').toLowerCase().replace(/[^a-z0-9]/g, '').trim();
     const stripSuffix = (str) => String(str || '').replace(/-(w|s)$/i, '').trim();
 
-    // Helper to resolve lessons for a specific subtopic
+    // Helper to resolve lessons for a specific subtopic strictly without cross-stage bleeding
     const resolveLessonsForSubtopic = (subId, subTitle, stageId) => {
       if (!Array.isArray(courseLessons) || courseLessons.length === 0) return [];
-      const subNorm = cleanNorm(subTitle);
+      const subIdClean = stripSuffix(subId);
       const subIdNorm = cleanNorm(subId);
-      const stageIdNorm = cleanNorm(stageId);
+      const mappedModId = SUBTOPIC_MODULE_MAP[subIdClean] || subIdClean;
 
       return courseLessons.filter(l => {
+        const lModClean = stripSuffix(l.module_id);
         const lModId = cleanNorm(l.module_id);
-        const lStgId = cleanNorm(l.stage_id);
-        if (lModId === subIdNorm || stripSuffix(l.module_id) === stripSuffix(subId)) return true;
-        if (subNorm.includes('git') && (lModId.includes('git') || cleanNorm(l.title).includes('git'))) return true;
-        if (subNorm.includes('html') && (lModId.includes('html') || cleanNorm(l.title).includes('html'))) return true;
-        if (subNorm.includes('css') && (lModId.includes('css') || lModId.includes('advcss') || cleanNorm(l.title).includes('css'))) return true;
-        if (subNorm.includes('bootstrap') && (lModId.includes('bootstrap') || cleanNorm(l.title).includes('bootstrap'))) return true;
-        if (subNorm.includes('javascript') && (lModId.includes('js') || lModId.includes('dom') || lModId.includes('es6') || cleanNorm(l.title).includes('javascript'))) return true;
-        if (lStgId && (lStgId === stageIdNorm || stripSuffix(l.stage_id) === stripSuffix(stageId)) && (lModId === subIdNorm || stripSuffix(l.module_id) === stripSuffix(subId))) return true;
+        const lStgId = l.stage_id;
+
+        // Strict stage boundary check
+        if (stageId && lStgId && !isMatchingStage(lStgId, stageId)) {
+          return false;
+        }
+
+        // Strict module/subtopic ID match
+        if (lModClean === subIdClean || lModClean === mappedModId || lModId === subIdNorm) {
+          return true;
+        }
+
         return false;
       });
     };
 
     let baseStages = [];
 
-    // 1. If a specific course is selected in the Course dropdown
-    if (selectedCourseId && selectedCourseId !== 'ALL') {
+    // 1. Primary: Use batch milestones stages
+    if (Array.isArray(currentMilestones?.stages) && currentMilestones.stages.length > 0) {
+      baseStages = currentMilestones.stages;
+    }
+
+    // 2. If a specific separate course with custom stages is selected
+    if (selectedCourseId && selectedCourseId !== 'ALL' && (!baseStages || baseStages.length === 0)) {
       const courseMilestones = milestonesByBatch?.[selectedCourseId];
       if (Array.isArray(courseMilestones?.stages) && courseMilestones.stages.length > 0) {
         baseStages = courseMilestones.stages;
@@ -407,34 +457,8 @@ export function MilestonesRoadmapPage() {
             assessments: t.assessments || 0,
             subtopics: t.subtopics || []
           }));
-        } else if (targetCourse) {
-          baseStages = [
-            {
-              id: `stg-${targetCourse.id}-1`,
-              stageNumber: 'STAGE 01',
-              phaseTag: `${targetCourse.title} • Stage 1`,
-              title: `Stage 1: ${targetCourse.title} Foundations`,
-              unlockDate: formatLocalDate(new Date()),
-              unlockTime: '09:00',
-              liveClasses: 0,
-              practice: 0,
-              assessments: 0,
-              subtopics: [
-                {
-                  id: `sub-${targetCourse.id}-1`,
-                  title: `${targetCourse.title} Overview & Getting Started`,
-                  modules: []
-                }
-              ]
-            }
-          ];
         }
       }
-    }
-
-    // 2. Fall back to active batch milestones if no course-specific stages resolved
-    if ((!baseStages || baseStages.length === 0) && Array.isArray(currentMilestones?.stages) && currentMilestones.stages.length > 0) {
-      baseStages = currentMilestones.stages;
     }
 
     if (!baseStages || baseStages.length === 0) return [];
@@ -525,8 +549,12 @@ export function MilestonesRoadmapPage() {
         });
       });
 
+      const subIdClean = String(sub.id || '').replace(/-(w|s)$/i, '').trim();
+      const mappedModId = SUBTOPIC_MODULE_MAP[subIdClean] || subIdClean;
       const matchingCourseLessons = courseLessons.filter(
-        (l) => (!activeCourseId || l.course_id === activeCourseId) && (l.stage_id === stage.id || l.module_id === sub.id)
+        (l) => (!activeCourseId || l.course_id === activeCourseId) &&
+               isMatchingStage(l.stage_id, stage.id) &&
+               (String(l.module_id || '').replace(/-(w|s)$/i, '').trim() === subIdClean || String(l.module_id || '').replace(/-(w|s)$/i, '').trim() === mappedModId)
       );
 
       const countForThisSubtopic = Math.max(
@@ -684,27 +712,32 @@ export function MilestonesRoadmapPage() {
     // Robust module resolution: If sub.modules is empty, retrieve lessons from courseLessons database table
     let subModules = Array.isArray(sub.modules) && sub.modules.length > 0 ? sub.modules : [];
     if (subModules.length === 0 && Array.isArray(courseLessons) && courseLessons.length > 0) {
-      const subNorm = cleanNorm(sub.title);
+      const subIdClean = stripSuffix(sub.id);
       const subIdNorm = cleanNorm(sub.id);
-      const stageIdNorm = cleanNorm(stage.id);
+      const mappedModId = SUBTOPIC_MODULE_MAP[subIdClean] || subIdClean;
 
       const matchedLessons = courseLessons.filter(l => {
+        const lModClean = stripSuffix(l.module_id);
         const lModId = cleanNorm(l.module_id);
-        const lStgId = cleanNorm(l.stage_id);
-        if (lModId === subIdNorm || stripSuffix(l.module_id) === stripSuffix(sub.id)) return true;
-        if (subNorm.includes('git') && (lModId.includes('git') || cleanNorm(l.title).includes('git'))) return true;
-        if (subNorm.includes('html') && (lModId.includes('html') || cleanNorm(l.title).includes('html'))) return true;
-        if (subNorm.includes('css') && (lModId.includes('css') || lModId.includes('advcss') || cleanNorm(l.title).includes('css'))) return true;
-        if (subNorm.includes('bootstrap') && (lModId.includes('bootstrap') || cleanNorm(l.title).includes('bootstrap'))) return true;
-        if (subNorm.includes('javascript') && (lModId.includes('js') || lModId.includes('dom') || lModId.includes('es6') || cleanNorm(l.title).includes('javascript'))) return true;
-        if (lStgId && (lStgId === stageIdNorm || stripSuffix(l.stage_id) === stripSuffix(stage.id)) && (lModId === subIdNorm || stripSuffix(l.module_id) === stripSuffix(sub.id))) return true;
+        const lStgId = l.stage_id;
+
+        // Strict stage boundary check
+        if (stage.id && lStgId && !isMatchingStage(lStgId, stage.id)) {
+          return false;
+        }
+
+        // Strict module/subtopic ID match
+        if (lModClean === subIdClean || lModClean === mappedModId || lModId === subIdNorm) {
+          return true;
+        }
+
         return false;
       });
 
       if (matchedLessons.length > 0) {
         subModules = matchedLessons.map(l => ({
           id: l.id,
-          title: l.title,
+          title: String(l.title || '').replace(/^Module\s*\d+\s*:\s*/i, '').trim(),
           description: l.description || '',
           duration: l.duration || l.durationHours || '1hr 30min',
           durationHours: l.durationHours || '1hr 30min',
