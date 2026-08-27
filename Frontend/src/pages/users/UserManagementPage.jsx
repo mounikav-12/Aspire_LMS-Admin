@@ -41,8 +41,8 @@ export function UserManagementPage() {
     name: '',
     email: '',
     role: ROLES.INSTRUCTOR,
-    department: 'Curriculum Operations',
-    phone: '+91 98765-43210',
+    department: '',
+    phone: '',
     avatar: ''
   });
 
@@ -51,8 +51,8 @@ export function UserManagementPage() {
       name: '',
       email: '',
       role: ROLES.INSTRUCTOR,
-      department: 'Curriculum Operations',
-      phone: '+91 98765-43210',
+      department: '',
+      phone: '',
       avatar: ''
     });
     setIsAddModalOpen(true);
@@ -64,8 +64,8 @@ export function UserManagementPage() {
       name: user.name || '',
       email: user.email || '',
       role: user.role || ROLES.INSTRUCTOR,
-      department: user.department || 'Curriculum Operations',
-      phone: user.phone || '+91 98765-43210',
+      department: user.department || '',
+      phone: user.phone || '',
       avatar: (user.avatar && !user.avatar.includes('unsplash.com')) ? user.avatar : ''
     });
   };
@@ -201,13 +201,14 @@ export function UserManagementPage() {
 
                     {/* Department */}
                     <td className="px-6 py-4 font-semibold text-slate-700">
-                      {u.department || 'Curriculum Operations'}
+                      {u.department || '—'}
                     </td>
 
                     {/* Status */}
                     <td className="px-6 py-4">
-                      <span className="inline-flex items-center gap-1.5 font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-xl border border-emerald-200/60">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> Active
+                      <span className={`inline-flex items-center gap-1.5 font-bold px-2.5 py-1 rounded-xl border ${u.status === 'Inactive' ? 'text-slate-500 bg-slate-50 border-slate-200/60' : 'text-emerald-700 bg-emerald-50 border-emerald-200/60'}`}>
+                        <CheckCircle2 className={`w-3.5 h-3.5 ${u.status === 'Inactive' ? 'text-slate-400' : 'text-emerald-600'}`} />
+                        {u.status || 'Active'}
                       </span>
                     </td>
 

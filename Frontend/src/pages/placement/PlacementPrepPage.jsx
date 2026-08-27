@@ -36,8 +36,8 @@ export function PlacementPrepPage() {
   const [formData, setFormData] = useState({
     category: 'Interview Tips',
     title: '',
-    author: 'Career Success Team',
-    readTime: '10 min read',
+    author: '',
+    readTime: '',
     snippet: '',
     linkUrl: ''
   });
@@ -46,8 +46,8 @@ export function PlacementPrepPage() {
     setFormData({
       category: 'Interview Tips',
       title: '',
-      author: 'Career Success Team',
-      readTime: '10 min read',
+      author: '',
+      readTime: '',
       snippet: '',
       linkUrl: ''
     });
@@ -110,8 +110,10 @@ export function PlacementPrepPage() {
   });
 
   const handleDownload = (res) => {
-    window.open(res.linkUrl || 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', '_blank');
-    addToast(`Downloading PDF document: "${res.title}"...`, 'success');
+    if (res.linkUrl) {
+      window.open(res.linkUrl, '_blank');
+      addToast(`Downloading PDF document: "${res.title}"...`, 'success');
+    }
   };
 
   return (
@@ -222,7 +224,7 @@ export function PlacementPrepPage() {
               </div>
 
               <div className="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between text-xs">
-                <span className="text-slate-400 font-semibold">By {res.author}</span>
+                <span className="text-slate-400 font-semibold">{res.author ? `By ${res.author}` : ''}</span>
                 {res.category === 'PDFs' ? (
                   <Button
                     variant="primary"

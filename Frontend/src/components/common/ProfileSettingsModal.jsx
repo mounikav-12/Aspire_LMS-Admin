@@ -138,13 +138,19 @@ export function ProfileSettingsModal({ isOpen, onClose }) {
     }
 
     try {
-      const res = await updateUserProfile({
+      const updatePayload = {
         name: formData.name,
         email: formData.email,
         phone: formData.phone,
         department: formData.department,
         avatar: formData.avatar
-      });
+      };
+
+      if (formData.newPassword) {
+        updatePayload.password = formData.newPassword;
+      }
+
+      const res = await updateUserProfile(updatePayload);
 
       if (res?.success !== false) {
         addToast('Profile and account details saved successfully!', 'success');

@@ -44,24 +44,24 @@ export function CodingQuestionsPage() {
     title: '',
     category: 'Algorithms & Data Structures',
     difficulty: 'Easy',
-    marks: 20,
-    timeLimitMinutes: 15,
+    marks: 0,
+    timeLimitMinutes: '',
     language: 'JavaScript',
     courseId: courses[0]?.id || '',
     stageId: '',
     subtopicId: '',
     innerTopicId: '',
-    tags: 'Arrays, HashMap, LeetCode',
+    tags: '',
     problemStatement: '',
     inputFormat: '',
     outputFormat: '',
-    starterCode: `function solution() {\n  // Write your code here\n}`,
-    solutionCode: `function solution() {\n  // Optimal solution code\n}`,
+    starterCode: '',
+    solutionCode: '',
     sampleTestCases: [
       {
-        input: 'nums = [2, 7, 11, 15], target = 9',
-        output: '[0, 1]',
-        explanation: 'nums[0] + nums[1] == 9'
+        input: '',
+        output: '',
+        explanation: ''
       }
     ]
   });
@@ -129,24 +129,24 @@ export function CodingQuestionsPage() {
       title: '',
       category: 'Algorithms & Data Structures',
       difficulty: 'Easy',
-      marks: 20,
-      timeLimitMinutes: 15,
+      marks: 0,
+      timeLimitMinutes: '',
       language: 'JavaScript',
       courseId: activeCourse?.id || '',
       stageId: activeStage?.id || '',
       subtopicId: activeSub?.id || '',
       innerTopicId: activeInner?.id || '',
-      tags: 'Arrays, HashMap',
+      tags: '',
       problemStatement: '',
       inputFormat: '',
       outputFormat: '',
-      starterCode: `function solution() {\n  // Write your code here\n}`,
-      solutionCode: `function solution() {\n  // Optimal solution code\n}`,
+      starterCode: '',
+      solutionCode: '',
       sampleTestCases: [
         {
-          input: 'input_sample_1',
-          output: 'output_sample_1',
-          explanation: 'Sample test explanation'
+          input: '',
+          output: '',
+          explanation: ''
         }
       ]
     });

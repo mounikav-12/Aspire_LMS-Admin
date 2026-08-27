@@ -218,6 +218,40 @@ export function AuthProvider({ children }) {
       console.warn('Supabase Auth signIn fallback notice:', sbErr);
     }
 
+    // Check in Supabase profiles table
+    try {
+      const { data: dbProfile, error: dbErr } = await supabase
+        .from('profiles')
+        .select('*')
+        .ilike('email', emailClean)
+        .maybeSingle();
+
+      if (dbProfile && !dbErr && dbProfile.passwords) {
+        if (password === dbProfile.passwords) {
+          const matchedUser = {
+            id: dbProfile.id,
+            name: dbProfile.name || emailClean.split('@')[0],
+            email: dbProfile.email,
+            role: dbProfile.role || ROLES.INSTRUCTOR,
+            originalRole: dbProfile.original_role || dbProfile.role || ROLES.INSTRUCTOR,
+            department: dbProfile.department || 'General Staff',
+            status: dbProfile.status || 'Active',
+            joinedDate: dbProfile.joined_date || null,
+            phone: dbProfile.phone || '+91 98765-43210',
+            avatar: dbProfile.avatar || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(dbProfile.name || 'User')}&backgroundColor=2563eb&textColor=ffffff&bold=true`
+          };
+          const cleanUser = sanitizeUser(matchedUser);
+          setCurrentUser(cleanUser);
+          setCurrentRole(cleanUser.role);
+          return { success: true, user: cleanUser };
+        } else {
+          return { success: false, message: 'Invalid credentials. Password incorrect.' };
+        }
+      }
+    } catch (err) {
+      console.warn('Supabase profiles lookup notice:', err);
+    }
+
     // 1. Check in registered users list using secure hash comparison
     const foundRegistered = registeredUsers.find((u) => u.email.toLowerCase() === emailClean);
 
@@ -319,13 +353,19 @@ export function AuthProvider({ children }) {
       });
 
       try {
-        await supabase.from('profiles').update({
+        const updatePayload = {
           name: updated.name,
           email: updated.email,
           phone: updated.phone,
           department: updated.department,
           avatar: updated.avatar
-        }).eq('id', updated.id);
+        };
+
+        if (updatedFields.password) {
+          updatePayload.passwords = updatedFields.password;
+        }
+
+        await supabase.from('profiles').update(updatePayload).eq('id', updated.id);
       } catch (err) {
         console.warn('Supabase profile sync warning:', err);
       }

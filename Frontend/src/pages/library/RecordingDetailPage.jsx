@@ -18,7 +18,19 @@ export function RecordingDetailPage() {
   const { id } = useParams();
   const { recordings } = useLmsData();
 
-  const recording = recordings.find((r) => r.id === id) || recordings[0];
+  const recording = recordings.find((r) => r.id === id);
+
+  if (!recording) {
+    return (
+      <div className="p-8 text-center bg-white rounded-3xl border border-slate-200/80 shadow-2xs">
+        <h2 className="text-lg font-bold text-slate-800">Recording Not Found</h2>
+        <p className="text-xs text-slate-500 mt-2">The requested video recording could not be found or has been deleted.</p>
+        <Link to="/library" className="mt-4 inline-flex items-center gap-1.5 text-xs font-semibold text-indigo-600 hover:underline">
+          Back to Recording Library
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

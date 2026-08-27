@@ -373,6 +373,15 @@ export function MilestonesRoadmapPage() {
       return courseLessons.filter(l => {
         const lModId = cleanNorm(l.module_id);
         const lStgId = cleanNorm(l.stage_id);
+
+        // If the lesson explicitly belongs to a different stage or module, do NOT match it here.
+        if (l.stage_id && lStgId !== stageIdNorm && stripSuffix(l.stage_id) !== stripSuffix(stageId)) {
+          return false;
+        }
+        if (l.module_id && lModId !== subIdNorm && stripSuffix(l.module_id) !== stripSuffix(subId)) {
+          return false;
+        }
+
         if (lModId === subIdNorm || stripSuffix(l.module_id) === stripSuffix(subId)) return true;
         if (subNorm.includes('git') && (lModId.includes('git') || cleanNorm(l.title).includes('git'))) return true;
         if (subNorm.includes('html') && (lModId.includes('html') || cleanNorm(l.title).includes('html'))) return true;
@@ -439,17 +448,8 @@ export function MilestonesRoadmapPage() {
 
     if (!baseStages || baseStages.length === 0) return [];
 
-    // Filter out rogue stages (Stage 5, 6, 7, etc.)
-    const cleanStages = baseStages.filter(s => {
-      if (!s) return false;
-      const sNum = (s.stageNumber || '').toUpperCase();
-      const sTitle = (s.title || '').toLowerCase();
-      const sId = (s.id || '').toLowerCase();
-      return !sNum.includes('05') && !sNum.includes('06') && !sNum.includes('07') &&
-             !sTitle.includes('stage 5') && !sTitle.includes('stage 6') && !sTitle.includes('stage 7') &&
-             !sTitle.includes('git foundations') && !sTitle.includes('general foundations') &&
-             !sId.startsWith('stage-178773');
-    });
+    // All stages from the database are rendered without artificial client-side filters
+    const cleanStages = baseStages.filter(s => !!s);
 
     return cleanStages.map((stage, idx) => {
       const stageId = stage.id || `stg-${idx}`;
@@ -691,6 +691,15 @@ export function MilestonesRoadmapPage() {
       const matchedLessons = courseLessons.filter(l => {
         const lModId = cleanNorm(l.module_id);
         const lStgId = cleanNorm(l.stage_id);
+
+        // If the lesson explicitly belongs to a different stage or module, do NOT match it here.
+        if (l.stage_id && lStgId !== stageIdNorm && stripSuffix(l.stage_id) !== stripSuffix(stage.id)) {
+          return false;
+        }
+        if (l.module_id && lModId !== subIdNorm && stripSuffix(l.module_id) !== stripSuffix(sub.id)) {
+          return false;
+        }
+
         if (lModId === subIdNorm || stripSuffix(l.module_id) === stripSuffix(sub.id)) return true;
         if (subNorm.includes('git') && (lModId.includes('git') || cleanNorm(l.title).includes('git'))) return true;
         if (subNorm.includes('html') && (lModId.includes('html') || cleanNorm(l.title).includes('html'))) return true;

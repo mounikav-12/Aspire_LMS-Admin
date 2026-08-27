@@ -37,9 +37,7 @@ export function StudentManagementPage() {
   const [searchParams] = useSearchParams();
   const urlBatch = searchParams.get('batch');
 
-  const batchList = availableBatches && availableBatches.length > 0
-    ? availableBatches
-    : ['A26W1', 'A26W2', 'A26W3', 'A26S1', 'A26S2', 'A26S3'];
+  const batchList = availableBatches || [];
 
   const [searchTerm, setSearchTerm] = useState('');
   const [batchFilter, setBatchFilter] = useState(() => {
@@ -61,7 +59,7 @@ export function StudentManagementPage() {
     }
   }, [urlBatch, activeBatchFilter]);
 
-  const defaultBatch = batchList[0] || 'A26W1';
+  const defaultBatch = batchList[0] || '';
 
   // Helper to validate email format via regex (/^[^\s@]+@[^\s@]+\.[^\s@]+$/)
   const getEmailValidationError = (emailVal) => {
@@ -517,9 +515,9 @@ export function StudentManagementPage() {
 
                       {/* Status */}
                       <td className="py-3.5 px-4">
-                        <Badge variant="success">
-                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5" />
-                          Active
+                        <Badge variant={student.status === 'Inactive' ? 'default' : 'success'}>
+                          <span className={`w-1.5 h-1.5 rounded-full mr-1.5 ${student.status === 'Inactive' ? 'bg-slate-400' : 'bg-emerald-500'}`} />
+                          {student.status || 'Active'}
                         </Badge>
                       </td>
 

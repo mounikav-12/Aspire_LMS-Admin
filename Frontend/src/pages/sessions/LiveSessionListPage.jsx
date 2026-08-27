@@ -109,13 +109,13 @@ export function LiveSessionListPage() {
   const { addToast } = useToast();
 
   const [formData, setFormData] = useState({
-    programName: 'Senior Engineering Cohort',
-    technology: 'Git',
+    programName: '',
+    technology: '',
     sessionTitle: '',
     date: new Date().toISOString().split('T')[0],
-    time: '10:00 - 11:30 AM',
-    meetingLink: 'https://meet.google.com/aspire-lms-live',
-    instructor: 'Sara Devi',
+    time: '',
+    meetingLink: '',
+    instructor: '',
     description: '',
     courseId: courses[0]?.id || '',
     courseName: courses[0]?.title || '',
@@ -140,7 +140,7 @@ export function LiveSessionListPage() {
       ? availableBatches.filter(
           (b) => b.startsWith('A26W') && !b.startsWith('A26S') && !b.startsWith('A26WE')
         )
-      : ['A26W1', 'A26W2', 'A26W3']
+      : []
   );
   const allWeekendBatchesList = (
     availableBatches && availableBatches.length > 0
@@ -148,7 +148,7 @@ export function LiveSessionListPage() {
           .filter((b) => b.startsWith('A26S') || b.startsWith('A26WE'))
           .map((b) => b.replace(/^A26WE/, 'A26S'))
           .filter((b, i, arr) => arr.indexOf(b) === i)
-      : ['A26S1', 'A26S2']
+      : []
   );
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -215,13 +215,13 @@ export function LiveSessionListPage() {
     setSelectedWeekendBatches(allWeekendBatchesList);
 
     setFormData({
-      programName: 'Senior Engineering Cohort',
-      technology: 'General',
+      programName: '',
+      technology: '',
       sessionTitle: firstMod?.title || '',
       date: new Date().toISOString().split('T')[0],
-      time: '10:00 - 11:30 AM',
-      meetingLink: 'https://meet.google.com/aspire-lms-live',
-      instructor: 'Siva V',
+      time: '',
+      meetingLink: '',
+      instructor: '',
       description: '',
       courseId: courses[0]?.id || '',
       courseName: courses[0]?.title || '',
@@ -299,13 +299,13 @@ export function LiveSessionListPage() {
     }
 
     setFormData({
-      programName: sess.programName || 'Senior Engineering Cohort',
-      technology: sess.technology || 'Git',
+      programName: sess.programName || '',
+      technology: sess.technology || '',
       sessionTitle: sess.sessionTitle || sess.title || '',
       date: sess.date || '',
       time: sess.time || '',
-      meetingLink: sess.meetingLink || 'https://meet.google.com/aspire-lms-live',
-      instructor: sess.instructor || 'Siva V',
+      meetingLink: sess.meetingLink || '',
+      instructor: sess.instructor || '',
       description: sess.description || '',
       courseId: sess.courseId || courses[0]?.id || '',
       courseName: sess.courseName || courses.find((c) => c.id === sess.courseId)?.title || '',
@@ -513,7 +513,7 @@ export function LiveSessionListPage() {
                 {/* 2. Program Tag & Session Title */}
                 <div>
                   <span className="text-[10px] font-black text-purple-600 uppercase tracking-wider block mb-1">
-                    {sess.programName || 'Senior Engineering Cohort'}
+                    {sess.programName || ''}
                   </span>
                   <h3 className="font-black text-slate-900 text-sm sm:text-base group-hover:text-purple-600 transition-colors leading-snug">
                     {sess.sessionTitle}

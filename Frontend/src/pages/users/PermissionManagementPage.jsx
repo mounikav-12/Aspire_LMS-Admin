@@ -6,6 +6,9 @@ import { ROLES, PERMISSION_LIST } from '../../utils/mockData';
 import { ShieldAlert, ShieldCheck, Check } from 'lucide-react';
 
 export function PermissionManagementPage() {
+  // rolePermissions comes from Supabase `role_permissions` table via LmsDataContext (database-driven).
+  // PERMISSION_LIST is a static schema of available permission keys — it defines which rows appear in the matrix.
+  // The enabled/disabled toggle state per role is fully database-driven via rolePermissions.
   const { rolePermissions, toggleRolePermission } = useLmsData();
   const { addToast } = useToast();
 

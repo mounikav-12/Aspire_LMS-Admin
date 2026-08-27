@@ -17,7 +17,7 @@ import { Button } from '../../components/common/Button';
 import { useNavigate } from 'react-router-dom';
 
 export function BatchManagementPage() {
-  const { availableBatches, addBatch, students, courses, setActiveBatchFilter } = useLmsData();
+  const { availableBatches, batchesList = [], addBatch, students, courses, setActiveBatchFilter } = useLmsData();
   const { addToast } = useToast();
   const navigate = useNavigate();
 
@@ -28,9 +28,7 @@ export function BatchManagementPage() {
   const [customBatchNumber, setCustomBatchNumber] = useState('');
 
   // Segregate Batches cleanly
-  const allBatches = availableBatches && availableBatches.length > 0
-    ? availableBatches
-    : ['A26W1', 'A26W2', 'A26W3', 'A26S1', 'A26S2', 'A26S3'];
+  const allBatches = availableBatches || [];
 
   const weekdayBatches = allBatches.filter((b) => b.startsWith('A26W') && !b.startsWith('A26S') && !b.startsWith('A26WE'));
   const weekendBatches = allBatches.filter((b) => b.startsWith('A26S') || b.startsWith('A26WE'));
@@ -238,6 +236,9 @@ export function BatchManagementPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {filteredWeekday.map((bCode) => {
                   const metrics = getBatchMetrics(bCode);
+                  const batchObj = batchesList.find((b) => b.code === bCode);
+                  const scheduleLabel = batchObj?.name || 'Mon to Fri Regular Schedule';
+
                   return (
                     <div
                       key={bCode}
@@ -260,7 +261,7 @@ export function BatchManagementPage() {
                             Batch {bCode}
                           </h3>
                           <p className="text-xs text-slate-500 font-medium mt-0.5 flex items-center gap-1">
-                            <Clock className="w-3.5 h-3.5 text-blue-600" /> Mon to Fri Regular Schedule
+                            <Clock className="w-3.5 h-3.5 text-blue-600" /> {scheduleLabel}
                           </p>
                         </div>
 
@@ -337,6 +338,9 @@ export function BatchManagementPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {filteredWeekend.map((bCode) => {
                   const metrics = getBatchMetrics(bCode);
+                  const batchObj = batchesList.find((b) => b.code === bCode);
+                  const scheduleLabel = batchObj?.name || 'Sat & Sun Intensive Schedule';
+
                   return (
                     <div
                       key={bCode}
@@ -359,7 +363,7 @@ export function BatchManagementPage() {
                             Batch {bCode}
                           </h3>
                           <p className="text-xs text-slate-500 font-medium mt-0.5 flex items-center gap-1">
-                            <Calendar className="w-3.5 h-3.5 text-indigo-600" /> Sat & Sun Intensive Schedule
+                            <Calendar className="w-3.5 h-3.5 text-indigo-600" /> {scheduleLabel}
                           </p>
                         </div>
 

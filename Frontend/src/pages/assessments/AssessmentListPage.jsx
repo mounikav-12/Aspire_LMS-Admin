@@ -101,15 +101,17 @@ export function AssessmentListPage() {
     dueDate: '2026-08-30',
     mcqs: [
       {
-        question: 'Which Git command initializes a new local repository?',
-        options: ['git create', 'git init', 'git start', 'git repo'],
-        correctIndex: 1
+        mcqType: 'theoretical',
+        question: '',
+        codeSnippet: '',
+        options: ['', '', '', ''],
+        correctIndex: 0
       }
     ],
     codingQuestions: [
       {
-        title: 'Git Version Control Setup',
-        problemStatement: 'Initialize a Git repository and commit an initial index.html file with basic boilerplate.'
+        title: '',
+        problemStatement: ''
       }
     ]
   });
@@ -153,15 +155,17 @@ export function AssessmentListPage() {
       dueDate: '2026-08-30',
       mcqs: [
         {
-          question: 'Which Git command initializes a new local repository?',
-          options: ['git create', 'git init', 'git start', 'git repo'],
-          correctIndex: 1
+          mcqType: 'theoretical',
+          question: '',
+          codeSnippet: '',
+          options: ['', '', '', ''],
+          correctIndex: 0
         }
       ],
       codingQuestions: [
         {
-          title: 'Git Version Control Setup',
-          problemStatement: 'Initialize a Git repository and commit an initial index.html file with basic boilerplate.'
+          title: '',
+          problemStatement: ''
         }
       ]
     });
@@ -205,10 +209,10 @@ export function AssessmentListPage() {
       : [
           {
             mcqType: 'theoretical',
-            question: 'Which Git command initializes a new repository?',
+            question: '',
             codeSnippet: '',
-            options: ['git create', 'git init', 'git start', 'git repo'],
-            correctIndex: 1
+            options: ['', '', '', ''],
+            correctIndex: 0
           }
         ];
 
@@ -219,8 +223,8 @@ export function AssessmentListPage() {
         }))
       : [
           {
-            title: 'Git Version Control Setup',
-            problemStatement: 'Initialize a Git repository and commit an initial index.html file with basic boilerplate.'
+            title: '',
+            problemStatement: ''
           }
         ];
 
@@ -681,9 +685,22 @@ export function AssessmentListPage() {
 
                 {/* Card Footer */}
                 <div className="mt-5 pt-4 border-t border-slate-100 flex items-center justify-between text-xs">
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 font-bold border border-emerald-200/70 text-[11px]">
-                    <CheckCircle2 className="w-3 h-3 text-emerald-600" /> Live Published
-                  </span>
+                  {(() => {
+                    const statusVal = asm.status || asm.publishStatus || '';
+                    const isPublished = statusVal === 'Published' || statusVal === 'Active' || statusVal === 'Live Published';
+                    return (
+                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full font-bold border text-[11px] ${
+                        isPublished
+                          ? 'bg-emerald-50 text-emerald-700 border-emerald-200/70'
+                          : statusVal === 'Draft' || statusVal === 'Pending'
+                          ? 'bg-slate-100 text-slate-600 border-slate-200/70'
+                          : 'bg-emerald-50 text-emerald-700 border-emerald-200/70'
+                      }`}>
+                        <CheckCircle2 className="w-3 h-3" />
+                        {statusVal || 'Published'}
+                      </span>
+                    );
+                  })()}
 
                   <button
                     onClick={() => handleOpenEditModal(asm)}

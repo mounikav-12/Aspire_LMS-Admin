@@ -425,8 +425,8 @@ export function CourseListPage() {
     category: 'Courses',
     level: 'Intermediate',
     targetBatch: 'All Batches',
-    instructor: 'David Chen',
-    thumbnail: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=600&auto=format&fit=crop&q=80',
+    instructor: '',
+    thumbnail: '',
     description: ''
   });
 
@@ -436,8 +436,8 @@ export function CourseListPage() {
       category: categoryFilter !== 'ALL' ? categoryFilter : 'Courses',
       level: 'Intermediate',
       targetBatch: batchFilter || activeBatchFilter || 'All Batches',
-      instructor: 'David Chen',
-      thumbnail: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=600&auto=format&fit=crop&q=80',
+      instructor: '',
+      thumbnail: '',
       description: ''
     });
     setIsAddModalOpen(true);
@@ -450,8 +450,8 @@ export function CourseListPage() {
       category: course.category || 'Web Development',
       level: course.level || 'Intermediate',
       targetBatch: course.targetBatch || 'All Batches',
-      instructor: course.instructor || 'David Chen',
-      thumbnail: course.thumbnail || 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=600&auto=format&fit=crop&q=80',
+      instructor: course.instructor || '',
+      thumbnail: course.thumbnail || '',
       description: course.description || ''
     });
   };

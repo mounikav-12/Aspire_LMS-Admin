@@ -28,7 +28,7 @@ import {
 import { getScheduleInfo } from '../milestones/MilestonesRoadmapPage';
 
 export function StudentDashboardPage() {
-  const { courses, liveSessions, jobs, recordings, projects, milestones, rewards = [], refreshData } = useLmsData();
+  const { courses, liveSessions, jobs, recordings, projects, milestones, rewards = [], refreshData, isSupabaseConnected } = useLmsData();
   const { addToast } = useToast();
 
   const [isSyncing, setIsSyncing] = useState(false);
@@ -52,7 +52,7 @@ export function StudentDashboardPage() {
   const rawApiPayload = {
     api_version: 'v1.5.0',
     timestamp: new Date().toISOString(),
-    status: 'ACTIVE_BROADCAST',
+    status: isSupabaseConnected ? 'ACTIVE_BROADCAST' : 'DISCONNECTED',
     endpoint: '/api/v1/student-feed',
     sync_frequency: 'REALTIME_DATABASE_SYNC',
     data: {
@@ -197,12 +197,14 @@ export function StudentDashboardPage() {
         <div className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-2xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
           <div className="flex items-center justify-between">
             <span className="text-[11px] font-extrabold text-slate-400 uppercase tracking-wider">Pipeline Connection</span>
-            <div className="w-3 h-3 rounded-full bg-emerald-500 animate-pulse" />
+            <div className={`w-3 h-3 rounded-full ${isSupabaseConnected ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'}`} />
           </div>
-          <p className="text-xl font-black text-emerald-600 mt-3 flex items-center gap-2">
-            <CheckCircle2 className="w-5 h-5 text-emerald-600" /> Live & Syncing
+          <p className={`text-xl font-black mt-3 flex items-center gap-2 ${isSupabaseConnected ? 'text-emerald-600' : 'text-rose-600'}`}>
+            <CheckCircle2 className={`w-5 h-5 ${isSupabaseConnected ? 'text-emerald-600' : 'text-rose-600'}`} /> {isSupabaseConnected ? 'Live & Syncing' : 'Disconnected'}
           </p>
-          <span className="text-[10px] text-slate-400 font-mono mt-1 block">HTTP 200 OK • Webhook Active</span>
+          <span className="text-[10px] text-slate-400 font-mono mt-1 block">
+            {isSupabaseConnected ? 'HTTP 200 OK • Webhook Active' : 'DATABASE OFFLINE • Reconnecting...'}
+          </span>
         </div>
 
         <div className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-2xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300">

@@ -25,14 +25,7 @@ import {
   X
 } from 'lucide-react';
 
-const PRESET_IMAGES = [
-  { label: 'Developer Sticker Pack', url: '/rewards/stickers.jpg', category: 'ACCESSORIES', defaultXp: 1000 },
-  { label: 'Aspire Next Coffee Mug', url: '/rewards/mug.jpg', category: 'DRINKWARE', defaultXp: 2000 },
-  { label: 'Reusable Smart Notebook', url: '/rewards/notebook.jpg', category: 'STATIONERY', defaultXp: 3800 },
-  { label: 'Smart LED Flask', url: '/rewards/flask.jpg', category: 'DRINKWARE', defaultXp: 5000 },
-  { label: 'Premium Developer T-Shirt', url: '/rewards/tshirt.jpg', category: 'APPAREL', defaultXp: 8000 },
-  { label: 'Tech Backpack', url: '/rewards/backpack.jpg', category: 'GEAR', defaultXp: 15000 }
-];
+
 
 export function RewardsManagementPage() {
   const {
@@ -87,22 +80,22 @@ export function RewardsManagementPage() {
 
   const [formData, setFormData] = useState({
     title: '',
-    category: 'ACCESSORIES',
-    requiredXp: 1000,
-    image: '/rewards/stickers.jpg',
+    category: '',
+    requiredXp: 0,
+    image: '',
     description: '',
-    stock: 50,
+    stock: 0,
     isReleased: false
   });
 
   const handleOpenAddModal = () => {
     setFormData({
       title: '',
-      category: 'ACCESSORIES',
-      requiredXp: 1000,
-      image: '/rewards/stickers.jpg',
+      category: '',
+      requiredXp: 0,
+      image: '',
       description: '',
-      stock: 50,
+      stock: 0,
       isReleased: false
     });
     setIsAddModalOpen(true);
@@ -112,11 +105,11 @@ export function RewardsManagementPage() {
     setEditingReward(reward);
     setFormData({
       title: reward.title || '',
-      category: reward.category || 'ACCESSORIES',
-      requiredXp: reward.requiredXp || 1000,
-      image: reward.image || '/rewards/stickers.jpg',
+      category: reward.category || '',
+      requiredXp: reward.requiredXp || 0,
+      image: reward.image || '',
       description: reward.description || '',
-      stock: reward.stock !== undefined ? reward.stock : 50,
+      stock: reward.stock !== undefined ? reward.stock : 0,
       isReleased: reward.isReleased || false
     });
   };

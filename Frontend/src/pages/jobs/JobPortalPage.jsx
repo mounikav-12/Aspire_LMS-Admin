@@ -65,19 +65,19 @@ export function JobPortalPage() {
 
   // Form State
   const [formData, setFormData] = useState({
-    company: 'TCS',
-    jobTitle: 'Python Developer',
-    location: 'Hyderabad, India',
-    salary: '4–7 LPA',
-    openings: 3,
-    deadline: 'Sep 30, 2026',
+    company: '',
+    jobTitle: '',
+    location: '',
+    salary: '',
+    openings: 1,
+    deadline: '',
     statusBadge: 'APPLY NOW',
     jobType: 'Full-Time / Remote',
-    logo: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=120&auto=format&fit=crop&q=80',
-    description: 'TCS is hiring a Python Developer to join our high-impact engineering team. You will design, develop, and optimize core features, collaborate with senior architects, and ship scalable production code.',
-    responsibilities: 'Architect and maintain clean, scalable web components and API integrations.\nWrite automated unit/integration tests and participate in technical peer code reviews.\nCollaborate closely with UI/UX designers, product managers, and backend engineers.\nOptimize web performance, rendering latency, and SEO metrics.',
-    techStack: 'Python, Django, AWS, DSA',
-    perks: 'Competitive ESOP packages, health insurance coverage, remote work options, learning allowance, and hardware equipment.',
+    logo: '',
+    description: '',
+    responsibilities: '',
+    techStack: '',
+    perks: '',
     isLocked: false
   });
 
@@ -85,17 +85,17 @@ export function JobPortalPage() {
     setFormData({
       company: '',
       jobTitle: '',
-      location: 'Hyderabad, India',
-      salary: '4–7 LPA',
-      openings: 3,
-      deadline: 'Sep 30, 2026',
+      location: '',
+      salary: '',
+      openings: 1,
+      deadline: '',
       statusBadge: 'APPLY NOW',
       jobType: 'Full-Time / Remote',
-      logo: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=120&auto=format&fit=crop&q=80',
+      logo: '',
       description: '',
-      responsibilities: 'Architect and maintain clean, scalable web components and API integrations.\nWrite automated unit/integration tests and participate in technical peer code reviews.\nCollaborate closely with UI/UX designers, product managers, and backend engineers.',
-      techStack: 'Python, Django, AWS, DSA',
-      perks: 'Competitive ESOP packages, health insurance coverage, remote work options, learning allowance, and hardware equipment.',
+      responsibilities: '',
+      techStack: '',
+      perks: '',
       isLocked: false
     });
     setIsAddModalOpen(true);
@@ -107,12 +107,12 @@ export function JobPortalPage() {
       company: job.company || '',
       jobTitle: job.jobTitle || job.title || '',
       location: job.location || '',
-      salary: job.salary || job.package || '4–7 LPA',
-      openings: job.openings || 3,
-      deadline: job.deadline || 'Sep 30, 2026',
+      salary: job.salary || job.package || '',
+      openings: job.openings || 1,
+      deadline: job.deadline || '',
       statusBadge: job.statusBadge || job.status || 'APPLY NOW',
       jobType: job.jobType || 'Full-Time / Remote',
-      logo: job.logo || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=120&auto=format&fit=crop&q=80',
+      logo: job.logo || '',
       description: job.description || '',
       responsibilities: Array.isArray(job.responsibilities) ? job.responsibilities.join('\n') : (job.responsibilities || ''),
       techStack: Array.isArray(job.techStack) ? job.techStack.join(', ') : (job.techStack || ''),
@@ -248,12 +248,12 @@ export function JobPortalPage() {
       {filteredJobs.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredJobs.map((job) => {
-            const companyName = job.company || 'TCS';
-            const title = job.jobTitle || job.title || 'Python Developer';
-            const location = job.location || 'Hyderabad, India';
-            const salary = job.salary || job.package || '4–7 LPA';
-            const openings = job.openings !== undefined ? job.openings : 3;
-            const deadline = job.deadline || 'Sep 30, 2026';
+            const companyName = job.company || '';
+            const title = job.jobTitle || job.title || '';
+            const location = job.location || '';
+            const salary = job.salary || job.package || '';
+            const openings = job.openings !== undefined ? job.openings : 0;
+            const deadline = job.deadline || '';
             const statusBadge = job.statusBadge || job.status || 'APPLY NOW';
 
             return (
@@ -400,20 +400,20 @@ export function JobPortalPage() {
                   {viewingJob.logo ? (
                     <img src={viewingJob.logo} alt={viewingJob.company} className="w-full h-full object-cover" />
                   ) : (
-                    <span>{(viewingJob.company || 'TCS').slice(0, 3).toUpperCase()}</span>
+                    <span>{(viewingJob.company || '').slice(0, 3).toUpperCase()}</span>
                   )}
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
                     <span className="text-slate-400 font-extrabold text-xs tracking-wider uppercase">
-                      {viewingJob.company || 'TCS'}
+                      {viewingJob.company || ''}
                     </span>
                     <span className="bg-emerald-100 text-emerald-700 font-extrabold px-2.5 py-0.5 rounded-full text-[10px] uppercase">
                       {viewingJob.statusBadge || viewingJob.status || 'APPLY NOW'}
                     </span>
                   </div>
                   <h2 className="text-xl font-black text-slate-900 mt-0.5">
-                    {viewingJob.jobTitle || viewingJob.title || 'Python Developer'}
+                    {viewingJob.jobTitle || viewingJob.title || ''}
                   </h2>
                 </div>
               </div>
@@ -423,22 +423,22 @@ export function JobPortalPage() {
             <div className="bg-slate-50/90 rounded-2xl p-4 border border-slate-100 grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">
               <div>
                 <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider block">LOCATION</span>
-                <span className="font-bold text-slate-900 mt-0.5 block truncate">{viewingJob.location || 'Hyderabad, India'}</span>
+                <span className="font-bold text-slate-900 mt-0.5 block truncate">{viewingJob.location || ''}</span>
               </div>
 
               <div>
                 <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider block">PACKAGE</span>
-                <span className="font-extrabold text-purple-600 mt-0.5 block">{viewingJob.salary || viewingJob.package || '4–7 LPA'}</span>
+                <span className="font-extrabold text-purple-600 mt-0.5 block">{viewingJob.salary || viewingJob.package || ''}</span>
               </div>
 
               <div>
                 <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider block">OPENINGS</span>
-                <span className="font-bold text-slate-900 mt-0.5 block">{viewingJob.openings !== undefined ? viewingJob.openings : 3} Positions</span>
+                <span className="font-bold text-slate-900 mt-0.5 block">{viewingJob.openings !== undefined ? viewingJob.openings : 0} Positions</span>
               </div>
 
               <div>
                 <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider block">DEADLINE</span>
-                <span className="font-bold text-slate-900 mt-0.5 block">{viewingJob.deadline || 'Sep 30, 2026'}</span>
+                <span className="font-bold text-slate-900 mt-0.5 block">{viewingJob.deadline || ''}</span>
               </div>
             </div>
 
@@ -448,7 +448,7 @@ export function JobPortalPage() {
                 ROLE DESCRIPTION & OVERVIEW
               </h4>
               <p className="text-xs md:text-sm text-slate-600 leading-relaxed font-medium">
-                {viewingJob.description || `${viewingJob.company || 'TCS'} is hiring a ${viewingJob.jobTitle || 'Python Developer'} to join our high-impact engineering team. You will design, develop, and optimize core features, collaborate with senior architects, and ship scalable production code.`}
+                {viewingJob.description || ''}
               </p>
             </div>
 
@@ -502,7 +502,7 @@ export function JobPortalPage() {
                 <span>Company Perks & Benefits</span>
               </h5>
               <p className="text-xs text-slate-600 font-medium leading-relaxed">
-                {viewingJob.perks || 'Competitive ESOP packages, health insurance coverage, remote work options, learning allowance, and hardware equipment.'}
+                {viewingJob.perks || ''}
               </p>
             </div>
 

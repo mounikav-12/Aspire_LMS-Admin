@@ -34,25 +34,25 @@ export function RecordingLibraryPage() {
   // Form State
   const [formData, setFormData] = useState({
     title: '',
-    conceptName: 'React State Management',
-    duration: '1h 30m',
-    instructor: 'David Chen',
-    videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
-    thumbnail: 'https://images.unsplash.com/photo-1587620962725-abab7fe55159?w=600&auto=format&fit=crop&q=80',
+    conceptName: '',
+    duration: '',
+    instructor: '',
+    videoUrl: '',
+    thumbnail: '',
     description: '',
-    instructions: 'Follow standard lab setup guidelines.'
+    instructions: ''
   });
 
   const handleOpenAddModal = () => {
     setFormData({
       title: '',
-      conceptName: 'React State Management',
-      duration: '1h 30m',
-      instructor: 'David Chen',
-      videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
-      thumbnail: 'https://images.unsplash.com/photo-1587620962725-abab7fe55159?w=600&auto=format&fit=crop&q=80',
+      conceptName: '',
+      duration: '',
+      instructor: '',
+      videoUrl: '',
+      thumbnail: '',
       description: '',
-      instructions: 'Follow standard lab setup guidelines.'
+      instructions: ''
     });
     setIsAddModalOpen(true);
   };
@@ -66,7 +66,7 @@ export function RecordingLibraryPage() {
       conceptName: rec.conceptName,
       duration: rec.duration,
       instructor: rec.instructor,
-      videoUrl: rec.videoUrl || 'https://www.w3schools.com/html/mov_bbb.mp4',
+      videoUrl: rec.videoUrl || '',
       thumbnail: rec.thumbnail || '',
       description: rec.description,
       instructions: rec.instructions

@@ -169,7 +169,7 @@ export function ProjectManagementPage() {
   const gradedProjects = projects.filter((p) => (p.avgGrade || 0) > 0);
   const overallAvgGrade = gradedProjects.length > 0
     ? Math.round(gradedProjects.reduce((acc, p) => acc + p.avgGrade, 0) / gradedProjects.length)
-    : 89;
+    : 0;
 
   // Category Tabs Filter Logic & Stable Chronological Sorting
   const filteredProjects = [...projects]
@@ -223,15 +223,15 @@ export function ProjectManagementPage() {
       category: 'Full-Stack Web Dev',
       difficulty: 'Intermediate',
       description: '',
-      techStack: 'React, Node.js, PostgreSQL',
-      dueDate: 'Aug 30',
-      templateUrl: 'https://github.com/aspire-lms/starter-repo',
+      techStack: '',
+      dueDate: '',
+      templateUrl: '',
       status: 'Published',
       overview: '',
       requirements: '',
       steps: '',
       rubric: '',
-      mentorTip: 'Test code thoroughly before submitting drive link.'
+      mentorTip: ''
     });
     setIsCreateModalOpen(true);
   };
@@ -267,7 +267,7 @@ export function ProjectManagementPage() {
       difficulty: proj.difficulty || 'Intermediate',
       description: proj.description || '',
       techStack: Array.isArray(proj.techStack) ? proj.techStack.join(', ') : (proj.techStack || ''),
-      dueDate: proj.dueDate || 'Aug 30',
+      dueDate: proj.dueDate || '',
       templateUrl: proj.templateUrl || '',
       status: proj.status || 'Published',
       overview: proj.overview || proj.description || '',
@@ -278,7 +278,7 @@ export function ProjectManagementPage() {
       rubric: Array.isArray(proj.rubric)
         ? proj.rubric.map(r => typeof r === 'string' ? r : `${r.label}: ${r.weight}`).join('\n')
         : (proj.rubric || ''),
-      mentorTip: proj.mentorTip || 'Test code thoroughly before submitting drive link.'
+      mentorTip: proj.mentorTip || ''
     });
     setIsCreateModalOpen(true);
   };
@@ -293,7 +293,7 @@ export function ProjectManagementPage() {
 
     const techStackList = typeof formData.techStack === 'string'
       ? formData.techStack.split(',').map((t) => t.trim()).filter(Boolean)
-      : (Array.isArray(formData.techStack) ? formData.techStack : ['React', 'Node.js', 'PostgreSQL']);
+      : (Array.isArray(formData.techStack) ? formData.techStack : []);
 
     const requirementsList = typeof formData.requirements === 'string'
       ? formData.requirements.split('\n').filter(Boolean).map(line => {
@@ -336,16 +336,16 @@ export function ProjectManagementPage() {
 
     const payload = {
       ...formData,
-      courseId: formData.courseId || activeCourse?.id || 'crs-1786624019154-w',
-      courseName: activeCourse?.title || formData.courseName || 'Python Full Stack + DSA with AI',
-      stageId: formData.stageId || activeStage?.id || 'top-stg-1',
-      stageName: activeStage?.title || formData.stageName || 'Stage 1: Frontend & Programming Foundations',
-      subtopicId: formData.subtopicId || activeSub?.id || 'mod-git',
-      subtopicName: activeSub?.title || formData.subtopicName || 'Git & GitHub Version Control',
-      innerTopicId: formData.innerTopicId || activeInner?.id || 'lesson-1787196281985-0',
-      moduleId: formData.innerTopicId || activeInner?.id || 'lesson-1787196281985-0',
-      moduleName: activeInner?.title || formData.topicName || 'Git Architecture & Version Control Concepts',
-      topicName: activeInner?.title || formData.topicName || 'Git Architecture & Version Control Concepts',
+      courseId: formData.courseId || activeCourse?.id || '',
+      courseName: activeCourse?.title || formData.courseName || '',
+      stageId: formData.stageId || activeStage?.id || '',
+      stageName: activeStage?.title || formData.stageName || '',
+      subtopicId: formData.subtopicId || activeSub?.id || '',
+      subtopicName: activeSub?.title || formData.subtopicName || '',
+      innerTopicId: formData.innerTopicId || activeInner?.id || '',
+      moduleId: formData.innerTopicId || activeInner?.id || '',
+      moduleName: activeInner?.title || formData.topicName || '',
+      topicName: activeInner?.title || formData.topicName || '',
       targetBatch: targetBatchStr,
       targetBatches,
       techStack: techStackList,

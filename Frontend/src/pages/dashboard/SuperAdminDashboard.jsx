@@ -28,7 +28,7 @@ export function SuperAdminDashboard() {
     {
       title: 'Total Users (Staff)',
       value: users.length,
-      change: '+12% this month',
+      change: `${users.filter(u => u.status === 'Active').length} Active Accounts`,
       trend: 'up',
       icon: Users,
       color: 'from-blue-600 to-indigo-600',
@@ -38,7 +38,7 @@ export function SuperAdminDashboard() {
     {
       title: 'Published Courses',
       value: courses.length,
-      change: '3 Active Modules',
+      change: `${courses.filter(c => c.publishStatus === 'Published').length} Published`,
       trend: 'up',
       icon: BookOpen,
       color: 'from-blue-800 to-slate-900',
@@ -48,7 +48,7 @@ export function SuperAdminDashboard() {
     {
       title: 'Live Class Links',
       value: liveSessions.length,
-      change: '1 Live Soon',
+      change: `${liveSessions.filter(s => s.status === 'Live Soon').length} Live Soon / ${liveSessions.filter(s => s.status === 'Upcoming').length} Upcoming`,
       trend: 'up',
       icon: Video,
       color: 'from-sky-500 to-blue-600',
@@ -58,7 +58,7 @@ export function SuperAdminDashboard() {
     {
       title: 'Assessments Published',
       value: assessments.length,
-      change: '2 Published',
+      change: `${assessments.filter(a => a.status === 'Active' || a.publishStatus === 'Published').length} Active`,
       trend: 'up',
       icon: FileCheck2,
       color: 'from-indigo-600 to-blue-800',
@@ -68,7 +68,7 @@ export function SuperAdminDashboard() {
     {
       title: 'Job Openings Live',
       value: jobs.length,
-      change: 'Active Recruitment',
+      change: `${jobs.filter(j => !j.isLocked).length} Active Recruitment`,
       trend: 'up',
       icon: Briefcase,
       color: 'from-blue-500 to-cyan-600',
@@ -78,7 +78,7 @@ export function SuperAdminDashboard() {
     {
       title: 'Recorded Lectures',
       value: recordings.length,
-      change: 'Video Archives',
+      change: `${recordings.length} Recorded Archives`,
       trend: 'up',
       icon: FolderGit2,
       color: 'from-slate-800 to-blue-950',

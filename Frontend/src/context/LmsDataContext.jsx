@@ -265,19 +265,6 @@ export function LmsDataProvider({ children }) {
             };
           });
           setRewards(normalized);
-        } else if (!error && (!data || data.length === 0)) {
-          // If Supabase table is empty, seed initial rewards into database
-          const seedData = INITIAL_REWARDS.map(r => ({
-            id: r.id,
-            reward_title: r.title,
-            reward_image_url: r.image,
-            reward_required_xp_points: r.requiredXp,
-            is_locked: !r.isReleased,
-            category: r.category,
-            stock: r.stock || 50,
-            description: r.description || ''
-          }));
-          await supabase.from('rewards').upsert(seedData);
         }
       } catch (err) {
         console.warn('[Supabase Rewards] fetch warning:', err);
@@ -516,6 +503,7 @@ export function LmsDataProvider({ children }) {
     } catch (e) {}
     return INITIAL_BATCH_LIST;
   });
+  const [batchesList, setBatchesList] = useState([]);
 
   useEffect(() => {
     try {
@@ -1778,10 +1766,7 @@ export function LmsDataProvider({ children }) {
           setCompletedMilestoneItemIds(compRow.overview.itemIds);
         }
       } else {
-        // Initial seeding directly into database if table is empty
-        const initialBatchData = createInitialMilestonesByBatch();
         isMilestonesHydratedRef.current = true;
-        syncMilestonesNow(initialBatchData);
       }
 
       // 9. Fetch Projects Catalog
@@ -1826,6 +1811,7 @@ export function LmsDataProvider({ children }) {
         const dbBatches = batchesData.map(b => b.code || b.id).filter(Boolean);
         const sortedBatches = Array.from(new Set(dbBatches)).sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }));
         setAvailableBatches(sortedBatches);
+        setBatchesList(batchesData);
       }
 
       // 12. Fetch Coding Questions Catalog
@@ -1915,6 +1901,7 @@ export function LmsDataProvider({ children }) {
       // Profiles, Students, Batches, Milestones, Courses, Assessments, Coding Questions & Projects — trigger full refetch
       makeChannel('profiles', () => fetchSupabaseData());
       makeChannel('students', () => fetchSupabaseData());
+      makeChannel('batches', () => fetchSupabaseData());
       // Milestones Realtime Channel
       makeChannel('milestones_data', (payload) => {
         if (payload?.new) {
@@ -5192,6 +5179,7 @@ export function LmsDataProvider({ children }) {
         updateBadge,
         deleteBadge,
         availableBatches,
+        batchesList,
         addBatch,
         deleteBatch,
         activeBatchFilter,
@@ -5246,6 +5234,8 @@ const defaultLmsDataContext = {
   projects: [],
   codingQuestions: [],
   rewards: [],
+  availableBatches: [],
+  batchesList: [],
   rewardsStoreConfig: {
     badgeText: 'STUDENT MERCHANDISE & SWAG STORE',
     title: 'AspireNext Rewards & Merchandise',

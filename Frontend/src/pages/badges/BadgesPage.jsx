@@ -270,11 +270,11 @@ export function BadgesPage() {
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    category: 'Skill',
+    category: '',
     icon: 'Award',
-    color: 'blue',
+    color: '',
     criteria: '',
-    points: '100 XP',
+    points: '',
     targetBatch: 'ALL BATCHES'
   });
 
@@ -283,11 +283,11 @@ export function BadgesPage() {
     setFormData({
       name: '',
       description: '',
-      category: 'Skill',
+      category: '',
       icon: 'Award',
-      color: 'blue',
+      color: '',
       criteria: '',
-      points: '100 XP',
+      points: '',
       targetBatch: 'ALL BATCHES'
     });
     setIsModalOpen(true);
@@ -298,11 +298,11 @@ export function BadgesPage() {
     setFormData({
       name: badge.name || '',
       description: badge.description || '',
-      category: badge.category || 'Skill',
+      category: badge.category || '',
       icon: badge.icon || 'Award',
-      color: badge.color || 'blue',
+      color: badge.color || '',
       criteria: badge.criteria || '',
-      points: badge.points || '100 XP',
+      points: badge.points || '',
       targetBatch: badge.targetBatch || 'ALL BATCHES'
     });
     setIsModalOpen(true);
