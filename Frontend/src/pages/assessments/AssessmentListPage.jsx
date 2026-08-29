@@ -136,7 +136,7 @@ export function AssessmentListPage() {
     const firstStage = stagesList[0];
     const stageSubs = getSubtopicsForStage(firstStage);
     const firstSub = stageSubs[0];
-    const subLessons = getInnerModulesForSubtopic(firstSub);
+    const subLessons = getInnerModulesForSubtopic(firstSub, courseLessons, firstStage?.id);
     const firstMod = subLessons[0];
 
     setBatchActiveTab('Weekdays');
@@ -234,7 +234,7 @@ export function AssessmentListPage() {
     const targetStage = stagesList.find((s) => s.id === asm.stageId || s.title === asm.stageName || s.title === asm.moduleName) || stagesList[0];
     const stageSubs = getSubtopicsForStage(targetStage);
     const targetSub = stageSubs.find((st) => st.id === asm.subtopicId || st.title === asm.subtopicName) || stageSubs[0];
-    const subLessons = getInnerModulesForSubtopic(targetSub);
+    const subLessons = getInnerModulesForSubtopic(targetSub, courseLessons, targetStage?.id);
     const targetMod = subLessons.find((m) => (m.id || m.title) === (asm.innerTopicId || asm.moduleId || asm.topicName)) || subLessons[0];
 
     const detectedEvalType = asm.evalType || (asm.category?.toLowerCase().includes('quiz') || asm.title?.toLowerCase().includes('quiz') ? 'quiz' : 'assessment');
@@ -370,7 +370,7 @@ export function AssessmentListPage() {
     const currentStageObj = stagesList.find((s) => s.id === formData.stageId || s.title === formData.stageName) || stagesList[0];
     const stageSubs = getSubtopicsForStage(currentStageObj);
     const currentSubObj = stageSubs.find((st) => st.id === formData.subtopicId || st.title === formData.subtopicName) || stageSubs[0];
-    const subLessons = getInnerModulesForSubtopic(currentSubObj);
+    const subLessons = getInnerModulesForSubtopic(currentSubObj, courseLessons, currentStageObj?.id);
     const currentModObj = subLessons.find((m) => (m.id || m.title) === (formData.innerTopicId || formData.moduleId || formData.topicName)) || subLessons[0];
 
     const isQuizEval = (formData.evalType || 'assessment') === 'quiz';
@@ -795,7 +795,7 @@ export function AssessmentListPage() {
             const currentStageObj = stagesList.find((s) => s.id === formData.stageId || s.title === formData.stageName) || stagesList[0];
             const currentSubtopicsArr = getSubtopicsForStage(currentStageObj);
             const currentSubtopicObj = currentSubtopicsArr.find((st) => st.id === formData.subtopicId || st.title === formData.subtopicName) || currentSubtopicsArr[0];
-            const currentInnerModules = getInnerModulesForSubtopic(currentSubtopicObj);
+            const currentInnerModules = getInnerModulesForSubtopic(currentSubtopicObj, courseLessons, currentStageObj?.id);
             const currentModObj = currentInnerModules.find((m) => (m.id || m.title) === (formData.innerTopicId || formData.moduleId || formData.topicName)) || currentInnerModules[0];
             const existingItems = currentModObj?.items || [];
 
@@ -857,15 +857,18 @@ export function AssessmentListPage() {
                       onChange={(e) => {
                         const newCourseId = e.target.value;
                         const selectedC = courses.find((c) => c.id === newCourseId);
-                        const newStages = milestones?.stages && milestones.stages.length > 0
-                          ? milestones.stages
-                          : selectedC?.topics && selectedC.topics.length > 0
-                          ? selectedC.topics
-                          : DEFAULT_STAGES;
+                        const newStages =
+                          newCourseId && newCourseId !== 'ALL' && milestonesByBatch?.[newCourseId]?.stages && milestonesByBatch[newCourseId].stages.length > 0
+                            ? milestonesByBatch[newCourseId].stages
+                            : selectedC?.topics && selectedC.topics.length > 0
+                            ? selectedC.topics
+                            : milestones?.stages && milestones.stages.length > 0
+                            ? milestones.stages
+                            : DEFAULT_STAGES;
                         const firstStage = newStages[0];
                         const firstSubs = getSubtopicsForStage(firstStage);
                         const firstSub = firstSubs[0];
-                        const firstLessons = getInnerModulesForSubtopic(firstSub);
+                        const firstLessons = getInnerModulesForSubtopic(firstSub, courseLessons, firstStage?.id);
                         const firstMod = firstLessons[0];
                         setFormData({
                           ...formData,
@@ -893,7 +896,7 @@ export function AssessmentListPage() {
                         const newStage = stagesList.find((s) => s.id === newStageId) || stagesList[0];
                         const newSubs = getSubtopicsForStage(newStage);
                         const firstSub = newSubs[0];
-                        const firstLessons = getInnerModulesForSubtopic(firstSub);
+                        const firstLessons = getInnerModulesForSubtopic(firstSub, courseLessons, newStage?.id);
                         const firstMod = firstLessons[0];
                         setFormData({
                           ...formData,
@@ -920,7 +923,7 @@ export function AssessmentListPage() {
                       onChange={(e) => {
                         const newSubId = e.target.value;
                         const targetSub = currentSubtopicsArr.find((st) => st.id === newSubId) || currentSubtopicsArr[0];
-                        const targetLessons = getInnerModulesForSubtopic(targetSub);
+                        const targetLessons = getInnerModulesForSubtopic(targetSub, courseLessons, formData.stageId);
                         const firstMod = targetLessons[0];
                         setFormData({
                           ...formData,

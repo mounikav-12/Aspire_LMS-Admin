@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { useLmsData } from '../../context/LmsDataContext';
 import { useToast } from '../../context/ToastContext';
+import { isMatchingStage, SUBTOPIC_MODULE_MAP } from '../milestones/MilestonesRoadmapPage';
 import { Button } from '../../components/common/Button';
 import { Input, Select } from '../../components/common/Input';
 import { Modal } from '../../components/common/Modal';
@@ -43,11 +44,60 @@ export const getSubtopicsForStage = (stage) => {
   return [];
 };
 
-export const getInnerModulesForSubtopic = (subtopic) => {
+export const getInnerModulesForSubtopic = (subtopic, courseLessons = [], stageId = '') => {
   if (!subtopic) return [];
-  if (Array.isArray(subtopic.lessons) && subtopic.lessons.length > 0) return subtopic.lessons;
-  if (Array.isArray(subtopic.modules) && subtopic.modules.length > 0) return subtopic.modules;
-  if (Array.isArray(subtopic.items) && subtopic.items.length > 0) return subtopic.items;
+  
+  // 1. If lessons/modules are already inline in the subtopic, use them
+  let inlineMods = [];
+  if (Array.isArray(subtopic.lessons) && subtopic.lessons.length > 0) inlineMods = subtopic.lessons;
+  else if (Array.isArray(subtopic.modules) && subtopic.modules.length > 0) inlineMods = subtopic.modules;
+  else if (Array.isArray(subtopic.items) && subtopic.items.length > 0) inlineMods = subtopic.items;
+  
+  // Only use inline if it contains actual resolved modules/lessons (not just a dummy of the subtopic itself)
+  if (inlineMods.length > 0 && inlineMods.some(m => m.id !== subtopic.id && m.title !== subtopic.title)) {
+    return inlineMods;
+  }
+
+  // 2. Fallback: Query courseLessons list
+  if (Array.isArray(courseLessons) && courseLessons.length > 0) {
+    const cleanId = (id) => String(id || '').replace(/-(w|s)$/i, '').trim();
+    const cleanNorm = (str) => String(str || '').toLowerCase().replace(/[^a-z0-9]/g, '').trim();
+    
+    const subIdClean = cleanId(subtopic.id);
+    const subIdNorm = cleanNorm(subtopic.id);
+    const mappedModId = SUBTOPIC_MODULE_MAP[subIdClean] || subIdClean;
+
+    const matchedLessons = courseLessons.filter(l => {
+      const lModClean = cleanId(l.module_id);
+      const lModId = cleanNorm(l.module_id);
+      const lStgId = l.stage_id;
+
+      // Strict stage boundary check
+      if (stageId && lStgId && !isMatchingStage(lStgId, stageId)) {
+        return false;
+      }
+
+      // Strict module/subtopic ID match
+      if (lModClean === subIdClean || lModClean === mappedModId || lModId === subIdNorm) {
+        return true;
+      }
+      return false;
+    });
+
+    if (matchedLessons.length > 0) {
+      return matchedLessons.map(l => ({
+        id: l.id,
+        title: String(l.title || '').replace(/^Module\s*\d+\s*:\s*/i, '').trim(),
+        description: l.description || '',
+        duration: l.duration || l.durationHours || '1hr 30min',
+        durationHours: l.durationHours || '1hr 30min',
+        topics: l.topics || [],
+        items: []
+      }));
+    }
+  }
+
+  // 3. Last resort fallback
   return [{ id: subtopic.id || 'mod-1', title: subtopic.title || 'General Module' }];
 };
 
@@ -93,6 +143,7 @@ export const DEFAULT_STAGES = [];
 export function LiveSessionListPage() {
   const {
     courses = [],
+    courseLessons = [],
     liveSessions = [],
     addLiveSession,
     updateLiveSession,
@@ -195,7 +246,7 @@ export function LiveSessionListPage() {
     const firstStage = stagesList[0];
     const stageSubs = getSubtopicsForStage(firstStage);
     const firstSub = stageSubs[0];
-    const subLessons = getInnerModulesForSubtopic(firstSub);
+    const subLessons = getInnerModulesForSubtopic(firstSub, courseLessons, firstStage?.id);
     const firstMod = subLessons[0];
     const existingTopics = (firstMod?.topics || []).filter((t) => t && t.title && t.title.trim());
 
@@ -271,7 +322,7 @@ export function LiveSessionListPage() {
     const targetStage = stagesList.find((s) => s.id === sess.stageId || stripSuffix(s.id) === stripSuffix(sess.stageId) || cleanNorm(s.title) === cleanNorm(sess.stageName)) || stagesList[0];
     const stageSubs = getSubtopicsForStage(targetStage);
     const targetSub = stageSubs.find((st) => st.id === sess.subtopicId || stripSuffix(st.id) === stripSuffix(sess.subtopicId) || cleanNorm(st.title) === cleanNorm(sess.subtopicName)) || stageSubs[0];
-    const subLessons = getInnerModulesForSubtopic(targetSub);
+    const subLessons = getInnerModulesForSubtopic(targetSub, courseLessons, targetStage?.id);
     const targetMod = subLessons.find((m) => m.id === sess.moduleId || stripSuffix(m.id) === stripSuffix(sess.moduleId) || cleanNorm(m.title) === cleanNorm(sess.moduleName || sess.sessionTitle)) || subLessons[0];
 
     // Preload topics from targetMod.topics (authoritative dynamic topics from Milestones), sess.topics, or targetMod.items
@@ -334,7 +385,7 @@ export function LiveSessionListPage() {
     const currentStageObj = stagesList.find((s) => s.id === formData.stageId || s.title === formData.stageName) || stagesList[0];
     const stageSubs = getSubtopicsForStage(currentStageObj);
     const currentSubObj = stageSubs.find((st) => st.id === formData.subtopicId || st.title === formData.subtopicName) || stageSubs[0];
-    const subLessons = getInnerModulesForSubtopic(currentSubObj);
+    const subLessons = getInnerModulesForSubtopic(currentSubObj, courseLessons, currentStageObj?.id);
     const currentModObj = subLessons.find((m) => m.id === formData.moduleId || m.title === formData.moduleName) || subLessons[0];
 
     const allBatches = [...selectedWeekdayBatches, ...selectedWeekendBatches];
@@ -659,7 +710,7 @@ export function LiveSessionListPage() {
             const currentSubtopicObj =
               currentSubtopicsArr.find((st) => st.id === formData.subtopicId || st.title === formData.subtopicName) ||
               currentSubtopicsArr[0];
-            const currentInnerModules = getInnerModulesForSubtopic(currentSubtopicObj);
+            const currentInnerModules = getInnerModulesForSubtopic(currentSubtopicObj, courseLessons, currentStageObj?.id);
             const currentModObj =
               currentInnerModules.find(
                 (m) => (m.id || m.title) === (formData.moduleId || formData.moduleName)
@@ -690,15 +741,17 @@ export function LiveSessionListPage() {
                         const newCourseId = e.target.value;
                         const selectedC = courses.find((c) => c.id === newCourseId);
                         const newStages =
-                          milestones?.stages && milestones.stages.length > 0
-                            ? milestones.stages
+                          newCourseId && newCourseId !== 'ALL' && milestonesByBatch?.[newCourseId]?.stages && milestonesByBatch[newCourseId].stages.length > 0
+                            ? milestonesByBatch[newCourseId].stages
                             : selectedC?.topics && selectedC.topics.length > 0
                             ? selectedC.topics
+                            : milestones?.stages && milestones.stages.length > 0
+                            ? milestones.stages
                             : DEFAULT_STAGES;
                         const firstStage = newStages[0];
                         const firstSubs = getSubtopicsForStage(firstStage);
                         const firstSub = firstSubs[0];
-                        const firstLessons = getInnerModulesForSubtopic(firstSub);
+                        const firstLessons = getInnerModulesForSubtopic(firstSub, courseLessons, firstStage?.id);
                         const firstMod = firstLessons[0];
                         setFormData({
                           ...formData,
@@ -740,7 +793,7 @@ export function LiveSessionListPage() {
                           const newStage = stagesList.find((s) => s.id === newStageId) || stagesList[0];
                           const newSubs = getSubtopicsForStage(newStage);
                           const firstSub = newSubs[0];
-                          const firstLessons = getInnerModulesForSubtopic(firstSub);
+                          const firstLessons = getInnerModulesForSubtopic(firstSub, courseLessons, newStage?.id);
                           const firstMod = firstLessons[0];
                           setFormData({
                             ...formData,
@@ -803,7 +856,7 @@ export function LiveSessionListPage() {
                           }
                           const targetSub =
                             currentSubtopicsArr.find((st) => st.id === newSubId) || currentSubtopicsArr[0];
-                          const targetLessons = getInnerModulesForSubtopic(targetSub);
+                          const targetLessons = getInnerModulesForSubtopic(targetSub, courseLessons, formData.stageId);
                           const firstMod = targetLessons[0];
                           setFormData({
                             ...formData,

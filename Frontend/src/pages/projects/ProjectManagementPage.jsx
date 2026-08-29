@@ -147,7 +147,7 @@ export function ProjectManagementPage() {
       const activeStage = stagesList[0];
       const subtopicsOfStage = getSubtopicsForStage(activeStage);
       const activeSub = subtopicsOfStage[0];
-      const innerModules = getInnerModulesForSubtopic(activeSub);
+      const innerModules = getInnerModulesForSubtopic(activeSub, courseLessons, activeStage?.id);
       const activeInner = innerModules[0];
       setFormData((prev) => ({
         ...prev,
@@ -205,7 +205,7 @@ export function ProjectManagementPage() {
     const activeStage = stagesList[0];
     const subtopicsOfStage = getSubtopicsForStage(activeStage);
     const activeSub = subtopicsOfStage[0];
-    const innerModules = getInnerModulesForSubtopic(activeSub);
+    const innerModules = getInnerModulesForSubtopic(activeSub, courseLessons, activeStage?.id);
     const activeInner = innerModules[0];
     setEditingProject(null);
     setFormData({
@@ -243,7 +243,7 @@ export function ProjectManagementPage() {
     const foundStage = stagesList.find((s) => s.id === proj.stageId || s.title === proj.stageName) || stagesList[0];
     const subtopicsOfStage = getSubtopicsForStage(foundStage);
     const foundSubtopic = subtopicsOfStage.find((st) => st.id === proj.subtopicId || st.title === proj.subtopicName) || subtopicsOfStage[0];
-    const innerModules = getInnerModulesForSubtopic(foundSubtopic);
+    const innerModules = getInnerModulesForSubtopic(foundSubtopic, courseLessons, foundStage?.id);
     const firstInner = innerModules.find((m) => m.id === (proj.innerTopicId || proj.moduleId) || m.title === (proj.moduleName || proj.topicName)) || innerModules[0];
 
     const targetBatches = Array.isArray(proj.targetBatches) && proj.targetBatches.length > 0
@@ -325,7 +325,7 @@ export function ProjectManagementPage() {
     const activeStage = stagesList.find((s) => s.id === formData.stageId || s.title === formData.stageName) || stagesList[0];
     const subtopicsOfStage = getSubtopicsForStage(activeStage);
     const activeSub = subtopicsOfStage.find((st) => st.id === formData.subtopicId || st.title === formData.subtopicName) || subtopicsOfStage[0];
-    const innerModules = getInnerModulesForSubtopic(activeSub);
+    const innerModules = getInnerModulesForSubtopic(activeSub, courseLessons, activeStage?.id);
     const activeInner = innerModules.find((m) => (m.id || m.title) === (formData.innerTopicId || formData.moduleId || formData.topicName)) || innerModules[0];
     const activeCourse = courses.find((c) => c.id === formData.courseId) || courses[0];
 
@@ -915,7 +915,7 @@ export function ProjectManagementPage() {
             const currentStageObj = stagesList.find((s) => s.id === formData.stageId || s.title === formData.stageName) || stagesList[0];
             const currentSubtopicsArr = getSubtopicsForStage(currentStageObj);
             const currentSubtopicObj = currentSubtopicsArr.find((st) => st.id === formData.subtopicId || st.title === formData.subtopicName) || currentSubtopicsArr[0];
-            const currentInnerModules = getInnerModulesForSubtopic(currentSubtopicObj);
+            const currentInnerModules = getInnerModulesForSubtopic(currentSubtopicObj, courseLessons, currentStageObj?.id);
             const currentModObj = currentInnerModules.find((m) => (m.id || m.title) === (formData.innerTopicId || formData.moduleId || formData.topicName)) || currentInnerModules[0];
             const existingItems = currentModObj?.items || [];
 
@@ -979,15 +979,18 @@ export function ProjectManagementPage() {
                       onChange={(e) => {
                         const newCourseId = e.target.value;
                         const selectedC = courses.find((c) => c.id === newCourseId);
-                        const newStages = milestones?.stages && milestones.stages.length > 0
-                          ? milestones.stages
-                          : selectedC?.topics && selectedC.topics.length > 0
-                          ? selectedC.topics
-                          : DEFAULT_STAGES;
+                        const newStages =
+                          newCourseId && newCourseId !== 'ALL' && milestonesByBatch?.[newCourseId]?.stages && milestonesByBatch[newCourseId].stages.length > 0
+                            ? milestonesByBatch[newCourseId].stages
+                            : selectedC?.topics && selectedC.topics.length > 0
+                            ? selectedC.topics
+                            : milestones?.stages && milestones.stages.length > 0
+                            ? milestones.stages
+                            : DEFAULT_STAGES;
                         const firstStage = newStages[0];
                         const firstSubs = getSubtopicsForStage(firstStage);
                         const firstSub = firstSubs[0];
-                        const firstLessons = getInnerModulesForSubtopic(firstSub);
+                        const firstLessons = getInnerModulesForSubtopic(firstSub, courseLessons, firstStage?.id);
                         const firstMod = firstLessons[0];
                         setFormData({
                           ...formData,
@@ -1015,7 +1018,7 @@ export function ProjectManagementPage() {
                         const newStage = stagesList.find((s) => s.id === newStageId) || stagesList[0];
                         const newSubs = getSubtopicsForStage(newStage);
                         const firstSub = newSubs[0];
-                        const firstLessons = getInnerModulesForSubtopic(firstSub);
+                        const firstLessons = getInnerModulesForSubtopic(firstSub, courseLessons, newStage?.id);
                         const firstMod = firstLessons[0];
                         setFormData({
                           ...formData,
@@ -1042,7 +1045,7 @@ export function ProjectManagementPage() {
                       onChange={(e) => {
                         const newSubId = e.target.value;
                         const targetSub = currentSubtopicsArr.find((st) => st.id === newSubId) || currentSubtopicsArr[0];
-                        const targetLessons = getInnerModulesForSubtopic(targetSub);
+                        const targetLessons = getInnerModulesForSubtopic(targetSub, courseLessons, formData.stageId);
                         const firstMod = targetLessons[0];
                         setFormData({
                           ...formData,
