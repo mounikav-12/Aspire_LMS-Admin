@@ -161,6 +161,49 @@ export function LiveSessionListPage() {
   } = useLmsData();
   const { addToast } = useToast();
 
+  const checkAndLoadExistingSession = (cId, sId, subId, mId, currentForm) => {
+    const matched = liveSessions.find(sess => 
+      (sess.courseId === cId || sess.course_id === cId) &&
+      (sess.stageId === sId || sess.stage_id === sId) &&
+      (sess.subtopicId === subId || sess.subtopic_id === subId) &&
+      (sess.moduleId === mId || sess.module_id === mId)
+    );
+
+    if (matched) {
+      setEditingSession(matched);
+      addToast(`Found existing live session: loading details...`, 'info');
+      
+      let loadedTopics = [];
+      if (Array.isArray(matched.topics) && matched.topics.length > 0) {
+        loadedTopics = matched.topics.map((t, idx) => ({
+          id: t.id || `top-${Date.now()}-${idx}`,
+          title: t.title || '',
+          description: t.description || t.agenda || t.overview || ''
+        }));
+      }
+      
+      return {
+        ...currentForm,
+        courseId: cId,
+        stageId: sId,
+        subtopicId: subId,
+        moduleId: mId,
+        programName: matched.programName || '',
+        technology: matched.technology || '',
+        sessionTitle: matched.sessionTitle || matched.title || '',
+        date: matched.date || '',
+        time: matched.time || '',
+        meetingLink: matched.meetingLink || '',
+        instructor: matched.instructor || '',
+        description: matched.description || '',
+        topics: loadedTopics
+      };
+    } else {
+      setEditingSession(null);
+      return null;
+    }
+  };
+
   const [formData, setFormData] = useState({
     programName: '',
     technology: '',
@@ -287,11 +330,7 @@ export function LiveSessionListPage() {
             }
           ];
 
-    setBatchActiveTab('Weekdays');
-    setSelectedWeekdayBatches(allWeekdayBatchesList);
-    setSelectedWeekendBatches(allWeekendBatchesList);
-
-    setFormData({
+    const targetFormData = {
       programName: '',
       technology: '',
       sessionTitle: firstMod?.title || '',
@@ -309,7 +348,25 @@ export function LiveSessionListPage() {
       moduleId: firstMod?.id || '',
       moduleName: firstMod?.title || '',
       topics: defaultTopics
-    });
+    };
+
+    const matchedForm = checkAndLoadExistingSession(
+      activeCourseId,
+      firstStage?.id || '',
+      firstSub?.id || '',
+      firstMod?.id || '',
+      targetFormData
+    );
+
+    if (matchedForm) {
+      setFormData(matchedForm);
+    } else {
+      setFormData(targetFormData);
+    }
+
+    setBatchActiveTab('Weekdays');
+    setSelectedWeekdayBatches(allWeekdayBatchesList);
+    setSelectedWeekendBatches(allWeekendBatchesList);
     setIsAddModalOpen(true);
   };
 
@@ -909,7 +966,8 @@ export function LiveSessionListPage() {
                         const firstSub = firstSubs[0];
                         const firstLessons = getInnerModulesForSubtopic(firstSub, courseLessons, firstStage?.id);
                         const firstMod = firstLessons[0];
-                        setFormData({
+
+                        const targetFormData = {
                           ...formData,
                           courseId: newCourseId,
                           courseName: selectedC?.title || '',
@@ -920,7 +978,40 @@ export function LiveSessionListPage() {
                           moduleId: firstMod?.id || '',
                           moduleName: firstMod?.title || '',
                           sessionTitle: firstMod?.title || formData.sessionTitle
-                        });
+                        };
+
+                        const matchedForm = checkAndLoadExistingSession(
+                          newCourseId,
+                          firstStage?.id || '',
+                          firstSub?.id || '',
+                          firstMod?.id || '',
+                          targetFormData
+                        );
+
+                        if (matchedForm) {
+                          setFormData(matchedForm);
+                        } else {
+                          const validModTopics = (firstMod?.topics || []).filter((t) => t && t.title && t.title.trim());
+                          const validModItems = (firstMod?.items || []).filter((it) => (it.type === 'LIVE CLASS' || !it.type) && it.title && it.title.trim());
+                          let updatedTopics = [{ id: `top-${Date.now()}-1`, title: '', description: '' }];
+                          if (validModTopics.length > 0) {
+                            updatedTopics = validModTopics.map((t, idx) => ({
+                              id: t.id || `top-${Date.now()}-${idx + 1}`,
+                              title: t.title,
+                              description: t.description || t.agenda || t.overview || ''
+                            }));
+                          } else if (validModItems.length > 0) {
+                            updatedTopics = validModItems.map((it, idx) => ({
+                              id: it.id || `top-${Date.now()}-${idx + 1}`,
+                              title: it.title,
+                              description: it.description || it.agenda || it.overview || ''
+                            }));
+                          }
+                          setFormData({
+                            ...targetFormData,
+                            topics: updatedTopics
+                          });
+                        }
                       }}
                       options={courses.map((c) => ({ value: c.id, label: c.title }))}
                     />
@@ -951,7 +1042,8 @@ export function LiveSessionListPage() {
                           const firstSub = newSubs[0];
                           const firstLessons = getInnerModulesForSubtopic(firstSub, courseLessons, newStage?.id);
                           const firstMod = firstLessons[0];
-                          setFormData({
+
+                          const targetFormData = {
                             ...formData,
                             stageId: newStageId,
                             stageName: newStage?.title || '',
@@ -960,7 +1052,40 @@ export function LiveSessionListPage() {
                             moduleId: firstMod?.id || '',
                             moduleName: firstMod?.title || '',
                             sessionTitle: firstMod?.title || formData.sessionTitle
-                          });
+                          };
+
+                          const matchedForm = checkAndLoadExistingSession(
+                            formData.courseId,
+                            newStageId,
+                            firstSub?.id || '',
+                            firstMod?.id || '',
+                            targetFormData
+                          );
+
+                          if (matchedForm) {
+                            setFormData(matchedForm);
+                          } else {
+                            const validModTopics = (firstMod?.topics || []).filter((t) => t && t.title && t.title.trim());
+                            const validModItems = (firstMod?.items || []).filter((it) => (it.type === 'LIVE CLASS' || !it.type) && it.title && it.title.trim());
+                            let updatedTopics = [{ id: `top-${Date.now()}-1`, title: '', description: '' }];
+                            if (validModTopics.length > 0) {
+                              updatedTopics = validModTopics.map((t, idx) => ({
+                                id: t.id || `top-${Date.now()}-${idx + 1}`,
+                                title: t.title,
+                                description: t.description || t.agenda || t.overview || ''
+                              }));
+                            } else if (validModItems.length > 0) {
+                              updatedTopics = validModItems.map((it, idx) => ({
+                                id: it.id || `top-${Date.now()}-${idx + 1}`,
+                                title: it.title,
+                                description: it.description || it.agenda || it.overview || ''
+                              }));
+                            }
+                            setFormData({
+                              ...targetFormData,
+                              topics: updatedTopics
+                            });
+                          }
                         }}
                         options={[
                           ...stagesList.map((stg) => ({
@@ -1014,14 +1139,48 @@ export function LiveSessionListPage() {
                             currentSubtopicsArr.find((st) => st.id === newSubId) || currentSubtopicsArr[0];
                           const targetLessons = getInnerModulesForSubtopic(targetSub, courseLessons, formData.stageId);
                           const firstMod = targetLessons[0];
-                          setFormData({
+
+                          const targetFormData = {
                             ...formData,
                             subtopicId: newSubId,
                             subtopicName: targetSub?.title || '',
                             moduleId: firstMod?.id || '',
                             moduleName: firstMod?.title || '',
                             sessionTitle: firstMod?.title || formData.sessionTitle
-                          });
+                          };
+
+                          const matchedForm = checkAndLoadExistingSession(
+                            formData.courseId,
+                            formData.stageId,
+                            newSubId,
+                            firstMod?.id || '',
+                            targetFormData
+                          );
+
+                          if (matchedForm) {
+                            setFormData(matchedForm);
+                          } else {
+                            const validModTopics = (firstMod?.topics || []).filter((t) => t && t.title && t.title.trim());
+                            const validModItems = (firstMod?.items || []).filter((it) => (it.type === 'LIVE CLASS' || !it.type) && it.title && it.title.trim());
+                            let updatedTopics = [{ id: `top-${Date.now()}-1`, title: '', description: '' }];
+                            if (validModTopics.length > 0) {
+                              updatedTopics = validModTopics.map((t, idx) => ({
+                                id: t.id || `top-${Date.now()}-${idx + 1}`,
+                                title: t.title,
+                                description: t.description || t.agenda || t.overview || ''
+                              }));
+                            } else if (validModItems.length > 0) {
+                              updatedTopics = validModItems.map((it, idx) => ({
+                                id: it.id || `top-${Date.now()}-${idx + 1}`,
+                                title: it.title,
+                                description: it.description || it.agenda || it.overview || ''
+                              }));
+                            }
+                            setFormData({
+                              ...targetFormData,
+                              topics: updatedTopics
+                            });
+                          }
                         }}
                         options={[
                           ...currentSubtopicsArr.map((sub, idx) => ({
@@ -1091,13 +1250,27 @@ export function LiveSessionListPage() {
                             }));
                           }
 
-                          setFormData({
+                          const targetFormData = {
                             ...formData,
                             moduleId: newModId,
                             moduleName: targetMod?.title || '',
                             sessionTitle: targetMod?.title || formData.sessionTitle,
                             topics: updatedTopics
-                          });
+                          };
+
+                          const matchedForm = checkAndLoadExistingSession(
+                            formData.courseId,
+                            formData.stageId,
+                            formData.subtopicId,
+                            newModId,
+                            targetFormData
+                          );
+
+                          if (matchedForm) {
+                            setFormData(matchedForm);
+                          } else {
+                            setFormData(targetFormData);
+                          }
                         }}
                         options={[
                           ...currentInnerModules.map((mod) => ({
