@@ -1146,12 +1146,30 @@ export function LiveSessionListPage() {
                           }
                           const targetMod = currentInnerModules.find((m) => (m.id || m.title) === newModId);
                           
+                          const validModTopics = (targetMod?.topics || []).filter((t) => t && t.title && t.title.trim());
+                          const validModItems = (targetMod?.items || []).filter((it) => (it.type === 'LIVE CLASS' || !it.type) && it.title && it.title.trim());
+                          
+                          let updatedTopics = [{ id: `top-${Date.now()}-1`, title: '', description: '' }];
+                          if (validModTopics.length > 0) {
+                            updatedTopics = validModTopics.map((t, idx) => ({
+                              id: t.id || `top-${Date.now()}-${idx + 1}`,
+                              title: t.title,
+                              description: t.description || t.agenda || t.overview || ''
+                            }));
+                          } else if (validModItems.length > 0) {
+                            updatedTopics = validModItems.map((it, idx) => ({
+                              id: it.id || `top-${Date.now()}-${idx + 1}`,
+                              title: it.title,
+                              description: it.description || it.agenda || it.overview || ''
+                            }));
+                          }
+
                           const targetFormData = {
                             ...formData,
                             moduleId: newModId,
                             moduleName: targetMod?.title || '',
-                            sessionTitle: '',
-                            topics: [{ id: `top-${Date.now()}-1`, title: '', description: '' }],
+                            sessionTitle: targetMod?.title || '',
+                            topics: updatedTopics,
                             description: '',
                             meetingLink: '',
                             instructor: '',
