@@ -673,19 +673,19 @@ export function LmsDataProvider({ children }) {
     const cleanTitle = isClean(session.sessionTitle) ? cleanNorm(session.sessionTitle) : (isClean(session.title) ? cleanNorm(session.title) : '');
 
     let stageMatch = stages.find(s =>
-      (cleanStageId && (stripSuffix(s.id) === cleanStageId || cleanNorm(s.id) === cleanNorm(cleanStageId))) ||
+      (cleanStageId && (stripSuffix(s.id) === cleanStageId || cleanNorm(s.id) === cleanNorm(cleanStageId) || (cleanStageId === 's1' && stripSuffix(s.id) === 'top-stg-1') || (cleanStageId === 'top-stg-1' && stripSuffix(s.id) === 's1') || (cleanStageId === 's2' && stripSuffix(s.id) === 'top-stg-2') || (cleanStageId === 'top-stg-2' && stripSuffix(s.id) === 's2') || (cleanStageId === 's3' && stripSuffix(s.id) === 'top-stg-3') || (cleanStageId === 'top-stg-3' && stripSuffix(s.id) === 's3') || (cleanStageId === 's4' && stripSuffix(s.id) === 'top-stg-4') || (cleanStageId === 'top-stg-4' && stripSuffix(s.id) === 's4'))) ||
       (cleanStageName && (cleanNorm(s.title) === cleanStageName || cleanNorm(s.title).includes(cleanStageName) || cleanStageName.includes(cleanNorm(s.title))))
     );
 
     // If not matched by explicit ID/Name, map to appropriate standard stage by tech / title keywords
     if (!stageMatch && stages.length > 0) {
-      if (cleanTech.includes('git') || cleanTech.includes('html') || cleanTech.includes('css') || cleanTech.includes('bootstrap') || cleanTech.includes('javascript') || cleanTech.includes('js') || cleanTitle.includes('git') || cleanTitle.includes('html') || cleanTitle.includes('css') || cleanTitle.includes('javascript')) {
+      if (cleanTech.includes('html') || cleanTech.includes('css') || cleanTech.includes('bootstrap') || cleanTech.includes('javascript') || (cleanTech === 'git' || cleanTech === 'github') || cleanTitle.includes('html') || cleanTitle.includes('css') || cleanTitle.includes('bootstrap') || (cleanTitle.startsWith('git') && !cleanTitle.includes('resume') && !cleanTitle.includes('linkedin'))) {
         stageMatch = stages.find(s => s.id === 'top-stg-1' || s.id === 's1' || cleanNorm(s.title).includes('frontend') || cleanNorm(s.title).includes('stage 1')) || stages[0];
       } else if (cleanTech.includes('python') || cleanTech.includes('django') || cleanTech.includes('sql') || cleanTech.includes('dsa') || cleanTitle.includes('python') || cleanTitle.includes('django') || cleanTitle.includes('sql') || cleanTitle.includes('dsa')) {
         stageMatch = stages.find(s => s.id === 'top-stg-2' || s.id === 's2' || cleanNorm(s.title).includes('backend') || cleanNorm(s.title).includes('stage 2')) || stages[1] || stages[0];
       } else if (cleanTech.includes('ai') || cleanTech.includes('docker') || cleanTech.includes('cloud') || cleanTech.includes('langchain') || cleanTitle.includes('ai') || cleanTitle.includes('docker')) {
         stageMatch = stages.find(s => s.id === 'top-stg-3' || s.id === 's3' || cleanNorm(s.title).includes('ai') || cleanNorm(s.title).includes('stage 3')) || stages[2] || stages[0];
-      } else if (cleanTech.includes('career') || cleanTech.includes('resume') || cleanTech.includes('system design') || cleanTech.includes('interview') || cleanTitle.includes('resume') || cleanTitle.includes('interview')) {
+      } else if (cleanTech.includes('career') || cleanTech.includes('resume') || cleanTech.includes('system design') || cleanTech.includes('interview') || cleanTitle.includes('resume') || cleanTitle.includes('interview') || cleanTitle.includes('linkedin')) {
         stageMatch = stages.find(s => s.id === 'top-stg-4' || s.id === 's4' || cleanNorm(s.title).includes('career') || cleanNorm(s.title).includes('stage 4')) || stages[3] || stages[0];
       } else {
         stageMatch = stages[0]; // Fallback safely to Stage 1 without creating any rogue stages
@@ -715,20 +715,39 @@ export function LmsDataProvider({ children }) {
     const cleanSubId = isClean(session.subtopicId) ? stripSuffix(session.subtopicId) : '';
     const cleanSubName = isClean(session.subtopicName) ? cleanNorm(session.subtopicName) : (isClean(session.subtopic_name) ? cleanNorm(session.subtopic_name) : '');
 
+    const subtopicAliases = {
+      'mod-git': 'm1_git',
+      'm1_git': 'mod-git',
+      'mod-html': 'm1_html',
+      'm1_html': 'mod-html',
+      'mod-css': 'm1_css_fund',
+      'm1_css_fund': 'mod-css',
+      'mod-advcss': 'm1_css_adv',
+      'm1_css_adv': 'mod-advcss',
+      'mod-bootstrap': 'm1_bootstrap',
+      'm1_bootstrap': 'mod-bootstrap',
+      'mod-jsess': 'm1_js_ess',
+      'm1_js_ess': 'mod-jsess',
+      'mod-jsfunc': 'm1_js_func',
+      'm1_js_func': 'mod-jsfunc',
+      'mod-dom': 'm1_dom',
+      'm1_dom': 'mod-dom',
+      'mod-es6async': 'm1_es6',
+      'm1_es6': 'mod-es6async'
+    };
+
     let subtopicMatch = subtopics.find(st =>
-      (cleanSubId && (stripSuffix(st.id) === cleanSubId || cleanNorm(st.id) === cleanNorm(cleanSubId))) ||
-      (cleanSubName && (cleanNorm(st.title) === cleanSubName || cleanNorm(st.title).includes(cleanSubName) || cleanSubName.includes(cleanNorm(st.title)))) ||
-      (cleanTech && cleanNorm(st.title).includes(cleanTech)) ||
-      (cleanTitle && cleanNorm(st.title).includes(cleanTitle))
+      (cleanSubId && (stripSuffix(st.id) === cleanSubId || cleanNorm(st.id) === cleanNorm(cleanSubId) || stripSuffix(st.id) === subtopicAliases[cleanSubId])) ||
+      (cleanSubName && (cleanNorm(st.title) === cleanSubName || cleanNorm(st.title).includes(cleanSubName) || cleanSubName.includes(cleanNorm(st.title))))
     );
 
     if (!subtopicMatch) {
       if (subtopics.length > 0) {
         subtopicMatch = subtopics[0];
       } else {
-        const subTitle = session.subtopicName || session.subtopic_name || session.technology || 'Git & GitHub Version Control';
+        const subTitle = session.subtopicName || session.subtopic_name || session.technology || 'Topic Overview';
         subtopicMatch = {
-          id: cleanSubId || 'mod-git',
+          id: cleanSubId || `mod-${Date.now()}`,
           title: subTitle,
           duration: session.duration || '1 Week',
           isLocked: false,
@@ -752,23 +771,19 @@ export function LmsDataProvider({ children }) {
     );
 
     if (!modMatch) {
-      if (modules.length > 0) {
-        modMatch = modules[0];
-      } else {
-        const newMod = {
-          id: cleanModId || `lesson-${Date.now()}-0`,
-          title: session.moduleName || session.module_name || session.sessionTitle || session.session_title || 'Git Architecture & Version Control Concepts',
-          meetingLink: session.meetingLink || session.meeting_link,
-          instructor: session.instructor,
-          date: session.date,
-          time: session.time,
-          duration: session.duration || '1hr 30min',
-          topics: validTopics,
-          items: liveItems
-        };
-        modules.push(newMod);
-        modMatch = newMod;
-      }
+      const newMod = {
+        id: cleanModId || `lesson-${Date.now()}-${modules.length}`,
+        title: session.moduleName || session.module_name || session.sessionTitle || session.session_title || 'Live Module',
+        meetingLink: session.meetingLink || session.meeting_link,
+        instructor: session.instructor,
+        date: session.date,
+        time: session.time,
+        duration: session.duration || '1hr 30min',
+        topics: validTopics,
+        items: liveItems
+      };
+      modules.push(newMod);
+      modMatch = newMod;
     }
 
     if (modMatch) {
@@ -4365,8 +4380,7 @@ export function LmsDataProvider({ children }) {
             const isMatch = (sessModId && rawModId && sessModId === rawModId) ||
               (sessTitle && targetModTitle && (sessTitle === targetModTitle || sessTitle.includes(targetModTitle) || targetModTitle.includes(sessTitle))) ||
               (sessModName && targetModTitle && (sessModName === targetModTitle || (sessModName.length > 5 && (sessModName.includes(targetModTitle) || targetModTitle.includes(sessModName))))) ||
-              (sessTitle && rawModId && (sessTitle.includes(rawModId) || rawModId.includes(sessTitle))) ||
-              (sess.technology && rawModId && sess.technology.toLowerCase().includes('git'));
+              (sessTitle && rawModId && (sessTitle === rawModId));
 
             if (!isMatch) return sess;
 
@@ -4425,8 +4439,7 @@ export function LmsDataProvider({ children }) {
           const sTitle = (row.session_title || '').toLowerCase().replace(/[^a-z0-9]/g, '');
           const targetModTitle = String(topicPayload?.moduleTitle || '').toLowerCase().replace(/[^a-z0-9]/g, '');
           const isRowMatch = (sTitle && targetModTitle && (sTitle === targetModTitle || sTitle.includes(targetModTitle) || targetModTitle.includes(sTitle))) ||
-            (sTitle && rawModId && (sTitle.includes(rawModId) || rawModId.includes(sTitle))) ||
-            (row.technology && rawModId && row.technology.toLowerCase().includes('git'));
+            (sTitle && rawModId && (sTitle === rawModId));
 
           if (isRowMatch) {
             let meta = {};
