@@ -1,5 +1,5 @@
 import React, { lazy, Suspense } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { ProtectedRoute } from './ProtectedRoute';
 import { DashboardLayout } from '../layouts/DashboardLayout';
@@ -44,7 +44,10 @@ function PageLoader() {
 }
 
 export function AppRoutes() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, currentUser } = useAuth();
+  const isStudent = currentUser?.role === 'student' || currentUser?.role?.toLowerCase() === 'student';
+
+  const defaultRedirect = isStudent ? "/student-dashboard" : "/dashboard";
 
   return (
     <Suspense fallback={<PageLoader />}>
@@ -54,7 +57,7 @@ export function AppRoutes() {
           path="/"
           element={
             isAuthenticated ? (
-              <Navigate to="/dashboard" replace />
+              <Navigate to={defaultRedirect} replace />
             ) : (
               <Navigate to="/login" replace />
             )
@@ -62,8 +65,8 @@ export function AppRoutes() {
         />
 
         {/* Public Auth Routes */}
-        <Route path="/login" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <LoginPage />} />
-        <Route path="/register" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <RegisterPage />} />
+        <Route path="/login" element={isAuthenticated ? <Navigate to={defaultRedirect} replace /> : <LoginPage />} />
+        <Route path="/register" element={isAuthenticated ? <Navigate to={defaultRedirect} replace /> : <RegisterPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
 
         {/* Protected Dashboard Layout Routes */}
@@ -74,49 +77,69 @@ export function AppRoutes() {
             </ProtectedRoute>
           }
         >
-          <Route path="/dashboard" element={<SuperAdminDashboard />} />
-          <Route path="/batches" element={<BatchManagementPage />} />
-          <Route path="/milestones" element={<MilestonesRoadmapPage />} />
-          <Route path="/students" element={<StudentManagementPage />} />
-          <Route path="/users" element={<UserManagementPage />} />
-          <Route path="/permissions" element={<PermissionManagementPage />} />
-          
-          {/* Course Routes */}
-          <Route path="/courses" element={<CourseListPage />} />
-          <Route path="/courses/:courseId" element={<CourseDetailPage />} />
-
-          {/* Assessment & Coding Routes */}
-          <Route path="/assessments" element={<AssessmentListPage />} />
-          <Route path="/coding-questions" element={<CodingQuestionsPage />} />
-
-          {/* Project Routes */}
-          <Route path="/projects" element={<ProjectManagementPage />} />
-
-          {/* Live Session Routes */}
-          <Route path="/live-sessions" element={<LiveSessionListPage />} />
-
-          {/* Job Portal Routes */}
-          <Route path="/jobs" element={<JobPortalPage />} />
-
-          {/* Library Routes */}
-          <Route path="/library" element={<RecordingLibraryPage />} />
-          <Route path="/library/:id" element={<RecordingDetailPage />} />
-
-          {/* Placement Preparation */}
-          <Route path="/placement" element={<PlacementPrepPage />} />
-
-          {/* Badges & Milestone Rewards */}
-          <Route path="/badges" element={<BadgesPage />} />
-
-          {/* Rewards & Merchandise */}
-          <Route path="/rewards" element={<RewardsManagementPage />} />
-
           {/* Student Specific View */}
-          <Route path="/student-dashboard" element={<StudentDashboardPage />} />
+          <Route 
+            path="/student-dashboard" 
+            element={
+              isStudent ? (
+                <StudentDashboardPage />
+              ) : (
+                <Navigate to="/dashboard" replace />
+              )
+            } 
+          />
+
+          {/* Admin / Staff Only Routes */}
+          <Route
+            element={
+              isStudent ? (
+                <Navigate to="/student-dashboard" replace />
+              ) : (
+                <Outlet />
+              )
+            }
+          >
+            <Route path="/dashboard" element={<SuperAdminDashboard />} />
+            <Route path="/batches" element={<BatchManagementPage />} />
+            <Route path="/milestones" element={<MilestonesRoadmapPage />} />
+            <Route path="/students" element={<StudentManagementPage />} />
+            <Route path="/users" element={<UserManagementPage />} />
+            <Route path="/permissions" element={<PermissionManagementPage />} />
+            
+            {/* Course Routes */}
+            <Route path="/courses" element={<CourseListPage />} />
+            <Route path="/courses/:courseId" element={<CourseDetailPage />} />
+
+            {/* Assessment & Coding Routes */}
+            <Route path="/assessments" element={<AssessmentListPage />} />
+            <Route path="/coding-questions" element={<CodingQuestionsPage />} />
+
+            {/* Project Routes */}
+            <Route path="/projects" element={<ProjectManagementPage />} />
+
+            {/* Live Session Routes */}
+            <Route path="/live-sessions" element={<LiveSessionListPage />} />
+
+            {/* Job Portal Routes */}
+            <Route path="/jobs" element={<JobPortalPage />} />
+
+            {/* Library Routes */}
+            <Route path="/library" element={<RecordingLibraryPage />} />
+            <Route path="/library/:id" element={<RecordingDetailPage />} />
+
+            {/* Placement Preparation */}
+            <Route path="/placement" element={<PlacementPrepPage />} />
+
+            {/* Badges & Milestone Rewards */}
+            <Route path="/badges" element={<BadgesPage />} />
+
+            {/* Rewards & Merchandise */}
+            <Route path="/rewards" element={<RewardsManagementPage />} />
+          </Route>
         </Route>
 
         {/* Fallback route */}
-        <Route path="*" element={<Navigate to={isAuthenticated ? "/dashboard" : "/login"} replace />} />
+        <Route path="*" element={<Navigate to={isAuthenticated ? defaultRedirect : "/login"} replace />} />
       </Routes>
     </Suspense>
   );

@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS public.profiles (
   joined_date DATE DEFAULT CURRENT_DATE,
   phone VARCHAR(50) DEFAULT '+91 98765-43210',
   avatar TEXT,
+  passwords VARCHAR(255),
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
@@ -76,6 +77,23 @@ CREATE TABLE IF NOT EXISTS public.assessments (
 
 ALTER TABLE public.assessments DROP COLUMN IF EXISTS coding_count;
 ALTER TABLE public.assessments DROP COLUMN IF EXISTS coding_questions;
+
+CREATE TABLE IF NOT EXISTS public.quizzes (
+  id VARCHAR(255) PRIMARY KEY,
+  title VARCHAR(255) NOT NULL,
+  course_id VARCHAR(255) REFERENCES public.courses(id) ON DELETE SET NULL,
+  course_name VARCHAR(255),
+  topic_id VARCHAR(255),
+  topic_name VARCHAR(255),
+  duration_minutes INTEGER DEFAULT 45,
+  total_marks INTEGER DEFAULT 100,
+  mcq_count INTEGER DEFAULT 5,
+  status VARCHAR(50) DEFAULT 'Active',
+  publish_status VARCHAR(50) DEFAULT 'Published',
+  due_date DATE DEFAULT '2026-08-30',
+  mcqs JSONB DEFAULT '[]'::jsonb,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
 
 -- 6. LIVE SESSIONS SCHEDULE TABLE
 CREATE TABLE IF NOT EXISTS public.live_sessions (
@@ -180,6 +198,7 @@ ALTER TABLE public.role_permissions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.courses ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.course_topics ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.assessments ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.quizzes ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.live_sessions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.jobs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.recordings ENABLE ROW LEVEL SECURITY;
@@ -210,6 +229,9 @@ CREATE POLICY "Public Write Course Topics" ON public.course_topics FOR ALL USING
 
 CREATE POLICY "Public Read Assessments" ON public.assessments FOR SELECT USING (true);
 CREATE POLICY "Public Write Assessments" ON public.assessments FOR ALL USING (true);
+
+CREATE POLICY "Public Read Quizzes" ON public.quizzes FOR SELECT USING (true);
+CREATE POLICY "Public Write Quizzes" ON public.quizzes FOR ALL USING (true);
 
 CREATE POLICY "Public Read Live Sessions" ON public.live_sessions FOR SELECT USING (true);
 CREATE POLICY "Public Write Live Sessions" ON public.live_sessions FOR ALL USING (true);

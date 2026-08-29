@@ -133,6 +133,7 @@ CREATE TABLE IF NOT EXISTS public.profiles (
   joined_date TEXT,
   phone TEXT,
   avatar TEXT,
+  passwords TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -185,18 +186,42 @@ DROP TABLE IF EXISTS public.daily_schedules CASCADE;
 CREATE TABLE IF NOT EXISTS public.assessments (
   id TEXT PRIMARY KEY,
   title TEXT NOT NULL,
-  course_id TEXT,
+  course_id TEXT REFERENCES public.courses(id) ON DELETE SET NULL,
   course_name TEXT,
-  duration TEXT DEFAULT '45 mins',
-  questions_count INT DEFAULT 15,
-  passing_score INT DEFAULT 70,
-  status TEXT DEFAULT 'Published',
-  created_date TEXT,
+  topic_id TEXT,
+  topic_name TEXT,
+  duration_minutes INT DEFAULT 45,
+  total_marks INT DEFAULT 100,
+  mcq_count INT DEFAULT 5,
+  status TEXT DEFAULT 'Active',
+  publish_status TEXT DEFAULT 'Published',
+  due_date TEXT DEFAULT '2026-08-30',
+  mcqs JSONB DEFAULT '[]'::jsonb,
+  target_batch TEXT DEFAULT 'Weekday Batch',
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 ALTER TABLE public.assessments DROP COLUMN IF EXISTS coding_count;
 ALTER TABLE public.assessments DROP COLUMN IF EXISTS coding_questions;
+
+-- 14B. QUIZZES TABLE
+CREATE TABLE IF NOT EXISTS public.quizzes (
+  id TEXT PRIMARY KEY,
+  title TEXT NOT NULL,
+  course_id TEXT REFERENCES public.courses(id) ON DELETE SET NULL,
+  course_name TEXT,
+  topic_id TEXT,
+  topic_name TEXT,
+  duration_minutes INT DEFAULT 45,
+  total_marks INT DEFAULT 100,
+  mcq_count INT DEFAULT 5,
+  status TEXT DEFAULT 'Active',
+  publish_status TEXT DEFAULT 'Published',
+  due_date TEXT DEFAULT '2026-08-30',
+  mcqs JSONB DEFAULT '[]'::jsonb,
+  target_batch TEXT DEFAULT 'Weekday Batch',
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
 
 -- 15. RECORDINGS TABLE
 CREATE TABLE IF NOT EXISTS public.recordings (
@@ -219,7 +244,7 @@ CREATE TABLE IF NOT EXISTS public.recordings (
 DO $$
 BEGIN
   IF EXISTS (SELECT 1 FROM pg_publication WHERE pubname = 'supabase_realtime') THEN
-    ALTER PUBLICATION supabase_realtime ADD TABLE public.projects, public.courses, public.jobs, public.live_sessions, public.placement_resources, public.milestones_data, public.coding_questions, public.batches, public.students, public.assessments, public.recordings;
+    ALTER PUBLICATION supabase_realtime ADD TABLE public.projects, public.courses, public.jobs, public.live_sessions, public.placement_resources, public.milestones_data, public.coding_questions, public.batches, public.students, public.assessments, public.recordings, public.quizzes;
   END IF;
 EXCEPTION WHEN OTHERS THEN
   NULL;
@@ -241,6 +266,7 @@ ALTER TABLE public.role_permissions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.batches ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.students ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.assessments ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.quizzes ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.recordings ENABLE ROW LEVEL SECURITY;
 
 -- CREATE POLICIES TO ALLOW APP DATA ACCESS
@@ -254,6 +280,9 @@ BEGIN
 
   DROP POLICY IF EXISTS "Allow full app access on assessments" ON public.assessments;
   CREATE POLICY "Allow full app access on assessments" ON public.assessments FOR ALL USING (true) WITH CHECK (true);
+
+  DROP POLICY IF EXISTS "Allow full app access on quizzes" ON public.quizzes;
+  CREATE POLICY "Allow full app access on quizzes" ON public.quizzes FOR ALL USING (true) WITH CHECK (true);
 
   DROP POLICY IF EXISTS "Allow full app access on recordings" ON public.recordings;
   CREATE POLICY "Allow full app access on recordings" ON public.recordings FOR ALL USING (true) WITH CHECK (true);

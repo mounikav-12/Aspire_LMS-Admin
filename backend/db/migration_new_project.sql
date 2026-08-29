@@ -23,6 +23,7 @@ CREATE TABLE IF NOT EXISTS public.profiles (
   joined_date TEXT,
   phone TEXT DEFAULT '+91 98765-43210',
   avatar TEXT,
+  passwords TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -83,6 +84,24 @@ CREATE TABLE IF NOT EXISTS public.assessments (
 
 ALTER TABLE public.assessments DROP COLUMN IF EXISTS coding_count;
 ALTER TABLE public.assessments DROP COLUMN IF EXISTS coding_questions;
+
+CREATE TABLE IF NOT EXISTS public.quizzes (
+  id TEXT PRIMARY KEY,
+  title TEXT NOT NULL,
+  course_id TEXT REFERENCES public.courses(id) ON DELETE SET NULL,
+  course_name TEXT,
+  topic_id TEXT,
+  topic_name TEXT,
+  duration_minutes INT DEFAULT 45,
+  total_marks INT DEFAULT 100,
+  mcq_count INT DEFAULT 5,
+  status TEXT DEFAULT 'Active',
+  publish_status TEXT DEFAULT 'Published',
+  due_date TEXT DEFAULT '2026-08-30',
+  mcqs JSONB DEFAULT '[]'::jsonb,
+  target_batch TEXT DEFAULT 'Weekday Batch',
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
 
 -- 6. LIVE SESSIONS SCHEDULE TABLE
 CREATE TABLE IF NOT EXISTS public.live_sessions (
@@ -180,6 +199,15 @@ CREATE TABLE IF NOT EXISTS public.projects (
   is_locked BOOLEAN DEFAULT FALSE,
   submissions JSONB DEFAULT '[]'::jsonb,
   target_batch TEXT DEFAULT 'Weekday Batch',
+  overview TEXT,
+  requirements JSONB DEFAULT '[]'::jsonb,
+  steps JSONB DEFAULT '[]'::jsonb,
+  rubric JSONB DEFAULT '[]'::jsonb,
+  mentor_tip TEXT,
+  course_id TEXT,
+  stage_id TEXT,
+  subtopic_id TEXT,
+  inner_topic_id TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -237,7 +265,8 @@ BEGIN
       public.milestones_data,
       public.projects,
       public.coding_questions,
-      public.rewards;
+      public.rewards,
+      public.quizzes;
   END IF;
 EXCEPTION WHEN OTHERS THEN
   NULL;
@@ -251,6 +280,7 @@ ALTER TABLE public.role_permissions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.courses ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.course_topics ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.assessments ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.quizzes ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.live_sessions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.jobs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.recordings ENABLE ROW LEVEL SECURITY;
@@ -279,6 +309,9 @@ BEGIN
 
   DROP POLICY IF EXISTS "Allow full app access on assessments" ON public.assessments;
   CREATE POLICY "Allow full app access on assessments" ON public.assessments FOR ALL USING (true) WITH CHECK (true);
+
+  DROP POLICY IF EXISTS "Allow full app access on quizzes" ON public.quizzes;
+  CREATE POLICY "Allow full app access on quizzes" ON public.quizzes FOR ALL USING (true) WITH CHECK (true);
 
   DROP POLICY IF EXISTS "Allow full app access on live_sessions" ON public.live_sessions;
   CREATE POLICY "Allow full app access on live_sessions" ON public.live_sessions FOR ALL USING (true) WITH CHECK (true);

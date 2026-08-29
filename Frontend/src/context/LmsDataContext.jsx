@@ -162,6 +162,15 @@ export function LmsDataProvider({ children }) {
   const registeredUsers = authContext?.registeredUsers || [];
   const updateUserProfile = authContext?.updateUserProfile;
 
+  const getAuthHeader = async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      return session?.access_token ? { 'Authorization': `Bearer ${session.access_token}` } : {};
+    } catch (e) {
+      return {};
+    }
+  };
+
   // Helper to load array state from localStorage or fallback
   const loadLocalState = (key, fallback) => {
     try {
@@ -579,11 +588,11 @@ export function LmsDataProvider({ children }) {
       const now = new Date().toISOString();
       const rowsToUpsert = [];
 
-      const hasCourseKeys = Object.keys(dataToSync).some(k => !['batch_data', 'badges_data', 'completed_items', 'default', 'Weekday Batch', 'Weekend Batch'].includes(k));
+      const hasCourseKeys = Object.keys(dataToSync).some(k => !['batch_data', 'badges_data', 'completed_items', 'default', 'Weekday Batch', 'Weekend Batch', 'ml-python-full-stack', 'ml-python-weekend'].includes(k));
 
       Object.keys(dataToSync).forEach((key) => {
         const isLegacyBatchKey = key === 'Weekday Batch' || key === 'Weekend Batch';
-        if (!['batch_data', 'badges_data', 'completed_items'].includes(key) && (!hasCourseKeys || !isLegacyBatchKey)) {
+        if (!['batch_data', 'badges_data', 'completed_items', 'ml-python-full-stack', 'ml-python-weekend'].includes(key) && (!hasCourseKeys || !isLegacyBatchKey)) {
           const overviewObj = dataToSync[key]?.overview || { trackTitle: 'Curriculum & Milestones Roadmap' };
           const targetBatchVal = overviewObj.targetBatch || dataToSync[key]?.targetBatch || (key === 'Weekend Batch' ? 'Weekend Batch' : key === 'Weekday Batch' ? 'Weekday Batch' : 'ALL');
           rowsToUpsert.push({
@@ -609,9 +618,13 @@ export function LmsDataProvider({ children }) {
       if (sbErr) {
         console.warn('Supabase milestones bulk sync warning, attempting backend API fallback:', sbErr.message);
         try {
+          const authHeaders = await getAuthHeader();
           await fetch('/api/milestones', {
             method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+              'Content-Type': 'application/json',
+              ...authHeaders
+            },
             body: JSON.stringify({ batchData: dataToSync })
           });
         } catch (apiErr) {
@@ -787,7 +800,7 @@ export function LmsDataProvider({ children }) {
     }
 
     if (modMatch) {
-      const nonLive = (modMatch.items || []).filter(it => it.type !== 'LIVE CLASS' && it.sessionId !== session.id);
+      const nonLive = (modMatch.items || []).filter(it => it.type !== 'LIVE CLASS' || it.sessionId !== session.id);
       const updatedMod = {
         ...modMatch,
         meetingLink: session.meetingLink || session.meeting_link || modMatch.meetingLink,
@@ -1375,9 +1388,13 @@ export function LmsDataProvider({ children }) {
       if (compErr) {
         console.warn('Supabase completion sync warning, fallback to /api/milestones/completion:', compErr.message);
         try {
+          const authHeaders = await getAuthHeader();
           await fetch('/api/milestones/completion', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+              'Content-Type': 'application/json',
+              ...authHeaders
+            },
             body: JSON.stringify({ completedItemIds: itemIds })
           });
         } catch (apiErr) {
@@ -1470,8 +1487,80 @@ export function LmsDataProvider({ children }) {
     if (isRefetchingRef.current) return; // prevent concurrent fetches
     isRefetchingRef.current = true;
     try {
+      const [
+        profilesRes,
+        permsRes,
+        topicsRes,
+        coursesRes,
+        jobsRes,
+        assessmentsRes,
+        quizzesRes,
+        sessionsRes,
+        placementRes,
+        milestonesRes,
+        projectsRes,
+        studentsRes,
+        batchesRes,
+        codingRes,
+        lessonsRes,
+        locksRes,
+        badgesRes,
+        recordingsRes
+      ] = await Promise.all([
+        supabase.from('profiles').select('*'),
+        supabase.from('role_permissions').select('*'),
+        supabase.from('course_topics').select('*'),
+        supabase.from('courses').select('*'),
+        supabase.from('jobs').select('*'),
+        supabase.from('assessments').select('*').order('created_at', { ascending: true }),
+        supabase.from('quizzes').select('*').order('created_at', { ascending: true }),
+        supabase.from('live_sessions').select('*').order('created_at', { ascending: true }),
+        supabase.from('placement_resources').select('*'),
+        supabase.from('milestones_data').select('*'),
+        supabase.from('projects').select('*').order('created_at', { ascending: true }),
+        supabase.from('students').select('*').order('created_at', { ascending: false }),
+        supabase.from('batches').select('*'),
+        supabase.from('coding_questions').select('*'),
+        supabase.from('course_lessons').select('*').order('sort_order'),
+        supabase.from('milestone_locks').select('*'),
+        supabase.from('badges').select('*'),
+        supabase.from('recordings').select('*')
+      ]);
+
+      const profilesData = profilesRes.data;
+      const profilesErr = profilesRes.error;
+      const permsData = permsRes.data;
+      const topicsData = topicsRes.data;
+      const coursesData = coursesRes.data;
+      const coursesErr = coursesRes.error;
+      const jobsData = jobsRes.data;
+      const jobsErr = jobsRes.error;
+      const assessmentsData = assessmentsRes.data;
+      const asmntErr = assessmentsRes.error;
+      const quizzesData = quizzesRes.data;
+      const quizErr = quizzesRes.error;
+      const sessionsData = sessionsRes.data;
+      const sessionsErr = sessionsRes.error;
+      const placementData = placementRes.data;
+      const placementErr = placementRes.error;
+      let milesData = milestonesRes.data;
+      let milesErr = milestonesRes.error;
+      const projectsData = projectsRes.data;
+      const projectsErr = projectsRes.error;
+      const studentsData = studentsRes.data;
+      const studentsErr = studentsRes.error;
+      const batchesData = batchesRes.data;
+      const batchesErr = batchesRes.error;
+      const codingData = codingRes.data;
+      const codingErr = codingRes.error;
+      const lessonsData = lessonsRes.data;
+      const locksData = locksRes.data;
+      const badgesData = badgesRes.data;
+      const badgesErr = badgesRes.error;
+      const recordingsData = recordingsRes.data;
+      const recordingsErr = recordingsRes.error;
+
       // 1. Fetch Profiles
-      const { data: profilesData, error: profilesErr } = await supabase.from('profiles').select('*');
       if (!profilesErr && profilesData && profilesData.length > 0) {
         // Self-heal/normalize usr-1 Super Admin profile in Supabase table if outdated email is present
         const adminProfile = profilesData.find(u => u.id === 'usr-1');
@@ -1504,7 +1593,7 @@ export function LmsDataProvider({ children }) {
       }
 
       // 2. Fetch Role Permissions Matrix
-      const { data: permsData } = await supabase.from('role_permissions').select('*');
+      
       if (permsData && permsData.length > 0) {
         const mappedPerms = { ...INITIAL_ROLE_PERMISSIONS };
         const rolesList = [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER, ROLES.INSTRUCTOR];
@@ -1518,7 +1607,6 @@ export function LmsDataProvider({ children }) {
       }
 
       // 3. Fetch Course Topics Modules
-      const { data: topicsData } = await supabase.from('course_topics').select('*');
       const topicsByCourse = {};
       if (topicsData && topicsData.length > 0) {
         // Sort topics numerically by their Stage number (Stage 1, Stage 2...) or ID
@@ -1547,8 +1635,8 @@ export function LmsDataProvider({ children }) {
       }
 
       // 4. Fetch Courses Catalog
-      const { data: coursesData, error: coursesErr } = await supabase.from('courses').select('*');
-      if (!coursesErr && coursesData && coursesData.length > 0) {
+      
+      if (!coursesErr && coursesData) {
         const mappedCourses = coursesData.map(c => {
           const dbTopics = topicsByCourse[c.id];
           const defaultCourse = INITIAL_COURSES.find(ic => ic.id === c.id || ic.title?.toLowerCase() === c.title?.toLowerCase());
@@ -1597,8 +1685,8 @@ export function LmsDataProvider({ children }) {
       }
 
       // 5. Fetch Jobs
-      const { data: jobsData, error: jobsErr } = await supabase.from('jobs').select('*');
-      if (!jobsErr && jobsData && jobsData.length > 0) {
+      
+      if (!jobsErr && jobsData) {
         const mappedJobs = jobsData.map(j => ({
           id: j.id,
           company: j.company || '',
@@ -1635,8 +1723,8 @@ export function LmsDataProvider({ children }) {
       }
 
       // 6. Fetch Assessments Roster from Supabase
-      const { data: assessmentsData, error: asmntErr } = await supabase.from('assessments').select('*').order('created_at', { ascending: true });
-      if (!asmntErr && assessmentsData && assessmentsData.length > 0) {
+      
+      if (!asmntErr && assessmentsData) {
         const mappedAsmnts = assessmentsData.map(normalizeAssessment).filter(Boolean);
         setAssessmentsByBatch(() => {
           const next = { 'Weekday Batch': [], 'Weekend Batch': [] };
@@ -1647,8 +1735,7 @@ export function LmsDataProvider({ children }) {
 
       // 6b. Fetch Quizzes Roster from Supabase
       try {
-        const { data: quizzesData, error: quizErr } = await supabase.from('quizzes').select('*').order('created_at', { ascending: true });
-        if (!quizErr && quizzesData && quizzesData.length > 0) {
+        if (!quizErr && quizzesData) {
           const mappedQuizzes = quizzesData.map(normalizeAssessment).filter(Boolean);
           setQuizzesByBatch(() => {
             const next = { 'Weekday Batch': [], 'Weekend Batch': [] };
@@ -1661,8 +1748,8 @@ export function LmsDataProvider({ children }) {
       }
 
       // 7. Fetch Live Sessions
-      const { data: sessionsData, error: sessionsErr } = await supabase.from('live_sessions').select('*').order('created_at', { ascending: true });
-      if (!sessionsErr && sessionsData && sessionsData.length > 0) {
+      
+      if (!sessionsErr && sessionsData) {
         const mappedSessions = sessionsData.map(normalizeLiveSession).filter(Boolean);
         // REPLACE (not append) to prevent duplicates
         setLiveSessionsByBatch(() => {
@@ -1673,8 +1760,8 @@ export function LmsDataProvider({ children }) {
       }
 
       // 7. Fetch Placement Resources
-      const { data: placementData, error: placementErr } = await supabase.from('placement_resources').select('*');
-      if (!placementErr && placementData && placementData.length > 0) {
+      
+      if (!placementErr && placementData) {
         setPlacementResources(placementData.map(p => ({
           id: p.id,
           category: p.category || '',
@@ -1689,15 +1776,7 @@ export function LmsDataProvider({ children }) {
       }
 
       // 8. Fetch Milestones Roadmap Data & Student Progress directly from Database / Supabase / API
-      let milesData = null;
-      let milesErr = null;
-      try {
-        const res = await supabase.from('milestones_data').select('*');
-        milesData = res.data;
-        milesErr = res.error;
-      } catch (e) {
-        milesErr = e;
-      }
+      // Pre-fetched from milestonesRes
 
       // If Supabase direct query returned nothing or had an error, try backend API endpoint
       if ((!milesData || milesData.length === 0)) {
@@ -1731,6 +1810,14 @@ export function LmsDataProvider({ children }) {
           batchData = { ...batchRow.overview.batchData, ...batchData };
         }
 
+        // Apply aliases to map the database course IDs to the milestone keys
+        if (batchData['ml-python-full-stack'] && !batchData['crs-1786624019154-w']) {
+          batchData['crs-1786624019154-w'] = batchData['ml-python-full-stack'];
+        }
+        if (batchData['ml-python-weekend'] && !batchData['crs-1786624019154-s']) {
+          batchData['crs-1786624019154-s'] = batchData['ml-python-weekend'];
+        }
+
         const hasCourseKeysInMiles = Object.keys(batchData).some(k => !['batch_data', 'badges_data', 'completed_items', 'default', 'Weekday Batch', 'Weekend Batch'].includes(k));
 
         if (!hasCourseKeysInMiles) {
@@ -1751,6 +1838,31 @@ export function LmsDataProvider({ children }) {
             };
           }
         }
+
+        // Clean up defunct live class items and topics from milestones
+        const activeSessionIds = new Set((sessionsData || []).map(s => s.id));
+        ['Weekday Batch', 'Weekend Batch'].forEach(bKey => {
+          if (batchData[bKey] && batchData[bKey].stages) {
+            batchData[bKey].stages = batchData[bKey].stages.map(stage => ({
+              ...stage,
+              subtopics: (stage.subtopics || []).map(sub => ({
+                ...sub,
+                modules: (sub.modules || []).map(m => {
+                  const remainingItems = (m.items || []).filter(it => 
+                    it.type !== 'LIVE CLASS' || activeSessionIds.has(it.sessionId)
+                  );
+                  const hasActiveLive = remainingItems.some(it => it.type === 'LIVE CLASS');
+                  return {
+                    ...m,
+                    items: remainingItems,
+                    topics: hasActiveLive ? m.topics : [],
+                    ...(hasActiveLive ? {} : { meetingLink: '', instructor: '', date: '', time: '' })
+                  };
+                })
+              }))
+            }));
+          }
+        });
 
         // Reconcile milestone modules with active live sessions from database
         if (sessionsData && sessionsData.length > 0) {
@@ -1785,8 +1897,8 @@ export function LmsDataProvider({ children }) {
       }
 
       // 9. Fetch Projects Catalog
-      const { data: projectsData, error: projectsErr } = await supabase.from('projects').select('*').order('created_at', { ascending: true });
-      if (!projectsErr && projectsData && projectsData.length > 0) {
+      
+      if (!projectsErr && projectsData) {
         const mappedProjects = projectsData.map(normalizeProject).filter(Boolean);
         // REPLACE (not append) to prevent duplicates (supports All Batches target)
         setProjectsByBatch(() => {
@@ -1797,7 +1909,7 @@ export function LmsDataProvider({ children }) {
       }
 
       // 10. Fetch Students Roster directly from Supabase DB
-      const { data: studentsData, error: studentsErr } = await supabase.from('students').select('*').order('created_at', { ascending: false });
+      
       if (!studentsErr && studentsData) {
         setStudents(studentsData.map(s => {
           const sName = s.name || 'Student';
@@ -1821,8 +1933,8 @@ export function LmsDataProvider({ children }) {
       }
 
       // 11. Fetch Batches List
-      const { data: batchesData, error: batchesErr } = await supabase.from('batches').select('*');
-      if (!batchesErr && batchesData && batchesData.length > 0) {
+      
+      if (!batchesErr && batchesData) {
         const dbBatches = batchesData.map(b => b.code || b.id).filter(Boolean);
         const sortedBatches = Array.from(new Set(dbBatches)).sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }));
         setAvailableBatches(sortedBatches);
@@ -1830,8 +1942,8 @@ export function LmsDataProvider({ children }) {
       }
 
       // 12. Fetch Coding Questions Catalog
-      const { data: codingData, error: codingErr } = await supabase.from('coding_questions').select('*');
-      if (!codingErr && codingData && codingData.length > 0) {
+      
+      if (!codingErr && codingData) {
         const mappedCoding = codingData.map(cq => ({
           id: cq.id,
           title: cq.title || '',
@@ -1859,19 +1971,16 @@ export function LmsDataProvider({ children }) {
 
       // Load course lessons from Supabase
       try {
-        const { data: lessonsData } = await supabase.from('course_lessons').select('*').order('sort_order');
         if (lessonsData) setCourseLessons(lessonsData);
       } catch (err) { console.warn('Course lessons load:', err); }
 
       // Load milestone locks from Supabase
       try {
-        const { data: locksData } = await supabase.from('milestone_locks').select('*');
         if (locksData) setMilestoneLocks(locksData);
       } catch (err) { console.warn('Milestone locks load:', err); }
 
       // 13. Fetch Badges Catalog
       try {
-        const { data: badgesData, error: badgesErr } = await supabase.from('badges').select('*');
         if (!badgesErr && badgesData && badgesData.length > 0) {
           setBadges(badgesData.map(b => ({
             id: b.id,
@@ -1891,6 +2000,34 @@ export function LmsDataProvider({ children }) {
           }
         }
       } catch (err) { console.warn('Badges load:', err); }
+
+      // 13B. Fetch Recordings Catalog
+      try {
+        if (!recordingsErr && recordingsData) {
+          const mappedRecordings = recordingsData.map(r => ({
+            id: r.id,
+            title: r.title,
+            conceptName: r.concept_name || r.topic || '',
+            duration: r.duration || '1h 30m',
+            instructor: r.instructor || r.speaker || '',
+            publishStatus: r.publish_status || 'Available in Student Library',
+            postedDate: r.posted_date || r.date || '',
+            videoUrl: r.video_url || '',
+            thumbnail: r.thumbnail || '',
+            description: r.description || '',
+            instructions: r.instructions || '',
+            targetBatch: r.target_batch || r.batch || 'Weekday Batch'
+          }));
+          setRecordingsByBatch(() => {
+            const next = { 'Weekday Batch': [], 'Weekend Batch': [] };
+            mappedRecordings.forEach(rec => {
+              const bKey = rec.targetBatch === 'Weekend Batch' ? 'Weekend Batch' : 'Weekday Batch';
+              next[bKey].push(rec);
+            });
+            return next;
+          });
+        }
+      } catch (err) { console.warn('Recordings load:', err); }
 
     } catch (err) {
       console.warn('Supabase initial fetch using fallback mock data:', err);
@@ -1913,16 +2050,124 @@ export function LmsDataProvider({ children }) {
         channels.push(ch);
       };
 
-      // Profiles, Students, Batches, Milestones, Courses, Assessments, Coding Questions & Projects — trigger full refetch
-      makeChannel('profiles', () => fetchSupabaseData());
-      makeChannel('students', () => fetchSupabaseData());
-      makeChannel('batches', () => fetchSupabaseData());
+      // Delta realtime channel handlers (in-place updates) instead of full refetches
+      makeChannel('profiles', (payload) => {
+        setUsers((prev) => {
+          const next = [...prev];
+          const u = payload.new;
+          if (payload.eventType === 'INSERT') {
+            if (!next.find(x => x.id === u.id)) {
+              const defaultAvatar = `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(u.name || 'User')}&backgroundColor=2563eb&textColor=ffffff&bold=true`;
+              next.push({
+                id: u.id,
+                name: u.name || '',
+                email: u.email || '',
+                role: u.role || 'Instructor',
+                originalRole: u.original_role || u.role || 'Instructor',
+                department: u.department || 'Executive Leadership',
+                status: u.status || 'Active',
+                joinedDate: u.joined_date || '',
+                phone: u.phone || '+91 98765-43210',
+                avatar: u.avatar || defaultAvatar
+              });
+            }
+          } else if (payload.eventType === 'UPDATE') {
+            const index = next.findIndex(x => x.id === u.id);
+            if (index !== -1) {
+              const defaultAvatar = `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(u.name || 'User')}&backgroundColor=2563eb&textColor=ffffff&bold=true`;
+              next[index] = {
+                id: u.id,
+                name: u.name || '',
+                email: u.email || '',
+                role: u.role || 'Instructor',
+                originalRole: u.original_role || u.role || 'Instructor',
+                department: u.department || 'Executive Leadership',
+                status: u.status || 'Active',
+                joinedDate: u.joined_date || '',
+                phone: u.phone || '+91 98765-43210',
+                avatar: u.avatar || defaultAvatar
+              };
+            }
+          } else if (payload.eventType === 'DELETE') {
+            return next.filter(x => x.id !== payload.old?.id);
+          }
+          return next;
+        });
+      });
+
+      makeChannel('students', (payload) => {
+        setStudents((prev) => {
+          const next = [...prev];
+          const s = payload.new;
+          if (payload.eventType === 'INSERT') {
+            if (!next.find(x => x.id === s.id)) {
+              const sName = s.name || 'Student';
+              const defaultAvatar = `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(sName.trim())}&backgroundColor=e0e7ff&textColor=3730a3&bold=true`;
+              const avatarUrl = (s.avatar && !s.avatar.includes('unsplash.com')) ? s.avatar : defaultAvatar;
+              next.unshift({
+                id: s.id,
+                name: sName,
+                email: s.email || '',
+                mobileNumber: s.mobile_number || s.mobileNumber || '',
+                registrationId: s.registration_id || s.registrationId || '',
+                batch: s.batch || 'A26W1',
+                enrolledCourses: Array.isArray(s.enrolled_courses) ? s.enrolled_courses : (typeof s.enrolled_courses === 'string' ? JSON.parse(s.enrolled_courses) : []),
+                avatar: avatarUrl,
+                status: s.status || 'Active',
+                joinedDate: s.joined_date || s.joinedDate || ''
+              });
+            }
+          } else if (payload.eventType === 'UPDATE') {
+            const index = next.findIndex(x => x.id === s.id);
+            if (index !== -1) {
+              const sName = s.name || 'Student';
+              const defaultAvatar = `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(sName.trim())}&backgroundColor=e0e7ff&textColor=3730a3&bold=true`;
+              const avatarUrl = (s.avatar && !s.avatar.includes('unsplash.com')) ? s.avatar : defaultAvatar;
+              next[index] = {
+                id: s.id,
+                name: sName,
+                email: s.email || '',
+                mobileNumber: s.mobile_number || s.mobileNumber || '',
+                registrationId: s.registration_id || s.registrationId || '',
+                batch: s.batch || 'A26W1',
+                enrolledCourses: Array.isArray(s.enrolled_courses) ? s.enrolled_courses : (typeof s.enrolled_courses === 'string' ? JSON.parse(s.enrolled_courses) : []),
+                avatar: avatarUrl,
+                status: s.status || 'Active',
+                joinedDate: s.joined_date || s.joinedDate || ''
+              };
+            }
+          } else if (payload.eventType === 'DELETE') {
+            return next.filter(x => x.id !== payload.old?.id);
+          }
+          return next;
+        });
+      });
+
+      makeChannel('batches', (payload) => {
+        const b = payload.new;
+        if (payload.eventType === 'INSERT') {
+          setBatchesList(prev => [...prev, b]);
+          setAvailableBatches(prev => Array.from(new Set([...prev, b.code])).sort());
+        } else if (payload.eventType === 'UPDATE') {
+          setBatchesList(prev => prev.map(x => x.id === b.id ? b : x));
+          setAvailableBatches(prev => Array.from(new Set(prev.map(x => x === payload.old?.code ? b.code : x))).sort());
+        } else if (payload.eventType === 'DELETE') {
+          setBatchesList(prev => prev.filter(x => x.id !== payload.old?.id));
+          setAvailableBatches(prev => prev.filter(x => x !== payload.old?.code));
+        }
+      });
       // Milestones Realtime Channel
       makeChannel('milestones_data', (payload) => {
         if (payload?.new) {
           const row = payload.new;
           if (row.id === 'batch_data' && row.overview?.batchData) {
-            const incoming = row.overview.batchData;
+            const incoming = { ...row.overview.batchData };
+            if (incoming['ml-python-full-stack'] && !incoming['crs-1786624019154-w']) {
+              incoming['crs-1786624019154-w'] = incoming['ml-python-full-stack'];
+            }
+            if (incoming['ml-python-weekend'] && !incoming['crs-1786624019154-s']) {
+              incoming['crs-1786624019154-s'] = incoming['ml-python-weekend'];
+            }
             const strIncoming = JSON.stringify(incoming);
             if (lastSyncedMilestonesRef.current !== strIncoming) {
               lastSyncedMilestonesRef.current = strIncoming;
@@ -1939,6 +2184,20 @@ export function LmsDataProvider({ children }) {
                   stages: row.stages
                 }
               };
+              if (row.id === 'ml-python-full-stack') {
+                next['ml-python-full-stack'] = {
+                  overview: row.overview || {},
+                  stages: row.stages
+                };
+                next['crs-1786624019154-w'] = next['ml-python-full-stack'];
+              }
+              if (row.id === 'ml-python-weekend') {
+                next['ml-python-weekend'] = {
+                  overview: row.overview || {},
+                  stages: row.stages
+                };
+                next['crs-1786624019154-s'] = next['ml-python-weekend'];
+              }
               const strNext = JSON.stringify(next);
               if (lastSyncedMilestonesRef.current !== strNext) {
                 lastSyncedMilestonesRef.current = strNext;
@@ -2026,9 +2285,144 @@ export function LmsDataProvider({ children }) {
         }
       });
 
-      makeChannel('courses', () => fetchSupabaseData());
-      makeChannel('coding_questions', () => fetchSupabaseData());
-      makeChannel('badges', () => fetchSupabaseData());
+      makeChannel('courses', (payload) => {
+        const fetchCoursesOnly = async () => {
+          const { data: coursesData } = await supabase.from('courses').select('*');
+          if (coursesData) {
+            const { data: topicsData } = await supabase.from('course_topics').select('*');
+            const topicsByCourse = {};
+            if (topicsData) {
+              topicsData.forEach(t => {
+                if (!topicsByCourse[t.course_id]) topicsByCourse[t.course_id] = [];
+                topicsByCourse[t.course_id].push({
+                  id: t.id,
+                  title: t.title || '',
+                  liveClasses: t.live_classes || 0,
+                  practice: t.practice || 0,
+                  assessments: t.assessments || 0,
+                  subtopics: t.subtopics || []
+                });
+              });
+            }
+            const mappedCourses = coursesData.map(c => {
+              const dbTopics = topicsByCourse[c.id];
+              return {
+                id: c.id,
+                title: c.title || '',
+                category: c.category || 'Web Development',
+                level: c.level || 'Intermediate',
+                instructor: c.instructor || 'Staff',
+                publishStatus: c.publish_status || 'Published',
+                thumbnail: c.thumbnail || '',
+                enrolledCount: c.enrolled_count || 0,
+                rating: c.rating || 4.8,
+                description: c.description || '',
+                targetBatch: c.target_batch || 'Weekday Batch',
+                topics: dbTopics || []
+              };
+            });
+            setCoursesByBatch(() => {
+              const next = { 'Weekday Batch': [], 'Weekend Batch': [] };
+              mappedCourses.forEach(c => {
+                const target = (c.targetBatch || '').toUpperCase();
+                if (target === 'ALL BATCHES' || target === 'ALL') {
+                  next['Weekday Batch'].push(c);
+                  next['Weekend Batch'].push(c);
+                } else if (target === 'WEEKEND BATCH' || target.includes('WEEKEND')) {
+                  next['Weekend Batch'].push(c);
+                } else {
+                  next['Weekday Batch'].push(c);
+                }
+              });
+              return next;
+            });
+          }
+        };
+        fetchCoursesOnly();
+      });
+
+      makeChannel('coding_questions', (payload) => {
+        const cq = payload.new;
+        setCodingQuestionsByBatch((prev) => {
+          const next = {
+            'Weekday Batch': [...(prev['Weekday Batch'] || [])],
+            'Weekend Batch': [...(prev['Weekend Batch'] || [])]
+          };
+          const bKey = cq?.target_batch === 'Weekend Batch' ? 'Weekend Batch' : 'Weekday Batch';
+          const normalized = {
+            id: cq.id,
+            title: cq.title || '',
+            difficulty: cq.difficulty || 'Medium',
+            category: cq.category || 'Algorithms',
+            tags: Array.isArray(cq.tags) ? cq.tags : (typeof cq.tags === 'string' ? JSON.parse(cq.tags) : []),
+            problemStatement: cq.problem_statement || '',
+            starterCode: cq.starter_code || '',
+            solutionCode: cq.solution_code || '',
+            testCases: Array.isArray(cq.test_cases) ? cq.test_cases : (typeof cq.test_cases === 'string' ? JSON.parse(cq.test_cases) : []),
+            createdDate: cq.created_date || '',
+            postedBy: cq.posted_by || 'Admin Portal',
+            targetBatch: cq.target_batch || 'Weekday Batch',
+            courseId: cq.course_id || '',
+            stageId: cq.stage_id || '',
+            subtopicId: cq.subtopic_id || '',
+            innerTopicId: cq.inner_topic_id || ''
+          };
+          if (payload.eventType === 'INSERT') {
+            if (!next[bKey].find(x => x.id === normalized.id)) {
+              next[bKey].push(normalized);
+            }
+          } else if (payload.eventType === 'UPDATE') {
+            const updateInPlace = (arr) => arr.map(x => x.id === normalized.id ? normalized : x);
+            next['Weekday Batch'] = updateInPlace(next['Weekday Batch']);
+            next['Weekend Batch'] = updateInPlace(next['Weekend Batch']);
+          } else if (payload.eventType === 'DELETE') {
+            const deletedId = payload.old?.id;
+            next['Weekday Batch'] = next['Weekday Batch'].filter(x => x.id !== deletedId);
+            next['Weekend Batch'] = next['Weekend Batch'].filter(x => x.id !== deletedId);
+          }
+          return next;
+        });
+      });
+
+      makeChannel('badges', (payload) => {
+        const b = payload.new;
+        setBadges((prev) => {
+          const next = [...prev];
+          if (payload.eventType === 'INSERT') {
+            if (!next.find(x => x.id === b.id)) {
+              next.push({
+                id: b.id,
+                name: b.name || '',
+                description: b.description || '',
+                icon: b.icon || 'Award',
+                color: b.color || 'purple',
+                category: b.category || 'Achievement',
+                criteria: b.criteria || '',
+                points: b.points || '100 XP',
+                targetBatch: b.target_batch || 'ALL BATCHES'
+              });
+            }
+          } else if (payload.eventType === 'UPDATE') {
+            const index = next.findIndex(x => x.id === b.id);
+            if (index !== -1) {
+              next[index] = {
+                id: b.id,
+                name: b.name || '',
+                description: b.description || '',
+                icon: b.icon || 'Award',
+                color: b.color || 'purple',
+                category: b.category || 'Achievement',
+                criteria: b.criteria || '',
+                points: b.points || '100 XP',
+                targetBatch: b.target_batch || 'ALL BATCHES'
+              };
+            }
+          } else if (payload.eventType === 'DELETE') {
+            return next.filter(x => x.id !== payload.old?.id);
+          }
+          return next;
+        });
+      });
 
       // Live Sessions — delta update with in-place update to preserve position & sync to Milestones
       makeChannel('live_sessions', (payload) => {
@@ -2245,6 +2639,46 @@ export function LmsDataProvider({ children }) {
 
       // Role permissions — full refetch
       makeChannel('role_permissions', () => fetchSupabaseData());
+
+      // Recordings delta realtime channel subscription
+      makeChannel('recordings', (payload) => {
+        const r = payload.new;
+        setRecordingsByBatch((prev) => {
+          const next = {
+            'Weekday Batch': [...(prev['Weekday Batch'] || [])],
+            'Weekend Batch': [...(prev['Weekend Batch'] || [])]
+          };
+          const bKey = r?.target_batch === 'Weekend Batch' ? 'Weekend Batch' : 'Weekday Batch';
+          const normalized = {
+            id: r.id,
+            title: r.title,
+            conceptName: r.concept_name || r.topic || '',
+            duration: r.duration || '1h 30m',
+            instructor: r.instructor || r.speaker || '',
+            publishStatus: r.publish_status || 'Available in Student Library',
+            postedDate: r.posted_date || r.date || '',
+            videoUrl: r.video_url || '',
+            thumbnail: r.thumbnail || '',
+            description: r.description || '',
+            instructions: r.instructions || '',
+            targetBatch: r.target_batch || r.batch || 'Weekday Batch'
+          };
+          if (payload.eventType === 'INSERT') {
+            if (!next[bKey].find(x => x.id === normalized.id)) {
+              next[bKey].unshift(normalized);
+            }
+          } else if (payload.eventType === 'UPDATE') {
+            const updateInPlace = (arr) => arr.map(x => x.id === normalized.id ? normalized : x);
+            next['Weekday Batch'] = updateInPlace(next['Weekday Batch']);
+            next['Weekend Batch'] = updateInPlace(next['Weekend Batch']);
+          } else if (payload.eventType === 'DELETE') {
+            const deletedId = payload.old?.id;
+            next['Weekday Batch'] = next['Weekday Batch'].filter(x => x.id !== deletedId);
+            next['Weekend Batch'] = next['Weekend Batch'].filter(x => x.id !== deletedId);
+          }
+          return next;
+        });
+      });
 
       // audit_activities intentionally NOT subscribed — it was the source of
       // the self-triggering loop (every CRUD -> logActivity -> insert -> Realtime -> full refetch).
@@ -3051,20 +3485,17 @@ export function LmsDataProvider({ children }) {
     ));
     const targetBatches = isAll ? ['Weekday Batch', 'Weekend Batch'] : [bKey];
 
-    let nextMilestonesDict = null;
-    setMilestonesByBatch((prev) => {
-      const next = { ...prev };
-      targetBatches.forEach(batchKey => {
-        const curBatch = next[batchKey] || { overview: { trackTitle: 'Curriculum & Milestones Roadmap' }, stages: [] };
-        const updatedStages = buildMilestoneTreeFromLiveSession(newSession, curBatch.stages || [], batchKey);
-        next[batchKey] = {
-          ...curBatch,
-          stages: updatedStages
-        };
-      });
-      nextMilestonesDict = next;
-      return next;
+    const nextMilestonesDict = { ...milestonesByBatch };
+    targetBatches.forEach(batchKey => {
+      const curBatch = nextMilestonesDict[batchKey] || { overview: { trackTitle: 'Curriculum & Milestones Roadmap' }, stages: [] };
+      const updatedStages = buildMilestoneTreeFromLiveSession(newSession, curBatch.stages || [], batchKey);
+      nextMilestonesDict[batchKey] = {
+        ...curBatch,
+        stages: updatedStages
+      };
     });
+
+    setMilestonesByBatch(nextMilestonesDict);
 
     // 1. Insert live session into Supabase live_sessions table
     try {
@@ -3073,35 +3504,30 @@ export function LmsDataProvider({ children }) {
       if (error) console.error('Supabase live session insert error:', error.message);
     } catch (err) { console.warn('Live session insert handled:', err); }
 
-    // 2. Persist updated milestones to Supabase milestones_data table in real time
-    if (nextMilestonesDict) {
-      syncMilestonesNow(nextMilestonesDict);
-    }
+    // 2. Persist updated milestones to Supabase in real time
+    syncMilestonesNow(nextMilestonesDict);
   };
 
   const updateLiveSession = async (id, updatedFields, targetBatch = activeBatchFilter) => {
     const bKey = resolveBatchKey(targetBatch);
-    let sessionToUse = null;
+
+    const wdList = liveSessionsByBatch['Weekday Batch'] || [];
+    const weList = liveSessionsByBatch['Weekend Batch'] || [];
+    const originalSession = wdList.find(s => s.id === id) || weList.find(s => s.id === id) || {};
+    const sessionToUse = { ...originalSession, ...updatedFields, id };
 
     setLiveSessionsByBatch((prev) => {
       const next = {
         'Weekday Batch': [...(prev['Weekday Batch'] || [])],
         'Weekend Batch': [...(prev['Weekend Batch'] || [])]
       };
-      const foundInW = next['Weekday Batch'].find(s => s.id === id);
-      const foundInS = next['Weekend Batch'].find(s => s.id === id);
-      const originalSession = foundInW || foundInS || {};
-      sessionToUse = { ...originalSession, ...updatedFields };
-
-      const updateList = (list) => list.map(s => s.id === id ? { ...s, ...updatedFields } : s);
+      const updateList = (list) => list.map(s => s.id === id ? sessionToUse : s);
       next['Weekday Batch'] = updateList(next['Weekday Batch']);
       next['Weekend Batch'] = updateList(next['Weekend Batch']);
       return next;
     });
 
-    logActivity(`Updated live session: "${updatedFields.sessionTitle || updatedFields.title || id}" (${bKey})`, 'session');
-
-    if (!sessionToUse) sessionToUse = { id, ...updatedFields };
+    logActivity(`Updated live session: "${sessionToUse.sessionTitle || sessionToUse.title || id}" (${bKey})`, 'session');
 
     const isAll = (sessionToUse.targetBatch && (
       sessionToUse.targetBatch.toUpperCase().includes('ALL') ||
@@ -3110,20 +3536,17 @@ export function LmsDataProvider({ children }) {
     ));
     const targetBatches = isAll ? ['Weekday Batch', 'Weekend Batch'] : [bKey];
 
-    let nextMilestonesDict = null;
-    setMilestonesByBatch((prev) => {
-      const next = { ...prev };
-      targetBatches.forEach(batchKey => {
-        const curBatch = next[batchKey] || { overview: { trackTitle: 'Curriculum & Milestones Roadmap' }, stages: [] };
-        const updatedStages = buildMilestoneTreeFromLiveSession(sessionToUse, curBatch.stages || [], batchKey);
-        next[batchKey] = {
-          ...curBatch,
-          stages: updatedStages
-        };
-      });
-      nextMilestonesDict = next;
-      return next;
+    const nextMilestonesDict = { ...milestonesByBatch };
+    targetBatches.forEach(batchKey => {
+      const curBatch = nextMilestonesDict[batchKey] || { overview: { trackTitle: 'Curriculum & Milestones Roadmap' }, stages: [] };
+      const updatedStages = buildMilestoneTreeFromLiveSession(sessionToUse, curBatch.stages || [], batchKey);
+      nextMilestonesDict[batchKey] = {
+        ...curBatch,
+        stages: updatedStages
+      };
     });
+
+    setMilestonesByBatch(nextMilestonesDict);
 
     // 1. Update live session in Supabase table
     try {
@@ -3133,9 +3556,7 @@ export function LmsDataProvider({ children }) {
     } catch (err) { console.warn('Live session update handled:', err); }
 
     // 2. Persist updated milestones to Supabase in real time
-    if (nextMilestonesDict) {
-      syncMilestonesNow(nextMilestonesDict);
-    }
+    syncMilestonesNow(nextMilestonesDict);
   };
 
   const deleteLiveSession = async (id, targetBatch = activeBatchFilter) => {
@@ -3146,35 +3567,32 @@ export function LmsDataProvider({ children }) {
     }));
     logActivity(`Deleted live session ID ${id} (${bKey})`, 'session');
 
-    let nextMilestonesDict = null;
-    setMilestonesByBatch((prev) => {
-      const next = { ...prev };
-      ['Weekday Batch', 'Weekend Batch'].forEach(batchKey => {
-        const curBatch = next[batchKey];
-        if (!curBatch) return;
-        const stages = (curBatch.stages || []).map(stg => ({
-          ...stg,
-          subtopics: (stg.subtopics || []).map(sub => ({
-            ...sub,
-            modules: (sub.modules || []).map(m => {
-              const hasThisSession = (m.items || []).some(it => it.id === `item-live-${id}` || it.sessionId === id || String(it.id).includes(id));
-              if (!hasThisSession) return m;
-              const remainingItems = (m.items || []).filter(it => it.id !== `item-live-${id}` && it.sessionId !== id && !String(it.id).includes(id));
-              const hasOtherLive = remainingItems.some(it => it.type === 'LIVE CLASS');
-              return {
-                ...m,
-                items: remainingItems,
-                topics: hasOtherLive ? m.topics : [],
-                ...(hasOtherLive ? {} : { meetingLink: '', instructor: '', date: '', time: '' })
-              };
-            })
-          }))
-        }));
-        next[batchKey] = { ...curBatch, stages };
-      });
-      nextMilestonesDict = next;
-      return next;
+    const nextMilestonesDict = { ...milestonesByBatch };
+    ['Weekday Batch', 'Weekend Batch'].forEach(batchKey => {
+      const curBatch = nextMilestonesDict[batchKey];
+      if (!curBatch) return;
+      const stages = (curBatch.stages || []).map(stg => ({
+        ...stg,
+        subtopics: (stg.subtopics || []).map(sub => ({
+          ...sub,
+          modules: (sub.modules || []).map(m => {
+            const hasThisSession = (m.items || []).some(it => it.id === `item-live-${id}` || it.sessionId === id || String(it.id).includes(id));
+            if (!hasThisSession) return m;
+            const remainingItems = (m.items || []).filter(it => it.id !== `item-live-${id}` && it.sessionId !== id && !String(it.id).includes(id));
+            const hasOtherLive = remainingItems.some(it => it.type === 'LIVE CLASS');
+            return {
+              ...m,
+              items: remainingItems,
+              topics: hasOtherLive ? m.topics : [],
+              ...(hasOtherLive ? {} : { meetingLink: '', instructor: '', date: '', time: '' })
+            };
+          })
+        }))
+      }));
+      nextMilestonesDict[batchKey] = { ...curBatch, stages };
     });
+
+    setMilestonesByBatch(nextMilestonesDict);
 
     // 1. Delete from live_sessions table in Supabase
     try {
@@ -3183,43 +3601,32 @@ export function LmsDataProvider({ children }) {
     } catch (err) { console.warn('Live session delete handled:', err); }
 
     // 2. Persist updated milestones to Supabase in real time
-    if (nextMilestonesDict) {
-      syncMilestonesNow(nextMilestonesDict);
-    }
+    syncMilestonesNow(nextMilestonesDict);
   };
 
   const toggleLiveSessionLock = async (id, targetBatch = activeBatchFilter) => {
     const bKey = resolveBatchKey(targetBatch);
-    let targetSession = null;
+    const wdList = liveSessionsByBatch['Weekday Batch'] || [];
+    const weList = liveSessionsByBatch['Weekend Batch'] || [];
+    const originalSession = wdList.find(s => s.id === id) || weList.find(s => s.id === id);
+    if (!originalSession) return;
+
+    const targetSession = { ...originalSession, isLocked: !originalSession.isLocked };
 
     setLiveSessionsByBatch((prev) => {
       const next = {
-        'Weekday Batch': (prev['Weekday Batch'] || []).map((s) => {
-          if (s.id === id) {
-            targetSession = { ...s, isLocked: !s.isLocked };
-            return targetSession;
-          }
-          return s;
-        }),
-        'Weekend Batch': (prev['Weekend Batch'] || []).map((s) => {
-          if (s.id === id) {
-            targetSession = { ...s, isLocked: !s.isLocked };
-            return targetSession;
-          }
-          return s;
-        })
+        'Weekday Batch': (prev['Weekday Batch'] || []).map((s) => s.id === id ? targetSession : s),
+        'Weekend Batch': (prev['Weekend Batch'] || []).map((s) => s.id === id ? targetSession : s)
       };
       return next;
     });
     logActivity(`Toggled lock on live session ID ${id} (${bKey})`, 'session');
 
-    if (targetSession) {
-      try {
-        const dbRow = toDbLiveSession(targetSession);
-        const { error } = await supabase.from('live_sessions').update(dbRow).eq('id', id);
-        if (error) console.error('Supabase live session toggle lock error:', error.message);
-      } catch (err) { console.warn('Live session toggle lock handled:', err); }
-    }
+    try {
+      const dbRow = toDbLiveSession(targetSession);
+      const { error } = await supabase.from('live_sessions').update(dbRow).eq('id', id);
+      if (error) console.error('Supabase live session toggle lock error:', error.message);
+    } catch (err) { console.warn('Live session toggle lock handled:', err); }
   };
 
 

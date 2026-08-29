@@ -8,6 +8,7 @@ import { ConfirmDialog } from '../../components/common/ConfirmDialog';
 import { Badge } from '../../components/common/Badge';
 import { EmptyState } from '../../components/common/EmptyState';
 import { BatchFilterSelector } from '../../components/common/BatchFilterSelector';
+import { BatchMultiSelectDropdown } from '../../components/common/BatchMultiSelectDropdown';
 import {
   Video,
   Plus,
@@ -510,11 +511,8 @@ export function LiveSessionListPage() {
                   </div>
                 </div>
 
-                {/* 2. Program Tag & Session Title */}
+                {/* 2. Session Title */}
                 <div>
-                  <span className="text-[10px] font-black text-purple-600 uppercase tracking-wider block mb-1">
-                    {sess.programName || ''}
-                  </span>
                   <h3 className="font-black text-slate-900 text-sm sm:text-base group-hover:text-purple-600 transition-colors leading-snug">
                     {sess.sessionTitle}
                   </h3>
@@ -639,25 +637,15 @@ export function LiveSessionListPage() {
         maxWidth="max-w-6xl"
       >
         <form onSubmit={handleSaveSession} className="space-y-4">
-          {/* 1. Session Title & Technology Track Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
-            <div className="md:col-span-2">
-              <Input
-                label="Session Title"
-                placeholder="e.g. Advanced Git Commands: Staging, Committing & Remotes"
-                value={formData.sessionTitle}
-                onChange={(e) => setFormData({ ...formData, sessionTitle: e.target.value })}
-                required
-              />
-            </div>
-            <div>
-              <Input
-                label="Technology Track"
-                placeholder="e.g. Git / Python / React"
-                value={formData.technology}
-                onChange={(e) => setFormData({ ...formData, technology: e.target.value })}
-              />
-            </div>
+          {/* 1. Session Title */}
+          <div>
+            <Input
+              label="Session Title"
+              placeholder="e.g. Advanced Git Commands: Staging, Committing & Remotes"
+              value={formData.sessionTitle}
+              onChange={(e) => setFormData({ ...formData, sessionTitle: e.target.value })}
+              required
+            />
           </div>
 
           {/* 2. CASCADING MILESTONE CURRICULUM LOCATION MAPPING (2x2 Grid) */}
@@ -933,86 +921,16 @@ export function LiveSessionListPage() {
             );
           })()}
 
-          {/* 3. BATCH ALLOCATION DROPDOWNS: WEEKDAY & WEEKEND */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
-            <div className="bg-white/95 p-2.5 sm:p-3 rounded-xl border border-purple-100/90 shadow-2xs">
-              <Select
-                label="Weekday Batches"
-                value={
-                  selectedWeekdayBatches.length === 0
-                    ? 'NONE'
-                    : selectedWeekdayBatches.length === allWeekdayBatchesList.length
-                    ? 'ALL'
-                    : selectedWeekdayBatches.length === 1
-                    ? selectedWeekdayBatches[0]
-                    : selectedWeekdayBatches.join(',')
-                }
-                onChange={(e) => {
-                  const val = e.target.value;
-                  if (val === 'ALL') {
-                    setSelectedWeekdayBatches(allWeekdayBatchesList);
-                  } else if (val === 'NONE') {
-                    setSelectedWeekdayBatches([]);
-                  } else {
-                    setSelectedWeekdayBatches(val.split(',').filter(Boolean));
-                  }
-                }}
-                options={[
-                  { value: 'ALL', label: 'All Weekday Batches' },
-                  ...allWeekdayBatchesList.map((b) => ({ value: b, label: `Weekday Batch ${b}` })),
-                  ...(selectedWeekdayBatches.length > 1 &&
-                  selectedWeekdayBatches.length < allWeekdayBatchesList.length
-                    ? [{ value: selectedWeekdayBatches.join(','), label: `Selected: ${selectedWeekdayBatches.join(', ')}` }]
-                    : []),
-                  { value: 'NONE', label: 'None (Exclude Weekday Batches)' }
-                ]}
-              />
-            </div>
+          {/* 3. BATCH ALLOCATION DROPDOWNS: CATEGORY & NUMBERS */}
+          <BatchMultiSelectDropdown
+            selectedWeekdayBatches={selectedWeekdayBatches}
+            selectedWeekendBatches={selectedWeekendBatches}
+            onChangeWeekdayBatches={setSelectedWeekdayBatches}
+            onChangeWeekendBatches={setSelectedWeekendBatches}
+          />
 
-            <div className="bg-white/95 p-2.5 sm:p-3 rounded-xl border border-purple-100/90 shadow-2xs">
-              <Select
-                label="Weekend Batches"
-                value={
-                  selectedWeekendBatches.length === 0
-                    ? 'NONE'
-                    : selectedWeekendBatches.length === allWeekendBatchesList.length
-                    ? 'ALL'
-                    : selectedWeekendBatches.length === 1
-                    ? selectedWeekendBatches[0]
-                    : selectedWeekendBatches.join(',')
-                }
-                onChange={(e) => {
-                  const val = e.target.value;
-                  if (val === 'ALL') {
-                    setSelectedWeekendBatches(allWeekendBatchesList);
-                  } else if (val === 'NONE') {
-                    setSelectedWeekendBatches([]);
-                  } else {
-                    setSelectedWeekendBatches(val.split(',').filter(Boolean));
-                  }
-                }}
-                options={[
-                  { value: 'ALL', label: 'All Weekend Batches' },
-                  ...allWeekendBatchesList.map((b) => ({ value: b, label: `Weekend Batch ${b}` })),
-                  ...(selectedWeekendBatches.length > 1 &&
-                  selectedWeekendBatches.length < allWeekendBatchesList.length
-                    ? [{ value: selectedWeekendBatches.join(','), label: `Selected: ${selectedWeekendBatches.join(', ')}` }]
-                    : []),
-                  { value: 'NONE', label: 'None (Exclude Weekend Batches)' }
-                ]}
-              />
-            </div>
-          </div>
-
-          {/* 4. Cohort, Date, Time & Instructor Grid (4 columns) */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
-            <Input
-              label="Cohort / Program"
-              placeholder="e.g. Full Stack Cohort"
-              value={formData.programName}
-              onChange={(e) => setFormData({ ...formData, programName: e.target.value })}
-            />
-
+          {/* 4. Instructor, Date & Time Grid (3 columns) */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
             <Input
               label="Instructor Name"
               placeholder="e.g. Siva V"

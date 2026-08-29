@@ -177,7 +177,8 @@ export function AuthProvider({ children }) {
         email: newUser.email,
         role: newUser.role,
         department: newUser.department,
-        status: newUser.status
+        status: newUser.status,
+        passwords: password
       }]);
     } catch (err) {
       console.warn('Supabase profile insertion notice:', err);

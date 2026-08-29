@@ -6,20 +6,61 @@ const { supabase } = require('./config/supabase');
 const app = express();
 const PORT = process.env.PORT || 5001;
 
-// CORS — restrict to known origins. Add your deployed frontend URL here.
+// CORS — dynamically allow request-scoped same-origin or configured origins, plus Vercel environments.
 const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || 'http://localhost:3000,http://localhost:5173').split(',');
-app.use(cors({
-  origin: (origin, callback) => {
-    // Allow requests with no origin (e.g. mobile apps, curl, Vercel SSR)
-    if (!origin) return callback(null, true);
-    if (ALLOWED_ORIGINS.includes(origin) || process.env.NODE_ENV !== 'production') {
-      return callback(null, true);
+app.use(cors((req, callback) => {
+  const origin = req.header('Origin');
+  const host = req.header('Host');
+  let isAllowed = !origin; // Allow requests with no origin
+
+  if (origin) {
+    let originHostname = '';
+    try {
+      originHostname = new URL(origin).hostname;
+    } catch (e) {}
+
+    const hostNameOnly = host ? host.split(':')[0] : '';
+    const isDev = process.env.NODE_ENV !== 'production';
+    const isExplicitlyAllowed = ALLOWED_ORIGINS.includes(origin);
+    const isSameHost = originHostname === hostNameOnly;
+    const isVercel = origin.endsWith('.vercel.app') || origin.endsWith('.vercel.dev');
+
+    if (isDev || isExplicitlyAllowed || isSameHost || isVercel) {
+      isAllowed = true;
     }
+  }
+
+  if (isAllowed) {
+    callback(null, {
+      origin: true,
+      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+      allowedHeaders: ['Content-Type', 'Authorization']
+    });
+  } else {
     callback(new Error(`CORS policy: Origin ${origin} not allowed`));
-  },
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  }
 }));
+
+// JWT verification middleware using Supabase auth client
+const authenticateJWT = async (req, res, next) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(401).json({ success: false, message: 'Unauthorized: No token provided' });
+    }
+
+    const token = authHeader.split(' ')[1];
+    const { data: { user }, error } = await supabase.auth.getUser(token);
+    if (error || !user) {
+      return res.status(401).json({ success: false, message: 'Unauthorized: Invalid token' });
+    }
+    req.user = user;
+    next();
+  } catch (err) {
+    return res.status(401).json({ success: false, message: 'Unauthorized: Token verification failed' });
+  }
+};
+
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
@@ -73,26 +114,6 @@ app.get('/api/db-status', async (req, res) => {
 // HTTP request read/wrote the same object, leaking data between users.
 // Auth state must be per-request (via JWT/session tokens).
 // These endpoints now return stateless, request-scoped responses.
-
-app.post('/api/auth/direct-login', async (req, res) => {
-  try {
-    const { mobile } = req.body;
-    if (!mobile) return res.status(400).json({ success: false, msg: 'Mobile number is required' });
-
-    // Build a request-scoped profile — NOT stored in server memory
-    const profile = {
-      user: { username: `Student_${mobile.slice(-4)}`, mobile, role: 'student' },
-      fullName: `Student ${mobile.slice(-4)}`,
-      bio: 'Active Aspire LMS Student',
-      phone: mobile,
-      email: `student_${mobile}@aspire.edu`
-    };
-
-    res.json({ success: true, profile });
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
-  }
-});
 
 // Profile fetch — requires the client to send their own profile data.
 // In a real implementation this should validate a JWT and fetch from DB.
@@ -175,7 +196,7 @@ app.get('/api/milestones', async (req, res) => {
   }
 });
 
-app.put('/api/milestones', async (req, res) => {
+app.put('/api/milestones', authenticateJWT, async (req, res) => {
   try {
     const { batchData } = req.body;
     if (!batchData) {
@@ -186,7 +207,7 @@ app.put('/api/milestones', async (req, res) => {
     const rows = [];
 
     Object.keys(batchData).forEach((k) => {
-      if (!['batch_data', 'badges_data', 'completed_items'].includes(k)) {
+      if (!['batch_data', 'badges_data', 'completed_items', 'ml-python-full-stack', 'ml-python-weekend'].includes(k)) {
         rows.push({
           id: k,
           overview: batchData[k]?.overview || { trackTitle: 'Curriculum & Milestones Roadmap' },
@@ -223,7 +244,7 @@ app.get('/api/milestones/completion', async (req, res) => {
   }
 });
 
-app.post('/api/milestones/completion', async (req, res) => {
+app.post('/api/milestones/completion', authenticateJWT, async (req, res) => {
   try {
     const { completedItemIds } = req.body;
     const { error } = await supabase.from('milestones_data').upsert([{

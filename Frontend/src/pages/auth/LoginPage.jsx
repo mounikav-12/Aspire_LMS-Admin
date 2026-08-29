@@ -30,7 +30,11 @@ export function LoginPage() {
 
       if (res.success) {
         addToast(`Welcome back, ${res.user.name}! Logged in as ${res.user.role}`, 'success');
-        navigate('/dashboard');
+        if (res.user.role === 'student' || res.user.role?.toLowerCase() === 'student') {
+          navigate('/student-dashboard');
+        } else {
+          navigate('/dashboard');
+        }
       } else {
         addToast(res.message || 'Invalid credentials. Please check and try again.', 'error');
       }
