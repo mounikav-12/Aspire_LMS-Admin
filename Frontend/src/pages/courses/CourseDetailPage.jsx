@@ -196,7 +196,7 @@ export function CourseDetailPage() {
       const newMod = {
         id: `subtop-${Date.now()}`,
         title: moduleFormData.title,
-        duration: moduleFormData.duration || 'Web Architecture, Hands-on Coding & Projects',
+        duration: moduleFormData.duration || '',
         durationHours: moduleFormData.durationHours || ''
       };
       updatedList = [...currentList, newMod];

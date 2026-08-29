@@ -447,7 +447,7 @@ export function CourseListPage() {
     setEditingCourse(course);
     setFormData({
       title: course.title,
-      category: course.category || 'Web Development',
+      category: course.category || 'Courses',
       level: course.level || 'Intermediate',
       targetBatch: course.targetBatch || 'All Batches',
       instructor: course.instructor || '',
@@ -732,9 +732,6 @@ export function CourseListPage() {
               onChange={(val) => setFormData({ ...formData, category: val })}
               options={[
                 { value: 'Courses', label: 'Courses' },
-                { value: 'Web Development', label: 'Web Development' },
-                { value: 'Cloud & Infrastructure', label: 'Cloud & Infrastructure' },
-                { value: 'Computer Science', label: 'Computer Science' },
                 { value: 'Communication & Soft Skills', label: 'Communication & Soft Skills' },
                 { value: 'Aptitude & Reasoning', label: 'Aptitude & Reasoning' },
                 { value: 'Resume', label: 'Resume' },

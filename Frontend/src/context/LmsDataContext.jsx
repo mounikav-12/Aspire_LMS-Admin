@@ -1650,7 +1650,7 @@ export function LmsDataProvider({ children }) {
           return {
             id: c.id,
             title: c.title || '',
-            category: c.category || 'Web Development',
+            category: c.category || 'Courses',
             level: c.level || 'Intermediate',
             instructor: c.instructor || 'Staff',
             publishStatus: c.publish_status || 'Published',
@@ -2309,7 +2309,7 @@ export function LmsDataProvider({ children }) {
               return {
                 id: c.id,
                 title: c.title || '',
-                category: c.category || 'Web Development',
+                category: c.category || 'Courses',
                 level: c.level || 'Intermediate',
                 instructor: c.instructor || 'Staff',
                 publishStatus: c.publish_status || 'Published',
