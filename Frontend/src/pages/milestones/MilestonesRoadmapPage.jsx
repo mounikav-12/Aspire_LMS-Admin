@@ -430,13 +430,8 @@ export function MilestonesRoadmapPage() {
 
     let baseStages = [];
 
-    // 1. Primary: Use batch milestones stages
-    if (Array.isArray(currentMilestones?.stages) && currentMilestones.stages.length > 0) {
-      baseStages = currentMilestones.stages;
-    }
-
-    // 2. If a specific separate course with custom stages is selected
-    if (selectedCourseId && selectedCourseId !== 'ALL' && (!baseStages || baseStages.length === 0)) {
+    // 1. Primary: Use course-specific milestones if a course is selected
+    if (selectedCourseId && selectedCourseId !== 'ALL') {
       const courseMilestones = milestonesByBatch?.[selectedCourseId];
       if (Array.isArray(courseMilestones?.stages) && courseMilestones.stages.length > 0) {
         baseStages = courseMilestones.stages;
@@ -458,6 +453,11 @@ export function MilestonesRoadmapPage() {
           }));
         }
       }
+    }
+
+    // 2. Secondary fallback: Use batch milestones stages
+    if ((!baseStages || baseStages.length === 0) && Array.isArray(currentMilestones?.stages) && currentMilestones.stages.length > 0) {
+      baseStages = currentMilestones.stages;
     }
 
     if (!baseStages || baseStages.length === 0) return [];
