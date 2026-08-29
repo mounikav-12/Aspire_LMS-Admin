@@ -399,8 +399,8 @@ export function CourseDetailPage() {
             </div>
           </div>
 
-          <div className="w-full lg:w-72 h-44 rounded-2xl overflow-hidden shadow-lg border border-slate-200 flex-shrink-0">
-            <img src={course.thumbnail} alt={course.title} className="w-full h-full object-cover" />
+          <div className="w-full lg:w-72 h-44 rounded-2xl overflow-hidden shadow-lg border border-slate-200 flex-shrink-0 bg-slate-900">
+            <img src={course.thumbnail} alt={course.title} className="w-full h-full object-contain" />
           </div>
         </div>
       </div>
