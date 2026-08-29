@@ -101,6 +101,7 @@ export function LiveSessionListPage() {
     activeBatchFilter,
     setActiveBatchFilter,
     milestones,
+    milestonesByBatch,
     availableBatches,
     addLearningItem,
     updateLearningItem,
@@ -130,10 +131,12 @@ export function LiveSessionListPage() {
 
   const selectedCourseObj = courses.find((c) => c.id === formData.courseId) || courses[0];
   const stagesList =
-    milestones?.stages && milestones.stages.length > 0
-      ? milestones.stages
+    formData.courseId && formData.courseId !== 'ALL' && milestonesByBatch?.[formData.courseId]?.stages && milestonesByBatch[formData.courseId].stages.length > 0
+      ? milestonesByBatch[formData.courseId].stages
       : selectedCourseObj?.topics && selectedCourseObj.topics.length > 0
       ? selectedCourseObj.topics
+      : milestones?.stages && milestones.stages.length > 0
+      ? milestones.stages
       : DEFAULT_STAGES;
 
   const allWeekdayBatchesList = (

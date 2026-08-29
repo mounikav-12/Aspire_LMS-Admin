@@ -41,6 +41,7 @@ export function AssessmentListPage() {
     courses,
     courseLessons,
     milestones,
+    milestonesByBatch,
     addAssessment,
     updateAssessment,
     deleteAssessment,
@@ -58,7 +59,7 @@ export function AssessmentListPage() {
       ? availableBatches.filter(
           (b) => b.startsWith('A26W') && !b.startsWith('A26S') && !b.startsWith('A26WE')
         )
-      : ['A26W1', 'A26W2', 'A26W3']
+      : []
   );
   const allWeekendBatchesList = (
     availableBatches && availableBatches.length > 0
@@ -66,7 +67,7 @@ export function AssessmentListPage() {
           .filter((b) => b.startsWith('A26S') || b.startsWith('A26WE'))
           .map((b) => b.replace(/^A26WE/, 'A26S'))
           .filter((b, i, arr) => arr.indexOf(b) === i)
-      : ['A26S1', 'A26S2']
+      : []
   );
 
   const [selectedBatch, setSelectedBatch] = useState(activeBatchFilter || 'Weekday Batch');
@@ -123,10 +124,12 @@ export function AssessmentListPage() {
 
   const selectedCourseObj = courses.find((c) => c.id === formData.courseId) || courses[0];
   const stagesList =
-    milestones?.stages && milestones.stages.length > 0
-      ? milestones.stages
+    formData.courseId && formData.courseId !== 'ALL' && milestonesByBatch?.[formData.courseId]?.stages && milestonesByBatch[formData.courseId].stages.length > 0
+      ? milestonesByBatch[formData.courseId].stages
       : selectedCourseObj?.topics && selectedCourseObj.topics.length > 0
       ? selectedCourseObj.topics
+      : milestones?.stages && milestones.stages.length > 0
+      ? milestones.stages
       : DEFAULT_STAGES;
 
   const handleOpenAddModal = () => {

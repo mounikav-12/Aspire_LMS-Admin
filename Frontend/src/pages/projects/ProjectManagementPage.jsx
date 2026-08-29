@@ -44,7 +44,7 @@ import {
 } from 'lucide-react';
 
 export function ProjectManagementPage() {
-  const { projects = [], courses = [], courseLessons = [], milestones = {}, addProject, updateProject, deleteProject, gradeSubmission, activeBatchFilter, getLessonLockStatus, availableBatches } = useLmsData();
+  const { projects = [], courses = [], courseLessons = [], milestones = {}, milestonesByBatch = {}, addProject, updateProject, deleteProject, gradeSubmission, activeBatchFilter, getLessonLockStatus, availableBatches } = useLmsData();
   const { addToast } = useToast();
 
   // Navigation & Filter States
@@ -132,11 +132,14 @@ export function ProjectManagementPage() {
   });
 
   const selectedCourseObj = courses.find((c) => c.id === formData.courseId) || courses[0];
-  const stagesList = milestones?.stages && milestones.stages.length > 0
-    ? milestones.stages
-    : (selectedCourseObj?.topics && selectedCourseObj.topics.length > 0)
-    ? selectedCourseObj.topics
-    : DEFAULT_STAGES;
+  const stagesList =
+    formData.courseId && formData.courseId !== 'ALL' && milestonesByBatch?.[formData.courseId]?.stages && milestonesByBatch[formData.courseId].stages.length > 0
+      ? milestonesByBatch[formData.courseId].stages
+      : selectedCourseObj?.topics && selectedCourseObj.topics.length > 0
+      ? selectedCourseObj.topics
+      : milestones?.stages && milestones.stages.length > 0
+      ? milestones.stages
+      : DEFAULT_STAGES;
 
   React.useEffect(() => {
     if (courses && courses.length > 0 && !formData.stageId) {
