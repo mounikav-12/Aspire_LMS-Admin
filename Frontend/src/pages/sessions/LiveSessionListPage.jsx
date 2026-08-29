@@ -297,72 +297,26 @@ export function LiveSessionListPage() {
   };
 
   const handleOpenAddModal = () => {
-    const activeCourseId = selectedCourseId || courses[0]?.id || '';
-    const activeCourseObj = courses.find((c) => c.id === activeCourseId) || courses[0];
-    const activeStagesList =
-      activeCourseId && activeCourseId !== 'ALL' && milestonesByBatch?.[activeCourseId]?.stages && milestonesByBatch[activeCourseId].stages.length > 0
-        ? milestonesByBatch[activeCourseId].stages
-        : activeCourseObj?.topics && activeCourseObj.topics.length > 0
-        ? activeCourseObj.topics
-        : milestones?.stages && milestones.stages.length > 0
-        ? milestones.stages
-        : DEFAULT_STAGES;
-
-    const firstStage = activeStagesList[0];
-    const stageSubs = getSubtopicsForStage(firstStage);
-    const firstSub = stageSubs[0];
-    const subLessons = getInnerModulesForSubtopic(firstSub, courseLessons, firstStage?.id);
-    const firstMod = subLessons[0];
-    const existingTopics = (firstMod?.topics || []).filter((t) => t && t.title && t.title.trim());
-
-    const defaultTopics =
-      existingTopics.length > 0
-        ? existingTopics.map((t) => ({
-            id: t.id || `top-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
-            title: t.title,
-            description: t.description || t.agenda || t.overview || ''
-          }))
-        : [
-            {
-              id: `top-${Date.now()}-1`,
-              title: '',
-              description: ''
-            }
-          ];
-
-    const targetFormData = {
+    setEditingSession(null);
+    setFormData({
       programName: '',
       technology: '',
-      sessionTitle: firstMod?.title || '',
+      sessionTitle: '',
       date: new Date().toISOString().split('T')[0],
       time: '',
       meetingLink: '',
       instructor: '',
       description: '',
-      courseId: activeCourseId,
-      courseName: activeCourseObj?.title || '',
-      stageId: firstStage?.id || '',
-      stageName: firstStage?.title || '',
-      subtopicId: firstSub?.id || '',
-      subtopicName: firstSub?.title || '',
-      moduleId: firstMod?.id || '',
-      moduleName: firstMod?.title || '',
-      topics: defaultTopics
-    };
-
-    const matchedForm = checkAndLoadExistingSession(
-      activeCourseId,
-      firstStage?.id || '',
-      firstSub?.id || '',
-      firstMod?.id || '',
-      targetFormData
-    );
-
-    if (matchedForm) {
-      setFormData(matchedForm);
-    } else {
-      setFormData(targetFormData);
-    }
+      courseId: '',
+      courseName: '',
+      stageId: '',
+      stageName: '',
+      subtopicId: '',
+      subtopicName: '',
+      moduleId: '',
+      moduleName: '',
+      topics: [{ id: `top-${Date.now()}-1`, title: '', description: '' }]
+    });
 
     setBatchActiveTab('Weekdays');
     setSelectedWeekdayBatches(allWeekdayBatchesList);
@@ -917,17 +871,27 @@ export function LiveSessionListPage() {
 
           {/* 2. CASCADING MILESTONE CURRICULUM LOCATION MAPPING (2x2 Grid) */}
           {(() => {
-            const currentStageObj =
-              stagesList.find((s) => s.id === formData.stageId || s.title === formData.stageName) || stagesList[0];
-            const currentSubtopicsArr = getSubtopicsForStage(currentStageObj);
-            const currentSubtopicObj =
-              currentSubtopicsArr.find((st) => st.id === formData.subtopicId || st.title === formData.subtopicName) ||
-              currentSubtopicsArr[0];
-            const currentInnerModules = getInnerModulesForSubtopic(currentSubtopicObj, courseLessons, currentStageObj?.id);
-            const currentModObj =
-              currentInnerModules.find(
-                (m) => (m.id || m.title) === (formData.moduleId || formData.moduleName)
-              ) || currentInnerModules[0];
+            const currentStagesList = formData.courseId
+              ? (milestonesByBatch?.[formData.courseId]?.stages ||
+                 courses.find((c) => c.id === formData.courseId)?.topics ||
+                 [])
+              : [];
+
+            const currentStageObj = formData.stageId
+              ? currentStagesList.find((s) => s.id === formData.stageId || s.title === formData.stageName)
+              : null;
+
+            const currentSubtopicsArr = currentStageObj ? getSubtopicsForStage(currentStageObj) : [];
+
+            const currentSubtopicObj = formData.subtopicId
+              ? currentSubtopicsArr.find((st) => st.id === formData.subtopicId || st.title === formData.subtopicName)
+              : null;
+
+            const currentInnerModules = currentSubtopicObj ? getInnerModulesForSubtopic(currentSubtopicObj, courseLessons, currentStageObj?.id) : [];
+
+            const currentModObj = formData.moduleId
+              ? currentInnerModules.find((m) => (m.id || m.title) === (formData.moduleId || formData.moduleName))
+              : null;
 
             return (
               <div className="bg-gradient-to-br from-slate-50 via-purple-50/20 to-blue-50/40 p-3.5 sm:p-4 rounded-2xl border border-slate-200/80 shadow-2xs space-y-3">
@@ -949,80 +913,53 @@ export function LiveSessionListPage() {
                   <div className="bg-white/95 p-2.5 sm:p-3 rounded-xl border border-purple-100/90 shadow-2xs">
                     <Select
                       label="1. Course Track"
-                      value={formData.courseId}
+                      value={formData.courseId || ''}
                       onChange={(e) => {
                         const newCourseId = e.target.value;
+                        if (!newCourseId) {
+                          setFormData({
+                            ...formData,
+                            courseId: '',
+                            courseName: '',
+                            stageId: '',
+                            stageName: '',
+                            subtopicId: '',
+                            subtopicName: '',
+                            moduleId: '',
+                            moduleName: '',
+                            sessionTitle: '',
+                            topics: [{ id: `top-${Date.now()}-1`, title: '', description: '' }]
+                          });
+                          return;
+                        }
                         const selectedC = courses.find((c) => c.id === newCourseId);
-                        const newStages =
-                          newCourseId && newCourseId !== 'ALL' && milestonesByBatch?.[newCourseId]?.stages && milestonesByBatch[newCourseId].stages.length > 0
-                            ? milestonesByBatch[newCourseId].stages
-                            : selectedC?.topics && selectedC.topics.length > 0
-                            ? selectedC.topics
-                            : milestones?.stages && milestones.stages.length > 0
-                            ? milestones.stages
-                            : DEFAULT_STAGES;
-                        const firstStage = newStages[0];
-                        const firstSubs = getSubtopicsForStage(firstStage);
-                        const firstSub = firstSubs[0];
-                        const firstLessons = getInnerModulesForSubtopic(firstSub, courseLessons, firstStage?.id);
-                        const firstMod = firstLessons[0];
-
-                        const targetFormData = {
+                        setFormData({
                           ...formData,
                           courseId: newCourseId,
                           courseName: selectedC?.title || '',
-                          stageId: firstStage?.id || '',
-                          stageName: firstStage?.title || '',
-                          subtopicId: firstSub?.id || '',
-                          subtopicName: firstSub?.title || '',
-                          moduleId: firstMod?.id || '',
-                          moduleName: firstMod?.title || '',
-                          sessionTitle: firstMod?.title || formData.sessionTitle
-                        };
-
-                        const matchedForm = checkAndLoadExistingSession(
-                          newCourseId,
-                          firstStage?.id || '',
-                          firstSub?.id || '',
-                          firstMod?.id || '',
-                          targetFormData
-                        );
-
-                        if (matchedForm) {
-                          setFormData(matchedForm);
-                        } else {
-                          const validModTopics = (firstMod?.topics || []).filter((t) => t && t.title && t.title.trim());
-                          const validModItems = (firstMod?.items || []).filter((it) => (it.type === 'LIVE CLASS' || !it.type) && it.title && it.title.trim());
-                          let updatedTopics = [{ id: `top-${Date.now()}-1`, title: '', description: '' }];
-                          if (validModTopics.length > 0) {
-                            updatedTopics = validModTopics.map((t, idx) => ({
-                              id: t.id || `top-${Date.now()}-${idx + 1}`,
-                              title: t.title,
-                              description: t.description || t.agenda || t.overview || ''
-                            }));
-                          } else if (validModItems.length > 0) {
-                            updatedTopics = validModItems.map((it, idx) => ({
-                              id: it.id || `top-${Date.now()}-${idx + 1}`,
-                              title: it.title,
-                              description: it.description || it.agenda || it.overview || ''
-                            }));
-                          }
-                          setFormData({
-                            ...targetFormData,
-                            topics: updatedTopics
-                          });
-                        }
+                          stageId: '',
+                          stageName: '',
+                          subtopicId: '',
+                          subtopicName: '',
+                          moduleId: '',
+                          moduleName: '',
+                          sessionTitle: '',
+                          topics: [{ id: `top-${Date.now()}-1`, title: '', description: '' }]
+                        });
                       }}
-                      options={courses.map((c) => ({ value: c.id, label: c.title }))}
+                      options={[
+                        { value: '', label: 'Select Course Track...' },
+                        ...courses.map((c) => ({ value: c.id, label: c.title }))
+                      ]}
                     />
                   </div>
 
                   {/* Step 2: Course Module / Stage */}
                   <div className="bg-white/95 p-2.5 sm:p-3 rounded-xl border border-purple-100/90 shadow-2xs">
-                    {stagesList.length > 0 ? (
+                    {formData.courseId ? (
                       <Select
                         label="2. Milestone Stage"
-                        value={formData.stageId || currentStageObj?.id || ''}
+                        value={formData.stageId || ''}
                         onChange={(e) => {
                           const newStageId = e.target.value;
                           if (newStageId === '__NEW__') {
@@ -1030,65 +967,45 @@ export function LiveSessionListPage() {
                               ...formData,
                               stageId: '__NEW__',
                               stageName: '',
-                              subtopicId: '__NEW__',
+                              subtopicId: '',
                               subtopicName: '',
-                              moduleId: '__NEW__',
-                              moduleName: ''
+                              moduleId: '',
+                              moduleName: '',
+                              sessionTitle: '',
+                              topics: [{ id: `top-${Date.now()}-1`, title: '', description: '' }]
                             });
                             return;
                           }
-                          const newStage = stagesList.find((s) => s.id === newStageId) || stagesList[0];
-                          const newSubs = getSubtopicsForStage(newStage);
-                          const firstSub = newSubs[0];
-                          const firstLessons = getInnerModulesForSubtopic(firstSub, courseLessons, newStage?.id);
-                          const firstMod = firstLessons[0];
-
-                          const targetFormData = {
+                          if (!newStageId) {
+                            setFormData({
+                              ...formData,
+                              stageId: '',
+                              stageName: '',
+                              subtopicId: '',
+                              subtopicName: '',
+                              moduleId: '',
+                              moduleName: '',
+                              sessionTitle: '',
+                              topics: [{ id: `top-${Date.now()}-1`, title: '', description: '' }]
+                            });
+                            return;
+                          }
+                          const newStage = currentStagesList.find((s) => s.id === newStageId);
+                          setFormData({
                             ...formData,
                             stageId: newStageId,
                             stageName: newStage?.title || '',
-                            subtopicId: firstSub?.id || '',
-                            subtopicName: firstSub?.title || '',
-                            moduleId: firstMod?.id || '',
-                            moduleName: firstMod?.title || '',
-                            sessionTitle: firstMod?.title || formData.sessionTitle
-                          };
-
-                          const matchedForm = checkAndLoadExistingSession(
-                            formData.courseId,
-                            newStageId,
-                            firstSub?.id || '',
-                            firstMod?.id || '',
-                            targetFormData
-                          );
-
-                          if (matchedForm) {
-                            setFormData(matchedForm);
-                          } else {
-                            const validModTopics = (firstMod?.topics || []).filter((t) => t && t.title && t.title.trim());
-                            const validModItems = (firstMod?.items || []).filter((it) => (it.type === 'LIVE CLASS' || !it.type) && it.title && it.title.trim());
-                            let updatedTopics = [{ id: `top-${Date.now()}-1`, title: '', description: '' }];
-                            if (validModTopics.length > 0) {
-                              updatedTopics = validModTopics.map((t, idx) => ({
-                                id: t.id || `top-${Date.now()}-${idx + 1}`,
-                                title: t.title,
-                                description: t.description || t.agenda || t.overview || ''
-                              }));
-                            } else if (validModItems.length > 0) {
-                              updatedTopics = validModItems.map((it, idx) => ({
-                                id: it.id || `top-${Date.now()}-${idx + 1}`,
-                                title: it.title,
-                                description: it.description || it.agenda || it.overview || ''
-                              }));
-                            }
-                            setFormData({
-                              ...targetFormData,
-                              topics: updatedTopics
-                            });
-                          }
+                            subtopicId: '',
+                            subtopicName: '',
+                            moduleId: '',
+                            moduleName: '',
+                            sessionTitle: '',
+                            topics: [{ id: `top-${Date.now()}-1`, title: '', description: '' }]
+                          });
                         }}
                         options={[
-                          ...stagesList.map((stg) => ({
+                          { value: '', label: 'Select Milestone Stage...' },
+                          ...currentStagesList.map((stg) => ({
                             value: stg.id,
                             label: stg.title
                           })),
@@ -1096,12 +1013,11 @@ export function LiveSessionListPage() {
                         ]}
                       />
                     ) : (
-                      <Input
+                      <Select
                         label="2. Milestone Stage"
-                        placeholder="e.g. Stage 1: Frontend Foundations"
-                        value={formData.stageName}
-                        onChange={(e) => setFormData({ ...formData, stageName: e.target.value, stageId: e.target.value })}
-                        required
+                        value=""
+                        disabled
+                        options={[{ value: '', label: 'Select Course Track first...' }]}
                       />
                     )}
                     {formData.stageId === '__NEW__' && (
@@ -1119,10 +1035,10 @@ export function LiveSessionListPage() {
 
                   {/* Step 3: Milestone Subtopic / Module Track */}
                   <div className="bg-white/95 p-2.5 sm:p-3 rounded-xl border border-purple-100/90 shadow-2xs">
-                    {currentSubtopicsArr.length > 0 && formData.stageId !== '__NEW__' ? (
+                    {formData.stageId && formData.stageId !== '__NEW__' ? (
                       <Select
                         label="3. Milestone Subtopic / Module Track"
-                        value={formData.subtopicId || currentSubtopicObj?.id || ''}
+                        value={formData.subtopicId || ''}
                         onChange={(e) => {
                           const newSubId = e.target.value;
                           if (newSubId === '__NEW__') {
@@ -1130,59 +1046,38 @@ export function LiveSessionListPage() {
                               ...formData,
                               subtopicId: '__NEW__',
                               subtopicName: '',
-                              moduleId: '__NEW__',
-                              moduleName: ''
+                              moduleId: '',
+                              moduleName: '',
+                              sessionTitle: '',
+                              topics: [{ id: `top-${Date.now()}-1`, title: '', description: '' }]
                             });
                             return;
                           }
-                          const targetSub =
-                            currentSubtopicsArr.find((st) => st.id === newSubId) || currentSubtopicsArr[0];
-                          const targetLessons = getInnerModulesForSubtopic(targetSub, courseLessons, formData.stageId);
-                          const firstMod = targetLessons[0];
-
-                          const targetFormData = {
+                          if (!newSubId) {
+                            setFormData({
+                              ...formData,
+                              subtopicId: '',
+                              subtopicName: '',
+                              moduleId: '',
+                              moduleName: '',
+                              sessionTitle: '',
+                              topics: [{ id: `top-${Date.now()}-1`, title: '', description: '' }]
+                            });
+                            return;
+                          }
+                          const targetSub = currentSubtopicsArr.find((st) => st.id === newSubId);
+                          setFormData({
                             ...formData,
                             subtopicId: newSubId,
                             subtopicName: targetSub?.title || '',
-                            moduleId: firstMod?.id || '',
-                            moduleName: firstMod?.title || '',
-                            sessionTitle: firstMod?.title || formData.sessionTitle
-                          };
-
-                          const matchedForm = checkAndLoadExistingSession(
-                            formData.courseId,
-                            formData.stageId,
-                            newSubId,
-                            firstMod?.id || '',
-                            targetFormData
-                          );
-
-                          if (matchedForm) {
-                            setFormData(matchedForm);
-                          } else {
-                            const validModTopics = (firstMod?.topics || []).filter((t) => t && t.title && t.title.trim());
-                            const validModItems = (firstMod?.items || []).filter((it) => (it.type === 'LIVE CLASS' || !it.type) && it.title && it.title.trim());
-                            let updatedTopics = [{ id: `top-${Date.now()}-1`, title: '', description: '' }];
-                            if (validModTopics.length > 0) {
-                              updatedTopics = validModTopics.map((t, idx) => ({
-                                id: t.id || `top-${Date.now()}-${idx + 1}`,
-                                title: t.title,
-                                description: t.description || t.agenda || t.overview || ''
-                              }));
-                            } else if (validModItems.length > 0) {
-                              updatedTopics = validModItems.map((it, idx) => ({
-                                id: it.id || `top-${Date.now()}-${idx + 1}`,
-                                title: it.title,
-                                description: it.description || it.agenda || it.overview || ''
-                              }));
-                            }
-                            setFormData({
-                              ...targetFormData,
-                              topics: updatedTopics
-                            });
-                          }
+                            moduleId: '',
+                            moduleName: '',
+                            sessionTitle: '',
+                            topics: [{ id: `top-${Date.now()}-1`, title: '', description: '' }]
+                          });
                         }}
                         options={[
+                          { value: '', label: 'Select Milestone Subtopic...' },
                           ...currentSubtopicsArr.map((sub, idx) => ({
                             value: sub.id,
                             label: `${idx + 1}. ${sub.title}`
@@ -1191,12 +1086,11 @@ export function LiveSessionListPage() {
                         ]}
                       />
                     ) : (
-                      <Input
-                        label="3. Milestone Subtopic / Track"
-                        placeholder="e.g. Git & GitHub Version Control"
-                        value={formData.subtopicName}
-                        onChange={(e) => setFormData({ ...formData, subtopicName: e.target.value, subtopicId: e.target.value })}
-                        required
+                      <Select
+                        label="3. Milestone Subtopic / Module Track"
+                        value=""
+                        disabled
+                        options={[{ value: '', label: 'Select Milestone Stage first...' }]}
                       />
                     )}
                     {formData.subtopicId === '__NEW__' && currentSubtopicsArr.length > 0 && formData.stageId !== '__NEW__' && (
@@ -1214,10 +1108,10 @@ export function LiveSessionListPage() {
 
                   {/* Step 4: Specific Topic Module */}
                   <div className="bg-white/95 p-2.5 sm:p-3 rounded-xl border border-purple-100/90 shadow-2xs">
-                    {currentInnerModules.length > 0 && formData.subtopicId !== '__NEW__' && formData.stageId !== '__NEW__' ? (
+                    {formData.subtopicId && formData.subtopicId !== '__NEW__' ? (
                       <Select
                         label="4. Specific Topic Module"
-                        value={formData.moduleId || currentModObj?.id || ''}
+                        value={formData.moduleId || ''}
                         onChange={(e) => {
                           const newModId = e.target.value;
                           if (newModId === '__NEW__') {
@@ -1225,37 +1119,43 @@ export function LiveSessionListPage() {
                               ...formData,
                               moduleId: '__NEW__',
                               moduleName: '',
-                              sessionTitle: formData.sessionTitle || ''
+                              sessionTitle: '',
+                              topics: [{ id: `top-${Date.now()}-1`, title: '', description: '' }],
+                              description: '',
+                              meetingLink: '',
+                              instructor: '',
+                              time: ''
                             });
+                            setEditingSession(null);
                             return;
                           }
-                          const targetMod =
-                            currentInnerModules.find((m) => (m.id || m.title) === newModId) || currentInnerModules[0];
-                          
-                          const validModTopics = (targetMod?.topics || []).filter((t) => t && t.title && t.title.trim());
-                          const validModItems = (targetMod?.items || []).filter((it) => (it.type === 'LIVE CLASS' || !it.type) && it.title && it.title.trim());
-                          
-                          let updatedTopics = [{ id: `top-${Date.now()}-1`, title: '', description: '' }];
-                          if (validModTopics.length > 0) {
-                            updatedTopics = validModTopics.map((t, idx) => ({
-                              id: t.id || `top-${Date.now()}-${idx + 1}`,
-                              title: t.title,
-                              description: t.description || t.agenda || t.overview || ''
-                            }));
-                          } else if (validModItems.length > 0) {
-                            updatedTopics = validModItems.map((it, idx) => ({
-                              id: it.id || `top-${Date.now()}-${idx + 1}`,
-                              title: it.title,
-                              description: it.description || it.agenda || it.overview || ''
-                            }));
+                          if (!newModId) {
+                            setFormData({
+                              ...formData,
+                              moduleId: '',
+                              moduleName: '',
+                              sessionTitle: '',
+                              topics: [{ id: `top-${Date.now()}-1`, title: '', description: '' }],
+                              description: '',
+                              meetingLink: '',
+                              instructor: '',
+                              time: ''
+                            });
+                            setEditingSession(null);
+                            return;
                           }
-
+                          const targetMod = currentInnerModules.find((m) => (m.id || m.title) === newModId);
+                          
                           const targetFormData = {
                             ...formData,
                             moduleId: newModId,
                             moduleName: targetMod?.title || '',
-                            sessionTitle: targetMod?.title || formData.sessionTitle,
-                            topics: updatedTopics
+                            sessionTitle: '',
+                            topics: [{ id: `top-${Date.now()}-1`, title: '', description: '' }],
+                            description: '',
+                            meetingLink: '',
+                            instructor: '',
+                            time: ''
                           };
 
                           const matchedForm = checkAndLoadExistingSession(
@@ -1273,6 +1173,7 @@ export function LiveSessionListPage() {
                           }
                         }}
                         options={[
+                          { value: '', label: 'Select Specific Topic Module...' },
                           ...currentInnerModules.map((mod) => ({
                             value: mod.id || mod.title,
                             label: mod.title
@@ -1281,12 +1182,11 @@ export function LiveSessionListPage() {
                         ]}
                       />
                     ) : (
-                      <Input
-                        label="4. Module / Session Title"
-                        placeholder="e.g. Git Architecture & Version Control Concepts"
-                        value={formData.moduleName || formData.sessionTitle}
-                        onChange={(e) => setFormData({ ...formData, moduleName: e.target.value, moduleId: e.target.value, sessionTitle: e.target.value })}
-                        required
+                      <Select
+                        label="4. Specific Topic Module"
+                        value=""
+                        disabled
+                        options={[{ value: '', label: 'Select Milestone Subtopic first...' }]}
                       />
                     )}
                     {formData.moduleId === '__NEW__' && currentInnerModules.length > 0 && formData.subtopicId !== '__NEW__' && (
