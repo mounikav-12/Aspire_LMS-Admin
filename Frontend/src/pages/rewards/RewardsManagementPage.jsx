@@ -25,7 +25,44 @@ import {
   X
 } from 'lucide-react';
 
-
+const PRESET_IMAGES = [
+  {
+    url: '/rewards/stickers.jpg',
+    label: 'Stickers',
+    category: 'ACCESSORIES',
+    defaultXp: 500
+  },
+  {
+    url: '/rewards/notebook.jpg',
+    label: 'Notebook',
+    category: 'STATIONERY',
+    defaultXp: 1000
+  },
+  {
+    url: '/rewards/mug.jpg',
+    label: 'Mug',
+    category: 'DRINKWARE',
+    defaultXp: 1500
+  },
+  {
+    url: '/rewards/tshirt.jpg',
+    label: 'T-Shirt',
+    category: 'APPAREL',
+    defaultXp: 2500
+  },
+  {
+    url: '/rewards/flask.jpg',
+    label: 'Flask',
+    category: 'DRINKWARE',
+    defaultXp: 3000
+  },
+  {
+    url: '/rewards/backpack.jpg',
+    label: 'Backpack',
+    category: 'GEAR',
+    defaultXp: 5000
+  }
+];
 
 export function RewardsManagementPage() {
   const {

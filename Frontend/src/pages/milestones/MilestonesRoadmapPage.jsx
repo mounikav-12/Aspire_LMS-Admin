@@ -2039,7 +2039,7 @@ export function MilestonesRoadmapPage() {
                               {/* Top Unified Daily Live Class Info Strip */}
                               {hasLiveClass && (
                                 <div className="bg-gradient-to-r from-purple-50 via-indigo-50/40 to-blue-50/30 px-3.5 py-2.5 sm:px-4 sm:py-3 rounded-xl border border-purple-200/90 shadow-2xs flex items-center justify-between gap-3">
-                                  {/* Left: Live Indicator & Mentor */}
+                                  {/* Left: Live Indicator & Trainer */}
                                   <div className="flex items-center gap-2.5 flex-wrap min-w-0">
                                     <div className="w-7 h-7 rounded-lg bg-purple-600 text-white flex items-center justify-center shadow-xs shrink-0">
                                       <Video className="w-3.5 h-3.5 animate-pulse" />
@@ -2050,7 +2050,7 @@ export function MilestonesRoadmapPage() {
                                     </span>
                                     {primaryLiveSession?.instructor && (
                                       <span className="text-xs font-semibold text-purple-700 bg-purple-100/80 px-2.5 py-1 rounded-md border border-purple-200 shrink-0">
-                                        Mentor: {primaryLiveSession.instructor}
+                                        Trainer: {primaryLiveSession.instructor}
                                       </span>
                                     )}
                                   </div>

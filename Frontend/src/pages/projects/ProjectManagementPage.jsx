@@ -49,7 +49,7 @@ export function ProjectManagementPage() {
 
   // Navigation & Filter States
   const [projectTypeTab, setProjectTypeTab] = useState('Mini Projects'); // 'Mini Projects' | 'Major Projects' | 'Capstone Projects' | 'Templates'
-  const [statusFilterTab, setStatusFilterTab] = useState('Assigned'); // 'Assigned' | 'Submitted' | 'Mentor Feedback'
+  const [statusFilterTab, setStatusFilterTab] = useState('Assigned'); // 'Assigned' | 'Submitted' | 'Trainer Feedback'
   const [activeTab, setActiveTab] = useState('assigned');
   const [selectedType, setSelectedType] = useState('All');
   const [searchTerm, setSearchTerm] = useState('');
@@ -441,7 +441,7 @@ export function ProjectManagementPage() {
             Projects
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 font-medium mt-1">
-            Build real-world projects and get mentor feedback
+            Build real-world projects and get trainer feedback
           </p>
         </div>
 
@@ -506,7 +506,7 @@ export function ProjectManagementPage() {
         </div>
       </div>
 
-      {/* Tabs Filter Bar (Assigned, Submitted, Mentor Feedback, Templates) */}
+      {/* Tabs Filter Bar (Assigned, Submitted, Trainer Feedback, Templates) */}
       <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200/80 pb-3">
         <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0">
           <button
@@ -537,7 +537,7 @@ export function ProjectManagementPage() {
                 : 'bg-slate-100 hover:bg-slate-200/80 text-slate-600'
             }`}
           >
-            Mentor Feedback
+            Trainer Feedback
           </button>
           <button
             onClick={() => setActiveTab('templates')}
@@ -692,7 +692,7 @@ export function ProjectManagementPage() {
         </div>
       )}
 
-      {/* Submitted Tab View (Student Submissions & Mentor Grading) */}
+      {/* Submitted Tab View (Student Submissions & Trainer Grading) */}
       {activeTab === 'submitted' && (
         <div className="bg-white rounded-3xl border border-slate-200/80 shadow-2xs overflow-hidden">
           <div className="p-5 border-b border-slate-100 flex items-center justify-between">
@@ -781,7 +781,7 @@ export function ProjectManagementPage() {
         </div>
       )}
 
-      {/* Mentor Feedback Tab */}
+      {/* Trainer Feedback Tab */}
       {activeTab === 'feedback' && (
         <div className="space-y-4">
           {projects.flatMap((p) =>
@@ -800,7 +800,7 @@ export function ProjectManagementPage() {
                   </span>
                 </div>
                 <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 text-xs text-slate-700 font-medium leading-relaxed">
-                  <strong className="text-slate-900 block mb-1">Mentor Feedback:</strong>
+                  <strong className="text-slate-900 block mb-1">Trainer Feedback:</strong>
                   "{sub.mentorFeedback}"
                 </div>
               </div>
@@ -1162,7 +1162,7 @@ export function ProjectManagementPage() {
             );
           })()}
 
-          {/* Row 3: Short Description & Mentor Pro Tip (matching rows=2 textareas) */}
+          {/* Row 3: Short Description & Trainer Pro Tip (matching rows=2 textareas) */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="flex flex-col gap-1.5">
               <label className="text-[11px] font-extrabold text-slate-700 uppercase tracking-wider h-5 flex items-center">
@@ -1180,7 +1180,7 @@ export function ProjectManagementPage() {
 
             <div className="flex flex-col gap-1.5">
               <label className="text-[11px] font-extrabold text-slate-700 uppercase tracking-wider h-5 flex items-center">
-                Mentor Pro Tip
+                Trainer Pro Tip
               </label>
               <textarea
                 rows={2}
@@ -1261,7 +1261,7 @@ export function ProjectManagementPage() {
         </form>
       </Modal>
 
-      {/* Mentor Grade & Review Modal */}
+      {/* Trainer Grade & Review Modal */}
       <Modal
         isOpen={!!gradingSubmission}
         onClose={() => setGradingSubmission(null)}
@@ -1280,7 +1280,7 @@ export function ProjectManagementPage() {
 
           <div className="flex flex-col gap-1.5">
             <label className="text-[11px] font-extrabold text-slate-700 uppercase tracking-wider">
-              Mentor Feedback Comments
+              Trainer Feedback Comments
             </label>
             <textarea
               rows={4}
@@ -1392,7 +1392,7 @@ export function ProjectManagementPage() {
                 </div>
               </div>
 
-              {/* Right Column: Evaluation Rubric & Mentor Pro Tips (1 col) */}
+              {/* Right Column: Evaluation Rubric & Trainer Pro Tips (1 col) */}
               <div className="space-y-4">
                 {/* Evaluation Rubric */}
                 <div className="bg-white p-5 rounded-3xl border border-slate-200/80 space-y-4">
@@ -1428,11 +1428,11 @@ export function ProjectManagementPage() {
                   </div>
                 </div>
 
-                {/* Mentor Pro Tips */}
+                {/* Trainer Pro Tips */}
                 <div className="bg-amber-50/60 p-5 rounded-3xl border border-amber-200/80 space-y-2">
                   <div className="flex items-center gap-2 text-xs font-black text-amber-700 uppercase tracking-wider">
                     <BookOpen className="w-4 h-4" />
-                    <span>MENTOR PRO TIPS</span>
+                    <span>TRAINER PRO TIPS</span>
                   </div>
                   <ul className="text-xs text-amber-900/90 list-disc list-inside space-y-1 font-medium">
                     <li>{activeProjectDetail.mentorTip || 'Test code thoroughly before submitting drive link.'}</li>

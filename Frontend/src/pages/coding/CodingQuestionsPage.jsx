@@ -747,7 +747,7 @@ export function CodingQuestionsPage() {
 
             <div className="flex flex-col gap-1.5">
               <label className="text-[11px] font-extrabold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> Solution Code / Mentor Reference
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> Solution Code / Trainer Reference
               </label>
               <textarea
                 rows={4}
