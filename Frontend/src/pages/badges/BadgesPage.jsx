@@ -238,19 +238,110 @@ const COLOR_THEMES = {
   }
 };
 
-const BADGE_CATEGORIES = [
-  'Academic',
-  'Skill',
-  'Achievement',
-  'Milestone',
-  'Coding',
-  'Project',
-  'Attendance',
-  'Leadership',
-  'Assessment',
-  'Placement',
-  'Special'
-];
+export const BADGE_CATEGORIES_CONFIG = {
+  'XP Points': {
+    label: 'XP Points Milestone',
+    criteriaLabel: 'Requirement Criteria (Target XP Points)',
+    placeholder: 'e.g. 500 XP Points (or Earn >= 1,000 XP)',
+    defaultCriteria: '500 XP Points',
+    defaultIcon: 'Zap',
+    defaultColor: 'amber',
+    presets: ['100 XP', '250 XP', '500 XP', '1,000 XP', '2,500 XP', '5,000 XP'],
+    descriptionPlaceholder: 'Awarded to students upon accumulating target XP points through challenges, quizzes, and live classes.'
+  },
+  'Streak': {
+    label: 'Learning Streak (Days)',
+    criteriaLabel: 'Requirement Criteria (Learning Streak Days)',
+    placeholder: 'e.g. 7-Day Continuous Learning Streak',
+    defaultCriteria: '7-Day Streak',
+    defaultIcon: 'Flame',
+    defaultColor: 'orange',
+    presets: ['3-Day Streak', '7-Day Streak', '14-Day Streak', '30-Day Streak', '60-Day Streak'],
+    descriptionPlaceholder: 'Recognizes continuous daily active learning and coding activity.'
+  },
+  'Progress (%)': {
+    label: 'Course / Stage Progress (%)',
+    criteriaLabel: 'Requirement Criteria (Course / Stage Progress %)',
+    placeholder: 'e.g. Complete >= 80% of Course Curriculum',
+    defaultCriteria: '80% Course Progress',
+    defaultIcon: 'Target',
+    defaultColor: 'blue',
+    presets: ['25% Progress', '50% Progress', '75% Progress', '90% Progress', '100% Course Completion'],
+    descriptionPlaceholder: 'Earned upon reaching milestones in total curriculum lessons, exercises, and stage progress.'
+  },
+  'Attendance (%)': {
+    label: 'Live Class Attendance (%)',
+    criteriaLabel: 'Requirement Criteria (Attendance Rate %)',
+    placeholder: 'e.g. 90% Live Class Attendance',
+    defaultCriteria: '90% Attendance',
+    defaultIcon: 'CheckCircle2',
+    defaultColor: 'emerald',
+    presets: ['75% Attendance', '85% Attendance', '90% Attendance', '95% Attendance', '100% Perfect Attendance'],
+    descriptionPlaceholder: 'Awarded for active, punctual attendance across scheduled live mentor sessions.'
+  },
+  'Assessment Score (%)': {
+    label: 'Assessment Score (%)',
+    criteriaLabel: 'Requirement Criteria (Minimum Score %)',
+    placeholder: 'e.g. Score >= 85% in Milestone Assessments',
+    defaultCriteria: '85% Assessment Score',
+    defaultIcon: 'Trophy',
+    defaultColor: 'purple',
+    presets: ['75% Score', '80% Score', '85% Score', '90% Score', '95% Score', '100% Perfect Score'],
+    descriptionPlaceholder: 'Earned by achieving high scores in stage evaluations, coding quizzes, and exams.'
+  },
+  'Coding & Practice': {
+    label: 'Coding & Practice',
+    criteriaLabel: 'Requirement Criteria (Problems Solved)',
+    placeholder: 'e.g. Solve 25+ Coding Challenges',
+    defaultCriteria: '25 Coding Problems Solved',
+    defaultIcon: 'Code',
+    defaultColor: 'indigo',
+    presets: ['10 Problems', '25 Problems', '50 Problems', '100 Problems', '200 Problems'],
+    descriptionPlaceholder: 'Awarded to students for solving technical coding algorithms and data structure problems.'
+  },
+  'Project Milestone': {
+    label: 'Project Milestone',
+    criteriaLabel: 'Requirement Criteria (Projects Submitted)',
+    placeholder: 'e.g. Complete and Submit 2 Practical Projects',
+    defaultCriteria: '2 Projects Completed',
+    defaultIcon: 'Rocket',
+    defaultColor: 'teal',
+    presets: ['1 Project Completed', '2 Projects Completed', '3 Projects Completed', 'Capstone Project Approved'],
+    descriptionPlaceholder: 'Recognizes successful development and submission of real-world capstone portfolio projects.'
+  },
+  'Skill Mastery': {
+    label: 'Skill Mastery',
+    criteriaLabel: 'Requirement Criteria (Tech Skill)',
+    placeholder: 'e.g. Master React & Node.js Architecture',
+    defaultCriteria: 'Master Specific Tech Domain',
+    defaultIcon: 'Brain',
+    defaultColor: 'violet',
+    presets: ['Python Foundations', 'Frontend Mastery', 'Backend & DBs', 'System Design', 'AI Workflows'],
+    descriptionPlaceholder: 'Recognizes comprehensive mastery over a specific technology stack or domain.'
+  },
+  'Academic': {
+    label: 'Academic Achievement',
+    criteriaLabel: 'Requirement Criteria',
+    placeholder: 'e.g. Top 5% in Batch Rankings',
+    defaultCriteria: 'Academic Excellence in Batch',
+    defaultIcon: 'GraduationCap',
+    defaultColor: 'sky',
+    presets: ['Batch Top 10%', 'Top Performer', 'Honor Roll', 'Distinction Award'],
+    descriptionPlaceholder: 'Awarded for overall academic excellence and stellar performance throughout the program.'
+  },
+  'Special': {
+    label: 'Special & Leadership',
+    criteriaLabel: 'Requirement Criteria',
+    placeholder: 'e.g. Outstanding Peer Mentorship & Collaboration',
+    defaultCriteria: 'Special Community Contribution',
+    defaultIcon: 'Sparkles',
+    defaultColor: 'rose',
+    presets: ['Peer Mentor', 'Hackathon Winner', 'Community Champion', 'Most Active Contributor'],
+    descriptionPlaceholder: 'Special recognition for leadership, hackathons, community engagement, and peer support.'
+  }
+};
+
+const BADGE_CATEGORIES = Object.keys(BADGE_CATEGORIES_CONFIG);
 
 export function BadgesPage() {
   const { badges = [], addBadge, updateBadge, deleteBadge, students = [] } = useLmsData();
@@ -270,11 +361,11 @@ export function BadgesPage() {
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    category: '',
-    icon: 'Award',
-    color: '',
-    criteria: '',
-    points: '',
+    category: 'XP Points',
+    icon: 'Zap',
+    color: 'amber',
+    criteria: '500 XP Points',
+    points: '500 XP',
     targetBatch: 'ALL BATCHES'
   });
 
@@ -282,12 +373,12 @@ export function BadgesPage() {
     setEditingBadge(null);
     setFormData({
       name: '',
-      description: '',
-      category: '',
-      icon: 'Award',
-      color: '',
-      criteria: '',
-      points: '',
+      description: BADGE_CATEGORIES_CONFIG['XP Points'].descriptionPlaceholder,
+      category: 'XP Points',
+      icon: 'Zap',
+      color: 'amber',
+      criteria: '500 XP Points',
+      points: '500 XP',
       targetBatch: 'ALL BATCHES'
     });
     setIsModalOpen(true);
@@ -295,13 +386,15 @@ export function BadgesPage() {
 
   const handleOpenEditModal = (badge) => {
     setEditingBadge(badge);
+    const cat = badge.category || 'XP Points';
+    const catConfig = BADGE_CATEGORIES_CONFIG[cat] || BADGE_CATEGORIES_CONFIG['XP Points'];
     setFormData({
       name: badge.name || '',
-      description: badge.description || '',
-      category: badge.category || '',
-      icon: badge.icon || 'Award',
-      color: badge.color || '',
-      criteria: badge.criteria || '',
+      description: badge.description || catConfig.descriptionPlaceholder,
+      category: cat,
+      icon: badge.icon || catConfig.defaultIcon,
+      color: badge.color || catConfig.defaultColor,
+      criteria: badge.criteria || catConfig.defaultCriteria,
       points: badge.points || '',
       targetBatch: badge.targetBatch || 'ALL BATCHES'
     });
@@ -353,8 +446,15 @@ export function BadgesPage() {
     const name = (b.name || '').toLowerCase();
     const desc = (b.description || '').toLowerCase();
     const cat = (b.category || '').toLowerCase();
-    const matchesSearch = name.includes(query) || desc.includes(query) || cat.includes(query);
-    const matchesCategory = selectedCategory === 'All' || b.category === selectedCategory;
+    const crit = (b.criteria || '').toLowerCase();
+    const matchesSearch = name.includes(query) || desc.includes(query) || cat.includes(query) || crit.includes(query);
+    const matchesCategory =
+      selectedCategory === 'All' ||
+      b.category === selectedCategory ||
+      (selectedCategory === 'XP Points' && (b.category === 'XP Points' || crit.includes('xp'))) ||
+      (selectedCategory === 'Streak' && (b.category === 'Streak' || crit.includes('streak'))) ||
+      (selectedCategory === 'Progress (%)' && (b.category === 'Progress (%)' || b.category === 'Milestone' || crit.includes('progress'))) ||
+      (selectedCategory === 'Attendance (%)' && (b.category === 'Attendance (%)' || b.category === 'Attendance' || crit.includes('attendance')));
     return matchesSearch && matchesCategory;
   });
 
@@ -667,37 +767,68 @@ export function BadgesPage() {
                 required
               />
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <Select
-                  label="Category"
-                  value={formData.category}
-                  onChange={(e) => {
-                    const newCat = e.target.value;
-                    let newCriteria = formData.criteria;
-                    if (newCat === 'Attendance' && (!formData.criteria || !formData.criteria.includes('%'))) {
-                      newCriteria = '90% Attendance';
-                    }
-                    setFormData({
-                      ...formData,
-                      category: newCat,
-                      criteria: newCriteria
-                    });
-                  }}
-                  options={BADGE_CATEGORIES.map((cat) => ({ value: cat, label: cat }))}
-                />
+              {/* Category & Dynamic Metric Requirement Criteria */}
+              {(() => {
+                const currentCategoryConfig = BADGE_CATEGORIES_CONFIG[formData.category] || BADGE_CATEGORIES_CONFIG['XP Points'];
+                return (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <Select
+                      label="Category"
+                      value={formData.category}
+                      onChange={(e) => {
+                        const newCat = e.target.value;
+                        const catConfig = BADGE_CATEGORIES_CONFIG[newCat] || BADGE_CATEGORIES_CONFIG['XP Points'];
+                        setFormData((prev) => ({
+                          ...prev,
+                          category: newCat,
+                          criteria: catConfig.defaultCriteria || '',
+                          icon: catConfig.defaultIcon || prev.icon,
+                          color: catConfig.defaultColor || prev.color,
+                          description: (!prev.description || Object.values(BADGE_CATEGORIES_CONFIG).some(c => c.descriptionPlaceholder === prev.description))
+                            ? catConfig.descriptionPlaceholder
+                            : prev.description
+                        }));
+                      }}
+                      options={BADGE_CATEGORIES.map((cat) => ({
+                        value: cat,
+                        label: BADGE_CATEGORIES_CONFIG[cat]?.label || cat
+                      }))}
+                    />
 
-                <Input
-                  label={formData.category === 'Attendance' ? 'Requirement Criteria (Attendance %)' : 'Requirement Criteria'}
-                  type="text"
-                  placeholder={
-                    formData.category === 'Attendance'
-                      ? 'e.g. 90% Attendance'
-                      : 'e.g. Score >= 90% in Stage 2 Python Assessment'
-                  }
-                  value={formData.criteria}
-                  onChange={(e) => setFormData({ ...formData, criteria: e.target.value })}
-                />
-              </div>
+                    <div className="space-y-1.5">
+                      <Input
+                        label={currentCategoryConfig.criteriaLabel}
+                        type="text"
+                        placeholder={currentCategoryConfig.placeholder}
+                        value={formData.criteria}
+                        onChange={(e) => setFormData({ ...formData, criteria: e.target.value })}
+                        required
+                      />
+
+                      {/* Quick Presets for Selected Metric Category */}
+                      {currentCategoryConfig.presets && (
+                        <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                          <span className="text-[10px] font-bold text-slate-400">Quick Presets:</span>
+                          {currentCategoryConfig.presets.map((preset) => (
+                            <button
+                              type="button"
+                              key={preset}
+                              onClick={() => setFormData({ ...formData, criteria: preset })}
+                              className={`px-2 py-0.5 rounded-lg text-[10px] font-bold transition-all cursor-pointer border ${
+                                formData.criteria === preset
+                                  ? 'bg-purple-600 text-white border-purple-600 shadow-2xs'
+                                  : 'bg-slate-100 text-slate-700 hover:bg-purple-50 hover:text-purple-700 border-slate-200'
+                              }`}
+                            >
+                              {preset}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })()}
 
               {/* Icon Avatar & Color Theme Side-by-Side */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5 items-start">
