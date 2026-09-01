@@ -14,6 +14,46 @@ import {
   Share2
 } from 'lucide-react';
 
+function getVideoEmbedInfo(url = '') {
+  if (!url) return { type: 'none' };
+  const trimmed = url.trim();
+
+  // Google Drive
+  const driveFileMatch = trimmed.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/i);
+  const driveIdMatch = trimmed.match(/drive\.google\.com\/(?:open|uc)\?id=([a-zA-Z0-9_-]+)/i);
+  if (driveFileMatch || driveIdMatch) {
+    const fileId = driveFileMatch ? driveFileMatch[1] : driveIdMatch[1];
+    return {
+      type: 'drive',
+      embedUrl: `https://drive.google.com/file/d/${fileId}/preview`
+    };
+  }
+
+  // YouTube
+  const ytMatch = trimmed.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?|shorts)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i);
+  if (ytMatch) {
+    return {
+      type: 'youtube',
+      embedUrl: `https://www.youtube.com/embed/${ytMatch[1]}?autoplay=0&rel=0`
+    };
+  }
+
+  // Vimeo
+  const vimeoMatch = trimmed.match(/vimeo\.com\/(?:channels\/(?:\w+\/)?|groups\/([^\/]*)\/videos\/|album\/(\d+)\/video\/|)(\d+)/i);
+  if (vimeoMatch && vimeoMatch[3]) {
+    return {
+      type: 'vimeo',
+      embedUrl: `https://player.vimeo.com/video/${vimeoMatch[3]}`
+    };
+  }
+
+  // Direct MP4 / Video Stream
+  return {
+    type: 'direct',
+    src: trimmed
+  };
+}
+
 export function RecordingDetailPage() {
   const { id } = useParams();
   const { recordings } = useLmsData();
@@ -32,6 +72,8 @@ export function RecordingDetailPage() {
     );
   }
 
+  const embedInfo = getVideoEmbedInfo(recording.videoUrl);
+
   return (
     <div className="space-y-6">
       {/* Top Bar */}
@@ -45,7 +87,7 @@ export function RecordingDetailPage() {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <Badge variant="purple">{recording.conceptName}</Badge>
+              <Badge variant="purple">{recording.conceptName || recording.subtopicName || 'Video Lecture'}</Badge>
               <Badge variant="indigo">Video Archive</Badge>
             </div>
             <h1 className="text-2xl font-black text-slate-900 tracking-tight">{recording.title}</h1>
@@ -64,37 +106,39 @@ export function RecordingDetailPage() {
 
       {/* Main Video Player Container */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Column: Player & Instructions */}
+        {/* Left Column: Player & Overview */}
         <div className="lg:col-span-2 space-y-6">
-          {/* Interactive Video Player Placeholder */}
-          <div className="bg-slate-900 rounded-3xl overflow-hidden shadow-2xl border border-slate-800 relative group">
-            <video
-              controls
-              className="w-full aspect-video object-cover"
-              poster={recording.thumbnail}
-            >
-              <source src={recording.videoUrl} type="video/mp4" />
-              Your browser does not support HTML5 video player.
-            </video>
+          {/* Interactive Video Player */}
+          <div className="bg-slate-900 rounded-3xl overflow-hidden shadow-2xl border border-slate-800 relative group aspect-video">
+            {embedInfo.type === 'drive' || embedInfo.type === 'youtube' || embedInfo.type === 'vimeo' ? (
+              <iframe
+                src={embedInfo.embedUrl}
+                title={recording.title}
+                className="w-full h-full border-0 rounded-3xl"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowFullScreen
+              />
+            ) : (
+              <video
+                controls
+                className="w-full h-full object-cover"
+                poster={recording.thumbnail}
+              >
+                <source src={recording.videoUrl} type="video/mp4" />
+                Your browser does not support HTML5 video player.
+              </video>
+            )}
           </div>
 
           {/* Description Section */}
-          <div className="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-2xs space-y-4">
-            <h3 className="text-base font-extrabold text-slate-900 flex items-center gap-2">
-              <Video className="w-5 h-5 text-indigo-600" /> Recording Description
-            </h3>
-            <p className="text-sm text-slate-600 leading-relaxed">{recording.description}</p>
-          </div>
-
-          {/* Instructions Section */}
-          <div className="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-2xs space-y-4">
-            <h3 className="text-base font-extrabold text-slate-900 flex items-center gap-2">
-              <FileText className="w-5 h-5 text-emerald-600" /> Lab Instructions & Exercise Guide
-            </h3>
-            <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono text-slate-700 whitespace-pre-line leading-relaxed">
-              {recording.instructions || 'No special instructions provided for this recording.'}
+          {recording.description && (
+            <div className="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-2xs space-y-4">
+              <h3 className="text-base font-extrabold text-slate-900 flex items-center gap-2">
+                <Video className="w-5 h-5 text-indigo-600" /> Recording Description
+              </h3>
+              <p className="text-sm text-slate-600 leading-relaxed">{recording.description}</p>
             </div>
-          </div>
+          )}
         </div>
 
         {/* Right Column: Metadata & Related Recordings */}

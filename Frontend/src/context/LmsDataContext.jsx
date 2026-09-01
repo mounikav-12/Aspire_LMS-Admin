@@ -2004,20 +2004,36 @@ export function LmsDataProvider({ children }) {
       // 13B. Fetch Recordings Catalog
       try {
         if (!recordingsErr && recordingsData) {
-          const mappedRecordings = recordingsData.map(r => ({
-            id: r.id,
-            title: r.title,
-            conceptName: r.concept_name || r.topic || '',
-            duration: r.duration || '1h 30m',
-            instructor: r.instructor || r.speaker || '',
-            publishStatus: r.publish_status || 'Available in Student Library',
-            postedDate: r.posted_date || r.date || '',
-            videoUrl: r.video_url || '',
-            thumbnail: r.thumbnail || '',
-            description: r.description || '',
-            instructions: r.instructions || '',
-            targetBatch: r.target_batch || r.batch || 'Weekday Batch'
-          }));
+          const mappedRecordings = recordingsData.map(r => {
+            let meta = {};
+            if (r.instructions && typeof r.instructions === 'string' && r.instructions.trim().startsWith('{')) {
+              try {
+                meta = JSON.parse(r.instructions);
+              } catch (e) {}
+            }
+            return {
+              id: r.id,
+              title: r.title,
+              conceptName: r.concept_name || r.topic || meta.moduleName || meta.subtopicName || '',
+              duration: r.duration || '1h 30m',
+              instructor: r.instructor || r.speaker || '',
+              publishStatus: r.publish_status || 'Available in Student Library',
+              postedDate: r.posted_date || r.date || '',
+              videoUrl: r.video_url || '',
+              thumbnail: r.thumbnail || '',
+              description: r.description || '',
+              instructions: r.instructions || '',
+              targetBatch: r.target_batch || r.batch || 'Weekday Batch',
+              courseId: r.course_id || r.courseId || meta.courseId || '',
+              courseName: r.course_name || r.courseName || meta.courseName || '',
+              stageId: r.stage_id || r.stageId || meta.stageId || '',
+              stageName: r.stage_name || r.stageName || meta.stageName || '',
+              subtopicId: r.subtopic_id || r.subtopicId || meta.subtopicId || '',
+              subtopicName: r.subtopic_name || r.subtopicName || meta.subtopicName || '',
+              moduleId: r.module_id || r.moduleId || meta.moduleId || '',
+              moduleName: r.module_name || r.moduleName || meta.moduleName || ''
+            };
+          });
           setRecordingsByBatch(() => {
             const next = { 'Weekday Batch': [], 'Weekend Batch': [] };
             mappedRecordings.forEach(rec => {
@@ -2649,10 +2665,16 @@ export function LmsDataProvider({ children }) {
             'Weekend Batch': [...(prev['Weekend Batch'] || [])]
           };
           const bKey = r?.target_batch === 'Weekend Batch' ? 'Weekend Batch' : 'Weekday Batch';
+          let meta = {};
+          if (r?.instructions && typeof r.instructions === 'string' && r.instructions.trim().startsWith('{')) {
+            try {
+              meta = JSON.parse(r.instructions);
+            } catch (e) {}
+          }
           const normalized = {
             id: r.id,
             title: r.title,
-            conceptName: r.concept_name || r.topic || '',
+            conceptName: r.concept_name || r.topic || meta.moduleName || meta.subtopicName || '',
             duration: r.duration || '1h 30m',
             instructor: r.instructor || r.speaker || '',
             publishStatus: r.publish_status || 'Available in Student Library',
@@ -2661,7 +2683,15 @@ export function LmsDataProvider({ children }) {
             thumbnail: r.thumbnail || '',
             description: r.description || '',
             instructions: r.instructions || '',
-            targetBatch: r.target_batch || r.batch || 'Weekday Batch'
+            targetBatch: r.target_batch || r.batch || 'Weekday Batch',
+            courseId: r.course_id || r.courseId || meta.courseId || '',
+            courseName: r.course_name || r.courseName || meta.courseName || '',
+            stageId: r.stage_id || r.stageId || meta.stageId || '',
+            stageName: r.stage_name || r.stageName || meta.stageName || '',
+            subtopicId: r.subtopic_id || r.subtopicId || meta.subtopicId || '',
+            subtopicName: r.subtopic_name || r.subtopicName || meta.subtopicName || '',
+            moduleId: r.module_id || r.moduleId || meta.moduleId || '',
+            moduleName: r.module_name || r.moduleName || meta.moduleName || ''
           };
           if (payload.eventType === 'INSERT') {
             if (!next[bKey].find(x => x.id === normalized.id)) {
@@ -3743,27 +3773,38 @@ export function LmsDataProvider({ children }) {
     } catch (err) { console.warn('Job delete handled:', err); }
   };
 
-    // --- RECORDINGS ---
+  // --- RECORDINGS ---
   const addRecording = async (recData, targetBatch = activeBatchFilter) => {
     const bKey = resolveBatchKey(targetBatch);
+    const metaPayload = {
+      courseId: recData.courseId || '',
+      courseName: recData.courseName || '',
+      stageId: recData.stageId || '',
+      stageName: recData.stageName || '',
+      subtopicId: recData.subtopicId || '',
+      subtopicName: recData.subtopicName || '',
+      moduleId: recData.moduleId || '',
+      moduleName: recData.moduleName || ''
+    };
     const newRec = {
-      id: `rec-${Date.now()}-${bKey === 'Weekday Batch' ? 'w' : 's'}`,
+      id: recData.id || `rec-${Date.now()}-${bKey === 'Weekday Batch' ? 'w' : 's'}`,
       targetBatch: bKey,
-      postedDate: new Date().toISOString().split('T')[0],
-      publishStatus: 'Available in Student Library',
-      thumbnail: 'https://images.unsplash.com/photo-1587620962725-abab7fe55159?w=600&auto=format&fit=crop&q=80',
-      ...recData
+      postedDate: recData.postedDate || new Date().toISOString().split('T')[0],
+      publishStatus: recData.publishStatus || 'Available in Student Library',
+      thumbnail: recData.thumbnail || 'https://images.unsplash.com/photo-1587620962725-abab7fe55159?w=600&auto=format&fit=crop&q=80',
+      ...recData,
+      instructions: JSON.stringify(metaPayload)
     };
     setRecordingsByBatch((prev) => ({
       ...prev,
-      [bKey]: [newRec, ...(prev[bKey] || [])]
+      [bKey]: [newRec, ...(prev[bKey] || []).filter((r) => r.id !== newRec.id)]
     }));
     logActivity(`Uploaded lecture video: "${newRec.title}" (${bKey})`, 'library');
     try {
-      const { error } = await supabase.from('recordings').upsert([{
+      const dbRow = {
         id: newRec.id,
         title: newRec.title,
-        concept_name: newRec.conceptName || '',
+        concept_name: newRec.conceptName || newRec.moduleName || newRec.subtopicName || 'Video Lecture',
         duration: newRec.duration || '1h 30m',
         instructor: newRec.instructor || 'Staff',
         publish_status: newRec.publishStatus,
@@ -3771,31 +3812,60 @@ export function LmsDataProvider({ children }) {
         video_url: newRec.videoUrl || newRec.video_url || '',
         thumbnail: newRec.thumbnail,
         description: newRec.description || '',
-        instructions: newRec.instructions || '',
+        instructions: JSON.stringify(metaPayload),
         target_batch: newRec.targetBatch
-      }]);
+      };
+      const { error } = await supabase.from('recordings').upsert([dbRow]);
       if (error) console.error('Supabase recording insert error:', error.message);
     } catch (err) { console.warn('Recording insert handled:', err); }
   };
 
   const updateRecording = async (id, updatedFields, targetBatch = activeBatchFilter) => {
     const bKey = resolveBatchKey(targetBatch);
-    setRecordingsByBatch((prev) => ({
-      ...prev,
-      [bKey]: (prev[bKey] || []).map((r) => (r.id === id ? { ...r, ...updatedFields } : r))
-    }));
+    let mergedRec = null;
+    setRecordingsByBatch((prev) => {
+      const updateInBatch = (arr) => (arr || []).map((r) => {
+        if (r.id === id) {
+          mergedRec = { ...r, ...updatedFields };
+          return mergedRec;
+        }
+        return r;
+      });
+      return {
+        'Weekday Batch': updateInBatch(prev['Weekday Batch']),
+        'Weekend Batch': updateInBatch(prev['Weekend Batch'])
+      };
+    });
     logActivity(`Updated lecture recording ID ${id} (${bKey})`, 'library');
     try {
+      const target = mergedRec || { id, ...updatedFields };
+      const metaPayload = {
+        courseId: target.courseId || '',
+        courseName: target.courseName || '',
+        stageId: target.stageId || '',
+        stageName: target.stageName || '',
+        subtopicId: target.subtopicId || '',
+        subtopicName: target.subtopicName || '',
+        moduleId: target.moduleId || '',
+        moduleName: target.moduleName || ''
+      };
+
       const dbFields = {};
-      if (updatedFields.title !== undefined) dbFields.title = updatedFields.title;
-      if (updatedFields.publishStatus !== undefined) dbFields.publish_status = updatedFields.publishStatus;
-      if (updatedFields.description !== undefined) dbFields.description = updatedFields.description;
-      if (updatedFields.videoUrl !== undefined) dbFields.video_url = updatedFields.videoUrl;
-      if (updatedFields.thumbnail !== undefined) dbFields.thumbnail = updatedFields.thumbnail;
-      if (Object.keys(dbFields).length > 0) {
-        const { error } = await supabase.from('recordings').update(dbFields).eq('id', id);
-        if (error) console.error('Supabase recording update error:', error.message);
+      if (target.title !== undefined) dbFields.title = target.title;
+      if (target.conceptName !== undefined || target.moduleName !== undefined) {
+        dbFields.concept_name = target.conceptName || target.moduleName || 'Video Lecture';
       }
+      if (target.duration !== undefined) dbFields.duration = target.duration;
+      if (target.instructor !== undefined) dbFields.instructor = target.instructor;
+      if (target.publishStatus !== undefined) dbFields.publish_status = target.publishStatus;
+      if (target.description !== undefined) dbFields.description = target.description;
+      if (target.videoUrl !== undefined) dbFields.video_url = target.videoUrl;
+      if (target.thumbnail !== undefined) dbFields.thumbnail = target.thumbnail;
+      if (target.targetBatch !== undefined) dbFields.target_batch = target.targetBatch;
+      dbFields.instructions = JSON.stringify(metaPayload);
+
+      const { error } = await supabase.from('recordings').update(dbFields).eq('id', id);
+      if (error) console.error('Supabase recording update error:', error.message);
     } catch (err) { console.warn('Recording update handled:', err); }
   };
 

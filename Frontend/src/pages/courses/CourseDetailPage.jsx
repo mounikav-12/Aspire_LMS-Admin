@@ -280,7 +280,7 @@ export function CourseDetailPage() {
 
   const toggleExpandTopic = (topicId) => {
     setExpandedTopicIds((prev) =>
-      prev.includes(topicId) ? prev.filter((id) => id !== topicId) : [...prev, topicId]
+      prev.includes(topicId) ? [] : [topicId]
     );
   };
 
