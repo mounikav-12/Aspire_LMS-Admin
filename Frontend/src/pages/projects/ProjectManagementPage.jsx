@@ -841,9 +841,9 @@ export function ProjectManagementPage() {
         maxHeight="max-h-[88vh]"
       >
         <form onSubmit={handleFormSubmit} className="space-y-4">
-          {/* Row 1: Title (2 cols), Type (1 col), Due Date (1 col) */}
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-3.5 items-end">
-            <div className="md:col-span-4">
+          {/* Row 1: Project Title, Project Type, Due Date */}
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-start">
+            <div className="md:col-span-6">
               <Input
                 label="Project Title"
                 type="text"
@@ -853,7 +853,7 @@ export function ProjectManagementPage() {
                 required
               />
             </div>
-            <div className="md:col-span-2">
+            <div className="md:col-span-3">
               <Select
                 label="Project Type"
                 value={formData.type}
@@ -865,7 +865,7 @@ export function ProjectManagementPage() {
                 ]}
               />
             </div>
-            <div className="md:col-span-2">
+            <div className="md:col-span-3">
               <Input
                 label="Due Date Label"
                 type="text"
@@ -874,25 +874,27 @@ export function ProjectManagementPage() {
                 onChange={(e) => setFormData({ ...formData, dueDate: e.target.value })}
               />
             </div>
-            <div className="md:col-span-4">
-              <label className="block text-[11px] font-black text-slate-700 uppercase tracking-wider mb-1">
-                Target Batch
-              </label>
-              <BatchMultiSelectDropdown
-                selectedBatches={formData.targetBatches || ['ALL']}
-                onChange={(newBatches) => {
-                  setFormData({
-                    ...formData,
-                    targetBatches: newBatches,
-                    targetBatch: newBatches.includes('ALL') ? 'All Batches' : newBatches.join(', ')
-                  });
-                }}
-                availableBatches={availableBatches}
-              />
-            </div>
           </div>
 
-          {/* Row 2: Tech Stack Tags & Starter Template Repo URL */}
+          {/* Row 2: Target Batch Assignment */}
+          <div className="p-3 bg-slate-50/80 rounded-2xl border border-slate-200/80">
+            <label className="block text-[11px] font-black text-slate-700 uppercase tracking-wider mb-2">
+              Target Batch Assignment
+            </label>
+            <BatchMultiSelectDropdown
+              selectedBatches={formData.targetBatches || ['ALL']}
+              onChange={(newBatches) => {
+                setFormData({
+                  ...formData,
+                  targetBatches: newBatches,
+                  targetBatch: newBatches.includes('ALL') ? 'All Batches' : newBatches.join(', ')
+                });
+              }}
+              availableBatches={availableBatches}
+            />
+          </div>
+
+          {/* Row 3: Tech Stack Tags & Starter Template Repo URL */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Input
               label="Tech Stack Tags (Comma-Separated)"
