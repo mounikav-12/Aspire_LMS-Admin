@@ -92,17 +92,7 @@ export const isMatchingStage = (stageA, stageB) => {
 export const parseUnlockTimestamp = (unlockDate, unlockTime, unlockDateTime) => {
   if (!unlockDate && !unlockDateTime) return null;
 
-  if (typeof unlockDateTime === 'number' && !isNaN(unlockDateTime)) {
-    return unlockDateTime;
-  }
-
-  if (unlockDateTime && typeof unlockDateTime === 'string' && (unlockDateTime.includes('Z') || unlockDateTime.length > 16)) {
-    try {
-      const parsed = new Date(unlockDateTime).getTime();
-      if (!isNaN(parsed)) return parsed;
-    } catch (e) {}
-  }
-
+  // 1. Prioritize explicit unlockDate if provided
   let rawDate = unlockDate || '';
   let rawTime = unlockTime || '00:00';
 
@@ -139,7 +129,13 @@ export const parseUnlockTimestamp = (unlockDate, unlockTime, unlockDateTime) => 
     }
   }
 
-  if (unlockDateTime) {
+  // 2. Numeric timestamp fallback
+  if (typeof unlockDateTime === 'number' && !isNaN(unlockDateTime)) {
+    return unlockDateTime;
+  }
+
+  // 3. Fallback to parsing unlockDateTime ISO string
+  if (unlockDateTime && typeof unlockDateTime === 'string') {
     try {
       const parsed = new Date(unlockDateTime).getTime();
       if (!isNaN(parsed)) return parsed;
@@ -277,6 +273,10 @@ export const getScheduleInfo = (item, parentSchedule = null) => {
   const d = new Date(targetTime);
   const dateFormatted = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   const timeFormatted = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+  const resolvedUnlockDate = formatLocalDate(d);
+  const hours = String(d.getHours()).padStart(2, '0');
+  const minutes = String(d.getMinutes()).padStart(2, '0');
+  const resolvedUnlockTime = `${hours}:${minutes}`;
 
   const diffMs = targetTime - now;
   const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
@@ -300,8 +300,8 @@ export const getScheduleInfo = (item, parentSchedule = null) => {
     hasSchedule: true,
     isUnlocked,
     isLocked,
-    unlockDate,
-    unlockTime,
+    unlockDate: resolvedUnlockDate || unlockDate,
+    unlockTime: resolvedUnlockTime || unlockTime,
     unlockDateTime,
     dateFormatted,
     timeFormatted,
@@ -399,6 +399,84 @@ export function MilestonesRoadmapPage() {
   const [selectedCourseId, setSelectedCourseId] = useState(() => searchParams.get('courseId') || courses[0]?.id || '');
   const [selectedStudentAccessId, setSelectedStudentAccessId] = useState('ALL');
 
+  // --- Batch-Specific Lock Lookup from Supabase milestoneLocks ---
+  const getItemLockForBatch = (itemId, batchCode = selectedBatch) => {
+    if (!itemId || !Array.isArray(milestoneLocks) || milestoneLocks.length === 0) return null;
+    const cleanId = String(itemId).trim();
+    const stripSuffix = (str) => String(str || '').replace(/-(w|s)$/i, '').trim();
+    const idClean = stripSuffix(cleanId);
+    const cleanNorm = (str) => String(str || '').toLowerCase().replace(/[^a-z0-9]/g, '').trim();
+    const idNorm = cleanNorm(cleanId);
+
+    // 1. If a specific batch is selected, look for exact batch match first
+    if (batchCode && batchCode !== 'ALL') {
+      const exactMatch = milestoneLocks.find((l) => {
+        if (l.batch_code !== batchCode) return false;
+        const lId = String(l.lesson_id || '').trim();
+        return lId === cleanId || stripSuffix(lId) === idClean || cleanNorm(lId) === idNorm;
+      });
+      if (exactMatch) return exactMatch;
+    }
+
+    // 2. Look for 'ALL' batch lock
+    const allMatch = milestoneLocks.find((l) => {
+      if (l.batch_code !== 'ALL') return false;
+      const lId = String(l.lesson_id || '').trim();
+      return lId === cleanId || stripSuffix(lId) === idClean || cleanNorm(lId) === idNorm;
+    });
+    if (allMatch) return allMatch;
+
+    // 3. Fallback: If batchCode is 'ALL', return any match
+    if (!batchCode || batchCode === 'ALL') {
+      const anyMatch = milestoneLocks.find((l) => {
+        const lId = String(l.lesson_id || '').trim();
+        return lId === cleanId || stripSuffix(lId) === idClean || cleanNorm(lId) === idNorm;
+      });
+      if (anyMatch) return anyMatch;
+    }
+
+    return null;
+  };
+
+  // Resolve schedule info for any milestone item with batch-specific lock support
+  const getItemSchedule = (item, parentSchedule = null) => {
+    if (!item) return getScheduleInfo(null);
+
+    // Requirement 1: Stages in frontend are NEVER locked and do not have locks in UI
+    const isStageItem = !!(item.subtopics !== undefined || item.stageNumber || item.phaseTag);
+    if (isStageItem) {
+      return {
+        hasSchedule: false,
+        isUnlocked: true,
+        isLocked: false,
+        unlockDate: '',
+        unlockTime: '',
+        unlockDateTime: null,
+        dateFormatted: '',
+        timeFormatted: '',
+        fullFormatted: 'Available',
+        shortFormatted: 'Available',
+        relativeText: 'Released',
+        statusLabel: 'UNLOCKED',
+        inherited: false
+      };
+    }
+
+    // Check for batch-specific lock from Supabase milestoneLocks
+    const batchLock = getItemLockForBatch(item.id, selectedBatch);
+    if (batchLock) {
+      const augmentedItem = {
+        ...item,
+        unlockDate: batchLock.unlock_date || '',
+        unlockTime: batchLock.unlock_time || '',
+        unlockDateTime: batchLock.unlock_datetime || (batchLock.unlock_date ? `${batchLock.unlock_date}T${batchLock.unlock_time || '00:00'}` : null)
+      };
+      return getScheduleInfo(augmentedItem, parentSchedule);
+    }
+
+    return getScheduleInfo(item, parentSchedule);
+  };
+
   // Derive active milestones stages from current milestone state or selected course
   const getActiveMilestoneStages = () => {
     const cleanNorm = (str) => String(str || '').toLowerCase().replace(/[^a-z0-9]/g, '').trim();
@@ -479,22 +557,45 @@ export function MilestonesRoadmapPage() {
           if (modules.length === 0) {
             const lessons = resolveLessonsForSubtopic(subId, cleanSubTitle, stageId);
             if (lessons.length > 0) {
-              modules = lessons.map(lesson => ({
-                id: lesson.id,
-                title: String(lesson.title || '').replace(/^Module\s*\d+\s*:\s*/i, '').trim(),
-                description: lesson.description || '',
-                duration: lesson.duration || lesson.durationHours || '1hr 30min',
-                durationHours: lesson.durationHours || '1hr 30min',
-                topics: [],
-                items: []
-              }));
+              modules = lessons.map(lesson => {
+                const lLock = getItemLockForBatch(lesson.id, selectedBatch);
+                return {
+                  id: lesson.id,
+                  title: String(lesson.title || '').replace(/^Module\s*\d+\s*:\s*/i, '').trim(),
+                  description: lesson.description || '',
+                  duration: lesson.duration || lesson.durationHours || '1hr 30min',
+                  durationHours: lesson.durationHours || '1hr 30min',
+                  unlockDate: lLock?.unlock_date || '',
+                  unlockTime: lLock?.unlock_time || '',
+                  unlockDateTime: lLock?.unlock_datetime || null,
+                  topics: [],
+                  items: []
+                };
+              });
             }
+          } else {
+            modules = modules.map(mod => {
+              const mLock = getItemLockForBatch(mod.id, selectedBatch);
+              if (mLock) {
+                return {
+                  ...mod,
+                  unlockDate: mLock.unlock_date || mod.unlockDate,
+                  unlockTime: mLock.unlock_time || mod.unlockTime,
+                  unlockDateTime: mLock.unlock_datetime || mod.unlockDateTime
+                };
+              }
+              return mod;
+            });
           }
 
+          const sLock = getItemLockForBatch(subId, selectedBatch);
           return {
             ...sub,
             id: subId,
             title: cleanSubTitle,
+            unlockDate: sLock?.unlock_date || sub.unlockDate,
+            unlockTime: sLock?.unlock_time || sub.unlockTime,
+            unlockDateTime: sLock?.unlock_datetime || sub.unlockDateTime,
             modulesCount: modules.length,
             modules: modules
           };
@@ -725,16 +826,35 @@ export function MilestonesRoadmapPage() {
       });
 
       if (matchedLessons.length > 0) {
-        subModules = matchedLessons.map(l => ({
-          id: l.id,
-          title: String(l.title || '').replace(/^Module\s*\d+\s*:\s*/i, '').trim(),
-          description: l.description || '',
-          duration: l.duration || l.durationHours || '1hr 30min',
-          durationHours: l.durationHours || '1hr 30min',
-          items: [],
-          topics: []
-        }));
+        subModules = matchedLessons.map(l => {
+          const lLock = getItemLockForBatch(l.id, selectedBatch);
+          return {
+            id: l.id,
+            title: String(l.title || '').replace(/^Module\s*\d+\s*:\s*/i, '').trim(),
+            description: l.description || '',
+            duration: l.duration || l.durationHours || '1hr 30min',
+            durationHours: l.durationHours || '1hr 30min',
+            unlockDate: lLock?.unlock_date || '',
+            unlockTime: lLock?.unlock_time || '',
+            unlockDateTime: lLock?.unlock_datetime || null,
+            items: [],
+            topics: []
+          };
+        });
       }
+    } else if (subModules.length > 0) {
+      subModules = subModules.map(mod => {
+        const mLock = getItemLockForBatch(mod.id, selectedBatch);
+        if (mLock) {
+          return {
+            ...mod,
+            unlockDate: mLock.unlock_date || mod.unlockDate,
+            unlockTime: mLock.unlock_time || mod.unlockTime,
+            unlockDateTime: mLock.unlock_datetime || mod.unlockDateTime
+          };
+        }
+        return mod;
+      });
     }
 
     return {
@@ -763,7 +883,15 @@ export function MilestonesRoadmapPage() {
 
   // --- Handlers: Date & Time Schedule Modal ---
   const handleOpenScheduleModal = (type, item, stageId = null, subtopicId = null) => {
-    const sInfo = getScheduleInfo(item);
+    const sInfo = getItemSchedule(item);
+    const batchLock = getItemLockForBatch(item.id, selectedBatch);
+    const existingDate = (sInfo?.hasSchedule && sInfo?.unlockDate)
+      ? sInfo.unlockDate
+      : (batchLock?.unlock_date || item.unlockDate || '');
+    const existingTime = (sInfo?.hasSchedule && sInfo?.unlockTime)
+      ? sInfo.unlockTime
+      : (batchLock?.unlock_time || item.unlockTime || '09:00');
+
     setScheduleTarget({
       type,
       item,
@@ -772,70 +900,79 @@ export function MilestonesRoadmapPage() {
       subtopicId: subtopicId || item.id,
       title: item.title || item.stageNumber || 'Item'
     });
+    // Requirement 3: Display existing unlocked date by default, or current date if not unlocked yet
     setScheduleFormData({
-      unlockDate: sInfo.unlockDate || '',
-      unlockTime: sInfo.unlockTime || '09:00'
+      unlockDate: existingDate || formatLocalDate(new Date()),
+      unlockTime: existingTime || '09:00'
     });
     setIsScheduleModalOpen(true);
   };
 
-  const handleSaveSchedule = (e) => {
+  const handleSaveSchedule = async (e) => {
     e.preventDefault();
     if (!scheduleTarget) return;
 
     const { unlockDate, unlockTime } = scheduleFormData;
-    const uDateTime = unlockDate ? `${unlockDate}T${unlockTime || '00:00'}` : null;
+    const finalDate = unlockDate || formatLocalDate(new Date());
+    const finalTime = unlockTime || '09:00';
+    const uDateTime = `${finalDate}T${finalTime}:00`;
+
+    let targetCourseId = selectedCourseId;
+    if (!targetCourseId || targetCourseId === 'ALL') {
+      const pythonCourse = (courses || []).find(c => c.id && c.title && c.title.toLowerCase().includes('python'));
+      targetCourseId = pythonCourse ? pythonCourse.id : (courses?.[0]?.id || 'crs-1786624019154-w');
+    }
 
     if (scheduleTarget.type === 'stage') {
       setStageSchedule(scheduleTarget.id, {
-        unlockDate,
-        unlockTime,
+        unlockDate: finalDate,
+        unlockTime: finalTime,
         unlockDateTime: uDateTime
       }, selectedBatch);
       addToast(
-        unlockDate
-          ? `📅 Stage release scheduled for ${unlockDate} at ${unlockTime}`
+        finalDate
+          ? `📅 Stage release scheduled for ${finalDate} at ${finalTime}`
           : 'Stage schedule updated',
         'success'
       );
     } else if (scheduleTarget.type === 'subtopic') {
+      await setLessonLock({
+        lesson_id: scheduleTarget.id,
+        batch_code: selectedBatch,
+        course_id: targetCourseId,
+        stage_id: scheduleTarget.stageId || '',
+        module_id: scheduleTarget.id || '',
+        unlock_date: finalDate,
+        unlock_time: finalTime
+      });
       setSubtopicSchedule(scheduleTarget.stageId, scheduleTarget.id, {
-        unlockDate,
-        unlockTime,
+        unlockDate: finalDate,
+        unlockTime: finalTime,
         unlockDateTime: uDateTime
       }, selectedBatch);
       addToast(
-        unlockDate
-          ? `📅 Subtopic release scheduled for ${unlockDate} at ${unlockTime}`
-          : 'Subtopic schedule updated',
+        `📅 Subtopic release scheduled for ${finalDate} at ${finalTime} (${selectedBatch === 'ALL' ? 'All Batches' : selectedBatch})`,
         'success'
       );
     } else if (scheduleTarget.type === 'module') {
-      let targetCourseId = selectedCourseId;
-      if (targetCourseId === 'ALL') {
-        const pythonCourse = courses.find(c => c.title && c.title.toLowerCase().includes('python'));
-        targetCourseId = pythonCourse ? pythonCourse.id : courses[0]?.id;
-      }
-      setLessonLock({
+      await setLessonLock({
         lesson_id: scheduleTarget.id,
         batch_code: selectedBatch,
-        course_id: targetCourseId || '',
+        course_id: targetCourseId,
         stage_id: scheduleTarget.stageId || '',
         module_id: scheduleTarget.subtopicId || '',
-        unlock_date: unlockDate,
-        unlock_time: unlockTime
+        unlock_date: finalDate,
+        unlock_time: finalTime
       });
       if (scheduleTarget.stageId && scheduleTarget.subtopicId) {
         setModuleSchedule(scheduleTarget.stageId, scheduleTarget.subtopicId, scheduleTarget.id, {
-          unlockDate,
-          unlockTime,
+          unlockDate: finalDate,
+          unlockTime: finalTime,
           unlockDateTime: uDateTime
         }, selectedBatch);
       }
       addToast(
-        unlockDate
-          ? `📅 Lesson release scheduled for ${unlockDate} at ${unlockTime}`
-          : 'Lesson schedule updated',
+        `📅 Lesson release scheduled for ${finalDate} at ${finalTime} (${selectedBatch === 'ALL' ? 'All Batches' : selectedBatch})`,
         'success'
       );
     }
@@ -843,7 +980,7 @@ export function MilestonesRoadmapPage() {
     setIsScheduleModalOpen(false);
   };
 
-  const handleClearSchedule = () => {
+  const handleClearSchedule = async () => {
     if (!scheduleTarget) return;
 
     if (scheduleTarget.type === 'stage') {
@@ -852,16 +989,17 @@ export function MilestonesRoadmapPage() {
         unlockTime: '',
         unlockDateTime: null
       }, selectedBatch);
-      addToast('Stage schedule cleared (Available by default)', 'info');
+      addToast('Stage schedule cleared', 'info');
     } else if (scheduleTarget.type === 'subtopic') {
+      await removeLessonLock(scheduleTarget.id, selectedBatch);
       setSubtopicSchedule(scheduleTarget.stageId, scheduleTarget.id, {
         unlockDate: '',
         unlockTime: '',
         unlockDateTime: null
       }, selectedBatch);
-      addToast('Subtopic schedule cleared (Inherits stage release)', 'info');
+      addToast(`Subtopic schedule cleared (${selectedBatch === 'ALL' ? 'All Batches' : selectedBatch})`, 'info');
     } else if (scheduleTarget.type === 'module') {
-      removeLessonLock(scheduleTarget.id, selectedBatch);
+      await removeLessonLock(scheduleTarget.id, selectedBatch);
       if (scheduleTarget.stageId && scheduleTarget.subtopicId) {
         setModuleSchedule(scheduleTarget.stageId, scheduleTarget.subtopicId, scheduleTarget.id, {
           unlockDate: '',
@@ -869,7 +1007,7 @@ export function MilestonesRoadmapPage() {
           unlockDateTime: null
         }, selectedBatch);
       }
-      addToast('Lesson schedule cleared (Inherits subtopic release)', 'info');
+      addToast(`Lesson schedule cleared (${selectedBatch === 'ALL' ? 'All Batches' : selectedBatch})`, 'info');
     }
 
     setIsScheduleModalOpen(false);
@@ -1318,9 +1456,6 @@ export function MilestonesRoadmapPage() {
           </div>
         ) : (
           filteredStages.map((stage, stageIndex) => {
-          const stageSched = getScheduleInfo(stage);
-          const isStageCurrentUnlocked = stageSched.isUnlocked;
-
           const totalStages = filteredStages.length;
           const isFirstStage = stageIndex === 0;
           const isLastStage = stageIndex === totalStages - 1;
@@ -1338,14 +1473,9 @@ export function MilestonesRoadmapPage() {
                   style={!isLastStage ? { bottom: '-2rem' } : {}}
                 />
 
-                <div
-                  className={`relative z-10 flex h-9 w-9 items-center justify-center rounded-full border-2 transition-all shadow-sm ${
-                    isStageCurrentUnlocked
-                      ? 'border-purple-600 bg-purple-600 text-white'
-                      : 'border-slate-300 bg-slate-100 text-slate-400'
-                  }`}
-                >
-                  {isStageCurrentUnlocked ? <Brain className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
+                {/* Stage timeline node: Always unlocked and active in frontend UI */}
+                <div className="relative z-10 flex h-9 w-9 items-center justify-center rounded-full border-2 transition-all shadow-sm border-purple-600 bg-purple-600 text-white">
+                  <Brain className="w-4 h-4" />
                 </div>
               </div>
 
@@ -1358,14 +1488,8 @@ export function MilestonesRoadmapPage() {
                 >
                   <div className="flex flex-wrap items-center justify-between gap-4 relative z-10">
                     <div className="flex items-center gap-3.5">
-                      <div
-                        className={`flex h-12 w-12 items-center justify-center rounded-2xl shadow-inner flex-shrink-0 transition-all duration-300 ${
-                          isStageCurrentUnlocked
-                            ? 'bg-purple-100 group-hover:bg-purple-100 text-purple-600 group-hover:text-purple-700'
-                            : 'bg-slate-100 text-slate-400 group-hover:bg-purple-100 group-hover:text-purple-700'
-                        }`}
-                      >
-                        {isStageCurrentUnlocked ? <Brain className="w-6 h-6" /> : <Lock className="w-6 h-6" />}
+                      <div className="flex h-12 w-12 items-center justify-center rounded-2xl shadow-inner flex-shrink-0 transition-all duration-300 bg-purple-100 group-hover:bg-purple-100 text-purple-600 group-hover:text-purple-700">
+                        <Brain className="w-6 h-6" />
                       </div>
                       <div>
                         <div className="flex items-center gap-2 flex-wrap">
@@ -1388,44 +1512,10 @@ export function MilestonesRoadmapPage() {
                       </div>
                     </div>
 
-                    {/* Right Side: Admin Schedule Setter & Dropdown Chevron */}
+                    {/* Right Side: Admin CRUD Buttons & Dropdown Chevron (Stage locks removed in frontend) */}
                     <div className="flex flex-wrap items-center gap-2.5" onClick={(e) => e.stopPropagation()}>
-                      {/* Scheduled Date & Time Release Badge */}
-                      {stageSched.hasSchedule ? (
-                        stageSched.isLocked ? (
-                          <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 group-hover:bg-amber-400/20 group-hover:backdrop-blur-md border border-amber-300 group-hover:border-amber-300/40 px-3.5 py-1.5 text-xs font-bold text-amber-800 group-hover:text-amber-900 transition-all duration-300 shadow-2xs">
-                            <Clock className="w-3.5 h-3.5 text-amber-600 group-hover:text-amber-700 animate-pulse" />
-                            <span>Unlocks: {stageSched.shortFormatted} ({stageSched.relativeText})</span>
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 group-hover:bg-emerald-400/20 group-hover:backdrop-blur-md border border-emerald-300 group-hover:border-emerald-300/40 px-3.5 py-1.5 text-xs font-bold text-emerald-800 group-hover:text-emerald-900 transition-all duration-300 shadow-2xs">
-                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 group-hover:text-emerald-700" />
-                            <span>UNLOCKED • Released {stageSched.dateFormatted}</span>
-                          </span>
-                        )
-                      ) : (
-                        <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 group-hover:bg-emerald-400/20 group-hover:backdrop-blur-md border border-emerald-300 group-hover:border-emerald-300/40 px-3.5 py-1.5 text-xs font-bold text-emerald-800 group-hover:text-emerald-900 transition-all duration-300 shadow-2xs">
-                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                          <span>UNLOCKED • Available</span>
-                        </span>
-                      )}
-
-                      {/* Admin Mode Schedule Setter and CRUD Buttons */}
+                      {/* Admin Mode CRUD Buttons for Stage */}
                       <div className="flex items-center gap-1.5 bg-slate-100 p-1.5 rounded-xl border border-slate-200 transition-all duration-300">
-                        <button
-                          onClick={() => handleOpenScheduleModal('stage', stage)}
-                          title={stageSched.hasSchedule ? `Scheduled: ${stageSched.fullFormatted}` : 'Set Release Date & Time'}
-                          className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all flex items-center gap-1.5 cursor-pointer ${
-                            stageSched.hasSchedule
-                              ? 'bg-purple-600 text-white shadow-xs border border-purple-400/50 hover:bg-purple-700'
-                              : 'bg-white text-purple-700 border border-slate-300 hover:bg-purple-50'
-                          }`}
-                        >
-                          <Calendar className="w-3.5 h-3.5" />
-                          <Clock className="w-3 h-3" />
-                          <span>{stageSched.hasSchedule ? 'Date Set' : 'Set Date & Time'}</span>
-                        </button>
-
                         <button
                           onClick={() => handleOpenSubtopicModal(stage.id, null)}
                           title="Add Subtopic to Stage"
@@ -1474,7 +1564,7 @@ export function MilestonesRoadmapPage() {
                   <div className="p-4 sm:p-5 bg-slate-50/70 border-t border-slate-200/80 space-y-3 animate-in fade-in slide-in-from-top-2 duration-300">
                     {visibleSubtopics && visibleSubtopics.length > 0 ? (
                       visibleSubtopics.map((subtopic, subtopicIndex) => {
-                        const subSched = getScheduleInfo(subtopic, stageSched);
+                        const subSched = getItemSchedule(subtopic, null);
                         const isSubtopicLocked = subSched.isLocked;
 
                         const subItems = [];
@@ -1543,16 +1633,20 @@ export function MilestonesRoadmapPage() {
                                       )}
 
                                       {/* Subtopic Scheduled Date Badge */}
-                                      {subSched.hasSchedule && !subSched.inherited && (
-                                        <span className={`inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${
-                                          subSched.isLocked
-                                            ? 'text-amber-800 bg-amber-50 border-amber-200'
-                                            : 'text-emerald-800 bg-emerald-50 border-emerald-200'
-                                        }`}>
-                                          {subSched.isLocked ? <Clock className="w-3 h-3 text-amber-600" /> : <CheckCircle2 className="w-3 h-3 text-emerald-600" />}
-                                          <span>{subSched.isLocked ? `Unlocks ${subSched.shortFormatted}` : `Released ${subSched.dateFormatted}`}</span>
+                                      <span className={`inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${
+                                        subSched.isLocked
+                                          ? 'text-amber-800 bg-amber-50 border-amber-200'
+                                          : 'text-emerald-800 bg-emerald-50 border-emerald-200'
+                                      }`}>
+                                        {subSched.isLocked ? <Clock className="w-3 h-3 text-amber-600" /> : <CheckCircle2 className="w-3 h-3 text-emerald-600" />}
+                                        <span>
+                                          {subSched.isLocked
+                                            ? `Unlocks ${subSched.shortFormatted}`
+                                            : subSched.hasSchedule
+                                            ? `Unlocked • Released ${subSched.dateFormatted}`
+                                            : 'Unlocked • Available'}
                                         </span>
-                                      )}
+                                      </span>
                                     </div>
                                     {subtopic.duration && (
                                       <span className="text-[11px] font-medium text-slate-500 block mt-0.5">
@@ -1574,9 +1668,9 @@ export function MilestonesRoadmapPage() {
                                 {/* Subtopic Schedule Date & Time Button */}
                                 <button
                                   onClick={() => handleOpenScheduleModal('subtopic', subtopic, stage.id)}
-                                  title={subSched.hasSchedule && !subSched.inherited ? `Scheduled: ${subSched.fullFormatted}` : 'Set Release Schedule'}
+                                  title={subSched.hasSchedule ? `Scheduled: ${subSched.fullFormatted}` : 'Set Release Schedule'}
                                   className={`p-1.5 rounded-lg cursor-pointer transition-all ${
-                                    subSched.hasSchedule && !subSched.inherited
+                                    subSched.hasSchedule
                                       ? 'bg-purple-100 text-purple-700 hover:bg-purple-200 border border-purple-300'
                                       : 'text-slate-600 hover:text-purple-600 hover:bg-purple-50'
                                   }`}
@@ -1683,8 +1777,7 @@ export function MilestonesRoadmapPage() {
                       })()}
 
                       {(() => {
-                        const stageSched = getScheduleInfo(activeStage);
-                        const sInfo = getScheduleInfo(activeSubtopic, stageSched);
+                        const sInfo = getItemSchedule(activeSubtopic, null);
                         return (
                           <span
                             className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border flex items-center gap-1 ${
@@ -1701,7 +1794,7 @@ export function MilestonesRoadmapPage() {
                             ) : (
                               <>
                                 <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                                <span>{sInfo.hasSchedule && !sInfo.inherited ? `Released ${sInfo.dateFormatted}` : 'Available'}</span>
+                                <span>{sInfo.hasSchedule ? `Released ${sInfo.dateFormatted}` : 'Available'}</span>
                               </>
                             )}
                           </span>
@@ -1743,9 +1836,8 @@ export function MilestonesRoadmapPage() {
                   {activeSubtopic.modules && activeSubtopic.modules.length > 0 ? (
                     activeSubtopic.modules.map((module) => {
                       const isExpanded = expandedModule === module.id || activeSubtopic.modules.length === 1;
-                      const stageSched = getScheduleInfo(activeStage);
-                      const subSched = getScheduleInfo(activeSubtopic, stageSched);
-                      const modSched = getScheduleInfo(module, subSched);
+                      const subSched = getItemSchedule(activeSubtopic, null);
+                      const modSched = getItemSchedule(module, subSched);
                       const isModLocked = modSched.isLocked;
 
                       const rawItems = module.items || [];
@@ -1874,9 +1966,33 @@ export function MilestonesRoadmapPage() {
                           totalMarks: qz.totalMarks || 100
                         }));
 
+                      // Auto-match projects for this module
+                      const autoMatchedProjects = (projects || [])
+                        .filter(p => {
+                          const pModId = stripSuffix(p.moduleId || p.innerTopicId || p.module_id);
+                          if (pModId && curModId && (pModId === curModId || pModId.includes(curModId) || curModId.includes(pModId))) return true;
+                          const tName = cleanNorm(p.topicName || p.title);
+                          return tName && curModTitle && (tName.includes(curModTitle) || curModTitle.includes(tName));
+                        })
+                        .map(p => ({
+                          ...p,
+                          id: `item-proj-${p.id}`,
+                          projectId: p.id,
+                          type: 'PROJECT',
+                          typeColor: 'bg-emerald-100 text-emerald-800 border-emerald-200',
+                          iconName: 'Building2',
+                          iconBg: 'bg-emerald-600 text-white',
+                          title: p.title || 'Capstone Project',
+                          actionText: 'VIEW',
+                          url: '/projects',
+                          btnStyle: 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm shadow-emerald-500/30',
+                          dueDate: p.dueDate || 'Due Aug 30'
+                        }));
+
                       const rawNonLive = rawItems.filter(it => it.type !== 'LIVE CLASS' && !liveClassTopics.some(lt => lt.id === it.id));
                       const otherResources = [
                         ...rawNonLive,
+                        ...autoMatchedProjects.filter(p => !rawNonLive.some(it => it.projectId === p.projectId || it.id === p.id || (it.type === 'PROJECT' && cleanNorm(it.title) === cleanNorm(p.title)))),
                         ...autoMatchedAssessments.filter(asm => !rawNonLive.some(it => it.assessmentId === asm.assessmentId || it.id === asm.id || (it.type === 'ASSESSMENT' && cleanNorm(it.title) === cleanNorm(asm.title)))),
                         ...autoMatchedQuizzes.filter(qz => !rawNonLive.some(it => it.quizId === qz.quizId || it.id === qz.id || (it.type === 'QUIZ' && cleanNorm(it.title) === cleanNorm(qz.title))))
                       ];
@@ -1915,16 +2031,30 @@ export function MilestonesRoadmapPage() {
                                   </span>
 
                                   {/* Module Schedule Badge */}
-                                  {modSched.hasSchedule && !modSched.inherited && (
-                                    <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-md border flex items-center gap-1 shrink-0 ${
-                                      modSched.isLocked
-                                        ? 'bg-amber-100 text-amber-900 border-amber-300'
-                                        : 'bg-emerald-100 text-emerald-900 border-emerald-300'
-                                    }`}>
-                                      {modSched.isLocked ? <Clock className="w-3 h-3 text-amber-700" /> : <CheckCircle2 className="w-3 h-3 text-emerald-700" />}
-                                      <span>{modSched.isLocked ? `Unlocks ${modSched.shortFormatted}` : `Released ${modSched.dateFormatted}`}</span>
-                                    </span>
-                                  )}
+                                   <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-md border flex items-center gap-1 shrink-0 ${
+                                     modSched.isLocked
+                                       ? (isExpanded ? 'bg-amber-400/20 text-amber-200 border-amber-300/40' : 'bg-amber-100 text-amber-900 border-amber-300')
+                                       : modSched.hasSchedule
+                                       ? (isExpanded ? 'bg-emerald-400/20 text-emerald-200 border-emerald-300/40' : 'bg-emerald-100 text-emerald-900 border-emerald-300')
+                                       : subSched.hasSchedule
+                                       ? (isExpanded ? 'bg-emerald-400/20 text-emerald-200 border-emerald-300/40' : 'bg-emerald-100 text-emerald-900 border-emerald-300')
+                                       : (isExpanded ? 'bg-white/10 text-purple-200 border-white/20' : 'bg-slate-100 text-slate-700 border-slate-200')
+                                   }`}>
+                                     {modSched.isLocked ? (
+                                       <Clock className="w-3 h-3 text-amber-500" />
+                                     ) : (
+                                       <CheckCircle2 className={`w-3 h-3 ${modSched.hasSchedule || subSched.hasSchedule ? 'text-emerald-500' : 'text-slate-400'}`} />
+                                     )}
+                                     <span>
+                                       {modSched.isLocked
+                                         ? `Unlocks ${modSched.shortFormatted}`
+                                         : modSched.hasSchedule
+                                         ? `Unlocked • Released ${modSched.dateFormatted}`
+                                         : subSched.hasSchedule
+                                         ? `Unlocked • Released ${subSched.dateFormatted}`
+                                         : 'Unlocked • Available'}
+                                     </span>
+                                   </span>
                                 </div>
                               </div>
                             </div>
@@ -1958,9 +2088,9 @@ export function MilestonesRoadmapPage() {
                                     e.stopPropagation();
                                     handleOpenScheduleModal('module', module, activeSubtopic.stageId, activeSubtopic.id);
                                   }}
-                                  title={modSched.hasSchedule && !modSched.inherited ? `Scheduled: ${modSched.fullFormatted}` : 'Set Release Schedule'}
+                                  title={modSched.hasSchedule ? `Scheduled: ${modSched.fullFormatted}` : 'Set Release Schedule'}
                                   className={`p-1.5 rounded-lg cursor-pointer transition-colors ${
-                                    modSched.hasSchedule && !modSched.inherited
+                                    modSched.hasSchedule
                                       ? isExpanded ? 'bg-white/30 text-amber-200' : 'bg-amber-50 text-amber-700 border border-amber-200'
                                       : isExpanded ? 'hover:bg-white/20 text-white' : 'text-slate-400 hover:text-purple-700 hover:bg-purple-50'
                                   }`}
@@ -2372,8 +2502,13 @@ export function MilestonesRoadmapPage() {
             {/* Header */}
             <div className="flex items-start justify-between">
               <div>
-                <h3 className="text-lg font-bold text-slate-900">Schedule Unlock</h3>
-                <p className="text-xs text-slate-500 font-semibold mt-0.5 truncate max-w-xs">
+                <div className="flex items-center gap-2">
+                  <h3 className="text-lg font-bold text-slate-900">Schedule Unlock</h3>
+                  <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-purple-100 text-purple-700 border border-purple-200">
+                    {selectedBatch === 'ALL' ? 'All Batches' : `Batch ${selectedBatch}`}
+                  </span>
+                </div>
+                <p className="text-xs text-slate-500 font-semibold mt-1 truncate max-w-xs sm:max-w-sm">
                   {scheduleTarget.title}
                 </p>
               </div>

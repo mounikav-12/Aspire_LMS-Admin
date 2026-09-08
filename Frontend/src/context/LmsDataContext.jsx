@@ -646,37 +646,13 @@ export function LmsDataProvider({ children }) {
       ? session.topics.filter(t => t && t.title && t.title.trim()).map((t, idx) => ({
           id: t.id || `top-${session.id}-${idx + 1}`,
           title: t.title.trim(),
-          description: t.description || t.agenda || t.overview || '',
-          agenda: t.agenda || t.description || t.overview || '',
-          overview: t.overview || t.agenda || t.description || ''
+          description: t.description || t.agenda || t.overview || ''
         }))
       : [{
           id: `top-${session.id}-1`,
           title: session.sessionTitle || session.title || 'Live Class Session',
-          description: session.description || '',
-          agenda: session.description || '',
-          overview: session.description || ''
+          description: session.description || ''
         }];
-
-    const liveItems = validTopics.map((t, idx) => ({
-      id: t.id || `item-live-${session.id}-${idx}`,
-      sessionId: session.id,
-      type: 'LIVE CLASS',
-      typeColor: 'bg-purple-100 text-purple-700 border-purple-200',
-      iconName: 'Video',
-      iconBg: 'bg-purple-600 text-white',
-      title: t.title,
-      description: t.description || t.agenda || t.overview || '',
-      agenda: t.agenda || t.description || t.overview || '',
-      overview: t.overview || t.agenda || t.description || '',
-      actionText: 'JOIN',
-      url: session.meetingLink || session.meeting_link || 'https://meet.google.com/aspire-lms-live',
-      btnStyle: 'bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30',
-      date: session.date || '',
-      time: session.time || '',
-      instructor: session.instructor || '',
-      technology: session.technology || ''
-    }));
 
     // 1. Match Stage (Strictly within the 4 legitimate curriculum stages, NEVER create Stage 5, 6, 7)
     const isClean = (v) => v && v !== 'undefined' && v !== 'null' && String(v).trim() !== '';
@@ -779,8 +755,7 @@ export function LmsDataProvider({ children }) {
     let modMatch = modules.find(m =>
       (cleanModId && (stripSuffix(m.id) === cleanModId || cleanNorm(m.id) === cleanNorm(cleanModId))) ||
       (cleanModName && (cleanNorm(m.title) === cleanModName || cleanNorm(m.title).includes(cleanModName) || cleanModName.includes(cleanNorm(m.title)))) ||
-      (cleanTitle && (cleanNorm(m.title) === cleanTitle || cleanNorm(m.title).includes(cleanTitle) || cleanTitle.includes(cleanNorm(m.title)))) ||
-      (m.items || []).some(it => it.sessionId === session.id || it.id === `item-live-${session.id}`)
+      (cleanTitle && (cleanNorm(m.title) === cleanTitle || cleanNorm(m.title).includes(cleanTitle) || cleanTitle.includes(cleanNorm(m.title))))
     );
 
     if (!modMatch) {
@@ -793,14 +768,13 @@ export function LmsDataProvider({ children }) {
         time: session.time,
         duration: session.duration || '1hr 30min',
         topics: validTopics,
-        items: liveItems
+        items: []
       };
       modules.push(newMod);
       modMatch = newMod;
     }
 
     if (modMatch) {
-      const nonLive = (modMatch.items || []).filter(it => it.type !== 'LIVE CLASS' || it.sessionId !== session.id);
       const updatedMod = {
         ...modMatch,
         meetingLink: session.meetingLink || session.meeting_link || modMatch.meetingLink,
@@ -809,14 +783,17 @@ export function LmsDataProvider({ children }) {
         time: session.time || modMatch.time,
         duration: session.duration || modMatch.duration || '1hr 30min',
         topics: validTopics,
-        items: [...liveItems, ...nonLive]
+        items: []
       };
       const mIdx = modules.findIndex(m => m === modMatch);
       if (mIdx !== -1) modules[mIdx] = updatedMod;
     }
 
+    delete subtopicMatch.lessons;
     subtopicMatch.modules = modules;
     subtopicMatch.modulesCount = modules.length;
+
+    delete stageMatch.modules;
     stageMatch.subtopics = subtopics;
 
     // Filter to ensure strictly no rogue stages (Stage 5, 6, 7) are returned
@@ -1600,7 +1577,23 @@ export function LmsDataProvider({ children }) {
         rolesList.forEach(r => {
           const roleRows = permsData.filter(p => p.role === r);
           if (roleRows.length > 0) {
-            mappedPerms[r] = roleRows.map(p => p.permission_id);
+            const allPerms = [];
+            roleRows.forEach(row => {
+              if (row.permission_id) {
+                const trimmed = String(row.permission_id).trim();
+                if (trimmed.startsWith('[') && trimmed.endsWith(']')) {
+                  try {
+                    const parsed = JSON.parse(trimmed);
+                    if (Array.isArray(parsed)) allPerms.push(...parsed);
+                  } catch (e) {
+                    allPerms.push(...trimmed.split(',').map(s => s.trim()).filter(Boolean));
+                  }
+                } else {
+                  allPerms.push(...trimmed.split(',').map(s => s.trim()).filter(Boolean));
+                }
+              }
+            });
+            mappedPerms[r] = Array.from(new Set(allPerms));
           }
         });
         setRolePermissions(mappedPerms);
@@ -1658,7 +1651,7 @@ export function LmsDataProvider({ children }) {
             enrolledCount: c.enrolled_count || 0,
             rating: c.rating || 4.8,
             description: c.description || '',
-            targetBatch: c.target_batch || 'Weekday Batch',
+            targetBatch: c.target_batch || 'None',
             topics: (dbTopics && dbTopics.length > 0)
               ? dbTopics
               : ((defaultCourse?.topics && defaultCourse.topics.length > 0)
@@ -1666,15 +1659,15 @@ export function LmsDataProvider({ children }) {
                   : (isPythonFullStack ? fallbackTopics : []))
           };
         });
-        // REPLACE batch buckets entirely (supports All Batches target)
+        // REPLACE batch buckets entirely (supports All Batches and None target)
         setCoursesByBatch(() => {
           const next = { 'Weekday Batch': [], 'Weekend Batch': [] };
           mappedCourses.forEach(c => {
             const target = (c.targetBatch || '').toUpperCase();
-            if (target === 'ALL BATCHES' || target === 'ALL') {
+            if (target === 'ALL BATCHES' || target === 'ALL' || target === 'NONE' || !target) {
               next['Weekday Batch'].push(c);
               next['Weekend Batch'].push(c);
-            } else if (target === 'WEEKEND BATCH' || target.includes('WEEKEND')) {
+            } else if (target === 'WEEKEND BATCH' || target.includes('WEEKEND') || target.startsWith('A26S')) {
               next['Weekend Batch'].push(c);
             } else {
               next['Weekday Batch'].push(c);
@@ -1911,25 +1904,57 @@ export function LmsDataProvider({ children }) {
       // 10. Fetch Students Roster directly from Supabase DB
       
       if (!studentsErr && studentsData) {
-        setStudents(studentsData.map(s => {
-          const sName = s.name || 'Student';
-          const defaultAvatar = `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(sName.trim())}&backgroundColor=e0e7ff&textColor=3730a3&bold=true`;
-          const avatarUrl = (s.avatar && !s.avatar.includes('unsplash.com')) ? s.avatar : defaultAvatar;
-          return {
-            id: s.id,
-            name: sName,
-            email: s.email || '',
-            mobileNumber: s.mobile_number || s.mobileNumber || '',
-            registrationId: s.registration_id || s.registrationId || '',
-            batch: s.batch || 'A26W1',
-            enrolledCourses: Array.isArray(s.enrolled_courses)
-              ? s.enrolled_courses
-              : (typeof s.enrolled_courses === 'string' ? JSON.parse(s.enrolled_courses) : (s.enrolledCourses || [])),
-            avatar: avatarUrl,
-            status: s.status || 'Active',
-            joinedDate: s.joined_date || s.joinedDate || ''
-          };
-        }));
+        if (studentsData.length > 0) {
+          setStudents(studentsData.map(s => {
+            const sName = s.name || 'Student';
+            const defaultAvatar = `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(sName.trim())}&backgroundColor=e0e7ff&textColor=3730a3&bold=true`;
+            const avatarUrl = (s.avatar && !s.avatar.includes('unsplash.com')) ? s.avatar : defaultAvatar;
+            return {
+              id: s.id,
+              name: sName,
+              email: s.email || '',
+              mobileNumber: s.mobile_number || s.mobileNumber || '',
+              registrationId: s.registration_id || s.registrationId || '',
+              batch: s.batch || 'A26W1',
+              enrolledCourses: Array.isArray(s.enrolled_courses)
+                ? s.enrolled_courses
+                : (typeof s.enrolled_courses === 'string' ? JSON.parse(s.enrolled_courses) : (s.enrolledCourses || [])),
+              avatar: avatarUrl,
+              status: s.status || 'Active',
+              joinedDate: s.joined_date || s.joinedDate || ''
+            };
+          }));
+        } else {
+          try {
+            const saved = localStorage.getItem('aspire_lms_students_v9');
+            const localStudents = saved ? JSON.parse(saved) : [];
+            if (Array.isArray(localStudents) && localStudents.length > 0) {
+              const rowsToInsert = localStudents.map(s => ({
+                id: s.id || `std-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
+                name: s.name || 'Student',
+                email: s.email || '',
+                mobile_number: s.mobileNumber || s.mobile_number || '',
+                registration_id: s.registrationId || s.registration_id || '',
+                batch: s.batch || 'A26W1',
+                enrolled_courses: s.enrolledCourses || ['crs-1786624019154-w'],
+                avatar: s.avatar || '',
+                status: s.status || 'Active',
+                joined_date: s.joinedDate || new Date().toISOString().split('T')[0]
+              }));
+              supabase.from('students').upsert(rowsToInsert).then(({ error }) => {
+                if (error) {
+                  console.warn('[Aspire LMS] Student initial auto-sync notice:', error.message);
+                } else {
+                  console.log('[Aspire LMS] Successfully synced local students to Supabase database table');
+                }
+              });
+            }
+          } catch (e) {
+            console.warn('[Aspire LMS] Local student sync error:', e);
+          }
+        }
+      } else if (studentsErr) {
+        console.error('[Aspire LMS] Supabase students fetch error:', studentsErr.message, studentsErr);
       }
 
       // 11. Fetch Batches List
@@ -2333,7 +2358,7 @@ export function LmsDataProvider({ children }) {
                 enrolledCount: c.enrolled_count || 0,
                 rating: c.rating || 4.8,
                 description: c.description || '',
-                targetBatch: c.target_batch || 'Weekday Batch',
+                targetBatch: c.target_batch || 'None',
                 topics: dbTopics || []
               };
             });
@@ -2341,10 +2366,10 @@ export function LmsDataProvider({ children }) {
               const next = { 'Weekday Batch': [], 'Weekend Batch': [] };
               mappedCourses.forEach(c => {
                 const target = (c.targetBatch || '').toUpperCase();
-                if (target === 'ALL BATCHES' || target === 'ALL') {
+                if (target === 'ALL BATCHES' || target === 'ALL' || target === 'NONE' || !target) {
                   next['Weekday Batch'].push(c);
                   next['Weekend Batch'].push(c);
-                } else if (target === 'WEEKEND BATCH' || target.includes('WEEKEND')) {
+                } else if (target === 'WEEKEND BATCH' || target.includes('WEEKEND') || target.startsWith('A26S')) {
                   next['Weekend Batch'].push(c);
                 } else {
                   next['Weekday Batch'].push(c);
@@ -2867,16 +2892,37 @@ export function LmsDataProvider({ children }) {
     logActivity(`Toggled permission "${permId}" for role "${role}"`, 'security');
 
     try {
-      // Sync to role_permissions table in Supabase
-      await supabase.from('role_permissions').delete().eq('role', role);
+      // Find existing row for this role in Supabase
+      const { data: existingRows } = await supabase
+        .from('role_permissions')
+        .select('id')
+        .eq('role', role)
+        .order('id', { ascending: true });
 
-      if (updatedRolePerms.length > 0) {
-        const payload = updatedRolePerms.map((pId) => ({
-          role,
-          permission_id: pId
-        }));
-        const { error } = await supabase.from('role_permissions').insert(payload);
-        if (error) console.error('Supabase role_permissions insert error:', error.message);
+      const permString = updatedRolePerms.join(', ');
+
+      if (existingRows && existingRows.length > 0) {
+        // Update the SAME existing row!
+        const targetId = existingRows[0].id;
+        const { error } = await supabase
+          .from('role_permissions')
+          .update({ permission_id: permString })
+          .eq('id', targetId);
+
+        if (error) console.error('[Aspire LMS] Supabase role_permissions update error:', error.message);
+
+        // If any duplicate legacy rows exist for this role, clean them up
+        if (existingRows.length > 1) {
+          const duplicateIds = existingRows.slice(1).map((r) => r.id);
+          await supabase.from('role_permissions').delete().in('id', duplicateIds);
+        }
+      } else {
+        // No existing row yet: insert ONE row for this role
+        const { error } = await supabase
+          .from('role_permissions')
+          .insert([{ role, permission_id: permString }]);
+
+        if (error) console.error('[Aspire LMS] Supabase role_permissions insert error:', error.message);
       }
     } catch (err) {
       console.warn('Role permission sync handled:', err);
@@ -2884,11 +2930,13 @@ export function LmsDataProvider({ children }) {
   };
 
     // --- COURSES & TOPIC MODULES ---
-  const addCourse = async (courseData, targetBatch = activeBatchFilter) => {
-    const bKey = resolveBatchKey(targetBatch);
+  const addCourse = async (courseData, targetBatch = null) => {
+    const finalTargetBatch = courseData.targetBatch !== undefined
+      ? courseData.targetBatch
+      : (targetBatch && targetBatch !== 'ALL' ? targetBatch : 'None');
     const newCourse = {
       id: courseData.id || generateAlphanumericCourseId(courseData.title),
-      targetBatch: courseData.targetBatch || bKey,
+      targetBatch: finalTargetBatch,
       enrolledCount: 0,
       rating: 5.0,
       publishStatus: 'Published',
@@ -2896,9 +2944,9 @@ export function LmsDataProvider({ children }) {
       ...courseData,
       topics: Array.isArray(courseData.topics) ? courseData.topics : []
     };
-    // Optimistic UI update across all batches if targetBatch is All Batches or ALL
+    // Optimistic UI update across batches
     setCoursesByBatch((prev) => {
-      const isAll = !newCourse.targetBatch || newCourse.targetBatch === 'All Batches' || newCourse.targetBatch === 'ALL';
+      const isAll = newCourse.targetBatch === 'All Batches' || newCourse.targetBatch === 'ALL' || newCourse.targetBatch === 'None' || !newCourse.targetBatch;
       if (isAll) {
         return {
           ...prev,
@@ -2906,12 +2954,13 @@ export function LmsDataProvider({ children }) {
           'Weekend Batch': [newCourse, ...(prev['Weekend Batch'] || []).filter(c => c.id !== newCourse.id)]
         };
       }
+      const bKey = resolveBatchKey(newCourse.targetBatch);
       return {
         ...prev,
         [bKey]: [newCourse, ...(prev[bKey] || []).filter(c => c.id !== newCourse.id)]
       };
     });
-    logActivity(`Created new course: "${newCourse.title}" (${bKey})`, 'course');
+    logActivity(`Created new course: "${newCourse.title}" (${newCourse.targetBatch})`, 'course');
     // Persist to Supabase
     try {
       const { error } = await supabase.from('courses').upsert([{
@@ -3015,92 +3064,6 @@ export function LmsDataProvider({ children }) {
     });
     logActivity(`Created assessment: "${newAsmnt.title}" (${bKey})`, 'assessment');
 
-    // Determine target batch scope for milestones update
-    const targetBatchScope = (newAsmnt.targetBatch && (
-      newAsmnt.targetBatch.toUpperCase().includes('ALL') ||
-      (newAsmnt.targetBatch.toUpperCase().includes('WEEKDAY') && newAsmnt.targetBatch.toUpperCase().includes('WEEKEND')) ||
-      (newAsmnt.targetBatch.toUpperCase().includes('A26W') && newAsmnt.targetBatch.toUpperCase().includes('A26S'))
-    )) ? 'ALL' : bKey;
-
-    const asmItem = {
-      id: `item-asmnt-${newAsmnt.id}`,
-      assessmentId: newAsmnt.id,
-      type: 'ASSESSMENT',
-      typeColor: 'bg-blue-100 text-blue-800 border-blue-200',
-      iconName: 'FileCheck',
-      iconBg: 'bg-blue-600 text-white',
-      title: newAsmnt.title || 'Graded Assessment Evaluation',
-      actionText: 'START',
-      url: '/assessments',
-      btnStyle: 'bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30',
-      dueDate: newAsmnt.dueDate || '2026-08-30',
-      durationMinutes: newAsmnt.durationMinutes || 45,
-      totalMarks: newAsmnt.totalMarks || 100,
-      mcqCount: newAsmnt.mcqCount || (newAsmnt.mcqs?.length || 0),
-      totalQuestions: newAsmnt.mcqCount || (newAsmnt.mcqs?.length || 0)
-    };
-
-    // Auto-sync assessment item into corresponding milestone module in real-time
-    updateBatchState(targetBatchScope, (batchData) => {
-      const stages = batchData.stages || [];
-      const targetStageId = newAsmnt.stageId;
-      const targetStageName = newAsmnt.moduleName || newAsmnt.stageName;
-      const stageMatch = stages.find(s => s.id === targetStageId || s.title === targetStageName) || stages[0];
-      if (!stageMatch) return batchData;
-
-      const subtopics = stageMatch.subtopics || stageMatch.modules || [];
-      const targetSubId = newAsmnt.subtopicId;
-      const targetSubName = newAsmnt.subtopicName;
-      const subtopicMatch = subtopics.find(st => st.id === targetSubId || st.title === targetSubName) || subtopics[0];
-      if (!subtopicMatch) return batchData;
-
-      const targetModId = newAsmnt.innerTopicId || newAsmnt.moduleId;
-      const targetModName = newAsmnt.topicName;
-      const modules = subtopicMatch.modules || subtopicMatch.lessons || [];
-      let modMatch = modules.find(m => m.id === targetModId || m.title === targetModName);
-
-      const updatedStages = stages.map(stg => {
-        if (stg.id !== stageMatch.id) return stg;
-        const transformSubtopic = (sub) => {
-          if (sub.id !== subtopicMatch.id && sub.title !== subtopicMatch.title) return sub;
-          let existingMods = [...(sub.modules || sub.lessons || [])];
-          if (!modMatch) {
-            const newMod = {
-              id: targetModId || `mod-${Date.now()}`,
-              title: targetModName || 'Assessment Evaluation Module',
-              items: [asmItem]
-            };
-            existingMods.push(newMod);
-          } else {
-            existingMods = existingMods.map(m => {
-              if (m.id !== modMatch.id && m.title !== modMatch.title) return m;
-              const hasItem = (m.items || []).some(it => it.id === asmItem.id || it.assessmentId === newAsmnt.id);
-              return {
-                ...m,
-                items: hasItem
-                  ? (m.items || []).map(it => (it.id === asmItem.id || it.assessmentId === newAsmnt.id ? { ...it, ...asmItem } : it))
-                  : [asmItem, ...(m.items || [])]
-              };
-            });
-          }
-          return {
-            ...sub,
-            modulesCount: existingMods.length,
-            modules: existingMods,
-            lessons: existingMods
-          };
-        };
-
-        return {
-          ...stg,
-          subtopics: (stg.subtopics || []).map(transformSubtopic),
-          modules: (stg.modules || []).map(transformSubtopic)
-        };
-      });
-
-      return { ...batchData, stages: updatedStages };
-    });
-
     try {
       const dbRow = toDbAssessment(newAsmnt);
       const { error } = await supabase.from('assessments').upsert([dbRow]);
@@ -3133,57 +3096,6 @@ export function LmsDataProvider({ children }) {
     });
     logActivity(`Updated assessment ID ${id} (${bKey})`, 'assessment');
 
-    // Update milestone module item if present across all batches
-    const targetBatchScope = (mergedAsmnt?.targetBatch && (
-      mergedAsmnt.targetBatch.toUpperCase().includes('ALL') ||
-      (mergedAsmnt.targetBatch.toUpperCase().includes('WEEKDAY') && mergedAsmnt.targetBatch.toUpperCase().includes('WEEKEND'))
-    )) ? 'ALL' : bKey;
-
-    updateBatchState(targetBatchScope, (batchData) => {
-      const stages = (batchData.stages || []).map(stg => {
-        const updateItemInSub = (sub) => ({
-          ...sub,
-          modules: (sub.modules || []).map(m => ({
-            ...m,
-            items: (m.items || []).map(it => {
-              if (it.id === `item-asmnt-${id}` || it.assessmentId === id) {
-                return {
-                  ...it,
-                  title: updatedFields.title !== undefined ? updatedFields.title : it.title,
-                  dueDate: updatedFields.dueDate !== undefined ? updatedFields.dueDate : it.dueDate,
-                  durationMinutes: updatedFields.durationMinutes !== undefined ? updatedFields.durationMinutes : it.durationMinutes,
-                  totalMarks: updatedFields.totalMarks !== undefined ? updatedFields.totalMarks : it.totalMarks
-                };
-              }
-              return it;
-            })
-          })),
-          lessons: (sub.lessons || []).map(m => ({
-            ...m,
-            items: (m.items || []).map(it => {
-              if (it.id === `item-asmnt-${id}` || it.assessmentId === id) {
-                return {
-                  ...it,
-                  title: updatedFields.title !== undefined ? updatedFields.title : it.title,
-                  dueDate: updatedFields.dueDate !== undefined ? updatedFields.dueDate : it.dueDate,
-                  durationMinutes: updatedFields.durationMinutes !== undefined ? updatedFields.durationMinutes : it.durationMinutes,
-                  totalMarks: updatedFields.totalMarks !== undefined ? updatedFields.totalMarks : it.totalMarks
-                };
-              }
-              return it;
-            })
-          }))
-        });
-
-        return {
-          ...stg,
-          subtopics: (stg.subtopics || []).map(updateItemInSub),
-          modules: (stg.modules || []).map(updateItemInSub)
-        };
-      });
-      return { ...batchData, stages };
-    });
-
     try {
       const assessmentToSave = mergedAsmnt || { id, ...updatedFields };
       const dbRow = toDbAssessment(assessmentToSave);
@@ -3199,30 +3111,6 @@ export function LmsDataProvider({ children }) {
       'Weekend Batch': (prev['Weekend Batch'] || []).filter((a) => a.id !== id)
     }));
     logActivity(`Deleted assessment ID ${id} (${bKey})`, 'assessment');
-
-    // Remove from milestone module items across all batches
-    updateBatchState('ALL', (batchData) => {
-      const stages = (batchData.stages || []).map(stg => {
-        const filterItemsInSub = (sub) => ({
-          ...sub,
-          modules: (sub.modules || []).map(m => ({
-            ...m,
-            items: (m.items || []).filter(it => it.id !== `item-asmnt-${id}` && it.assessmentId !== id)
-          })),
-          lessons: (sub.lessons || []).map(m => ({
-            ...m,
-            items: (m.items || []).filter(it => it.id !== `item-asmnt-${id}` && it.assessmentId !== id)
-          }))
-        });
-
-        return {
-          ...stg,
-          subtopics: (stg.subtopics || []).map(filterItemsInSub),
-          modules: (stg.modules || []).map(filterItemsInSub)
-        };
-      });
-      return { ...batchData, stages };
-    });
 
     try {
       const { error } = await supabase.from('assessments').delete().eq('id', id);
@@ -3249,94 +3137,6 @@ export function LmsDataProvider({ children }) {
         : (prev['Weekend Batch'] || [])
     }));
     logActivity(`Created quiz "${newQuiz.title}" (${bKey})`, 'quiz');
-
-    // Auto-sync quiz item into corresponding milestone module in real-time
-    const targetBatchScope = (newQuiz.targetBatch && (
-      newQuiz.targetBatch.toUpperCase().includes('ALL') ||
-      (newQuiz.targetBatch.toUpperCase().includes('WEEKDAY') && newQuiz.targetBatch.toUpperCase().includes('WEEKEND')) ||
-      (newQuiz.targetBatch.toUpperCase().includes('A26W') && newQuiz.targetBatch.toUpperCase().includes('A26S'))
-    )) ? 'ALL' : bKey;
-
-    const quizItem = {
-      id: `item-quiz-${newQuiz.id}`,
-      quizId: newQuiz.id,
-      assessmentId: newQuiz.id,
-      type: 'QUIZ',
-      typeColor: 'bg-purple-100 text-purple-800 border-purple-200',
-      iconName: 'HelpCircle',
-      iconBg: 'bg-purple-600 text-white',
-      title: newQuiz.title || 'Module Quiz',
-      actionText: 'TAKE QUIZ',
-      url: '/assessments',
-      btnStyle: 'bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30',
-      dueDate: newQuiz.dueDate || '2026-08-30',
-      durationMinutes: newQuiz.durationMinutes || 45,
-      totalMarks: newQuiz.totalMarks || 100,
-      mcqCount: newQuiz.mcqCount || (newQuiz.mcqs?.length || 0),
-      totalQuestions: newQuiz.mcqCount || (newQuiz.mcqs?.length || 0)
-    };
-
-    const targetScopeKey = (newQuiz.courseId && newQuiz.courseId !== 'ALL') ? newQuiz.courseId : targetBatchScope;
-
-    updateBatchState(targetScopeKey, (batchData) => {
-      const stages = batchData.stages || [];
-      const targetStageId = newQuiz.stageId;
-      const targetStageName = newQuiz.moduleName || newQuiz.stageName;
-      const stageMatch = stages.find(s => s.id === targetStageId || s.title === targetStageName) || stages[0];
-      if (!stageMatch) return batchData;
-
-      const subtopics = stageMatch.subtopics || stageMatch.modules || [];
-      const targetSubId = newQuiz.subtopicId;
-      const targetSubName = newQuiz.subtopicName;
-      const subtopicMatch = subtopics.find(st => st.id === targetSubId || st.title === targetSubName) || subtopics[0];
-      if (!subtopicMatch) return batchData;
-
-      const targetModId = newQuiz.innerTopicId || newQuiz.moduleId;
-      const targetModName = newQuiz.topicName;
-      const modules = subtopicMatch.modules || subtopicMatch.lessons || [];
-      let modMatch = modules.find(m => m.id === targetModId || m.title === targetModName);
-
-      const updatedStages = stages.map(stg => {
-        if (stg.id !== stageMatch.id) return stg;
-        const transformSubtopic = (sub) => {
-          if (sub.id !== subtopicMatch.id && sub.title !== subtopicMatch.title) return sub;
-          let existingMods = [...(sub.modules || sub.lessons || [])];
-          if (!modMatch) {
-            const newMod = {
-              id: targetModId || `mod-${Date.now()}`,
-              title: targetModName || 'Module Quiz Topic',
-              items: [quizItem]
-            };
-            existingMods.push(newMod);
-          } else {
-            existingMods = existingMods.map(m => {
-              if (m.id !== modMatch.id && m.title !== modMatch.title) return m;
-              const hasItem = (m.items || []).some(it => it.id === quizItem.id || it.quizId === newQuiz.id || it.assessmentId === newQuiz.id);
-              return {
-                ...m,
-                items: hasItem
-                  ? (m.items || []).map(it => (it.id === quizItem.id || it.quizId === newQuiz.id || it.assessmentId === newQuiz.id ? { ...it, ...quizItem } : it))
-                  : [quizItem, ...(m.items || [])]
-              };
-            });
-          }
-          return {
-            ...sub,
-            modulesCount: existingMods.length,
-            modules: existingMods,
-            lessons: existingMods
-          };
-        };
-
-        return {
-          ...stg,
-          subtopics: (stg.subtopics || []).map(transformSubtopic),
-          modules: (stg.modules || []).map(transformSubtopic)
-        };
-      });
-
-      return { ...batchData, stages: updatedStages };
-    });
 
     try {
       const dbRow = toDbQuiz(newQuiz);
@@ -3394,52 +3194,6 @@ export function LmsDataProvider({ children }) {
     }));
     logActivity(`Updated quiz ID ${id} (${bKey})`, 'quiz');
 
-    const targetScopeKey = (mergedQuiz?.courseId && mergedQuiz.courseId !== 'ALL') ? mergedQuiz.courseId : bKey;
-    updateBatchState(targetScopeKey, (batchData) => {
-      const stages = (batchData.stages || []).map(stg => {
-        const updateItemInSub = (sub) => ({
-          ...sub,
-          modules: (sub.modules || []).map(m => ({
-            ...m,
-            items: (m.items || []).map(it => {
-              if (it.id === `item-quiz-${id}` || it.quizId === id || it.assessmentId === id) {
-                return {
-                  ...it,
-                  title: updatedFields.title !== undefined ? updatedFields.title : it.title,
-                  dueDate: updatedFields.dueDate !== undefined ? updatedFields.dueDate : it.dueDate,
-                  durationMinutes: updatedFields.durationMinutes !== undefined ? updatedFields.durationMinutes : it.durationMinutes,
-                  totalMarks: updatedFields.totalMarks !== undefined ? updatedFields.totalMarks : it.totalMarks
-                };
-              }
-              return it;
-            })
-          })),
-          lessons: (sub.lessons || []).map(m => ({
-            ...m,
-            items: (m.items || []).map(it => {
-              if (it.id === `item-quiz-${id}` || it.quizId === id || it.assessmentId === id) {
-                return {
-                  ...it,
-                  title: updatedFields.title !== undefined ? updatedFields.title : it.title,
-                  dueDate: updatedFields.dueDate !== undefined ? updatedFields.dueDate : it.dueDate,
-                  durationMinutes: updatedFields.durationMinutes !== undefined ? updatedFields.durationMinutes : it.durationMinutes,
-                  totalMarks: updatedFields.totalMarks !== undefined ? updatedFields.totalMarks : it.totalMarks
-                };
-              }
-              return it;
-            })
-          }))
-        });
-
-        return {
-          ...stg,
-          subtopics: (stg.subtopics || []).map(updateItemInSub),
-          modules: (stg.modules || []).map(updateItemInSub)
-        };
-      });
-      return { ...batchData, stages };
-    });
-
     try {
       const quizToSave = mergedQuiz || { id, ...updatedFields, evalType: 'quiz' };
       const dbRow = toDbQuiz(quizToSave);
@@ -3454,30 +3208,6 @@ export function LmsDataProvider({ children }) {
       'Weekend Batch': (prev['Weekend Batch'] || []).filter((q) => q.id !== id)
     }));
     logActivity(`Deleted quiz ID ${id} (${bKey})`, 'quiz');
-
-    // Remove from milestone module items across all batches
-    updateBatchState('ALL', (batchData) => {
-      const stages = (batchData.stages || []).map(stg => {
-        const filterItemsInSub = (sub) => ({
-          ...sub,
-          modules: (sub.modules || []).map(m => ({
-            ...m,
-            items: (m.items || []).filter(it => it.id !== `item-quiz-${id}` && it.quizId !== id && it.assessmentId !== id)
-          })),
-          lessons: (sub.lessons || []).map(m => ({
-            ...m,
-            items: (m.items || []).filter(it => it.id !== `item-quiz-${id}` && it.quizId !== id && it.assessmentId !== id)
-          }))
-        });
-
-        return {
-          ...stg,
-          subtopics: (stg.subtopics || []).map(filterItemsInSub),
-          modules: (stg.modules || []).map(filterItemsInSub)
-        };
-      });
-      return { ...batchData, stages };
-    });
 
     try {
       await supabase.from('quizzes').delete().eq('id', id);
@@ -4093,48 +3823,6 @@ export function LmsDataProvider({ children }) {
     }));
     logActivity(`Updated project listing ID ${id} (${bKey})`, 'project');
 
-    // Determine target batch scope
-    const targetBatchScope = (fieldsToApply.targetBatch && (
-      fieldsToApply.targetBatch.toUpperCase().includes('ALL') ||
-      (fieldsToApply.targetBatch.toUpperCase().includes('WEEKDAY') && fieldsToApply.targetBatch.toUpperCase().includes('WEEKEND'))
-    )) ? 'ALL' : bKey;
-
-    const projItem = {
-      id: `item-proj-${id}`,
-      projectId: id,
-      type: 'PROJECT',
-      typeColor: 'bg-emerald-100 text-emerald-800 border-emerald-200',
-      iconName: 'Building2',
-      iconBg: 'bg-emerald-600 text-white',
-      title: fieldsToApply.title || 'Practical Capstone Project',
-      actionText: 'VIEW',
-      url: '/projects',
-      btnStyle: 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm shadow-emerald-500/30',
-      category: fieldsToApply.category || 'Full-Stack Web Dev',
-      difficulty: fieldsToApply.difficulty || 'Intermediate',
-      techStack: fieldsToApply.techStack || ['React', 'Node.js', 'PostgreSQL'],
-      dueDate: fieldsToApply.dueDate || 'Due Aug 30'
-    };
-
-    // Auto-sync update into milestones in real-time
-    updateBatchState(targetBatchScope, (batchData) => {
-      const stages = (batchData.stages || []).map((stg) => {
-        const subtopics = (stg.subtopics || stg.modules || []).map((sub) => {
-          const modules = (sub.modules || sub.lessons || []).map((m) => {
-            const hasItem = (m.items || []).some((it) => it.id === projItem.id || it.projectId === id);
-            if (!hasItem) return m;
-            return {
-              ...m,
-              items: (m.items || []).map((it) => (it.id === projItem.id || it.projectId === id ? { ...it, ...projItem } : it))
-            };
-          });
-          return { ...sub, modules, lessons: modules };
-        });
-        return { ...stg, subtopics, modules: subtopics };
-      });
-      return { ...batchData, stages };
-    });
-
     try {
       const dbRow = toDbProject({ id, ...fieldsToApply });
       const { error } = await supabase.from('projects').upsert([dbRow]);
@@ -4149,23 +3837,6 @@ export function LmsDataProvider({ children }) {
       'Weekend Batch': (prev['Weekend Batch'] || []).filter((p) => p.id !== id)
     }));
     logActivity(`Deleted project ID ${id} (${bKey})`, 'project');
-
-    // Remove project item from all milestone batches in real-time
-    ['ALL', 'Weekday Batch', 'Weekend Batch'].forEach((batchName) => {
-      updateBatchState(batchName, (batchData) => {
-        const stages = (batchData.stages || []).map((stg) => {
-          const subtopics = (stg.subtopics || stg.modules || []).map((sub) => {
-            const modules = (sub.modules || sub.lessons || []).map((m) => ({
-              ...m,
-              items: (m.items || []).filter((it) => it.id !== `item-proj-${id}` && it.projectId !== id)
-            }));
-            return { ...sub, modules, lessons: modules };
-          });
-          return { ...stg, subtopics, modules: subtopics };
-        });
-        return { ...batchData, stages };
-      });
-    });
 
     try {
       const { error } = await supabase.from('projects').delete().eq('id', id);
@@ -5197,7 +4868,7 @@ export function LmsDataProvider({ children }) {
     setStudents((prev) => [newStudent, ...prev]);
 
     try {
-      await supabase.from('students').upsert([{
+      const { data, error } = await supabase.from('students').upsert([{
         id: newStudent.id,
         name: newStudent.name,
         email: newStudent.email,
@@ -5209,13 +4880,24 @@ export function LmsDataProvider({ children }) {
         status: newStudent.status,
         joined_date: newStudent.joinedDate
       }]);
+
+      if (error) {
+        console.error('[Aspire LMS] Supabase student insert error:', error.message, error);
+        setStudents((prev) => prev.filter((s) => s.id !== newStudent.id));
+        return { success: false, error: error.message };
+      }
+
+      return { success: true, student: newStudent };
     } catch (err) {
-      console.warn('Student insert handled:', err);
+      console.error('[Aspire LMS] Student insert exception:', err);
+      setStudents((prev) => prev.filter((s) => s.id !== newStudent.id));
+      return { success: false, error: err.message || 'Failed to save student to database' };
     }
   };
 
   const updateStudent = async (id, updatedData) => {
     const targetStudent = students.find((s) => s.id === id);
+    const previousStudent = targetStudent ? { ...targetStudent } : null;
     const updatedName = updatedData.name || targetStudent?.name || 'Student';
     const initAvatar = `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(updatedName.trim())}&backgroundColor=e0e7ff&textColor=3730a3&bold=true`;
 
@@ -5243,20 +4925,43 @@ export function LmsDataProvider({ children }) {
 
     try {
       const { error } = await supabase.from('students').update(dbFields).eq('id', id);
-      if (error) console.error('Supabase student update error:', error.message);
+      if (error) {
+        console.error('[Aspire LMS] Supabase student update error:', error.message);
+        if (previousStudent) {
+          setStudents((prev) => prev.map((s) => (s.id === id ? previousStudent : s)));
+        }
+        return { success: false, error: error.message };
+      }
+      return { success: true };
     } catch (err) {
-      console.warn('Student update handled:', err);
+      console.error('[Aspire LMS] Student update exception:', err);
+      if (previousStudent) {
+        setStudents((prev) => prev.map((s) => (s.id === id ? previousStudent : s)));
+      }
+      return { success: false, error: err.message || 'Failed to update student' };
     }
   };
 
   const deleteStudent = async (id) => {
+    const deletedStudent = students.find((s) => s.id === id);
     setStudents((prev) => prev.filter((s) => s.id !== id));
 
     try {
       const { error } = await supabase.from('students').delete().eq('id', id);
-      if (error) console.error('Supabase student delete error:', error.message);
+      if (error) {
+        console.error('[Aspire LMS] Supabase student delete error:', error.message);
+        if (deletedStudent) {
+          setStudents((prev) => [...prev, deletedStudent]);
+        }
+        return { success: false, error: error.message };
+      }
+      return { success: true };
     } catch (err) {
-      console.warn('Student delete handled:', err);
+      console.error('[Aspire LMS] Student delete exception:', err);
+      if (deletedStudent) {
+        setStudents((prev) => [...prev, deletedStudent]);
+      }
+      return { success: false, error: err.message || 'Failed to delete student' };
     }
   };
 // --- COURSE LESSONS (Sub-modules) ---
@@ -5302,13 +5007,23 @@ export function LmsDataProvider({ children }) {
     const lockId = `lock-${lockData.lesson_id}-${lockData.batch_code}`;
     const unlockDatetime = lockData.unlock_date && lockData.unlock_time
       ? new Date(`${lockData.unlock_date}T${lockData.unlock_time}:00`).toISOString()
-      : null;
+      : (lockData.unlock_date ? new Date(`${lockData.unlock_date}T00:00:00`).toISOString() : null);
+    const isLocked = unlockDatetime ? Date.now() < new Date(unlockDatetime).getTime() : false;
+
+    // Ensure course_id satisfies foreign key constraint in Supabase
+    let validCourseId = lockData.course_id;
+    if (!validCourseId || validCourseId === 'ALL') {
+      const pyCourse = (courses || []).find(c => c.id && c.title && c.title.toLowerCase().includes('python'));
+      validCourseId = pyCourse ? pyCourse.id : (courses?.[0]?.id || 'crs-1786624019154-w');
+    }
+
     const lockRecord = {
       id: lockId,
-      is_locked: true,
+      is_locked: isLocked,
       updated_at: new Date().toISOString(),
       unlock_datetime: unlockDatetime,
-      ...lockData
+      ...lockData,
+      course_id: validCourseId
     };
     setMilestoneLocks(prev => {
       const existing = prev.findIndex(l => l.lesson_id === lockData.lesson_id && l.batch_code === lockData.batch_code);
@@ -5331,20 +5046,29 @@ export function LmsDataProvider({ children }) {
     } catch (err) { console.warn('Lock delete handled:', err); }
   };
 
-  const getLessonLockStatus = (lessonId, batchCode) => {
-    const lock = milestoneLocks.find(l => l.lesson_id === lessonId && l.batch_code === batchCode);
-    if (!lock) return { isLocked: false, unlockDateTime: null, label: 'UNLOCKED' };
+  const getItemLockStatus = (itemId, batchCode) => {
+    if (!itemId) return { isLocked: false, unlockDateTime: null, label: 'UNLOCKED' };
+    const lock = milestoneLocks.find(l => l.lesson_id === itemId && l.batch_code === batchCode) ||
+                 milestoneLocks.find(l => l.lesson_id === itemId && l.batch_code === 'ALL') ||
+                 (batchCode === 'ALL' ? milestoneLocks.find(l => l.lesson_id === itemId) : null);
+    if (!lock) return { isLocked: false, unlockDateTime: null, label: 'UNLOCKED', unlockDate: null, unlockTime: null };
     const now = new Date();
     const unlockTime = lock.unlock_datetime ? new Date(lock.unlock_datetime) : null;
     if (unlockTime && now >= unlockTime) {
-      return { isLocked: false, unlockDateTime: lock.unlock_datetime, label: 'UNLOCKED' };
+      return { isLocked: false, unlockDateTime: lock.unlock_datetime, label: 'UNLOCKED', unlockDate: lock.unlock_date, unlockTime: lock.unlock_time };
     }
     return {
       isLocked: true,
       unlockDateTime: lock.unlock_datetime,
+      unlockDate: lock.unlock_date,
+      unlockTime: lock.unlock_time,
       label: unlockTime ? `Unlocks ${unlockTime.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })} ${lock.unlock_time || ''}` : 'LOCKED'
     };
   };
+
+  const getLessonLockStatus = getItemLockStatus;
+  const setItemLock = setLessonLock;
+  const removeItemLock = removeLessonLock;
 
   const getLocksForCourse = (courseId) => {
     return milestoneLocks.filter(l => l.course_id === courseId);
@@ -5688,6 +5412,9 @@ export function LmsDataProvider({ children }) {
         setLessonLock,
         removeLessonLock,
         getLessonLockStatus,
+        setItemLock,
+        removeItemLock,
+        getItemLockStatus,
         getLocksForCourse,
         refreshData: fetchSupabaseData,
         fetchSupabaseData
@@ -5720,6 +5447,9 @@ const defaultLmsDataContext = {
   setLessonLock: async () => {},
   removeLessonLock: async () => {},
   getLessonLockStatus: () => ({ isLocked: false, unlockDateTime: null, label: 'UNLOCKED' }),
+  getItemLockStatus: () => ({ isLocked: false, unlockDate: null, unlockTime: null, unlockDateTime: null, label: 'UNLOCKED' }),
+  setItemLock: async () => {},
+  removeItemLock: async () => {},
   getLocksForCourse: () => [],
   projects: [],
   codingQuestions: [],

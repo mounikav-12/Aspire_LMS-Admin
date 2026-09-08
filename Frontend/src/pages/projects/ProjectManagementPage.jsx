@@ -9,6 +9,7 @@ import { Modal } from '../../components/common/Modal';
 import { BatchMultiSelectDropdown } from '../../components/common/BatchMultiSelectDropdown';
 import { ConfirmDialog } from '../../components/common/ConfirmDialog';
 import { DEFAULT_STAGES, getSubtopicsForStage, getInnerModulesForSubtopic } from '../sessions/LiveSessionListPage';
+import { isMatchingStage, SUBTOPIC_MODULE_MAP } from '../milestones/MilestonesRoadmapPage';
 import {
   FolderGit2,
   Plus,
@@ -33,6 +34,8 @@ import {
   Calendar,
   Layers,
   BookOpen,
+  Bookmark,
+  ChevronDown,
   EyeOff,
   MessageSquare,
   Send,
@@ -53,6 +56,34 @@ export function ProjectManagementPage() {
   const [activeTab, setActiveTab] = useState('assigned');
   const [selectedType, setSelectedType] = useState('All');
   const [searchTerm, setSearchTerm] = useState('');
+
+  const [selectedCourseId, setSelectedCourseId] = useState(courses[0]?.id || '');
+  const [selectedStageId, setSelectedStageId] = useState('ALL');
+  const [selectedSubtopicId, setSelectedSubtopicId] = useState('ALL');
+  const [selectedModuleId, setSelectedModuleId] = useState('ALL');
+
+  React.useEffect(() => {
+    if (!selectedCourseId && courses && courses.length > 0) {
+      setSelectedCourseId(courses[0].id);
+    }
+  }, [courses, selectedCourseId]);
+
+  const activeCourseId = selectedCourseId || courses[0]?.id || '';
+  const activeCourseObj = courses.find((c) => c.id === activeCourseId) || courses[0];
+  const activeStagesList =
+    activeCourseId && activeCourseId !== 'ALL' && milestonesByBatch?.[activeCourseId]?.stages && milestonesByBatch[activeCourseId].stages.length > 0
+      ? milestonesByBatch[activeCourseId].stages
+      : activeCourseObj?.topics && activeCourseObj.topics.length > 0
+      ? activeCourseObj.topics
+      : milestones?.stages && milestones.stages.length > 0
+      ? milestones.stages
+      : DEFAULT_STAGES;
+
+  const selectedStageObj = selectedStageId !== 'ALL' ? activeStagesList.find((s) => s.id === selectedStageId) : null;
+  const subtopicsForStage = selectedStageObj ? getSubtopicsForStage(selectedStageObj) : [];
+
+  const selectedSubtopicObj = selectedSubtopicId !== 'ALL' ? subtopicsForStage.find((sub) => sub.id === selectedSubtopicId) : null;
+  const modulesForSubtopic = selectedSubtopicObj ? getInnerModulesForSubtopic(selectedSubtopicObj, courseLessons, selectedStageId) : [];
 
   // Selected Project for Detail View (Matching Image 2 & Image 3)
   const [activeProjectDetail, setActiveProjectDetail] = useState(null);
@@ -191,7 +222,31 @@ export function ProjectManagementPage() {
         matchesType = (proj.type || 'Mini').toLowerCase().includes(selectedType.toLowerCase());
       }
 
-      return matchesSearch && matchesType;
+      const pCourseId = proj.courseId || proj.course_id;
+      const pStageId = proj.stageId || proj.stage_id;
+      const pSubtopicId = proj.subtopicId || proj.subtopic_id;
+      const pModuleId = proj.innerTopicId || proj.inner_topic_id || proj.moduleId || proj.module_id;
+
+      const matchesCourse = !activeCourseId || !pCourseId || pCourseId === 'ALL' || pCourseId === activeCourseId;
+      const matchesStage = selectedStageId === 'ALL' || isMatchingStage(pStageId, selectedStageId);
+
+      const cleanId = (id) => String(id || '').replace(/-(w|s)$/i, '').trim().toLowerCase();
+      const cleanStr = (s) => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '').trim();
+
+      const matchesSubtopic =
+        selectedSubtopicId === 'ALL' ||
+        cleanId(pSubtopicId) === cleanId(selectedSubtopicId) ||
+        SUBTOPIC_MODULE_MAP[cleanId(pSubtopicId)] === cleanId(selectedSubtopicId) ||
+        SUBTOPIC_MODULE_MAP[cleanId(selectedSubtopicId)] === cleanId(pSubtopicId) ||
+        (selectedSubtopicObj && cleanStr(proj.subtopicName) === cleanStr(selectedSubtopicObj.title));
+
+      const selectedModObj = selectedModuleId !== 'ALL' ? modulesForSubtopic.find(m => m.id === selectedModuleId) : null;
+      const matchesModule =
+        selectedModuleId === 'ALL' ||
+        cleanId(pModuleId) === cleanId(selectedModuleId) ||
+        (selectedModObj && (cleanStr(proj.moduleName) === cleanStr(selectedModObj.title) || cleanStr(proj.topicName) === cleanStr(selectedModObj.title)));
+
+      return matchesSearch && matchesType && matchesCourse && matchesStage && matchesSubtopic && matchesModule;
     })
     .sort((a, b) => {
       const timeA = a.createdAt ? new Date(a.createdAt).getTime() : (a.created_at ? new Date(a.created_at).getTime() : 0);
@@ -456,6 +511,116 @@ export function ProjectManagementPage() {
           >
             Create New Project
           </Button>
+        </div>
+      </div>
+
+      {/* Filters Container */}
+      <div className="flex flex-wrap items-center gap-4 pt-2.5 border-t border-slate-100/60">
+        {/* Course Filter */}
+        <div className="flex items-center gap-2">
+          <label className="text-xs font-bold text-slate-600 flex items-center gap-1.5 flex-shrink-0">
+            <BookOpen className="w-3.5 h-3.5 text-purple-600" />
+            <span>Course:</span>
+          </label>
+          <div className="relative">
+            <select
+              value={selectedCourseId || courses[0]?.id || ''}
+              onChange={(e) => {
+                setSelectedCourseId(e.target.value);
+                setSelectedStageId('ALL');
+                setSelectedSubtopicId('ALL');
+                setSelectedModuleId('ALL');
+              }}
+              className="px-3.5 py-2 pr-8 rounded-xl text-xs font-bold text-slate-800 bg-slate-50 border border-slate-200 hover:border-purple-300 focus:outline-none focus:border-purple-600 focus:bg-white transition-all shadow-2xs cursor-pointer appearance-none max-w-[240px] truncate"
+            >
+              {courses.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.title}
+                </option>
+              ))}
+            </select>
+            <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+          </div>
+        </div>
+
+        {/* Milestone Stage Filter */}
+        <div className="flex items-center gap-2">
+          <label className="text-xs font-bold text-slate-600 flex items-center gap-1.5 flex-shrink-0">
+            <Layers className="w-3.5 h-3.5 text-blue-600" />
+            <span>Stage:</span>
+          </label>
+          <div className="relative">
+            <select
+              value={selectedStageId}
+              onChange={(e) => {
+                setSelectedStageId(e.target.value);
+                setSelectedSubtopicId('ALL');
+                setSelectedModuleId('ALL');
+              }}
+              className="px-3.5 py-2 pr-8 rounded-xl text-xs font-bold text-slate-800 bg-slate-50 border border-slate-200 hover:border-blue-300 focus:outline-none focus:border-blue-600 focus:bg-white transition-all shadow-2xs cursor-pointer appearance-none max-w-[200px] truncate"
+            >
+              <option value="ALL">All Stages</option>
+              {activeStagesList.map((stg) => (
+                <option key={stg.id} value={stg.id}>
+                  {stg.title}
+                </option>
+              ))}
+            </select>
+            <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+          </div>
+        </div>
+
+        {/* Milestone Module Filter */}
+        <div className="flex items-center gap-2">
+          <label className="text-xs font-bold text-slate-600 flex items-center gap-1.5 flex-shrink-0">
+            <Bookmark className="w-3.5 h-3.5 text-emerald-600" />
+            <span>Milestone Module:</span>
+          </label>
+          <div className="relative">
+            <select
+              value={selectedSubtopicId}
+              onChange={(e) => {
+                setSelectedSubtopicId(e.target.value);
+                setSelectedModuleId('ALL');
+              }}
+              disabled={selectedStageId === 'ALL'}
+              className="px-3.5 py-2 pr-8 rounded-xl text-xs font-bold text-slate-800 bg-slate-50 border border-slate-200 hover:border-emerald-300 focus:outline-none focus:border-emerald-600 focus:bg-white transition-all shadow-2xs cursor-pointer appearance-none max-w-[200px] truncate disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              <option value="ALL">All Milestone Modules</option>
+              {selectedStageId !== 'ALL' &&
+                subtopicsForStage.map((sub) => (
+                  <option key={sub.id} value={sub.id}>
+                    {sub.title}
+                  </option>
+                ))}
+            </select>
+            <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+          </div>
+        </div>
+
+        {/* Specific Module Filter */}
+        <div className="flex items-center gap-2">
+          <label className="text-xs font-bold text-slate-600 flex items-center gap-1.5 flex-shrink-0">
+            <Sparkles className="w-3.5 h-3.5 text-purple-600" />
+            <span>Specific Module:</span>
+          </label>
+          <div className="relative">
+            <select
+              value={selectedModuleId}
+              onChange={(e) => setSelectedModuleId(e.target.value)}
+              disabled={selectedSubtopicId === 'ALL'}
+              className="px-3.5 py-2 pr-8 rounded-xl text-xs font-bold text-slate-800 bg-slate-50 border border-slate-200 hover:border-purple-300 focus:outline-none focus:border-purple-600 focus:bg-white transition-all shadow-2xs cursor-pointer appearance-none max-w-[200px] truncate disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              <option value="ALL">All Specific Modules</option>
+              {selectedSubtopicId !== 'ALL' &&
+                modulesForSubtopic.map((mod) => (
+                  <option key={mod.id} value={mod.id}>
+                    {mod.title}
+                  </option>
+                ))}
+            </select>
+            <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+          </div>
         </div>
       </div>
 

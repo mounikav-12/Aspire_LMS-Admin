@@ -318,6 +318,11 @@ BEGIN
   CREATE POLICY "Allow full app access on students" ON public.students FOR ALL USING (true) WITH CHECK (true);
 END $$;
 
+-- GRANT TABLE & SEQUENCE PRIVILEGES TO ANON AND AUTHENTICATED ROLES
+GRANT ALL ON TABLE public.students TO anon, authenticated, service_role;
+GRANT ALL ON ALL TABLES IN SCHEMA public TO anon, authenticated, service_role;
+GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO anon, authenticated, service_role;
+
 -- ====================================================================
 -- SEED EXISTING INITIAL DATA
 -- ====================================================================

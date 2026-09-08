@@ -10,6 +10,7 @@ import { Badge } from '../../components/common/Badge';
 import { EmptyState } from '../../components/common/EmptyState';
 import { BatchFilterSelector } from '../../components/common/BatchFilterSelector';
 import { DEFAULT_STAGES, getSubtopicsForStage, getInnerModulesForSubtopic } from '../sessions/LiveSessionListPage';
+import { isMatchingStage, SUBTOPIC_MODULE_MAP } from '../milestones/MilestonesRoadmapPage';
 import {
   FileCheck2,
   Plus,
@@ -31,7 +32,10 @@ import {
   Square,
   Video,
   Code,
-  FileCheck
+  FileCheck,
+  Bookmark,
+  ChevronDown,
+  Lock
 } from 'lucide-react';
 
 export function AssessmentListPage() {
@@ -50,7 +54,8 @@ export function AssessmentListPage() {
     deleteQuiz,
     activeBatchFilter,
     setActiveBatchFilter,
-    availableBatches
+    availableBatches,
+    getItemLockStatus
   } = useLmsData();
   const { addToast } = useToast();
 
@@ -80,7 +85,34 @@ export function AssessmentListPage() {
   const [activeMainTab, setActiveMainTab] = useState('ASSESSMENTS'); // 'ASSESSMENTS' | 'QUIZZES'
   const [activeStatusFilter, setActiveStatusFilter] = useState('ALL'); // 'ALL' | 'PENDING' | 'COMPLETED'
   const [searchTerm, setSearchTerm] = useState('');
-  const [courseFilter, setCourseFilter] = useState('ALL');
+
+  const [selectedCourseId, setSelectedCourseId] = useState(courses[0]?.id || '');
+  const [selectedStageId, setSelectedStageId] = useState('ALL');
+  const [selectedSubtopicId, setSelectedSubtopicId] = useState('ALL');
+  const [selectedModuleId, setSelectedModuleId] = useState('ALL');
+
+  React.useEffect(() => {
+    if (!selectedCourseId && courses && courses.length > 0) {
+      setSelectedCourseId(courses[0].id);
+    }
+  }, [courses, selectedCourseId]);
+
+  const activeCourseId = selectedCourseId || courses[0]?.id || '';
+  const activeCourseObj = courses.find((c) => c.id === activeCourseId) || courses[0];
+  const activeStagesList =
+    activeCourseId && activeCourseId !== 'ALL' && milestonesByBatch?.[activeCourseId]?.stages && milestonesByBatch[activeCourseId].stages.length > 0
+      ? milestonesByBatch[activeCourseId].stages
+      : activeCourseObj?.topics && activeCourseObj.topics.length > 0
+      ? activeCourseObj.topics
+      : milestones?.stages && milestones.stages.length > 0
+      ? milestones.stages
+      : DEFAULT_STAGES;
+
+  const selectedStageObj = selectedStageId !== 'ALL' ? activeStagesList.find((s) => s.id === selectedStageId) : null;
+  const subtopicsForStage = selectedStageObj ? getSubtopicsForStage(selectedStageObj) : [];
+
+  const selectedSubtopicObj = selectedSubtopicId !== 'ALL' ? subtopicsForStage.find((sub) => sub.id === selectedSubtopicId) : null;
+  const modulesForSubtopic = selectedSubtopicObj ? getInnerModulesForSubtopic(selectedSubtopicObj, courseLessons, selectedStageId) : [];
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [editingAssessment, setEditingAssessment] = useState(null);
   const [deletingAssessment, setDeletingAssessment] = useState(null);
@@ -446,11 +478,34 @@ export function AssessmentListPage() {
 
   const filteredAssessments = [...currentTabItems]
     .filter((a) => {
+      const aCourseId = a.courseId || a.course_id;
+      const aStageId = a.stageId || a.stage_id;
+      const aSubtopicId = a.subtopicId || a.subtopic_id;
+      const aModuleId = a.innerTopicId || a.inner_topic_id || a.moduleId || a.module_id;
+
+      const matchesCourse = !activeCourseId || !aCourseId || aCourseId === 'ALL' || aCourseId === activeCourseId;
+      const matchesStage = selectedStageId === 'ALL' || isMatchingStage(aStageId, selectedStageId);
+
+      const cleanId = (id) => String(id || '').replace(/-(w|s)$/i, '').trim().toLowerCase();
+      const cleanStr = (s) => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '').trim();
+
+      const matchesSubtopic =
+        selectedSubtopicId === 'ALL' ||
+        cleanId(aSubtopicId) === cleanId(selectedSubtopicId) ||
+        SUBTOPIC_MODULE_MAP[cleanId(aSubtopicId)] === cleanId(selectedSubtopicId) ||
+        SUBTOPIC_MODULE_MAP[cleanId(selectedSubtopicId)] === cleanId(aSubtopicId) ||
+        (selectedSubtopicObj && cleanStr(a.subtopicName) === cleanStr(selectedSubtopicObj.title));
+
+      const selectedModObj = selectedModuleId !== 'ALL' ? modulesForSubtopic.find(m => m.id === selectedModuleId) : null;
+      const matchesModule =
+        selectedModuleId === 'ALL' ||
+        cleanId(aModuleId) === cleanId(selectedModuleId) ||
+        (selectedModObj && (cleanStr(a.moduleName) === cleanStr(selectedModObj.title) || cleanStr(a.topicName) === cleanStr(selectedModObj.title)));
+
       const matchesSearch =
         a.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         a.courseName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         a.subtopicName?.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesCourse = courseFilter === 'ALL' || a.courseId === courseFilter;
 
       let matchesStatus = true;
       if (activeStatusFilter === 'PUBLISHED') {
@@ -459,7 +514,7 @@ export function AssessmentListPage() {
         matchesStatus = a.status === 'Draft' || a.status === 'Pending';
       }
 
-      return matchesSearch && matchesCourse && matchesStatus;
+      return matchesSearch && matchesCourse && matchesStage && matchesSubtopic && matchesModule && matchesStatus;
     })
     .sort((a, b) => {
       const timeA = a.createdAt ? new Date(a.createdAt).getTime() : (a.created_at ? new Date(a.created_at).getTime() : 0);
@@ -499,6 +554,116 @@ export function AssessmentListPage() {
           <Button variant="primary" size="md" icon={Plus} onClick={handleOpenAddModal}>
             {activeMainTab === 'QUIZZES' ? 'Create Quiz' : 'Create Assessment'}
           </Button>
+        </div>
+      </div>
+
+      {/* Filters Container */}
+      <div className="flex flex-wrap items-center gap-4 pt-2.5 border-t border-slate-100/60">
+        {/* Course Filter */}
+        <div className="flex items-center gap-2">
+          <label className="text-xs font-bold text-slate-600 flex items-center gap-1.5 flex-shrink-0">
+            <BookOpen className="w-3.5 h-3.5 text-purple-600" />
+            <span>Course:</span>
+          </label>
+          <div className="relative">
+            <select
+              value={selectedCourseId || courses[0]?.id || ''}
+              onChange={(e) => {
+                setSelectedCourseId(e.target.value);
+                setSelectedStageId('ALL');
+                setSelectedSubtopicId('ALL');
+                setSelectedModuleId('ALL');
+              }}
+              className="px-3.5 py-2 pr-8 rounded-xl text-xs font-bold text-slate-800 bg-slate-50 border border-slate-200 hover:border-purple-300 focus:outline-none focus:border-purple-600 focus:bg-white transition-all shadow-2xs cursor-pointer appearance-none max-w-[240px] truncate"
+            >
+              {courses.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.title}
+                </option>
+              ))}
+            </select>
+            <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+          </div>
+        </div>
+
+        {/* Milestone Stage Filter */}
+        <div className="flex items-center gap-2">
+          <label className="text-xs font-bold text-slate-600 flex items-center gap-1.5 flex-shrink-0">
+            <Layers className="w-3.5 h-3.5 text-blue-600" />
+            <span>Stage:</span>
+          </label>
+          <div className="relative">
+            <select
+              value={selectedStageId}
+              onChange={(e) => {
+                setSelectedStageId(e.target.value);
+                setSelectedSubtopicId('ALL');
+                setSelectedModuleId('ALL');
+              }}
+              className="px-3.5 py-2 pr-8 rounded-xl text-xs font-bold text-slate-800 bg-slate-50 border border-slate-200 hover:border-blue-300 focus:outline-none focus:border-blue-600 focus:bg-white transition-all shadow-2xs cursor-pointer appearance-none max-w-[200px] truncate"
+            >
+              <option value="ALL">All Stages</option>
+              {activeStagesList.map((stg) => (
+                <option key={stg.id} value={stg.id}>
+                  {stg.title}
+                </option>
+              ))}
+            </select>
+            <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+          </div>
+        </div>
+
+        {/* Milestone Module Filter */}
+        <div className="flex items-center gap-2">
+          <label className="text-xs font-bold text-slate-600 flex items-center gap-1.5 flex-shrink-0">
+            <Bookmark className="w-3.5 h-3.5 text-emerald-600" />
+            <span>Milestone Module:</span>
+          </label>
+          <div className="relative">
+            <select
+              value={selectedSubtopicId}
+              onChange={(e) => {
+                setSelectedSubtopicId(e.target.value);
+                setSelectedModuleId('ALL');
+              }}
+              disabled={selectedStageId === 'ALL'}
+              className="px-3.5 py-2 pr-8 rounded-xl text-xs font-bold text-slate-800 bg-slate-50 border border-slate-200 hover:border-emerald-300 focus:outline-none focus:border-emerald-600 focus:bg-white transition-all shadow-2xs cursor-pointer appearance-none max-w-[200px] truncate disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              <option value="ALL">All Milestone Modules</option>
+              {selectedStageId !== 'ALL' &&
+                subtopicsForStage.map((sub) => (
+                  <option key={sub.id} value={sub.id}>
+                    {sub.title}
+                  </option>
+                ))}
+            </select>
+            <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+          </div>
+        </div>
+
+        {/* Specific Module Filter */}
+        <div className="flex items-center gap-2">
+          <label className="text-xs font-bold text-slate-600 flex items-center gap-1.5 flex-shrink-0">
+            <Sparkles className="w-3.5 h-3.5 text-purple-600" />
+            <span>Specific Module:</span>
+          </label>
+          <div className="relative">
+            <select
+              value={selectedModuleId}
+              onChange={(e) => setSelectedModuleId(e.target.value)}
+              disabled={selectedSubtopicId === 'ALL'}
+              className="px-3.5 py-2 pr-8 rounded-xl text-xs font-bold text-slate-800 bg-slate-50 border border-slate-200 hover:border-purple-300 focus:outline-none focus:border-purple-600 focus:bg-white transition-all shadow-2xs cursor-pointer appearance-none max-w-[200px] truncate disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              <option value="ALL">All Specific Modules</option>
+              {selectedSubtopicId !== 'ALL' &&
+                modulesForSubtopic.map((mod) => (
+                  <option key={mod.id} value={mod.id}>
+                    {mod.title}
+                  </option>
+                ))}
+            </select>
+            <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+          </div>
         </div>
       </div>
 
@@ -588,17 +753,6 @@ export function AssessmentListPage() {
             className="w-full pl-10 pr-4 py-2 bg-slate-50/70 border border-slate-200 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all"
           />
         </div>
-
-        <div className="w-full md:w-64">
-          <Select
-            value={courseFilter}
-            onChange={(e) => setCourseFilter(e.target.value)}
-            options={[
-              { value: 'ALL', label: 'All Associated Courses' },
-              ...courses.map((c) => ({ value: c.id, label: c.title }))
-            ]}
-          />
-        </div>
       </div>
 
       {/* Assessment / Quiz Cards */}
@@ -610,6 +764,7 @@ export function AssessmentListPage() {
             const totalQ = asm.totalQuestions || mcqCount + codingCount;
             const isQuizItem = asm.evalType === 'quiz' || asm.category?.toLowerCase().includes('quiz') || asm.title?.toLowerCase().includes('quiz');
             const typeBadgeLabel = isQuizItem ? 'MODULE QUIZ' : codingCount > 0 ? 'CODING ASSESSMENT' : 'MCQ ASSESSMENT';
+            const lockStatus = getItemLockStatus ? getItemLockStatus(asm.id, activeBatchFilter) : null;
 
             return (
               <div
@@ -620,6 +775,14 @@ export function AssessmentListPage() {
                   {/* Card Header: Badges on Left, Action Icons on Right */}
                   <div className="flex items-center justify-between gap-3">
                     <div className="flex items-center gap-2 flex-wrap min-w-0">
+                      {/* Lock Badge */}
+                      {lockStatus?.isLocked && (
+                        <span className="inline-flex items-center gap-1 bg-rose-50 text-rose-700 font-bold px-2.5 py-1 rounded-xl border border-rose-200/60 text-[10px]">
+                          <Lock className="w-3 h-3 text-rose-600 flex-shrink-0" />
+                          <span>{lockStatus.label}</span>
+                        </span>
+                      )}
+
                       {/* Type Badge */}
                       <span className="bg-purple-100/90 text-purple-700 font-extrabold text-[11px] px-3 py-1 rounded-xl tracking-wide uppercase border border-purple-200/60 flex-shrink-0">
                         {typeBadgeLabel}

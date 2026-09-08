@@ -165,7 +165,10 @@ function CourseCardItem({ course, onViewBatches, onEdit, onDelete, milestones })
       return { label: 'Weekend', color: 'bg-indigo-600 text-white' };
     }
 
-    if (!course.targetBatch || course.targetBatch === 'All Batches' || course.targetBatch === 'ALL' || course.targetBatch === 'Weekday & Weekend' || course.targetBatch === 'All') {
+    if (!course.targetBatch || course.targetBatch === 'None' || course.targetBatch === 'NONE') {
+      return { label: 'None', color: 'bg-slate-500 text-white' };
+    }
+    if (course.targetBatch === 'All Batches' || course.targetBatch === 'ALL' || course.targetBatch === 'Weekday & Weekend' || course.targetBatch === 'All') {
       return { label: 'All', color: 'bg-emerald-600 text-white' };
     }
     if (course.targetBatch?.startsWith('A26S') || course.targetBatch === 'Weekend Batch' || course.targetBatch === 'Weekend') {
@@ -174,7 +177,7 @@ function CourseCardItem({ course, onViewBatches, onEdit, onDelete, milestones })
     if (course.targetBatch?.startsWith('A26W') || course.targetBatch === 'Weekday Batch' || course.targetBatch === 'Weekday') {
       return { label: 'Weekday', color: 'bg-blue-600 text-white' };
     }
-    return { label: course.targetBatch === 'All Batches' ? 'All' : course.targetBatch === 'Weekday Batch' ? 'Weekday' : course.targetBatch === 'Weekend Batch' ? 'Weekend' : course.targetBatch, color: 'bg-emerald-600 text-white' };
+    return { label: course.targetBatch, color: 'bg-emerald-600 text-white' };
   };
 
   const batchBadge = getEffectiveBatchBadge();
@@ -424,7 +427,7 @@ export function CourseListPage() {
     title: '',
     category: 'Courses',
     level: 'Intermediate',
-    targetBatch: 'All Batches',
+    targetBatch: 'None',
     instructor: '',
     thumbnail: '',
     description: ''
@@ -435,7 +438,7 @@ export function CourseListPage() {
       title: '',
       category: categoryFilter !== 'ALL' ? categoryFilter : 'Courses',
       level: 'Intermediate',
-      targetBatch: batchFilter || activeBatchFilter || 'All Batches',
+      targetBatch: 'None',
       instructor: '',
       thumbnail: '',
       description: ''
@@ -449,7 +452,7 @@ export function CourseListPage() {
       title: course.title,
       category: course.category || 'Courses',
       level: course.level || 'Intermediate',
-      targetBatch: course.targetBatch || 'All Batches',
+      targetBatch: course.targetBatch || 'None',
       instructor: course.instructor || '',
       thumbnail: course.thumbnail || '',
       description: course.description || ''
@@ -470,7 +473,7 @@ export function CourseListPage() {
     } else {
       addCourse({
         ...formData,
-        targetBatch: batchFilter || activeBatchFilter || 'All Batches',
+        targetBatch: formData.targetBatch || 'None',
         topics: (formData.topics && formData.topics.length > 0) ? formData.topics : [
           {
             id: `top-${Date.now()}-1`,
@@ -511,7 +514,10 @@ export function CourseListPage() {
 
     const matchesBatch = (() => {
       if (batchFilter === 'ALL') return true;
-      if (!c.targetBatch || c.targetBatch === 'All Batches' || c.targetBatch === 'ALL') return true;
+      const isNone = !c.targetBatch || c.targetBatch === 'None' || c.targetBatch === 'NONE';
+      if (batchFilter === 'None') return isNone;
+      if (isNone) return false;
+      if (c.targetBatch === 'All Batches' || c.targetBatch === 'ALL') return true;
       if (c.targetBatch === batchFilter || c.targetBatch === activeBatchFilter) return true;
 
       const isWeekendFilter = batchFilter === 'Weekend Batch' || batchFilter.startsWith('A26S');
@@ -536,14 +542,14 @@ export function CourseListPage() {
       } catch (e) {}
 
       if (isWeekendFilter) {
-        return courseIsWeekend || hasSelectedWeekendBatches || (!courseIsWeekday && !hasSelectedWeekdayBatches);
+        return courseIsWeekend || hasSelectedWeekendBatches;
       }
 
       if (isWeekdayFilter) {
-        return courseIsWeekday || hasSelectedWeekdayBatches || (!courseIsWeekend && !hasSelectedWeekendBatches);
+        return courseIsWeekday || hasSelectedWeekdayBatches;
       }
 
-      return true;
+      return false;
     })();
     return matchesSearch && matchesCategory && matchesBatch;
   });
@@ -613,7 +619,8 @@ export function CourseListPage() {
               options={[
                 { value: 'ALL', label: 'All Batches' },
                 { value: 'Weekday Batch', label: 'Weekday Batch' },
-                { value: 'Weekend Batch', label: 'Weekend Batch' }
+                { value: 'Weekend Batch', label: 'Weekend Batch' },
+                { value: 'None', label: 'Unassigned (None)' }
               ]}
             />
           </div>
@@ -677,7 +684,7 @@ export function CourseListPage() {
               type="button"
               onClick={() => {
                 if (viewingBatchesCourse) {
-                  let newTargetBatch = 'All Batches';
+                  let newTargetBatch = 'None';
                   const allSelected = [...selectedWeekdayBatches, ...selectedWeekendBatches];
                   if (allSelected.length > 0) {
                     newTargetBatch = allSelected.join(', ');
@@ -754,12 +761,13 @@ export function CourseListPage() {
 
             <CustomDropdownSelect
               label="Target Batch Access"
-              value={formData.targetBatch}
+              value={formData.targetBatch || 'None'}
               onChange={(val) => setFormData({ ...formData, targetBatch: val })}
               options={[
+                { value: 'None', label: 'None (No Batches Assigned)' },
                 { value: 'All Batches', label: 'All Batches (Global Access)' },
-                { value: 'Weekend Batch', label: 'Weekend Batches (All Weekend Students)' },
                 { value: 'Weekday Batch', label: 'Weekday Batches (All Weekday Students)' },
+                { value: 'Weekend Batch', label: 'Weekend Batches (All Weekend Students)' },
                 { value: 'A26S1', label: 'A26S1 (Weekend Batch Code)' },
                 { value: 'A26S2', label: 'A26S2 (Weekend Batch Code)' },
                 { value: 'A26S3', label: 'A26S3 (Weekend Batch Code)' },

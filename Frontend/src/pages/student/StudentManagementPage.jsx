@@ -49,6 +49,7 @@ export function StudentManagementPage() {
   const [testingStudent, setTestingStudent] = useState(null);
   const [mobileError, setMobileError] = useState('');
   const [emailError, setEmailError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   React.useEffect(() => {
     if (urlBatch) {
@@ -195,7 +196,7 @@ export function StudentManagementPage() {
     setEmailError('');
   };
 
-  const handleSaveStudent = (e) => {
+  const handleSaveStudent = async (e) => {
     e.preventDefault();
     if (!formData.name || !formData.email || !formData.registrationId) {
       addToast('Please provide student name, email, and registration ID', 'error');
@@ -222,20 +223,37 @@ export function StudentManagementPage() {
     const formattedMobile = formatMobileWithCountryCode(formData.mobileNumber);
     const finalStudentPayload = { ...formData, mobileNumber: formattedMobile, avatar: finalAvatar };
 
-    if (editingStudent) {
-      updateStudent(editingStudent.id, finalStudentPayload);
-      addToast(`Updated student account for "${formData.name}" (${formData.registrationId})`, 'success');
-      setEditingStudent(null);
-    } else {
-      addStudent(finalStudentPayload);
-      addToast(`Added new student: "${formData.name}" [Reg ID: ${formData.registrationId}]`, 'success');
-      setIsAddModalOpen(false);
+    setIsSubmitting(true);
+    try {
+      if (editingStudent) {
+        const res = await updateStudent(editingStudent.id, finalStudentPayload);
+        if (res && res.success === false) {
+          addToast(`Failed to update student in database: ${res.error}`, 'error');
+          return;
+        }
+        addToast(`Updated student account for "${formData.name}" (${formData.registrationId})`, 'success');
+        setEditingStudent(null);
+      } else {
+        const res = await addStudent(finalStudentPayload);
+        if (res && res.success === false) {
+          addToast(`Failed to save student to database: ${res.error}`, 'error');
+          return;
+        }
+        addToast(`Added new student: "${formData.name}" [Reg ID: ${formData.registrationId}]`, 'success');
+        setIsAddModalOpen(false);
+      }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  const handleDeleteConfirm = () => {
+  const handleDeleteConfirm = async () => {
     if (deletingStudent) {
-      deleteStudent(deletingStudent.id);
+      const res = await deleteStudent(deletingStudent.id);
+      if (res && res.success === false) {
+        addToast(`Failed to delete student from database: ${res.error}`, 'error');
+        return;
+      }
       addToast(`Removed student account for "${deletingStudent.name}"`, 'info');
       setDeletingStudent(null);
     }
@@ -682,8 +700,8 @@ export function StudentManagementPage() {
             >
               Cancel
             </Button>
-            <Button type="submit">
-              {editingStudent ? 'Update Account' : 'Register Student'}
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? 'Saving...' : (editingStudent ? 'Update Account' : 'Register Student')}
             </Button>
           </div>
         </form>
