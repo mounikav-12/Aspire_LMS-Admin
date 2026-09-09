@@ -268,8 +268,8 @@ export function LiveSessionListPage() {
 
   // Batch Selection State for Modal
   const [batchActiveTab, setBatchActiveTab] = useState('Weekdays'); // 'Weekdays' | 'Weekends'
-  const [selectedWeekdayBatches, setSelectedWeekdayBatches] = useState(allWeekdayBatchesList);
-  const [selectedWeekendBatches, setSelectedWeekendBatches] = useState(allWeekendBatchesList);
+  const [selectedWeekdayBatches, setSelectedWeekdayBatches] = useState([]);
+  const [selectedWeekendBatches, setSelectedWeekendBatches] = useState([]);
 
   const handleAddTopicRow = () => {
     setFormData((prev) => ({
@@ -319,8 +319,8 @@ export function LiveSessionListPage() {
     });
 
     setBatchActiveTab('Weekdays');
-    setSelectedWeekdayBatches(allWeekdayBatchesList);
-    setSelectedWeekendBatches(allWeekendBatchesList);
+    setSelectedWeekdayBatches([]);
+    setSelectedWeekendBatches([]);
     setIsAddModalOpen(true);
   };
 
@@ -342,10 +342,7 @@ export function LiveSessionListPage() {
       );
       initialWe = parsed.filter((b) => b.startsWith('A26S') || b.startsWith('A26WE'));
     }
-    if (initialWd.length === 0 && initialWe.length === 0) {
-      initialWd = allWeekdayBatchesList;
-      initialWe = allWeekendBatchesList;
-    }
+    // Leave as empty arrays — admin must explicitly re-allocate if no batch was saved
     setSelectedWeekdayBatches(initialWd);
     setSelectedWeekendBatches(initialWe);
 
@@ -422,7 +419,7 @@ export function LiveSessionListPage() {
     const currentModObj = subLessons.find((m) => m.id === formData.moduleId || m.title === formData.moduleName) || subLessons[0];
 
     const allBatches = [...selectedWeekdayBatches, ...selectedWeekendBatches];
-    const targetBatchStr = allBatches.length > 0 ? allBatches.join(', ') : 'All Batches';
+    const targetBatchStr = allBatches.length > 0 ? allBatches.join(', ') : '';
 
     const cleanedTopics = (formData.topics || [])
       .filter((t) => t && t.title && t.title.trim())

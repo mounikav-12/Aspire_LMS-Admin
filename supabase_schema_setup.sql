@@ -60,10 +60,17 @@ CREATE TABLE IF NOT EXISTS public.jobs (
   salary TEXT DEFAULT '₹14,00,000 - ₹18,00,000 / yr',
   location TEXT DEFAULT 'Bengaluru / Remote',
   posted_date TEXT,
+  deadline TEXT,
+  openings TEXT,
+  status_badge TEXT,
   publish_status TEXT DEFAULT 'Live Feed',
   is_locked BOOLEAN DEFAULT FALSE,
   logo TEXT,
   description TEXT,
+  responsibilities TEXT,
+  tech_stack TEXT,
+  perks TEXT,
+  target_batch TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 

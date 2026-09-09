@@ -60,7 +60,7 @@ export function StudentManagementPage() {
     }
   }, [urlBatch, activeBatchFilter]);
 
-  const defaultBatch = batchList[0] || '';
+  const defaultBatch = ''; // No default batch — admin must explicitly allocate
 
   // Helper to validate email format via regex (/^[^\s@]+@[^\s@]+\.[^\s@]+$/)
   const getEmailValidationError = (emailVal) => {
@@ -146,16 +146,12 @@ export function StudentManagementPage() {
   });
 
   const handleOpenAddModal = () => {
-    const count = students.length + 1;
-    const isWeekend = defaultBatch.startsWith('A26S') || defaultBatch.startsWith('A26WE');
-    const prefix = isWeekend ? 'A26S' : 'A26W';
-    const defaultRegId = `${prefix}${String(count).padStart(4, '0')}`;
     setFormData({
       name: '',
       email: '',
       mobileNumber: '',
-      registrationId: defaultRegId,
-      batch: defaultBatch,
+      registrationId: '', // Auto-generated when admin selects a batch
+      batch: '',
       enrolledCourses: [],
       avatar: getInitialsAvatar('')
     });

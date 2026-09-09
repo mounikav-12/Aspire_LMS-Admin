@@ -66,7 +66,7 @@ export function CourseDetailPage() {
         if (Array.isArray(parsed)) return parsed;
       }
     } catch (e) {}
-    return ['A26W1']; // Default initial Weekdays selection
+    return []; // No batch pre-selected — allocate explicitly
   });
 
   const [selectedWeekendBatches, setSelectedWeekendBatches] = useState(() => {
@@ -77,7 +77,7 @@ export function CourseDetailPage() {
         if (Array.isArray(parsed)) return parsed;
       }
     } catch (e) {}
-    return ['A26S1']; // Default initial Weekends selection
+    return []; // No batch pre-selected — allocate explicitly
   });
 
   // Dynamic Batch Category Lists

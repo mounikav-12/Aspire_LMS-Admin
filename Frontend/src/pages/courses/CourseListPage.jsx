@@ -427,7 +427,7 @@ export function CourseListPage() {
     title: '',
     category: 'Courses',
     level: 'Intermediate',
-    targetBatch: 'None',
+    targetBatch: '',
     instructor: '',
     thumbnail: '',
     description: ''
@@ -438,7 +438,7 @@ export function CourseListPage() {
       title: '',
       category: categoryFilter !== 'ALL' ? categoryFilter : 'Courses',
       level: 'Intermediate',
-      targetBatch: 'None',
+      targetBatch: '',
       instructor: '',
       thumbnail: '',
       description: ''
@@ -452,7 +452,7 @@ export function CourseListPage() {
       title: course.title,
       category: course.category || 'Courses',
       level: course.level || 'Intermediate',
-      targetBatch: course.targetBatch || 'None',
+      targetBatch: course.targetBatch || '',
       instructor: course.instructor || '',
       thumbnail: course.thumbnail || '',
       description: course.description || ''
@@ -473,7 +473,7 @@ export function CourseListPage() {
     } else {
       addCourse({
         ...formData,
-        targetBatch: formData.targetBatch || 'None',
+        targetBatch: formData.targetBatch || '',
         topics: (formData.topics && formData.topics.length > 0) ? formData.topics : [
           {
             id: `top-${Date.now()}-1`,

@@ -360,7 +360,7 @@ export function MilestonesRoadmapPage() {
   // Mode Toggle: 'admin' (CRUD & Schedule Setter) vs 'user' (Main LMS Student View)
 
   const [selectedBatch, setSelectedBatchState] = useState(
-    activeBatchFilter && activeBatchFilter !== 'ALL' ? activeBatchFilter : 'ALL'
+    activeBatchFilter && activeBatchFilter !== 'ALL' ? activeBatchFilter : null
   );
 
   React.useEffect(() => {
@@ -723,7 +723,7 @@ export function MilestonesRoadmapPage() {
     stageNumber: 'STAGE 01',
     phaseTag: 'Phase 1 • Core Mastery',
     title: '',
-    targetBatch: 'All Batches',
+    targetBatch: '',
     unlockDate: '',
     unlockTime: '09:00'
   });
@@ -733,7 +733,7 @@ export function MilestonesRoadmapPage() {
   const [editingSubtopic, setEditingSubtopic] = useState(null);
   const [subtopicFormData, setSubtopicFormData] = useState({
     title: '',
-    targetBatch: 'All Batches',
+    targetBatch: '',
     description: 'Click to view subtopics',
     duration: '',
     unlockDate: '',
@@ -1849,7 +1849,14 @@ export function MilestonesRoadmapPage() {
                       const curModTitle = cleanNorm(module.title);
 
                       // Match associated live session if scheduled
-                      const matchedLiveSessions = (liveSessions || []).filter((s) => {
+                      // Only consider sessions belonging to the currently selected course to avoid cross-course title matches
+                      const courseFilteredSessions = (liveSessions || []).filter((s) => {
+                        if (!selectedCourseId || selectedCourseId === 'ALL') return true;
+                        if (!s.courseId || s.courseId === 'undefined') return true; // legacy rows without courseId
+                        return s.courseId === selectedCourseId;
+                      });
+
+                      const matchedLiveSessions = courseFilteredSessions.filter((s) => {
                         const sModId = stripSuffix(s.moduleId || s.innerTopicId || s.topic_id || s.module_id);
                         if (sModId && curModId && sModId === curModId) return true;
 
@@ -1870,7 +1877,7 @@ export function MilestonesRoadmapPage() {
                       const primaryLiveSession = matchedLiveSessions[0] || null;
                       const moduleJoinLink = primaryLiveSession?.meetingLink || primaryLiveSession?.meeting_link || primaryLiveSession?.joinLink || primaryLiveSession?.url || rawItems.find(it => it.type === 'LIVE CLASS' && (it.url || it.joinLink))?.url || 'https://meet.google.com/aspire-lms-live';
 
-                      const hasLiveClass = !!primaryLiveSession || rawItems.some(it => it.type === 'LIVE CLASS');
+                      const hasLiveClass = !!primaryLiveSession;
 
                       // Live Class Topics: Prioritize module.topics (the active Milestones state), then primaryLiveSession.topics or module.items
                       let liveClassTopics = [];
@@ -2667,10 +2674,11 @@ export function MilestonesRoadmapPage() {
               <div>
                 <label className="block font-bold text-slate-700 mb-1">Target Batch Access</label>
                 <select
-                  value={stageFormData.targetBatch || 'Weekday Batch'}
+                  value={stageFormData.targetBatch || ''}
                   onChange={(e) => setStageFormData({ ...stageFormData, targetBatch: e.target.value })}
                   className="w-full px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 font-semibold bg-white"
                 >
+                  <option value="">-- Select Batch --</option>
                   <option value="Weekday Batch">Weekday Batch Only (A26W)</option>
                   <option value="Weekend Batch">Weekend Batch Only (A26S)</option>
                 </select>
@@ -2753,10 +2761,11 @@ export function MilestonesRoadmapPage() {
               <div>
                 <label className="block font-bold text-slate-700 mb-1">Target Batch Access</label>
                 <select
-                  value={subtopicFormData.targetBatch || 'Weekday Batch'}
+                  value={subtopicFormData.targetBatch || ''}
                   onChange={(e) => setSubtopicFormData({ ...subtopicFormData, targetBatch: e.target.value })}
                   className="w-full px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 font-semibold bg-white"
                 >
+                  <option value="">-- Select Batch --</option>
                   <option value="Weekday Batch">Weekday Batch Only (A26W)</option>
                   <option value="Weekend Batch">Weekend Batch Only (A26S)</option>
                 </select>

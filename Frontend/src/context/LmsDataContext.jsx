@@ -553,7 +553,8 @@ export function LmsDataProvider({ children }) {
   };
 
   const [activeBatchFilter, setActiveBatchFilter] = useState(() => {
-    return localStorage.getItem('aspire_lms_active_batch_filter') || 'ALL';
+    const saved = localStorage.getItem('aspire_lms_active_batch_filter');
+    return (saved && saved !== 'null') ? saved : null;
   });
 
   useEffect(() => {
@@ -1702,14 +1703,20 @@ export function LmsDataProvider({ children }) {
             ? j.tech_stack
             : (Array.isArray(j.techStack) ? j.techStack : (typeof j.tech_stack === 'string' ? JSON.parse(j.tech_stack) : [])),
           perks: j.perks || '',
-          targetBatch: j.target_batch || 'Weekday Batch'
+          targetBatch: j.target_batch || null
         }));
         // REPLACE (not append) to prevent duplicates
         setJobsByBatch(() => {
           const next = { 'Weekday Batch': [], 'Weekend Batch': [] };
           mappedJobs.forEach(j => {
-            const bKey = j.targetBatch === 'Weekend Batch' ? 'Weekend Batch' : 'Weekday Batch';
-            next[bKey].push(j);
+            if (!j.targetBatch) {
+              // null batch = unassigned, show in both
+              next['Weekday Batch'].push(j);
+              next['Weekend Batch'].push(j);
+            } else {
+              const bKey = j.targetBatch === 'Weekend Batch' ? 'Weekend Batch' : 'Weekday Batch';
+              next[bKey].push(j);
+            }
           });
           return next;
         });
@@ -3396,17 +3403,24 @@ export function LmsDataProvider({ children }) {
     const bKey = resolveBatchKey(targetBatch);
     const newJob = {
       id: `job-${Date.now()}-${bKey === 'Weekday Batch' ? 'w' : 's'}`,
-      targetBatch: bKey,
+      targetBatch: null,
       postedDate: new Date().toISOString().split('T')[0],
       publishStatus: 'Live Feed',
       isLocked: jobData.isLocked || false,
       logo: 'https://images.unsplash.com/photo-1572021335469-31706a17aaef?w=120&auto=format&fit=crop&q=80',
       ...jobData
     };
-    setJobsByBatch((prev) => ({
-      ...prev,
-      [bKey]: [newJob, ...(prev[bKey] || [])]
-    }));
+    setJobsByBatch((prev) => {
+      if (!newJob.targetBatch) {
+        // Unassigned — show in both
+        return {
+          ...prev,
+          'Weekday Batch': [newJob, ...(prev['Weekday Batch'] || [])],
+          'Weekend Batch': [newJob, ...(prev['Weekend Batch'] || [])]
+        };
+      }
+      return { ...prev, [bKey]: [newJob, ...(prev[bKey] || [])] };
+    });
     logActivity(`Posted job opening for ${newJob.company}: "${newJob.jobTitle}" (${bKey})`, 'job');
     try {
       const { error } = await supabase.from('jobs').upsert([{
@@ -3427,7 +3441,7 @@ export function LmsDataProvider({ children }) {
         responsibilities: newJob.responsibilities || [],
         tech_stack: newJob.techStack || [],
         perks: newJob.perks || '',
-        target_batch: newJob.targetBatch
+        target_batch: null
       }]);
       if (error) console.error('Supabase job insert error:', error.message);
     } catch (err) { console.warn('Job insert handled:', err); }
