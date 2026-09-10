@@ -25,11 +25,11 @@ export function DashboardLayout() {
 
       {/* Main Content Area */}
       <main
-        className={`flex-1 pt-18 md:pt-20 px-4 sm:px-6 pb-12 transition-all duration-300 ${
+        className={`flex-1 min-w-0 pt-18 md:pt-20 px-4 sm:px-6 pb-12 transition-all duration-300 ${
           isSidebarCollapsed ? 'md:ml-16' : 'md:ml-[230px]'
         }`}
       >
-        <div className="max-w-7xl mx-auto">
+        <div className="max-w-7xl mx-auto w-full min-w-0">
           <Outlet />
         </div>
       </main>

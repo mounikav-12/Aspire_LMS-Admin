@@ -1010,18 +1010,18 @@ export function AssessmentListPage() {
   const currentModalTotalQuestions = (formData.mcqs || []).length;
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-300">
+    <div className="space-y-6 animate-in fade-in duration-300 w-full min-w-0 max-w-full">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 w-full min-w-0">
+        <div className="min-w-0">
           <h1 className="text-xl md:text-2xl font-bold tracking-normal text-slate-900 flex items-center gap-2.5">
-            <FileCheck2 className="w-6 h-6 text-purple-600" /> Practice Hub & Evaluations
+            <FileCheck2 className="w-6 h-6 text-purple-600 flex-shrink-0" /> <span className="truncate">Practice Hub & Evaluations</span>
           </h1>
           <p className="text-xs text-slate-500 font-medium mt-1">
             Topic-based practice assessments, tests, and module quizzes for enrolled students.
           </p>
         </div>
-        <div className="flex flex-wrap items-center gap-2.5">
+        <div className="flex flex-wrap items-center gap-2.5 flex-shrink-0">
           <Button variant="primary" size="md" icon={Plus} onClick={handleOpenAddModal}>
             {activeMainTab === 'QUIZZES' ? 'Create Weekly Assessment' : 'Create Daily Assessment'}
           </Button>
@@ -1029,26 +1029,27 @@ export function AssessmentListPage() {
       </div>
 
       {/* Curriculum Filter Bar */}
-      <div className="bg-white p-3.5 sm:p-4 rounded-2xl border border-slate-200/80 shadow-2xs">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+      <div className="bg-white p-3.5 sm:p-4 rounded-2xl border border-slate-200/80 shadow-2xs w-full min-w-0">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3.5 w-full min-w-0">
           {/* Course Track */}
-          <div className="space-y-1.5">
-            <label className="text-[11px] font-extrabold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
-              <BookOpen className="w-3.5 h-3.5 text-purple-600" /> Course Track
+          <div className="space-y-1.5 min-w-0 w-full">
+            <label className="text-[11px] font-extrabold text-slate-500 uppercase tracking-wider flex items-center gap-1.5 truncate" title="Course Track">
+              <BookOpen className="w-3.5 h-3.5 text-purple-600 flex-shrink-0" /> <span className="truncate">Course Track</span>
             </label>
-            <div className="relative">
+            <div className="relative min-w-0 w-full">
               <select
                 value={selectedCourseId || courses[0]?.id || ''}
+                title={courses.find((c) => c.id === (selectedCourseId || courses[0]?.id))?.title || 'Course Track'}
                 onChange={(e) => {
                   setSelectedCourseId(e.target.value);
                   setSelectedStageId('ALL');
                   setSelectedSubtopicId('ALL');
                   setSelectedModuleId('ALL');
                 }}
-                className="w-full px-3.5 py-2.5 pr-8 rounded-xl text-xs font-bold text-slate-800 bg-slate-50/80 border border-slate-200 hover:border-purple-300 focus:outline-none focus:border-purple-600 focus:bg-white transition-all shadow-2xs cursor-pointer appearance-none truncate"
+                className="w-full min-w-0 max-w-full px-3.5 py-2.5 pr-8 rounded-xl text-xs font-bold text-slate-800 bg-slate-50/80 border border-slate-200 hover:border-purple-300 focus:outline-none focus:border-purple-600 focus:bg-white transition-all shadow-2xs cursor-pointer appearance-none truncate block"
               >
                 {courses.map((c) => (
-                  <option key={c.id} value={c.id}>
+                  <option key={c.id} value={c.id} title={c.title}>
                     {c.title}
                   </option>
                 ))}
@@ -1058,23 +1059,24 @@ export function AssessmentListPage() {
           </div>
 
           {/* Milestone Stage */}
-          <div className="space-y-1.5">
-            <label className="text-[11px] font-extrabold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
-              <Layers className="w-3.5 h-3.5 text-blue-600" /> Milestone Stage
+          <div className="space-y-1.5 min-w-0 w-full">
+            <label className="text-[11px] font-extrabold text-slate-500 uppercase tracking-wider flex items-center gap-1.5 truncate" title="Milestone Stage">
+              <Layers className="w-3.5 h-3.5 text-blue-600 flex-shrink-0" /> <span className="truncate">Milestone Stage</span>
             </label>
-            <div className="relative">
+            <div className="relative min-w-0 w-full">
               <select
                 value={selectedStageId}
+                title={activeStagesList.find((s) => s.id === selectedStageId)?.title || 'All Stages'}
                 onChange={(e) => {
                   setSelectedStageId(e.target.value);
                   setSelectedSubtopicId('ALL');
                   setSelectedModuleId('ALL');
                 }}
-                className="w-full px-3.5 py-2.5 pr-8 rounded-xl text-xs font-bold text-slate-800 bg-slate-50/80 border border-slate-200 hover:border-blue-300 focus:outline-none focus:border-blue-600 focus:bg-white transition-all shadow-2xs cursor-pointer appearance-none truncate"
+                className="w-full min-w-0 max-w-full px-3.5 py-2.5 pr-8 rounded-xl text-xs font-bold text-slate-800 bg-slate-50/80 border border-slate-200 hover:border-blue-300 focus:outline-none focus:border-blue-600 focus:bg-white transition-all shadow-2xs cursor-pointer appearance-none truncate block"
               >
                 <option value="ALL">All Stages</option>
                 {activeStagesList.map((stg) => (
-                  <option key={stg.id} value={stg.id}>
+                  <option key={stg.id} value={stg.id} title={stg.title}>
                     {stg.title}
                   </option>
                 ))}
@@ -1084,24 +1086,25 @@ export function AssessmentListPage() {
           </div>
 
           {/* Milestone Module */}
-          <div className="space-y-1.5">
-            <label className="text-[11px] font-extrabold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
-              <Bookmark className="w-3.5 h-3.5 text-emerald-600" /> Milestone Module
+          <div className="space-y-1.5 min-w-0 w-full">
+            <label className="text-[11px] font-extrabold text-slate-500 uppercase tracking-wider flex items-center gap-1.5 truncate" title="Milestone Module">
+              <Bookmark className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" /> <span className="truncate">Milestone Module</span>
             </label>
-            <div className="relative">
+            <div className="relative min-w-0 w-full">
               <select
                 value={selectedSubtopicId}
+                title={subtopicsForStage.find((s) => s.id === selectedSubtopicId)?.title || 'All Milestone Modules'}
                 onChange={(e) => {
                   setSelectedSubtopicId(e.target.value);
                   setSelectedModuleId('ALL');
                 }}
                 disabled={selectedStageId === 'ALL'}
-                className="w-full px-3.5 py-2.5 pr-8 rounded-xl text-xs font-bold text-slate-800 bg-slate-50/80 border border-slate-200 hover:border-emerald-300 focus:outline-none focus:border-emerald-600 focus:bg-white transition-all shadow-2xs cursor-pointer appearance-none truncate disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full min-w-0 max-w-full px-3.5 py-2.5 pr-8 rounded-xl text-xs font-bold text-slate-800 bg-slate-50/80 border border-slate-200 hover:border-emerald-300 focus:outline-none focus:border-emerald-600 focus:bg-white transition-all shadow-2xs cursor-pointer appearance-none truncate block disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <option value="ALL">All Milestone Modules</option>
                 {selectedStageId !== 'ALL' &&
                   subtopicsForStage.map((sub) => (
-                    <option key={sub.id} value={sub.id}>
+                    <option key={sub.id} value={sub.id} title={sub.title}>
                       {sub.title}
                     </option>
                   ))}
@@ -1111,21 +1114,22 @@ export function AssessmentListPage() {
           </div>
 
           {/* Specific Module */}
-          <div className="space-y-1.5">
-            <label className="text-[11px] font-extrabold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5 text-purple-600" /> Specific Module
+          <div className="space-y-1.5 min-w-0 w-full">
+            <label className="text-[11px] font-extrabold text-slate-500 uppercase tracking-wider flex items-center gap-1.5 truncate" title="Specific Module">
+              <Sparkles className="w-3.5 h-3.5 text-purple-600 flex-shrink-0" /> <span className="truncate">Specific Module</span>
             </label>
-            <div className="relative">
+            <div className="relative min-w-0 w-full">
               <select
                 value={selectedModuleId}
+                title={modulesForSubtopic.find((m) => m.id === selectedModuleId)?.title || 'All Specific Modules'}
                 onChange={(e) => setSelectedModuleId(e.target.value)}
                 disabled={selectedSubtopicId === 'ALL'}
-                className="w-full px-3.5 py-2.5 pr-8 rounded-xl text-xs font-bold text-slate-800 bg-slate-50/80 border border-slate-200 hover:border-purple-300 focus:outline-none focus:border-purple-600 focus:bg-white transition-all shadow-2xs cursor-pointer appearance-none truncate disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full min-w-0 max-w-full px-3.5 py-2.5 pr-8 rounded-xl text-xs font-bold text-slate-800 bg-slate-50/80 border border-slate-200 hover:border-purple-300 focus:outline-none focus:border-purple-600 focus:bg-white transition-all shadow-2xs cursor-pointer appearance-none truncate block disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <option value="ALL">All Specific Modules</option>
                 {selectedSubtopicId !== 'ALL' &&
                   modulesForSubtopic.map((mod) => (
-                    <option key={mod.id} value={mod.id}>
+                    <option key={mod.id} value={mod.id} title={mod.title}>
                       {mod.title}
                     </option>
                   ))}
@@ -1137,7 +1141,7 @@ export function AssessmentListPage() {
       </div>
 
       {/* Primary Category Switcher & Search Bar */}
-      <div className="bg-white p-3 rounded-2xl border border-slate-200/80 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div className="bg-white p-3 rounded-2xl border border-slate-200/80 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 w-full min-w-0">
         {/* Category Switcher Tabs */}
         <div className="bg-slate-100/90 p-1.5 rounded-xl inline-flex items-center gap-1.5 shadow-2xs flex-shrink-0">
           <button
@@ -1146,7 +1150,7 @@ export function AssessmentListPage() {
               setActiveMainTab('ASSESSMENTS');
               setActiveStatusFilter('ALL');
             }}
-            className={`px-6 py-2.5 rounded-xl text-xs md:text-sm transition-all cursor-pointer ${
+            className={`px-4 sm:px-6 py-2.5 rounded-xl text-xs md:text-sm transition-all cursor-pointer ${
               activeMainTab === 'ASSESSMENTS'
                 ? 'bg-purple-600 text-white shadow-md shadow-purple-500/25 font-extrabold'
                 : 'text-slate-600 hover:text-purple-700 hover:bg-white/60 font-bold'
@@ -1160,7 +1164,7 @@ export function AssessmentListPage() {
               setActiveMainTab('QUIZZES');
               setActiveStatusFilter('ALL');
             }}
-            className={`px-6 py-2.5 rounded-xl text-xs md:text-sm transition-all cursor-pointer ${
+            className={`px-4 sm:px-6 py-2.5 rounded-xl text-xs md:text-sm transition-all cursor-pointer ${
               activeMainTab === 'QUIZZES'
                 ? 'bg-purple-600 text-white shadow-md shadow-purple-500/25 font-extrabold'
                 : 'text-slate-600 hover:text-purple-700 hover:bg-white/60 font-bold'
@@ -1194,7 +1198,7 @@ export function AssessmentListPage() {
 
       {/* Assessment / Quiz Cards */}
       {filteredAssessments.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 w-full min-w-0">
           {filteredAssessments.map((asm) => {
             const mcqCount = asm.mcqs?.length || asm.mcqCount || 0;
             const codingCount = asm.codingQuestions?.length || asm.codingCount || 0;
