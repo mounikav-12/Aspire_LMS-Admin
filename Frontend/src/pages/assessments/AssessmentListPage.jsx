@@ -1022,11 +1022,6 @@ export function AssessmentListPage() {
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2.5">
-          <NavLink to="/coding-questions">
-            <Button variant="outline" size="md" icon={Code2} className="border-emerald-200 text-emerald-700 hover:bg-emerald-50 font-bold">
-              Coding Bank
-            </Button>
-          </NavLink>
           <Button variant="primary" size="md" icon={Plus} onClick={handleOpenAddModal}>
             {activeMainTab === 'QUIZZES' ? 'Create Weekly Assessment' : 'Create Daily Assessment'}
           </Button>
@@ -1143,8 +1138,8 @@ export function AssessmentListPage() {
         </div>
       </div>
 
-      {/* Primary Category Switcher & Secondary Status Filters */}
-      <div className="bg-white p-4 rounded-3xl border border-slate-200/80 shadow-2xs space-y-4">
+      {/* Primary Category Switcher */}
+      <div className="bg-white p-4 rounded-3xl border border-slate-200/80 shadow-2xs">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           {/* Top Primary Tabs: Assessments vs Quizzes */}
           <div className="bg-slate-100/90 p-1.5 rounded-2xl inline-flex items-center gap-1.5 shadow-2xs">
@@ -1175,43 +1170,6 @@ export function AssessmentListPage() {
               }`}
             >
               Weekly Assessments
-            </button>
-          </div>
-
-          {/* Secondary Sub-Filter Pills: All / Published / Drafts */}
-          <div className="bg-slate-100/80 p-1 rounded-2xl inline-flex items-center gap-1 border border-slate-200/60">
-            <button
-              type="button"
-              onClick={() => setActiveStatusFilter('ALL')}
-              className={`px-4 py-1.5 rounded-xl text-xs transition-all cursor-pointer ${
-                activeStatusFilter === 'ALL'
-                  ? 'bg-white text-purple-950 font-extrabold shadow-2xs border border-slate-200/80'
-                  : 'text-slate-500 hover:text-slate-800 font-semibold'
-              }`}
-            >
-              {activeMainTab === 'QUIZZES' ? 'All Weekly Assessments' : 'All Daily Assessments'}
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveStatusFilter('PUBLISHED')}
-              className={`px-4 py-1.5 rounded-xl text-xs transition-all cursor-pointer ${
-                activeStatusFilter === 'PUBLISHED'
-                  ? 'bg-white text-purple-950 font-extrabold shadow-2xs border border-slate-200/80'
-                  : 'text-slate-500 hover:text-slate-800 font-semibold'
-              }`}
-            >
-              Published
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveStatusFilter('DRAFT')}
-              className={`px-4 py-1.5 rounded-xl text-xs transition-all cursor-pointer ${
-                activeStatusFilter === 'DRAFT'
-                  ? 'bg-white text-purple-950 font-extrabold shadow-2xs border border-slate-200/80'
-                  : 'text-slate-500 hover:text-slate-800 font-semibold'
-              }`}
-            >
-              Drafts
             </button>
           </div>
         </div>
