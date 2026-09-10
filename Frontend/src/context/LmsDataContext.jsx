@@ -1995,24 +1995,32 @@ export function LmsDataProvider({ children }) {
       // 12. Fetch Coding Questions Catalog
       
       if (!codingErr && codingData) {
-        const mappedCoding = codingData.map(cq => ({
-          id: cq.id,
-          title: cq.title || '',
-          difficulty: cq.difficulty || 'Medium',
-          category: cq.category || 'Algorithms',
-          tags: Array.isArray(cq.tags) ? cq.tags : (typeof cq.tags === 'string' ? JSON.parse(cq.tags) : []),
-          problemStatement: cq.problem_statement || cq.problemStatement || '',
-          starterCode: cq.starter_code || cq.starterCode || '',
-          solutionCode: cq.solution_code || cq.solutionCode || '',
-          testCases: Array.isArray(cq.test_cases) ? cq.test_cases : (typeof cq.test_cases === 'string' ? JSON.parse(cq.test_cases) : []),
-          createdDate: cq.created_date || cq.createdDate || '',
-          postedBy: cq.posted_by || cq.postedBy || 'Admin Portal',
-          targetBatch: cq.target_batch || 'Weekday Batch',
-          courseId: cq.course_id || '',
-          stageId: cq.stage_id || '',
-          subtopicId: cq.subtopic_id || '',
-          innerTopicId: cq.inner_topic_id || ''
-        }));
+        const mappedCoding = codingData.map(cq => {
+          const rawCases = cq.test_cases || cq.sampleTestCases || cq.testCases || [];
+          const parsedCases = Array.isArray(rawCases)
+            ? rawCases
+            : (typeof rawCases === 'string' ? (() => { try { return JSON.parse(rawCases); } catch (e) { return []; } })() : []);
+
+          return {
+            id: cq.id,
+            title: cq.title || '',
+            difficulty: cq.difficulty || 'Medium',
+            category: cq.category || 'Algorithms',
+            tags: Array.isArray(cq.tags) ? cq.tags : (typeof cq.tags === 'string' ? (() => { try { return JSON.parse(cq.tags); } catch(e) { return []; } })() : []),
+            problemStatement: cq.problem_statement || cq.problemStatement || '',
+            starterCode: cq.starter_code || cq.starterCode || '',
+            solutionCode: cq.solution_code || cq.solutionCode || '',
+            testCases: parsedCases,
+            sampleTestCases: parsedCases,
+            createdDate: cq.created_date || cq.createdDate || '',
+            postedBy: cq.posted_by || cq.postedBy || 'Admin Portal',
+            targetBatch: cq.target_batch || 'Weekday Batch',
+            courseId: cq.course_id || '',
+            stageId: cq.stage_id || '',
+            subtopicId: cq.subtopic_id || '',
+            innerTopicId: cq.inner_topic_id || ''
+          };
+        });
         setCodingQuestionsByBatch(() => {
           const next = { 'Weekday Batch': [], 'Weekend Batch': [] };
           mappedCoding.forEach((cq) => placeItemInBatchDict(cq, next));
@@ -2444,6 +2452,7 @@ export function LmsDataProvider({ children }) {
             starterCode: cq.starter_code || '',
             solutionCode: cq.solution_code || '',
             testCases: Array.isArray(cq.test_cases) ? cq.test_cases : (typeof cq.test_cases === 'string' ? JSON.parse(cq.test_cases) : []),
+            sampleTestCases: Array.isArray(cq.test_cases) ? cq.test_cases : (typeof cq.test_cases === 'string' ? JSON.parse(cq.test_cases) : []),
             createdDate: cq.created_date || '',
             postedBy: cq.posted_by || 'Admin Portal',
             targetBatch: cq.target_batch || 'Weekday Batch',
@@ -3944,15 +3953,18 @@ export function LmsDataProvider({ children }) {
 
 
 
-    // --- CODING QUESTIONS BANK ---
+  // --- CODING QUESTIONS BANK ---
   const addCodingQuestion = async (cqData, targetBatch = activeBatchFilter) => {
     const bKey = resolveBatchKey(targetBatch);
+    const casesToSave = cqData.sampleTestCases || cqData.testCases || cqData.test_cases || [];
     const newCq = {
       id: `cq-${Date.now()}-${bKey === 'Weekday Batch' ? 'w' : 's'}`,
       targetBatch: bKey,
       createdDate: new Date().toISOString().split('T')[0],
       postedBy: 'Admin Portal',
-      ...cqData
+      ...cqData,
+      testCases: casesToSave,
+      sampleTestCases: casesToSave
     };
     setCodingQuestionsByBatch((prev) => ({
       ...prev,
@@ -3969,7 +3981,7 @@ export function LmsDataProvider({ children }) {
         problem_statement: newCq.problemStatement || '',
         starter_code: newCq.starterCode || '',
         solution_code: newCq.solutionCode || '',
-        test_cases: newCq.testCases || [],
+        test_cases: casesToSave,
         created_date: newCq.createdDate,
         posted_by: newCq.postedBy,
         target_batch: newCq.targetBatch,
@@ -3984,9 +3996,17 @@ export function LmsDataProvider({ children }) {
 
   const updateCodingQuestion = async (id, updatedFields, targetBatch = activeBatchFilter) => {
     const bKey = resolveBatchKey(targetBatch);
+    const updateCases = updatedFields.sampleTestCases !== undefined
+      ? updatedFields.sampleTestCases
+      : (updatedFields.testCases !== undefined ? updatedFields.testCases : updatedFields.test_cases);
+
     setCodingQuestionsByBatch((prev) => ({
       ...prev,
-      [bKey]: (prev[bKey] || []).map((cq) => (cq.id === id ? { ...cq, ...updatedFields } : cq))
+      [bKey]: (prev[bKey] || []).map((cq) => (cq.id === id ? {
+        ...cq,
+        ...updatedFields,
+        ...(updateCases !== undefined ? { testCases: updateCases, sampleTestCases: updateCases } : {})
+      } : cq))
     }));
     logActivity(`Updated coding question ID ${id} (${bKey})`, 'coding');
     try {
@@ -3998,7 +4018,7 @@ export function LmsDataProvider({ children }) {
       if (updatedFields.problemStatement !== undefined) dbFields.problem_statement = updatedFields.problemStatement;
       if (updatedFields.starterCode !== undefined) dbFields.starter_code = updatedFields.starterCode;
       if (updatedFields.solutionCode !== undefined) dbFields.solution_code = updatedFields.solutionCode;
-      if (updatedFields.testCases !== undefined) dbFields.test_cases = updatedFields.testCases;
+      if (updateCases !== undefined) dbFields.test_cases = updateCases;
       if (updatedFields.targetBatch !== undefined) dbFields.target_batch = updatedFields.targetBatch;
       if (updatedFields.courseId !== undefined) dbFields.course_id = updatedFields.courseId;
       if (updatedFields.stageId !== undefined) dbFields.stage_id = updatedFields.stageId;

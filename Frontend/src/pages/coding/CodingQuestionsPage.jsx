@@ -246,9 +246,11 @@ export function CodingQuestionsPage() {
       outputFormat: cq.outputFormat || '',
       starterCode: cq.starterCode || '',
       solutionCode: cq.solutionCode || '',
-      sampleTestCases: cq.sampleTestCases && cq.sampleTestCases.length > 0
+      sampleTestCases: (cq.sampleTestCases && cq.sampleTestCases.length > 0)
         ? cq.sampleTestCases.map((tc) => ({ ...tc }))
-        : [{ input: '', output: '', explanation: '' }]
+        : (cq.testCases && cq.testCases.length > 0
+          ? cq.testCases.map((tc) => ({ ...tc }))
+          : [{ input: '', output: '', explanation: '' }])
     });
     setPastedJson('');
     setJsonError('');
@@ -700,7 +702,9 @@ export function CodingQuestionsPage() {
       outputFormat: formData.outputFormat,
       starterCode: formData.starterCode,
       solutionCode: formData.solutionCode,
-      sampleTestCases: formData.sampleTestCases.filter((tc) => tc.input || tc.output)
+      sampleTestCases: (formData.sampleTestCases || []).filter((tc) => (tc.input !== '' && tc.input !== undefined) || (tc.output !== '' && tc.output !== undefined)),
+      testCases: (formData.sampleTestCases || []).filter((tc) => (tc.input !== '' && tc.input !== undefined) || (tc.output !== '' && tc.output !== undefined)),
+      test_cases: (formData.sampleTestCases || []).filter((tc) => (tc.input !== '' && tc.input !== undefined) || (tc.output !== '' && tc.output !== undefined))
     };
 
     if (editingQuestion) {
