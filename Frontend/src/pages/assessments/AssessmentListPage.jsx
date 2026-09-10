@@ -1028,170 +1028,173 @@ export function AssessmentListPage() {
         </div>
       </div>
 
-      {/* Filters Container */}
-      <div className="flex flex-wrap items-center gap-4 pt-2.5 border-t border-slate-100/60">
-        {/* Course Filter */}
-        <div className="flex items-center gap-2">
-          <label className="text-xs font-bold text-slate-600 flex items-center gap-1.5 flex-shrink-0">
-            <BookOpen className="w-3.5 h-3.5 text-purple-600" />
-            <span>Course:</span>
-          </label>
-          <div className="relative">
-            <select
-              value={selectedCourseId || courses[0]?.id || ''}
-              onChange={(e) => {
-                setSelectedCourseId(e.target.value);
-                setSelectedStageId('ALL');
-                setSelectedSubtopicId('ALL');
-                setSelectedModuleId('ALL');
-              }}
-              className="px-3.5 py-2 pr-8 rounded-xl text-xs font-bold text-slate-800 bg-slate-50 border border-slate-200 hover:border-purple-300 focus:outline-none focus:border-purple-600 focus:bg-white transition-all shadow-2xs cursor-pointer appearance-none max-w-[240px] truncate"
-            >
-              {courses.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.title}
-                </option>
-              ))}
-            </select>
-            <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-          </div>
-        </div>
-
-        {/* Milestone Stage Filter */}
-        <div className="flex items-center gap-2">
-          <label className="text-xs font-bold text-slate-600 flex items-center gap-1.5 flex-shrink-0">
-            <Layers className="w-3.5 h-3.5 text-blue-600" />
-            <span>Stage:</span>
-          </label>
-          <div className="relative">
-            <select
-              value={selectedStageId}
-              onChange={(e) => {
-                setSelectedStageId(e.target.value);
-                setSelectedSubtopicId('ALL');
-                setSelectedModuleId('ALL');
-              }}
-              className="px-3.5 py-2 pr-8 rounded-xl text-xs font-bold text-slate-800 bg-slate-50 border border-slate-200 hover:border-blue-300 focus:outline-none focus:border-blue-600 focus:bg-white transition-all shadow-2xs cursor-pointer appearance-none max-w-[200px] truncate"
-            >
-              <option value="ALL">All Stages</option>
-              {activeStagesList.map((stg) => (
-                <option key={stg.id} value={stg.id}>
-                  {stg.title}
-                </option>
-              ))}
-            </select>
-            <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-          </div>
-        </div>
-
-        {/* Milestone Module Filter */}
-        <div className="flex items-center gap-2">
-          <label className="text-xs font-bold text-slate-600 flex items-center gap-1.5 flex-shrink-0">
-            <Bookmark className="w-3.5 h-3.5 text-emerald-600" />
-            <span>Milestone Module:</span>
-          </label>
-          <div className="relative">
-            <select
-              value={selectedSubtopicId}
-              onChange={(e) => {
-                setSelectedSubtopicId(e.target.value);
-                setSelectedModuleId('ALL');
-              }}
-              disabled={selectedStageId === 'ALL'}
-              className="px-3.5 py-2 pr-8 rounded-xl text-xs font-bold text-slate-800 bg-slate-50 border border-slate-200 hover:border-emerald-300 focus:outline-none focus:border-emerald-600 focus:bg-white transition-all shadow-2xs cursor-pointer appearance-none max-w-[200px] truncate disabled:opacity-60 disabled:cursor-not-allowed"
-            >
-              <option value="ALL">All Milestone Modules</option>
-              {selectedStageId !== 'ALL' &&
-                subtopicsForStage.map((sub) => (
-                  <option key={sub.id} value={sub.id}>
-                    {sub.title}
+      {/* Curriculum Filter Bar */}
+      <div className="bg-white p-3.5 sm:p-4 rounded-2xl border border-slate-200/80 shadow-2xs">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+          {/* Course Track */}
+          <div className="space-y-1.5">
+            <label className="text-[11px] font-extrabold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+              <BookOpen className="w-3.5 h-3.5 text-purple-600" /> Course Track
+            </label>
+            <div className="relative">
+              <select
+                value={selectedCourseId || courses[0]?.id || ''}
+                onChange={(e) => {
+                  setSelectedCourseId(e.target.value);
+                  setSelectedStageId('ALL');
+                  setSelectedSubtopicId('ALL');
+                  setSelectedModuleId('ALL');
+                }}
+                className="w-full px-3.5 py-2.5 pr-8 rounded-xl text-xs font-bold text-slate-800 bg-slate-50/80 border border-slate-200 hover:border-purple-300 focus:outline-none focus:border-purple-600 focus:bg-white transition-all shadow-2xs cursor-pointer appearance-none truncate"
+              >
+                {courses.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.title}
                   </option>
                 ))}
-            </select>
-            <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              </select>
+              <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            </div>
           </div>
-        </div>
 
-        {/* Specific Module Filter */}
-        <div className="flex items-center gap-2">
-          <label className="text-xs font-bold text-slate-600 flex items-center gap-1.5 flex-shrink-0">
-            <Sparkles className="w-3.5 h-3.5 text-purple-600" />
-            <span>Specific Module:</span>
-          </label>
-          <div className="relative">
-            <select
-              value={selectedModuleId}
-              onChange={(e) => setSelectedModuleId(e.target.value)}
-              disabled={selectedSubtopicId === 'ALL'}
-              className="px-3.5 py-2 pr-8 rounded-xl text-xs font-bold text-slate-800 bg-slate-50 border border-slate-200 hover:border-purple-300 focus:outline-none focus:border-purple-600 focus:bg-white transition-all shadow-2xs cursor-pointer appearance-none max-w-[200px] truncate disabled:opacity-60 disabled:cursor-not-allowed"
-            >
-              <option value="ALL">All Specific Modules</option>
-              {selectedSubtopicId !== 'ALL' &&
-                modulesForSubtopic.map((mod) => (
-                  <option key={mod.id} value={mod.id}>
-                    {mod.title}
+          {/* Milestone Stage */}
+          <div className="space-y-1.5">
+            <label className="text-[11px] font-extrabold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+              <Layers className="w-3.5 h-3.5 text-blue-600" /> Milestone Stage
+            </label>
+            <div className="relative">
+              <select
+                value={selectedStageId}
+                onChange={(e) => {
+                  setSelectedStageId(e.target.value);
+                  setSelectedSubtopicId('ALL');
+                  setSelectedModuleId('ALL');
+                }}
+                className="w-full px-3.5 py-2.5 pr-8 rounded-xl text-xs font-bold text-slate-800 bg-slate-50/80 border border-slate-200 hover:border-blue-300 focus:outline-none focus:border-blue-600 focus:bg-white transition-all shadow-2xs cursor-pointer appearance-none truncate"
+              >
+                <option value="ALL">All Stages</option>
+                {activeStagesList.map((stg) => (
+                  <option key={stg.id} value={stg.id}>
+                    {stg.title}
                   </option>
                 ))}
-            </select>
-            <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              </select>
+              <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            </div>
+          </div>
+
+          {/* Milestone Module */}
+          <div className="space-y-1.5">
+            <label className="text-[11px] font-extrabold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+              <Bookmark className="w-3.5 h-3.5 text-emerald-600" /> Milestone Module
+            </label>
+            <div className="relative">
+              <select
+                value={selectedSubtopicId}
+                onChange={(e) => {
+                  setSelectedSubtopicId(e.target.value);
+                  setSelectedModuleId('ALL');
+                }}
+                disabled={selectedStageId === 'ALL'}
+                className="w-full px-3.5 py-2.5 pr-8 rounded-xl text-xs font-bold text-slate-800 bg-slate-50/80 border border-slate-200 hover:border-emerald-300 focus:outline-none focus:border-emerald-600 focus:bg-white transition-all shadow-2xs cursor-pointer appearance-none truncate disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <option value="ALL">All Milestone Modules</option>
+                {selectedStageId !== 'ALL' &&
+                  subtopicsForStage.map((sub) => (
+                    <option key={sub.id} value={sub.id}>
+                      {sub.title}
+                    </option>
+                  ))}
+              </select>
+              <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            </div>
+          </div>
+
+          {/* Specific Module */}
+          <div className="space-y-1.5">
+            <label className="text-[11px] font-extrabold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5 text-purple-600" /> Specific Module
+            </label>
+            <div className="relative">
+              <select
+                value={selectedModuleId}
+                onChange={(e) => setSelectedModuleId(e.target.value)}
+                disabled={selectedSubtopicId === 'ALL'}
+                className="w-full px-3.5 py-2.5 pr-8 rounded-xl text-xs font-bold text-slate-800 bg-slate-50/80 border border-slate-200 hover:border-purple-300 focus:outline-none focus:border-purple-600 focus:bg-white transition-all shadow-2xs cursor-pointer appearance-none truncate disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <option value="ALL">All Specific Modules</option>
+                {selectedSubtopicId !== 'ALL' &&
+                  modulesForSubtopic.map((mod) => (
+                    <option key={mod.id} value={mod.id}>
+                      {mod.title}
+                    </option>
+                  ))}
+              </select>
+              <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Primary Category Switcher */}
-      <div className="bg-white p-4 rounded-3xl border border-slate-200/80 shadow-2xs">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          {/* Top Primary Tabs: Assessments vs Quizzes */}
-          <div className="bg-slate-100/90 p-1.5 rounded-2xl inline-flex items-center gap-1.5 shadow-2xs">
-            <button
-              type="button"
-              onClick={() => {
-                setActiveMainTab('ASSESSMENTS');
-                setActiveStatusFilter('ALL');
-              }}
-              className={`px-6 py-2.5 rounded-xl text-sm transition-all cursor-pointer ${
-                activeMainTab === 'ASSESSMENTS'
-                  ? 'bg-purple-600 text-white shadow-md shadow-purple-500/25 font-extrabold'
-                  : 'text-slate-600 hover:text-purple-700 hover:bg-white/60 font-bold'
-              }`}
-            >
-              Daily Assessments
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setActiveMainTab('QUIZZES');
-                setActiveStatusFilter('ALL');
-              }}
-              className={`px-6 py-2.5 rounded-xl text-sm transition-all cursor-pointer ${
-                activeMainTab === 'QUIZZES'
-                  ? 'bg-purple-600 text-white shadow-md shadow-purple-500/25 font-extrabold'
-                  : 'text-slate-600 hover:text-purple-700 hover:bg-white/60 font-bold'
-              }`}
-            >
-              Weekly Assessments
-            </button>
-          </div>
+      {/* Primary Category Switcher & Search Bar */}
+      <div className="bg-white p-3 rounded-2xl border border-slate-200/80 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        {/* Category Switcher Tabs */}
+        <div className="bg-slate-100/90 p-1.5 rounded-xl inline-flex items-center gap-1.5 shadow-2xs flex-shrink-0">
+          <button
+            type="button"
+            onClick={() => {
+              setActiveMainTab('ASSESSMENTS');
+              setActiveStatusFilter('ALL');
+            }}
+            className={`px-6 py-2.5 rounded-xl text-xs md:text-sm transition-all cursor-pointer ${
+              activeMainTab === 'ASSESSMENTS'
+                ? 'bg-purple-600 text-white shadow-md shadow-purple-500/25 font-extrabold'
+                : 'text-slate-600 hover:text-purple-700 hover:bg-white/60 font-bold'
+            }`}
+          >
+            Daily Assessments
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setActiveMainTab('QUIZZES');
+              setActiveStatusFilter('ALL');
+            }}
+            className={`px-6 py-2.5 rounded-xl text-xs md:text-sm transition-all cursor-pointer ${
+              activeMainTab === 'QUIZZES'
+                ? 'bg-purple-600 text-white shadow-md shadow-purple-500/25 font-extrabold'
+                : 'text-slate-600 hover:text-purple-700 hover:bg-white/60 font-bold'
+            }`}
+          >
+            Weekly Assessments
+          </button>
         </div>
-      </div>
 
-      {/* Filter Toolbar */}
-      <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-2xs flex flex-col md:flex-row items-center gap-4">
-        <div className="relative flex-1 w-full">
+        {/* Integrated Search Input */}
+        <div className="relative w-full sm:w-72 md:w-80 flex-shrink-0">
           <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
             type="text"
-            placeholder={`Search ${activeMainTab === 'QUIZZES' ? 'quizzes' : 'assessments'} by title, topic, course name...`}
+            placeholder={`Search ${activeMainTab === 'QUIZZES' ? 'weekly assessments' : 'daily assessments'}...`}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 bg-slate-50/70 border border-slate-200 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all"
+            className="w-full pl-9 pr-8 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-purple-500 focus:bg-white focus:ring-2 focus:ring-purple-100 transition-all"
           />
+          {searchTerm && (
+            <button
+              type="button"
+              onClick={() => setSearchTerm('')}
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs font-bold"
+            >
+              ✕
+            </button>
+          )}
         </div>
       </div>
 
       {/* Assessment / Quiz Cards */}
       {filteredAssessments.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {filteredAssessments.map((asm) => {
             const mcqCount = asm.mcqs?.length || asm.mcqCount || 0;
             const codingCount = asm.codingQuestions?.length || asm.codingCount || 0;
