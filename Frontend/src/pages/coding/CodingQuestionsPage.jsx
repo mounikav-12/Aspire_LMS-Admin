@@ -27,7 +27,12 @@ import {
   Check,
   Layers,
   Bookmark,
-  ChevronDown
+  ChevronDown,
+  FileJson,
+  ClipboardPaste,
+  Upload,
+  XCircle,
+  AlertCircle
 } from 'lucide-react';
 
 export function CodingQuestionsPage() {
@@ -70,6 +75,14 @@ export function CodingQuestionsPage() {
   const [editingQuestion, setEditingQuestion] = useState(null);
   const [deletingQuestion, setDeletingQuestion] = useState(null);
   const [viewingSolution, setViewingSolution] = useState(null); // { question, tab: 'starter' | 'solution' }
+
+  // JSON Auto-Import State
+  const [importMode, setImportMode] = useState('paste'); // 'paste' | 'file'
+  const [pastedJson, setPastedJson] = useState('');
+  const [jsonError, setJsonError] = useState('');
+  const [jsonExtractedCount, setJsonExtractedCount] = useState(0);
+  const [jsonParsing, setJsonParsing] = useState(false);
+  const [jsonDragOver, setJsonDragOver] = useState(false);
 
   // Form State for Posting / Editing Coding Question
   const [formData, setFormData] = useState({
@@ -206,6 +219,9 @@ export function CodingQuestionsPage() {
         }
       ]
     });
+    setPastedJson('');
+    setJsonError('');
+    setJsonExtractedCount(0);
     setIsModalOpen(true);
   };
 
@@ -232,6 +248,9 @@ export function CodingQuestionsPage() {
         ? cq.sampleTestCases.map((tc) => ({ ...tc }))
         : [{ input: '', output: '', explanation: '' }]
     });
+    setPastedJson('');
+    setJsonError('');
+    setJsonExtractedCount(0);
     setIsModalOpen(true);
   };
 
@@ -256,6 +275,157 @@ export function CodingQuestionsPage() {
       updated[index] = { ...updated[index], [field]: value };
       return { ...prev, sampleTestCases: updated };
     });
+  };
+
+  // ─── JSON Auto-Import Parser for Coding Questions ──────────────────────────
+  const parseAndFillCodingQuestion = (rawInput, sourceName = 'Pasted JSON') => {
+    let parsed;
+    try {
+      parsed = typeof rawInput === 'string' ? JSON.parse(rawInput) : rawInput;
+    } catch (err) {
+      throw new Error('Invalid JSON syntax: ' + err.message);
+    }
+
+    let count = 1;
+    if (Array.isArray(parsed)) {
+      count = parsed.length;
+      parsed = parsed[0];
+    }
+    if (!parsed || typeof parsed !== 'object') {
+      throw new Error('Expected a JSON object or array of question objects.');
+    }
+
+    const title = parsed.title || parsed.name || parsed.questionTitle || parsed.question || '';
+    const problemStatement = parsed.problemStatement || parsed.description || parsed.problem || parsed.statement || '';
+    const inputFormat = parsed.inputFormat || parsed.input_format || parsed.input || '';
+    const outputFormat = parsed.outputFormat || parsed.output_format || parsed.output || '';
+    const starterCode = parsed.starterCode || parsed.starter_code || parsed.codeTemplate || parsed.template || '';
+    const solutionCode = parsed.solutionCode || parsed.solution_code || parsed.solution || parsed.referenceCode || '';
+
+    // Difficulty
+    let difficulty = 'Easy';
+    const rawDiff = (parsed.difficulty || '').toLowerCase();
+    if (rawDiff.includes('hard')) difficulty = 'Hard';
+    else if (rawDiff.includes('med')) difficulty = 'Medium';
+
+    // Language
+    let language = 'JavaScript';
+    const rawLang = (parsed.language || '').toLowerCase();
+    if (rawLang.includes('python')) language = 'Python';
+    else if (rawLang.includes('type')) language = 'TypeScript';
+    else if (rawLang.includes('java') && !rawLang.includes('script')) language = 'Java';
+    else if (rawLang.includes('c++') || rawLang.includes('cpp')) language = 'C++';
+
+    // Category
+    let category = 'Algorithms & Data Structures';
+    const rawCat = (parsed.category || '').toLowerCase();
+    if (rawCat.includes('react') || rawCat.includes('front')) category = 'React & Frontend Engineering';
+    else if (rawCat.includes('back') || rawCat.includes('system')) category = 'Backend & System Design';
+    else if (rawCat.includes('data') || rawCat.includes('sql')) category = 'Database & SQL';
+
+    // Tags
+    let tags = '';
+    if (Array.isArray(parsed.tags)) tags = parsed.tags.join(', ');
+    else if (typeof parsed.tags === 'string') tags = parsed.tags;
+
+    // Test cases
+    let sampleTestCases = [];
+    const rawTC = parsed.sampleTestCases || parsed.testCases || parsed.testcases || parsed.examples || [];
+    if (Array.isArray(rawTC)) {
+      sampleTestCases = rawTC.map((tc) => ({
+        input: tc.input || tc.in || '',
+        output: tc.output || tc.out || tc.expected || '',
+        explanation: tc.explanation || tc.explain || tc.note || ''
+      }));
+    }
+    if (sampleTestCases.length === 0) {
+      sampleTestCases = [{ input: '', output: '', explanation: '' }];
+    }
+
+    setFormData((prev) => ({
+      ...prev,
+      title: title || prev.title,
+      difficulty,
+      language,
+      category,
+      marks: parsed.marks !== undefined ? Number(parsed.marks) : prev.marks,
+      timeLimitMinutes: parsed.timeLimitMinutes || parsed.timeLimit || prev.timeLimitMinutes,
+      tags: tags || prev.tags,
+      problemStatement: problemStatement || prev.problemStatement,
+      inputFormat: inputFormat || prev.inputFormat,
+      outputFormat: outputFormat || prev.outputFormat,
+      starterCode: starterCode || prev.starterCode,
+      solutionCode: solutionCode || prev.solutionCode,
+      sampleTestCases: sampleTestCases.length > 0 ? sampleTestCases : prev.sampleTestCases
+    }));
+
+    setJsonExtractedCount(count);
+    addToast(`✅ Auto-filled coding question "${title || 'from JSON'}"!`, 'success');
+  };
+
+  const handlePastedJsonImport = () => {
+    if (!pastedJson.trim()) {
+      setJsonError('Please paste your coding question JSON first.');
+      return;
+    }
+    setJsonError('');
+    try {
+      parseAndFillCodingQuestion(pastedJson.trim(), 'Pasted JSON');
+      setPastedJson('');
+    } catch (err) {
+      console.error('[Coding Question JSON Parse Error]', err);
+      setJsonError(err.message || 'Failed to parse JSON. Please check the JSON format.');
+    }
+  };
+
+  const handleJsonFileUpload = async (file) => {
+    if (!file) return;
+    if (!file.name?.toLowerCase().endsWith('.json') && file.type !== 'application/json') {
+      setJsonError('Please upload a valid .json file.');
+      return;
+    }
+    setJsonParsing(true);
+    setJsonError('');
+    try {
+      const text = await file.text();
+      parseAndFillCodingQuestion(text, file.name);
+    } catch (err) {
+      console.error('[File Upload Error]', err);
+      setJsonError(err.message || 'Failed to read JSON file.');
+    } finally {
+      setJsonParsing(false);
+    }
+  };
+
+  const handleLoadSampleCodingJson = () => {
+    const sample = {
+      title: "Two Sum Problem",
+      difficulty: "Easy",
+      language: "JavaScript",
+      category: "Algorithms & Data Structures",
+      marks: 20,
+      timeLimitMinutes: 20,
+      tags: "Array, Hash Map, Two Pointers",
+      problemStatement: "Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target.\n\nYou may assume that each input would have exactly one solution, and you may not use the same element twice.",
+      inputFormat: "nums = [2, 7, 11, 15], target = 9",
+      outputFormat: "[0, 1]",
+      starterCode: "/**\n * @param {number[]} nums\n * @param {number} target\n * @return {number[]}\n */\nfunction twoSum(nums, target) {\n  // Write your solution here\n}",
+      solutionCode: "function twoSum(nums, target) {\n  const map = new Map();\n  for (let i = 0; i < nums.length; i++) {\n    const comp = target - nums[i];\n    if (map.has(comp)) return [map.get(comp), i];\n    map.set(nums[i], i);\n  }\n  return [];\n}",
+      sampleTestCases: [
+        {
+          input: "nums = [2, 7, 11, 15], target = 9",
+          output: "[0, 1]",
+          explanation: "Because nums[0] + nums[1] == 9, we return [0, 1]."
+        },
+        {
+          input: "nums = [3, 2, 4], target = 6",
+          output: "[1, 2]",
+          explanation: "Because nums[1] + nums[2] == 6, we return [1, 2]."
+        }
+      ]
+    };
+    setPastedJson(JSON.stringify(sample, null, 2));
+    setJsonError('');
   };
 
   const handleSubmit = (e) => {
@@ -682,11 +852,168 @@ export function CodingQuestionsPage() {
       {/* Post / Edit Coding Question Modal */}
       <Modal
         isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        onClose={() => {
+          setIsModalOpen(false);
+          setPastedJson('');
+          setJsonError('');
+          setJsonExtractedCount(0);
+        }}
         title={editingQuestion ? 'Edit Coding Question' : 'Post New Coding Question'}
         maxWidth="max-w-4xl"
       >
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* AUTO-IMPORT FROM JSON SECTION */}
+          <div className="p-3.5 bg-slate-50/90 rounded-2xl border border-slate-200/90 space-y-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <FileJson className="w-4 h-4 text-emerald-600" />
+                <span className="font-extrabold text-xs text-slate-800 uppercase tracking-wider">
+                  Auto-Import from JSON
+                </span>
+                <span className="text-[11px] text-slate-400 font-medium">(auto-fill form fields)</span>
+              </div>
+
+              {/* Mode Toggle Tabs: Paste JSON vs Upload File */}
+              <div className="inline-flex rounded-xl bg-slate-200/70 p-1 border border-slate-200 text-xs font-bold self-start sm:self-auto">
+                <button
+                  type="button"
+                  onClick={() => { setImportMode('paste'); setJsonError(''); }}
+                  className={`flex items-center gap-1.5 px-3 py-1 rounded-lg transition-all cursor-pointer ${
+                    importMode === 'paste'
+                      ? 'bg-white text-emerald-700 shadow-xs font-extrabold'
+                      : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  <ClipboardPaste className="w-3.5 h-3.5 text-emerald-600" />
+                  Paste JSON
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setImportMode('file'); setJsonError(''); }}
+                  className={`flex items-center gap-1.5 px-3 py-1 rounded-lg transition-all cursor-pointer ${
+                    importMode === 'file'
+                      ? 'bg-white text-emerald-700 shadow-xs font-extrabold'
+                      : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  <Upload className="w-3.5 h-3.5 text-slate-500" />
+                  Upload .JSON
+                </button>
+              </div>
+            </div>
+
+            {/* TAB 1: PASTE JSON */}
+            {importMode === 'paste' && (
+              <div className="space-y-2.5">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-xs font-bold text-slate-600">
+                    Paste coding question JSON:
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={handleLoadSampleCodingJson}
+                      className="text-[11px] font-bold text-emerald-600 hover:text-emerald-800 hover:underline cursor-pointer"
+                    >
+                      Insert Sample JSON
+                    </button>
+                    {pastedJson && (
+                      <button
+                        type="button"
+                        onClick={() => { setPastedJson(''); setJsonError(''); }}
+                        className="text-[11px] font-bold text-slate-400 hover:text-rose-500 cursor-pointer"
+                      >
+                        Clear
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                <textarea
+                  rows={5}
+                  value={pastedJson}
+                  onChange={(e) => setPastedJson(e.target.value)}
+                  placeholder={`{\n  "title": "Two Sum",\n  "difficulty": "Easy",\n  "language": "JavaScript",\n  "problemStatement": "...",\n  "sampleTestCases": [{ "input": "...", "output": "..." }]\n}`}
+                  className="w-full px-3.5 py-2 bg-white text-slate-800 font-mono text-xs border border-slate-300 rounded-xl focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 transition-all shadow-inner resize-y"
+                />
+
+                <div className="flex items-center justify-between gap-2 flex-wrap">
+                  <span className="text-[11px] text-slate-500">
+                    💡 Click <strong>Parse &amp; Fill Question</strong> to populate all problem details, test cases, and starter code.
+                  </span>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="primary"
+                    icon={Sparkles}
+                    onClick={handlePastedJsonImport}
+                    disabled={!pastedJson.trim()}
+                    className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold"
+                  >
+                    Parse &amp; Fill Question
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {/* TAB 2: UPLOAD .JSON FILE */}
+            {importMode === 'file' && (
+              <label
+                htmlFor="coding-json-upload"
+                className={`flex flex-col items-center justify-center gap-2 w-full border-2 border-dashed rounded-xl p-4 cursor-pointer transition-all ${
+                  jsonDragOver
+                    ? 'border-emerald-500 bg-emerald-50'
+                    : 'border-slate-300 bg-white hover:border-emerald-400 hover:bg-emerald-50/30'
+                }`}
+                onDragOver={(e) => { e.preventDefault(); setJsonDragOver(true); }}
+                onDragLeave={() => setJsonDragOver(false)}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  setJsonDragOver(false);
+                  const file = e.dataTransfer.files[0];
+                  if (file) handleJsonFileUpload(file);
+                }}
+              >
+                <input
+                  id="coding-json-upload"
+                  type="file"
+                  accept=".json,application/json"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files[0];
+                    if (file) handleJsonFileUpload(file);
+                    e.target.value = '';
+                  }}
+                />
+                {jsonParsing ? (
+                  <div className="flex items-center gap-2 py-1 text-emerald-700 text-xs font-bold">
+                    <div className="w-4 h-4 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
+                    <span>Reading &amp; parsing JSON file…</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2 text-slate-600 py-1 text-xs font-semibold">
+                    <Upload className="w-4 h-4 text-emerald-600" />
+                    <span>Drop your <strong className="text-emerald-700 font-bold">.json</strong> file here or <span className="text-emerald-600 underline">click to browse</span></span>
+                  </div>
+                )}
+              </label>
+            )}
+
+            {/* Status & Error feedback */}
+            {jsonError && (
+              <div className="flex items-start gap-2 px-3 py-2 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-700 font-medium">
+                <AlertCircle className="w-4 h-4 text-rose-500 flex-shrink-0 mt-0.5" />
+                <span>{jsonError}</span>
+              </div>
+            )}
+            {jsonExtractedCount > 0 && !jsonError && (
+              <div className="flex items-center gap-2 px-3 py-2 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-700 font-bold">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+                <span>Coding question fields filled successfully! You can review or edit any fields below.</span>
+              </div>
+            )}
+          </div>
+
           <Input
             label="Question Title"
             placeholder="e.g. Two Sum Problem or Custom Hook Implementation"

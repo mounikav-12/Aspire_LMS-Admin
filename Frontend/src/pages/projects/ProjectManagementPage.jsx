@@ -43,7 +43,12 @@ import {
   Building2,
   Award,
   FileCheck,
-  ChevronRight
+  ChevronRight,
+  FileJson,
+  ClipboardPaste,
+  Upload,
+  XCircle,
+  AlertCircle
 } from 'lucide-react';
 
 export function ProjectManagementPage() {
@@ -92,6 +97,14 @@ export function ProjectManagementPage() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [editingProject, setEditingProject] = useState(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
+
+  // Auto-Import from JSON States
+  const [importMode, setImportMode] = useState('paste'); // 'paste' | 'file'
+  const [pastedJson, setPastedJson] = useState('');
+  const [jsonError, setJsonError] = useState('');
+  const [jsonExtractedCount, setJsonExtractedCount] = useState(0);
+  const [jsonParsing, setJsonParsing] = useState(false);
+  const [jsonDragOver, setJsonDragOver] = useState(false);
 
   // Target Batches Eye Modal States
   const [viewingBatchesProject, setViewingBatchesProject] = useState(null);
@@ -263,6 +276,9 @@ export function ProjectManagementPage() {
     const innerModules = getInnerModulesForSubtopic(activeSub, courseLessons, activeStage?.id);
     const activeInner = innerModules[0];
     setEditingProject(null);
+    setPastedJson('');
+    setJsonError('');
+    setJsonExtractedCount(0);
     setFormData({
       title: '',
       type: 'Mini',
@@ -306,6 +322,9 @@ export function ProjectManagementPage() {
       : (proj.targetBatch ? [proj.targetBatch] : ['ALL']);
 
     setEditingProject(proj);
+    setPastedJson('');
+    setJsonError('');
+    setJsonExtractedCount(0);
     setFormData({
       title: proj.title || '',
       type: proj.type || 'Mini',
@@ -339,6 +358,232 @@ export function ProjectManagementPage() {
       mentorTip: proj.mentorTip || ''
     });
     setIsCreateModalOpen(true);
+  };
+
+  const parseAndFillProject = (rawInput, sourceName = 'JSON') => {
+    if (!rawInput || typeof rawInput !== 'string' || !rawInput.trim()) {
+      throw new Error('Please provide valid JSON content.');
+    }
+
+    let cleaned = rawInput.trim();
+    if (cleaned.startsWith('```')) {
+      cleaned = cleaned.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '').trim();
+    }
+
+    let parsed;
+    try {
+      parsed = JSON.parse(cleaned);
+    } catch (e) {
+      throw new Error(`Invalid JSON syntax: ${e.message}`);
+    }
+
+    if (Array.isArray(parsed)) {
+      if (parsed.length === 0) throw new Error('Provided JSON array is empty.');
+      parsed = parsed[0];
+    }
+
+    if (!parsed || typeof parsed !== 'object') {
+      throw new Error('Expected a JSON object containing project fields.');
+    }
+
+    const title = parsed.title || parsed.name || parsed.projectTitle || '';
+    if (!title && !parsed.description && !parsed.overview) {
+      throw new Error('Could not find project "title" or "description" in JSON.');
+    }
+
+    // Type: Mini | Major | Capstone
+    let type = 'Mini';
+    const rawType = (parsed.type || parsed.projectType || '').toLowerCase();
+    if (rawType.includes('capstone')) type = 'Capstone';
+    else if (rawType.includes('major')) type = 'Major';
+    else if (rawType.includes('mini')) type = 'Mini';
+
+    // Difficulty: Beginner | Intermediate | Advanced
+    let difficulty = 'Intermediate';
+    const rawDiff = (parsed.difficulty || '').toLowerCase();
+    if (rawDiff.includes('adv')) difficulty = 'Advanced';
+    else if (rawDiff.includes('beg') || rawDiff.includes('easy')) difficulty = 'Beginner';
+    else if (rawDiff.includes('inter') || rawDiff.includes('med')) difficulty = 'Intermediate';
+
+    // Category
+    const category = parsed.category || parsed.track || '';
+
+    // Description & Overview
+    const description = parsed.description || parsed.summary || parsed.desc || '';
+    const overview = parsed.overview || parsed.projectOverview || description || '';
+
+    // Tech Stack
+    let techStack = '';
+    const rawTech = parsed.techStack || parsed.tech_stack || parsed.technologies || parsed.stack || '';
+    if (Array.isArray(rawTech)) {
+      techStack = rawTech.map(t => String(t).trim()).filter(Boolean).join(', ');
+    } else if (typeof rawTech === 'string') {
+      techStack = rawTech.trim();
+    }
+
+    // Due Date
+    const dueDate = parsed.dueDate || parsed.due_date || parsed.deadline || '';
+
+    // Template URL
+    const templateUrl = parsed.templateUrl || parsed.template_url || parsed.repoUrl || parsed.githubUrl || '';
+
+    // Mentor Tip
+    const mentorTip = parsed.mentorTip || parsed.mentor_tip || parsed.tip || parsed.notes || '';
+
+    // Requirements
+    let requirements = '';
+    const rawReq = parsed.requirements || parsed.features || '';
+    if (Array.isArray(rawReq)) {
+      requirements = rawReq.map((r, i) => {
+        if (typeof r === 'object' && r !== null) {
+          return `${r.title || `Requirement ${i + 1}`}${r.desc ? ': ' + r.desc : ''}`;
+        }
+        return String(r);
+      }).join('\n');
+    } else if (typeof rawReq === 'string') {
+      requirements = rawReq;
+    }
+
+    // Steps
+    let steps = '';
+    const rawSteps = parsed.steps || parsed.milestones || '';
+    if (Array.isArray(rawSteps)) {
+      steps = rawSteps.map((s, i) => {
+        if (typeof s === 'object' && s !== null) {
+          return `${s.title || s.step || `Step ${i + 1}`}${s.desc ? ': ' + s.desc : ''}`;
+        }
+        return String(s);
+      }).join('\n');
+    } else if (typeof rawSteps === 'string') {
+      steps = rawSteps;
+    }
+
+    // Rubric
+    let rubric = '';
+    const rawRubric = parsed.rubric || parsed.evaluationCriteria || parsed.criteria || '';
+    if (Array.isArray(rawRubric)) {
+      rubric = rawRubric.map(r => {
+        if (typeof r === 'object' && r !== null) {
+          const lbl = r.label || r.criteria || r.title || 'Criterion';
+          const wt = r.weight || r.points || '25%';
+          return `${lbl}: ${wt}`;
+        }
+        return String(r);
+      }).join('\n');
+    } else if (typeof rawRubric === 'string') {
+      rubric = rawRubric;
+    }
+
+    // Target Batches
+    let targetBatches = undefined;
+    let targetBatch = undefined;
+    const rawBatches = parsed.targetBatches || parsed.batches || parsed.batch;
+    if (Array.isArray(rawBatches)) {
+      targetBatches = rawBatches;
+      targetBatch = rawBatches.join(', ');
+    } else if (typeof rawBatches === 'string' && rawBatches) {
+      targetBatches = [rawBatches];
+      targetBatch = rawBatches;
+    }
+
+    // Course & Stage matching if specified
+    const matchedCourse = courses.find(c => c.id === parsed.courseId || c.title?.toLowerCase() === (parsed.courseName || '').toLowerCase());
+    let courseUpdates = {};
+    if (matchedCourse) {
+      courseUpdates.courseId = matchedCourse.id;
+      courseUpdates.courseName = matchedCourse.title;
+    }
+
+    setFormData(prev => ({
+      ...prev,
+      ...courseUpdates,
+      title: title || prev.title,
+      type,
+      difficulty,
+      category: category || prev.category,
+      description: description || prev.description,
+      overview: overview || prev.overview,
+      techStack: techStack || prev.techStack,
+      dueDate: dueDate || prev.dueDate,
+      templateUrl: templateUrl || prev.templateUrl,
+      mentorTip: mentorTip || prev.mentorTip,
+      requirements: requirements || prev.requirements,
+      steps: steps || prev.steps,
+      rubric: rubric || prev.rubric,
+      ...(targetBatches ? { targetBatches, targetBatch } : {})
+    }));
+
+    setJsonExtractedCount(1);
+    addToast(`✅ Auto-filled project details for "${title || 'Project'}"!`, 'success');
+  };
+
+  const handlePastedJsonImport = () => {
+    if (!pastedJson.trim()) {
+      setJsonError('Please paste your project JSON first.');
+      return;
+    }
+    setJsonError('');
+    try {
+      parseAndFillProject(pastedJson.trim(), 'Pasted JSON');
+      setPastedJson('');
+    } catch (err) {
+      console.error('[Project JSON Parse Error]', err);
+      setJsonError(err.message || 'Failed to parse JSON. Please check format.');
+    }
+  };
+
+  const handleJsonFileUpload = async (file) => {
+    if (!file) return;
+    if (!file.name?.toLowerCase().endsWith('.json') && file.type !== 'application/json') {
+      setJsonError('Please upload a valid .json file.');
+      return;
+    }
+    setJsonParsing(true);
+    setJsonError('');
+    try {
+      const text = await file.text();
+      parseAndFillProject(text, file.name);
+    } catch (err) {
+      console.error('[Project File Upload Error]', err);
+      setJsonError(err.message || 'Failed to read JSON file.');
+    } finally {
+      setJsonParsing(false);
+    }
+  };
+
+  const handleLoadSampleProjectJson = () => {
+    const sample = {
+      title: "Full-Stack Task Management Platform",
+      type: "Major",
+      category: "Full-Stack Web Dev",
+      difficulty: "Intermediate",
+      dueDate: "Sep 30",
+      description: "Build a responsive full-stack Kanban task management platform with real-time updates and team collaboration.",
+      techStack: ["React", "Tailwind CSS", "Node.js", "Express", "PostgreSQL"],
+      overview: "Students will design, build, and deploy an end-to-end task board application featuring drag-and-drop cards, user authentication, and sprint metrics.",
+      requirements: [
+        "User authentication with JWT and role-based permissions (Admin, Member)",
+        "Kanban board with drag-and-drop tasks across Todo, In Progress, and Done",
+        "Activity feed with real-time updates using WebSockets",
+        "Search, filter by tags, and due-date reminders"
+      ],
+      steps: [
+        "Initialize React frontend with Tailwind and Node.js backend with Express",
+        "Design PostgreSQL database schema and configure Prisma/Sequelize ORM",
+        "Implement JWT authentication endpoints and user session handling",
+        "Construct responsive Kanban UI with drag-and-drop state management",
+        "Deploy application to Vercel and Supabase/Render"
+      ],
+      rubric: [
+        { criteria: "Frontend UI & UX Responsiveness", weight: "30%" },
+        { criteria: "Backend API Design & Data Integrity", weight: "35%" },
+        { criteria: "Security, Auth & Edge Case Handling", weight: "20%" },
+        { criteria: "Code Quality & Documentation", weight: "15%" }
+      ],
+      mentorTip: "Focus on clean state management for drag-and-drop interactions before adding real-time sync."
+    };
+    setPastedJson(JSON.stringify(sample, null, 2));
+    setJsonError('');
   };
 
 
@@ -1000,12 +1245,170 @@ export function ProjectManagementPage() {
       {/* Create / Edit Project Modal */}
       <Modal
         isOpen={isCreateModalOpen}
-        onClose={() => setIsCreateModalOpen(false)}
+        onClose={() => {
+          setIsCreateModalOpen(false);
+          setEditingProject(null);
+          setPastedJson('');
+          setJsonError('');
+          setJsonExtractedCount(0);
+        }}
         title={editingProject ? 'Edit Project Assignment' : 'Create Real-World Project'}
         maxWidth="max-w-5xl"
         maxHeight="max-h-[88vh]"
       >
         <form onSubmit={handleFormSubmit} className="space-y-4">
+          {/* AUTO-IMPORT FROM JSON SECTION */}
+          <div className="p-3.5 bg-slate-50/90 rounded-2xl border border-slate-200/90 space-y-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <FileJson className="w-4 h-4 text-emerald-600" />
+                <span className="font-extrabold text-xs text-slate-800 uppercase tracking-wider">
+                  Auto-Import from JSON
+                </span>
+                <span className="text-[11px] text-slate-400 font-medium">(auto-fill project fields)</span>
+              </div>
+
+              {/* Mode Toggle Tabs: Paste JSON vs Upload File */}
+              <div className="inline-flex rounded-xl bg-slate-200/70 p-1 border border-slate-200 text-xs font-bold self-start sm:self-auto">
+                <button
+                  type="button"
+                  onClick={() => { setImportMode('paste'); setJsonError(''); }}
+                  className={`flex items-center gap-1.5 px-3 py-1 rounded-lg transition-all cursor-pointer ${
+                    importMode === 'paste'
+                      ? 'bg-white text-emerald-700 shadow-xs font-extrabold'
+                      : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  <ClipboardPaste className="w-3.5 h-3.5 text-emerald-600" />
+                  Paste JSON
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setImportMode('file'); setJsonError(''); }}
+                  className={`flex items-center gap-1.5 px-3 py-1 rounded-lg transition-all cursor-pointer ${
+                    importMode === 'file'
+                      ? 'bg-white text-emerald-700 shadow-xs font-extrabold'
+                      : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  <Upload className="w-3.5 h-3.5 text-slate-500" />
+                  Upload .JSON
+                </button>
+              </div>
+            </div>
+
+            {/* TAB 1: PASTE JSON */}
+            {importMode === 'paste' && (
+              <div className="space-y-2.5">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-xs font-bold text-slate-600">
+                    Paste project JSON:
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={handleLoadSampleProjectJson}
+                      className="text-[11px] font-bold text-emerald-600 hover:text-emerald-800 hover:underline cursor-pointer"
+                    >
+                      Insert Sample JSON
+                    </button>
+                    {pastedJson && (
+                      <button
+                        type="button"
+                        onClick={() => { setPastedJson(''); setJsonError(''); }}
+                        className="text-[11px] font-bold text-slate-400 hover:text-rose-500 cursor-pointer"
+                      >
+                        Clear
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                <textarea
+                  rows={5}
+                  value={pastedJson}
+                  onChange={(e) => setPastedJson(e.target.value)}
+                  placeholder={`{\n  "title": "Full-Stack Task Board",\n  "type": "Major",\n  "difficulty": "Intermediate",\n  "techStack": ["React", "Node.js", "PostgreSQL"],\n  "requirements": ["Auth with JWT", "Drag-and-drop tasks"]\n}`}
+                  className="w-full px-3.5 py-2 bg-white text-slate-800 font-mono text-xs border border-slate-300 rounded-xl focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 transition-all shadow-inner resize-y"
+                />
+
+                <div className="flex items-center justify-between gap-2 flex-wrap">
+                  <span className="text-[11px] text-slate-500">
+                    💡 Click <strong>Parse &amp; Fill Project</strong> to populate title, tech stack, requirements, steps, and rubric.
+                  </span>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="primary"
+                    icon={Sparkles}
+                    onClick={handlePastedJsonImport}
+                    disabled={!pastedJson.trim()}
+                    className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold"
+                  >
+                    Parse &amp; Fill Project
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {/* TAB 2: UPLOAD .JSON FILE */}
+            {importMode === 'file' && (
+              <label
+                htmlFor="project-json-upload"
+                className={`flex flex-col items-center justify-center gap-2 w-full border-2 border-dashed rounded-xl p-4 cursor-pointer transition-all ${
+                  jsonDragOver
+                    ? 'border-emerald-500 bg-emerald-50'
+                    : 'border-slate-300 bg-white hover:border-emerald-400 hover:bg-emerald-50/30'
+                }`}
+                onDragOver={(e) => { e.preventDefault(); setJsonDragOver(true); }}
+                onDragLeave={() => setJsonDragOver(false)}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  setJsonDragOver(false);
+                  const file = e.dataTransfer.files[0];
+                  if (file) handleJsonFileUpload(file);
+                }}
+              >
+                <input
+                  id="project-json-upload"
+                  type="file"
+                  accept=".json,application/json"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files[0];
+                    if (file) handleJsonFileUpload(file);
+                    e.target.value = '';
+                  }}
+                />
+                {jsonParsing ? (
+                  <div className="flex items-center gap-2 py-1 text-emerald-700 text-xs font-bold">
+                    <div className="w-4 h-4 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
+                    <span>Reading &amp; parsing JSON file…</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2 text-slate-600 py-1 text-xs font-semibold">
+                    <Upload className="w-4 h-4 text-emerald-600" />
+                    <span>Drop your <strong className="text-emerald-700 font-bold">.json</strong> file here or <span className="text-emerald-600 underline">click to browse</span></span>
+                  </div>
+                )}
+              </label>
+            )}
+
+            {/* Status & Error feedback */}
+            {jsonError && (
+              <div className="flex items-start gap-2 px-3 py-2 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-700 font-medium">
+                <AlertCircle className="w-4 h-4 text-rose-500 flex-shrink-0 mt-0.5" />
+                <span>{jsonError}</span>
+              </div>
+            )}
+            {jsonExtractedCount > 0 && !jsonError && (
+              <div className="flex items-center gap-2 px-3 py-2 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-700 font-bold">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+                <span>Project details filled successfully! You can review or edit any fields below.</span>
+              </div>
+            )}
+          </div>
+
           {/* Row 1: Project Title, Project Type, Due Date */}
           <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-start">
             <div className="md:col-span-6">
@@ -1418,7 +1821,16 @@ export function ProjectManagementPage() {
           </div>
 
           <div className="flex justify-end gap-2.5 pt-3 border-t border-slate-100">
-            <Button variant="secondary" onClick={() => setIsCreateModalOpen(false)}>
+            <Button
+              variant="secondary"
+              onClick={() => {
+                setIsCreateModalOpen(false);
+                setEditingProject(null);
+                setPastedJson('');
+                setJsonError('');
+                setJsonExtractedCount(0);
+              }}
+            >
               Cancel
             </Button>
             <Button type="submit" variant="primary">

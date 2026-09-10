@@ -1022,16 +1022,17 @@ export function LmsDataProvider({ children }) {
     return {
       id: row.id,
       title: row.title || 'Untitled Assessment',
-      courseId: row.course_id || 'crs-1786624019154-w',
-      courseName: row.course_name || 'Python Full Stack + DSA with AI',
-      stageId: stageId || 'top-stg-1',
-      stageName: moduleName || 'Stage 1: Frontend & Programming Foundations',
-      moduleName: moduleName || 'Stage 1: Frontend & Programming Foundations',
-      subtopicId: subtopicId || 'mod-git',
-      subtopicName: subtopicName || 'Git & GitHub Version Control',
-      innerTopicId: innerTopicId || 'lesson-1787196281985-0',
-      moduleId: innerTopicId || 'lesson-1787196281985-0',
-      topicName: topicName || 'Git Architecture & Version Control Concepts',
+      evalType: row.eval_type || 'assessment',
+      courseId: row.course_id || '',
+      courseName: row.course_name || '',
+      stageId: stageId || '',
+      stageName: moduleName || '',
+      moduleName: moduleName || '',
+      subtopicId: subtopicId || '',
+      subtopicName: subtopicName || '',
+      innerTopicId: innerTopicId || '',
+      moduleId: innerTopicId || '',
+      topicName: topicName || '',
       durationMinutes: Number(row.duration_minutes) || 45,
       totalMarks: Number(row.total_marks) || 100,
       mcqCount: mcqCount,
@@ -1048,33 +1049,32 @@ export function LmsDataProvider({ children }) {
 
   const toDbAssessment = (a) => {
     if (!a) return null;
-    const packedTopicName = `${a.moduleName || a.stageName || ''}||${a.subtopicName || ''}||${a.topicName || a.innerTopicTitle || ''}`;
-    const packedTopicId = `${a.stageId || ''}||${a.subtopicId || ''}||${a.innerTopicId || a.moduleId || ''}`;
+    const stageId = a.stageId || '';
+    const subtopicId = a.subtopicId || '';
+    const innerTopicId = a.innerTopicId || a.moduleId || '';
+    const stageName = a.stageName || a.moduleName || '';
+    const subtopicName = a.subtopicName || '';
+    const topicName = a.topicName || a.innerTopicTitle || '';
+
+    const packedTopicName = `${stageName}||${subtopicName}||${topicName}`;
+    const packedTopicId = `${stageId}||${subtopicId}||${innerTopicId}`;
     const targetBatchStr = a.targetBatch || (Array.isArray(a.targetBatches) ? a.targetBatches.join(', ') : 'Weekday Batch');
+    const courseIdVal = (a.courseId && a.courseId !== 'ALL') ? a.courseId : null;
 
     return {
       id: String(a.id),
       title: a.title || 'Untitled Assessment',
-      eval_type: a.evalType || 'quiz',
-      course_id: a.courseId || null,
+      course_id: courseIdVal,
       course_name: a.courseName || '',
-      stage_id: a.stageId || null,
-      stage_name: a.stageName || a.moduleName || '',
-      subtopic_id: a.subtopicId || null,
-      subtopic_name: a.subtopicName || '',
-      inner_topic_id: a.innerTopicId || a.moduleId || null,
-      module_id: a.innerTopicId || a.moduleId || null,
-      topic_name: a.topicName || '',
       topic_id: packedTopicId,
+      topic_name: packedTopicName,
       duration_minutes: Number(a.durationMinutes || 45),
       total_marks: Number(a.totalMarks || 100),
       mcq_count: Number(a.mcqCount || (Array.isArray(a.mcqs) ? a.mcqs.length : 0)),
-      total_questions: Number(a.totalQuestions || (Array.isArray(a.mcqs) ? a.mcqs.length : 0)),
       status: a.status || 'Active',
       publish_status: a.publishStatus || 'Published',
       due_date: a.dueDate || '2026-08-30',
       mcqs: Array.isArray(a.mcqs) ? a.mcqs : [],
-      target_batches: Array.isArray(a.targetBatches) ? a.targetBatches : [targetBatchStr],
       target_batch: targetBatchStr
     };
   };
@@ -1631,6 +1631,21 @@ export function LmsDataProvider({ children }) {
       // 4. Fetch Courses Catalog
       
       if (!coursesErr && coursesData) {
+        // Build a dynamic enrolled count map from actual students data
+        const dynamicEnrolledCountMap = {};
+        if (Array.isArray(studentsData) && studentsData.length > 0) {
+          studentsData.forEach(s => {
+            let enrolledCourses = s.enrolled_courses;
+            if (typeof enrolledCourses === 'string') {
+              try { enrolledCourses = JSON.parse(enrolledCourses); } catch { enrolledCourses = []; }
+            }
+            if (!Array.isArray(enrolledCourses)) enrolledCourses = [];
+            enrolledCourses.forEach(courseId => {
+              if (courseId) dynamicEnrolledCountMap[courseId] = (dynamicEnrolledCountMap[courseId] || 0) + 1;
+            });
+          });
+        }
+
         const mappedCourses = coursesData.map(c => {
           const dbTopics = topicsByCourse[c.id];
           const defaultCourse = INITIAL_COURSES.find(ic => ic.id === c.id || ic.title?.toLowerCase() === c.title?.toLowerCase());
@@ -1641,6 +1656,10 @@ export function LmsDataProvider({ children }) {
             { id: 'top-4', title: 'Stage 4: Career Launchpad', liveClasses: 23, practice: 30, assessments: 10 }
           ];
           const isPythonFullStack = (c.title || '').toLowerCase().includes('python full') || (c.id || '').includes('1786624019154');
+          // Use live count from students table; fall back to DB column if studentsData unavailable
+          const liveEnrolledCount = dynamicEnrolledCountMap[c.id] !== undefined
+            ? dynamicEnrolledCountMap[c.id]
+            : (c.enrolled_count || 0);
           return {
             id: c.id,
             title: c.title || '',
@@ -1649,7 +1668,7 @@ export function LmsDataProvider({ children }) {
             instructor: c.instructor || 'Staff',
             publishStatus: c.publish_status || 'Published',
             thumbnail: c.thumbnail || '',
-            enrolledCount: c.enrolled_count || 0,
+            enrolledCount: liveEnrolledCount,
             rating: c.rating || 4.8,
             description: c.description || '',
             targetBatch: c.target_batch || 'None',
@@ -2352,8 +2371,26 @@ export function LmsDataProvider({ children }) {
                 });
               });
             }
+            // Build dynamic enrolled count from students table
+            const dynamicEnrolledCountMap = {};
+            const { data: latestStudents } = await supabase.from('students').select('enrolled_courses');
+            if (Array.isArray(latestStudents)) {
+              latestStudents.forEach(s => {
+                let enrolledCourses = s.enrolled_courses;
+                if (typeof enrolledCourses === 'string') {
+                  try { enrolledCourses = JSON.parse(enrolledCourses); } catch { enrolledCourses = []; }
+                }
+                if (!Array.isArray(enrolledCourses)) enrolledCourses = [];
+                enrolledCourses.forEach(courseId => {
+                  if (courseId) dynamicEnrolledCountMap[courseId] = (dynamicEnrolledCountMap[courseId] || 0) + 1;
+                });
+              });
+            }
             const mappedCourses = coursesData.map(c => {
               const dbTopics = topicsByCourse[c.id];
+              const liveEnrolledCount = dynamicEnrolledCountMap[c.id] !== undefined
+                ? dynamicEnrolledCountMap[c.id]
+                : (c.enrolled_count || 0);
               return {
                 id: c.id,
                 title: c.title || '',
@@ -2362,7 +2399,7 @@ export function LmsDataProvider({ children }) {
                 instructor: c.instructor || 'Staff',
                 publishStatus: c.publish_status || 'Published',
                 thumbnail: c.thumbnail || '',
-                enrolledCount: c.enrolled_count || 0,
+                enrolledCount: liveEnrolledCount,
                 rating: c.rating || 4.8,
                 description: c.description || '',
                 targetBatch: c.target_batch || 'None',
@@ -3074,7 +3111,17 @@ export function LmsDataProvider({ children }) {
     try {
       const dbRow = toDbAssessment(newAsmnt);
       const { error } = await supabase.from('assessments').upsert([dbRow]);
-      if (error) console.error('Supabase assessment insert error:', error.message);
+      if (error) {
+        console.error('Supabase assessment insert error:', error.message, error);
+        if (error.code === '23503' || error.message?.includes('foreign key')) {
+          const retryRow = { ...dbRow, course_id: null };
+          const { error: errRetry } = await supabase.from('assessments').upsert([retryRow]);
+          if (errRetry) console.error('Supabase assessment retry without course_id error:', errRetry.message);
+          else console.log('Successfully saved assessment to Supabase without course_id constraint:', dbRow.id);
+        }
+      } else {
+        console.log('Successfully saved assessment to Supabase:', dbRow.id);
+      }
     } catch (err) { console.warn('Assessment insert handled:', err); }
   };
 
@@ -3107,7 +3154,16 @@ export function LmsDataProvider({ children }) {
       const assessmentToSave = mergedAsmnt || { id, ...updatedFields };
       const dbRow = toDbAssessment(assessmentToSave);
       const { error } = await supabase.from('assessments').upsert([dbRow]);
-      if (error) console.error('Supabase assessment update error:', error.message);
+      if (error) {
+        console.error('Supabase assessment update error:', error.message, error);
+        if (error.code === '23503' || error.message?.includes('foreign key')) {
+          const retryRow = { ...dbRow, course_id: null };
+          const { error: errRetry } = await supabase.from('assessments').upsert([retryRow]);
+          if (errRetry) console.error('Supabase assessment update retry error:', errRetry.message);
+        }
+      } else {
+        console.log('Successfully updated assessment in Supabase:', dbRow.id);
+      }
     } catch (err) { console.warn('Assessment update handled:', err); }
   };
 

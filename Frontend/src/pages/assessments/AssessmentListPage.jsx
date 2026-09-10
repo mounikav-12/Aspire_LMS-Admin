@@ -35,7 +35,13 @@ import {
   FileCheck,
   Bookmark,
   ChevronDown,
-  Lock
+  Lock,
+  FileText,
+  FileJson,
+  ClipboardPaste,
+  Upload,
+  XCircle,
+  AlertCircle
 } from 'lucide-react';
 
 export function AssessmentListPage() {
@@ -153,6 +159,476 @@ export function AssessmentListPage() {
   const [batchActiveTab, setBatchActiveTab] = useState('Weekdays');
   const [selectedWeekdayBatches, setSelectedWeekdayBatches] = useState(allWeekdayBatchesList);
   const [selectedWeekendBatches, setSelectedWeekendBatches] = useState(allWeekendBatchesList);
+
+  // PDF & JSON Import State
+  const [importMode, setImportMode] = useState('paste'); // 'paste' | 'file'
+  const [pastedText, setPastedText] = useState('');
+  const [pdfParsing, setPdfParsing] = useState(false);
+  const [pdfError, setPdfError] = useState('');
+  const [pdfFileName, setPdfFileName] = useState('');
+  const [pdfExtractedCount, setPdfExtractedCount] = useState(0);
+  const [pdfDragOver, setPdfDragOver] = useState(false);
+
+  // ─── PDF MCQ Parser ───────────────────────────────────────────────────────
+  // Robust parser that handles:
+  //  • Multi-line questions and options
+  //  • Options inline on same line as question
+  //  • Formats: A) A. (A) a) a. with or without space
+  //  • Answer lines: "Answer: A", "Ans: B", "Correct Answer: C"
+  //  • Correct answer marked with asterisk: *A) or (A)*
+  //  • Both 1. and Q1. and Q.1 question numbering
+  const parseMcqsFromText = (text) => {
+    // ── Step 1: Pre-process ─────────────────────────────────────────────────
+    // Insert a newline before any option marker so they always start fresh
+    // Option markers: "A)" "A." "(A)" "a)" "a." "[A]"  possibly with leading space
+    let normalized = text
+      .replace(/\r\n/g, '\n')
+      .replace(/\r/g, '\n')
+      // Insert newline before option-like tokens so they are on their own line
+      .replace(/\s+([A-Da-d][.)]\s)/g, '\n$1')
+      .replace(/\s+(\([A-Da-d]\)\s)/g, '\n$1')
+      // Insert newline before answer-key tokens
+      .replace(/\s+((?:ans(?:wer)?|correct\s*answer?)\s*[:.])/gi, '\nANS_MARKER $1')
+      // Insert newline before next question number so blocks are clean
+      .replace(/([.?!])\s+(\d{1,3}[.)]\s)/g, '$1\n$2');
+
+    const lines = normalized.split('\n').map(l => l.trim()).filter(Boolean);
+
+    // ── Step 2: Split into question blocks ──────────────────────────────────
+    // A question block starts with: "1." "Q1." "Q.1" "(1)" "1)"
+    const isQuestionStart = (l) => /^(?:Q\.?\s*)?\d{1,3}[.)]\s+\S/.test(l) || /^\(\d{1,3}\)\s+\S/.test(l);
+    const isOptionLine    = (l) => /^[*]?[([]?[A-Da-d][.)>\]]\s*.+/.test(l);
+    const isAnswerLine    = (l) => /^(?:ANS_MARKER\s+)?(?:ans(?:wer)?|correct(?:\s+answer)?)\s*[:.\s]/i.test(l);
+
+    // Find where each question starts
+    const blockStarts = [];
+    lines.forEach((l, idx) => { if (isQuestionStart(l)) blockStarts.push(idx); });
+
+    if (blockStarts.length === 0) return [];
+
+    const extracted = [];
+
+    blockStarts.forEach((startIdx, bi) => {
+      const endIdx = bi + 1 < blockStarts.length ? blockStarts[bi + 1] : lines.length;
+      const block  = lines.slice(startIdx, endIdx);
+
+      // ── Parse question text ──────────────────────────────────────────────
+      // Strip leading "1." / "Q1." prefix
+      const firstLine = block[0].replace(/^(?:Q\.?\s*)?\d{1,3}[.)]\s*/, '').replace(/^\(\d{1,3}\)\s*/, '').trim();
+      let questionParts = [firstLine];
+      let li = 1;
+
+      // Consume continuation lines until we hit an option or answer
+      while (li < block.length && !isOptionLine(block[li]) && !isAnswerLine(block[li])) {
+        questionParts.push(block[li]);
+        li++;
+      }
+      const questionText = questionParts.join(' ').trim();
+
+      // ── Parse options ────────────────────────────────────────────────────
+      const options = [];
+      let correctIndex = -1;
+
+      while (li < block.length && options.length < 4) {
+        const ol = block[li];
+        if (isAnswerLine(ol)) break;
+
+        // Asterisk = correct answer marker
+        const asterisk = ol.match(/^\*[([]?([A-Da-d])[.)>\]]\s*(.+)/);
+        const normal   = ol.match(/^[([]?([A-Da-d])[.)>\]]\s*(.+)/);
+
+        if (asterisk) {
+          const idx = asterisk[1].toUpperCase().charCodeAt(0) - 65;
+          let optText = asterisk[2].trim();
+          li++;
+          // Collect multi-line option text
+          while (li < block.length && !isOptionLine(block[li]) && !isAnswerLine(block[li])) {
+            optText += ' ' + block[li]; li++;
+          }
+          options[idx] = optText.trim();
+          correctIndex = idx;
+        } else if (normal) {
+          const idx = normal[1].toUpperCase().charCodeAt(0) - 65;
+          let optText = normal[2].trim();
+          li++;
+          while (li < block.length && !isOptionLine(block[li]) && !isAnswerLine(block[li])) {
+            optText += ' ' + block[li]; li++;
+          }
+          options[idx] = optText.trim();
+        } else {
+          li++;
+        }
+      }
+
+      // ── Parse answer line ────────────────────────────────────────────────
+      while (li < block.length) {
+        const al = block[li];
+        // Patterns: "Answer: A"  "Ans:B"  "Correct Answer: (C)"  "ANS_MARKER Answer: D"
+        const ansMatch = al.match(/(?:ans(?:wer)?|correct(?:\s+answer)?)\s*[:.)\s]\s*[([]?([A-Da-d])[.)>\]]?/i);
+        if (ansMatch) {
+          correctIndex = ansMatch[1].toUpperCase().charCodeAt(0) - 65;
+        }
+        li++;
+      }
+
+      // ── Build result ─────────────────────────────────────────────────────
+      // Fill sparse option array gaps (if options were stored by index)
+      const filledOptions = [
+        options[0] || '',
+        options[1] || '',
+        options[2] || '',
+        options[3] || ''
+      ];
+      const nonEmpty = filledOptions.filter(o => o.trim());
+
+      if (questionText && nonEmpty.length >= 2) {
+        extracted.push({
+          mcqType: 'theoretical',
+          question: questionText,
+          codeSnippet: '',
+          options: filledOptions,
+          correctIndex: correctIndex >= 0 ? Math.min(correctIndex, 3) : 0
+        });
+      }
+    });
+
+    return extracted;
+  };
+
+  // ─── JSON MCQ Parser ──────────────────────────────────────────────────────
+  // Supports multiple common JSON formats:
+  //  1. Array of questions: [{ question: "...", options: [...], answer: "A" | 0 }]
+  //  2. Object with questions/mcqs/data key: { title: "...", questions: [...] }
+  //  3. Keyed dictionary of questions: { "1": { question: "...", options: [...] } }
+  //  4. Options as array of strings, array of {text, isCorrect} objects, or {A: "...", B: "..."} map
+  const parseMcqsFromJson = (jsonString) => {
+    let parsed;
+    try {
+      parsed = typeof jsonString === 'string' ? JSON.parse(jsonString) : jsonString;
+    } catch (err) {
+      throw new Error('Invalid JSON syntax: ' + err.message);
+    }
+
+    let rawList = [];
+    let metadata = {};
+
+    if (Array.isArray(parsed)) {
+      rawList = parsed;
+    } else if (parsed && typeof parsed === 'object') {
+      metadata = parsed;
+      if (Array.isArray(parsed.questions)) rawList = parsed.questions;
+      else if (Array.isArray(parsed.mcqs)) rawList = parsed.mcqs;
+      else if (Array.isArray(parsed.items)) rawList = parsed.items;
+      else if (Array.isArray(parsed.data)) rawList = parsed.data;
+      else {
+        const values = Object.values(parsed);
+        if (values.length > 0 && typeof values[0] === 'object' && (values[0].question || values[0].q || values[0].options)) {
+          rawList = values;
+        }
+      }
+    }
+
+    if (!rawList || rawList.length === 0) {
+      throw new Error('No questions found in JSON. Expected an array of question objects, or an object with a "questions" or "mcqs" array.');
+    }
+
+    const mcqs = [];
+
+    rawList.forEach((item) => {
+      if (!item || typeof item !== 'object') return;
+      const questionText = item.question || item.q || item.prompt || item.title || item.questionText || '';
+      if (!questionText && !item.codeSnippet && !item.code) return;
+
+      const codeSnippet = item.codeSnippet || item.code || item.snippet || '';
+      const mcqType = item.mcqType || (codeSnippet || item.type === 'coding' ? 'coding' : 'theoretical');
+
+      let options = [];
+      let detectedCorrectIndex = -1;
+
+      if (Array.isArray(item.options)) {
+        item.options.forEach((opt, oIdx) => {
+          if (typeof opt === 'string' || typeof opt === 'number') {
+            options.push(String(opt).trim());
+          } else if (opt && typeof opt === 'object') {
+            const optText = opt.text || opt.label || opt.value || opt.option || '';
+            options.push(String(optText).trim());
+            if (opt.isCorrect || opt.correct || opt.is_correct) {
+              detectedCorrectIndex = oIdx;
+            }
+          }
+        });
+      } else if (item.options && typeof item.options === 'object') {
+        const keys = ['A', 'B', 'C', 'D'];
+        const hasLetterKeys = keys.every((k) => k in item.options);
+        if (hasLetterKeys) {
+          keys.forEach((k) => options.push(String(item.options[k] || '').trim()));
+        } else {
+          Object.keys(item.options).forEach((k) => options.push(String(item.options[k] || '').trim()));
+        }
+      } else if (item.choices && Array.isArray(item.choices)) {
+        item.choices.forEach((c) => options.push(String(c).trim()));
+      }
+
+      while (options.length < 4) options.push('');
+      options = options.slice(0, 4);
+
+      let ansVal = item.correctIndex !== undefined ? item.correctIndex :
+                   item.answer !== undefined ? item.answer :
+                   item.correctAnswer !== undefined ? item.correctAnswer :
+                   item.correct !== undefined ? item.correct :
+                   item.ans !== undefined ? item.ans :
+                   item.correct_index !== undefined ? item.correct_index :
+                   item.correct_answer;
+
+      if (detectedCorrectIndex >= 0) {
+        // Already found from option object
+      } else if (typeof ansVal === 'number') {
+        detectedCorrectIndex = ansVal >= 0 && ansVal <= 3 ? ansVal : 0;
+      } else if (typeof ansVal === 'string') {
+        const trimmed = ansVal.trim().toUpperCase();
+        if (['A', 'B', 'C', 'D'].includes(trimmed)) {
+          detectedCorrectIndex = trimmed.charCodeAt(0) - 65;
+        } else if (/^[0-3]$/.test(trimmed)) {
+          detectedCorrectIndex = parseInt(trimmed, 10);
+        } else {
+          const optMatch = options.findIndex((o) => o.toLowerCase() === ansVal.toLowerCase().trim());
+          if (optMatch >= 0) detectedCorrectIndex = optMatch;
+          else detectedCorrectIndex = 0;
+        }
+      } else {
+        detectedCorrectIndex = 0;
+      }
+
+      mcqs.push({
+        mcqType,
+        question: String(questionText).trim(),
+        codeSnippet: String(codeSnippet || ''),
+        options,
+        correctIndex: Math.min(Math.max(0, detectedCorrectIndex), 3)
+      });
+    });
+
+    return { mcqs, metadata };
+  };
+
+  const handleFileUpload = async (file) => {
+    if (!file) return;
+
+    const fileName = file.name || '';
+    const isPdf = file.type === 'application/pdf' || fileName.toLowerCase().endsWith('.pdf');
+    const isJson = file.type === 'application/json' || fileName.toLowerCase().endsWith('.json');
+
+    if (!isPdf && !isJson) {
+      setPdfError('Please upload a valid PDF (.pdf) or JSON (.json) file.');
+      return;
+    }
+
+    setPdfParsing(true);
+    setPdfError('');
+    setPdfFileName(fileName);
+    setPdfExtractedCount(0);
+
+    try {
+      let parsedMcqs = [];
+      let importedMetadata = null;
+
+      if (isJson) {
+        const text = await file.text();
+        const result = parseMcqsFromJson(text);
+        parsedMcqs = result.mcqs;
+        importedMetadata = result.metadata;
+      } else {
+        // PDF handling via pdfjs-dist
+        const pdfjsLib = await import('pdfjs-dist');
+        pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
+          'pdfjs-dist/build/pdf.worker.min.mjs',
+          import.meta.url
+        ).toString();
+
+        const arrayBuffer = await file.arrayBuffer();
+        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+
+        let fullText = '';
+        for (let p = 1; p <= pdf.numPages; p++) {
+          const page = await pdf.getPage(p);
+          const content = await page.getTextContent();
+
+          const lineMap = {};
+          content.items.forEach((item) => {
+            if (!item.str) return;
+            const yBucket = Math.round(item.transform[5] / 3) * 3;
+            if (!lineMap[yBucket]) lineMap[yBucket] = [];
+            lineMap[yBucket].push({ x: item.transform[4], str: item.str });
+          });
+
+          const sortedYs = Object.keys(lineMap).map(Number).sort((a, b) => b - a);
+          const pageLines = sortedYs.map((y) =>
+            lineMap[y]
+              .sort((a, b) => a.x - b.x)
+              .map((i) => i.str)
+              .join(' ')
+              .trim()
+          ).filter(Boolean);
+
+          fullText += pageLines.join('\n') + '\n\n';
+        }
+
+        console.log('[PDF Import] Extracted text (first 2000 chars):\n', fullText.slice(0, 2000));
+        parsedMcqs = parseMcqsFromText(fullText);
+      }
+
+      if (!parsedMcqs || parsedMcqs.length === 0) {
+        setPdfError(
+          isJson
+            ? 'No valid questions found in the JSON file. Ensure it contains questions with options and an answer.'
+            : 'No MCQ questions detected. Make sure the PDF uses numbered questions (1. Question → A/B/C/D options).'
+        );
+        setPdfParsing(false);
+        return;
+      }
+
+      setFormData((prev) => {
+        const existingReal = prev.mcqs.filter(
+          (m) => m.question.trim() !== '' || m.options.some((o) => o.trim() !== '')
+        );
+        const nextState = {
+          ...prev,
+          mcqs: existingReal.length > 0 ? [...existingReal, ...parsedMcqs] : parsedMcqs
+        };
+
+        // Auto-fill header fields from JSON metadata if present and not already customized
+        if (importedMetadata) {
+          if (importedMetadata.title && !prev.title) nextState.title = importedMetadata.title;
+          if (importedMetadata.durationMinutes && !prev.durationMinutes) nextState.durationMinutes = importedMetadata.durationMinutes;
+          if (importedMetadata.totalMarks && !prev.totalMarks) nextState.totalMarks = importedMetadata.totalMarks;
+          if (importedMetadata.dueDate && !prev.dueDate) nextState.dueDate = importedMetadata.dueDate;
+        }
+
+        return nextState;
+      });
+
+      setPdfExtractedCount(parsedMcqs.length);
+      addToast(`✅ Extracted ${parsedMcqs.length} questions from "${fileName}"`, 'success');
+    } catch (err) {
+      console.error('[Import Error]', err);
+      setPdfError(err.message || 'Failed to read file. Make sure it has a valid format.');
+    } finally {
+      setPdfParsing(false);
+    }
+  };
+
+  const handlePdfUpload = handleFileUpload;
+
+  const handlePastedContentImport = () => {
+    if (!pastedText.trim()) {
+      setPdfError('Please paste your JSON questions into the box first.');
+      return;
+    }
+
+    setPdfParsing(true);
+    setPdfError('');
+
+    try {
+      const trimmed = pastedText.trim();
+      let parsedMcqs = [];
+      let importedMetadata = null;
+
+      if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
+        const result = parseMcqsFromJson(trimmed);
+        parsedMcqs = result.mcqs;
+        importedMetadata = result.metadata;
+      } else {
+        parsedMcqs = parseMcqsFromText(trimmed);
+      }
+
+      if (!parsedMcqs || parsedMcqs.length === 0) {
+        setPdfError('No questions found. Ensure your JSON has an array of questions with options and an answer.');
+        setPdfParsing(false);
+        return;
+      }
+
+      setFormData((prev) => {
+        const existingReal = prev.mcqs.filter(
+          (m) => m.question.trim() !== '' || m.options.some((o) => o.trim() !== '')
+        );
+        const nextState = {
+          ...prev,
+          mcqs: existingReal.length > 0 ? [...existingReal, ...parsedMcqs] : parsedMcqs
+        };
+
+        if (importedMetadata) {
+          if (importedMetadata.title && !prev.title) nextState.title = importedMetadata.title;
+          if (importedMetadata.durationMinutes && !prev.durationMinutes) nextState.durationMinutes = importedMetadata.durationMinutes;
+          if (importedMetadata.totalMarks && !prev.totalMarks) nextState.totalMarks = importedMetadata.totalMarks;
+          if (importedMetadata.dueDate && !prev.dueDate) nextState.dueDate = importedMetadata.dueDate;
+        }
+
+        return nextState;
+      });
+
+      setPdfExtractedCount(parsedMcqs.length);
+      setPdfFileName('Pasted JSON / Text');
+      addToast(`✅ Successfully imported ${parsedMcqs.length} questions from pasted content!`, 'success');
+      setPastedText('');
+    } catch (err) {
+      console.error('[Paste Import Error]', err);
+      // Fallback attempt: try parsing as raw numbered text if JSON failed
+      try {
+        const fallback = parseMcqsFromText(pastedText.trim());
+        if (fallback && fallback.length > 0) {
+          setFormData((prev) => {
+            const existingReal = prev.mcqs.filter((m) => m.question.trim() !== '' || m.options.some((o) => o.trim() !== ''));
+            return { ...prev, mcqs: existingReal.length > 0 ? [...existingReal, ...fallback] : fallback };
+          });
+          setPdfExtractedCount(fallback.length);
+          setPdfFileName('Pasted Questions');
+          addToast(`✅ Successfully imported ${fallback.length} questions!`, 'success');
+          setPastedText('');
+          return;
+        }
+      } catch (e2) {}
+      setPdfError(err.message || 'Failed to parse JSON. Please check the JSON format.');
+    } finally {
+      setPdfParsing(false);
+    }
+  };
+
+  const handleLoadSampleJson = () => {
+    const sample = [
+      {
+        question: "What is the primary purpose of version control?",
+        options: [
+          "To track and manage changes to files over time",
+          "To increase computer storage",
+          "To replace programming languages",
+          "To automatically deploy applications"
+        ],
+        answer: "A"
+      },
+      {
+        question: "Which problem can version control help solve when multiple developers work on the same project?",
+        options: [
+          "Tracking changes made by different developers",
+          "Increasing monitor resolution",
+          "Creating database tables automatically",
+          "Installing operating systems"
+        ],
+        answer: "A"
+      },
+      {
+        question: "Git is best described as a:",
+        options: [
+          "Distributed version control system",
+          "Cloud hosting platform only",
+          "Code editor",
+          "Web browser"
+        ],
+        answer: "A"
+      }
+    ];
+    setPastedText(JSON.stringify(sample, null, 2));
+    setPdfError('');
+  };
 
   const selectedCourseObj = courses.find((c) => c.id === formData.courseId) || courses[0];
   const stagesList =
@@ -552,7 +1028,7 @@ export function AssessmentListPage() {
             </Button>
           </NavLink>
           <Button variant="primary" size="md" icon={Plus} onClick={handleOpenAddModal}>
-            {activeMainTab === 'QUIZZES' ? 'Create Quiz' : 'Create Assessment'}
+            {activeMainTab === 'QUIZZES' ? 'Create Weekly Assessment' : 'Create Daily Assessment'}
           </Button>
         </div>
       </div>
@@ -684,7 +1160,7 @@ export function AssessmentListPage() {
                   : 'text-slate-600 hover:text-purple-700 hover:bg-white/60 font-bold'
               }`}
             >
-              Assessments
+              Daily Assessments
             </button>
             <button
               type="button"
@@ -698,7 +1174,7 @@ export function AssessmentListPage() {
                   : 'text-slate-600 hover:text-purple-700 hover:bg-white/60 font-bold'
               }`}
             >
-              Quizzes
+              Weekly Assessments
             </button>
           </div>
 
@@ -713,7 +1189,7 @@ export function AssessmentListPage() {
                   : 'text-slate-500 hover:text-slate-800 font-semibold'
               }`}
             >
-              {activeMainTab === 'QUIZZES' ? 'All Quizzes' : 'All Assessments'}
+              {activeMainTab === 'QUIZZES' ? 'All Weekly Assessments' : 'All Daily Assessments'}
             </button>
             <button
               type="button"
@@ -882,9 +1358,9 @@ export function AssessmentListPage() {
         </div>
       ) : (
         <EmptyState
-          title={activeMainTab === 'QUIZZES' ? 'No Quizzes Found' : 'No Assessments Found'}
-          description={activeMainTab === 'QUIZZES' ? 'Create your first topic module practice quiz.' : 'Create your first practice assessment evaluation.'}
-          actionLabel={activeMainTab === 'QUIZZES' ? 'Add Quiz' : 'Add Assessment'}
+          title={activeMainTab === 'QUIZZES' ? 'No Weekly Assessments Found' : 'No Daily Assessments Found'}
+          description={activeMainTab === 'QUIZZES' ? 'Create your first weekly assessment.' : 'Create your first daily assessment.'}
+          actionLabel={activeMainTab === 'QUIZZES' ? 'Add Weekly Assessment' : 'Add Daily Assessment'}
           onAction={handleOpenAddModal}
         />
       )}
@@ -895,6 +1371,12 @@ export function AssessmentListPage() {
         onClose={() => {
           setIsAddModalOpen(false);
           setEditingAssessment(null);
+          // Reset PDF import state
+          setPdfFileName('');
+          setPdfExtractedCount(0);
+          setPdfError('');
+          setPdfParsing(false);
+          setPastedText('');
         }}
         title={
           editingAssessment
@@ -1220,6 +1702,191 @@ export function AssessmentListPage() {
             />
           </div>
 
+          {/* IMPORT QUESTIONS SECTION (PASTE JSON OR UPLOAD FILE) */}
+          <div className="space-y-3 pt-2 border-t border-slate-200">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <FileJson className="w-4 h-4 text-violet-600" />
+                <h4 className="font-extrabold text-sm text-slate-900">Auto-Import Questions</h4>
+                <span className="text-[11px] text-slate-400 font-medium">(auto-fill questions below)</span>
+              </div>
+
+              {/* Mode Toggle Tabs: Paste JSON vs Upload File */}
+              <div className="inline-flex rounded-xl bg-slate-100 p-1 border border-slate-200 text-xs font-bold self-start sm:self-auto">
+                <button
+                  type="button"
+                  onClick={() => { setImportMode('paste'); setPdfError(''); }}
+                  className={`flex items-center gap-1.5 px-3 py-1 rounded-lg transition-all cursor-pointer ${
+                    importMode === 'paste'
+                      ? 'bg-white text-violet-700 shadow-xs font-extrabold'
+                      : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  <ClipboardPaste className="w-3.5 h-3.5 text-violet-600" />
+                  Paste JSON / Text
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setImportMode('file'); setPdfError(''); }}
+                  className={`flex items-center gap-1.5 px-3 py-1 rounded-lg transition-all cursor-pointer ${
+                    importMode === 'file'
+                      ? 'bg-white text-violet-700 shadow-xs font-extrabold'
+                      : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  <Upload className="w-3.5 h-3.5 text-slate-500" />
+                  Upload PDF / JSON
+                </button>
+              </div>
+            </div>
+
+            {/* TAB 1: PASTE JSON / TEXT DIRECTLY */}
+            {importMode === 'paste' && (
+              <div className="p-3.5 bg-slate-50/90 rounded-2xl border border-slate-200/90 space-y-3">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                    <ClipboardPaste className="w-4 h-4 text-violet-600" />
+                    Paste your JSON questions directly below:
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={handleLoadSampleJson}
+                      className="text-[11px] font-bold text-violet-600 hover:text-violet-800 hover:underline cursor-pointer"
+                    >
+                      Insert Sample JSON
+                    </button>
+                    {pastedText && (
+                      <button
+                        type="button"
+                        onClick={() => { setPastedText(''); setPdfError(''); }}
+                        className="text-[11px] font-bold text-slate-400 hover:text-rose-500 cursor-pointer"
+                      >
+                        Clear
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                <textarea
+                  rows={6}
+                  value={pastedText}
+                  onChange={(e) => setPastedText(e.target.value)}
+                  placeholder={`Paste JSON array here, e.g.:\n[\n  {\n    "question": "What is Git?",\n    "options": ["Version control", "Database", "Browser", "Editor"],\n    "answer": "A"\n  }\n]\n(Also supports exam text: 1. Question → A) ... Answer: A)`}
+                  className="w-full px-3.5 py-2.5 bg-white text-slate-800 font-mono text-xs border border-slate-300 rounded-xl focus:outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-100 transition-all shadow-inner resize-y"
+                />
+
+                <div className="flex items-center justify-between gap-2 flex-wrap pt-0.5">
+                  <span className="text-[11px] text-slate-500">
+                    💡 Paste your JSON array and click <strong>Parse &amp; Fill MCQs</strong> to instantly fill the questions below.
+                  </span>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="primary"
+                    icon={Sparkles}
+                    onClick={handlePastedContentImport}
+                    disabled={!pastedText.trim() || pdfParsing}
+                    className="bg-violet-600 hover:bg-violet-700 text-white font-bold"
+                  >
+                    {pdfParsing ? 'Parsing...' : 'Parse & Fill MCQs'}
+                  </Button>
+                </div>
+
+                {pdfExtractedCount > 0 && pdfFileName.includes('Pasted') && (
+                  <div className="flex items-center gap-2 p-2.5 bg-green-50 border border-green-200 rounded-xl text-green-700 text-xs font-bold">
+                    <CheckCircle2 className="w-4 h-4 text-green-600 flex-shrink-0" />
+                    <span>{pdfExtractedCount} questions successfully extracted and loaded into builder below!</span>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* TAB 2: UPLOAD FILE (PDF OR JSON) */}
+            {importMode === 'file' && (
+              <label
+                htmlFor="file-upload-input"
+                className={`flex flex-col items-center justify-center gap-2 w-full border-2 border-dashed rounded-2xl p-5 cursor-pointer transition-all ${
+                  pdfDragOver
+                    ? 'border-violet-500 bg-violet-50'
+                    : pdfExtractedCount > 0
+                    ? 'border-green-400 bg-green-50/60'
+                    : 'border-slate-300 bg-slate-50/60 hover:border-violet-400 hover:bg-violet-50/40'
+                }`}
+                onDragOver={(e) => { e.preventDefault(); setPdfDragOver(true); }}
+                onDragLeave={() => setPdfDragOver(false)}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  setPdfDragOver(false);
+                  const file = e.dataTransfer.files[0];
+                  if (file) handleFileUpload(file);
+                }}
+              >
+                <input
+                  id="file-upload-input"
+                  type="file"
+                  accept=".pdf,.json,application/pdf,application/json"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files[0];
+                    if (file) handleFileUpload(file);
+                    e.target.value = '';
+                  }}
+                />
+
+                {pdfParsing ? (
+                  <div className="flex flex-col items-center gap-2 py-1">
+                    <div className="w-7 h-7 border-2 border-violet-500 border-t-transparent rounded-full animate-spin" />
+                    <p className="text-sm font-semibold text-violet-700">Reading file &amp; extracting questions…</p>
+                  </div>
+                ) : pdfExtractedCount > 0 ? (
+                  <div className="flex items-center gap-3">
+                    <CheckCircle2 className="w-6 h-6 text-green-600 flex-shrink-0" />
+                    <div>
+                      <p className="text-sm font-extrabold text-green-700">{pdfExtractedCount} questions extracted!</p>
+                      <p className="text-[11px] text-green-600">{pdfFileName} — questions added to builder below</p>
+                    </div>
+                    <button
+                      type="button"
+                      title="Clear import"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setPdfFileName('');
+                        setPdfExtractedCount(0);
+                        setPdfError('');
+                      }}
+                      className="ml-2 p-1 text-slate-400 hover:text-rose-500 rounded-lg transition-colors cursor-pointer"
+                    >
+                      <XCircle className="w-4 h-4" />
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center gap-1.5 py-1 text-center">
+                    <div className="flex items-center gap-2 text-slate-400 mb-0.5">
+                      <Upload className="w-6 h-6 text-slate-500" />
+                      <FileText className="w-5 h-5 text-violet-600" />
+                      <FileJson className="w-5 h-5 text-amber-600" />
+                    </div>
+                    <p className="text-sm font-semibold text-slate-700">
+                      Drop your <span className="text-violet-700 font-extrabold">PDF</span> or <span className="text-amber-700 font-extrabold">JSON</span> file here or <span className="text-violet-600 underline">click to browse</span>
+                    </p>
+                    <p className="text-[11px] text-slate-500 max-w-lg">
+                      Supports exam PDFs (<span className="font-mono">1. Q → A/B/C/D → Answer: A</span>) and JSON files (<span className="font-mono">{`[{"question", "options", "answer"}]`}</span>)
+                    </p>
+                  </div>
+                )}
+              </label>
+            )}
+
+            {/* Error message */}
+            {pdfError && (
+              <div className="flex items-start gap-2 px-3.5 py-2.5 bg-rose-50 border border-rose-200 rounded-xl">
+                <AlertCircle className="w-4 h-4 text-rose-500 flex-shrink-0 mt-0.5" />
+                <p className="text-xs text-rose-700 font-medium">{pdfError}</p>
+              </div>
+            )}
+          </div>
+
           {/* DYNAMIC MCQ QUESTION BUILDER SECTION */}
           <div className="space-y-4 pt-2 border-t border-slate-200">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
@@ -1358,6 +2025,11 @@ export function AssessmentListPage() {
               onClick={() => {
                 setIsAddModalOpen(false);
                 setEditingAssessment(null);
+                setPdfFileName('');
+                setPdfExtractedCount(0);
+                setPdfError('');
+                setPdfParsing(false);
+                setPastedText('');
               }}
             >
               Cancel

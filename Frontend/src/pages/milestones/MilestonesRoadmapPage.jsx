@@ -542,7 +542,11 @@ export function MilestonesRoadmapPage() {
     if (!baseStages || baseStages.length === 0) return [];
 
     // All stages from the database are rendered without artificial client-side filters
-    const cleanStages = baseStages.filter(s => !!s);
+    const cleanStages = baseStages.filter(s => !!s).sort((a, b) => {
+      const aNum = parseInt(String(a.stageNumber || '').replace(/\D/g, ''), 10) || 0;
+      const bNum = parseInt(String(b.stageNumber || '').replace(/\D/g, ''), 10) || 0;
+      return aNum - bNum;
+    });
 
     return cleanStages.map((stage, idx) => {
       const stageId = stage.id || `stg-${idx}`;
