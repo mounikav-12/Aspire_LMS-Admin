@@ -81,6 +81,7 @@ export function CodingQuestionsPage() {
   const [pastedJson, setPastedJson] = useState('');
   const [jsonError, setJsonError] = useState('');
   const [jsonExtractedCount, setJsonExtractedCount] = useState(0);
+  const [jsonTestCasesCount, setJsonTestCasesCount] = useState(0);
   const [jsonParsing, setJsonParsing] = useState(false);
   const [jsonDragOver, setJsonDragOver] = useState(false);
 
@@ -222,6 +223,7 @@ export function CodingQuestionsPage() {
     setPastedJson('');
     setJsonError('');
     setJsonExtractedCount(0);
+    setJsonTestCasesCount(0);
     setIsModalOpen(true);
   };
 
@@ -251,6 +253,7 @@ export function CodingQuestionsPage() {
     setPastedJson('');
     setJsonError('');
     setJsonExtractedCount(0);
+    setJsonTestCasesCount(0);
     setIsModalOpen(true);
   };
 
@@ -279,9 +282,18 @@ export function CodingQuestionsPage() {
 
   // ─── JSON Auto-Import Parser for Coding Questions ──────────────────────────
   const parseAndFillCodingQuestion = (rawInput, sourceName = 'Pasted JSON') => {
+    if (!rawInput || (typeof rawInput === 'string' && !rawInput.trim())) {
+      throw new Error('Please provide valid JSON content.');
+    }
+
+    let cleaned = typeof rawInput === 'string' ? rawInput.trim() : rawInput;
+    if (typeof cleaned === 'string' && cleaned.startsWith('```')) {
+      cleaned = cleaned.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '').trim();
+    }
+
     let parsed;
     try {
-      parsed = typeof rawInput === 'string' ? JSON.parse(rawInput) : rawInput;
+      parsed = typeof cleaned === 'string' ? JSON.parse(cleaned) : cleaned;
     } catch (err) {
       throw new Error('Invalid JSON syntax: ' + err.message);
     }
@@ -291,16 +303,43 @@ export function CodingQuestionsPage() {
       count = parsed.length;
       parsed = parsed[0];
     }
-    if (!parsed || typeof parsed !== 'object') {
-      throw new Error('Expected a JSON object or array of question objects.');
+    // Unwrap if wrapped in questions, codingQuestions, or data objects
+    if (parsed && typeof parsed === 'object') {
+      if (Array.isArray(parsed.codingQuestions) && parsed.codingQuestions.length > 0) {
+        count = parsed.codingQuestions.length;
+        parsed = parsed.codingQuestions[0];
+      } else if (Array.isArray(parsed.coding_questions) && parsed.coding_questions.length > 0) {
+        count = parsed.coding_questions.length;
+        parsed = parsed.coding_questions[0];
+      } else if (Array.isArray(parsed.questions) && parsed.questions.length > 0) {
+        count = parsed.questions.length;
+        parsed = parsed.questions[0];
+      } else if (parsed.codingQuestion && typeof parsed.codingQuestion === 'object') {
+        parsed = parsed.codingQuestion;
+      } else if (parsed.question && typeof parsed.question === 'object') {
+        parsed = parsed.question;
+      } else if (parsed.data && typeof parsed.data === 'object' && !Array.isArray(parsed.data)) {
+        parsed = parsed.data;
+      }
     }
 
-    const title = parsed.title || parsed.name || parsed.questionTitle || parsed.question || '';
-    const problemStatement = parsed.problemStatement || parsed.description || parsed.problem || parsed.statement || '';
-    const inputFormat = parsed.inputFormat || parsed.input_format || parsed.input || '';
-    const outputFormat = parsed.outputFormat || parsed.output_format || parsed.output || '';
-    const starterCode = parsed.starterCode || parsed.starter_code || parsed.codeTemplate || parsed.template || '';
-    const solutionCode = parsed.solutionCode || parsed.solution_code || parsed.solution || parsed.referenceCode || '';
+    if (!parsed || typeof parsed !== 'object') {
+      throw new Error('Expected a JSON object containing coding question details.');
+    }
+
+    const title = parsed.title || parsed.name || parsed.questionTitle || parsed.question_title || parsed.question || '';
+    const problemStatement =
+      parsed.problemStatement ||
+      parsed.problem_statement ||
+      parsed.description ||
+      parsed.problem ||
+      parsed.statement ||
+      parsed.desc ||
+      '';
+    const inputFormat = parsed.inputFormat || parsed.input_format || parsed.input_description || '';
+    const outputFormat = parsed.outputFormat || parsed.output_format || parsed.output_description || '';
+    const starterCode = parsed.starterCode || parsed.starter_code || parsed.codeTemplate || parsed.template || parsed.starter_template || '';
+    const solutionCode = parsed.solutionCode || parsed.solution_code || parsed.solution || parsed.referenceCode || parsed.model_solution || '';
 
     // Difficulty
     let difficulty = 'Easy';
@@ -328,19 +367,219 @@ export function CodingQuestionsPage() {
     if (Array.isArray(parsed.tags)) tags = parsed.tags.join(', ');
     else if (typeof parsed.tags === 'string') tags = parsed.tags;
 
-    // Test cases
-    let sampleTestCases = [];
-    const rawTC = parsed.sampleTestCases || parsed.testCases || parsed.testcases || parsed.examples || [];
+    // Helper: Safely normalize any value (string, number, boolean, array, object) into a string
+    const normalizeValue = (val) => {
+      if (val === undefined || val === null) return '';
+      if (typeof val === 'string') return val;
+      if (typeof val === 'number' || typeof val === 'boolean') return String(val);
+      try {
+        return JSON.stringify(val);
+      } catch (e) {
+        return String(val);
+      }
+    };
+
+    // ─── Robust Test Cases Extraction ───
+    let rawTC =
+      parsed.sampleTestCases ||
+      parsed.sample_test_cases ||
+      parsed.sampleTestcases ||
+      parsed.sampleCases ||
+      parsed.sample_cases ||
+      parsed.testCases ||
+      parsed.test_cases ||
+      parsed.testcases ||
+      parsed.test_case ||
+      parsed.testCase ||
+      parsed.examples ||
+      parsed.example ||
+      parsed.samples ||
+      parsed.cases ||
+      parsed.tests ||
+      parsed.test_suite ||
+      parsed.testSuite ||
+      null;
+
+    if (typeof rawTC === 'string') {
+      try {
+        const p = JSON.parse(rawTC);
+        if (Array.isArray(p) || (p && typeof p === 'object')) rawTC = p;
+      } catch (e) {}
+    }
+
+    let testCasesList = [];
     if (Array.isArray(rawTC)) {
-      sampleTestCases = rawTC.map((tc) => ({
-        input: tc.input || tc.in || '',
-        output: tc.output || tc.out || tc.expected || '',
-        explanation: tc.explanation || tc.explain || tc.note || ''
-      }));
+      testCasesList = rawTC;
+    } else if (rawTC && typeof rawTC === 'object') {
+      const entries = Object.entries(rawTC);
+      const firstVal = entries[0]?.[1];
+      if (firstVal && typeof firstVal === 'object' && !Array.isArray(firstVal)) {
+        testCasesList = Object.values(rawTC);
+      } else {
+        testCasesList = entries.map(([k, v]) => ({ input: k, output: v }));
+      }
     }
-    if (sampleTestCases.length === 0) {
-      sampleTestCases = [{ input: '', output: '', explanation: '' }];
+
+    // Check top-level sampleInput/input & sampleOutput/output if testCasesList is empty
+    if (testCasesList.length === 0) {
+      const topInput = parsed.sampleInput !== undefined ? parsed.sampleInput : (parsed.sample_input !== undefined ? parsed.sample_input : parsed.input);
+      const topOutput = parsed.sampleOutput !== undefined ? parsed.sampleOutput : (parsed.sample_output !== undefined ? parsed.sample_output : parsed.output);
+      if (topInput !== undefined || topOutput !== undefined) {
+        testCasesList.push({
+          input: topInput,
+          output: topOutput,
+          explanation: parsed.sampleExplanation || parsed.sample_explanation || parsed.explanation || ''
+        });
+      }
     }
+
+    // If still empty, parse Example 1/2 from problemStatement/description text
+    if (testCasesList.length === 0) {
+      const text = problemStatement || parsed.description || parsed.statement || '';
+      if (text) {
+        const exampleRegex = /Input[:\s]+([^\n\r]+(?:\r?\n(?!Output|Expected|Returns|Example|Explanation)[^\n\r]+)*)\s*(?:Output|Expected|Returns)[:\s]+([^\n\r]+(?:\r?\n(?!Explanation|Example|Input)[^\n\r]+)*)/gi;
+        let match;
+        while ((match = exampleRegex.exec(text)) !== null) {
+          const inStr = match[1]?.trim();
+          let outStr = match[2]?.trim();
+          let explanation = '';
+          const tail = text.slice(match.index);
+          const expMatch = tail.match(/Explanation[:\s]+([^\n\r]+(?:\r?\n(?!Example|Input)[^\n\r]+)*)/i);
+          if (expMatch) explanation = expMatch[1].trim();
+
+          if (inStr || outStr) {
+            testCasesList.push({ input: inStr || '', output: outStr || '', explanation });
+          }
+        }
+      }
+    }
+
+    // Now normalize every test case into { input, output, explanation }
+    const extractedTC = [];
+    for (const tc of testCasesList) {
+      if (!tc && tc !== 0 && tc !== false) continue;
+
+      if (Array.isArray(tc)) {
+        extractedTC.push({
+          input: normalizeValue(tc[0]),
+          output: normalizeValue(tc[1]),
+          explanation: normalizeValue(tc[2])
+        });
+        continue;
+      }
+
+      if (typeof tc === 'string') {
+        const inMatch = tc.match(/Input[:\s]+([^\n\r]+(?:\r?\n(?!Output|Expected|Returns|Example|Explanation)[^\n\r]+)*)/i);
+        const outMatch = tc.match(/(?:Output|Expected|Returns)[:\s]+([^\n\r]+(?:\r?\n(?!Explanation|Example|Input)[^\n\r]+)*)/i);
+        const expMatch = tc.match(/Explanation[:\s]+([\s\S]*)/i);
+        if (inMatch || outMatch) {
+          extractedTC.push({
+            input: normalizeValue((inMatch ? inMatch[1] : '').trim()),
+            output: normalizeValue((outMatch ? outMatch[1] : '').trim()),
+            explanation: normalizeValue((expMatch ? expMatch[1] : '').trim())
+          });
+        } else {
+          extractedTC.push({
+            input: normalizeValue(tc.trim()),
+            output: '',
+            explanation: ''
+          });
+        }
+        continue;
+      }
+
+      if (typeof tc === 'object') {
+        const inputVal =
+          tc.input !== undefined
+            ? tc.input
+            : tc.in !== undefined
+            ? tc.in
+            : tc.stdin !== undefined
+            ? tc.stdin
+            : tc.inputText !== undefined
+            ? tc.inputText
+            : tc.input_text !== undefined
+            ? tc.input_text
+            : tc.input_data !== undefined
+            ? tc.input_data
+            : tc.inputs !== undefined
+            ? tc.inputs
+            : tc.args !== undefined
+            ? tc.args
+            : tc.arguments !== undefined
+            ? tc.arguments
+            : tc.params !== undefined
+            ? tc.params
+            : tc.parameters !== undefined
+            ? tc.parameters
+            : tc.test_input !== undefined
+            ? tc.test_input
+            : tc.query !== undefined
+            ? tc.query
+            : '';
+
+        const outputVal =
+          tc.output !== undefined
+            ? tc.output
+            : tc.expected !== undefined
+            ? tc.expected
+            : tc.out !== undefined
+            ? tc.out
+            : tc.stdout !== undefined
+            ? tc.stdout
+            : tc.expectedOutput !== undefined
+            ? tc.expectedOutput
+            : tc.expected_output !== undefined
+            ? tc.expected_output
+            : tc.outputText !== undefined
+            ? tc.outputText
+            : tc.output_text !== undefined
+            ? tc.output_text
+            : tc.result !== undefined
+            ? tc.result
+            : tc.return !== undefined
+            ? tc.return
+            : tc.returnValue !== undefined
+            ? tc.returnValue
+            : tc.ans !== undefined
+            ? tc.ans
+            : tc.answer !== undefined
+            ? tc.answer
+            : tc.target !== undefined
+            ? tc.target
+            : '';
+
+        const expVal =
+          tc.explanation !== undefined
+            ? tc.explanation
+            : tc.explain !== undefined
+            ? tc.explain
+            : tc.note !== undefined
+            ? tc.note
+            : tc.notes !== undefined
+            ? tc.notes
+            : tc.description !== undefined
+            ? tc.description
+            : tc.reason !== undefined
+            ? tc.reason
+            : tc.details !== undefined
+            ? tc.details
+            : '';
+
+        extractedTC.push({
+          input: normalizeValue(inputVal),
+          output: normalizeValue(outputVal),
+          explanation: normalizeValue(expVal)
+        });
+      }
+    }
+
+    const finalTestCases = extractedTC.length > 0
+      ? extractedTC
+      : [{ input: '', output: '', explanation: '' }];
+
+    const resolvedInputFormat = inputFormat || (extractedTC[0]?.input ? extractedTC[0].input : '');
+    const resolvedOutputFormat = outputFormat || (extractedTC[0]?.output ? extractedTC[0].output : '');
 
     setFormData((prev) => ({
       ...prev,
@@ -352,15 +591,19 @@ export function CodingQuestionsPage() {
       timeLimitMinutes: parsed.timeLimitMinutes || parsed.timeLimit || prev.timeLimitMinutes,
       tags: tags || prev.tags,
       problemStatement: problemStatement || prev.problemStatement,
-      inputFormat: inputFormat || prev.inputFormat,
-      outputFormat: outputFormat || prev.outputFormat,
+      inputFormat: resolvedInputFormat || prev.inputFormat,
+      outputFormat: resolvedOutputFormat || prev.outputFormat,
       starterCode: starterCode || prev.starterCode,
       solutionCode: solutionCode || prev.solutionCode,
-      sampleTestCases: sampleTestCases.length > 0 ? sampleTestCases : prev.sampleTestCases
+      sampleTestCases: finalTestCases
     }));
 
     setJsonExtractedCount(count);
-    addToast(`✅ Auto-filled coding question "${title || 'from JSON'}"!`, 'success');
+    setJsonTestCasesCount(extractedTC.length);
+    addToast(
+      `✅ Auto-filled question "${title || 'from JSON'}" with ${extractedTC.length} test case(s)!`,
+      'success'
+    );
   };
 
   const handlePastedJsonImport = () => {
@@ -1009,7 +1252,11 @@ export function CodingQuestionsPage() {
             {jsonExtractedCount > 0 && !jsonError && (
               <div className="flex items-center gap-2 px-3 py-2 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-700 font-bold">
                 <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-                <span>Coding question fields filled successfully! You can review or edit any fields below.</span>
+                <span>
+                  Coding question fields filled successfully
+                  {jsonTestCasesCount > 0 ? ` with ${jsonTestCasesCount} sample test case(s)` : ''}!
+                  You can review or edit any fields below.
+                </span>
               </div>
             )}
           </div>
@@ -1252,7 +1499,17 @@ export function CodingQuestionsPage() {
           </div>
 
           <div className="flex justify-end gap-2.5 pt-3">
-            <Button variant="secondary" onClick={() => setIsModalOpen(false)}>
+            <Button
+              variant="secondary"
+              onClick={() => {
+                setIsModalOpen(false);
+                setEditingQuestion(null);
+                setPastedJson('');
+                setJsonError('');
+                setJsonExtractedCount(0);
+                setJsonTestCasesCount(0);
+              }}
+            >
               Cancel
             </Button>
             <Button type="submit" variant="primary" className="bg-emerald-600 hover:bg-emerald-700 text-white">
