@@ -450,6 +450,19 @@ const formatDbAssessment = (payload, id = null) => {
   const packedTopicName = `${payload.moduleName || payload.stageName || ''}||${payload.subtopicName || ''}||${payload.topicName || payload.innerTopicTitle || ''}`;
   const packedTopicId = `${payload.stageId || ''}||${payload.subtopicId || ''}||${payload.innerTopicId || payload.moduleId || ''}`;
 
+  const rawMcqs = Array.isArray(payload.mcqs)
+    ? payload.mcqs
+    : (typeof payload.mcqs === 'string' ? JSON.parse(payload.mcqs || '[]') : []);
+
+  const cleanedMcqs = rawMcqs.map((m) => ({
+    mcqType: m.mcqType || (m.codeSnippet ? 'coding' : 'theoretical'),
+    question: m.question || '',
+    codeSnippet: m.codeSnippet || '',
+    options: Array.isArray(m.options) ? m.options : ['', '', '', ''],
+    correctIndex: m.correctIndex !== undefined ? Number(m.correctIndex) : 0,
+    explanation: m.explanation || ''
+  }));
+
   return {
     id: id || payload.id || `asmnt-${Date.now()}`,
     title: payload.title || 'Untitled Assessment',
@@ -459,11 +472,11 @@ const formatDbAssessment = (payload, id = null) => {
     topic_name: packedTopicName,
     duration_minutes: Number(payload.durationMinutes || payload.duration_minutes || 45),
     total_marks: Number(payload.totalMarks || payload.total_marks || 100),
-    mcq_count: Number(payload.mcqCount || payload.mcq_count || (Array.isArray(payload.mcqs) ? payload.mcqs.length : 0)),
+    mcq_count: Number(payload.mcqCount || payload.mcq_count || cleanedMcqs.length),
     status: payload.status || 'Active',
     publish_status: payload.publishStatus || payload.publish_status || 'Published',
     due_date: payload.dueDate || payload.due_date || '2026-08-30',
-    mcqs: Array.isArray(payload.mcqs) ? payload.mcqs : (typeof payload.mcqs === 'string' ? JSON.parse(payload.mcqs) : []),
+    mcqs: cleanedMcqs,
     target_batch: payload.targetBatch || payload.target_batch || 'Weekday Batch'
   };
 };

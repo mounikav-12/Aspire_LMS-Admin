@@ -144,7 +144,8 @@ export function AssessmentListPage() {
         question: '',
         codeSnippet: '',
         options: ['', '', '', ''],
-        correctIndex: 0
+        correctIndex: 0,
+        explanation: ''
       }
     ],
     codingQuestions: [
@@ -189,6 +190,8 @@ export function AssessmentListPage() {
       .replace(/\s+(\([A-Da-d]\)\s)/g, '\n$1')
       // Insert newline before answer-key tokens
       .replace(/\s+((?:ans(?:wer)?|correct\s*answer?)\s*[:.])/gi, '\nANS_MARKER $1')
+      // Insert newline before explanation tokens
+      .replace(/\s+((?:exp(?:lanation)?|solution|rationale|reason)\s*[:.])/gi, '\nEXP_MARKER $1')
       // Insert newline before next question number so blocks are clean
       .replace(/([.?!])\s+(\d{1,3}[.)]\s)/g, '$1\n$2');
 
@@ -196,9 +199,10 @@ export function AssessmentListPage() {
 
     // ── Step 2: Split into question blocks ──────────────────────────────────
     // A question block starts with: "1." "Q1." "Q.1" "(1)" "1)"
-    const isQuestionStart = (l) => /^(?:Q\.?\s*)?\d{1,3}[.)]\s+\S/.test(l) || /^\(\d{1,3}\)\s+\S/.test(l);
-    const isOptionLine    = (l) => /^[*]?[([]?[A-Da-d][.)>\]]\s*.+/.test(l);
-    const isAnswerLine    = (l) => /^(?:ANS_MARKER\s+)?(?:ans(?:wer)?|correct(?:\s+answer)?)\s*[:.\s]/i.test(l);
+    const isQuestionStart    = (l) => /^(?:Q\.?\s*)?\d{1,3}[.)]\s+\S/.test(l) || /^\(\d{1,3}\)\s+\S/.test(l);
+    const isOptionLine       = (l) => /^[*]?[([]?[A-Da-d][.)>\]]\s*.+/.test(l);
+    const isAnswerLine       = (l) => /^(?:ANS_MARKER\s+)?(?:ans(?:wer)?|correct(?:\s+answer)?)\s*[:.\s]/i.test(l);
+    const isExplanationLine  = (l) => /^(?:EXP_MARKER\s+)?(?:exp(?:lanation)?|solution|rationale|reason)\s*[:.\s]/i.test(l);
 
     // Find where each question starts
     const blockStarts = [];
@@ -218,8 +222,8 @@ export function AssessmentListPage() {
       let questionParts = [firstLine];
       let li = 1;
 
-      // Consume continuation lines until we hit an option or answer
-      while (li < block.length && !isOptionLine(block[li]) && !isAnswerLine(block[li])) {
+      // Consume continuation lines until we hit an option, answer, or explanation
+      while (li < block.length && !isOptionLine(block[li]) && !isAnswerLine(block[li]) && !isExplanationLine(block[li])) {
         questionParts.push(block[li]);
         li++;
       }
@@ -231,7 +235,7 @@ export function AssessmentListPage() {
 
       while (li < block.length && options.length < 4) {
         const ol = block[li];
-        if (isAnswerLine(ol)) break;
+        if (isAnswerLine(ol) || isExplanationLine(ol)) break;
 
         // Asterisk = correct answer marker
         const asterisk = ol.match(/^\*[([]?([A-Da-d])[.)>\]]\s*(.+)/);
@@ -242,7 +246,7 @@ export function AssessmentListPage() {
           let optText = asterisk[2].trim();
           li++;
           // Collect multi-line option text
-          while (li < block.length && !isOptionLine(block[li]) && !isAnswerLine(block[li])) {
+          while (li < block.length && !isOptionLine(block[li]) && !isAnswerLine(block[li]) && !isExplanationLine(block[li])) {
             optText += ' ' + block[li]; li++;
           }
           options[idx] = optText.trim();
@@ -251,7 +255,7 @@ export function AssessmentListPage() {
           const idx = normal[1].toUpperCase().charCodeAt(0) - 65;
           let optText = normal[2].trim();
           li++;
-          while (li < block.length && !isOptionLine(block[li]) && !isAnswerLine(block[li])) {
+          while (li < block.length && !isOptionLine(block[li]) && !isAnswerLine(block[li]) && !isExplanationLine(block[li])) {
             optText += ' ' + block[li]; li++;
           }
           options[idx] = optText.trim();
@@ -260,13 +264,25 @@ export function AssessmentListPage() {
         }
       }
 
-      // ── Parse answer line ────────────────────────────────────────────────
+      // ── Parse answer and explanation lines ──────────────────────────────
+      let explanation = '';
       while (li < block.length) {
         const al = block[li];
         // Patterns: "Answer: A"  "Ans:B"  "Correct Answer: (C)"  "ANS_MARKER Answer: D"
         const ansMatch = al.match(/(?:ans(?:wer)?|correct(?:\s+answer)?)\s*[:.)\s]\s*[([]?([A-Da-d])[.)>\]]?/i);
+        const expMatch = al.match(/^(?:EXP_MARKER\s+)?(?:exp(?:lanation)?|solution|rationale|reason)\s*[:.\s]\s*(.+)/i);
+
         if (ansMatch) {
           correctIndex = ansMatch[1].toUpperCase().charCodeAt(0) - 65;
+          // In case explanation is appended on the same answer line
+          const inlineExp = al.match(/(?:exp(?:lanation)?|solution|rationale|reason)\s*[:.\s]\s*(.+)/i);
+          if (inlineExp) {
+            explanation = inlineExp[1].trim();
+          }
+        } else if (expMatch) {
+          explanation = expMatch[1].trim();
+        } else if (explanation && !isAnswerLine(al) && !isOptionLine(al)) {
+          explanation += ' ' + al;
         }
         li++;
       }
@@ -287,7 +303,8 @@ export function AssessmentListPage() {
           question: questionText,
           codeSnippet: '',
           options: filledOptions,
-          correctIndex: correctIndex >= 0 ? Math.min(correctIndex, 3) : 0
+          correctIndex: correctIndex >= 0 ? Math.min(correctIndex, 3) : 0,
+          explanation: explanation.trim()
         });
       }
     });
@@ -399,12 +416,51 @@ export function AssessmentListPage() {
         detectedCorrectIndex = 0;
       }
 
+      const rawExp = item.explanation ??
+        item.explain ??
+        item.solution ??
+        item.rationale ??
+        item.reason ??
+        item.note ??
+        item.notes ??
+        item.feedback ??
+        item.correctExplanation ??
+        item.correct_explanation ??
+        item.answer_explanation ??
+        item.solution_explanation ??
+        item.why ??
+        '';
+
+      let parsedExplanation = '';
+      if (typeof rawExp === 'string') {
+        parsedExplanation = rawExp.trim();
+      } else if (Array.isArray(rawExp)) {
+        parsedExplanation = rawExp
+          .map((x) => (typeof x === 'string' ? x : JSON.stringify(x)))
+          .join('\n')
+          .trim();
+      } else if (rawExp && typeof rawExp === 'object') {
+        if (typeof rawExp.text === 'string') parsedExplanation = rawExp.text.trim();
+        else if (typeof rawExp.explanation === 'string') parsedExplanation = rawExp.explanation.trim();
+        else if (typeof rawExp.description === 'string') parsedExplanation = rawExp.description.trim();
+        else if (typeof rawExp.details === 'string') parsedExplanation = rawExp.details.trim();
+        else if (typeof rawExp.summary === 'string') parsedExplanation = rawExp.summary.trim();
+        else {
+          try {
+            parsedExplanation = JSON.stringify(rawExp, null, 2);
+          } catch (e) {
+            parsedExplanation = String(rawExp);
+          }
+        }
+      }
+
       mcqs.push({
         mcqType,
         question: String(questionText).trim(),
         codeSnippet: String(codeSnippet || ''),
         options,
-        correctIndex: Math.min(Math.max(0, detectedCorrectIndex), 3)
+        correctIndex: Math.min(Math.max(0, detectedCorrectIndex), 3),
+        explanation: parsedExplanation
       });
     });
 
@@ -603,7 +659,8 @@ export function AssessmentListPage() {
           "To replace programming languages",
           "To automatically deploy applications"
         ],
-        answer: "A"
+        answer: "A",
+        explanation: "Version control systems record changes to files over time, allowing teams to track history, coordinate changes, and revert when needed."
       },
       {
         question: "Which problem can version control help solve when multiple developers work on the same project?",
@@ -613,7 +670,8 @@ export function AssessmentListPage() {
           "Creating database tables automatically",
           "Installing operating systems"
         ],
-        answer: "A"
+        answer: "A",
+        explanation: "Version control prevents overwriting each other's work by tracking individual developer contributions and providing merge capabilities."
       },
       {
         question: "Git is best described as a:",
@@ -623,7 +681,8 @@ export function AssessmentListPage() {
           "Code editor",
           "Web browser"
         ],
-        answer: "A"
+        answer: "A",
+        explanation: "Git is a distributed version control system where every developer has a full local copy of the repository and its entire history."
       }
     ];
     setPastedText(JSON.stringify(sample, null, 2));
@@ -670,7 +729,8 @@ export function AssessmentListPage() {
           question: '',
           codeSnippet: '',
           options: ['', '', '', ''],
-          correctIndex: 0
+          correctIndex: 0,
+          explanation: ''
         }
       ],
       codingQuestions: [
@@ -715,7 +775,8 @@ export function AssessmentListPage() {
           question: m.question || '',
           codeSnippet: m.codeSnippet || '',
           options: Array.isArray(m.options) ? [...m.options] : ['Option A', 'Option B', 'Option C', 'Option D'],
-          correctIndex: m.correctIndex !== undefined ? m.correctIndex : 0
+          correctIndex: m.correctIndex !== undefined ? m.correctIndex : 0,
+          explanation: m.explanation || ''
         }))
       : [
           {
@@ -723,7 +784,8 @@ export function AssessmentListPage() {
             question: '',
             codeSnippet: '',
             options: ['', '', '', ''],
-            correctIndex: 0
+            correctIndex: 0,
+            explanation: ''
           }
         ];
 
@@ -777,7 +839,8 @@ export function AssessmentListPage() {
           question: '',
           codeSnippet: '',
           options: ['', '', '', ''],
-          correctIndex: 0
+          correctIndex: 0,
+          explanation: ''
         }
       ]
     }));
@@ -828,6 +891,14 @@ export function AssessmentListPage() {
     setFormData((prev) => {
       const updated = [...prev.mcqs];
       updated[mcqIndex] = { ...updated[mcqIndex], correctIndex: parseInt(value) || 0 };
+      return { ...prev, mcqs: updated };
+    });
+  };
+
+  const handleUpdateMcqExplanation = (mcqIndex, value) => {
+    setFormData((prev) => {
+      const updated = [...prev.mcqs];
+      updated[mcqIndex] = { ...updated[mcqIndex], explanation: value };
       return { ...prev, mcqs: updated };
     });
   };
@@ -1007,6 +1078,7 @@ export function AssessmentListPage() {
 
   const currentModalTheoryCount = (formData.mcqs || []).filter(m => m.mcqType !== 'coding').length;
   const currentModalCodingMcqCount = (formData.mcqs || []).filter(m => m.mcqType === 'coding').length;
+  const currentModalExplanationCount = (formData.mcqs || []).filter(m => m.explanation && m.explanation.trim() !== '').length;
   const currentModalTotalQuestions = (formData.mcqs || []).length;
 
   return (
@@ -1399,13 +1471,19 @@ export function AssessmentListPage() {
                   </span>
                 </div>
               </div>
-              <div className="flex items-center gap-1.5 text-[11px]">
+              <div className="flex items-center gap-1.5 text-[11px] flex-wrap">
                 <span className="px-2.5 py-0.5 rounded-lg bg-white/10 text-blue-100 font-semibold border border-white/15">
                   {currentModalTheoryCount} Theory MCQs
                 </span>
                 {currentModalCodingMcqCount > 0 && (
                   <span className="px-2.5 py-0.5 rounded-lg bg-emerald-500/20 text-emerald-200 font-semibold border border-emerald-500/30">
                     {currentModalCodingMcqCount} Coding MCQs
+                  </span>
+                )}
+                {currentModalExplanationCount > 0 && (
+                  <span className="px-2.5 py-0.5 rounded-lg bg-amber-500/20 text-amber-200 font-semibold border border-amber-500/30 flex items-center gap-1">
+                    <BookOpen className="w-3 h-3 text-amber-300" />
+                    {currentModalExplanationCount}/{currentModalTotalQuestions} Explained
                   </span>
                 )}
               </div>
@@ -1749,7 +1827,7 @@ export function AssessmentListPage() {
                   rows={6}
                   value={pastedText}
                   onChange={(e) => setPastedText(e.target.value)}
-                  placeholder={`Paste JSON array here, e.g.:\n[\n  {\n    "question": "What is Git?",\n    "options": ["Version control", "Database", "Browser", "Editor"],\n    "answer": "A"\n  }\n]\n(Also supports exam text: 1. Question → A) ... Answer: A)`}
+                  placeholder={`Paste JSON array here, e.g.:\n[\n  {\n    "question": "What is Git?",\n    "options": ["Version control", "Database", "Browser", "Editor"],\n    "answer": "A",\n    "explanation": "Git is a distributed version control system."\n  }\n]\n(Also supports exam text: 1. Question → A) ... Answer: A → Explanation: ...)`}
                   className="w-full px-3.5 py-2.5 bg-white text-slate-800 font-mono text-xs border border-slate-300 rounded-xl focus:outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-100 transition-all shadow-inner resize-y"
                 />
 
@@ -1991,6 +2069,25 @@ export function AssessmentListPage() {
                       label: `Option ${idx + 1}: ${opt || `Choice ${idx + 1}`}`
                     }))}
                   />
+
+                  {/* Question Explanation / Solution Note */}
+                  <div className="space-y-1.5 pt-1">
+                    <div className="flex items-center justify-between">
+                      <label className="text-[11px] font-extrabold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                        <BookOpen className="w-3.5 h-3.5 text-indigo-600" /> Question Explanation & Solution Note
+                      </label>
+                      <span className="text-[10px] font-medium text-slate-400">
+                        Saved in Supabase • Visible to students upon test review
+                      </span>
+                    </div>
+                    <textarea
+                      rows={2}
+                      placeholder="Explain why this option is correct and provide key concept notes (e.g. Option B is correct because Git init initializes a new Git repository...)"
+                      value={typeof mcq.explanation === 'object' && mcq.explanation !== null ? JSON.stringify(mcq.explanation, null, 2) : (mcq.explanation || '')}
+                      onChange={(e) => handleUpdateMcqExplanation(mIndex, e.target.value)}
+                      className="w-full px-3.5 py-2 text-xs border border-slate-200 rounded-xl focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all bg-white placeholder:text-slate-400 leading-relaxed"
+                    />
+                  </div>
                 </div>
               );
             })}

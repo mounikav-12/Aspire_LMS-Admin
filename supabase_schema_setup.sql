@@ -189,7 +189,16 @@ ALTER TABLE public.students DROP COLUMN IF EXISTS gpa;
 
 DROP TABLE IF EXISTS public.daily_schedules CASCADE;
 
--- 14. ASSESSMENTS TABLE
+-- 14. ASSESSMENTS TABLE (Daily Assessments)
+-- Each question in mcqs JSONB:
+-- {
+--   "mcqType": "theoretical" | "coding",
+--   "question": "Question prompt",
+--   "codeSnippet": "Optional code snippet",
+--   "options": ["Choice 1", "Choice 2", "Choice 3", "Choice 4"],
+--   "correctIndex": 0,
+--   "explanation": "Explanation / solution note explaining why the answer is correct"
+-- }
 CREATE TABLE IF NOT EXISTS public.assessments (
   id TEXT PRIMARY KEY,
   title TEXT NOT NULL,
@@ -211,7 +220,8 @@ CREATE TABLE IF NOT EXISTS public.assessments (
 ALTER TABLE public.assessments DROP COLUMN IF EXISTS coding_count;
 ALTER TABLE public.assessments DROP COLUMN IF EXISTS coding_questions;
 
--- 14B. QUIZZES TABLE
+-- 14B. QUIZZES TABLE (Weekly Assessments)
+-- Uses the same mcqs JSONB schema with explanation field support
 CREATE TABLE IF NOT EXISTS public.quizzes (
   id TEXT PRIMARY KEY,
   title TEXT NOT NULL,

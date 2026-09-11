@@ -1008,7 +1008,15 @@ export function LmsDataProvider({ children }) {
       innerTopicId = parts[2] || innerTopicId;
     }
 
-    const mcqs = Array.isArray(row.mcqs) ? row.mcqs : (typeof row.mcqs === 'string' ? JSON.parse(row.mcqs || '[]') : []);
+    const rawMcqs = Array.isArray(row.mcqs) ? row.mcqs : (typeof row.mcqs === 'string' ? JSON.parse(row.mcqs || '[]') : []);
+    const mcqs = rawMcqs.map((m) => ({
+      mcqType: m.mcqType || (m.codeSnippet ? 'coding' : 'theoretical'),
+      question: m.question || '',
+      codeSnippet: m.codeSnippet || '',
+      options: Array.isArray(m.options) ? m.options : ['', '', '', ''],
+      correctIndex: m.correctIndex !== undefined ? Number(m.correctIndex) : 0,
+      explanation: m.explanation || ''
+    }));
 
     const targetBatch = row.target_batch || 'Weekday Batch';
     const targetBatches = Array.isArray(row.target_batches) && row.target_batches.length > 0
@@ -1061,6 +1069,17 @@ export function LmsDataProvider({ children }) {
     const targetBatchStr = a.targetBatch || (Array.isArray(a.targetBatches) ? a.targetBatches.join(', ') : 'Weekday Batch');
     const courseIdVal = (a.courseId && a.courseId !== 'ALL') ? a.courseId : null;
 
+    const cleanedMcqs = Array.isArray(a.mcqs)
+      ? a.mcqs.map((m) => ({
+          mcqType: m.mcqType || 'theoretical',
+          question: m.question || '',
+          codeSnippet: m.codeSnippet || '',
+          options: Array.isArray(m.options) ? m.options : ['', '', '', ''],
+          correctIndex: m.correctIndex !== undefined ? Number(m.correctIndex) : 0,
+          explanation: m.explanation || ''
+        }))
+      : [];
+
     return {
       id: String(a.id),
       title: a.title || 'Untitled Assessment',
@@ -1070,11 +1089,11 @@ export function LmsDataProvider({ children }) {
       topic_name: packedTopicName,
       duration_minutes: Number(a.durationMinutes || 45),
       total_marks: Number(a.totalMarks || 100),
-      mcq_count: Number(a.mcqCount || (Array.isArray(a.mcqs) ? a.mcqs.length : 0)),
+      mcq_count: Number(a.mcqCount || cleanedMcqs.length),
       status: a.status || 'Active',
       publish_status: a.publishStatus || 'Published',
       due_date: a.dueDate || '2026-08-30',
-      mcqs: Array.isArray(a.mcqs) ? a.mcqs : [],
+      mcqs: cleanedMcqs,
       target_batch: targetBatchStr
     };
   };
@@ -1084,6 +1103,17 @@ export function LmsDataProvider({ children }) {
     const packedTopicName = `${a.moduleName || a.stageName || ''}||${a.subtopicName || ''}||${a.topicName || a.innerTopicTitle || ''}`;
     const packedTopicId = `${a.stageId || ''}||${a.subtopicId || ''}||${a.innerTopicId || a.moduleId || ''}`;
     const targetBatchStr = a.targetBatch || (Array.isArray(a.targetBatches) ? a.targetBatches.join(', ') : 'Weekday Batch');
+
+    const cleanedMcqs = Array.isArray(a.mcqs)
+      ? a.mcqs.map((m) => ({
+          mcqType: m.mcqType || 'theoretical',
+          question: m.question || '',
+          codeSnippet: m.codeSnippet || '',
+          options: Array.isArray(m.options) ? m.options : ['', '', '', ''],
+          correctIndex: m.correctIndex !== undefined ? Number(m.correctIndex) : 0,
+          explanation: m.explanation || ''
+        }))
+      : [];
 
     return {
       id: String(a.id),
@@ -1101,9 +1131,9 @@ export function LmsDataProvider({ children }) {
       duration_minutes: Number(a.durationMinutes || 45),
       total_marks: Number(a.totalMarks || 100),
       due_date: a.dueDate || '2026-08-30',
-      mcq_count: Number(a.mcqCount || (Array.isArray(a.mcqs) ? a.mcqs.length : 0)),
-      total_questions: Number(a.totalQuestions || (Array.isArray(a.mcqs) ? a.mcqs.length : 0)),
-      mcqs: Array.isArray(a.mcqs) ? a.mcqs : [],
+      mcq_count: Number(a.mcqCount || cleanedMcqs.length),
+      total_questions: Number(a.totalQuestions || cleanedMcqs.length),
+      mcqs: cleanedMcqs,
       target_batches: Array.isArray(a.targetBatches) ? a.targetBatches : [targetBatchStr],
       target_batch: targetBatchStr,
       status: a.status || 'Published'
@@ -3227,7 +3257,7 @@ export function LmsDataProvider({ children }) {
           due_date: newQuiz.dueDate || '2026-08-30',
           mcq_count: Number(newQuiz.mcqCount || (Array.isArray(newQuiz.mcqs) ? newQuiz.mcqs.length : 0)),
           total_questions: Number(newQuiz.totalQuestions || (Array.isArray(newQuiz.mcqs) ? newQuiz.mcqs.length : 0)),
-          mcqs: Array.isArray(newQuiz.mcqs) ? newQuiz.mcqs : [],
+          mcqs: dbRow.mcqs,
           target_batch: dbRow.target_batch
         };
         const { data: data2, error: err2 } = await supabase.from('quizzes').upsert([coreRow]).select();
@@ -3235,7 +3265,7 @@ export function LmsDataProvider({ children }) {
           const minimalRow = {
             id: String(newQuiz.id),
             title: newQuiz.title || 'Untitled Quiz',
-            mcqs: Array.isArray(newQuiz.mcqs) ? newQuiz.mcqs : [],
+            mcqs: dbRow.mcqs,
             target_batch: dbRow.target_batch
           };
           await supabase.from('quizzes').upsert([minimalRow]);

@@ -58,6 +58,15 @@ CREATE TABLE IF NOT EXISTS public.course_topics (
 );
 
 -- 5. ASSESSMENTS & QUIZZES TABLE
+-- Each question in mcqs JSONB:
+-- {
+--   "mcqType": "theoretical" | "coding",
+--   "question": "Question prompt",
+--   "codeSnippet": "Optional code snippet",
+--   "options": ["Choice 1", "Choice 2", "Choice 3", "Choice 4"],
+--   "correctIndex": 0,
+--   "explanation": "Explanation / solution note explaining why the answer is correct"
+-- }
 CREATE TABLE IF NOT EXISTS public.assessments (
   id VARCHAR(255) PRIMARY KEY,
   title VARCHAR(255) NOT NULL,
