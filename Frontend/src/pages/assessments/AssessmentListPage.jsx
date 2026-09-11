@@ -808,17 +808,19 @@ export function AssessmentListPage() {
       : DEFAULT_STAGES;
 
   const handleOpenAddModal = () => {
+    const isDaily = activeMainTab !== 'QUIZZES';
     const firstStage = stagesList[0];
     const stageSubs = getSubtopicsForStage(firstStage);
     const firstSub = stageSubs[0];
     const subLessons = getInnerModulesForSubtopic(firstSub, courseLessons, firstStage?.id);
     const firstMod = subLessons[0];
+    const lessonTitle = firstMod?.title || firstSub?.title || '';
 
     setBatchActiveTab('Weekdays');
     setSelectedWeekdayBatches(allWeekdayBatchesList);
     setSelectedWeekendBatches(allWeekendBatchesList);
     setFormData({
-      title: '',
+      title: isDaily ? lessonTitle : '',
       evalType: activeMainTab === 'QUIZZES' ? 'quiz' : 'assessment',
       courseId: courses[0]?.id || '',
       courseName: courses[0]?.title || '',
@@ -828,8 +830,8 @@ export function AssessmentListPage() {
       subtopicName: firstSub?.title || '',
       innerTopicId: firstMod?.id || '',
       topicName: firstMod?.title || '',
-      durationMinutes: 45,
-      totalMarks: 100,
+      durationMinutes: isDaily ? 20 : 45,
+      totalMarks: isDaily ? 10 : 100,
       dueDate: '2026-08-30',
       mcqs: [
         {
@@ -1104,8 +1106,11 @@ export function AssessmentListPage() {
     const allBatches = [...selectedWeekdayBatches, ...selectedWeekendBatches];
     const targetBatchStr = allBatches.length > 0 ? allBatches.join(', ') : 'All Batches';
 
+    const defaultLessonTitle = currentModObj?.title || currentSubObj?.title || 'Daily Assessment';
+    const finalTitle = (formData.title && formData.title.trim() !== '') ? formData.title.trim() : defaultLessonTitle;
+
     const assessmentPayload = {
-      title: formData.title,
+      title: finalTitle,
       evalType: formData.evalType || 'assessment',
       courseId: selectedCourse?.id || formData.courseId,
       courseName: selectedCourse?.title || formData.courseName,
@@ -1117,8 +1122,8 @@ export function AssessmentListPage() {
       innerTopicId: currentModObj?.id || formData.innerTopicId || formData.moduleId,
       moduleId: currentModObj?.id || formData.innerTopicId || formData.moduleId,
       topicName: currentModObj?.title || formData.topicName,
-      durationMinutes: parseInt(formData.durationMinutes) || 45,
-      totalMarks: parseInt(formData.totalMarks) || 100,
+      durationMinutes: parseInt(formData.durationMinutes) || (isQuizEval ? 45 : 20),
+      totalMarks: parseInt(formData.totalMarks) || (isQuizEval ? 100 : 10),
       dueDate: formData.dueDate || '2026-08-30',
       mcqCount: totalMcqsCount,
       totalQuestions: totalQuestionsCount,
@@ -1608,7 +1613,17 @@ export function AssessmentListPage() {
               <Select
                 label="Evaluation Type"
                 value={formData.evalType || 'assessment'}
-                onChange={(e) => setFormData({ ...formData, evalType: e.target.value })}
+                onChange={(e) => {
+                  const newType = e.target.value;
+                  const isDaily = newType !== 'quiz';
+                  setFormData((prev) => ({
+                    ...prev,
+                    evalType: newType,
+                    durationMinutes: isDaily ? (Number(prev.durationMinutes) === 45 ? 20 : prev.durationMinutes) : (Number(prev.durationMinutes) === 20 ? 45 : prev.durationMinutes),
+                    totalMarks: isDaily ? (Number(prev.totalMarks) === 100 ? 10 : prev.totalMarks) : (Number(prev.totalMarks) === 10 ? 100 : prev.totalMarks),
+                    title: isDaily && (!prev.title || prev.title.toLowerCase().includes('quiz')) ? (prev.topicName || prev.title) : prev.title
+                  }));
+                }}
                 options={[
                   { value: 'assessment', label: 'Practice Assessment' },
                   { value: 'quiz', label: 'Module Quiz' }
@@ -1656,15 +1671,11 @@ export function AssessmentListPage() {
             const existingItems = currentModObj?.items || [];
 
             const handleAutoFillFromMilestone = () => {
-              const subTitleClean = currentSubtopicObj?.title ? currentSubtopicObj.title.replace(/^Module\s+\d+:\s*/i, '') : '';
-              const modTitle = currentModObj?.title || '';
-              const combinedTitle = subTitleClean && modTitle && !modTitle.toLowerCase().includes(subTitleClean.toLowerCase())
-                ? `${subTitleClean}: ${modTitle} Evaluation`
-                : (modTitle ? `${modTitle} Evaluation` : (subTitleClean ? `${subTitleClean} Assessment` : 'Interactive Module Evaluation'));
+              const lessonTitle = currentModObj?.title || currentSubtopicObj?.title || '';
 
               setFormData((prev) => ({
                 ...prev,
-                title: combinedTitle,
+                title: lessonTitle,
                 stageId: currentStageObj?.id || prev.stageId,
                 stageName: currentStageObj?.title || prev.stageName,
                 subtopicId: currentSubtopicObj?.id || prev.subtopicId,
@@ -1672,7 +1683,7 @@ export function AssessmentListPage() {
                 innerTopicId: currentModObj?.id || prev.innerTopicId,
                 topicName: currentModObj?.title || prev.topicName
               }));
-              addToast(`Auto-filled: "${combinedTitle}"`, 'info');
+              addToast(`Auto-filled title: "${lessonTitle}"`, 'info');
             };
 
             return (
@@ -1696,7 +1707,7 @@ export function AssessmentListPage() {
                     type="button"
                     onClick={handleAutoFillFromMilestone}
                     className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold text-blue-700 bg-blue-100/80 hover:bg-blue-200 border border-blue-300 rounded-lg transition-colors shadow-2xs self-start sm:self-auto cursor-pointer"
-                    title="Auto-populate Assessment Title from selected Milestone content"
+                    title="Auto-populate Assessment Title with Lesson Name"
                   >
                     <Sparkles className="w-3.5 h-3.5 text-blue-600 animate-pulse" />
                     <span>Auto-Fill from Milestone</span>
@@ -1726,8 +1737,9 @@ export function AssessmentListPage() {
                         const firstSub = firstSubs[0];
                         const firstLessons = getInnerModulesForSubtopic(firstSub, courseLessons, firstStage?.id);
                         const firstMod = firstLessons[0];
-                        setFormData({
-                          ...formData,
+                        const lessonName = firstMod?.title || firstSub?.title || '';
+                        setFormData((prev) => ({
+                          ...prev,
                           courseId: newCourseId,
                           courseName: selectedC?.title || '',
                           stageId: firstStage?.id || '',
@@ -1735,8 +1747,9 @@ export function AssessmentListPage() {
                           subtopicId: firstSub?.id || '',
                           subtopicName: firstSub?.title || '',
                           innerTopicId: firstMod?.id || '',
-                          topicName: firstMod?.title || ''
-                        });
+                          topicName: firstMod?.title || '',
+                          title: prev.evalType !== 'quiz' ? (lessonName || prev.title) : prev.title
+                        }));
                       }}
                       options={courses.map((c) => ({ value: c.id, label: c.title }))}
                     />
@@ -1754,15 +1767,17 @@ export function AssessmentListPage() {
                         const firstSub = newSubs[0];
                         const firstLessons = getInnerModulesForSubtopic(firstSub, courseLessons, newStage?.id);
                         const firstMod = firstLessons[0];
-                        setFormData({
-                          ...formData,
+                        const lessonName = firstMod?.title || firstSub?.title || '';
+                        setFormData((prev) => ({
+                          ...prev,
                           stageId: newStageId,
                           stageName: newStage?.title || '',
                           subtopicId: firstSub?.id || '',
                           subtopicName: firstSub?.title || '',
                           innerTopicId: firstMod?.id || '',
-                          topicName: firstMod?.title || ''
-                        });
+                          topicName: firstMod?.title || '',
+                          title: prev.evalType !== 'quiz' ? (lessonName || prev.title) : prev.title
+                        }));
                       }}
                       options={stagesList.map((stg) => ({
                         value: stg.id,
@@ -1781,13 +1796,15 @@ export function AssessmentListPage() {
                         const targetSub = currentSubtopicsArr.find((st) => st.id === newSubId) || currentSubtopicsArr[0];
                         const targetLessons = getInnerModulesForSubtopic(targetSub, courseLessons, formData.stageId);
                         const firstMod = targetLessons[0];
-                        setFormData({
-                          ...formData,
+                        const lessonName = firstMod?.title || targetSub?.title || '';
+                        setFormData((prev) => ({
+                          ...prev,
                           subtopicId: newSubId,
                           subtopicName: targetSub?.title || '',
                           innerTopicId: firstMod?.id || '',
-                          topicName: firstMod?.title || ''
-                        });
+                          topicName: firstMod?.title || '',
+                          title: prev.evalType !== 'quiz' ? (lessonName || prev.title) : prev.title
+                        }));
                       }}
                       options={currentSubtopicsArr.map((sub, idx) => ({
                         value: sub.id,
@@ -1804,11 +1821,13 @@ export function AssessmentListPage() {
                       onChange={(e) => {
                         const newModId = e.target.value;
                         const targetMod = currentInnerModules.find((m) => (m.id || m.title) === newModId) || currentInnerModules[0];
-                        setFormData({
-                          ...formData,
+                        const lessonName = targetMod?.title || '';
+                        setFormData((prev) => ({
+                          ...prev,
                           innerTopicId: newModId,
-                          topicName: targetMod?.title || ''
-                        });
+                          topicName: lessonName,
+                          title: prev.evalType !== 'quiz' ? (lessonName || prev.title) : prev.title
+                        }));
                       }}
                       options={currentInnerModules.map((mod) => ({
                         value: mod.id || mod.title,
