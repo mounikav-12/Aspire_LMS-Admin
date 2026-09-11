@@ -2318,7 +2318,7 @@ export function LmsDataProvider({ children }) {
           }
         }
       });
-      // Assessments — delta update with in-place update to preserve position
+      // Assessments (Daily Assessments) — real-time subscription
       makeChannel('assessments', (payload) => {
         if (payload.eventType === 'INSERT') {
           const newAsmnt = normalizeAssessment(payload.new);
@@ -2336,17 +2336,55 @@ export function LmsDataProvider({ children }) {
           const updated = normalizeAssessment(payload.new);
           if (updated) {
             setAssessmentsByBatch((prev) => {
-              const updateInPlace = (arr) => (arr || []).map((x) => (x.id === updated.id ? { ...x, ...updated } : x));
-              return {
-                'Weekday Batch': updateInPlace(prev['Weekday Batch']),
-                'Weekend Batch': updateInPlace(prev['Weekend Batch'])
+              const next = {
+                'Weekday Batch': [...(prev['Weekday Batch'] || [])],
+                'Weekend Batch': [...(prev['Weekend Batch'] || [])]
               };
+              placeItemInBatchDict(updated, next);
+              return next;
             });
           }
         } else if (payload.eventType === 'DELETE') {
           const deletedId = payload.old?.id;
           if (deletedId) {
             setAssessmentsByBatch((prev) => ({
+              'Weekday Batch': (prev['Weekday Batch'] || []).filter((x) => x.id !== deletedId),
+              'Weekend Batch': (prev['Weekend Batch'] || []).filter((x) => x.id !== deletedId)
+            }));
+          }
+        }
+      });
+
+      // Quizzes (Weekly Assessments) — real-time subscription
+      makeChannel('quizzes', (payload) => {
+        if (payload.eventType === 'INSERT') {
+          const newQuiz = normalizeAssessment(payload.new);
+          if (newQuiz) {
+            setQuizzesByBatch((prev) => {
+              const next = {
+                'Weekday Batch': [...(prev['Weekday Batch'] || [])],
+                'Weekend Batch': [...(prev['Weekend Batch'] || [])]
+              };
+              placeItemInBatchDict(newQuiz, next);
+              return next;
+            });
+          }
+        } else if (payload.eventType === 'UPDATE') {
+          const updated = normalizeAssessment(payload.new);
+          if (updated) {
+            setQuizzesByBatch((prev) => {
+              const next = {
+                'Weekday Batch': [...(prev['Weekday Batch'] || [])],
+                'Weekend Batch': [...(prev['Weekend Batch'] || [])]
+              };
+              placeItemInBatchDict(updated, next);
+              return next;
+            });
+          }
+        } else if (payload.eventType === 'DELETE') {
+          const deletedId = payload.old?.id;
+          if (deletedId) {
+            setQuizzesByBatch((prev) => ({
               'Weekday Batch': (prev['Weekday Batch'] || []).filter((x) => x.id !== deletedId),
               'Weekend Batch': (prev['Weekend Batch'] || []).filter((x) => x.id !== deletedId)
             }));
