@@ -414,10 +414,37 @@ export function AssessmentListPage() {
   //  4. Options as array of strings, array of {text, isCorrect} objects, or {A: "...", B: "..."} map
   const parseMcqsFromJson = (jsonString) => {
     let parsed;
-    try {
-      parsed = typeof jsonString === 'string' ? JSON.parse(jsonString) : jsonString;
-    } catch (err) {
-      throw new Error('Invalid JSON syntax: ' + err.message);
+    if (typeof jsonString === 'object' && jsonString !== null) {
+      parsed = jsonString;
+    } else {
+      const raw = String(jsonString || '').trim();
+      try {
+        parsed = JSON.parse(raw);
+      } catch (err1) {
+        try {
+          // Pass 1: Fix invalid backslashes (e.g. LaTeX macros like \exists, \forall, file paths C:\foo, regex \d)
+          let sanitized = raw.replace(/\\(?!["\\/bfnrt]|u[0-9a-fA-F]{4})/g, '\\\\');
+          sanitized = sanitized.replace(/\\([bfrt][a-zA-Z]+)/g, '\\\\$1');
+          parsed = JSON.parse(sanitized);
+        } catch (err2) {
+          try {
+            // Pass 2: Clean trailing commas
+            let cleanCommas = raw
+              .replace(/\\(?!["\\/bfnrt]|u[0-9a-fA-F]{4})/g, '\\\\')
+              .replace(/\\([bfrt][a-zA-Z]+)/g, '\\\\$1')
+              .replace(/,\s*([\]}])/g, '$1');
+            parsed = JSON.parse(cleanCommas);
+          } catch (err3) {
+            try {
+              // Pass 3: Evaluate JS object literal (supports unquoted keys, single quotes)
+              const parseFn = new Function('return (' + raw + ')');
+              parsed = parseFn();
+            } catch (err4) {
+              throw new Error('Invalid JSON syntax: ' + err1.message);
+            }
+          }
+        }
+      }
     }
 
     let rawList = [];
