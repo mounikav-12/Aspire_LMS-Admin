@@ -864,7 +864,87 @@ export const DEFAULT_CURRICULUM_STAGES = [
 
 export const DEFAULT_STAGES = DEFAULT_CURRICULUM_STAGES;
 
+export const SUBTOPIC_MODULE_MAP = {
+  'm1_git': 'mod-git',
+  'm1_html': 'mod-html',
+  'm1_css_fund': 'mod-css',
+  'm1_css_adv': 'mod-advcss',
+  'm1_bootstrap': 'mod-bootstrap',
+  'm1_js_ess': 'mod-jsess',
+  'm1_js_func': 'mod-jsfunc',
+  'm1_dom': 'mod-dom',
+  'm1_es6': 'mod-es6async',
+  'm2_py_fund': 'subtop-1787202208426',
+  'm2_py_oop': 'subtop-1787203469178',
+  'm2_postgres': 'subtop-1787203490227',
+  'm2_django_api': 'subtop-1787203534393',
+  'm2_dsa_arrays': 'subtop-1787203669226',
+  'm2_dsa_linkedlist': 'subtop-1787203763954',
+  'm2_dsa_trees': 'subtop-1787203763954',
+  'm2_dsa_dp': 'subtop-1787203763954',
+  'mod-stg3-m1': 'mod-stg3-m1',
+  'mod-stg3-m2': 'mod-stg3-m2',
+  'mod-stg3-m3': 'mod-stg3-m3',
+  'mod-stg4-m1': 'mod-stg4-m1',
+  'mod-stg4-m2': 'mod-stg4-m2',
+  'mod-stg4-m3': 'mod-stg4-m3',
+  'mod-stg4-m4': 'mod-stg4-m4',
+  'mod-stg4-m5': 'mod-stg4-m5'
+};
+
 export const normalizeStagesList = (rawStages) => {
+  const cleanId = (id) => String(id || '').replace(/-(w|s)$/i, '').trim().toLowerCase();
+  const cleanStr = (s) => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '').trim();
+
+  const normalizeStageSubtopics = (defStage, existingStage) => {
+    const rawSubs = (existingStage && Array.isArray(existingStage.subtopics) && existingStage.subtopics.length > 0)
+      ? existingStage.subtopics
+      : (existingStage && Array.isArray(existingStage.modules) && existingStage.modules.length > 0
+          ? existingStage.modules
+          : []);
+
+    if (rawSubs.length === 0) {
+      return defStage.subtopics;
+    }
+
+    const mergedSubs = [];
+    defStage.subtopics.forEach((defSub) => {
+      const defClean = cleanId(defSub.id);
+      const defTitle = cleanStr(defSub.title);
+      const existing = rawSubs.find(s => 
+        cleanId(s.id) === defClean ||
+        SUBTOPIC_MODULE_MAP[cleanId(s.id)] === defClean ||
+        SUBTOPIC_MODULE_MAP[defClean] === cleanId(s.id) ||
+        cleanStr(s.title) === defTitle ||
+        (cleanStr(s.title).length > 5 && (cleanStr(s.title).includes(defTitle) || defTitle.includes(cleanStr(s.title))))
+      );
+      if (existing) {
+        mergedSubs.push({
+          ...defSub,
+          ...existing,
+          id: existing.id || defSub.id,
+          title: existing.title || defSub.title
+        });
+      } else {
+        mergedSubs.push(defSub);
+      }
+    });
+
+    rawSubs.forEach((customSub) => {
+      const cClean = cleanId(customSub.id);
+      const cTitle = cleanStr(customSub.title);
+      const alreadyIncluded = mergedSubs.some(s => 
+        cleanId(s.id) === cClean ||
+        cleanStr(s.title) === cTitle
+      );
+      if (!alreadyIncluded) {
+        mergedSubs.push(customSub);
+      }
+    });
+
+    return mergedSubs;
+  };
+
   if (!rawStages || !Array.isArray(rawStages) || rawStages.length === 0) {
     return DEFAULT_CURRICULUM_STAGES;
   }
@@ -881,17 +961,14 @@ export const normalizeStagesList = (rawStages) => {
     );
 
     if (existing) {
-      const existingSubtopics = (Array.isArray(existing.subtopics) && existing.subtopics.length > 0)
-        ? existing.subtopics
-        : (Array.isArray(existing.modules) && existing.modules.length > 0
-            ? existing.modules
-            : defStage.subtopics);
+      const mergedSubtopics = normalizeStageSubtopics(defStage, existing);
       return {
         ...defStage,
         ...existing,
         id: existing.id || defStage.id,
         title: existing.title || defStage.title,
-        subtopics: existingSubtopics
+        subtopics: mergedSubtopics,
+        modules: mergedSubtopics
       };
     }
     return defStage;

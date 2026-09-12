@@ -55,9 +55,13 @@ export {
 
 export const getSubtopicsForStage = (stage) => {
   if (!stage) return [];
-  if (Array.isArray(stage.subtopics) && stage.subtopics.length > 0) return stage.subtopics;
-  if (Array.isArray(stage.modules) && stage.modules.length > 0) return stage.modules;
-  
+  const rawSubs = (Array.isArray(stage.subtopics) && stage.subtopics.length > 0)
+    ? stage.subtopics
+    : (Array.isArray(stage.modules) && stage.modules.length > 0 ? stage.modules : []);
+
+  const cleanId = (id) => String(id || '').replace(/-(w|s)$/i, '').trim().toLowerCase();
+  const cleanStr = (s) => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '').trim();
+
   // Fallback to matching default stage in DEFAULT_CURRICULUM_STAGES
   const stgNum = getStageNumber(stage.id) || getStageNumber(stage.title) || getStageNumber(stage.name);
   const matchedDefault = DEFAULT_CURRICULUM_STAGES.find(s => 
@@ -65,10 +69,53 @@ export const getSubtopicsForStage = (stage) => {
     isMatchingStage(s.title, stage.title) || 
     (stgNum && (getStageNumber(s.id) === stgNum || getStageNumber(s.title) === stgNum))
   );
-  if (matchedDefault && Array.isArray(matchedDefault.subtopics)) {
+
+  if (!matchedDefault) {
+    return rawSubs;
+  }
+
+  if (rawSubs.length === 0) {
     return matchedDefault.subtopics;
   }
-  return [];
+
+  // Merge default subtopics with rawSubs
+  const mergedSubs = [];
+  matchedDefault.subtopics.forEach((defSub) => {
+    const defClean = cleanId(defSub.id);
+    const defTitle = cleanStr(defSub.title);
+    const existing = rawSubs.find(s => 
+      cleanId(s.id) === defClean ||
+      SUBTOPIC_MODULE_MAP[cleanId(s.id)] === defClean ||
+      SUBTOPIC_MODULE_MAP[defClean] === cleanId(s.id) ||
+      cleanStr(s.title) === defTitle ||
+      (cleanStr(s.title).length > 5 && (cleanStr(s.title).includes(defTitle) || defTitle.includes(cleanStr(s.title))))
+    );
+    if (existing) {
+      mergedSubs.push({
+        ...defSub,
+        ...existing,
+        id: existing.id || defSub.id,
+        title: existing.title || defSub.title
+      });
+    } else {
+      mergedSubs.push(defSub);
+    }
+  });
+
+  // Also include any extra custom subtopics
+  rawSubs.forEach((customSub) => {
+    const cClean = cleanId(customSub.id);
+    const cTitle = cleanStr(customSub.title);
+    const alreadyIncluded = mergedSubs.some(s => 
+      cleanId(s.id) === cClean ||
+      cleanStr(s.title) === cTitle
+    );
+    if (!alreadyIncluded) {
+      mergedSubs.push(customSub);
+    }
+  });
+
+  return mergedSubs;
 };
 
 export const getInnerModulesForSubtopic = (subtopic, courseLessons = [], stageId = '') => {
