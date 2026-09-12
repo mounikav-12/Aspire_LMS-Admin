@@ -646,24 +646,18 @@ export function LiveSessionListPage() {
 
   const activeStagesList = React.useMemo(() => {
     const courseMilestones = activeCourseId && activeCourseId !== 'ALL' ? milestonesByBatch?.[activeCourseId]?.stages : null;
-    if (Array.isArray(courseMilestones) && courseMilestones.length > 0 && courseMilestones.some(s => (s.subtopics && s.subtopics.length > 0) || (s.modules && s.modules.length > 0))) {
-      return courseMilestones;
+    if (Array.isArray(courseMilestones) && courseMilestones.length > 0) {
+      return normalizeStagesList(courseMilestones);
     }
     const batchMilestones = milestonesByBatch?.[activeBatchFilter]?.stages;
     if (Array.isArray(batchMilestones) && batchMilestones.length > 0) {
-      return batchMilestones;
+      return normalizeStagesList(batchMilestones);
     }
     if (Array.isArray(milestones?.stages) && milestones.stages.length > 0) {
-      return milestones.stages;
+      return normalizeStagesList(milestones.stages);
     }
     if (activeCourseObj?.topics && activeCourseObj.topics.length > 0) {
-      return activeCourseObj.topics.map((top, idx) => {
-        const matchingMilestoneStage = (milestones?.stages || []).find(ms => isMatchingStage(ms.id, top.id) || idx === (ms.stageIndex || idx));
-        return {
-          ...top,
-          subtopics: (top.subtopics && top.subtopics.length > 0) ? top.subtopics : (matchingMilestoneStage?.subtopics || [])
-        };
-      });
+      return normalizeStagesList(activeCourseObj.topics);
     }
     return DEFAULT_STAGES;
   }, [activeCourseId, activeCourseObj, milestonesByBatch, activeBatchFilter, milestones]);
@@ -1045,9 +1039,11 @@ export function LiveSessionListPage() {
           {/* 2. CASCADING MILESTONE CURRICULUM LOCATION MAPPING (2x2 Grid) */}
           {(() => {
             const currentStagesList = formData.courseId
-              ? (milestonesByBatch?.[formData.courseId]?.stages ||
-                 courses.find((c) => c.id === formData.courseId)?.topics ||
-                 [])
+              ? normalizeStagesList(
+                  milestonesByBatch?.[formData.courseId]?.stages ||
+                  courses.find((c) => c.id === formData.courseId)?.topics ||
+                  []
+                )
               : [];
 
             const currentStageObj = formData.stageId

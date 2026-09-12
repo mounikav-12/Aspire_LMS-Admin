@@ -38,7 +38,7 @@ import { useToast } from '../../context/ToastContext';
 import { useLmsData } from '../../context/LmsDataContext';
 import { BatchFilterSelector } from '../../components/common/BatchFilterSelector';
 import { Button } from '../../components/common/Button';
-import { DEFAULT_CURRICULUM_LESSONS } from '../../data/curriculumData';
+import { DEFAULT_CURRICULUM_LESSONS, normalizeStagesList } from '../../data/curriculumData';
 
 export const formatLocalDate = (d) => {
   if (!d || isNaN(new Date(d).getTime())) return '';
@@ -590,8 +590,8 @@ export function MilestonesRoadmapPage() {
 
     if (!baseStages || baseStages.length === 0) return [];
 
-    // All stages from the database are rendered without artificial client-side filters
-    const cleanStages = baseStages.filter(s => !!s).sort((a, b) => {
+    // All stages from the database are normalized to ensure full curriculum completeness
+    const cleanStages = normalizeStagesList(baseStages).filter(s => !!s).sort((a, b) => {
       const aNum = parseInt(String(a.stageNumber || '').replace(/\D/g, ''), 10) || 0;
       const bNum = parseInt(String(b.stageNumber || '').replace(/\D/g, ''), 10) || 0;
       return aNum - bNum;
