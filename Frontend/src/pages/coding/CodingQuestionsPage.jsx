@@ -52,19 +52,50 @@ export function CodingQuestionsPage() {
 
   const activeCourseId = selectedCourseId || courses[0]?.id || '';
   const activeCourseObj = courses.find((c) => c.id === activeCourseId) || courses[0];
-  const activeStagesList =
-    activeCourseId && activeCourseId !== 'ALL' && milestonesByBatch?.[activeCourseId]?.stages && milestonesByBatch[activeCourseId].stages.length > 0
-      ? milestonesByBatch[activeCourseId].stages
-      : activeCourseObj?.topics && activeCourseObj.topics.length > 0
-      ? activeCourseObj.topics
-      : milestones?.stages && milestones.stages.length > 0
-      ? milestones.stages
-      : DEFAULT_STAGES;
 
-  const selectedStageObj = selectedStageId !== 'ALL' ? activeStagesList.find((s) => s.id === selectedStageId) : null;
+  // Helper string cleaners
+  const cleanId = (id) => String(id || '').replace(/-(w|s)$/i, '').trim().toLowerCase();
+  const cleanStr = (s) => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '').trim();
+
+  // Resolve stages with subtopics properly
+  const activeStagesList = React.useMemo(() => {
+    const courseMilestones = activeCourseId && activeCourseId !== 'ALL' ? milestonesByBatch?.[activeCourseId]?.stages : null;
+    if (Array.isArray(courseMilestones) && courseMilestones.length > 0 && courseMilestones.some(s => (s.subtopics && s.subtopics.length > 0) || (s.modules && s.modules.length > 0))) {
+      return courseMilestones;
+    }
+    const batchMilestones = milestonesByBatch?.[activeBatchFilter]?.stages;
+    if (Array.isArray(batchMilestones) && batchMilestones.length > 0) {
+      return batchMilestones;
+    }
+    if (Array.isArray(milestones?.stages) && milestones.stages.length > 0) {
+      return milestones.stages;
+    }
+    if (activeCourseObj?.topics && activeCourseObj.topics.length > 0) {
+      return activeCourseObj.topics.map((top, idx) => {
+        const matchingMilestoneStage = (milestones?.stages || []).find(ms => isMatchingStage(ms.id, top.id) || idx === (ms.stageIndex || idx));
+        return {
+          ...top,
+          subtopics: (top.subtopics && top.subtopics.length > 0) ? top.subtopics : (matchingMilestoneStage?.subtopics || [])
+        };
+      });
+    }
+    return DEFAULT_STAGES;
+  }, [activeCourseId, activeCourseObj, milestonesByBatch, activeBatchFilter, milestones]);
+
+  const selectedStageObj = selectedStageId !== 'ALL'
+    ? (activeStagesList.find((s) => s.id === selectedStageId || isMatchingStage(s.id, selectedStageId)) || null)
+    : null;
   const subtopicsForStage = selectedStageObj ? getSubtopicsForStage(selectedStageObj) : [];
 
-  const selectedSubtopicObj = selectedSubtopicId !== 'ALL' ? subtopicsForStage.find((sub) => sub.id === selectedSubtopicId) : null;
+  const selectedSubtopicObj = selectedSubtopicId !== 'ALL'
+    ? (subtopicsForStage.find((sub) =>
+        sub.id === selectedSubtopicId ||
+        cleanId(sub.id) === cleanId(selectedSubtopicId) ||
+        SUBTOPIC_MODULE_MAP[cleanId(sub.id)] === cleanId(selectedSubtopicId) ||
+        cleanStr(sub.title) === cleanStr(selectedSubtopicId)
+      ) || null)
+    : null;
+
   const modulesForSubtopic = selectedSubtopicObj ? getInnerModulesForSubtopic(selectedSubtopicObj, courseLessons, selectedStageId) : [];
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -90,13 +121,17 @@ export function CodingQuestionsPage() {
     title: '',
     category: 'Algorithms & Data Structures',
     difficulty: 'Easy',
-    marks: 0,
-    timeLimitMinutes: '',
+    marks: 20,
+    timeLimitMinutes: 15,
     language: 'JavaScript',
     courseId: courses[0]?.id || '',
+    courseName: courses[0]?.title || '',
     stageId: '',
+    stageName: '',
     subtopicId: '',
+    subtopicName: '',
     innerTopicId: '',
+    topicName: '',
     tags: '',
     problemStatement: '',
     inputFormat: '',
@@ -112,35 +147,57 @@ export function CodingQuestionsPage() {
     ]
   });
 
-  const selectedCourseObj = courses.find((c) => c.id === formData.courseId) || courses[0];
-  const stagesList = selectedCourseObj?.topics || [];
-  const currentStageObj = stagesList.find((s) => s.id === formData.stageId) || stagesList[0];
-  const currentSubtopicsArr = currentStageObj?.subtopics || [];
-  const currentSubtopicObj = currentSubtopicsArr.find((st) => st.id === formData.subtopicId) || currentSubtopicsArr[0];
-  const currentInnerTopicsArr = courseLessons?.filter(
-    (l) =>
-      l.course_id === formData.courseId &&
-      l.stage_id === formData.stageId &&
-      l.module_id === formData.subtopicId
-  ) || [];
+  const modalSelectedCourse = courses.find((c) => c.id === formData.courseId) || courses[0];
+  const modalStagesList = React.useMemo(() => {
+    const courseMilestones = formData.courseId && formData.courseId !== 'ALL' ? milestonesByBatch?.[formData.courseId]?.stages : null;
+    if (Array.isArray(courseMilestones) && courseMilestones.length > 0 && courseMilestones.some(s => (s.subtopics && s.subtopics.length > 0) || (s.modules && s.modules.length > 0))) {
+      return courseMilestones;
+    }
+    const batchMilestones = milestonesByBatch?.[activeBatchFilter]?.stages;
+    if (Array.isArray(batchMilestones) && batchMilestones.length > 0) {
+      return batchMilestones;
+    }
+    if (Array.isArray(milestones?.stages) && milestones.stages.length > 0) {
+      return milestones.stages;
+    }
+    if (modalSelectedCourse?.topics && modalSelectedCourse.topics.length > 0) {
+      return modalSelectedCourse.topics.map((top, idx) => {
+        const matchingMilestoneStage = (milestones?.stages || []).find(ms => isMatchingStage(ms.id, top.id) || idx === (ms.stageIndex || idx));
+        return {
+          ...top,
+          subtopics: (top.subtopics && top.subtopics.length > 0) ? top.subtopics : (matchingMilestoneStage?.subtopics || [])
+        };
+      });
+    }
+    return DEFAULT_STAGES;
+  }, [formData.courseId, modalSelectedCourse, milestonesByBatch, activeBatchFilter, milestones]);
+
+  const currentStageObj = modalStagesList.find((s) => s.id === formData.stageId || isMatchingStage(s.id, formData.stageId)) || modalStagesList[0];
+  const currentSubtopicsArr = getSubtopicsForStage(currentStageObj);
+  const currentSubtopicObj = currentSubtopicsArr.find((st) => st.id === formData.subtopicId || cleanId(st.id) === cleanId(formData.subtopicId) || cleanStr(st.title) === cleanStr(formData.subtopicId)) || currentSubtopicsArr[0];
+  const currentInnerTopicsArr = getInnerModulesForSubtopic(currentSubtopicObj, courseLessons, currentStageObj?.id);
 
   React.useEffect(() => {
     if (courses && courses.length > 0 && !formData.stageId) {
       const activeCourse = courses.find((c) => c.id === formData.courseId) || courses[0];
-      const activeStage = activeCourse?.topics?.[0];
-      const activeSub = activeStage?.subtopics?.[0];
-      const activeInner = courseLessons?.find(
-        (l) => l.course_id === activeCourse?.id && l.stage_id === activeStage?.id && l.module_id === activeSub?.id
-      );
+      const activeStage = modalStagesList[0];
+      const activeSubs = getSubtopicsForStage(activeStage);
+      const activeSub = activeSubs[0];
+      const activeInners = getInnerModulesForSubtopic(activeSub, courseLessons, activeStage?.id);
+      const activeInner = activeInners[0];
       setFormData((prev) => ({
         ...prev,
         courseId: prev.courseId || activeCourse?.id || '',
+        courseName: prev.courseName || activeCourse?.title || '',
         stageId: prev.stageId || activeStage?.id || '',
+        stageName: prev.stageName || activeStage?.title || '',
         subtopicId: prev.subtopicId || activeSub?.id || '',
-        innerTopicId: prev.innerTopicId || activeInner?.id || ''
+        subtopicName: prev.subtopicName || activeSub?.title || '',
+        innerTopicId: prev.innerTopicId || activeInner?.id || '',
+        topicName: prev.topicName || activeInner?.title || ''
       }));
     }
-  }, [courses, formData.courseId]);
+  }, [courses, formData.courseId, modalStagesList, courseLessons]);
 
   // Calculate stats
   const totalQuestionsCount = codingQuestions.length;
@@ -148,37 +205,191 @@ export function CodingQuestionsPage() {
   const mediumCount = codingQuestions.filter((q) => q.difficulty === 'Medium').length;
   const hardCount = codingQuestions.filter((q) => q.difficulty === 'Hard').length;
 
+  // Helper to resolve question stage/subtopic/module even if unlinked or legacy format
+  const resolveHierarchy = React.useCallback((q) => {
+    if (!q) return { stageId: '', stageNum: null, subtopicId: '', moduleId: '' };
+
+    const rawStage = q.stageId || q.stage_id || q.stageName || q.stage_name || q.stage || '';
+    const rawSub = q.subtopicId || q.subtopic_id || q.subtopicName || q.subtopic_name || q.subtopic || '';
+    const rawMod = q.innerTopicId || q.inner_topic_id || q.moduleId || q.module_id || q.moduleName || q.module_name || q.topicName || q.topic_name || q.topic || '';
+    const title = String(q.title || '').toLowerCase();
+    const cat = String(q.category || '').toLowerCase();
+    const tags = Array.isArray(q.tags) ? q.tags.join(' ').toLowerCase() : String(q.tags || '').toLowerCase();
+    const text = `${title} ${cat} ${tags} ${String(q.problemStatement || '').toLowerCase()}`;
+
+    let stageNum = getStageNumber(rawStage);
+    let resolvedStageId = rawStage;
+    let resolvedSubId = rawSub;
+    let resolvedModId = rawMod;
+
+    // 1. If stageNum not found from rawStage, check subtopic
+    if (stageNum === null && rawSub) {
+      const cleanSub = String(rawSub).replace(/-(w|s)$/i, '').trim().toLowerCase();
+      const cleanNorm = (str) => String(str || '').toLowerCase().replace(/[^a-z0-9]/g, '').trim();
+
+      for (const stg of activeStagesList) {
+        const stgNum = getStageNumber(stg.id) || getStageNumber(stg.stageNumber) || getStageNumber(stg.title);
+        const subs = getSubtopicsForStage(stg);
+        const foundSub = subs.find(s =>
+          cleanId(s.id) === cleanSub ||
+          SUBTOPIC_MODULE_MAP[cleanId(s.id)] === cleanSub ||
+          SUBTOPIC_MODULE_MAP[cleanSub] === cleanId(s.id) ||
+          cleanNorm(s.title) === cleanNorm(rawSub) ||
+          cleanNorm(s.id) === cleanNorm(rawSub)
+        );
+        if (foundSub) {
+          stageNum = stgNum;
+          resolvedStageId = stg.id;
+          resolvedSubId = foundSub.id;
+          break;
+        }
+      }
+    }
+
+    // 2. If stageNum still not found, try lesson in courseLessons or curriculum lessons
+    if (stageNum === null && rawMod) {
+      const cleanMod = String(rawMod).replace(/-(w|s)$/i, '').trim().toLowerCase();
+      const cleanNorm = (str) => String(str || '').toLowerCase().replace(/[^a-z0-9]/g, '').trim();
+      const lesson = (courseLessons || []).find(l =>
+        cleanId(l.id) === cleanMod ||
+        cleanNorm(l.title) === cleanNorm(rawMod)
+      );
+      if (lesson) {
+        stageNum = getStageNumber(lesson.stage_id);
+        resolvedStageId = lesson.stage_id;
+        resolvedSubId = resolvedSubId || lesson.module_id;
+        resolvedModId = lesson.id;
+      }
+    }
+
+    // 3. If stageNum still not found, infer from title, tags, and problem statement
+    if (stageNum === null) {
+      if (
+        text.includes('html') ||
+        text.includes('css') ||
+        text.includes('web page') ||
+        text.includes('dom') ||
+        text.includes('javascript') ||
+        text.includes('frontend') ||
+        text.includes('bootstrap') ||
+        text.includes('git')
+      ) {
+        stageNum = 1;
+        const s1 = activeStagesList.find(s => (getStageNumber(s.id) || getStageNumber(s.title)) === 1);
+        resolvedStageId = s1?.id || 'top-stg-1';
+        if (!resolvedSubId) {
+          if (text.includes('html') || text.includes('web page')) resolvedSubId = 'm1_html';
+          else if (text.includes('css') || text.includes('flexbox')) resolvedSubId = 'm1_css_fund';
+          else if (text.includes('git')) resolvedSubId = 'm1_git';
+          else if (text.includes('dom')) resolvedSubId = 'm1_dom';
+          else if (text.includes('javascript') || text.includes('js')) resolvedSubId = 'm1_js_ess';
+        }
+      } else if (
+        text.includes('python') ||
+        text.includes('django') ||
+        text.includes('postgres') ||
+        text.includes('sql') ||
+        text.includes('dsa') ||
+        text.includes('array') ||
+        text.includes('string') ||
+        text.includes('anagram') ||
+        text.includes('two sum') ||
+        text.includes('linked list') ||
+        text.includes('tree') ||
+        text.includes('stack') ||
+        text.includes('queue') ||
+        text.includes('algorithm') ||
+        text.includes('hash') ||
+        text.includes('sort') ||
+        text.includes('backend')
+      ) {
+        stageNum = 2;
+        const s2 = activeStagesList.find(s => (getStageNumber(s.id) || getStageNumber(s.title)) === 2);
+        resolvedStageId = s2?.id || 'top-stg-2';
+        if (!resolvedSubId) {
+          if (text.includes('anagram') || text.includes('two sum') || text.includes('array') || text.includes('string') || text.includes('hash') || text.includes('sort')) resolvedSubId = 'm2_dsa_arrays';
+          else if (text.includes('linked list')) resolvedSubId = 'm2_dsa_linkedlist';
+          else if (text.includes('tree')) resolvedSubId = 'm2_dsa_trees';
+          else if (text.includes('postgres') || text.includes('sql')) resolvedSubId = 'm2_postgres';
+          else if (text.includes('django')) resolvedSubId = 'm2_django_api';
+          else if (text.includes('oop')) resolvedSubId = 'm2_py_oop';
+          else resolvedSubId = 'm2_py_fund';
+        }
+      } else if (
+        text.includes('ai') ||
+        text.includes('cloud') ||
+        text.includes('docker') ||
+        text.includes('aws') ||
+        text.includes('gemini') ||
+        text.includes('fastapi') ||
+        text.includes('integration')
+      ) {
+        stageNum = 3;
+        const s3 = activeStagesList.find(s => (getStageNumber(s.id) || getStageNumber(s.title)) === 3);
+        resolvedStageId = s3?.id || 'top-stg-3';
+      } else if (
+        text.includes('career') ||
+        text.includes('interview') ||
+        text.includes('resume') ||
+        text.includes('portfolio') ||
+        text.includes('system design')
+      ) {
+        stageNum = 4;
+        const s4 = activeStagesList.find(s => (getStageNumber(s.id) || getStageNumber(s.title)) === 4);
+        resolvedStageId = s4?.id || 'top-stg-4';
+      } else {
+        stageNum = 1;
+        resolvedStageId = activeStagesList[0]?.id || 'top-stg-1';
+      }
+    }
+
+    return {
+      stageId: resolvedStageId,
+      stageNum,
+      subtopicId: resolvedSubId,
+      moduleId: resolvedModId
+    };
+  }, [activeStagesList, courseLessons]);
+
   // Filter list
   const filteredQuestions = codingQuestions.filter((q) => {
     const qCourseId = q.courseId || q.course_id;
-    const qStageId = q.stageId || q.stage_id;
-    const qSubtopicId = q.subtopicId || q.subtopic_id;
-    const qModuleId = q.innerTopicId || q.inner_topic_id || q.moduleId || q.module_id;
+    const hierarchy = resolveHierarchy(q);
+    const qStageId = hierarchy.stageId || q.stageId || q.stage_id;
+    const qSubtopicId = hierarchy.subtopicId || q.subtopicId || q.subtopic_id;
+    const qModuleId = hierarchy.moduleId || q.innerTopicId || q.inner_topic_id || q.moduleId || q.module_id;
 
     const matchesCourse = !activeCourseId || !qCourseId || qCourseId === 'ALL' || qCourseId === activeCourseId;
-    const matchesStage = selectedStageId === 'ALL' || isMatchingStage(qStageId, selectedStageId);
-
-    const cleanId = (id) => String(id || '').replace(/-(w|s)$/i, '').trim().toLowerCase();
-    const cleanStr = (s) => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '').trim();
+    const matchesStage = selectedStageId === 'ALL' || isMatchingStage(qStageId, selectedStageId) || (hierarchy.stageNum !== null && getStageNumber(selectedStageId) === hierarchy.stageNum);
 
     const matchesSubtopic =
       selectedSubtopicId === 'ALL' ||
       cleanId(qSubtopicId) === cleanId(selectedSubtopicId) ||
       SUBTOPIC_MODULE_MAP[cleanId(qSubtopicId)] === cleanId(selectedSubtopicId) ||
       SUBTOPIC_MODULE_MAP[cleanId(selectedSubtopicId)] === cleanId(qSubtopicId) ||
-      (selectedSubtopicObj && cleanStr(q.subtopicName) === cleanStr(selectedSubtopicObj.title));
+      (selectedSubtopicObj && (
+        cleanStr(q.subtopicName) === cleanStr(selectedSubtopicObj.title) ||
+        cleanStr(qSubtopicId) === cleanStr(selectedSubtopicObj.title) ||
+        cleanId(qSubtopicId) === cleanId(selectedSubtopicObj.id) ||
+        cleanId(hierarchy.subtopicId) === cleanId(selectedSubtopicObj.id)
+      ));
 
-    const selectedModObj = selectedModuleId !== 'ALL' ? modulesForSubtopic.find((m) => m.id === selectedModuleId) : null;
+    const selectedModObj = selectedModuleId !== 'ALL' ? modulesForSubtopic.find((m) => m.id === selectedModuleId || cleanId(m.id) === cleanId(selectedModuleId)) : null;
     const matchesModule =
       selectedModuleId === 'ALL' ||
       cleanId(qModuleId) === cleanId(selectedModuleId) ||
-      (selectedModObj && (cleanStr(q.moduleName) === cleanStr(selectedModObj.title) || cleanStr(q.topicName) === cleanStr(selectedModObj.title)));
+      (selectedModObj && (
+        cleanStr(q.moduleName) === cleanStr(selectedModObj.title) ||
+        cleanStr(q.topicName) === cleanStr(selectedModObj.title) ||
+        cleanStr(qModuleId) === cleanStr(selectedModObj.title) ||
+        cleanId(hierarchy.moduleId) === cleanId(selectedModObj.id)
+      ));
 
     const matchesSearch =
       q.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      q.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      q.problemStatement.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (q.tags && q.tags.some((t) => t.toLowerCase().includes(searchTerm.toLowerCase())));
+      (q.category && q.category.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (q.problemStatement && q.problemStatement.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (q.tags && Array.isArray(q.tags) && q.tags.some((t) => t.toLowerCase().includes(searchTerm.toLowerCase())));
 
     const matchesDifficulty = difficultyFilter === 'ALL' || q.difficulty === difficultyFilter;
     const matchesLanguage = languageFilter === 'ALL' || q.language === languageFilter;
@@ -187,25 +398,32 @@ export function CodingQuestionsPage() {
   });
 
   const handleOpenAddModal = () => {
-    const activeCourse = courses.find((c) => c.id === (courses[0]?.id || '')) || courses[0];
-    const activeStage = activeCourse?.topics?.[0];
-    const activeSub = activeStage?.subtopics?.[0];
-    const activeInner = courseLessons?.find(
-      (l) => l.course_id === activeCourse?.id && l.stage_id === activeStage?.id && l.module_id === activeSub?.id
-    );
+    const activeCourse = courses.find((c) => c.id === (selectedCourseId || courses[0]?.id)) || courses[0];
+    const nextStages = (milestonesByBatch?.[activeCourse?.id]?.stages?.length > 0)
+      ? milestonesByBatch[activeCourse.id].stages
+      : (milestonesByBatch?.[activeBatchFilter]?.stages?.length > 0)
+      ? milestonesByBatch[activeBatchFilter].stages
+      : milestones?.stages || DEFAULT_STAGES;
+    const activeStage = nextStages[0];
+    const activeSubs = getSubtopicsForStage(activeStage);
+    const activeSub = activeSubs[0];
 
     setEditingQuestion(null);
     setFormData({
       title: '',
       category: 'Algorithms & Data Structures',
       difficulty: 'Easy',
-      marks: 0,
-      timeLimitMinutes: '',
+      marks: 20,
+      timeLimitMinutes: 15,
       language: 'JavaScript',
       courseId: activeCourse?.id || '',
+      courseName: activeCourse?.title || '',
       stageId: activeStage?.id || '',
+      stageName: activeStage?.title || '',
       subtopicId: activeSub?.id || '',
-      innerTopicId: activeInner?.id || '',
+      subtopicName: activeSub?.title || '',
+      innerTopicId: '',
+      topicName: '',
       tags: '',
       problemStatement: '',
       inputFormat: '',
@@ -229,23 +447,44 @@ export function CodingQuestionsPage() {
 
   const handleOpenEditModal = (cq) => {
     setEditingQuestion(cq);
+    const hierarchy = resolveHierarchy(cq);
+    const qCourseId = cq.courseId || cq.course_id || courses[0]?.id || '';
+    const activeCourse = courses.find((c) => c.id === qCourseId) || courses[0];
+    const nextStages = (milestonesByBatch?.[qCourseId]?.stages?.length > 0)
+      ? milestonesByBatch[qCourseId].stages
+      : (milestonesByBatch?.[activeBatchFilter]?.stages?.length > 0)
+      ? milestonesByBatch[activeBatchFilter].stages
+      : milestones?.stages || DEFAULT_STAGES;
+    const qStageId = cq.stageId || cq.stage_id || hierarchy.stageId || nextStages[0]?.id || '';
+    const stageObj = nextStages.find(s => s.id === qStageId || isMatchingStage(s.id, qStageId) || (hierarchy.stageNum && (getStageNumber(s.id) || getStageNumber(s.title)) === hierarchy.stageNum)) || nextStages[0];
+    const stageSubs = getSubtopicsForStage(stageObj);
+    const qSubId = cq.subtopicId || cq.subtopic_id || hierarchy.subtopicId || stageSubs[0]?.id || '';
+    const subObj = stageSubs.find(s => s.id === qSubId || cleanId(s.id) === cleanId(qSubId) || cleanStr(s.title) === cleanStr(qSubId)) || stageSubs[0];
+    const subMods = getInnerModulesForSubtopic(subObj, courseLessons, stageObj?.id);
+    const qModId = cq.innerTopicId || cq.inner_topic_id || cq.moduleId || cq.module_id || hierarchy.moduleId || '';
+    const modObj = subMods.find(m => m.id === qModId || cleanId(m.id) === cleanId(qModId) || cleanStr(m.title) === cleanStr(qModId));
+
     setFormData({
-      title: cq.title,
-      category: cq.category,
-      difficulty: cq.difficulty,
-      marks: cq.marks,
+      title: cq.title || '',
+      category: cq.category || 'Algorithms & Data Structures',
+      difficulty: cq.difficulty || 'Easy',
+      marks: cq.marks || 20,
       timeLimitMinutes: cq.timeLimitMinutes || 15,
       language: cq.language || 'JavaScript',
-      courseId: cq.courseId || '',
-      stageId: cq.stageId || '',
-      subtopicId: cq.subtopicId || '',
-      innerTopicId: cq.innerTopicId || '',
+      courseId: qCourseId,
+      courseName: activeCourse?.title || cq.courseName || '',
+      stageId: stageObj?.id || qStageId,
+      stageName: stageObj?.title || cq.stageName || '',
+      subtopicId: subObj?.id || qSubId,
+      subtopicName: subObj?.title || cq.subtopicName || '',
+      innerTopicId: modObj?.id || qModId,
+      topicName: modObj?.title || cq.moduleName || cq.topicName || '',
       tags: Array.isArray(cq.tags) ? cq.tags.join(', ') : cq.tags || '',
-      problemStatement: cq.problemStatement,
-      inputFormat: cq.inputFormat || '',
-      outputFormat: cq.outputFormat || '',
-      starterCode: cq.starterCode || '',
-      solutionCode: cq.solutionCode || '',
+      problemStatement: cq.problemStatement || cq.problem_statement || '',
+      inputFormat: cq.inputFormat || cq.input_format || '',
+      outputFormat: cq.outputFormat || cq.output_format || '',
+      starterCode: cq.starterCode || cq.starter_code || '',
+      solutionCode: cq.solutionCode || cq.solution_code || '',
       sampleTestCases: (cq.sampleTestCases && cq.sampleTestCases.length > 0)
         ? cq.sampleTestCases.map((tc) => ({ ...tc }))
         : (cq.testCases && cq.testCases.length > 0
@@ -583,9 +822,34 @@ export function CodingQuestionsPage() {
     const resolvedInputFormat = inputFormat || (extractedTC[0]?.input ? extractedTC[0].input : '');
     const resolvedOutputFormat = outputFormat || (extractedTC[0]?.output ? extractedTC[0].output : '');
 
+    const parsedHierarchy = resolveHierarchy({
+      title,
+      category,
+      tags,
+      problemStatement,
+      stageId: parsed.stageId || parsed.stage_id,
+      stageName: parsed.stageName || parsed.stage_name,
+      subtopicId: parsed.subtopicId || parsed.subtopic_id,
+      subtopicName: parsed.subtopicName || parsed.subtopic_name,
+      innerTopicId: parsed.innerTopicId || parsed.inner_topic_id || parsed.moduleId || parsed.module_id,
+      moduleName: parsed.moduleName || parsed.module_name || parsed.topicName || parsed.topic_name
+    });
+
+    const parsedStageObj = modalStagesList.find(s => isMatchingStage(s.id, parsedHierarchy.stageId) || (parsedHierarchy.stageNum && (getStageNumber(s.id) || getStageNumber(s.title)) === parsedHierarchy.stageNum)) || modalStagesList[0];
+    const parsedStageSubs = getSubtopicsForStage(parsedStageObj);
+    const parsedSubObj = parsedStageSubs.find(s => s.id === parsedHierarchy.subtopicId || cleanId(s.id) === cleanId(parsedHierarchy.subtopicId) || cleanStr(s.title) === cleanStr(parsedHierarchy.subtopicId)) || parsedStageSubs[0];
+    const parsedSubMods = getInnerModulesForSubtopic(parsedSubObj, courseLessons, parsedStageObj?.id);
+    const parsedModObj = parsedSubMods.find(m => m.id === parsedHierarchy.moduleId || cleanId(m.id) === cleanId(parsedHierarchy.moduleId) || cleanStr(m.title) === cleanStr(parsedHierarchy.moduleId));
+
     setFormData((prev) => ({
       ...prev,
       title: title || prev.title,
+      stageId: parsedStageObj?.id || prev.stageId,
+      stageName: parsedStageObj?.title || prev.stageName,
+      subtopicId: parsedSubObj?.id || prev.subtopicId,
+      subtopicName: parsedSubObj?.title || prev.subtopicName,
+      innerTopicId: parsedModObj?.id || prev.innerTopicId || '',
+      topicName: parsedModObj?.title || prev.topicName || '',
       difficulty,
       language,
       category,
@@ -685,6 +949,13 @@ export function CodingQuestionsPage() {
       .map((t) => t.trim())
       .filter((t) => t.length > 0);
 
+    const targetCourse = courses.find((c) => c.id === formData.courseId) || courses[0];
+    const targetStage = modalStagesList.find((s) => s.id === formData.stageId || isMatchingStage(s.id, formData.stageId));
+    const targetSubs = getSubtopicsForStage(targetStage);
+    const targetSub = targetSubs.find((st) => st.id === formData.subtopicId);
+    const targetLessons = getInnerModulesForSubtopic(targetSub, courseLessons, targetStage?.id);
+    const targetLesson = targetLessons.find((l) => l.id === formData.innerTopicId);
+
     const payload = {
       title: formData.title,
       category: formData.category,
@@ -693,9 +964,14 @@ export function CodingQuestionsPage() {
       timeLimitMinutes: parseInt(formData.timeLimitMinutes) || 15,
       language: formData.language,
       courseId: formData.courseId,
+      courseName: targetCourse?.title || formData.courseName || '',
       stageId: formData.stageId,
+      stageName: targetStage?.title || formData.stageName || '',
       subtopicId: formData.subtopicId,
+      subtopicName: targetSub?.title || formData.subtopicName || '',
       innerTopicId: formData.innerTopicId,
+      moduleName: targetLesson?.title || formData.topicName || '',
+      topicName: targetLesson?.title || formData.topicName || '',
       tags: tagsArray,
       problemStatement: formData.problemStatement,
       inputFormat: formData.inputFormat,
@@ -989,6 +1265,12 @@ export function CodingQuestionsPage() {
       {/* Question Cards List */}
       <div className="space-y-4">
         {filteredQuestions.map((cq) => {
+          const hierarchy = resolveHierarchy(cq);
+          const displayStage = activeStagesList.find(s => isMatchingStage(s.id, hierarchy.stageId) || (hierarchy.stageNum !== null && (getStageNumber(s.id) || getStageNumber(s.stageNumber) || getStageNumber(s.title)) === hierarchy.stageNum));
+          const stageSubs = displayStage ? getSubtopicsForStage(displayStage) : [];
+          const displaySub = stageSubs.find(st => cleanId(st.id) === cleanId(hierarchy.subtopicId) || SUBTOPIC_MODULE_MAP[cleanId(st.id)] === cleanId(hierarchy.subtopicId) || cleanStr(st.title) === cleanStr(hierarchy.subtopicId) || cleanStr(st.id) === cleanStr(hierarchy.subtopicId));
+          const subMods = displaySub ? getInnerModulesForSubtopic(displaySub, courseLessons, displayStage?.id) : [];
+          const displayMod = subMods.find(m => cleanId(m.id) === cleanId(hierarchy.moduleId) || cleanStr(m.title) === cleanStr(hierarchy.moduleId));
 
           return (
             <div
@@ -1015,6 +1297,33 @@ export function CodingQuestionsPage() {
 
                   <div className="text-xs text-slate-500 font-medium flex items-center gap-2 flex-wrap">
                     <span>{cq.category || cq.topic || 'Algorithms & Data Structures'}</span>
+                    {(displayStage || cq.stageName || cq.stageId) && (
+                      <>
+                        <span>•</span>
+                        <span className="inline-flex items-center gap-1 text-blue-600 font-semibold">
+                          <Layers className="w-3 h-3 text-blue-500" />
+                          <span>{displayStage?.title || cq.stageName || (activeStagesList.find(s => isMatchingStage(s.id, cq.stageId))?.title) || cq.stageId}</span>
+                        </span>
+                      </>
+                    )}
+                    {(displaySub || cq.subtopicName || cq.subtopicId) && (
+                      <>
+                        <span>•</span>
+                        <span className="inline-flex items-center gap-1 text-emerald-600 font-semibold">
+                          <Bookmark className="w-3 h-3 text-emerald-500" />
+                          <span>{displaySub?.title || cq.subtopicName || cq.subtopicId}</span>
+                        </span>
+                      </>
+                    )}
+                    {(displayMod || cq.moduleName || cq.topicName || cq.innerTopicId) && (
+                      <>
+                        <span>•</span>
+                        <span className="inline-flex items-center gap-1 text-purple-600 font-semibold">
+                          <Sparkles className="w-3 h-3 text-purple-500" />
+                          <span>{displayMod?.title || cq.moduleName || cq.topicName || cq.innerTopicId}</span>
+                        </span>
+                      </>
+                    )}
                     {(cq.timeLimitMinutes || cq.timeLimit || cq.duration) && (
                       <>
                         <span>•</span>
@@ -1277,42 +1586,67 @@ export function CodingQuestionsPage() {
             <Select
               label="1. Course Track"
               value={formData.courseId}
-              onChange={(e) => setFormData({ ...formData, courseId: e.target.value })}
+              onChange={(e) => {
+                const newCourseId = e.target.value;
+                const selectedC = courses.find((c) => c.id === newCourseId);
+                const nextStages = (milestonesByBatch?.[newCourseId]?.stages?.length > 0)
+                  ? milestonesByBatch[newCourseId].stages
+                  : (milestonesByBatch?.[activeBatchFilter]?.stages?.length > 0)
+                  ? milestonesByBatch[activeBatchFilter].stages
+                  : milestones?.stages || DEFAULT_STAGES;
+                const firstStage = nextStages[0];
+                const firstSubs = getSubtopicsForStage(firstStage);
+                const firstSub = firstSubs[0];
+                setFormData((prev) => ({
+                  ...prev,
+                  courseId: newCourseId,
+                  courseName: selectedC?.title || '',
+                  stageId: firstStage?.id || '',
+                  stageName: firstStage?.title || '',
+                  subtopicId: firstSub?.id || '',
+                  subtopicName: firstSub?.title || '',
+                  innerTopicId: '',
+                  topicName: ''
+                }));
+              }}
               options={courses.map((c) => ({ value: c.id, label: c.title }))}
             />
             <Select
-              label="2. Course Module / Stage"
-              value={formData.stageId}
+              label="2. Milestone Stage"
+              value={formData.stageId || currentStageObj?.id || ''}
               onChange={(e) => {
                 const newStageId = e.target.value;
-                const newStage = stagesList.find((s) => s.id === newStageId) || stagesList[0];
-                const firstSub = newStage?.subtopics?.[0];
-                const firstInner = courseLessons?.find(l => l.course_id === formData.courseId && l.stage_id === newStageId && l.module_id === firstSub?.id);
-                setFormData({
-                  ...formData,
+                const newStage = modalStagesList.find((s) => s.id === newStageId || isMatchingStage(s.id, newStageId)) || modalStagesList[0];
+                const newSubs = getSubtopicsForStage(newStage);
+                const firstSub = newSubs[0];
+                setFormData((prev) => ({
+                  ...prev,
                   stageId: newStageId,
+                  stageName: newStage?.title || '',
                   subtopicId: firstSub?.id || '',
-                  innerTopicId: firstInner?.id || ''
-                });
+                  subtopicName: firstSub?.title || '',
+                  innerTopicId: '',
+                  topicName: ''
+                }));
               }}
-              options={stagesList.map((stg) => ({
+              options={modalStagesList.map((stg) => ({
                 value: stg.id,
                 label: stg.title
               }))}
             />
             <Select
               label="3. Milestone Subtopic"
-              value={formData.subtopicId}
+              value={formData.subtopicId || currentSubtopicObj?.id || ''}
               onChange={(e) => {
                 const newSubId = e.target.value;
-                const targetStage = stagesList.find((s) => s.id === formData.stageId) || stagesList[0];
-                const targetSub = targetStage?.subtopics?.find((st) => st.id === newSubId) || targetStage?.subtopics?.[0];
-                const firstInner = courseLessons?.find(l => l.course_id === formData.courseId && l.stage_id === formData.stageId && l.module_id === newSubId);
-                setFormData({
-                  ...formData,
+                const targetSub = currentSubtopicsArr.find((st) => st.id === newSubId || cleanId(st.id) === cleanId(newSubId) || cleanStr(st.title) === cleanStr(newSubId)) || currentSubtopicsArr[0];
+                setFormData((prev) => ({
+                  ...prev,
                   subtopicId: newSubId,
-                  innerTopicId: firstInner?.id || ''
-                });
+                  subtopicName: targetSub?.title || '',
+                  innerTopicId: '',
+                  topicName: ''
+                }));
               }}
               options={currentSubtopicsArr.map((sub) => ({
                 value: sub.id,
@@ -1321,8 +1655,16 @@ export function CodingQuestionsPage() {
             />
             <Select
               label="4. Specific Lesson (Optional)"
-              value={formData.innerTopicId}
-              onChange={(e) => setFormData({ ...formData, innerTopicId: e.target.value })}
+              value={formData.innerTopicId || ''}
+              onChange={(e) => {
+                const newInnerId = e.target.value;
+                const targetMod = currentInnerTopicsArr.find((m) => m.id === newInnerId || cleanId(m.id) === cleanId(newInnerId) || cleanStr(m.title) === cleanStr(newInnerId));
+                setFormData((prev) => ({
+                  ...prev,
+                  innerTopicId: newInnerId,
+                  topicName: targetMod?.title || ''
+                }));
+              }}
               options={[
                 { value: '', label: 'None (Module Level)' },
                 ...currentInnerTopicsArr.map((l) => ({ value: l.id, label: l.title }))

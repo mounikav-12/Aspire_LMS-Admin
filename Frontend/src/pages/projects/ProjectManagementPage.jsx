@@ -75,19 +75,45 @@ export function ProjectManagementPage() {
 
   const activeCourseId = selectedCourseId || courses[0]?.id || '';
   const activeCourseObj = courses.find((c) => c.id === activeCourseId) || courses[0];
-  const activeStagesList =
-    activeCourseId && activeCourseId !== 'ALL' && milestonesByBatch?.[activeCourseId]?.stages && milestonesByBatch[activeCourseId].stages.length > 0
-      ? milestonesByBatch[activeCourseId].stages
-      : activeCourseObj?.topics && activeCourseObj.topics.length > 0
-      ? activeCourseObj.topics
-      : milestones?.stages && milestones.stages.length > 0
-      ? milestones.stages
-      : DEFAULT_STAGES;
 
-  const selectedStageObj = selectedStageId !== 'ALL' ? activeStagesList.find((s) => s.id === selectedStageId) : null;
+  const cleanId = (id) => String(id || '').replace(/-(w|s)$/i, '').trim().toLowerCase();
+  const cleanStr = (s) => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '').trim();
+
+  const activeStagesList = React.useMemo(() => {
+    const courseMilestones = activeCourseId && activeCourseId !== 'ALL' ? milestonesByBatch?.[activeCourseId]?.stages : null;
+    if (Array.isArray(courseMilestones) && courseMilestones.length > 0 && courseMilestones.some(s => (s.subtopics && s.subtopics.length > 0) || (s.modules && s.modules.length > 0))) {
+      return courseMilestones;
+    }
+    const batchMilestones = milestonesByBatch?.[activeBatchFilter]?.stages;
+    if (Array.isArray(batchMilestones) && batchMilestones.length > 0) {
+      return batchMilestones;
+    }
+    if (Array.isArray(milestones?.stages) && milestones.stages.length > 0) {
+      return milestones.stages;
+    }
+    if (activeCourseObj?.topics && activeCourseObj.topics.length > 0) {
+      return activeCourseObj.topics.map((top, idx) => {
+        const matchingMilestoneStage = (milestones?.stages || []).find(ms => isMatchingStage(ms.id, top.id) || idx === (ms.stageIndex || idx));
+        return {
+          ...top,
+          subtopics: (top.subtopics && top.subtopics.length > 0) ? top.subtopics : (matchingMilestoneStage?.subtopics || [])
+        };
+      });
+    }
+    return DEFAULT_STAGES;
+  }, [activeCourseId, activeCourseObj, milestonesByBatch, activeBatchFilter, milestones]);
+
+  const selectedStageObj = selectedStageId !== 'ALL' ? (activeStagesList.find((s) => s.id === selectedStageId || isMatchingStage(s.id, selectedStageId)) || null) : null;
   const subtopicsForStage = selectedStageObj ? getSubtopicsForStage(selectedStageObj) : [];
 
-  const selectedSubtopicObj = selectedSubtopicId !== 'ALL' ? subtopicsForStage.find((sub) => sub.id === selectedSubtopicId) : null;
+  const selectedSubtopicObj = selectedSubtopicId !== 'ALL'
+    ? (subtopicsForStage.find((sub) =>
+        sub.id === selectedSubtopicId ||
+        cleanId(sub.id) === cleanId(selectedSubtopicId) ||
+        SUBTOPIC_MODULE_MAP[cleanId(sub.id)] === cleanId(selectedSubtopicId) ||
+        cleanStr(sub.title) === cleanStr(selectedSubtopicId)
+      ) || null)
+    : null;
   const modulesForSubtopic = selectedSubtopicObj ? getInnerModulesForSubtopic(selectedSubtopicObj, courseLessons, selectedStageId) : [];
 
   // Selected Project for Detail View (Matching Image 2 & Image 3)

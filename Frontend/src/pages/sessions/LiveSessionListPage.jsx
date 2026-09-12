@@ -37,6 +37,10 @@ import {
   X
 } from 'lucide-react';
 
+import { DEFAULT_CURRICULUM_LESSONS } from '../../data/curriculumData';
+
+export { DEFAULT_CURRICULUM_LESSONS };
+
 export const getSubtopicsForStage = (stage) => {
   if (!stage) return [];
   if (Array.isArray(stage.subtopics) && stage.subtopics.length > 0) return stage.subtopics;
@@ -47,38 +51,89 @@ export const getSubtopicsForStage = (stage) => {
 export const getInnerModulesForSubtopic = (subtopic, courseLessons = [], stageId = '') => {
   if (!subtopic) return [];
   
-  // 1. If lessons/modules are already inline in the subtopic, use them
+  const cleanId = (id) => String(id || '').replace(/-(w|s)$/i, '').trim();
+  const cleanNorm = (str) => String(str || '').toLowerCase().replace(/[^a-z0-9]/g, '').trim();
+  const subIdClean = cleanId(subtopic.id);
+  const subIdNorm = cleanNorm(subtopic.id);
+  const subTitleNorm = cleanNorm(subtopic.title || subtopic.name);
+  const mappedModId = SUBTOPIC_MODULE_MAP[subIdClean] || subIdClean;
+
+  // 1. If lessons/modules are already inline in the subtopic, unroll & use them
   let inlineMods = [];
-  if (Array.isArray(subtopic.lessons) && subtopic.lessons.length > 0) inlineMods = subtopic.lessons;
-  else if (Array.isArray(subtopic.modules) && subtopic.modules.length > 0) inlineMods = subtopic.modules;
-  else if (Array.isArray(subtopic.items) && subtopic.items.length > 0) inlineMods = subtopic.items;
+  if (Array.isArray(subtopic.lessons) && subtopic.lessons.length > 0) {
+    inlineMods = subtopic.lessons;
+  } else if (Array.isArray(subtopic.modules) && subtopic.modules.length > 0) {
+    const unrolled = [];
+    subtopic.modules.forEach(m => {
+      if (Array.isArray(m.items) && m.items.length > 0) {
+        m.items.forEach(it => unrolled.push({
+          id: it.id || `${m.id}-${it.title}`,
+          title: it.title || it.name,
+          duration: it.duration || '1.5 hrs',
+          durationHours: it.duration || '1.5 hrs',
+          type: it.type
+        }));
+      } else if (Array.isArray(m.topics) && m.topics.length > 0) {
+        m.topics.forEach((top, idx) => unrolled.push({
+          id: `${m.id}-top-${idx}`,
+          title: typeof top === 'string' ? top : top.title || top.name,
+          duration: '1.5 hrs',
+          durationHours: '1.5 hrs'
+        }));
+      } else {
+        unrolled.push(m);
+      }
+    });
+    if (unrolled.length > 0) inlineMods = unrolled;
+  } else if (Array.isArray(subtopic.items) && subtopic.items.length > 0) {
+    inlineMods = subtopic.items.map((it, idx) => ({
+      id: typeof it === 'object' ? (it.id || `${subtopic.id}-it-${idx}`) : `${subtopic.id}-it-${idx}`,
+      title: typeof it === 'object' ? (it.title || it.name) : it,
+      duration: '1.5 hrs',
+      durationHours: '1.5 hrs'
+    }));
+  } else if (Array.isArray(subtopic.topics) && subtopic.topics.length > 0) {
+    inlineMods = subtopic.topics.map((top, idx) => ({
+      id: typeof top === 'object' ? (top.id || `${subtopic.id}-top-${idx}`) : `${subtopic.id}-top-${idx}`,
+      title: typeof top === 'object' ? (top.title || top.name) : top,
+      duration: '1.5 hrs',
+      durationHours: '1.5 hrs'
+    }));
+  }
   
-  // Only use inline if it contains actual resolved modules/lessons (not just a dummy of the subtopic itself)
-  if (inlineMods.length > 0 && inlineMods.some(m => m.id !== subtopic.id && m.title !== subtopic.title)) {
-    return inlineMods;
+  // Only use inline if it contains actual resolved modules/lessons (not just a dummy identical to the subtopic itself)
+  if (inlineMods.length > 0 && inlineMods.some(m => cleanNorm(m.title) !== subTitleNorm || (m.id && cleanId(m.id) !== subIdClean))) {
+    return inlineMods.map(l => ({
+      id: l.id || `mod-${Date.now()}`,
+      title: String(l.title || l.name || '').replace(/^Module\s*\d+\s*:\s*/i, '').trim(),
+      description: l.description || '',
+      duration: l.duration || l.durationHours || '1.5 hrs',
+      durationHours: l.durationHours || l.duration || '1.5 hrs',
+      topics: l.topics || [],
+      items: l.items || []
+    }));
   }
 
-  // 2. Fallback: Query courseLessons list
+  // 2. Query courseLessons list from context/database
   if (Array.isArray(courseLessons) && courseLessons.length > 0) {
-    const cleanId = (id) => String(id || '').replace(/-(w|s)$/i, '').trim();
-    const cleanNorm = (str) => String(str || '').toLowerCase().replace(/[^a-z0-9]/g, '').trim();
-    
-    const subIdClean = cleanId(subtopic.id);
-    const subIdNorm = cleanNorm(subtopic.id);
-    const mappedModId = SUBTOPIC_MODULE_MAP[subIdClean] || subIdClean;
-
     const matchedLessons = courseLessons.filter(l => {
-      const lModClean = cleanId(l.module_id);
-      const lModId = cleanNorm(l.module_id);
+      const lModClean = cleanId(l.module_id || l.subtopic_id);
+      const lModId = cleanNorm(l.module_id || l.subtopic_id);
       const lStgId = l.stage_id;
+      const lSubName = cleanNorm(l.subtopic_name || l.subtopicName);
 
       // Strict stage boundary check
       if (stageId && lStgId && !isMatchingStage(lStgId, stageId)) {
         return false;
       }
 
-      // Strict module/subtopic ID match
-      if (lModClean === subIdClean || lModClean === mappedModId || lModId === subIdNorm) {
+      // Strict module/subtopic ID or name match
+      if (
+        lModClean === subIdClean ||
+        lModClean === mappedModId ||
+        lModId === subIdNorm ||
+        (lSubName && (lSubName === subTitleNorm || lSubName.includes(subTitleNorm) || subTitleNorm.includes(lSubName)))
+      ) {
         return true;
       }
       return false;
@@ -89,15 +144,42 @@ export const getInnerModulesForSubtopic = (subtopic, courseLessons = [], stageId
         id: l.id,
         title: String(l.title || '').replace(/^Module\s*\d+\s*:\s*/i, '').trim(),
         description: l.description || '',
-        duration: l.duration || l.durationHours || '1hr 30min',
-        durationHours: l.durationHours || '1hr 30min',
+        duration: l.duration || l.durationHours || '1.5 hrs',
+        durationHours: l.durationHours || l.duration || '1.5 hrs',
         topics: l.topics || [],
         items: []
       }));
     }
   }
 
-  // 3. Last resort fallback
+  // 3. Fallback: Query DEFAULT_CURRICULUM_LESSONS map (31 subtopics with all standard lessons)
+  const curriculumMatch = Object.entries(DEFAULT_CURRICULUM_LESSONS).find(([key, val]) => {
+    const kClean = cleanId(key);
+    const kNorm = cleanNorm(key);
+    const valTitleNorm = cleanNorm(val.title);
+    return (
+      kClean === subIdClean ||
+      kClean === mappedModId ||
+      kNorm === subIdNorm ||
+      SUBTOPIC_MODULE_MAP[kClean] === subIdClean ||
+      SUBTOPIC_MODULE_MAP[subIdClean] === kClean ||
+      (valTitleNorm && (valTitleNorm === subTitleNorm || valTitleNorm.includes(subTitleNorm) || subTitleNorm.includes(valTitleNorm)))
+    );
+  });
+
+  if (curriculumMatch && Array.isArray(curriculumMatch[1].lessons) && curriculumMatch[1].lessons.length > 0) {
+    return curriculumMatch[1].lessons.map(l => ({
+      id: l.id,
+      title: l.title,
+      duration: l.duration || '1.5 hrs',
+      durationHours: l.duration || '1.5 hrs',
+      description: l.description || '',
+      topics: [],
+      items: []
+    }));
+  }
+
+  // 4. Last resort fallback
   return [{ id: subtopic.id || 'mod-1', title: subtopic.title || 'General Module' }];
 };
 
@@ -490,19 +572,45 @@ export function LiveSessionListPage() {
 
   const activeCourseId = selectedCourseId || courses[0]?.id || '';
   const activeCourseObj = courses.find((c) => c.id === activeCourseId) || courses[0];
-  const activeStagesList =
-    activeCourseId && activeCourseId !== 'ALL' && milestonesByBatch?.[activeCourseId]?.stages && milestonesByBatch[activeCourseId].stages.length > 0
-      ? milestonesByBatch[activeCourseId].stages
-      : activeCourseObj?.topics && activeCourseObj.topics.length > 0
-      ? activeCourseObj.topics
-      : milestones?.stages && milestones.stages.length > 0
-      ? milestones.stages
-      : DEFAULT_STAGES;
 
-  const selectedStageObj = selectedStageId !== 'ALL' ? activeStagesList.find(s => s.id === selectedStageId) : null;
+  const cleanId = (id) => String(id || '').replace(/-(w|s)$/i, '').trim().toLowerCase();
+  const cleanStr = (s) => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '').trim();
+
+  const activeStagesList = React.useMemo(() => {
+    const courseMilestones = activeCourseId && activeCourseId !== 'ALL' ? milestonesByBatch?.[activeCourseId]?.stages : null;
+    if (Array.isArray(courseMilestones) && courseMilestones.length > 0 && courseMilestones.some(s => (s.subtopics && s.subtopics.length > 0) || (s.modules && s.modules.length > 0))) {
+      return courseMilestones;
+    }
+    const batchMilestones = milestonesByBatch?.[activeBatchFilter]?.stages;
+    if (Array.isArray(batchMilestones) && batchMilestones.length > 0) {
+      return batchMilestones;
+    }
+    if (Array.isArray(milestones?.stages) && milestones.stages.length > 0) {
+      return milestones.stages;
+    }
+    if (activeCourseObj?.topics && activeCourseObj.topics.length > 0) {
+      return activeCourseObj.topics.map((top, idx) => {
+        const matchingMilestoneStage = (milestones?.stages || []).find(ms => isMatchingStage(ms.id, top.id) || idx === (ms.stageIndex || idx));
+        return {
+          ...top,
+          subtopics: (top.subtopics && top.subtopics.length > 0) ? top.subtopics : (matchingMilestoneStage?.subtopics || [])
+        };
+      });
+    }
+    return DEFAULT_STAGES;
+  }, [activeCourseId, activeCourseObj, milestonesByBatch, activeBatchFilter, milestones]);
+
+  const selectedStageObj = selectedStageId !== 'ALL' ? (activeStagesList.find(s => s.id === selectedStageId || isMatchingStage(s.id, selectedStageId)) || null) : null;
   const subtopicsForStage = selectedStageObj ? getSubtopicsForStage(selectedStageObj) : [];
 
-  const selectedSubtopicObj = selectedSubtopicId !== 'ALL' ? subtopicsForStage.find(sub => sub.id === selectedSubtopicId) : null;
+  const selectedSubtopicObj = selectedSubtopicId !== 'ALL'
+    ? (subtopicsForStage.find(sub =>
+        sub.id === selectedSubtopicId ||
+        cleanId(sub.id) === cleanId(selectedSubtopicId) ||
+        SUBTOPIC_MODULE_MAP[cleanId(sub.id)] === cleanId(selectedSubtopicId) ||
+        cleanStr(sub.title) === cleanStr(selectedSubtopicId)
+      ) || null)
+    : null;
   const modulesForSubtopic = selectedSubtopicObj ? getInnerModulesForSubtopic(selectedSubtopicObj, courseLessons, selectedStageId) : [];
 
   return (

@@ -2044,11 +2044,16 @@ export function LmsDataProvider({ children }) {
             sampleTestCases: parsedCases,
             createdDate: cq.created_date || cq.createdDate || '',
             postedBy: cq.posted_by || cq.postedBy || 'Admin Portal',
-            targetBatch: cq.target_batch || 'Weekday Batch',
-            courseId: cq.course_id || '',
-            stageId: cq.stage_id || '',
-            subtopicId: cq.subtopic_id || '',
-            innerTopicId: cq.inner_topic_id || ''
+            targetBatch: cq.target_batch || cq.targetBatch || 'Weekday Batch',
+            courseId: cq.course_id || cq.courseId || '',
+            courseName: cq.course_name || cq.courseName || '',
+            stageId: cq.stage_id || cq.stageId || cq.stage || '',
+            stageName: cq.stage_name || cq.stageName || '',
+            subtopicId: cq.subtopic_id || cq.subtopicId || cq.subtopic || '',
+            subtopicName: cq.subtopic_name || cq.subtopicName || '',
+            innerTopicId: cq.inner_topic_id || cq.innerTopicId || cq.module_id || cq.moduleId || '',
+            moduleName: cq.module_name || cq.moduleName || cq.topic_name || cq.topicName || '',
+            topicName: cq.topic_name || cq.topicName || cq.module_name || cq.moduleName || ''
           };
         });
         setCodingQuestionsByBatch(() => {
