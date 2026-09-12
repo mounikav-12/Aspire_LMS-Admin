@@ -121,3 +121,5 @@ export function Select({
     </div>
   );
 }
+
+export { CustomSelect } from './CustomSelect';

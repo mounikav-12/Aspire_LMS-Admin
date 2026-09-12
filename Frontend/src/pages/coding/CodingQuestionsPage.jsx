@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useLmsData } from '../../context/LmsDataContext';
 import { useToast } from '../../context/ToastContext';
 import { Button } from '../../components/common/Button';
-import { Input, Select } from '../../components/common/Input';
+import { Input, Select, CustomSelect } from '../../components/common/Input';
 import { Modal } from '../../components/common/Modal';
 import { ConfirmDialog } from '../../components/common/ConfirmDialog';
 import { DEFAULT_STAGES, getSubtopicsForStage, getInnerModulesForSubtopic, normalizeStagesList } from '../sessions/LiveSessionListPage';
@@ -1958,7 +1958,7 @@ export function CodingQuestionsPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {/* Step 1: Course Track */}
                   <div className="bg-white/95 p-2.5 sm:p-3 rounded-xl border border-emerald-100/90 shadow-2xs">
-                    <Select
+                    <CustomSelect
                       label="1. COURSE TRACK"
                       value={formData.courseId}
                       onChange={(e) => {
@@ -1994,7 +1994,7 @@ export function CodingQuestionsPage() {
 
                   {/* Step 2: Stage */}
                   <div className="bg-white/95 p-2.5 sm:p-3 rounded-xl border border-emerald-100/90 shadow-2xs">
-                    <Select
+                    <CustomSelect
                       label="2. STAGE"
                       value={formData.stageId || currentStageObj?.id || ''}
                       onChange={(e) => {
@@ -2021,7 +2021,7 @@ export function CodingQuestionsPage() {
 
                   {/* Step 3: Module */}
                   <div className="bg-white/95 p-2.5 sm:p-3 rounded-xl border border-emerald-100/90 shadow-2xs">
-                    <Select
+                    <CustomSelect
                       label="3. MODULE"
                       value={formData.subtopicId || currentSubtopicObj?.id || ''}
                       onChange={(e) => {
@@ -2050,7 +2050,7 @@ export function CodingQuestionsPage() {
 
                   {/* Step 4: Submodule */}
                   <div className="bg-white/95 p-2.5 sm:p-3 rounded-xl border border-emerald-100/90 shadow-2xs">
-                    <Select
+                    <CustomSelect
                       label="4. SUBMODULE"
                       value={formData.innerTopicId || ''}
                       onChange={(e) => {
@@ -2074,7 +2074,7 @@ export function CodingQuestionsPage() {
           })()}
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <Select
+            <CustomSelect
               label="Programming Language"
               value={formData.language}
               onChange={(e) => setFormData({ ...formData, language: e.target.value })}
@@ -2087,7 +2087,7 @@ export function CodingQuestionsPage() {
               ]}
             />
 
-            <Select
+            <CustomSelect
               label="Difficulty Level"
               value={formData.difficulty}
               onChange={(e) => setFormData({ ...formData, difficulty: e.target.value })}
@@ -2098,7 +2098,7 @@ export function CodingQuestionsPage() {
               ]}
             />
 
-            <Select
+            <CustomSelect
               label="Category / Topic"
               value={formData.category}
               onChange={(e) => setFormData({ ...formData, category: e.target.value })}
