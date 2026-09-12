@@ -1,0 +1,915 @@
+{
+  "moduleId": "mod-advcss",
+  "moduleName": "Module 4: Advanced CSS Layouts & Responsive Design",
+  "courseId": "crs-1786624019154-w",
+  "lessons": [
+    {
+      "lessonId": "lesson-1787196281985-11",
+      "lessonTitle": "Lesson 1: Flexbox Architecture & Practical Alignments",
+      "totalQuestions": 20,
+      "questions": [
+        {
+          "question": "In CSS Flexbox, which property determines whether the main axis runs horizontally or vertically?",
+          "options": [
+            "flex-wrap",
+            "flex-direction",
+            "justify-content",
+            "align-items"
+          ],
+          "answer": "B",
+          "explanation": "`flex-direction` establishes the main axis: `row`/`row-reverse` sets a horizontal main axis, while `column`/`column-reverse` sets a vertical main axis."
+        },
+        {
+          "question": "Which `justify-content` value distributes flex items so that the first item is flush against the start edge, the last item is flush against the end edge, and remaining space is split equally between items?",
+          "options": [
+            "center",
+            "space-between",
+            "space-around",
+            "space-evenly"
+          ],
+          "answer": "B",
+          "explanation": "`space-between` places no space at the outer boundaries, allocating all available free space evenly between adjacent flex items."
+        },
+        {
+          "question": "What is the default value of the `align-items` property on a flex container?",
+          "options": [
+            "center",
+            "flex-start",
+            "baseline",
+            "stretch"
+          ],
+          "answer": "D",
+          "explanation": "By default, `align-items: stretch` causes flex items to expand along the cross axis to fill the full height (or width in column mode) of the flex container."
+        },
+        {
+          "question": "What is the primary difference between `align-items` and `align-content` in a flex container?",
+          "options": [
+            "`align-items` requires JavaScript, whereas `align-content` is native CSS",
+            "`align-content` aligns items along the main axis, while `align-items` aligns along the cross axis",
+            "`align-items` aligns individual flex items within their respective line along the cross axis, while `align-content` aligns multi-line flex rows across the entire container when wrapping occurs",
+            "`align-content` only works on horizontal rows, while `align-items` only works on vertical columns"
+          ],
+          "answer": "C",
+          "explanation": "`align-content` manages the distribution of extra space between multiple flex lines (only effective when `flex-wrap: wrap` creates multiple rows/columns)."
+        },
+        {
+          "question": "What does setting `flex-shrink: 0;` on a flex item accomplish?",
+          "options": [
+            "It prevents the flex item from shrinking below its initial `flex-basis` size when available space in the container is constrained",
+            "It forces the flex item to take up 100% of the container width",
+            "It hides the flex item when the viewport width is smaller than 600px",
+            "It causes the flex item to expand to fill all remaining positive space"
+          ],
+          "answer": "A",
+          "explanation": "`flex-shrink: 0` explicitly prohibits an item from shrinking when total flex item widths exceed container capacity (useful for icons, fixed avatars, or sidebars)."
+        },
+        {
+          "question": "What is the full expansion of the shorthand rule `flex: 1;`?",
+          "options": [
+            "flex-grow: 1; flex-shrink: 0; flex-basis: auto;",
+            "flex-grow: 1; flex-shrink: 1; flex-basis: 0%;",
+            "flex-grow: 0; flex-shrink: 1; flex-basis: 100px;",
+            "flex-grow: 1; flex-shrink: 1; flex-basis: auto;"
+          ],
+          "answer": "B",
+          "explanation": "The shorthand `flex: 1` expands to `flex-grow: 1; flex-shrink: 1; flex-basis: 0%`, making all items sharing `flex: 1` grow and shrink equally from a base of zero."
+        },
+        {
+          "question": "How can you push a single navigation item (e.g., a 'Login' button or user profile avatar) to the far right edge inside a flex container?",
+          "options": [
+            "Apply `float: right;` to the flex item",
+            "Apply `margin-left: auto;` to that specific flex item",
+            "Set `align-self: flex-end;` on the flex item",
+            "Set `justify-content: flex-end;` on the child element"
+          ],
+          "answer": "B",
+          "explanation": "In Flexbox, auto margins absorb all remaining free space along the axis; applying `margin-left: auto` to a child pushes it and subsequent items to the far right."
+        },
+        {
+          "question": "Which flex item property allows an individual item to override the container's default `align-items` cross-axis alignment?",
+          "options": [
+            "item-align",
+            "justify-self",
+            "flex-self",
+            "align-self"
+          ],
+          "answer": "D",
+          "explanation": "`align-self` allows a specific flex item to have its own unique cross-axis alignment (e.g., `align-self: flex-end;` while other items are centered)."
+        },
+        {
+          "question": "Why do long unbroken strings or text elements sometimes cause flex items to overflow their container despite having `flex: 1` or `flex-shrink: 1`?",
+          "options": [
+            "Browsers disable flex shrinking whenever fonts larger than 14px are rendered",
+            "Flexbox engines automatically convert overflowing text into base64 images",
+            "Flex items have a default `min-width: auto;` (minimum content size), which prevents them from shrinking smaller than their inner content width",
+            "`flex-shrink` only applies to images and disallows text shrinking"
+          ],
+          "answer": "C",
+          "explanation": "In Flexbox, items default to `min-width: auto`, meaning the browser won't shrink an item below its content width. Setting `min-width: 0;` on the flex item resolves the overflow issue."
+        },
+        {
+          "question": "What does the `order` property do to flex items, and what is its default value?",
+          "options": [
+            "It determines the z-index stacking context; default value is -1",
+            "It sorts items alphabetically by their text content; default value is 'asc'",
+            "It renumbers HTML headings dynamically; default value is 1",
+            "It reorders visual presentation of items without altering the HTML source order; default value is 0"
+          ],
+          "answer": "D",
+          "explanation": "The `order` property controls visual rendering sequence (lower/negative numbers appear first, higher numbers last). The default value is `0`."
+        },
+        {
+          "question": "How do you achieve perfect horizontal and vertical centering of a child element inside a flex container?",
+          "options": [
+            "display: flex; justify-content: center; align-items: center;",
+            "display: flex; flex-direction: center; margin: 0 auto;",
+            "display: flex; align-content: center; text-align: center;",
+            "display: flex; justify-items: center; align-self: center;"
+          ],
+          "answer": "A",
+          "explanation": "Setting `display: flex; justify-content: center; align-items: center;` centers children along both the main axis and cross axis simultaneously."
+        },
+        {
+          "question": "What is the role of the `gap` property in a flexbox layout?",
+          "options": [
+            "It defines the gutter spacing between adjacent flex items without adding extra margin to outer container edges",
+            "It limits the maximum number of items allowed in a single flex line",
+            "It creates transparent border frames around the entire flex container",
+            "It sets the internal padding inside each individual flex item"
+          ],
+          "answer": "A",
+          "explanation": "`gap` (or `row-gap` and `column-gap`) defines spacing between flex items cleanly, eliminating the need for complex `:last-child` margin negation tricks."
+        },
+        {
+          "question": "What does the `flex-flow` property represent?",
+          "options": [
+            "A property controlling CSS animation fluid transitions in flexbox",
+            "A property that forces text to wrap around floated images",
+            "A shorthand property combining `flex-direction` and `flex-wrap` (e.g., `flex-flow: row wrap;`)",
+            "A property that toggles between flexbox and CSS grid dynamically"
+          ],
+          "answer": "C",
+          "explanation": "`flex-flow` is shorthand for `flex-direction` and `flex-wrap`, accepting values like `flex-flow: column wrap` or `flex-flow: row nowrap`."
+        },
+        {
+          "question": "When `flex-direction: column` is declared, how do the alignment properties change their axes?",
+          "options": [
+            "All alignment properties are disabled in column mode",
+            "`justify-content` controls horizontal alignment, and `align-items` controls vertical alignment",
+            "Both `justify-content` and `align-items` control vertical alignment simultaneously",
+            "`justify-content` controls vertical alignment (main axis), and `align-items` controls horizontal alignment (cross axis)"
+          ],
+          "answer": "D",
+          "explanation": "Changing `flex-direction` to `column` rotates the main axis vertically (Y-axis) and the cross axis horizontally (X-axis), swapping the directional impact of `justify-content` and `align-items`."
+        },
+        {
+          "question": "What is the difference between `display: flex` and `display: inline-flex`?",
+          "options": [
+            "There is no functional difference between the two",
+            "`display: flex` is mobile-only, whereas `display: inline-flex` is desktop-only",
+            "`display: inline-flex` converts all child elements into inline `<span>` tags",
+            "`display: flex` creates a block-level flex container that spans 100% width, while `display: inline-flex` creates an inline-level flex container that shrink-wraps to fit its contents"
+          ],
+          "answer": "D",
+          "explanation": "Similar to `block` vs `inline-block`, `flex` expands to fill available parent width while `inline-flex` only occupies the width required by its children."
+        },
+        {
+          "question": "If three items have `flex-grow: 1`, `flex-grow: 2`, and `flex-grow: 1` respectively, how will 400px of extra free space be distributed among them?",
+          "options": [
+            "Item 1 gets 100px (1/4), Item 2 gets 200px (2/4), and Item 3 gets 100px (1/4)",
+            "Item 1 gets 200px, Item 2 gets 100px, and Item 3 gets 100px",
+            "Each item gets exactly 133.33px of extra space equally",
+            "Item 2 gets all 400px, and Items 1 and 3 receive 0px"
+          ],
+          "answer": "A",
+          "explanation": "Total grow factor = 1 + 2 + 1 = 4. Item 1 receives 1/4 (100px), Item 2 receives 2/4 (200px), and Item 3 receives 1/4 (100px)."
+        },
+        {
+          "question": "What is the difference between `flex: auto;` and `flex: none;`?",
+          "options": [
+            "`flex: auto` calculates width based on the user's internet speed",
+            "`flex: none` hides all flex items from the screen using `visibility: hidden`",
+            "`flex: auto` (`1 1 auto`) allows items to grow and shrink based on their size, while `flex: none` (`0 0 auto`) makes items completely rigid and non-flexible",
+            "`flex: none` resets all children to standard CSS table cells"
+          ],
+          "answer": "C",
+          "explanation": "`flex: none` expands to `0 0 auto` (cannot grow, cannot shrink, sized by width/height/content), whereas `flex: auto` expands to `1 1 auto` (fully flexible)."
+        },
+        {
+          "question": "What is the effect of `justify-content: space-evenly;` on flex items?",
+          "options": [
+            "Only even-numbered children receive spacing, while odd children touch each other",
+            "The space between any two adjacent items, as well as the space from the edges to the outer items, is exactly identical",
+            "Items are stretched to take up equal widths across the row",
+            "The space between items is twice the size of the space at the outer edges"
+          ],
+          "answer": "B",
+          "explanation": "`space-evenly` ensures every gap—including the space between edge items and container boundaries—has the exact same pixel width."
+        },
+        {
+          "question": "What happens to text nodes directly inside a flex container that are not wrapped in an HTML tag?",
+          "options": [
+            "The browser wraps them in an anonymous flex item that participates fully in flex formatting rules",
+            "The browser deletes the text nodes during CSSOM compilation",
+            "The text nodes escape the flex container and render at the bottom of the `<body>`",
+            "The browser displays a console syntax error and stops rendering"
+          ],
+          "answer": "A",
+          "explanation": "Raw text inside a flex container is automatically encapsulated within an anonymous flex item and sized/aligned according to flex rules."
+        },
+        {
+          "question": "If both `width: 300px;` and `flex-basis: 200px;` are specified on a flex item in a horizontal row, which value takes precedence for initial main-axis sizing?",
+          "options": [
+            "`width: 300px;` always overrides `flex-basis`",
+            "The property that was written first in the stylesheet takes precedence",
+            "`flex-basis: 200px;` overrides the `width` property on the main axis",
+            "The browser averages them and sets width to 250px"
+          ],
+          "answer": "C",
+          "explanation": "In a flex container, `flex-basis` represents the primary sizing property along the main axis, superseding `width` in row mode or `height` in column mode."
+        }
+      ]
+    },
+    {
+      "lessonId": "lesson-1787196281985-12",
+      "lessonTitle": "Lesson 2: CSS Grid System & Multi-Column Layouts",
+      "totalQuestions": 20,
+      "questions": [
+        {
+          "question": "What is the foundational architectural difference between CSS Flexbox and CSS Grid?",
+          "options": [
+            "CSS Grid is designed exclusively for mobile screens, while Flexbox is desktop-only",
+            "CSS Grid cannot contain images, while Flexbox supports all media types",
+            "Flexbox does not support responsive design, while CSS Grid requires JavaScript to render",
+            "CSS Flexbox is one-dimensional (handles layouts along a single axis: row OR column), while CSS Grid is two-dimensional (handles rows AND columns simultaneously)"
+          ],
+          "answer": "D",
+          "explanation": "Flexbox is designed for 1D content distribution (either a row or a column), whereas CSS Grid is a 2D layout system designed to align items along rows and columns simultaneously."
+        },
+        {
+          "question": "What does the fractional unit `1fr` represent in CSS Grid?",
+          "options": [
+            "One share of the remaining available free space in the grid container after fixed tracks are allocated",
+            "One fraction of the root font size (equivalent to 16px)",
+            "Exactly 100% of the viewport width on full-screen monitors",
+            "A fixed measurement equivalent to 1 frame per second animation speed"
+          ],
+          "answer": "A",
+          "explanation": "The `fr` (fractional) unit divides available remaining space proportionally among tracks after accounting for fixed pixel/content dimensions and gaps."
+        },
+        {
+          "question": "Which CSS Grid template rule generates an intrinsically responsive grid that automatically creates columns of at least 250px and wraps them without needing media queries?",
+          "options": [
+            "grid-template-columns: auto-columns(250px, 100%);",
+            "grid-template-columns: responsive(min: 250px, max: 1fr);",
+            "grid-template-columns: repeat(all, 250px);",
+            "grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));"
+          ],
+          "answer": "D",
+          "explanation": "`repeat(auto-fit, minmax(250px, 1fr))` dynamically creates as many 250px+ columns as will fit into the container and stretches them to fill remaining space, creating a zero-media-query responsive grid."
+        },
+        {
+          "question": "What is the key difference between `auto-fill` and `auto-fit` in `repeat(..., minmax(...))` grid definitions?",
+          "options": [
+            "There is no difference; both produce identical track sizes under all conditions",
+            "`auto-fit` only works on images, while `auto-fill` works on text cards",
+            "`auto-fill` requires an explicit row count, whereas `auto-fit` is automatic",
+            "`auto-fill` creates empty phantom tracks if space allows, while `auto-fit` collapses empty tracks to 0px and stretches existing items to fill the container width"
+          ],
+          "answer": "D",
+          "explanation": "When there are fewer items than available space, `auto-fill` preserves empty grid tracks, whereas `auto-fit` collapses empty tracks and expands current items to occupy full container width."
+        },
+        {
+          "question": "How do you define visual ASCII layout areas in CSS Grid using `grid-template-areas`?",
+          "options": [
+            "grid-template-areas: [header, sidebar, main, footer];",
+            "grid-template-areas: \"header header\" \"sidebar main\" \"footer footer\";",
+            "grid-template-areas: layout { header; sidebar; main; footer; };",
+            "grid-template-areas: area(header) -> area(main) -> area(footer);"
+          ],
+          "answer": "B",
+          "explanation": "`grid-template-areas` defines named grid cells visually as quoted strings representing rows, mapped to child items using `grid-area: header;`."
+        },
+        {
+          "question": "In CSS Grid, what does a period (`.`) represent inside a `grid-template-areas` string declaration?",
+          "options": [
+            "A decimal separator indicating half-sized fraction tracks",
+            "A wildcard character matching any HTML element",
+            "A syntax terminator indicating the end of the grid definition",
+            "An unnamed, empty grid cell where no named grid area will be placed"
+          ],
+          "answer": "D",
+          "explanation": "In `grid-template-areas`, a dot `.` denotes an empty, unassigned cell in that specific row and column."
+        },
+        {
+          "question": "What does the line shorthand `grid-column: 1 / 4;` mean for a grid item?",
+          "options": [
+            "The item is visible only on January 4th in calendar widgets",
+            "The item starts at grid line 1 and spans across to grid line 4 (covering 3 columns)",
+            "The item is placed in row 1, column 4 as a single cell",
+            "The item takes up 1/4th (25%) of the total container height"
+          ],
+          "answer": "B",
+          "explanation": "`grid-column: 1 / 4` specifies `grid-column-start: 1` and `grid-column-end: 4`, spanning 3 grid column tracks across lines 1, 2, 3, and 4."
+        },
+        {
+          "question": "What is the difference between the Explicit Grid and the Implicit Grid in CSS?",
+          "options": [
+            "The Implicit Grid only supports negative pixel values, while the Explicit Grid uses positive values",
+            "The Explicit Grid requires JavaScript, whereas the Implicit Grid is pure CSS",
+            "The Explicit Grid is defined manually with `grid-template-columns/rows`, while the Implicit Grid is created automatically by the browser to hold extra items that exceed declared tracks",
+            "The Explicit Grid is hidden from screen readers, whereas the Implicit Grid is visible"
+          ],
+          "answer": "C",
+          "explanation": "Tracks defined explicitly via `grid-template-columns/rows` form the explicit grid. When items overflow or are placed beyond those bounds, the browser creates implicit tracks styled via `grid-auto-rows/columns`."
+        },
+        {
+          "question": "Which property controls the packing algorithm in CSS Grid to automatically backfill empty gaps caused by larger grid items?",
+          "options": [
+            "grid-auto-flow: dense;",
+            "grid-layout: masonry-auto;",
+            "grid-fill: backfill;",
+            "grid-pack: compact;"
+          ],
+          "answer": "A",
+          "explanation": "`grid-auto-flow: dense` (or `row dense`) instructs the placement algorithm to backfill earlier empty spaces in the grid if smaller items appear later in source order."
+        },
+        {
+          "question": "What does the `subgrid` feature (`grid-template-columns: subgrid;`) allow a nested child grid to do?",
+          "options": [
+            "Limit the nested grid to exactly 2 columns on all devices",
+            "Automatically convert all grid items into an SVG vector canvas",
+            "Inherit and align directly to the grid tracks and line definitions of its parent grid container",
+            "Create a separate 3D WebGL coordinate space inside the grid cell"
+          ],
+          "answer": "C",
+          "explanation": "`subgrid` allows child grid containers to share the track sizing and alignment of their parent grid, ensuring nested elements (like card headers or footers) align across sibling cards."
+        },
+        {
+          "question": "How do you align all grid tracks horizontally inside a grid container when total track widths are smaller than the container?",
+          "options": [
+            "justify-content (e.g., justify-content: center;)",
+            "justify-items",
+            "align-items",
+            "justify-self"
+          ],
+          "answer": "A",
+          "explanation": "`justify-content` aligns the entire grid track framework along the inline (horizontal) axis inside the grid container."
+        },
+        {
+          "question": "Which property aligns individual content items horizontally inside their respective grid cells across the entire grid?",
+          "options": [
+            "justify-items",
+            "align-content",
+            "place-content",
+            "justify-content"
+          ],
+          "answer": "A",
+          "explanation": "`justify-items` controls horizontal alignment of all items inside their individual cells (`start`, `end`, `center`, `stretch`), while `justify-self` overrides it for a single item."
+        },
+        {
+          "question": "How can two distinct grid items be made to overlap in CSS Grid without using `position: absolute`?",
+          "options": [
+            "Assign both items to the same overlapping grid row and column coordinates (e.g., both having `grid-area: 1 / 1 / 3 / 3;`) and adjust layering with `z-index`",
+            "Set `grid-overlap: enable;` on the parent container",
+            "Overlap is impossible in CSS Grid without absolute positioning",
+            "Give both elements a negative `grid-gap` value"
+          ],
+          "answer": "A",
+          "explanation": "Grid items can share identical grid lines or overlapping areas naturally; normal stacking rules and `z-index` dictate which overlapping item renders on top."
+        },
+        {
+          "question": "What does the `minmax(100px, auto)` track sizing function specify?",
+          "options": [
+            "The track will start at 0px and stop expanding at 100px",
+            "The track will shrink to 50px on mobile screens",
+            "The track will be at least 100px wide/tall, but can expand dynamically to fit larger content as needed",
+            "The track will always be exactly 100px and never change"
+          ],
+          "answer": "C",
+          "explanation": "`minmax(MIN, MAX)` defines a size range: here the track cannot shrink below `100px`, but will expand beyond `100px` if content requires it (`auto`)."
+        },
+        {
+          "question": "Which CSS Multi-column property controls how many vertical newspaper-style columns a block of text splits into?",
+          "options": [
+            "grid-template-columns",
+            "column-count",
+            "column-divisions",
+            "text-columns"
+          ],
+          "answer": "B",
+          "explanation": "The CSS Multi-column Layout property `column-count` defines the exact number of columns text flows through in newspaper style."
+        },
+        {
+          "question": "How can a headline element (`<h2>`) inside a multi-column text layout be made to span across all columns horizontally?",
+          "options": [
+            "grid-column: 1 / -1;",
+            "column-break: across;",
+            "column-span: all;",
+            "colspan=\"all\""
+          ],
+          "answer": "C",
+          "explanation": "`column-span: all` allows an element (like a breaking headline or quote) to span across all newspaper columns inside a multi-column container."
+        },
+        {
+          "question": "What is the shorthand syntax for `place-items` in CSS Grid?",
+          "options": [
+            "place-items: <width> <height>;",
+            "place-items: <grid-row> <grid-column>;",
+            "place-items: <justify-content> <align-content>;",
+            "place-items: <align-items> <justify-items>; (e.g., place-items: center;)"
+          ],
+          "answer": "D",
+          "explanation": "`place-items` is shorthand for `align-items` and `justify-items`. Providing a single value (e.g., `place-items: center;`) centers items both vertically and horizontally in one line."
+        },
+        {
+          "question": "What is the effect of using negative grid line indices (e.g., `grid-column: 1 / -1;`)?",
+          "options": [
+            "`-1` rotates the grid item 180 degrees backwards",
+            "`-1` hides the grid item behind the background layer",
+            "`-1` references the very last explicit grid line on the opposite edge, allowing an item to span the full width of the explicit grid",
+            "`-1` throws a CSS validation error because line numbers must be positive integers"
+          ],
+          "answer": "C",
+          "explanation": "Negative line numbers count backward from the end of the explicit grid: line `-1` is the last line, `-2` is the second to last line, etc."
+        },
+        {
+          "question": "Which property sets the height of rows created automatically in the implicit grid when items overflow declared rows?",
+          "options": [
+            "grid-template-rows",
+            "grid-auto-rows",
+            "row-overflow-size",
+            "grid-implicit-height"
+          ],
+          "answer": "B",
+          "explanation": "`grid-auto-rows` specifies the track size for any implicit rows generated automatically when items exceed explicit template rows."
+        },
+        {
+          "question": "What is the unit `max-content` when applied to a grid column track?",
+          "options": [
+            "The track sizes to the narrowest possible width where text wraps at every word",
+            "The track sizes to the intrinsic maximum width of its content without soft-wrapping text",
+            "The track expands to 100% of the entire viewport monitor width",
+            "The track size is capped at 1024px maximum"
+          ],
+          "answer": "B",
+          "explanation": "`max-content` represents the largest intrinsic size of the content (e.g., a sentence formatted as a single unbroken line without wrapping)."
+        }
+      ]
+    },
+    {
+      "lessonId": "lesson-1787196281985-13",
+      "lessonTitle": "Lesson 3: Positioning: Relative, Absolute, Fixed, Sticky",
+      "totalQuestions": 20,
+      "questions": [
+        {
+          "question": "What is the default value of the CSS `position` property on HTML elements?",
+          "options": [
+            "relative",
+            "absolute",
+            "initial-flow",
+            "static"
+          ],
+          "answer": "D",
+          "explanation": "By default, elements have `position: static`, meaning they participate in normal document flow and ignore `top`, `bottom`, `left`, `right`, and `z-index`."
+        },
+        {
+          "question": "How does `position: relative` behave when offset properties like `top: 20px; left: 30px;` are applied?",
+          "options": [
+            "It shifts the element 20px down and 30px right relative to its original position, while preserving its original space in the document layout flow",
+            "It scales the element's width and height by 20px and 30px",
+            "It pushes all subsequent sibling elements 20px down and 30px right",
+            "It removes the element from document flow and positions it relative to the viewport window"
+          ],
+          "answer": "A",
+          "explanation": "`position: relative` visually shifts the element from its normal position without disturbing surrounding elements, leaving an empty placeholder space where it originally sat."
+        },
+        {
+          "question": "What serves as the 'Containing Block' for an element with `position: absolute;`?",
+          "options": [
+            "The immediate parent element regardless of its CSS positioning property",
+            "The nearest ancestor element that has a `position` property other than `static` (e.g., `relative`, `absolute`, `fixed`, or `sticky`)",
+            "Always the top-level `<body>` element regardless of parent styles",
+            "The nearest element that has `display: flex` or `display: grid`"
+          ],
+          "answer": "B",
+          "explanation": "An absolutely positioned element searches up the DOM tree for the nearest ancestor with `position` set to anything other than `static`. If none exists, it falls back to the Initial Containing Block (viewport)."
+        },
+        {
+          "question": "What is the modern CSS shorthand property to set `top: 0; right: 0; bottom: 0; left: 0;` simultaneously on an absolute overlay?",
+          "options": [
+            "position-all: 0;",
+            "offset: 0;",
+            "inset: 0;",
+            "edges: 0;"
+          ],
+          "answer": "C",
+          "explanation": "The `inset` shorthand sets all four directional offsets (`top`, `right`, `bottom`, `left`) in a single declaration (e.g., `inset: 0;` for full container overlays)."
+        },
+        {
+          "question": "Which classic CSS technique uses absolute positioning and 2D transforms to center an element of unknown dimensions perfectly inside its relative parent?",
+          "options": [
+            "position: relative; align: center; transform: scale(0.5);",
+            "position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);",
+            "position: absolute; center: true; offset: 50%;",
+            "position: absolute; top: 0; left: 0; margin: auto;"
+          ],
+          "answer": "B",
+          "explanation": "`top: 50%; left: 50%` places the element's top-left corner at the parent's center, and `transform: translate(-50%, -50%)` shifts the element back by half its own width and height."
+        },
+        {
+          "question": "What is the key characteristic of an element with `position: fixed`?",
+          "options": [
+            "It is removed from normal flow and positioned relative to the viewport, remaining in the exact same screen position when the page scrolls",
+            "It locks into position only after scrolling 500px down the page",
+            "It expands to cover 100% of the screen height automatically",
+            "It cannot contain any clickable links or form buttons"
+          ],
+          "answer": "A",
+          "explanation": "`position: fixed` fixes an element relative to the browser viewport coordinate space, remaining pinned on screen during scrolling."
+        },
+        {
+          "question": "Under what circumstance does an element with `position: fixed` stop positioning relative to the viewport window?",
+          "options": [
+            "When the webpage is viewed on a desktop monitor with 4K resolution",
+            "When an ancestor element has a CSS `transform`, `perspective`, or `filter` property applied, which establishes a new containing block",
+            "When the element contains an image larger than 2MB",
+            "When the user switches their browser to dark mode"
+          ],
+          "answer": "B",
+          "explanation": "CSS specifications state that any ancestor with properties like `transform`, `filter`, or `perspective` creates a new containing block, trapping `fixed` descendants inside that ancestor."
+        },
+        {
+          "question": "How does `position: sticky` operate during user scrolling?",
+          "options": [
+            "It bounces up and down continuously using a CSS spring animation",
+            "It stays fixed across the entire page forever, ignoring parent boundaries",
+            "It hides the element automatically when the user scrolls down quickly",
+            "It behaves like `position: relative` until its containing block scrolls past a specified offset threshold (e.g., `top: 0`), at which point it sticks in place until reaching the end of its parent"
+          ],
+          "answer": "D",
+          "explanation": "`position: sticky` toggles between relative and fixed positioning based on scroll position, remaining pinned within the boundaries of its immediate parent container."
+        },
+        {
+          "question": "Which of the following is a common reason why `position: sticky; top: 0;` fails to stick when scrolling?",
+          "options": [
+            "The viewport width is greater than 1200px",
+            "An ancestor element in the DOM tree has `overflow: hidden`, `overflow: auto`, or `overflow: scroll` applied",
+            "The webpage uses HTML5 semantic tags instead of `<div>` tags",
+            "The sticky element has a background color defined in hex format"
+          ],
+          "answer": "B",
+          "explanation": "Any ancestor with `overflow: hidden`, `auto`, or `scroll` breaks `position: sticky` because the scroll context is trapped inside that parent rather than the main document viewport."
+        },
+        {
+          "question": "What does the `z-index` property control in CSS, and on which elements does it work?",
+          "options": [
+            "It controls optical zoom level of images in CSS; it works on `<img>` only",
+            "It controls horizontal alignment; it works on all inline text elements",
+            "It controls the 3D stacking order along the Z-axis (front-to-back); it only works on positioned elements (non-static) and flex/grid items",
+            "It controls font size scaling; it works on headings only"
+          ],
+          "answer": "C",
+          "explanation": "`z-index` specifies the stacking layer of an element along the Z-axis. It is ignored on elements with default `position: static` (unless they are flex/grid items)."
+        },
+        {
+          "question": "Why can't a modal dialog with `z-index: 9999` appear above an element in another container if that modal's parent container has `z-index: 1` and the other element's parent has `z-index: 2`?",
+          "options": [
+            "`z-index` values cannot exceed 1000 in modern web browsers",
+            "The browser rounds all z-index numbers down to zero upon page load",
+            "Modal dialogs are automatically rendered below all standard HTML text",
+            "Because the modal is trapped inside its parent's Stacking Context, and the entire parent context is subordinate to the higher `z-index: 2` context"
+          ],
+          "answer": "D",
+          "explanation": "Stacking contexts form isolated hierarchies. A child's `z-index` only has meaning within its parent stacking context; it can never escape to out-stack a higher sibling stacking context."
+        },
+        {
+          "question": "Which modern CSS property explicitly creates a new Stacking Context on an element without requiring hacky `position: relative; z-index: 0;` or `opacity: 0.999` styles?",
+          "options": [
+            "context: separate;",
+            "z-context: create;",
+            "isolation: isolate;",
+            "stacking: new-layer;"
+          ],
+          "answer": "C",
+          "explanation": "`isolation: isolate` is the standardized CSS property specifically designed to establish a new stacking context cleanly without altering visual rendering."
+        },
+        {
+          "question": "What does `pointer-events: none;` accomplish when applied to a transparent absolute overlay element sitting on top of a form?",
+          "options": [
+            "It allows mouse clicks, hover events, and touches to pass directly through the overlay to interact with the underlying form inputs",
+            "It disables the user's physical mouse hardware temporarily",
+            "It converts all click events into double-click events",
+            "It hides the mouse cursor graphic whenever it hovers over the screen"
+          ],
+          "answer": "A",
+          "explanation": "`pointer-events: none` makes an element invisible to mouse/touch interactions, allowing clicks to pass through to underlying elements."
+        },
+        {
+          "question": "When percentage values are used on `top`, `bottom`, `left`, and `right` on an absolutely positioned element, what are they calculated relative to?",
+          "options": [
+            "The physical diagonal resolution of the user's monitor",
+            "The width and height of the absolutely positioned element itself",
+            "The total height of the document body including off-screen scroll area",
+            "The width and height of the element's positioned Containing Block (padding box)"
+          ],
+          "answer": "D",
+          "explanation": "Percentage offsets on positioned elements (`top/bottom: %`, `left/right: %`) resolve relative to the padding box dimensions of the containing block."
+        },
+        {
+          "question": "How do elements with `position: absolute` interact with normal document layout flow?",
+          "options": [
+            "They reserve a transparent blank block equal to their width and height",
+            "They automatically float to the left edge of the nearest paragraph",
+            "They are completely removed from normal flow; other elements act as if the absolute element does not exist and collapse into its space",
+            "They push subsequent elements downward by their exact pixel height"
+          ],
+          "answer": "C",
+          "explanation": "Out-of-flow positioning (`absolute` and `fixed`) removes the element completely from document flow, so surrounding siblings ignore its geometry entirely."
+        },
+        {
+          "question": "What is the effect of setting both `left: 0;` and `right: 0;` on an absolutely positioned element with `width: auto;`?",
+          "options": [
+            "The element stretches horizontally to span the full width of its containing block (from left edge to right edge)",
+            "The element collapses its width to exactly 0px",
+            "The browser throws a CSS conflict error and disables the element",
+            "The element centers itself horizontally with a fixed 100px width"
+          ],
+          "answer": "A",
+          "explanation": "When opposite inset properties (`left: 0; right: 0;` or `top: 0; bottom: 0;`) are defined and dimensions are `auto`, the element stretches to fill the distance between the two constraints."
+        },
+        {
+          "question": "Which of the following creates a new Stacking Context in modern CSS?",
+          "options": [
+            "An element with `opacity: 0.95` (any opacity value strictly less than 1)",
+            "An element with `display: block` and `margin: 10px`",
+            "An element with `text-align: center`",
+            "An element with `font-weight: bold`"
+          ],
+          "answer": "A",
+          "explanation": "Creating a stacking context happens via properties like `opacity < 1`, `transform != none`, `filter != none`, `position: relative/absolute with z-index != auto`, and `isolation: isolate`."
+        },
+        {
+          "question": "In a Sticky Sidebar layout, why is it necessary for the sticky container's parent column to have sufficient height?",
+          "options": [
+            "CSS Grid disables sticky elements inside flex containers",
+            "If the parent is not 100vh tall, the browser reloads the webpage",
+            "Because a sticky element cannot scroll or stick past the bottom boundary of its immediate parent container",
+            "Sticky elements require parent containers to be exactly 5000px tall"
+          ],
+          "answer": "C",
+          "explanation": "A sticky element can only travel within the boundary of its parent container; if the parent has the same height as the sticky element, it has no room to move and will not stick."
+        },
+        {
+          "question": "What is the stacking behavior of two unpositioned (`position: static`) sibling elements without any z-index?",
+          "options": [
+            "Unpositioned elements can never visually overlap under any circumstances",
+            "The element that appears later in the HTML source code renders on top of the earlier element if they overlap",
+            "The element with the larger file size renders on top",
+            "The earlier element in the HTML source code always renders on top"
+          ],
+          "answer": "B",
+          "explanation": "In default document stacking, when elements occupy the same space without custom stacking contexts, later elements in source order stack on top of earlier siblings."
+        },
+        {
+          "question": "What is the positioning property value used to create floating action buttons (FABs) pinned to the bottom-right corner of the mobile screen?",
+          "options": [
+            "position: absolute; display: pin;",
+            "position: relative; float: bottom-right;",
+            "position: static; margin-top: auto; float: right;",
+            "position: fixed; bottom: 20px; right: 20px;"
+          ],
+          "answer": "D",
+          "explanation": "`position: fixed; bottom: 20px; right: 20px;` pins the floating action button to the bottom-right corner of the viewport regardless of page scrolling."
+        }
+      ]
+    },
+    {
+      "lessonId": "lesson-1787196281985-14",
+      "lessonTitle": "Lesson 4: Media Queries & Responsive UI Design Patterns",
+      "totalQuestions": 20,
+      "questions": [
+        {
+          "question": "What are the three core technical components of Responsive Web Design (RWD) as originally formulated by Ethan Marcotte?",
+          "options": [
+            "Server-Side Rendering, Microfrontends, and REST APIs",
+            "HTML5 Canvas, CSS Transforms, and WebGL",
+            "Fluid Grids, Flexible Media (Images/Videos), and CSS Media Queries",
+            "JavaScript Frameworks, WebAssembly, and Service Workers"
+          ],
+          "answer": "C",
+          "explanation": "Ethan Marcotte coined Responsive Web Design based on three pillars: fluid grid layouts, flexible media (scaling images), and media queries."
+        },
+        {
+          "question": "What is the primary philosophy behind 'Mobile-First' responsive CSS design?",
+          "options": [
+            "Creating two completely separate domain websites (e.g., m.example.com and www.example.com)",
+            "Building desktop layouts first, then using `max-width` media queries to hide elements on mobile",
+            "Writing base styles for small screens first, then using `min-width` media queries to progressively enhance the layout for larger screens",
+            "Disabling all CSS animations on mobile devices permanently"
+          ],
+          "answer": "C",
+          "explanation": "Mobile-first design establishes lightweight baseline styling for mobile viewports, using `@media (min-width: ...)` queries to add complexity as screen real estate increases."
+        },
+        {
+          "question": "Which modern CSS Range syntax is equivalent to the legacy `@media (min-width: 768px) and (max-width: 1024px)` query?",
+          "options": [
+            "@media (768px <= width <= 1024px)",
+            "@media (width: [768px, 1024px])",
+            "@media (width: between 768px and 1024px)",
+            "@media (range: 768px to 1024px)"
+          ],
+          "answer": "A",
+          "explanation": "CSS Media Queries Level 4 introduced standard mathematical comparison operators (e.g., `@media (768px <= width <= 1024px)`), which is cleaner and less error-prone."
+        },
+        {
+          "question": "Which user preference media query allows developers to style custom Dark Mode color themes based on the operating system setting?",
+          "options": [
+            "@media (theme: dark-mode)",
+            "@media (user-style: night)",
+            "@media (prefers-color-scheme: dark)",
+            "@media (color-mode: inverted)"
+          ],
+          "answer": "C",
+          "explanation": "`@media (prefers-color-scheme: dark)` detects if the user has requested a dark theme at the OS or browser level."
+        },
+        {
+          "question": "Why should developers use `@media (prefers-reduced-motion: reduce)` in modern web applications?",
+          "options": [
+            "To accelerate video playback speed to 2x by default",
+            "To improve CPU battery life by automatically pausing background music",
+            "To compress GIF animations into WebP format on mobile",
+            "To minimize or eliminate non-essential animations and transitions for users with vestibular disorders or motion sensitivity"
+          ],
+          "answer": "D",
+          "explanation": "`prefers-reduced-motion: reduce` respects user accessibility preferences by turning off jarring transitions and parallax effects that trigger motion sickness."
+        },
+        {
+          "question": "What is the difference between `@media (hover: hover)` and `@media (hover: none)`?",
+          "options": [
+            "There is no difference; all mobile smartphones support full hover simulation",
+            "`hover: hover` increases button font size when clicked",
+            "`hover: hover` targets devices with a precise pointing device that can hover (e.g., desktop mouse), while `hover: none` targets touchscreens where hover is impossible",
+            "`hover: none` disables all JavaScript mouse click listeners"
+          ],
+          "answer": "C",
+          "explanation": "Interaction media queries detect input capabilities: `hover: hover` matches mice/trackpads, whereas `hover: none` with `pointer: coarse` matches finger touchscreens."
+        },
+        {
+          "question": "What is the fundamental difference between CSS Container Queries (`@container`) and standard Media Queries (`@media`)?",
+          "options": [
+            "Container Queries are deprecated in favor of CSS Flexbox",
+            "Media Queries query the dimensions of the entire browser viewport, whereas Container Queries query the size of an individual component's parent container",
+            "Media Queries can only resize text, while Container Queries can only resize images",
+            "Container Queries only work on Docker container server backends"
+          ],
+          "answer": "B",
+          "explanation": "Container Queries allow a component (like a card) to adapt based on the width of its parent wrapper rather than the whole screen width, unlocking true modular UI components."
+        },
+        {
+          "question": "What CSS property must be declared on an ancestor element before its children can use `@container` queries?",
+          "options": [
+            "container-type: inline-size; (or container: name / inline-size;)",
+            "contain-query: true;",
+            "container: enable-query;",
+            "display: container-root;"
+          ],
+          "answer": "A",
+          "explanation": "To query a parent container's width, it must be designated as a containment context using `container-type: inline-size` (or `normal`/`size`)."
+        },
+        {
+          "question": "Which CSS rule makes content images responsive so they scale down to fit small containers without exceeding their natural pixel dimensions?",
+          "options": [
+            "img { max-width: 100%; height: auto; display: block; }",
+            "img { width: 100vw; height: 100vh; }",
+            "img { min-width: 100%; resize: both; }",
+            "img { scale: auto-fit; object-fit: fill; }"
+          ],
+          "answer": "A",
+          "explanation": "`max-width: 100%; height: auto;` ensures images shrink gracefully inside narrow containers while maintaining their aspect ratio and never stretching beyond original resolution."
+        },
+        {
+          "question": "Which media type query is used to format pages specifically for paper printing or PDF export (e.g., hiding navigation bars and changing background colors)?",
+          "options": [
+            "@media export-pdf",
+            "@media print",
+            "@media paper",
+            "@media physical"
+          ],
+          "answer": "B",
+          "explanation": "`@media print` targets print previews and printer output, allowing developers to hide navbars, force black text on white backgrounds, and control page breaks."
+        },
+        {
+          "question": "How does the `orientation` media feature distinguish between mobile phone orientations?",
+          "options": [
+            "`orientation: landscape` matches when viewport width is greater than height, and `orientation: portrait` matches when height is greater than or equal to width",
+            "`orientation: portrait` disables all flexbox column layouts",
+            "`orientation: landscape` is only active on smart TV displays",
+            "It uses the phone's gyroscope to measure gravitational acceleration in degrees"
+          ],
+          "answer": "A",
+          "explanation": "`orientation` evaluates the aspect ratio of the viewport: `landscape` when width > height, and `portrait` when height >= width."
+        },
+        {
+          "question": "What is the purpose of using `clamp()` for responsive fluid typography (e.g., `font-size: clamp(1rem, 2.5vw + 0.5rem, 2.5rem);`)?",
+          "options": [
+            "It converts all text into uppercase bold font weights",
+            "It scales text smoothly with the viewport width without requiring multiple media query breakpoints, while capping minimum and maximum font sizes",
+            "It disables custom Google Web Fonts on mobile data networks",
+            "It rotates typography 90 degrees in portrait orientation"
+          ],
+          "answer": "B",
+          "explanation": "`clamp(MIN, VAL, MAX)` creates fluid typography that scales smoothly with the viewport (`vw`), capped by accessible minimum and maximum bounds."
+        },
+        {
+          "question": "In standard responsive UI design, what is a 'Breakpoint'?",
+          "options": [
+            "A JavaScript error that pauses browser script execution",
+            "A specific viewport width threshold (e.g., 640px, 768px, 1024px) at which the page layout transitions using media queries",
+            "An HTML tag that forces a line break inside a paragraph",
+            "The point where an image file size exceeds the network bandwidth limit"
+          ],
+          "answer": "B",
+          "explanation": "A breakpoint is the viewport width where media queries trigger layout modifications (e.g., switching from single-column mobile to multi-column desktop)."
+        },
+        {
+          "question": "How do you hide an element on mobile screens (< 768px) and display it as a flex container on desktop screens (>= 768px) using mobile-first CSS?",
+          "options": [
+            ".element { display: flex; } @media (max-width: 768px) { .element { display: hide; } }",
+            ".element { visibility: collapse; display: desktop-only; }",
+            "@media (screen: desktop) { .element { visible: flex; } }",
+            ".element { display: none; } @media (min-width: 768px) { .element { display: flex; } }"
+          ],
+          "answer": "D",
+          "explanation": "In mobile-first design: write `.element { display: none; }` as baseline, then override with `display: flex;` inside `@media (min-width: 768px)`."
+        },
+        {
+          "question": "Which media query detects whether a user's device has a high pixel density screen (such as Apple Retina displays)?",
+          "options": [
+            "@media (gpu-render: retina)",
+            "@media (pixel-density: ultra)",
+            "@media (screen-quality: 4k)",
+            "@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi)"
+          ],
+          "answer": "D",
+          "explanation": "`min-resolution: 192dpi` (or `-webkit-min-device-pixel-ratio: 2`) targets high-density Retina screens to serve 2x high-resolution bitmap assets."
+        },
+        {
+          "question": "What is the recommended responsive UX pattern for handling large data tables on narrow mobile screens?",
+          "options": [
+            "Deleting 80% of the table data rows automatically on mobile",
+            "Shrinking the font size to 2px so all columns fit onto a single screen",
+            "Wrapping the `<table>` in an overflow container (`overflow-x: auto;`) or transforming rows into stacked vertical card blocks via CSS",
+            "Disabling scrolling completely and displaying an error message"
+          ],
+          "answer": "C",
+          "explanation": "Large tables should either be wrapped in a smooth horizontal scroll container (`overflow-x: auto`) or restructured into stacked cards on mobile screens for usability."
+        },
+        {
+          "question": "What is an 'Off-Canvas' navigation pattern commonly used in responsive mobile web apps?",
+          "options": [
+            "A dropdown menu that only works when the user disconnects from the internet",
+            "A navigation sidebar hidden off-screen (e.g., `transform: translateX(-100%)`) that slides smoothly into view when a hamburger icon is tapped",
+            "A menu rendered on a separate physical external computer monitor",
+            "A navigation bar that renders exclusively on HTML `<canvas>` elements"
+          ],
+          "answer": "B",
+          "explanation": "An off-canvas menu is positioned outside the viewport (`translateX(-100%)`) and animated into view upon clicking a hamburger toggle button."
+        },
+        {
+          "question": "Which media feature query detects if a user has requested high contrast in their system accessibility settings?",
+          "options": [
+            "@media (prefers-contrast: more)",
+            "@media (contrast-mode: high)",
+            "@media (accessibility: max-contrast)",
+            "@media (high-contrast: active)"
+          ],
+          "answer": "A",
+          "explanation": "`@media (prefers-contrast: more)` allows developers to enhance border outlines, increase font weights, and boost color contrast for visually impaired users."
+        },
+        {
+          "question": "What does the `@media (display-mode: standalone)` query detect?",
+          "options": [
+            "Whether the user has connected dual monitors to their computer",
+            "Whether the webpage is embedded inside a third-party `<iframe>`",
+            "Whether the computer is operating without an active internet connection",
+            "Whether the web application is running as an installed Progressive Web App (PWA) in its own dedicated window without browser URL chrome"
+          ],
+          "answer": "D",
+          "explanation": "`display-mode: standalone` targets PWAs launched from home screens or desktops, allowing custom title bars and app-like UI styling."
+        },
+        {
+          "question": "What is the main benefit of using CSS container query units (such as `cqw` and `cqh`) over viewport units (`vw` and `vh`)?",
+          "options": [
+            "`cqw` replaces all need for HTML and JavaScript in modern browsers",
+            "`cqw` increases the download speed of web pages over 5G networks",
+            "`cqw` calculates dimensions based on the user's battery percentage",
+            "`cqw` (Container Query Width) is relative to the parent container's width, allowing components to scale fluidly regardless of where they are placed in the layout"
+          ],
+          "answer": "D",
+          "explanation": "`1cqw` equals 1% of the query container's width, enabling modular components (like cards or widgets) to size fluidly whether placed in a narrow sidebar or a wide main area."
+        }
+      ]
+    }
+  ]
+}

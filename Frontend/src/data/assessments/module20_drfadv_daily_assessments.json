@@ -1,0 +1,691 @@
+{
+  "courseId": "crs-1786624019154-w",
+  "courseTitle": "Python Full Stack + DSA with AI",
+  "stageId": "top-stg-2",
+  "stageTitle": "Stage 2: Backend + DSA",
+  "moduleId": "subtop-1787203627297",
+  "moduleTitle": "DRF Advanced: ViewSets, JWT Auth & Testing",
+  "lessons": [
+    {
+      "lessonId": "lesson-1787204895757",
+      "lessonTitle": "ViewSets, Routers, & Custom API Actions",
+      "totalQuestions": 20,
+      "questions": [
+        {
+          "question": "What is the primary architectural concept that distinguishes a DRF `ViewSet` from a standard `APIView`?",
+          "options": [
+            "A ViewSet combines the logic for a set of related operations into a single class (providing action handlers like list(), create(), retrieve(), update(), destroy()) instead of individual HTTP method handlers like get() and post().",
+            "A ViewSet bypasses all serialization and renders raw HTML tables exclusively.",
+            "A ViewSet can only interact with NoSQL MongoDB databases.",
+            "A ViewSet executes entirely on the client side in web browser JavaScript."
+          ],
+          "answer": "A",
+          "explanation": "ViewSets group standard CRUD operations for an entity into cohesive action methods (`list`, `create`, `retrieve`, `update`, `partial_update`, `destroy`) rather than verb handlers (`get`, `post`)."
+        },
+        {
+          "question": "Which DRF ViewSet class provides full default implementations for all standard CRUD operations (list, create, retrieve, update, partial_update, destroy)?",
+          "options": [
+            "viewsets.ModelViewSet",
+            "viewsets.BasicViewSet",
+            "viewsets.ReadOnlyModelViewSet",
+            "viewsets.GenericViewSet"
+          ],
+          "answer": "A",
+          "explanation": "`ModelViewSet` inherits from `GenericAPIView` and all five mixins (`CreateModelMixin`, `RetrieveModelMixin`, `UpdateModelMixin`, `DestroyModelMixin`, `ListModelMixin`)."
+        },
+        {
+          "question": "When should you use `viewsets.ReadOnlyModelViewSet` instead of `viewsets.ModelViewSet`?",
+          "options": [
+            "When the database is hosted on a read-only optical CD-ROM.",
+            "When you want to prevent users from viewing any data.",
+            "When an API endpoint should only allow read-only operations (listing records and retrieving individual records) while forbidding create, update, and delete actions.",
+            "When API responses must be encrypted with RSA keys."
+          ],
+          "answer": "C",
+          "explanation": "`ReadOnlyModelViewSet` includes only `RetrieveModelMixin` and `ListModelMixin`, supporting HTTP `GET` operations while disallowing write verbs."
+        },
+        {
+          "question": "What is the key difference between `rest_framework.routers.DefaultRouter` and `rest_framework.routers.SimpleRouter`?",
+          "options": [
+            "SimpleRouter can only register one ViewSet per project.",
+            "DefaultRouter automatically creates a default API root view (hyperlinked list of all registered resources) and optional '.json' format suffix routes, whereas SimpleRouter does not.",
+            "DefaultRouter is asynchronous, while SimpleRouter is synchronous.",
+            "SimpleRouter supports WebSockets, whereas DefaultRouter does not."
+          ],
+          "answer": "B",
+          "explanation": "`DefaultRouter` includes an API root view displaying hyperlinks to all registered endpoints and supports format suffixes; `SimpleRouter` only generates basic resource routes."
+        },
+        {
+          "question": "How do you register a `ProductViewSet` with a DRF `DefaultRouter` instance?",
+          "options": [
+            "router = DefaultRouter()\nrouter.add_view('products', ProductViewSet)",
+            "router = DefaultRouter()\nrouter.bind_route('/products/', ProductViewSet.as_view())",
+            "router = DefaultRouter()\nrouter.connect(ProductViewSet, url='products')",
+            "router = DefaultRouter()\nrouter.register(r'products', ProductViewSet, basename='product')"
+          ],
+          "answer": "D",
+          "explanation": "DRF routers use `router.register(prefix, viewset, basename=...)` to generate standard URL routes for list and detail actions."
+        },
+        {
+          "question": "Under what circumstance is the `basename` argument MANDATORY when registering a ViewSet with a router?",
+          "options": [
+            "Only when deploying the application to Docker containers.",
+            "Whenever the model uses UUID primary keys.",
+            "When the ViewSet does not define a static `queryset` attribute (for instance, when only `get_queryset()` is overridden).",
+            "Whenever the ViewSet has more than 100 database records."
+          ],
+          "answer": "C",
+          "explanation": "Routers derive the default `basename` from `viewset.queryset.model._meta.model_name`. If `queryset` is omitted, `basename` must be explicitly specified."
+        },
+        {
+          "question": "Which decorator is used to define custom ad-hoc endpoints on a DRF ViewSet (such as `/api/courses/{id}/enroll/`)?",
+          "options": [
+            "@action(detail=True, methods=['post'])",
+            "@route_action(methods=['post'])",
+            "@api_action(is_detail=True)",
+            "@custom_endpoint(detail=True)"
+          ],
+          "answer": "A",
+          "explanation": "The `@action` decorator from `rest_framework.decorators` marks extra ViewSet methods as routable endpoints."
+        },
+        {
+          "question": "What is the difference between `@action(detail=True)` and `@action(detail=False)`?",
+          "options": [
+            "`detail=True` creates database migrations; `detail=False` does not.",
+            "`detail=True` returns verbose SQL logging; `detail=False` suppresses logs.",
+            "`detail=True` creates a route targeting a specific single object (e.g. `/items/{pk}/action/`), whereas `detail=False` creates a route targeting the collection (e.g. `/items/action/`).",
+            "`detail=True` is for authenticated users; `detail=False` is for anonymous users."
+          ],
+          "answer": "C",
+          "explanation": "`detail=True` requires a URL lookup parameter (`pk`) to match a single instance and enables `self.get_object()`. `detail=False` routes to collection-level URLs."
+        },
+        {
+          "question": "How does a DRF router name the URL for a standard detail route of a ViewSet registered with `basename='course'`?",
+          "options": [
+            "'course-detail'",
+            "'course.single'",
+            "'course_retrieve_view'",
+            "'api_course_pk'"
+          ],
+          "answer": "A",
+          "explanation": "DRF routers standardise URL names into `<basename>-list`, `<basename>-detail`, and `<basename>-<action_name>`."
+        },
+        {
+          "question": "How can a `ModelViewSet` dynamically return a different serializer for `list` vs `retrieve` actions?",
+          "options": [
+            "Define two separate `class Meta` blocks inside the serializer.",
+            "Override `def get_model(self):` in the ViewSet.",
+            "Set `serializer_class = [CourseSummarySerializer, CourseDetailSerializer]`.",
+            "def get_serializer_class(self):\n    if self.action == 'list':\n        return CourseSummarySerializer\n    return CourseDetailSerializer"
+          ],
+          "answer": "D",
+          "explanation": "`get_serializer_class(self)` allows dynamic serializer selection based on `self.action` (`'list'`, `'retrieve'`, `'create'`, etc.)."
+        },
+        {
+          "question": "How do you apply different permission classes based on the active action in a `ViewSet` (e.g., allow anyone to list, but require admin to delete)?",
+          "options": [
+            "Add if-else statements inside `settings.py`.",
+            "def get_permissions(self):\n    if self.action in ['destroy', 'update']:\n        return [IsAdminUser()]\n    return [AllowAny()]",
+            "Set `permission_classes = {'list': AllowAny, 'destroy': IsAdminUser}`.",
+            "Decorate the ViewSet class with `@admin_only_for_delete`."
+          ],
+          "answer": "B",
+          "explanation": "Overriding `get_permissions(self)` dynamically instantiates and returns a list of permission objects based on `self.action`."
+        },
+        {
+          "question": "What happens under the hood when a router connects a ViewSet using `.as_view({'get': 'list', 'post': 'create'})`?",
+          "options": [
+            "It bypasses Django's URL resolver entirely.",
+            "It compiles the ViewSet into a binary executable.",
+            "It generates static HTML pages on disk.",
+            "It creates a Django callable view function that maps incoming HTTP GET requests to `viewset.list()` and HTTP POST requests to `viewset.create()`."
+          ],
+          "answer": "D",
+          "explanation": "Passing an action-to-method dictionary to `ViewSet.as_view()` binds HTTP methods to specific action handler methods."
+        },
+        {
+          "question": "How do you construct a custom ViewSet that ONLY supports creating and listing records without update or delete capabilities?",
+          "options": [
+            "class ProductCustomViewSet(mixins.CreateModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet):\n    queryset = Product.objects.all()\n    serializer_class = ProductSerializer",
+            "Subclass `APIView` and set `read_and_create_only = True`.",
+            "Add `readonly_update = True` inside `settings.py`.",
+            "Subclass `ModelViewSet` and delete the `update` and `delete` methods with `pass`."
+          ],
+          "answer": "A",
+          "explanation": "Subclassing `GenericViewSet` along with specific mixins (`CreateModelMixin`, `ListModelMixin`) creates tailored, lightweight ViewSets."
+        },
+        {
+          "question": "How can you customize the URL path and URL reverse name of an `@action` method on a ViewSet?",
+          "options": [
+            "@action(path='/featured-courses/', name='featured')",
+            "@action(endpoint='featured-courses', alias='featured')",
+            "@action(detail=False, methods=['get'], url_path='featured-courses', url_name='featured')",
+            "@action(detail=False, route='featured-courses')"
+          ],
+          "answer": "C",
+          "explanation": "`url_path` overrides the default method-name URL slug, and `url_name` specifies the custom name for reverse URL lookups."
+        },
+        {
+          "question": "How do you include all routes generated by a `DefaultRouter` into a Django project's `urls.py`?",
+          "options": [
+            "urlpatterns = router.get_all_views()",
+            "urlpatterns = [ path('api/', router.as_view()) ]",
+            "urlpatterns = [\n    path('api/', include(router.urls)),\n]",
+            "urlpatterns = [ router.dispatch() ]"
+          ],
+          "answer": "C",
+          "explanation": "`router.urls` provides the list of generated URL patterns, which are integrated via `path('api/', include(router.urls))`."
+        },
+        {
+          "question": "Inside a custom detail action `def rate(self, request, pk=None):`, how do you fetch the specific target model instance?",
+          "options": [
+            "instance = request.get_current_record()",
+            "instance = self.queryset.find(request.pk)",
+            "instance = self.fetch_single_model()",
+            "instance = self.get_object()"
+          ],
+          "answer": "D",
+          "explanation": "`self.get_object()` looks up the object by `pk`, verifies object-level permissions, and raises a 404 if not found."
+        },
+        {
+          "question": "How can you dynamically filter the records returned by `ModelViewSet` based on the requesting user's tenant or organization?",
+          "options": [
+            "Delete other tenants' records before running queries.",
+            "def get_queryset(self):\n    return Product.objects.filter(tenant=self.request.user.tenant)",
+            "Set `queryset = Product.objects.filter(tenant=request.tenant)` as a class attribute.",
+            "Filter the records in the frontend React state."
+          ],
+          "answer": "B",
+          "explanation": "Overriding `get_queryset(self)` dynamically evaluates queryset constraints at request time using `self.request`."
+        },
+        {
+          "question": "What should a custom `@action` method return upon successful execution?",
+          "options": [
+            "A raw Python string with print statements.",
+            "A `rest_framework.response.Response` object containing the response data and appropriate HTTP status code.",
+            "A boolean `True` value.",
+            "An integer indicating the byte length of the response."
+          ],
+          "answer": "B",
+          "explanation": "Custom action methods must return a DRF `Response(data, status=status.HTTP_...)` object, which undergoes content negotiation."
+        },
+        {
+          "question": "What is the primary benefit of using Nested Routers (e.g. `drf-nested-routers`) in REST API design?",
+          "options": [
+            "It speeds up CPU clock frequencies on database servers.",
+            "It automatically writes frontend Vue.js forms.",
+            "It eliminates the need for SQL database foreign keys.",
+            "It simplifies designing expressive, hierarchical parent-child resource routes like `/api/courses/{course_pk}/lessons/{pk}/` while maintaining clean ViewSets."
+          ],
+          "answer": "D",
+          "explanation": "Nested routers allow natural URL modeling of parent-child relationships where child resources depend on a parent's identity."
+        },
+        {
+          "question": "Which method in the DRF ViewSet lifecycle is responsible for determining the action name, initializing the view, and dispatching to the action method?",
+          "options": [
+            "execute_pipeline()",
+            "initial(request, *args, **kwargs) and dispatch(request, *args, **kwargs)",
+            "compile_view()",
+            "run_server()"
+          ],
+          "answer": "B",
+          "explanation": "`dispatch()` handles the initial HTTP request routing, authenticates/checks permissions in `initial()`, and dispatches to the corresponding action handler."
+        }
+      ]
+    },
+    {
+      "lessonId": "lesson-1787204929552",
+      "lessonTitle": "JWT Authentication: SimpleJWT Integration & Permissions",
+      "totalQuestions": 20,
+      "questions": [
+        {
+          "question": "What are the three components of a JSON Web Token (JWT) separated by dots (`.`) in order?",
+          "options": [
+            "Header, Payload, and Signature (`header.payload.signature`)",
+            "Username, Password, and Timestamp",
+            "Issuer, Subject, and Cookie",
+            "Encryption Key, Database ID, and Hash"
+          ],
+          "answer": "A",
+          "explanation": "A JWT is structured as three base64url-encoded parts separated by periods: Header (algorithm & token type), Payload (claims & data), and Signature (cryptographic verification)."
+        },
+        {
+          "question": "What is the primary architectural difference between an Access Token and a Refresh Token in JWT authentication?",
+          "options": [
+            "Access tokens cannot expire; refresh tokens expire every 10 seconds.",
+            "An Access Token is short-lived and sent in API request headers for authorization; a Refresh Token is long-lived and used securely to obtain a new Access Token without re-entering credentials.",
+            "Access tokens are stored in SQL; refresh tokens are stored in CSS.",
+            "Access tokens are only for mobile apps; refresh tokens are for web browsers."
+          ],
+          "answer": "B",
+          "explanation": "Short-lived access tokens (e.g., 5-15 mins) reduce exposure if compromised, while refresh tokens (e.g., 1-7 days) grant new access tokens seamlessly."
+        },
+        {
+          "question": "How do you configure Django REST Framework to use SimpleJWT authentication globally in `settings.py`?",
+          "options": [
+            "REST_FRAMEWORK = {'AUTH_ENGINE': 'simplejwt'}",
+            "REST_FRAMEWORK = {\n    'DEFAULT_AUTHENTICATION_CLASSES': (\n        'rest_framework_simplejwt.authentication.JWTAuthentication',\n    )\n}",
+            "AUTH_CLASSES = ['django.jwt.SimpleJWT']",
+            "SIMPLE_JWT_ENABLED = True"
+          ],
+          "answer": "B",
+          "explanation": "Setting `'rest_framework_simplejwt.authentication.JWTAuthentication'` in `DEFAULT_AUTHENTICATION_CLASSES` applies JWT authentication globally across all DRF views."
+        },
+        {
+          "question": "Which two standard SimpleJWT views are mounted in `urls.py` for user login (token generation) and token renewal?",
+          "options": [
+            "TokenObtainPairView (for login) and TokenRefreshView (for refreshing access tokens)",
+            "LoginJWTView and RenewJWTView",
+            "AuthTokenView and ExpireTokenView",
+            "GenerateTokenView and VerifyTokenView"
+          ],
+          "answer": "A",
+          "explanation": "`TokenObtainPairView` accepts username/password and returns `{access, refresh}`, while `TokenRefreshView` accepts `{refresh}` and returns a fresh `{access}` token."
+        },
+        {
+          "question": "What is the standard HTTP Authorization header format used to send a JWT access token to a protected DRF endpoint?",
+          "options": [
+            "Authorization: Bearer <access_token>",
+            "Authorization: TokenJWT <access_token>",
+            "Authorization: Key <access_token>",
+            "Authorization: Basic <access_token>"
+          ],
+          "answer": "A",
+          "explanation": "The standard header format for OAuth2 and JWT bearer tokens is `Authorization: Bearer <token>`."
+        },
+        {
+          "question": "What is the purpose of SimpleJWT's `TokenVerifyView` endpoint?",
+          "options": [
+            "It allows client applications or microservices to verify whether a given token is valid and unexpired without needing access to private encryption keys.",
+            "It sends an SMS verification code to the user's phone.",
+            "It generates a new master password for the Django superuser.",
+            "It decrypts the user's database records into plain text."
+          ],
+          "answer": "A",
+          "explanation": "`TokenVerifyView` takes a token and returns HTTP 200 if valid or HTTP 401 if invalid/expired."
+        },
+        {
+          "question": "How can you add custom user claims (e.g. `email`, `role`, `is_instructor`) into the JWT payload with SimpleJWT?",
+          "options": [
+            "Subclass `TokenObtainPairSerializer` and override the `get_token(cls, user)` classmethod to add custom keys to the token dictionary.",
+            "Edit the SimpleJWT package source code in site-packages.",
+            "Write custom claims directly inside `settings.py`.",
+            "Add custom columns directly into the JWT header."
+          ],
+          "answer": "A",
+          "explanation": "Overriding `get_token(cls, user)` on a custom `TokenObtainPairSerializer` allows embedding arbitrary user attributes (like `token['role'] = user.role`) into the payload."
+        },
+        {
+          "question": "What SimpleJWT setting in `settings.py` ensures that every time a refresh token is used, a new refresh token is issued and the old one is invalidated?",
+          "options": [
+            "PERPETUAL_TOKENS = False",
+            "REGENERATE_SESSIONS = True",
+            "AUTO_CYCLE_KEYS = True",
+            "ROTATE_REFRESH_TOKENS = True and BLACKLIST_AFTER_ROTATION = True"
+          ],
+          "answer": "D",
+          "explanation": "`ROTATE_REFRESH_TOKENS = True` along with `BLACKLIST_AFTER_ROTATION = True` enforces refresh token rotation, enhancing security against stolen refresh tokens."
+        },
+        {
+          "question": "Which Django app must be added to `INSTALLED_APPS` to enable SimpleJWT's token blacklisting feature (e.g., for logout)?",
+          "options": [
+            "'simplejwt.revocation'",
+            "'rest_framework.blacklist'",
+            "'rest_framework_simplejwt.token_blacklist'",
+            "'django.contrib.jwt_blacklist'"
+          ],
+          "answer": "C",
+          "explanation": "`rest_framework_simplejwt.token_blacklist` provides database models (`OutstandingToken`, `BlacklistedToken`) to store and check revoked tokens."
+        },
+        {
+          "question": "Which built-in DRF permission class allows read-only access (`GET`, `HEAD`, `OPTIONS`) to unauthenticated users, while requiring authentication for write operations (`POST`, `PUT`, `DELETE`)?",
+          "options": [
+            "permissions.IsAuthenticated",
+            "permissions.AllowAny",
+            "permissions.IsAuthenticatedOrReadOnly",
+            "permissions.IsAdminUser"
+          ],
+          "answer": "C",
+          "explanation": "`IsAuthenticatedOrReadOnly` checks if the request method is in `SAFE_METHODS`; if so, access is granted; otherwise, authentication is required."
+        },
+        {
+          "question": "How do you create a custom permission class in DRF that checks view-level access?",
+          "options": [
+            "Subclass `django.contrib.auth.models.Permission`.",
+            "Create a Python function with `@permission_guard`.",
+            "Define `def check_user_access(self, user):` in views.py.",
+            "Subclass `rest_framework.permissions.BasePermission` and override `has_permission(self, request, view)` returning `True` or `False`."
+          ],
+          "answer": "D",
+          "explanation": "Custom permissions inherit from `BasePermission` and implement `has_permission(self, request, view)` for global view-level checks."
+        },
+        {
+          "question": "How do you implement an object-level permission in DRF (e.g. allowing only the owner of an article to edit it)?",
+          "options": [
+            "Filter the database rows directly in `models.py`.",
+            "Set `permission_level = 'object'` in `settings.py`.",
+            "Override `has_object_permission(self, request, view, obj)` in a custom `BasePermission` class, checking `if obj.owner == request.user: return True`.",
+            "Override `save()` on the Django Model to throw an HTTP 403 error."
+          ],
+          "answer": "C",
+          "explanation": "`has_object_permission(self, request, view, obj)` is called by generic views during `self.get_object()` to verify instance-level permissions."
+        },
+        {
+          "question": "What constant tuple does DRF provide to identify safe HTTP read methods in permission classes?",
+          "options": [
+            "status.HTTP_SAFE_METHODS",
+            "permissions.SAFE_METHODS  # ('GET', 'HEAD', 'OPTIONS')",
+            "django.views.SAFE_HTTP",
+            "permissions.READ_VERBS"
+          ],
+          "answer": "B",
+          "explanation": "`permissions.SAFE_METHODS` is a tuple containing `('GET', 'HEAD', 'OPTIONS')`, used to identify non-mutating HTTP operations."
+        },
+        {
+          "question": "How can you combine multiple DRF permission classes using bitwise operators in `permission_classes`?",
+          "options": [
+            "permission_classes = combine_perms(IsAdminUser, IsAuthenticated)",
+            "permission_classes = ['IsAdminUser' or 'IsAuthenticated']",
+            "permission_classes = [IsAdminUser | (IsAuthenticated & IsOwner)]",
+            "permission_classes = {'or': [IsAdminUser, IsAuthenticated]}"
+          ],
+          "answer": "C",
+          "explanation": "DRF supports bitwise operators (`|` for OR, `&` for AND, `~` for NOT) on `BasePermission` subclasses to construct complex conditional permissions."
+        },
+        {
+          "question": "How does the backend server verify that a JWT token presented by a client has not been tampered with or modified?",
+          "options": [
+            "It asks the user to re-enter their password on every request.",
+            "It recomputes the signature using the token's Header and Payload along with the server's private `SECRET_KEY`, and verifies it matches the token's Signature.",
+            "It calls Google's identity servers on every incoming request.",
+            "It queries the client's local browser storage to read their cookies."
+          ],
+          "answer": "B",
+          "explanation": "Cryptographic signature verification ensures that any alteration to the Header or Payload invalidates the token without requiring database lookups."
+        },
+        {
+          "question": "Why is stateless JWT authentication particularly advantageous for microservices and horizontally scaled cloud backend clusters?",
+          "options": [
+            "Because JWT eliminates the need for SSL/HTTPS certificates.",
+            "Because JWT files take up zero bytes of memory.",
+            "Because the token contains all necessary user claims and verification can be performed locally on any server instance without shared session databases or sticky sessions.",
+            "Because JWT automatically compiles backend code to C++."
+          ],
+          "answer": "C",
+          "explanation": "Stateless tokens allow any backend worker to authenticate requests independently using the shared secret key, enabling seamless horizontal scaling."
+        },
+        {
+          "question": "What HTTP status code and response payload does DRF return when an expired JWT access token is used?",
+          "options": [
+            "HTTP 404 Not Found.",
+            "HTTP 200 OK with `{\"status\": \"expired\"}`.",
+            "HTTP 500 Internal Server Error with a database traceback.",
+            "HTTP 401 Unauthorized with `{\"detail\": \"Given token not valid for any token type\", \"code\": \"token_not_valid\"}`"
+          ],
+          "answer": "D",
+          "explanation": "SimpleJWT intercepts expired tokens and raises an `AuthenticationFailed` exception, resulting in an HTTP `401 Unauthorized` response."
+        },
+        {
+          "question": "How do you provide a custom error message when a user fails a custom DRF permission check?",
+          "options": [
+            "Print the message to `sys.stderr`.",
+            "Write the message inside `settings.py` under `DEFAULT_ERROR_MESSAGE`.",
+            "Raise an `Exception('...')` inside `has_permission()`.",
+            "Set the `message` class attribute on your custom `BasePermission` subclass: `message = 'You do not have permission to modify this course.'`"
+          ],
+          "answer": "D",
+          "explanation": "Setting `message = '...'` on a `BasePermission` subclass customizes the error string returned in the HTTP 403 Forbidden response payload."
+        },
+        {
+          "question": "How should JWT access and refresh tokens be stored on frontend client web applications for optimal security against XSS attacks?",
+          "options": [
+            "In plain text files committed to the public GitHub repository.",
+            "In secure, HTTP-only, SameSite cookies rather than JavaScript-accessible `localStorage` or `sessionStorage`.",
+            "In unencrypted HTML attributes like `<div data-token=\"...\">`.",
+            "In global `window.jwt_token` variables with `eval()`."
+          ],
+          "answer": "B",
+          "explanation": "`HttpOnly` cookies cannot be accessed by client-side JavaScript, effectively protecting tokens from Cross-Site Scripting (XSS) theft."
+        },
+        {
+          "question": "In Role-Based Access Control (RBAC), how would you write a custom permission `IsInstructor` in DRF?",
+          "options": [
+            "def IsInstructor(request):\n    return True if user else False",
+            "class IsInstructor(ModelSerializer):\n    pass",
+            "class IsInstructor:\n    role = 'INSTRUCTOR'",
+            "class IsInstructor(BasePermission):\n    def has_permission(self, request, view):\n        return bool(request.user and request.user.is_authenticated and request.user.role == 'INSTRUCTOR')"
+          ],
+          "answer": "D",
+          "explanation": "The permission checks that the request user is authenticated and their role attribute matches the required role string."
+        }
+      ]
+    },
+    {
+      "lessonId": "lesson-1787204959955",
+      "lessonTitle": "Filtering, Pagination, & API Testing with pytest/Postman",
+      "totalQuestions": 20,
+      "questions": [
+        {
+          "question": "Which third-party library is the standard choice for implementing rich field-based filtering in Django REST Framework?",
+          "options": [
+            "rest-framework-searcher",
+            "django-filter (`django_filters.rest_framework.DjangoFilterBackend`)",
+            "drf-query-sorter",
+            "django-api-filterer"
+          ],
+          "answer": "B",
+          "explanation": "`django-filter` provides seamless integration with DRF via `DjangoFilterBackend`, enabling declarative filtering on models."
+        },
+        {
+          "question": "How do you enable exact-match filtering for fields like `category` and `status` on a `ModelViewSet` using `DjangoFilterBackend`?",
+          "options": [
+            "filter_fields = {'category': True, 'status': True}",
+            "query_fields = ('category', 'status')",
+            "filter_backends = [DjangoFilterBackend]\nfilterset_fields = ['category', 'status']",
+            "allowed_filters = ['category', 'status'] in class Meta"
+          ],
+          "answer": "C",
+          "explanation": "Specifying `DjangoFilterBackend` in `filter_backends` and listing fields in `filterset_fields` automatically supports query parameters like `?category=python&status=published`."
+        },
+        {
+          "question": "How do you define advanced lookup filtering (such as `price__gte` and `title__icontains`) using a custom `FilterSet` in `django-filter`?",
+          "options": [
+            "class ProductFilter(django_filters.FilterSet):\n    min_price = django_filters.NumberFilter(field_name='price', lookup_expr='gte')\n    title = django_filters.CharFilter(lookup_expr='icontains')\n    class Meta:\n        model = Product\n        fields = ['min_price', 'title']",
+            "class ProductFilter:\n    filters = ['price >= min_price', 'title LIKE title']",
+            "def filter_products(request): return Product.objects.all()",
+            "Product.objects.filter_rules = {'min_price': 'price__gte'}"
+          ],
+          "answer": "A",
+          "explanation": "Subclassing `django_filters.FilterSet` allows custom filter parameter names, target model fields, and specific lookup expressions (`gte`, `lte`, `icontains`)."
+        },
+        {
+          "question": "Which filter backend from `rest_framework.filters` is used to implement full-text or substring searching across multiple model fields via a single `?search=` query parameter?",
+          "options": [
+            "rest_framework.filters.SubstringFilter",
+            "rest_framework.filters.SearchFilter (configured with `search_fields = ['title', 'description', 'instructor__username']`)",
+            "rest_framework.filters.TextScanner",
+            "rest_framework.filters.GlobalQueryFilter"
+          ],
+          "answer": "B",
+          "explanation": "`SearchFilter` enables single-parameter multi-field search across fields specified in `search_fields` using `?search=term`."
+        },
+        {
+          "question": "In DRF's `SearchFilter`, what does prefixing a field in `search_fields` with `^` (e.g. `search_fields = ['^title']`) signify?",
+          "options": [
+            "Full-text indexing with PostgreSQL vector search.",
+            "Regular expression search.",
+            "Exact case-sensitive match only.",
+            "Starts-with search (performs an SQL `LIKE 'term%'` lookup)."
+          ],
+          "answer": "D",
+          "explanation": "`^` denotes starts-with search, `=` denotes exact match, `@` denotes full-text search (Postgres), and `$` denotes regex search in `search_fields`."
+        },
+        {
+          "question": "How do you enable client-controlled sorting/ordering (e.g. `?ordering=-price,created_at`) on a DRF ViewSet?",
+          "options": [
+            "filter_backends = [filters.OrderingFilter]\nordering_fields = ['price', 'created_at', 'rating']\nordering = ['-created_at']",
+            "order_by_params = ['price', 'created_at']",
+            "sort_backends = [SortFilter]\nsort_by = ['price']",
+            "enable_sorting = True inside class Meta"
+          ],
+          "answer": "A",
+          "explanation": "`OrderingFilter` combined with `ordering_fields` (permitted fields) and `ordering` (default sort order) enables dynamic sorting."
+        },
+        {
+          "question": "Which DRF pagination class formats query parameters as `?page=2` and returns metadata including `count`, `next`, `previous`, and `results`?",
+          "options": [
+            "rest_framework.pagination.PageNumberPagination",
+            "rest_framework.pagination.SimpleChunkPagination",
+            "rest_framework.pagination.CursorPagination",
+            "rest_framework.pagination.LimitOffsetPagination"
+          ],
+          "answer": "A",
+          "explanation": "`PageNumberPagination` implements classic 1-indexed page numbering with `?page=N`."
+        },
+        {
+          "question": "How does `LimitOffsetPagination` differ in query parameter syntax from `PageNumberPagination`?",
+          "options": [
+            "`LimitOffsetPagination` cannot be used with SQL databases.",
+            "`LimitOffsetPagination` returns XML instead of JSON.",
+            "`LimitOffsetPagination` uses `?limit=10&offset=20` (take 10 items, skipping the first 20), whereas `PageNumberPagination` uses `?page=3`.",
+            "`LimitOffsetPagination` only paginates backwards from the last record."
+          ],
+          "answer": "C",
+          "explanation": "`LimitOffsetPagination` mirrors SQL `LIMIT` and `OFFSET` clauses, providing flexible chunking controls to API clients."
+        },
+        {
+          "question": "Why is `CursorPagination` preferred over `PageNumberPagination` for high-frequency real-time feeds (like social media timelines)?",
+          "options": [
+            "Because CursorPagination only works on mobile devices.",
+            "It prevents duplicate or skipped items when new records are inserted during browsing and handles very large datasets with consistent O(1) database index lookups.",
+            "Because CursorPagination caches all database tables in browser RAM.",
+            "Because CursorPagination does not require any database indexes."
+          ],
+          "answer": "B",
+          "explanation": "`CursorPagination` uses opaque encrypted tokens representing timestamp/ID positions, preventing page-drift anomalies during active writes."
+        },
+        {
+          "question": "Which DRF test client class is provided specifically for simulating API requests in automated unit tests?",
+          "options": [
+            "rest_framework.test.CurlSimulator",
+            "django.test.BrowserClient",
+            "rest_framework.test.MockHttpWorker",
+            "rest_framework.test.APIClient"
+          ],
+          "answer": "D",
+          "explanation": "`APIClient` extends Django's test client, adding first-class support for `format='json'`, authentication helpers, and direct request payloads."
+        },
+        {
+          "question": "Which base class should you inherit from when writing DRF test suites using Django's built-in test runner?",
+          "options": [
+            "rest_framework.views.TestView",
+            "rest_framework.test.APITestCase",
+            "unittest.TestCase",
+            "django.test.SimpleTestCase"
+          ],
+          "answer": "B",
+          "explanation": "`APITestCase` subclasses Django's `TestCase` and automatically instantiates an `APIClient` on `self.client`."
+        },
+        {
+          "question": "How do you authenticate an `APIClient` as a specific user in a unit test without generating real JWT tokens?",
+          "options": [
+            "self.client.login_as_superuser()",
+            "self.client.bypass_auth = True",
+            "self.client.set_user_session(test_user.id)",
+            "self.client.force_authenticate(user=test_user)"
+          ],
+          "answer": "D",
+          "explanation": "`force_authenticate(user=user)` bypasses the authentication handler and directly attaches the mock user to subsequent test requests."
+        },
+        {
+          "question": "How do you authenticate an `APIClient` by explicitly passing a JWT Bearer token in request headers during tests?",
+          "options": [
+            "self.client.auth_token = token",
+            "self.client.set_header('Bearer', token)",
+            "self.client.credentials(HTTP_AUTHORIZATION='Bearer ' + token)",
+            "self.client.headers['Authorization'] = token"
+          ],
+          "answer": "C",
+          "explanation": "`client.credentials(HTTP_AUTHORIZATION='Bearer ' + token)` attaches default HTTP headers to all subsequent requests made by the test client."
+        },
+        {
+          "question": "When using `pytest` to test DRF endpoints, which decorator/mark is required for test functions that perform database operations?",
+          "options": [
+            "@pytest.mark.enable_orm",
+            "@pytest.mark.sql_transaction",
+            "@pytest.mark.django_db",
+            "@pytest.mark.database_access"
+          ],
+          "answer": "C",
+          "explanation": "`@pytest.mark.django_db` instructs pytest-django to set up and tear down test database transactions."
+        },
+        {
+          "question": "In an automated test verifying user registration, how do you assert both HTTP status and response payload content?",
+          "options": [
+            "response = self.client.post('/api/register/', payload, format='json')\nself.assertEqual(response.status_code, status.HTTP_201_CREATED)\nself.assertEqual(response.data['username'], 'testuser')",
+            "self.validate_response(response, code=200)",
+            "assert response.status == 'OK'",
+            "self.check(response.text == 'SUCCESS')"
+          ],
+          "answer": "A",
+          "explanation": "Testing DRF endpoints involves verifying status constants from `rest_framework.status` and inspecting the deserialized `response.data` dictionary."
+        },
+        {
+          "question": "How should you test that an endpoint correctly rejects unauthorized requests with HTTP 401 Unauthorized?",
+          "options": [
+            "response = self.client.get('/api/protected-resource/')\nself.assertEqual(response.status_code, status.HTTP_200_OK)",
+            "response = self.client.get('/api/protected-resource/')\nself.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)",
+            "assert response.text == 'Forbidden'",
+            "self.assertRaises(PermissionError, self.client.get('/api/protected-resource/'))"
+          ],
+          "answer": "B",
+          "explanation": "Testing security rules requires sending unauthenticated requests and asserting that DRF returns HTTP 401 Unauthorized."
+        },
+        {
+          "question": "What is the standard response structure of a paginated list endpoint in DRF that should be verified in integration tests?",
+          "options": [
+            "A JSON object containing keys: `'count'`, `'next'`, `'previous'`, and `'results'` (where `'results'` is a list of serialized items).",
+            "An XML payload with `<pages>` tags.",
+            "A raw list of items without any wrapper keys.",
+            "An object with `'page_number'`, `'total_rows'`, and `'data_blob'`."
+          ],
+          "answer": "A",
+          "explanation": "DRF pagination wraps items in a standardized envelope containing `count`, navigation links (`next`, `previous`), and the `results` array."
+        },
+        {
+          "question": "In Postman API testing, how do you automatically extract a JWT token from a login response and save it to an environment variable?",
+          "options": [
+            "By copying and pasting the token manually into every request URL.",
+            "By writing `save_jwt()` in the request Body tab.",
+            "In the 'Tests' script tab:\npm.environment.set('access_token', pm.response.json().access);",
+            "In the 'Pre-request Script' tab:\nset_token(response.token);"
+          ],
+          "answer": "C",
+          "explanation": "Postman test scripts execute JavaScript after receiving a response; `pm.environment.set()` persists variables for subsequent requests."
+        },
+        {
+          "question": "How do you mock an external third-party API service (like Stripe or Twilio) during a DRF unit test run to prevent real network calls?",
+          "options": [
+            "Delete the Stripe API secret key from settings.",
+            "Change the API URL to `http://localhost:0000`.",
+            "Disconnect the computer's internet cable while running tests.",
+            "Use `unittest.mock.patch('myapp.services.stripe.PaymentIntent.create')` or pytest's `mocker.patch()` to replace the external service with a mock object."
+          ],
+          "answer": "D",
+          "explanation": "`mock.patch` intercepts calls to external third-party libraries, returning simulated responses without hitting external network endpoints."
+        },
+        {
+          "question": "How do you customize the maximum page size that a client can request via query parameter in `PageNumberPagination`?",
+          "options": [
+            "Set `client_max = 100` on the database table",
+            "page_limit = 100 in `models.py`",
+            "MAX_PAGE = 100 in `settings.py`",
+            "class CustomPagination(PageNumberPagination):\n    page_size = 20\n    page_size_query_param = 'page_size'\n    max_page_size = 100"
+          ],
+          "answer": "D",
+          "explanation": "Subclassing `PageNumberPagination` and configuring `page_size_query_param` with `max_page_size` allows clients to customize page sizes safely within upper bounds."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,688 @@
+{
+  "moduleId": "mod-css",
+  "moduleName": "Module 3: CSS3 Fundamentals & Box Model",
+  "courseId": "crs-1786624019154-w",
+  "lessons": [
+    {
+      "lessonId": "lesson-1787196281985-8",
+      "lessonTitle": "Lesson 1: CSS Syntax, Rules, and Element/Class/ID Selectors",
+      "totalQuestions": 20,
+      "questions": [
+        {
+          "question": "Which of the following correctly describes the 4-part specificity weight calculation for standard CSS selectors (Inline, ID, Class/Attribute/Pseudo-class, Element/Pseudo-element)?",
+          "options": [
+            "Universal selector * (1,0,0,0) > ID (0,1,0,0) > Class (0,0,1,0) > Element (0,0,0,1)",
+            "Element (1,0,0,0) > Pseudo-class (0,1,0,0) > Class (0,0,1,0) > ID (0,0,0,1)",
+            "Inline styles (1,0,0,0) > ID (#id: 0,1,0,0) > Class/Attribute/Pseudo-class (.class, [attr], :hover: 0,0,1,0) > Element/Pseudo-element (div, ::after: 0,0,0,1)",
+            "ID (1,0,0,0) > Inline styles (0,1,0,0) > Element (0,0,1,0) > Class (0,0,0,1)"
+          ],
+          "answer": "C",
+          "explanation": "CSS Specificity is calculated as a 4-tier vector (a, b, c, d): Inline styles = (1,0,0,0), ID selectors = (0,1,0,0), Classes/Attributes/Pseudo-classes = (0,0,1,0), and Elements/Pseudo-elements = (0,0,0,1)."
+        },
+        {
+          "question": "What is the specificity weight of the universal selector (`*`) in CSS?",
+          "options": [
+            "0,0,0,1 (Equivalent to a standard HTML tag name selector)",
+            "0,0,0,0 (Zero specificity, easily overridden by any element, class, or ID selector)",
+            "1,0,0,0 (Highest priority across all selectors)",
+            "0,1,0,0 (Equivalent to an ID selector)"
+          ],
+          "answer": "B",
+          "explanation": "The universal selector (`*`) has a specificity value of (0,0,0,0); it matches every element but contributes zero specificity points to the calculation."
+        },
+        {
+          "question": "Which combinator selector matches only paragraphs (`<p>`) that are direct, immediate children of a `<div>` element?",
+          "options": [
+            "div + p",
+            "div p",
+            "div > p",
+            "div ~ p"
+          ],
+          "answer": "C",
+          "explanation": "The child combinator (`>`) targets direct children only, whereas the descendant combinator (space) targets all descendants regardless of nesting depth."
+        },
+        {
+          "question": "What does the adjacent sibling combinator `h2 + p` select in an HTML document?",
+          "options": [
+            "A `<p>` element that is placed immediately after an `<h2>` element sharing the exact same parent",
+            "Every `<p>` element that follows an `<h2>` at any point within the same parent container",
+            "Both the `<h2>` and `<p>` elements merged together into a single flexbox item",
+            "All `<p>` elements located anywhere inside the preceding `<h2>` element"
+          ],
+          "answer": "A",
+          "explanation": "The adjacent sibling combinator (`+`) matches an element only if it immediately follows the specified element and both share the same parent."
+        },
+        {
+          "question": "Which attribute selector matches elements whose `href` attribute begins exactly with 'https://'?",
+          "options": [
+            "a[href~=\"https://\"]",
+            "a[href^=\"https://\"]",
+            "a[href$=\"https://\"]",
+            "a[href*=\"https://\"]"
+          ],
+          "answer": "B",
+          "explanation": "`^=` matches values that start with the specified string, `$=` matches values that end with the string, and `*=` matches substrings appearing anywhere."
+        },
+        {
+          "question": "What is the difference between the pseudo-classes `:nth-child(2)` and `:nth-of-type(2)` when applied to `p:nth-child(2)` vs `p:nth-of-type(2)`?",
+          "options": [
+            "`p:nth-child(2)` selects the element only if it is the 2nd overall child of its parent and is a `<p>`, whereas `p:nth-of-type(2)` selects the 2nd `<p>` among all paragraph siblings regardless of other elements",
+            "`p:nth-of-type(2)` requires an explicit `class` attribute, whereas `:nth-child(2)` does not",
+            "`p:nth-child(2)` only counts even numbered elements, while `p:nth-of-type(2)` counts odd elements",
+            "There is no difference; modern CSS treats them as interchangeable aliases"
+          ],
+          "answer": "A",
+          "explanation": "`:nth-child(n)` checks the element's index among all siblings regardless of tag type, while `:nth-of-type(n)` filters siblings by the specific element tag type first before indexing."
+        },
+        {
+          "question": "Which property is strictly required when declaring pseudo-elements `::before` or `::after` for them to render on the page?",
+          "options": [
+            "visibility",
+            "position",
+            "content",
+            "display"
+          ],
+          "answer": "C",
+          "explanation": "Pseudo-elements `::before` and `::after` will not render in the document tree unless the `content` property is explicitly defined (even as an empty string `content: '';`)."
+        },
+        {
+          "question": "How does the pseudo-class `:is()` differ from `:where()` in modern CSS?",
+          "options": [
+            "`:is()` adopts the specificity of its most specific argument in the selector list, whereas `:where()` always has zero specificity (0,0,0,0)",
+            "`:where()` only works on desktop browsers, while `:is()` is mobile-only",
+            "`:is()` is strictly case-sensitive, whereas `:where()` ignores letter casing",
+            "`:where()` can only contain element selectors, while `:is()` can only contain IDs"
+          ],
+          "answer": "A",
+          "explanation": "Both `:is()` and `:where()` simplify complex selector lists, but `:where()` always strips specificity to (0,0,0,0), making it ideal for easy CSS resets and base design systems."
+        },
+        {
+          "question": "Which of the following CSS properties is inherited by child elements by default?",
+          "options": [
+            "padding",
+            "background-color",
+            "border",
+            "font-family"
+          ],
+          "answer": "D",
+          "explanation": "Typography and textual properties (like `color`, `font-family`, `font-size`, `line-height`, `letter-spacing`) inherit automatically, while box model properties (`margin`, `padding`, `border`, `background`) do not."
+        },
+        {
+          "question": "What does setting a CSS property value to `initial` do?",
+          "options": [
+            "It resets the property to the official W3C CSS specification default value, regardless of browser user-agent styles or parent inheritance",
+            "It forces the property to take the exact value computed by its immediate parent container",
+            "It makes the property inherit values from the `<body>` element only",
+            "It restores the value that was saved in the browser's local storage session"
+          ],
+          "answer": "A",
+          "explanation": "The `initial` keyword sets a property to its default value as defined in the CSS specification (e.g., `color: initial` becomes `black`, `display: initial` becomes `inline`)."
+        },
+        {
+          "question": "How do you declare and access a CSS Custom Property (CSS variable) correctly?",
+          "options": [
+            "Declare with `var:` prefix (e.g., `var:brand-blue: #0070f3;`) and access using `#brand-blue;`",
+            "Declare with `$` prefix (e.g., `$brand-blue: #0070f3;`) and access using `val($brand-blue);`",
+            "Declare with `--` prefix (e.g., `--brand-blue: #0070f3;`) and access using `var(--brand-blue, #000);`",
+            "Declare with `@` prefix (e.g., `@brand-blue: #0070f3;`) and access using `get(@brand-blue);`"
+          ],
+          "answer": "C",
+          "explanation": "CSS variables are defined on any selector (often `:root`) with a `--` prefix and retrieved using the `var(--custom-property-name, fallback)` function."
+        },
+        {
+          "question": "When two CSS rules have identical specificity and target the exact same element, how does the cascade determine which rule applies?",
+          "options": [
+            "The rule that appears last in the stylesheet source order wins (Source Order rule)",
+            "The rule with the shorter property name is selected automatically",
+            "The browser randomly picks one rule during DOM construction",
+            "The rule declared in an external stylesheet always overrides internal styles regardless of order"
+          ],
+          "answer": "A",
+          "explanation": "In the CSS Cascade algorithm, when origin, importance, and specificity are equal, the declaration appearing last in the stylesheet source order takes precedence."
+        },
+        {
+          "question": "What is the primary performance drawback of using `@import` inside a CSS file compared to `<link rel=\"stylesheet\">` in HTML?",
+          "options": [
+            "`@import` disables all JavaScript execution on modern mobile web browsers",
+            "`@import` creates sequential waterfall network requests by waiting for the parent stylesheet to download before initiating child downloads",
+            "`@import` converts CSS colors to low-resolution monochrome gradients",
+            "`@import` files are completely ignored by search engine indexing bots"
+          ],
+          "answer": "B",
+          "explanation": "`<link>` tags allow browsers to discover and download stylesheets in parallel, whereas `@import` delays stylesheet downloads by creating a blocking sequential network waterfall."
+        },
+        {
+          "question": "What does the compound selector `.btn.primary` (without any space between classes) select?",
+          "options": [
+            "Any element with class `primary` that is a descendant inside an element with class `btn`",
+            "Any HTML element that possesses both the `btn` class AND the `primary` class simultaneously",
+            "Only the first child element located inside the `.btn` container",
+            "Any element that has either the `btn` class OR the `primary` class"
+          ],
+          "answer": "B",
+          "explanation": "Chaining classes without a space (`.btn.primary`) creates a compound selector matching elements that have both classes applied at the same time."
+        },
+        {
+          "question": "Why should the `!important` declaration be avoided in general CSS authoring whenever possible?",
+          "options": [
+            "It incurs monetary server hosting charges for each page render",
+            "It prevents browsers from caching CSS files in local storage",
+            "It causes browser rendering engines to crash when compiling CSSOM trees",
+            "It breaks the natural cascading specificity hierarchy and makes debugging and overriding styles difficult in larger codebases"
+          ],
+          "answer": "D",
+          "explanation": "`!important` overrides normal specificity rules, creating maintenance headaches because the only way to override an `!important` declaration is another `!important` with higher specificity."
+        },
+        {
+          "question": "Which pseudo-class targets an element when it receives focus specifically via keyboard navigation (such as Tab), while suppressing focus outlines on mouse clicks?",
+          "options": [
+            ":focus",
+            ":hover",
+            ":active",
+            ":focus-visible"
+          ],
+          "answer": "D",
+          "explanation": "`:focus-visible` applies focus indicators only when the user navigates via keyboard or assistive tech, avoiding unwanted focus rings during mouse clicks."
+        },
+        {
+          "question": "What is the effect of the `:focus-within` pseudo-class?",
+          "options": [
+            "It prevents all child elements within a form from receiving focus",
+            "It targets only the very first `<input>` inside an active modal dialog",
+            "It matches an element if the element itself OR any of its descendant children currently has keyboard/mouse focus",
+            "It matches an input field only when the user is actively typing text inside it"
+          ],
+          "answer": "C",
+          "explanation": "`:focus-within` allows styling a parent container (like highlighting a whole form group or navigation bar) when any child element inside it gains focus."
+        },
+        {
+          "question": "How does the pseudo-class `:not(.active)` behave on a selector `li:not(.active)`?",
+          "options": [
+            "It hides all `<li>` elements that have the `.active` class using `display: none`",
+            "It selects all `<li>` elements that do NOT have the `.active` class applied",
+            "It selects only disabled button elements inside an inactive list",
+            "It removes the `.active` class from all `<li>` elements in the DOM"
+          ],
+          "answer": "B",
+          "explanation": "The negation pseudo-class `:not(selector)` matches elements that do not match the selector list provided in its parenthesis."
+        },
+        {
+          "question": "What does the `&` symbol represent in modern native CSS Nesting?",
+          "options": [
+            "A command that forces the browser to recompile CSS into WebAssembly",
+            "A logical AND operator that requires two stylesheets to load simultaneously",
+            "An escape character used for unicode typography symbols",
+            "A nesting selector that explicitly references and represents the parent selector rule"
+          ],
+          "answer": "D",
+          "explanation": "In modern native CSS nesting, `&` represents the parent selector, allowing modifier classes (e.g., `&.is-open`) and pseudo-classes (e.g., `&:hover`) to be nested cleanly."
+        },
+        {
+          "question": "Which of the following styling approaches has the highest natural specificity according to the CSS cascade specification?",
+          "options": [
+            "An external rule selecting multiple elements `header nav ul li a` (0,0,0,5)",
+            "An internal `<style>` tag rule combining three classes `.nav.menu.active` (0,0,3,0)",
+            "An external stylesheet rule with an ID selector `#main-header` (0,1,0,0)",
+            "Inline styles applied via HTML `style=\"...\"` attribute (1,0,0,0)"
+          ],
+          "answer": "D",
+          "explanation": "Inline styles have a specificity weight of (1,0,0,0), which naturally overrides any external or internal stylesheet selector unless `!important` is used."
+        }
+      ]
+    },
+    {
+      "lessonId": "lesson-1787196281985-9",
+      "lessonTitle": "Lesson 2: The CSS Box Model: Margin, Padding, Border, & Content",
+      "totalQuestions": 20,
+      "questions": [
+        {
+          "question": "Under the standard default CSS box model (`box-sizing: content-box`), if an element has `width: 200px`, `padding: 20px`, `border: 5px solid black`, and `margin: 15px`, what is its total rendered horizontal space on the page?",
+          "options": [
+            "200px total occupied space",
+            "240px total occupied space",
+            "280px total occupied space (Content 200 + Padding Left/Right 40 + Border Left/Right 10 + Margin Left/Right 30)",
+            "250px total occupied space"
+          ],
+          "answer": "C",
+          "explanation": "Under `content-box`, total horizontal space = Content (200px) + Padding (20px * 2 = 40px) + Border (5px * 2 = 10px) + Margin (15px * 2 = 30px) = 280px. Total element width is 250px."
+        },
+        {
+          "question": "What is the primary advantage of setting `box-sizing: border-box` across all elements?",
+          "options": [
+            "It eliminates the need for writing media queries on mobile viewport screens",
+            "It disables margin collapse across all nested block elements permanently",
+            "The specified `width` and `height` include content, padding, and border, making responsive sizing and layout math predictable",
+            "It automatically adds rounded corners and drop shadows to all HTML containers"
+          ],
+          "answer": "C",
+          "explanation": "With `border-box`, setting `width: 300px` guarantees the element's outer border box is exactly 300px, absorbing padding and border inward rather than expanding outward."
+        },
+        {
+          "question": "What is the standard CSS universal reset snippet used by modern developers to enforce consistent border-box sizing across all elements and pseudo-elements?",
+          "options": [
+            "html { border-box: true; }",
+            "body { box-sizing: all; }",
+            ":root { sizing: border-box !default; }",
+            "*, *::before, *::after { box-sizing: border-box; }"
+          ],
+          "answer": "D",
+          "explanation": "Targeting `*`, `*::before`, and `*::after` ensures every element and generated pseudo-element adheres to predictable `border-box` calculations."
+        },
+        {
+          "question": "What occurs during 'Margin Collapse' between two adjacent vertical block-level elements?",
+          "options": [
+            "The vertical margins merge into a single margin equal to the largest individual margin value, rather than adding together",
+            "The browser throws a CSS parsing warning and disables padding",
+            "The two elements are automatically forced onto the same horizontal line",
+            "The bottom element's margin is completely erased and set to 0px"
+          ],
+          "answer": "A",
+          "explanation": "When adjacent block elements meet vertically, their top and bottom margins collapse into a single margin whose size equals the maximum of the two margins."
+        },
+        {
+          "question": "Under what condition will `margin: 0 auto;` successfully center an element horizontally inside its parent container?",
+          "options": [
+            "The element must have `display: inline` and no explicit width defined",
+            "The element must have `position: absolute` with `left: 0`",
+            "The element must be a block-level container with a specified, constrained `width` (or `max-width`) less than its parent",
+            "The parent container must have `overflow: scroll` enabled"
+          ],
+          "answer": "C",
+          "explanation": "`margin: 0 auto` divides remaining horizontal space equally between left and right margins, which only works if the block element has an explicit width less than 100%."
+        },
+        {
+          "question": "In the 4-value shorthand `margin: 10px 20px 30px 40px;`, which value corresponds to the left margin?",
+          "options": [
+            "10px (Top)",
+            "40px (Clockwise order: Top=10px, Right=20px, Bottom=30px, Left=40px)",
+            "20px (Right)",
+            "30px (Bottom)"
+          ],
+          "answer": "B",
+          "explanation": "CSS 4-value box model shorthands follow a clockwise order: Top, Right, Bottom, Left (often remembered by the acronym TRouBLe)."
+        },
+        {
+          "question": "What is the key visual and layout difference between `outline` and `border` in CSS?",
+          "options": [
+            "`outline` increases the total computed width of the element in the DOM",
+            "`outline` is only supported on SVG elements, whereas `border` is for HTML",
+            "`border` cannot have custom colors, whereas `outline` supports gradients",
+            "`outline` is drawn outside the element's border box and does NOT occupy space in the layout flow, so toggling it never causes content layout reflow"
+          ],
+          "answer": "D",
+          "explanation": "Unlike `border`, an `outline` does not take up box model space or affect element dimensions, making it ideal for focus indicators without triggering layout shifts."
+        },
+        {
+          "question": "What is the behavior of vertical margins (`margin-top` and `margin-bottom`) and vertical padding when applied to a pure inline element (like `<span>` or `<a>`)?",
+          "options": [
+            "Vertical margins and padding push all preceding and succeeding text lines upward and downward identically to block elements",
+            "Vertical padding visual background renders but does NOT push surrounding line boxes away, and vertical margins have zero effect on layout spacing",
+            "Inline elements ignore all horizontal and vertical margins and padding completely",
+            "The browser automatically converts the inline element into `display: block`"
+          ],
+          "answer": "B",
+          "explanation": "Inline elements only respect horizontal margins and padding for layout flow. Vertical padding will visually overlap adjacent lines without pushing them apart, and vertical margins are ignored."
+        },
+        {
+          "question": "How does `display: inline-block` differ from `display: inline`?",
+          "options": [
+            "`inline-block` allows setting explicit `width`, `height`, and respects top/bottom margins and padding while still sitting inline on the same line with adjacent content",
+            "`inline-block` forces the element onto its own brand new line like a `<div>`",
+            "`inline-block` is deprecated and behaves identically to `display: none`",
+            "`inline-block` disables all background colors and text decoration styling"
+          ],
+          "answer": "A",
+          "explanation": "`inline-block` elements flow inline horizontally like text, but gain full box model capabilities (explicit `width`, `height`, `margin-top/bottom`, `padding-top/bottom`)."
+        },
+        {
+          "question": "What is the difference between `overflow: hidden` and `overflow: clip` in modern CSS?",
+          "options": [
+            "`overflow: hidden` only works on images, whereas `overflow: clip` only works on text",
+            "`overflow: hidden` creates a scroll container (allowing programmatic scrolling via JS), whereas `overflow: clip` forbids all scrolling and reduces memory overhead",
+            "`overflow: clip` adds a visible scrollbar, while `overflow: hidden` hides the scrollbar",
+            "There is no difference; `clip` is just a legacy alias for `hidden`"
+          ],
+          "answer": "B",
+          "explanation": "`overflow: hidden` prevents user scrolling while still allowing programmatic scrolling (creating a scroll container), whereas `overflow: clip` completely disables scrolling in all forms."
+        },
+        {
+          "question": "What is the difference between `em` and `rem` units in CSS sizing?",
+          "options": [
+            "`rem` is always relative to the root `<html>` font size, whereas `em` is relative to the immediate parent element's font size (which can compound with nesting)",
+            "`em` is relative to root font size, while `rem` is relative to viewport height",
+            "`rem` only applies to margins, while `em` only applies to font sizes",
+            "`em` is fixed to 16px forever, while `rem` changes based on device screen resolution"
+          ],
+          "answer": "A",
+          "explanation": "`rem` (Root EM) scales consistently relative to the root `<html>` element (default 16px), preventing the nested compounding issue seen with `em` units."
+        },
+        {
+          "question": "What does the CSS viewport unit `100dvh` represent compared to `100vh` on mobile web browsers?",
+          "options": [
+            "`dvh` represents dual-screen display height on foldable smartphones",
+            "Dynamic Viewport Height (`dvh`) dynamically adjusts its size as mobile browser UI chrome (address bar and toolbars) expands or collapses during scrolling",
+            "`dvh` divides viewport height by device pixel ratio for desktop monitors only",
+            "`dvh` is static and ignores mobile browser address bars completely"
+          ],
+          "answer": "B",
+          "explanation": "`dvh` (Dynamic Viewport Height) adapts in real time to mobile browser UI shifts (like address bar show/hide), resolving the dreaded 100vh overflow clipping bug on mobile."
+        },
+        {
+          "question": "What is the effect of applying a negative margin, such as `margin-top: -20px;`, to an element?",
+          "options": [
+            "It pulls the element 20px upward, overlapping any content situated above it in the layout flow",
+            "It collapses the height of the element to zero pixels",
+            "It creates 20px of transparent white empty space above the element",
+            "It rotates the element 180 degrees vertically"
+          ],
+          "answer": "A",
+          "explanation": "Negative margins pull the element in the direction of the negative value (or pull subsequent siblings toward itself if applied to bottom/right), allowing deliberate overlapping layouts."
+        },
+        {
+          "question": "What is the syntax order for the `box-shadow` property in CSS?",
+          "options": [
+            "box-shadow: inset color offset-y offset-x spread-radius blur-radius;",
+            "box-shadow: color blur-radius spread-radius offset-x offset-y;",
+            "box-shadow: spread-radius blur-radius offset-y offset-x inset color;",
+            "box-shadow: offset-x offset-y blur-radius spread-radius color inset;"
+          ],
+          "answer": "D",
+          "explanation": "Standard `box-shadow` syntax takes X-offset, Y-offset, optional blur radius, optional spread radius, color, and optional `inset` keyword."
+        },
+        {
+          "question": "How do you create a perfect circle from a square element of `width: 100px; height: 100px;` using CSS?",
+          "options": [
+            "clip-path: polygon(0 0, 100% 100%);",
+            "border-radius: 50%;",
+            "shape-outside: circle(100%);",
+            "border-radius: 100px 0 100px 0;"
+          ],
+          "answer": "B",
+          "explanation": "Setting `border-radius: 50%` curves each corner by half the element's dimension, turning equal width and height squares into perfect circles."
+        },
+        {
+          "question": "What does `width: fit-content;` do to an element's dimensions?",
+          "options": [
+            "It forces the element to stretch across the entire screen regardless of parent width",
+            "It sets the width to exactly 0px until an image finishes loading",
+            "It sizes the element to shrink-wrap its content up to the available width, without stretching to 100% like a normal block",
+            "It resizes the font size until all text fits onto a single horizontal line"
+          ],
+          "answer": "C",
+          "explanation": "`fit-content` allows an element to expand as needed to fit its contents, but caps its maximum width at the available space in its parent container."
+        },
+        {
+          "question": "How does the CSS `clamp()` function work for responsive dimensions (e.g., `width: clamp(300px, 50vw, 800px);`)?",
+          "options": [
+            "It sets a preferred value (`50vw`) that can scale dynamically, but guarantees the value will never drop below `300px` or exceed `800px`",
+            "It restricts the element's width to exactly 300px on mobile and 800px on tablet",
+            "It calculates the average of the three numbers and sets a fixed pixel width",
+            "It rotates through the three values at 1-second animation intervals"
+          ],
+          "answer": "A",
+          "explanation": "`clamp(MIN, PREFERRED, MAX)` clamps a scalable value between an absolute minimum floor and maximum ceiling, eliminating messy media query breakpoints."
+        },
+        {
+          "question": "What happens when an element with `width: 100%` is given `margin: 20px` inside a parent container under default `content-box`?",
+          "options": [
+            "The margins are ignored completely because width is 100%",
+            "The parent container automatically expands to fit the margin without scrolling",
+            "The browser automatically reduces the width to 80% to compensate",
+            "The element overflows its parent container horizontally by 40px, causing unwanted horizontal scrollbars"
+          ],
+          "answer": "D",
+          "explanation": "Under `content-box`, `100% width + 40px margin` exceeds the 100% boundary of the parent, spilling out and causing horizontal overflow."
+        },
+        {
+          "question": "Which CSS mathematical function allows combining different measurement units in a single calculation (e.g., subtracting a fixed pixel sidebar from a percentage width)?",
+          "options": [
+            "eval()",
+            "sum()",
+            "calc() (e.g., width: calc(100% - 250px);)",
+            "compute()"
+          ],
+          "answer": "C",
+          "explanation": "The `calc()` function performs dynamic mathematical operations across mixed units, such as subtracting fixed pixel dimensions (`250px`) from relative percentages (`100%`)."
+        },
+        {
+          "question": "Why does vertical margin collapsing not occur between flex items or grid items?",
+          "options": [
+            "Margin collapsing only works when using CSS tables",
+            "Browsers convert all margins to padding inside flex containers automatically",
+            "Flexbox and Grid items do not support any margin properties",
+            "The CSS Flexbox and Grid formatting contexts explicitly establish independent formatting roots that disable standard vertical block margin collapse"
+          ],
+          "answer": "D",
+          "explanation": "Margins between flex items and grid items never collapse; their margins always stack additively because they operate in flex/grid formatting contexts rather than block formatting contexts."
+        }
+      ]
+    },
+    {
+      "lessonId": "lesson-1787196281985-10",
+      "lessonTitle": "Lesson 3: CSS Colors, Typography, & Visual Backgrounds",
+      "totalQuestions": 20,
+      "questions": [
+        {
+          "question": "What is the key difference between setting opacity via `opacity: 0.5` versus setting a semi-transparent background via `background-color: rgba(0, 0, 0, 0.5)`?",
+          "options": [
+            "`opacity: 0.5` only affects text color, leaving backgrounds fully opaque",
+            "`rgba()` disables all mouse click events on the element, while `opacity` does not",
+            "`opacity: 0.5` makes the target element AND all of its nested child elements semi-transparent, whereas `rgba()` only makes the background color semi-transparent",
+            "There is no difference; modern browsers treat them as identical rendering commands"
+          ],
+          "answer": "C",
+          "explanation": "The `opacity` property affects the entire rendered stacking context including all child text and icons, whereas `rgba()` or `hsla()` only applies alpha transparency to the specific color property."
+        },
+        {
+          "question": "What does the `currentcolor` keyword in CSS represent?",
+          "options": [
+            "It queries the user's desktop wallpaper palette in modern browsers",
+            "It returns the default background color of the operating system window",
+            "It converts the closest hex color code into a web-safe RGB format",
+            "It references the computed value of the element's current `color` property, allowing borders, SVGs, or shadows to match text color dynamically"
+          ],
+          "answer": "D",
+          "explanation": "`currentcolor` acts as a built-in CSS variable representing the value of the `color` property on that element (or inherited from its parent), commonly used in SVG fills and borders."
+        },
+        {
+          "question": "Why is it considered a best practice to define a 'fallback font stack' (e.g., `font-family: 'Inter', Roboto, -apple-system, sans-serif;`)?",
+          "options": [
+            "It allows the browser to download all four fonts simultaneously to increase rendering speed",
+            "If the user's browser fails to load or find the custom primary font, it gracefully falls back to available local system fonts rather than rendering broken characters",
+            "It is required by web hosting servers to validate font licensing certificates",
+            "It enables multiple languages to display simultaneously inside the same sentence"
+          ],
+          "answer": "B",
+          "explanation": "A font stack provides an ordered fallback list; if the primary web font fails to load or is unavailable, the browser renders the next available system font."
+        },
+        {
+          "question": "In the `@font-face` rule, what does setting `font-display: swap;` accomplish?",
+          "options": [
+            "It displays a fallback system font immediately while the custom font downloads, then swaps in the custom font once loaded to prevent Invisible Text (FOIT)",
+            "It permanently disables custom web fonts on mobile data connections",
+            "It alternates between bold and italic fonts on every user click",
+            "It blocks the entire webpage rendering until the custom font is 100% downloaded"
+          ],
+          "answer": "A",
+          "explanation": "`font-display: swap` prevents Flash of Invisible Text (FOIT) by rendering a fallback font immediately and swapping to the custom font once downloaded, improving perceived load performance."
+        },
+        {
+          "question": "Why is setting a unitless `line-height` (e.g., `line-height: 1.5;`) strongly recommended over fixed pixel values (e.g., `line-height: 24px;`) on container elements?",
+          "options": [
+            "Fixed pixel line-heights are completely ignored by modern mobile web browsers",
+            "Unitless line-height forces all paragraphs to take up exactly 100% of the viewport height",
+            "Unitless line-height converts all lowercase text to capital letters",
+            "Unitless `line-height` scales proportionally relative to each child element's individual `font-size`, preventing text collisions when children have larger headings"
+          ],
+          "answer": "D",
+          "explanation": "When `line-height: 1.5` is inherited, child elements multiply 1.5 by their own font size. A fixed pixel value (e.g., `24px`) inherited by a `36px` heading causes text lines to overlap disastrously."
+        },
+        {
+          "question": "What is the primary difference between `background-size: cover` and `background-size: contain`?",
+          "options": [
+            "`contain` repeats the image 10 times, whereas `cover` only displays it once",
+            "`cover` scales the image to completely fill the container (cropping excess edges if aspect ratios differ), while `contain` scales the image so the entire image is visible without cropping (leaving letterboxing if needed)",
+            "`cover` compresses image file size, whereas `contain` keeps raw high-resolution data",
+            "`contain` only works with SVG vector graphics, while `cover` only works with PNGs"
+          ],
+          "answer": "B",
+          "explanation": "`cover` guarantees no empty background space in the container by cropping edges as needed; `contain` guarantees the whole image is visible without cropping, potentially leaving uncovered space."
+        },
+        {
+          "question": "Which CSS property creates a fixed 'Parallax' background effect where the background image stays stationary in the viewport while the rest of the page scrolls over it?",
+          "options": [
+            "background-clip: viewport;",
+            "background-position: sticky;",
+            "background-attachment: fixed;",
+            "background-repeat: static;"
+          ],
+          "answer": "C",
+          "explanation": "`background-attachment: fixed` fixes the background relative to the viewport, creating a classic parallax scrolling effect as content scrolls over the stationary image."
+        },
+        {
+          "question": "Which combination of CSS properties is required to truncate a single line of overflowing text with an ellipsis (`...`)?",
+          "options": [
+            "display: inline; line-clamp: 1; text-wrap: cut;",
+            "white-space: nowrap; overflow: hidden; text-overflow: ellipsis;",
+            "text-truncate: true; word-break: none;",
+            "overflow-wrap: break-word; text-overflow: clip;"
+          ],
+          "answer": "B",
+          "explanation": "Single-line truncation requires preventing line breaks (`white-space: nowrap`), hiding overflow (`overflow: hidden`), and showing ellipsis (`text-overflow: ellipsis`) within a bounded width container."
+        },
+        {
+          "question": "What CSS standard property controls whether the browser can break words across lines in order to prevent long words or URLs from overflowing its container?",
+          "options": [
+            "hyphen-mode: auto;",
+            "overflow-wrap: break-word; (or word-break: break-all;)",
+            "text-wrap: force;",
+            "letter-spacing: compress;"
+          ],
+          "answer": "B",
+          "explanation": "`overflow-wrap: break-word` (formerly `word-wrap`) allows unbroken strings like long URLs to break onto new lines when they would otherwise overflow their containing box."
+        },
+        {
+          "question": "What is the numeric equivalent of the `font-weight: bold;` keyword in CSS?",
+          "options": [
+            "700",
+            "500",
+            "400",
+            "900"
+          ],
+          "answer": "A",
+          "explanation": "In the CSS numeric font-weight scale (100–900), `400` represents normal weight, `700` represents bold, and `900` represents black/extra bold."
+        },
+        {
+          "question": "How are multiple background image layers stacked when defined in a single `background` property (e.g., `background: url(top.png), url(bottom.png);`)?",
+          "options": [
+            "The browser blends all layers equally into a single 50% opacity composite",
+            "Only the largest file size image is displayed; the other is ignored",
+            "The first background image listed is rendered on top (closest to the user), with subsequent layers rendered underneath in descending order",
+            "The last background image listed is rendered on top"
+          ],
+          "answer": "C",
+          "explanation": "Multiple backgrounds are layered from front to back: the first image listed in the comma-separated CSS rule appears on top, closest to the viewer."
+        },
+        {
+          "question": "What is the syntax to create a smooth linear gradient transitioning from purple at the top to orange at the bottom?",
+          "options": [
+            "background-image: gradient-linear(purple -> orange);",
+            "background-color: linear(from purple, to orange);",
+            "background: radial-direction(purple, orange, 180deg);",
+            "background-image: linear-gradient(to bottom, purple, orange);"
+          ],
+          "answer": "D",
+          "explanation": "Linear gradients use the `linear-gradient(direction, color-stop-1, color-stop-2)` syntax, defaulting to `to bottom` (180deg) if direction is omitted."
+        },
+        {
+          "question": "Which CSS property removes the default underline from hyperlinks (`<a>` tags)?",
+          "options": [
+            "text-decoration: none;",
+            "text-underline: hidden;",
+            "font-decoration: remove;",
+            "link-style: plain;"
+          ],
+          "answer": "A",
+          "explanation": "`text-decoration: none` removes typographic underlines, overlines, or line-through strokes from text elements."
+        },
+        {
+          "question": "What is the modern CSS space-separated color syntax for an RGB color with 80% opacity?",
+          "options": [
+            "color: rgb(34 197 94) opacity(0.8)",
+            "rgb(34, 197, 94, 0.8, alpha)",
+            "rgb-alpha(34, 197, 94): 80%",
+            "rgb(34 197 94 / 0.8)"
+          ],
+          "answer": "D",
+          "explanation": "Modern CSS Color Level 4 syntax allows space-separated RGB/HSL values with an optional slash `/` delimiter preceding alpha transparency (e.g., `rgb(r g b / alpha)`)."
+        },
+        {
+          "question": "What does the `text-transform: capitalize;` property do to text?",
+          "options": [
+            "It capitalizes only the very first letter of the entire paragraph sentence",
+            "It converts the entire string into all capital uppercase letters",
+            "It converts the first letter of every individual word to uppercase while preserving the rest of the letters",
+            "It underlines all uppercase acronyms automatically"
+          ],
+          "answer": "C",
+          "explanation": "`text-transform: capitalize` capitalizes the first character of each word, `uppercase` capitalizes every character, and `lowercase` makes all characters lowercase."
+        },
+        {
+          "question": "What is the primary advantage of the OKLCH color space (`oklch(lightness chroma hue)`) over standard RGB/HSL in modern CSS?",
+          "options": [
+            "It is perceptually uniform, meaning identical lightness values appear equally bright to human eyes across all different color hues",
+            "It converts all web pages into printable CMYK brochures automatically",
+            "It consumes 90% less GPU memory when rendering web animations",
+            "It is the only color format supported on iPhone mobile screens"
+          ],
+          "answer": "A",
+          "explanation": "OKLCH solves HSL's perceptual distortion (where yellow at 50% lightness looks blindingly bright while blue at 50% looks dark) by maintaining true uniform perceptual lightness."
+        },
+        {
+          "question": "How do you apply a multi-line text truncation to clamp a paragraph to exactly 3 visible lines with an ellipsis?",
+          "options": [
+            "max-lines: 3; truncate: multi-line;",
+            "line-height: clamp(3); overflow: ellipsis;",
+            "display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;",
+            "text-lines: 3; text-overflow: ellipsis; overflow: clip;"
+          ],
+          "answer": "C",
+          "explanation": "Multi-line clamping is achieved via WebKit box properties: `display: -webkit-box`, `-webkit-line-clamp: 3`, `-webkit-box-orient: vertical`, and `overflow: hidden`."
+        },
+        {
+          "question": "What is the effect of `letter-spacing: 0.1em;` on a text heading?",
+          "options": [
+            "It increases the blank space between words while keeping characters tight",
+            "It increases the vertical line spacing between rows of text",
+            "It sets the width of the font's bounding box to 0.1em",
+            "It increases the horizontal tracking space between individual characters by 0.1em"
+          ],
+          "answer": "D",
+          "explanation": "`letter-spacing` adjusts tracking (the horizontal space between characters), while `word-spacing` adjusts the space between words."
+        },
+        {
+          "question": "Which `background-clip` value allows text to take on the gradient color of the background image underneath it?",
+          "options": [
+            "background-clip: text; (combined with color: transparent;)",
+            "background-clip: content-box;",
+            "background-clip: font-mask;",
+            "background-clip: border-box;"
+          ],
+          "answer": "A",
+          "explanation": "`background-clip: text` (often `-webkit-background-clip: text`) clips the background graphic to the text character shapes, which when paired with `color: transparent` creates gradient text."
+        },
+        {
+          "question": "What is the difference between `serif` and `sans-serif` generic font families?",
+          "options": [
+            "`sans-serif` fonts cannot display bold or italic font weights",
+            "`serif` fonts have small decorative strokes or projections (serifs) at the ends of character strokes (like Times New Roman), while `sans-serif` fonts have clean, straight stroke ends (like Arial/Inter)",
+            "`serif` fonts are only used in computer terminal command prompts",
+            "`serif` fonts are exclusively designed for mobile touchscreen displays"
+          ],
+          "answer": "B",
+          "explanation": "Serif typefaces feature small finishing projections/feet at line ends (traditional in print), whereas sans-serif (French for 'without serif') typefaces have clean modern geometric ends."
+        }
+      ]
+    }
+  ]
+}

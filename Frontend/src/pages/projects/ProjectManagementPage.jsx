@@ -311,7 +311,18 @@ export function ProjectManagementPage() {
   };
 
   const handleOpenEditModal = (proj) => {
-    const foundStage = stagesList.find((s) => s.id === proj.stageId || s.title === proj.stageName) || stagesList[0];
+    const projCourseId = proj.courseId || proj.course_id || courses[0]?.id || '';
+    const projCourseObj = courses.find((c) => c.id === projCourseId) || courses[0];
+    const projStagesList =
+      projCourseId && projCourseId !== 'ALL' && milestonesByBatch?.[projCourseId]?.stages && milestonesByBatch[projCourseId].stages.length > 0
+        ? milestonesByBatch[projCourseId].stages
+        : projCourseObj?.topics && projCourseObj.topics.length > 0
+        ? projCourseObj.topics
+        : milestones?.stages && milestones.stages.length > 0
+        ? milestones.stages
+        : DEFAULT_STAGES;
+
+    const foundStage = projStagesList.find((s) => s.id === proj.stageId || s.title === proj.stageName || isMatchingStage(s.id, proj.stageId)) || projStagesList[0];
     const subtopicsOfStage = getSubtopicsForStage(foundStage);
     const foundSubtopic = subtopicsOfStage.find((st) => st.id === proj.subtopicId || st.title === proj.subtopicName) || subtopicsOfStage[0];
     const innerModules = getInnerModulesForSubtopic(foundSubtopic, courseLessons, foundStage?.id);
@@ -328,16 +339,16 @@ export function ProjectManagementPage() {
     setFormData({
       title: proj.title || '',
       type: proj.type || 'Mini',
-      courseId: proj.courseId || courses[0]?.id || '',
-      courseName: proj.courseName || courses[0]?.title || '',
+      courseId: projCourseId,
+      courseName: proj.courseName || projCourseObj?.title || '',
       stageId: foundStage?.id || '',
-      stageName: foundStage?.title || '',
+      stageName: foundStage?.title || proj.stageName || '',
       subtopicId: foundSubtopic?.id || '',
-      subtopicName: foundSubtopic?.title || '',
+      subtopicName: foundSubtopic?.title || proj.subtopicName || '',
       innerTopicId: firstInner?.id || '',
       moduleId: firstInner?.id || '',
-      moduleName: firstInner?.title || '',
-      topicName: firstInner?.title || '',
+      moduleName: firstInner?.title || proj.moduleName || '',
+      topicName: firstInner?.title || proj.topicName || '',
       targetBatch: proj.targetBatch || '',
       targetBatches,
       category: proj.category || 'Full-Stack Web Dev',

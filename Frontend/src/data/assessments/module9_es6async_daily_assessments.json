@@ -1,0 +1,688 @@
+{
+  "moduleId": "mod-es6async",
+  "moduleName": "Module 9: Modern ES6+ & Asynchronous JS",
+  "courseId": "crs-1786624019154-w",
+  "lessons": [
+    {
+      "lessonId": "lesson-1787196281985-27",
+      "lessonTitle": "Lesson 1: Destructuring, Spread/Rest Operators, and Modules",
+      "totalQuestions": 20,
+      "questions": [
+        {
+          "question": "What will be the output of the following array destructuring code? \n```javascript\nconst [a, , b = 10, ...rest] = [1, 2, undefined, 4, 5];\nconsole.log(a, b, rest);\n```",
+          "options": [
+            "`1 2 [4, 5]`",
+            "`1 10 [2, 4, 5]`",
+            "`1 undefined [4, 5]`",
+            "`1 10 [4, 5]`"
+          ],
+          "answer": "D",
+          "explanation": "`a` takes index 0 (`1`), index 1 is skipped, `b` encounters `undefined` and takes default value `10`, and `rest` collects remaining elements `[4, 5]`."
+        },
+        {
+          "question": "How can you swap the values of two variables `x` and `y` in a single line without using a temporary variable?",
+          "options": [
+            "swap(x, y);",
+            "[x, y] = [y, x];",
+            "x, y = y, x;",
+            "{ x, y } = { y, x };"
+          ],
+          "answer": "B",
+          "explanation": "Array destructuring assignment `[x, y] = [y, x];` creates a temporary array with `[y, x]` and immediately unpacks the swapped values into `x` and `y`."
+        },
+        {
+          "question": "Consider the nested destructuring: \n```javascript\nconst user = { id: 1, profile: { name: 'Alex', socials: ['twitter', 'github'] } };\nconst { profile: { name, socials: [, secondSocial] } } = user;\nconsole.log(name, secondSocial);\n``` \nWhat is logged to the console?",
+          "options": [
+            "\"Alex ['twitter', 'github']\"",
+            "\"Alex github\"",
+            "\"undefined github\"",
+            "\"Alex twitter\""
+          ],
+          "answer": "B",
+          "explanation": "`name` extracts `'Alex'`, and `[, secondSocial]` skips the first element of `socials` and assigns index 1 (`'github'`) to `secondSocial`."
+        },
+        {
+          "question": "What is the result of invoking `connect();` on the following function with nested default parameter destructuring? \n```javascript\nfunction connect({ host = 'localhost', port = 8080 } = {}) {\n  return `${host}:${port}`;\n}\n```",
+          "options": [
+            "\"undefined:undefined\"",
+            "\"null:8080\"",
+            "\"localhost:8080\"",
+            "TypeError: Cannot read properties of undefined"
+          ],
+          "answer": "C",
+          "explanation": "The outer default `= {}` ensures that calling `connect()` without arguments defaults to an empty object, allowing the inner destructuring defaults `host = 'localhost'` and `port = 8080` to apply."
+        },
+        {
+          "question": "What will the following code output? \n```javascript\nconst defaults = { theme: 'dark', showSidebar: true };\nconst userPref = { showSidebar: false, theme: 'light' };\nconst config = { theme: 'blue', ...defaults, ...userPref };\nconsole.log(config.theme, config.showSidebar);\n```",
+          "options": [
+            "\"dark false\"",
+            "\"light false\"",
+            "\"blue true\"",
+            "\"blue false\""
+          ],
+          "answer": "B",
+          "explanation": "Object spreading merges properties from left to right; `userPref` is spread last, overriding `theme` with `'light'` and `showSidebar` with `false`."
+        },
+        {
+          "question": "How do ES Modules (ESM) handle exported variable bindings compared to CommonJS (`require()`)?",
+          "options": [
+            "Both module systems export immutable binary strings",
+            "ES Modules export live bindings (mutations in the exporting module are reflected dynamically in importers), while CommonJS exports static value copies",
+            "CommonJS exports live bindings, while ES Modules export frozen snapshots",
+            "ES Modules do not allow exporting variables, only classes"
+          ],
+          "answer": "B",
+          "explanation": "ESM exports live bindings (if an exported variable changes inside the module, imported references see the updated value in real time). CommonJS copies the value at require time."
+        },
+        {
+          "question": "What is the difference between Named Exports and Default Exports in ES Modules?",
+          "options": [
+            "Named exports must be written in uppercase, while default exports are lowercase",
+            "Default exports cannot be imported in web browsers",
+            "Default exports are asynchronous, while named exports are synchronous",
+            "A module can have multiple Named Exports imported using matching `{ name }` syntax, but only ONE Default Export per file imported without curly braces using any custom identifier"
+          ],
+          "answer": "D",
+          "explanation": "You can export multiple named items (`export const A = 1, B = 2;` $\\rightarrow$ `import { A, B }`) but only one default export (`export default MyClass;` $\\rightarrow$ `import AnyName from ...`)."
+        },
+        {
+          "question": "What does the dynamic import syntax `import('./analytics.js')` return?",
+          "options": [
+            "The exported default object synchronously",
+            "An HTML `<script>` DOM element",
+            "A Promise that resolves to the module namespace object containing all exports",
+            "A boolean indicating if the file was found on the server"
+          ],
+          "answer": "C",
+          "explanation": "Dynamic `import(path)` returns a Promise, enabling code splitting and on-demand lazy loading of JavaScript modules at runtime."
+        },
+        {
+          "question": "How do you re-export all exports from an authentication module `auth.js` in an `index.js` barrel file?",
+          "options": [
+            "module.exports = require('./auth.js');",
+            "import * as auth from './auth.js'; export default auth;",
+            "export * from './auth.js';",
+            "export.all('./auth.js');"
+          ],
+          "answer": "C",
+          "explanation": "`export * from './auth.js'` re-exports all named exports from the target module, creating clean public barrel entry points."
+        },
+        {
+          "question": "What feature did ES2022 standardize regarding `await` in top-level module code?",
+          "options": [
+            "`await` can only be used inside `for` loops",
+            "Top-level await pauses all other browser tabs simultaneously",
+            "`await` was deprecated in favor of callback functions",
+            "Top-Level Await: `await` can be used directly at the top level of an ES module without wrapping inside an `async` function"
+          ],
+          "answer": "D",
+          "explanation": "Top-Level Await allows ES modules to act as async module initializers (e.g., awaiting database connections or config fetches before exporting)."
+        },
+        {
+          "question": "What is the output of the following spread operator code with a nested object? \n```javascript\nconst original = { a: 1, nested: { b: 2 } };\nconst copy = { ...original };\ncopy.nested.b = 99;\nconsole.log(original.nested.b);\n```",
+          "options": [
+            "TypeError: Cannot assign to read only property",
+            "undefined",
+            "99 (Because the spread operator only creates a shallow copy, leaving nested objects shared by reference)",
+            "2 (Because `copy` is a completely independent clone)"
+          ],
+          "answer": "C",
+          "explanation": "Object spread `{ ...original }` is shallow; `copy.nested` holds the same memory address as `original.nested`, so modifying `copy.nested.b` mutates `original.nested.b`."
+        },
+        {
+          "question": "How do you rename an imported named export `fetchData` to `getUserData` to prevent naming collisions?",
+          "options": [
+            "import { fetchData as getUserData } from './api.js';",
+            "import { fetchData -> getUserData } from './api.js';",
+            "import { fetchData: getUserData } from './api.js';",
+            "import { getUserData = fetchData } from './api.js';"
+          ],
+          "answer": "A",
+          "explanation": "In ES module import/export statements, the `as` keyword is used for aliasing (e.g., `import { name as alias } from ...`)."
+        },
+        {
+          "question": "What is `import.meta` in ES Modules?",
+          "options": [
+            "A meta-property object exposing context-specific metadata about the current module (such as `import.meta.url`)",
+            "A built-in Redux state management object",
+            "A method that imports HTML `<meta>` tags into JavaScript",
+            "A compiler directive that optimizes V8 JIT compilation"
+          ],
+          "answer": "A",
+          "explanation": "`import.meta` contains metadata about the current module, such as its URL (`import.meta.url`), environment flags, or bundler-specific variables."
+        },
+        {
+          "question": "What will `[...'Hello']` evaluate to in JavaScript?",
+          "options": [
+            "['Hello']",
+            "TypeError: String is not an array",
+            "[['H', 'e', 'l', 'l', 'o']]",
+            "['H', 'e', 'l', 'l', 'o']"
+          ],
+          "answer": "D",
+          "explanation": "Strings are iterable; spreading a string into an array literal `[...str]` spreads its characters as individual elements."
+        },
+        {
+          "question": "How do you unpack a property using a dynamic variable name via destructuring? \n```javascript\nconst key = 'score';\nconst player = { score: 100, level: 5 };\nconst { [key]: result } = player;\nconsole.log(result);\n```",
+          "options": [
+            "100",
+            "'score'",
+            "ReferenceError: key is not defined",
+            "undefined"
+          ],
+          "answer": "A",
+          "explanation": "Computed property destructuring `{ [key]: result }` evaluates `key` (`'score'`) and assigns `player['score']` (100) to the variable `result`."
+        },
+        {
+          "question": "Why does `\"use strict\";` not need to be declared inside an ES Module file (`<script type=\"module\">`)?",
+          "options": [
+            "Strict mode is only supported in CommonJS",
+            "All ES Modules are executed in Strict Mode by default automatically",
+            "Modern browsers deprecated strict mode in 2020",
+            "ES Modules do not support Strict Mode"
+          ],
+          "answer": "B",
+          "explanation": "According to the ECMAScript specification, module code is always parsed and executed in Strict Mode automatically."
+        },
+        {
+          "question": "What is the output of `const obj = { a: 1, b: 2 }; const { a, ...rest } = obj; console.log(rest);`?",
+          "options": [
+            "{ b: 2 }",
+            "{ a: 1, b: 2 }",
+            "[2]",
+            "undefined"
+          ],
+          "answer": "A",
+          "explanation": "Object rest destructuring `{ a, ...rest }` extracts `a` and collects all remaining own enumerable properties into a new plain object `{ b: 2 }`."
+        },
+        {
+          "question": "Which of the following is true about how ES Modules are loaded in HTML documents (`<script type=\"module\" src=\"app.js\">`)?",
+          "options": [
+            "Module scripts can only execute after `window.onload` fires",
+            "Module scripts block HTML parsing synchronously like regular scripts",
+            "Module scripts cannot import external NPM packages",
+            "Module scripts are automatically deferred by default (non-blocking download, executing after HTML parsing completes)"
+          ],
+          "answer": "D",
+          "explanation": "`<script type=\"module\">` scripts are deferred by default, loading in parallel with HTML parsing and executing in document order once the DOM is parsed."
+        },
+        {
+          "question": "What is the result of using the spread operator with `Math.max()` on an array `const numbers = [4, 18, 3, 92, 11];`?",
+          "options": [
+            "Math.max(...numbers) evaluates to 92",
+            "Math.max(numbers) evaluates to 92",
+            "Math.max(...numbers) evaluates to NaN",
+            "Math.max(...numbers) evaluates to [92]"
+          ],
+          "answer": "A",
+          "explanation": "`Math.max()` expects individual numeric arguments; `Math.max(...numbers)` spreads the array into arguments `Math.max(4, 18, 3, 92, 11)` and returns `92`."
+        },
+        {
+          "question": "What happens if an ES Module has circular dependencies (e.g., module A imports module B, and module B imports module A)?",
+          "options": [
+            "All circular imports are converted to `null` automatically",
+            "The JavaScript engine crashes with an unrecoverable stack overflow error immediately",
+            "ESM supports circular dependencies via live bindings, but accessing uninitialized imports in the TDZ before declaration will throw a `ReferenceError`",
+            "The browser refuses to load any scripts on the page"
+          ],
+          "answer": "C",
+          "explanation": "ES Modules handle circular references gracefully via live binding references, though care must be taken not to access TDZ bindings before they are evaluated."
+        }
+      ]
+    },
+    {
+      "lessonId": "lesson-1787196281985-28",
+      "lessonTitle": "Lesson 2: Promises, Async/Await, and Fetch API Integration",
+      "totalQuestions": 20,
+      "questions": [
+        {
+          "question": "What is the exact console output sequence of the following asynchronous JavaScript code? \n```javascript\nconsole.log('1');\nsetTimeout(() => console.log('2'), 0);\nPromise.resolve().then(() => console.log('3'));\nconsole.log('4');\n```",
+          "options": [
+            "\"1, 4, 2, 3\"",
+            "\"1, 4, 3, 2\"",
+            "\"1, 2, 3, 4\"",
+            "\"1, 3, 4, 2\""
+          ],
+          "answer": "B",
+          "explanation": "Synchronous code runs first (`1, 4`). Promise `.then()` callbacks enter the Microtask Queue and execute before the Macrotask Queue (`3`). `setTimeout` enters the Macrotask Queue and executes last (`2`)."
+        },
+        {
+          "question": "What are the three possible mutual lifecycle states of a JavaScript `Promise`?",
+          "options": [
+            "`active`, `paused`, `stopped`",
+            "`waiting`, `completed`, `failed`",
+            "`pending`, `fulfilled`, `rejected`",
+            "`initialized`, `resolved`, `terminated`"
+          ],
+          "answer": "C",
+          "explanation": "A Promise starts in `pending` and transitions immutably to either `fulfilled` (with a value) or `rejected` (with an error reason)."
+        },
+        {
+          "question": "What happens when you return a plain value (e.g., `return 42;`) from inside a `.then()` callback in a Promise chain?",
+          "options": [
+            "The returned value is ignored and `undefined` is passed to the next `.then()`",
+            "The `.then()` method returns a new Promise that immediately resolves to the returned value (`42`)",
+            "It throws a `TypeError: Cannot return non-promise from .then`",
+            "The Promise chain terminates immediately"
+          ],
+          "answer": "B",
+          "explanation": "Any value returned from a `.then()` handler is automatically wrapped in `Promise.resolve(value)`, allowing seamless method chaining."
+        },
+        {
+          "question": "How does `Promise.all([p1, p2, p3])` behave if `p2` rejects with an error while `p1` and `p3` are still pending?",
+          "options": [
+            "It converts the error into an empty object `{}`",
+            "It returns `[p1_result, null, p3_result]`",
+            "It rejects immediately with `p2`'s rejection error (fail-fast behavior), ignoring the results of other pending promises",
+            "It waits for `p1` and `p3` to complete and ignores `p2`'s error"
+          ],
+          "answer": "C",
+          "explanation": "`Promise.all()` is all-or-nothing: if any single promise rejects, the entire `Promise.all()` immediately rejects with that first rejection reason."
+        },
+        {
+          "question": "What is the primary advantage of `Promise.allSettled([p1, p2, p3])` over `Promise.all()`?",
+          "options": [
+            "It runs promises on multi-threaded GPU cores",
+            "It never short-circuits on rejection; it waits for ALL promises to settle and returns an array of objects describing each outcome (`{ status: 'fulfilled', value }` or `{ status: 'rejected', reason }`)",
+            "It retries failed promises up to 5 times automatically",
+            "It only works with HTTP GET requests"
+          ],
+          "answer": "B",
+          "explanation": "`Promise.allSettled()` guarantees all asynchronous tasks finish, giving detailed reports for every promise regardless of success or failure."
+        },
+        {
+          "question": "What is the difference between `Promise.race()` and `Promise.any()`?",
+          "options": [
+            "There is no difference; both are exact aliases",
+            "`Promise.any()` returns all values, while `Promise.race()` returns one",
+            "`Promise.race()` only works with timers, while `Promise.any()` is for fetch",
+            "`Promise.race()` settles with the first settled promise (whether fulfilled OR rejected), while `Promise.any()` settles with the first FULFILLED promise (ignoring rejections until all fail)"
+          ],
+          "answer": "D",
+          "explanation": "`Promise.race()` takes the very first result (even if it's an error). `Promise.any()` seeks the first success; if all reject, it rejects with an `AggregateError`."
+        },
+        {
+          "question": "Why does the following Fetch API code fail to catch HTTP 404 and 500 errors in the `.catch()` block? \n```javascript\nfetch('https://api.example.com/not-found')\n  .then(res => res.json())\n  .catch(err => console.log('Error caught!'));\n```",
+          "options": [
+            "The `fetch()` Promise only rejects on network failures or blocked requests; HTTP error statuses (404, 500) resolve normally and require checking `response.ok` manually",
+            "The URL must end in `.json` for errors to trigger `.catch()`",
+            "HTTP 404 is considered a successful response by all web protocols",
+            "`fetch()` does not support `.catch()` method chaining"
+          ],
+          "answer": "A",
+          "explanation": "`fetch()` treats HTTP 4xx and 5xx responses as successful HTTP communications. Developers must inspect `if (!res.ok) throw new Error(res.statusText);` to trigger catch blocks."
+        },
+        {
+          "question": "What is the correct syntax to send a JSON payload in an HTTP POST request using the Fetch API?",
+          "options": [
+            "fetch(url, { method: 'POST', data: data });",
+            "fetch.post(url, JSON.toPayload(data));",
+            "fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });",
+            "fetch(url, { bodyType: 'json', payload: data });"
+          ],
+          "answer": "C",
+          "explanation": "Standard Fetch POST requires setting `method: 'POST'`, providing `headers: { 'Content-Type': 'application/json' }`, and passing a stringified payload to `body`."
+        },
+        {
+          "question": "How do you implement a 5-second request timeout for a `fetch()` call using `AbortController`?",
+          "options": [
+            "fetch(url).setTimeout(5000);",
+            "const c = new AbortController(); fetch(url, { cancelAfter: 5000 });",
+            "fetch(url, { timeout: 5000 });",
+            "const c = new AbortController(); setTimeout(() => c.abort(), 5000); fetch(url, { signal: c.signal });"
+          ],
+          "answer": "D",
+          "explanation": "Binding `signal: controller.signal` to `fetch()` allows aborting the pending HTTP request when `controller.abort()` is called via `setTimeout`."
+        },
+        {
+          "question": "What does an `async` function always return in JavaScript?",
+          "options": [
+            "A Promise (wrapping the returned value in `Promise.resolve` or rejections in `Promise.reject`)",
+            "A callback function",
+            "A generator iterator object",
+            "The raw synchronous value directly"
+          ],
+          "answer": "A",
+          "explanation": "Functions declared with `async` always return a Promise, even if you write `return 42;` (which returns `Promise.resolve(42)`)."
+        },
+        {
+          "question": "What is the difference in execution between sequential `await` and `Promise.all()` in the following code? \n```javascript\n// Approach A: const u = await getU(); const p = await getP();\n// Approach B: const [u, p] = await Promise.all([getU(), getP()]);\n```",
+          "options": [
+            "Approach A executes requests sequentially in series (total time = A + B), while Approach B executes both requests concurrently in parallel (total time = max(A, B))",
+            "Approach A is faster because it uses less network bandwidth",
+            "Approach B is invalid syntax in modern JavaScript",
+            "Both approaches take identical execution time"
+          ],
+          "answer": "A",
+          "explanation": "Awaiting promises sequentially forces `getP()` to wait until `getU()` finishes. Using `Promise.all()` starts both requests concurrently in parallel, slashing total wait time."
+        },
+        {
+          "question": "How do you handle errors properly in an `async/await` function?",
+          "options": [
+            "Use `.catch()` on every variable name",
+            "Async functions cannot throw errors",
+            "Wrap the `await` expressions in a `try...catch` block",
+            "Set `window.errorHandling = 'async';`"
+          ],
+          "answer": "C",
+          "explanation": "Rejected promises awaited inside an `async` function throw exceptions, which can be cleanly intercepted using standard synchronous-like `try...catch` blocks."
+        },
+        {
+          "question": "What is Microtask Queue Starvation in JavaScript?",
+          "options": [
+            "When the browser runs out of cookies",
+            "A CPU hardware bug on mobile smartphones",
+            "A memory leak caused by unclosed IndexedDB connections",
+            "Continuously scheduling microtasks (e.g., recursive `Promise.resolve().then(...)` or `queueMicrotask`) without returning control, starving macrotasks, UI rendering, and user input"
+          ],
+          "answer": "D",
+          "explanation": "The event loop processes all pending microtasks before rendering or checking macrotasks; an unending chain of microtasks starves the event loop and locks up UI rendering."
+        },
+        {
+          "question": "What happens if an `async` function throws an unhandled exception?",
+          "options": [
+            "The returned Promise is rejected with the thrown error",
+            "The error is converted into an empty string",
+            "The function returns `null` silently",
+            "The browser terminates JavaScript execution across all tabs"
+          ],
+          "answer": "A",
+          "explanation": "Throwing inside an `async` function (e.g., `throw new Error('fail');`) causes the function's returned Promise to reject with that error."
+        },
+        {
+          "question": "Which Response method is used to extract the binary image or file payload from a Fetch request?",
+          "options": [
+            "response.blob() (or response.arrayBuffer())",
+            "response.image()",
+            "response.toFile()",
+            "response.binary()"
+          ],
+          "answer": "A",
+          "explanation": "`response.blob()` resolves to a `Blob` object representing raw binary data (ideal for images, PDFs, or media downloads)."
+        },
+        {
+          "question": "What is the output of the following code? \n```javascript\nasync function test() {\n  return 'Result';\n}\ntest().then(val => console.log(val));\n```",
+          "options": [
+            "Promise { 'Result' }",
+            "\"Result\"",
+            "TypeError: test(...).then is not a function",
+            "undefined"
+          ],
+          "answer": "B",
+          "explanation": "`test()` returns a Promise resolving to `'Result'`; `.then()` receives the resolved string `'Result'`."
+        },
+        {
+          "question": "What global event listener captures unhandled Promise rejections in modern web browsers?",
+          "options": [
+            "document.onreject = handler;",
+            "window.addEventListener('unhandledrejection', event => { console.log(event.reason); });",
+            "window.addEventListener('promiseerror', handler);",
+            "window.addEventListener('async:error', handler);"
+          ],
+          "answer": "B",
+          "explanation": "The `unhandledrejection` event fires on `window` whenever a Promise rejects without an attached `.catch()` handler."
+        },
+        {
+          "question": "What does `queueMicrotask(() => { ... })` do?",
+          "options": [
+            "It creates a background Web Worker thread",
+            "It schedules a function to run 1 hour in the future",
+            "It queues a task to be processed on the backend server",
+            "It explicitly enqueues a callback into the Microtask Queue, executing it immediately after the current synchronous script and before rendering or macrotasks"
+          ],
+          "answer": "D",
+          "explanation": "`queueMicrotask()` provides a standardized API to schedule microtask callbacks with higher priority than `setTimeout(fn, 0)` without Promise instantiation overhead."
+        },
+        {
+          "question": "What is the return value of `Promise.resolve(5).then(x => x * 2).then(x => { throw new Error('err'); }).catch(e => 100).then(x => x + 1)`?",
+          "options": [
+            "10",
+            "UnhandledPromiseRejection",
+            "101 (The `.catch()` handler catches the error, recovers by returning 100, and passes 100 to the next `.then()` which computes 100 + 1)",
+            "NaN"
+          ],
+          "answer": "C",
+          "explanation": "Errors skip intermediate `.then()` handlers until reaching `.catch()`. The `.catch()` returns `100` (recovering the chain), which flows into the subsequent `.then(x => x + 1)` to yield `101`."
+        },
+        {
+          "question": "Why should `await` NOT be used inside a traditional `Array.prototype.forEach()` loop?",
+          "options": [
+            "`forEach` throws a syntax error if `await` is inside its callback",
+            "`forEach` can only process synchronous integers",
+            "`forEach` converts all promises into numbers automatically",
+            "`forEach` does not wait for async callback promises to resolve, running all iterations concurrently without waiting and ignoring returned promises"
+          ],
+          "answer": "D",
+          "explanation": "`forEach` is synchronous and ignores the Promises returned by async callbacks. For sequential async loops, use `for (const item of array)` with `await`."
+        }
+      ]
+    },
+    {
+      "lessonId": "lesson-1787196281985-29",
+      "lessonTitle": "Lesson 3: Handling JSON Data & Dynamic API Integrations",
+      "totalQuestions": 20,
+      "questions": [
+        {
+          "question": "Which of the following represents a valid JSON string according to RFC 8259 specifications?",
+          "options": [
+            "{\"name\": \"Alice\", \"date\": new Date()}",
+            "{\"name\": \"Alice\", \"age\": 25, \"active\": true, \"roles\": [\"admin\"]}",
+            "{ 'name': 'Alice', 'age': 25, }",
+            "{ name: \"Alice\", age: 25 }"
+          ],
+          "answer": "B",
+          "explanation": "JSON strictly requires double quotes around property keys and string values, prohibits trailing commas, and disallows JavaScript expressions/constructors like `new Date()`."
+        },
+        {
+          "question": "What happens when `JSON.stringify()` encounters an object containing a function, `undefined`, and a Symbol property?",
+          "options": [
+            "It omits all three properties from the serialized JSON string output",
+            "It converts all three into empty strings `\"\"`",
+            "It converts the function into executable text and keeps undefined",
+            "It throws a fatal `TypeError`"
+          ],
+          "answer": "A",
+          "explanation": "`JSON.stringify()` omits functions, `undefined`, and Symbols when serializing objects (or converts them to `null` if encountered inside an array)."
+        },
+        {
+          "question": "How can you safely format a JSON string with 2-space indentation for human readability?",
+          "options": [
+            "JSON.stringify(data, 'indent: 2');",
+            "JSON.stringify(data).indent(2);",
+            "JSON.stringify(data, null, 2);",
+            "JSON.format(data, 2);"
+          ],
+          "answer": "C",
+          "explanation": "The third argument of `JSON.stringify(value, replacer, space)` controls whitespace indentation (passing `2` formats with 2 spaces)."
+        },
+        {
+          "question": "How do you parse a JSON string containing an ISO date string (e.g., `'{\"createdAt\": \"2026-09-11T12:00:00Z\"}'`) and automatically restore it as a real JavaScript `Date` object?",
+          "options": [
+            "Set `JSON.parseDates = true;` before parsing",
+            "Use `JSON.parse(jsonStr, { parseDates: true });`",
+            "JSON parses dates automatically without extra code",
+            "Use a reviver function: `JSON.parse(jsonStr, (key, value) => key === 'createdAt' ? new Date(value) : value);`"
+          ],
+          "answer": "D",
+          "explanation": "The reviver callback in `JSON.parse(text, reviver)` transforms each key-value pair during parsing, allowing strings matching date patterns to be instantiated as `Date` objects."
+        },
+        {
+          "question": "Why should `JSON.parse()` almost always be wrapped in a `try...catch` block when processing API responses or localStorage data?",
+          "options": [
+            "Because invalid, malformed, or empty JSON strings throw a fatal `SyntaxError` that will crash the application if uncaught",
+            "Because `try...catch` accelerates JSON parsing speed by 50%",
+            "Because valid JSON is automatically deleted from memory unless caught",
+            "Because `JSON.parse()` triggers network requests behind the scenes"
+          ],
+          "answer": "A",
+          "explanation": "Malformed JSON (or empty strings) causes `JSON.parse()` to throw a synchronous `SyntaxError: Unexpected token...`, making `try-catch` error handling essential."
+        },
+        {
+          "question": "If an object has a custom `.toJSON()` method defined, how does `JSON.stringify()` treat that object?",
+          "options": [
+            "It calls the `.toJSON()` method and serializes whatever value `.toJSON()` returns instead of serializing the raw object",
+            "It ignores the `.toJSON()` method completely",
+            "It throws a TypeError for conflicting methods",
+            "It deletes the object from the DOM"
+          ],
+          "answer": "A",
+          "explanation": "If an object defines a `toJSON()` method, `JSON.stringify()` delegates serialization to that method (which is how `Date.prototype.toJSON()` formats ISO date strings)."
+        },
+        {
+          "question": "When uploading a file using Fetch and `FormData`, why is it an anti-pattern to manually set `headers: { 'Content-Type': 'multipart/form-data' }`?",
+          "options": [
+            "Manually setting the header omits the required `boundary` parameter string, causing the backend server to fail to parse the multipart payload",
+            "Because `FormData` is encrypted with SSL automatically",
+            "Because `FormData` only works with `Content-Type: application/json`",
+            "Because browsers reject all POST requests with custom headers"
+          ],
+          "answer": "A",
+          "explanation": "When passing `body: new FormData()`, the browser automatically sets `Content-Type: multipart/form-data; boundary=----WebKitFormBoundary...`. Manually setting it strips the boundary delimiter, breaking server parsing."
+        },
+        {
+          "question": "What is an 'Optimistic UI Update' pattern in web API applications?",
+          "options": [
+            "Disabling all error logging in production builds",
+            "Assuming the user's internet connection will never fail",
+            "Immediately updating the frontend UI as if the API mutation succeeded, and only reverting the change if the backend request subsequently fails",
+            "Displaying positive smiley face icons when forms submit"
+          ],
+          "answer": "C",
+          "explanation": "Optimistic UI provides instant responsiveness (e.g., liking a post instantly toggles the heart icon), rolling back to the previous state with an error toast only if the network call rejects."
+        },
+        {
+          "question": "How do you implement an API retry mechanism with Exponential Backoff in JavaScript?",
+          "options": [
+            "Set `fetch(url, { retry: 'exponential' })`",
+            "Reload the entire browser window repeatedly until status is 200",
+            "Catch the error, wait for a progressively doubling delay (`Math.pow(2, attempt) * 1000ms`), and recursively re-call the fetch function up to max attempts",
+            "Send 100 requests simultaneously in a `while (true)` loop"
+          ],
+          "answer": "C",
+          "explanation": "Exponential backoff delays retries by $2^{\\text{attempt}} \\times \\text{baseDelay}$, preventing client retries from overwhelming recovering servers."
+        },
+        {
+          "question": "What is the purpose of the HTTP `Authorization: Bearer <token>` header in REST API integration?",
+          "options": [
+            "To specify which web browser model is sending the request",
+            "To authenticate the client by passing a signed JSON Web Token (JWT) or OAuth access token with each protected request",
+            "To authorize the server to charge the user's credit card",
+            "To bypass HTTPS encryption requirements on public Wi-Fi"
+          ],
+          "answer": "B",
+          "explanation": "The `Authorization: Bearer <JWT>` header transmits authentication credentials securely on each API call for token-based authorization."
+        },
+        {
+          "question": "What should an application do when an API responds with HTTP Status Code `401 Unauthorized`?",
+          "options": [
+            "Display a 500 Internal Server Error page",
+            "Retry the exact same request 50 times in a loop",
+            "Attempt to refresh the access token using a refresh token, or redirect the user to the Login page to re-authenticate",
+            "Delete all HTML elements from the webpage"
+          ],
+          "answer": "C",
+          "explanation": "`401 Unauthorized` indicates missing or expired authentication; modern apps intercept 401s, request a new token via refresh endpoint, and retry the original call."
+        },
+        {
+          "question": "What is the difference between Polling and Server-Sent Events (SSE) for receiving live data updates from a backend?",
+          "options": [
+            "Polling is full-duplex, while SSE is bidirectional",
+            "SSE only works in Node.js backends",
+            "Polling does not consume any network bandwidth",
+            "Polling repeatedly sends periodic HTTP requests on a timer, while SSE maintains a single persistent unidirectional HTTP connection streaming events from server to client"
+          ],
+          "answer": "D",
+          "explanation": "Short/long polling incurs repeated HTTP overhead. Server-Sent Events (`EventSource`) establishes a persistent, low-overhead HTTP stream where the server pushes real-time updates."
+        },
+        {
+          "question": "How can you read a Streaming API response (such as an LLM AI text generation stream) chunk-by-chunk using the Fetch API?",
+          "options": [
+            "const stream = response.json(); while (stream.hasData()) { console.log(stream.next()); }",
+            "const reader = response.body.getReader(); const decoder = new TextDecoder(); while (true) { const { value, done } = await reader.read(); if (done) break; console.log(decoder.decode(value)); }",
+            "response.stream().forEach(chunk => console.log(chunk));",
+            "response.on('data', chunk => console.log(chunk));"
+          ],
+          "answer": "B",
+          "explanation": "`response.body.getReader()` accesses the `ReadableStream` reader, allowing asynchronous decoding of streaming binary chunks (`Uint8Array`) using `TextDecoder` in real time."
+        },
+        {
+          "question": "How do you cache an API response in `localStorage` with a 1-hour expiration timestamp?",
+          "options": [
+            "Set `Cache-Control: max-age=3600` on `localStorage`",
+            "Store an object `{ data: apiResult, expiry: Date.now() + 3600000 }` stringified, and compare `Date.now() > item.expiry` before reading",
+            "localStorage.cache(url, apiResult, '1h');",
+            "localStorage.setItem(url, apiResult, { ttl: 3600 });"
+          ],
+          "answer": "B",
+          "explanation": "`localStorage` has no native TTL; storing a wrapper object with an `expiry` timestamp allows checking if the cache is stale before making network requests."
+        },
+        {
+          "question": "What causes a CORS (Cross-Origin Resource Sharing) error in the browser when making a `fetch()` request to an API?",
+          "options": [
+            "The JavaScript code contains syntax errors in the JSON payload",
+            "The client computer does not have an active SSL certificate installed",
+            "The user's monitor refresh rate is lower than 60Hz",
+            "The server did not return an `Access-Control-Allow-Origin` header matching the client's origin protocol, domain, or port"
+          ],
+          "answer": "D",
+          "explanation": "Browsers enforce the Same-Origin Policy; cross-origin requests are blocked unless the server explicitly sends `Access-Control-Allow-Origin: *` or `https://myclient.com`."
+        },
+        {
+          "question": "What is the recommended method to build an Infinite Scroll pagination loader in pure JavaScript?",
+          "options": [
+            "Load all 1,000,000 database records upfront on initial page load",
+            "Use `setInterval` polling every 500ms",
+            "Attach a synchronous `scroll` listener that recalculates document height every millisecond",
+            "Use an `IntersectionObserver` observing a sentinel element at the bottom of the feed to trigger fetching the next page when scrolled into view"
+          ],
+          "answer": "D",
+          "explanation": "`IntersectionObserver` efficiently triggers page fetching when a target footer sentinel enters the viewport, avoiding scroll event layout thrashing."
+        },
+        {
+          "question": "What does the `Accept: application/json` request header communicate to an API server?",
+          "options": [
+            "It enables client-side database caching",
+            "It informs the server that the client expects and can process a response formatted in JSON",
+            "It informs the server of the data format contained in the request body",
+            "It forces the server to accept all uploaded files"
+          ],
+          "answer": "B",
+          "explanation": "`Accept` specifies desired response MIME types (`application/json`), whereas `Content-Type` describes the MIME type of the sent request payload."
+        },
+        {
+          "question": "How do you safely render dynamic text from an external API into a DOM container to prevent Cross-Site Scripting (XSS)?",
+          "options": [
+            "document.write(apiData.title);",
+            "cardTitle.eval(apiData.title);",
+            "cardTitle.textContent = apiData.title; (or sanitize with DOMPurify before assigning to innerHTML)",
+            "cardTitle.innerHTML = apiData.title;"
+          ],
+          "answer": "C",
+          "explanation": "Using `element.textContent` treats API strings strictly as text without HTML parsing, neutralizing any injected `<script>` or `onerror` tags."
+        },
+        {
+          "question": "What HTTP Status Code is standard for a successful `DELETE` request that returns no content in the response body?",
+          "options": [
+            "204 No Content",
+            "202 Accepted",
+            "201 Created",
+            "200 OK"
+          ],
+          "answer": "A",
+          "explanation": "Status code `204 No Content` indicates the server successfully fulfilled the request and there is no additional content to send in the response payload."
+        },
+        {
+          "question": "What is the output of `JSON.stringify({ a: 1, b: undefined, c: null, d: NaN })`?",
+          "options": [
+            "\"{\"a\":1,\"c\":null}\"",
+            "TypeError: NaN cannot be serialized",
+            "\"{\"a\":1,\"b\":undefined,\"c\":null,\"d\":NaN}\"",
+            "\"{\"a\":1,\"c\":null,\"d\":null}\""
+          ],
+          "answer": "D",
+          "explanation": "`undefined` properties are omitted, `null` remains `null`, and `NaN` (as well as `Infinity`) is converted to `null` in JSON serialization."
+        }
+      ]
+    }
+  ]
+}

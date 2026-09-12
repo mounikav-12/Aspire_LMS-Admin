@@ -1,0 +1,691 @@
+{
+  "courseId": "crs-1786624019154-w",
+  "courseTitle": "Python Full Stack + DSA with AI",
+  "stageId": "top-stg-3",
+  "stageTitle": "Stage 3: AI, Integration & Deployment",
+  "moduleId": "mod-stg3-m2",
+  "moduleTitle": "AI Integration with Python & LangChain",
+  "lessons": [
+    {
+      "lessonId": "lesson-stg3-m2-l1",
+      "lessonTitle": "LangChain Framework Basics, Prompt Templates & Chains",
+      "totalQuestions": 20,
+      "questions": [
+        {
+          "question": "What is the primary architectural purpose of the LangChain framework in modern Python AI development?",
+          "options": [
+            "To provide a modular, composable orchestration framework for building applications powered by Large Language Models, chaining prompts, models, vector retrievers, and tools.",
+            "To compile Python scripts into web assembly binaries.",
+            "To replace relational databases with flat CSV files.",
+            "To serve as an alternative web server to Nginx."
+          ],
+          "answer": "A",
+          "explanation": "LangChain simplifies the development of LLM applications by providing modular abstractions for models, prompts, chains, memory, retrieval, and agents."
+        },
+        {
+          "question": "How does the LangChain Expression Language (LCEL) compose components together using standard Python syntax?",
+          "options": [
+            "Using the pipe operator (`|`) to create declarative chains (e.g. `chain = prompt | model | output_parser`) supporting streaming, batching, and async execution out of the box.",
+            "Using the addition operator (`+`) to concatenate string responses.",
+            "Using bitwise shift operators (`<<` and `>>`) exclusively.",
+            "Using SQL queries inside Python comments."
+          ],
+          "answer": "A",
+          "explanation": "LCEL uses the pipe operator (`|`) to bind Runnables into declarative execution pipelines with unified streaming, async, and batch interfaces."
+        },
+        {
+          "question": "Which LangChain prompt template class is specifically designed for multi-role conversational models (supporting system, human, and AI roles)?",
+          "options": [
+            "SqlPromptTemplate",
+            "RegexPromptTemplate",
+            "ChatPromptTemplate",
+            "PromptTemplate"
+          ],
+          "answer": "C",
+          "explanation": "`ChatPromptTemplate` constructs structured lists of role-based messages (e.g., `ChatPromptTemplate.from_messages([('system', '...'), ('human', '{input}')])`)."
+        },
+        {
+          "question": "What is the role of `MessagesPlaceholder` inside a `ChatPromptTemplate` in LangChain?",
+          "options": [
+            "To render HTML `<textarea>` input boxes in the browser.",
+            "To encrypt API secret keys.",
+            "To dynamically inject a variable-length list of prior conversation history messages into a specific position in the prompt template.",
+            "To validate email addresses in user input."
+          ],
+          "answer": "C",
+          "explanation": "`MessagesPlaceholder(variable_name='chat_history')` allows dynamic injection of multi-turn message histories into chat prompts."
+        },
+        {
+          "question": "What is the function of `StrOutputParser` in an LCEL chain?",
+          "options": [
+            "It translates English text into binary bytes.",
+            "It parses the model's `AIMessage` response object and extracts the raw string content (`message.content`), passing clean text to downstream components.",
+            "It counts the number of punctuation marks in the output.",
+            "It stores the output string directly in a PostgreSQL database."
+          ],
+          "answer": "B",
+          "explanation": "`StrOutputParser` extracts the string content from an LLM's output message, converting `AIMessage(content='...')` to `'...'`."
+        },
+        {
+          "question": "How do you execute an LCEL chain with streaming output in Python?",
+          "options": [
+            "chain.run_stream(topic='Django')",
+            "chain.execute_generator({'topic': 'Django'})",
+            "chain.start_thread({'topic': 'Django'})",
+            "for chunk in chain.stream({'topic': 'Django'}):\n    print(chunk, end='', flush=True)"
+          ],
+          "answer": "D",
+          "explanation": "All LCEL Runnables implement `.stream()` (and `.astream()` for async), yielding incremental output chunks in real time."
+        },
+        {
+          "question": "What is `RunnablePassthrough` used for in LangChain LCEL pipelines?",
+          "options": [
+            "To pass input data through unchanged or dynamically assign additional keys to the input dictionary (via `RunnablePassthrough.assign()`).",
+            "To terminate the Python interpreter immediately.",
+            "To bypass API billing quotas.",
+            "To disable logging across the application."
+          ],
+          "answer": "A",
+          "explanation": "`RunnablePassthrough` allows inputs to pass through unaltered or enrich input dictionaries with retrieved context or computed variables."
+        },
+        {
+          "question": "Why is `RecursiveCharacterTextSplitter` preferred over simple character splitting when chunking documents for RAG in LangChain?",
+          "options": [
+            "Because it runs 100x faster than any compiled C extension.",
+            "Because it deletes all whitespace characters permanently.",
+            "Because it splits hierarchically by paragraphs (`\\n\\n`), sentences (`\\n`), and words (` `) to preserve semantic coherence within chunks before enforcing chunk size limits.",
+            "Because it encrypts each chunk with SHA-256."
+          ],
+          "answer": "C",
+          "explanation": "`RecursiveCharacterTextSplitter` attempts to keep semantically related text together by splitting along a list of delimiters in order (paragraphs, lines, spaces)."
+        },
+        {
+          "question": "Why is `chunk_overlap` configured when splitting documents into chunks for vector indexing?",
+          "options": [
+            "To reduce the number of vector embeddings generated.",
+            "To make the vector search strictly deterministic.",
+            "To ensure contextual continuity and avoid breaking critical sentences or semantic ideas across chunk boundaries.",
+            "To duplicate the entire database across two hard drives."
+          ],
+          "answer": "C",
+          "explanation": "Overlap (e.g. chunk_size=1000, chunk_overlap=200) ensures sentences spanning a split boundary remain intact in at least one chunk for retrieval."
+        },
+        {
+          "question": "How do you convert a LangChain VectorStore instance (e.g. Chroma or FAISS) into a retriever object for use in chains?",
+          "options": [
+            "retriever = vectorstore.enable_search()",
+            "retriever = vectorstore.as_retriever(search_type='similarity', search_kwargs={'k': 4})",
+            "retriever = vectorstore.to_sql()",
+            "retriever = vectorstore.get_all_rows()"
+          ],
+          "answer": "B",
+          "explanation": "`.as_retriever()` wraps any vector store into a LangChain `Retriever` interface that implements `.invoke(query)` returning relevant `Document` objects."
+        },
+        {
+          "question": "What is the purpose of `PydanticOutputParser` in LangChain?",
+          "options": [
+            "To compile Python code into Cython modules.",
+            "To format HTML forms on client web pages.",
+            "To convert Python classes into JSON schemas for database migrations.",
+            "To enforce strict type validation and automatically parse LLM text output into structured Pydantic model objects using generated schema format instructions."
+          ],
+          "answer": "D",
+          "explanation": "`PydanticOutputParser` provides schema formatting instructions in the prompt and validates/converts the LLM's JSON response into a typed Pydantic instance."
+        },
+        {
+          "question": "How do you define a custom tool in LangChain that an AI Agent can discover and execute?",
+          "options": [
+            "Creating an empty Python class inheriting from `object`.",
+            "Writing a global Python function named `__tool__()`.",
+            "Adding a comment `# agent_tool` above any function.",
+            "Using the `@tool` decorator with explicit type annotations and a clear descriptive docstring explaining what the tool does and when to call it."
+          ],
+          "answer": "D",
+          "explanation": "The `@tool` decorator inspects function signatures, type hints, and docstrings to generate JSON tool schemas used by LLM function-calling mechanisms."
+        },
+        {
+          "question": "What is the role of `AgentExecutor` in LangChain's agent architecture?",
+          "options": [
+            "To manage the iterative execution loop: sending inputs to the LLM, parsing tool calls, executing selected tools, passing tool outputs back to the LLM, and continuing until final answer.",
+            "To compile C++ code inside Python.",
+            "To execute SQL database migrations.",
+            "To kill background operating system processes."
+          ],
+          "answer": "A",
+          "explanation": "`AgentExecutor` runs the action-observation loop, repeatedly invoking tools selected by the LLM until the agent generates a final answer or reaches max iterations."
+        },
+        {
+          "question": "How do you configure automatic fallback between LLM providers (e.g. fallback from OpenAI to Gemini or Anthropic) in LangChain LCEL?",
+          "options": [
+            "primary_chain.retry_with(backup_chain)",
+            "primary_chain.with_fallbacks([backup_chain])",
+            "primary_chain.add_error_handler(backup_chain)",
+            "primary_chain.set_backup_server('gemini')"
+          ],
+          "answer": "B",
+          "explanation": "`.with_fallbacks([backup_chain])` catches runtime exceptions from the primary runnable and transparently reroutes execution to alternate chains."
+        },
+        {
+          "question": "What is LangSmith and what role does it play in the LangChain ecosystem?",
+          "options": [
+            "A code editor built specifically for Python.",
+            "A CSS styling framework for web apps.",
+            "A high-speed GPU hardware accelerator.",
+            "A developer platform for end-to-end tracing, debugging, testing, evaluating, and monitoring LLM applications and LangChain LCEL pipelines."
+          ],
+          "answer": "D",
+          "explanation": "LangSmith provides complete execution observability, capturing every prompt, token count, latency, intermediate tool call, and trace across LCEL chains."
+        },
+        {
+          "question": "What is `RunnableParallel` in LangChain LCEL?",
+          "options": [
+            "A database connection multiplexer.",
+            "A multi-threaded loop that deletes temporary files.",
+            "A tool to run Python on multiple physical computers.",
+            "A runnable primitive that executes multiple child runnables concurrently on the same input data and packages their results into a dictionary."
+          ],
+          "answer": "D",
+          "explanation": "`RunnableParallel` (or dict syntax `{'context': retriever, 'question': RunnablePassthrough()}`) executes branches in parallel."
+        },
+        {
+          "question": "What does `MultiQueryRetriever` do to improve search quality in RAG pipelines?",
+          "options": [
+            "It executes an SQL JOIN across 10 tables.",
+            "It uses an LLM to generate multiple distinct phrasings/perspectives of a user's single search query, retrieves documents for all generated queries, and unions the unique results.",
+            "It sends the user's query to 5 different search engines simultaneously.",
+            "It duplicates the user query 10 times in the prompt."
+          ],
+          "answer": "B",
+          "explanation": "`MultiQueryRetriever` addresses vocabulary mismatch by generating alternate perspectives of the user question to fetch a broader set of relevant context documents."
+        },
+        {
+          "question": "What is `ConversationSummaryBufferMemory` in LangChain?",
+          "options": [
+            "A database trigger that clears chat tables every night.",
+            "A buffer that compresses audio files during chat.",
+            "A memory strategy that keeps recent message turns verbatim in a buffer while progressively summarizing older conversation history once a token threshold is exceeded.",
+            "A hardware cache that saves RAM memory to SSD disk."
+          ],
+          "answer": "C",
+          "explanation": "`ConversationSummaryBufferMemory` combines sliding buffer memory with progressive summarization, maintaining exact recent context while keeping total token usage bounded."
+        },
+        {
+          "question": "How do you implement retry logic with exponential backoff on a LangChain runnable?",
+          "options": [
+            "chain.enable_retries(True)",
+            "chain.with_retry(stop_after_attempt=3, wait_exponential_jitter=True)",
+            "chain.set_retry_count(3)",
+            "chain.retry_forever()"
+          ],
+          "answer": "B",
+          "explanation": "`.with_retry()` wraps any LangChain runnable with configurable retry rules, max attempts, and backoff strategies for handling transient API errors."
+        },
+        {
+          "question": "What is a 'Self-Query Retriever' in LangChain?",
+          "options": [
+            "A retriever that uses an LLM to convert a natural language query into both a semantic search query and structured metadata filter expressions against the vector store.",
+            "A retriever that queries itself in an infinite loop.",
+            "A database index that automatically optimizes SQL queries.",
+            "A Python script that searches local files."
+          ],
+          "answer": "A",
+          "explanation": "Self-querying uses an internal LLM query constructor to parse user intent into structured metadata filters (e.g. `year > 2022`) alongside semantic vector search."
+        }
+      ]
+    },
+    {
+      "lessonId": "lesson-stg3-m2-l2",
+      "lessonTitle": "Integrating OpenAI/Gemini APIs in Django Backend",
+      "totalQuestions": 20,
+      "questions": [
+        {
+          "question": "What is the recommended architectural pattern for integrating third-party AI APIs (OpenAI/Gemini) into a Django project?",
+          "options": [
+            "Encapsulating all AI client instantiation, prompt building, and API calls within a dedicated service layer (e.g., `services/ai_service.py`), keeping Django views clean and decoupled.",
+            "Writing all OpenAI API calls directly inside Django template HTML files.",
+            "Hardcoding API keys in `models.py` default field parameters.",
+            "Placing all API calls inside Django database migration scripts."
+          ],
+          "answer": "A",
+          "explanation": "A service layer decouples third-party API SDKs, prompt logic, and error handling from Django views and controllers, facilitating testing and provider swapping."
+        },
+        {
+          "question": "Which Django response class is utilized to stream real-time LLM token chunks to frontend clients using Server-Sent Events (SSE)?",
+          "options": [
+            "StreamingHttpResponse(generator_func(), content_type='text/event-stream')",
+            "HttpResponse",
+            "FileResponse",
+            "JsonResponse"
+          ],
+          "answer": "A",
+          "explanation": "`StreamingHttpResponse` streams data directly from Python generator functions over HTTP with `text/event-stream` for SSE real-time token delivery."
+        },
+        {
+          "question": "How should long-running, non-interactive AI tasks (such as batch document summarization or dataset embeddings) be handled in Django?",
+          "options": [
+            "Asking the end-user to keep their browser tab open for 3 hours.",
+            "Running them inside Python `while True` loops in the main thread.",
+            "Offloading them to asynchronous background task workers using Celery with Redis/RabbitMQ message brokers.",
+            "Executing them synchronously in standard Django HTTP request views, causing Gunicorn request timeout errors."
+          ],
+          "answer": "C",
+          "explanation": "Heavy background computations must be offloaded to Celery worker queues to prevent blocking web worker processes and triggering 504 Gateway Timeouts."
+        },
+        {
+          "question": "How do you design a relational Django data model to persist multi-turn conversational chat sessions efficiently?",
+          "options": [
+            "Create a new database table for each message sent by a user.",
+            "Store chat messages exclusively in browser cookies.",
+            "Create a `Conversation` model (user foreign key, title, timestamps) with a one-to-many relationship to a `Message` model (conversation FK, role, content, tokens, timestamp).",
+            "Store all messages for all users in a single global text file on the server."
+          ],
+          "answer": "C",
+          "explanation": "A normalized `Conversation` 1-to-N `Message` relational schema allows indexing by user, conversation ID, and chronological timestamp ordering."
+        },
+        {
+          "question": "Why should a Django backend implement response caching (via Redis) for repetitive LLM queries?",
+          "options": [
+            "To prevent the Django application from connecting to PostgreSQL.",
+            "To serve identical prompts (e.g. FAQ answers or static definitions) instantly with zero LLM API latency and save substantial API token costs.",
+            "To bypass Django authentication checks.",
+            "To encrypt all database tables automatically."
+          ],
+          "answer": "B",
+          "explanation": "Caching deterministic AI answers in Redis using hash keys of prompts avoids redundant API calls, cuts latency to <5ms, and saves API billing."
+        },
+        {
+          "question": "How can you prevent automated prompt abuse and enforce user subscription token quotas in a Django REST Framework API?",
+          "options": [
+            "By asking users to promise not to send more than 10 messages.",
+            "By restarting the Django server every 5 minutes.",
+            "By deleting user accounts after each request.",
+            "By calculating token usage on each request, recording it in a user quota table, and enforcing DRF Custom Throttling / Permissions based on subscription tiers."
+          ],
+          "answer": "D",
+          "explanation": "Custom DRF Throttling classes and database token tracking enforce rate limits (e.g. 20 requests/min) and monthly token consumption budgets per tier."
+        },
+        {
+          "question": "How do you test Django views that interact with external AI APIs without making real, billable HTTP calls during unit test execution?",
+          "options": [
+            "Using `unittest.mock.patch` or pytest `mocker` to mock the AI SDK client's completion methods and return predefined mock response objects.",
+            "Disconnecting the testing machine from the local Wi-Fi router.",
+            "Deleting the tests from the test suite.",
+            "Setting the API key to an empty string and expecting 200 OK."
+          ],
+          "answer": "A",
+          "explanation": "Mocking (`@patch('openai.resources.chat.Completions.create')`) replaces live network calls with deterministic mock responses, enabling fast, free unit tests."
+        },
+        {
+          "question": "How should user-uploaded files (PDFs, images) be processed for Gemini/OpenAI API consumption in a production Django app?",
+          "options": [
+            "Convert the binary file to an MP3 audio file.",
+            "Store the file in the Django git repository and commit it.",
+            "Save the uploaded file to AWS S3 via `django-storages`, generate a secure pre-signed URL or pass the temporary byte stream to the multimodal API, and process asynchronously.",
+            "Email the file directly to OpenAI support."
+          ],
+          "answer": "C",
+          "explanation": "Standard cloud storage (S3/GCS) stores the asset, while temporary buffer streams or pre-signed URLs are passed to multimodal AI vision endpoints."
+        },
+        {
+          "question": "What Django technology allows building bidirectional, full-duplex real-time chat rooms with AI assistants over WebSockets?",
+          "options": [
+            "Django Admin `ModelAdmin` actions.",
+            "Django `manage.py inspectdb` command.",
+            "Django Channels with `AsyncWebsocketConsumer` and Redis Channel Layers.",
+            "Django Template Language filters."
+          ],
+          "answer": "C",
+          "explanation": "Django Channels extends Django beyond HTTP to handle persistent WebSocket connections, enabling low-overhead bidirectional streaming."
+        },
+        {
+          "question": "How do you securely configure environment variables containing AI API keys across Django settings?",
+          "options": [
+            "Storing keys in a public CSS file.",
+            "Using `python-decouple` or `django-environ` to read keys from `.env` in `settings.py` (e.g., `OPENAI_API_KEY = config('OPENAI_API_KEY')`), ensuring `.env` is in `.gitignore`.",
+            "Writing API keys in `settings.py` as plaintext strings and pushing to GitHub.",
+            "Printing API keys to the Django terminal console on startup."
+          ],
+          "answer": "B",
+          "explanation": "Using `python-decouple` or `django-environ` keeps sensitive secrets out of version control and easily configurable across dev/staging/prod environments."
+        },
+        {
+          "question": "How should a Django API view handle upstream AI provider outages (e.g. OpenAI HTTP 503 or 429)?",
+          "options": [
+            "Delete the user's database records.",
+            "Redirect the user to Google homepage.",
+            "Let the unhandled exception crash the Gunicorn worker process and return generic HTML 500 pages.",
+            "Catch provider-specific exceptions (`openai.RateLimitError`, `openai.APIConnectionError`) and return structured DRF JSON responses with appropriate HTTP status codes (429/503) and helpful retry messages."
+          ],
+          "answer": "D",
+          "explanation": "Explicit exception handling translates external upstream failures into user-friendly JSON error envelopes with structured error codes."
+        },
+        {
+          "question": "What is the purpose of running user inputs through the OpenAI Moderation API in a Django backend before sending to the main LLM?",
+          "options": [
+            "To speed up database query execution.",
+            "To automatically translate all inputs into French.",
+            "To correct spelling and grammar errors automatically.",
+            "To screen and block harmful, illegal, or policy-violating text (e.g. hate speech, self-harm, harassment) before incurring model inference costs or risking account suspension."
+          ],
+          "answer": "D",
+          "explanation": "The OpenAI Moderation API is free and classifies inputs against safety categories, protecting applications from toxic or abusive content."
+        },
+        {
+          "question": "How can vector similarity search be natively performed inside a PostgreSQL database using Django ORM?",
+          "options": [
+            "Using the `pgvector` extension with the `django-pgvector` library to define `VectorField` on Django models and perform `CosineDistance` queries.",
+            "PostgreSQL cannot store or search vector embeddings under any circumstances.",
+            "By sorting database tables alphabetically.",
+            "By storing vectors as raw strings and using SQL `LIKE '%0.123%'`."
+          ],
+          "answer": "A",
+          "explanation": "`pgvector` adds vector datatype and indexing (HNSW/IVFFlat) to PostgreSQL, queryable via Django ORM using distance lookups."
+        },
+        {
+          "question": "How do you write an asynchronous Django view in Python to call an AI API without blocking the server thread?",
+          "options": [
+            "def async_chat_view(request):\n    os.fork()",
+            "async def chat_view(request):\n    client = AsyncOpenAI()\n    res = await client.chat.completions.create(...)\n    return JsonResponse({'reply': res.choices[0].message.content})",
+            "def chat_view(request):\n    return time.sleep(10)",
+            "async def chat_view(request):\n    return HttpResponse.redirect('https://openai.com')"
+          ],
+          "answer": "B",
+          "explanation": "Django 4.0+ supports native `async def` views where asynchronous AI SDK calls can be awaited directly using ASGI servers (e.g. Uvicorn/Daphne)."
+        },
+        {
+          "question": "In a multi-tenant SaaS Django platform, how should custom system prompts and AI personas be stored and applied?",
+          "options": [
+            "Hardcoded in a global Python constant in `settings.py`.",
+            "Sent as query parameters in public URLs.",
+            "Stored in browser localStorage on the client device only.",
+            "In a `TenantAISettings` or `AIPersona` database model associated with each tenant organization, retrieved dynamically at runtime based on the authenticated user's organization."
+          ],
+          "answer": "D",
+          "explanation": "Associating system prompts with Tenant/Organization models enables customized AI behaviors and personas per corporate tenant dynamically."
+        },
+        {
+          "question": "What is the primary benefit of deploying Django behind an ASGI server (like Uvicorn or Daphne) when handling streaming AI endpoints?",
+          "options": [
+            "ASGI automatically writes documentation for the API.",
+            "ASGI eliminates the need for database migrations.",
+            "ASGI converts Django templates into React components.",
+            "ASGI supports asynchronous non-blocking event loops, allowing hundreds of concurrent streaming HTTP/WebSocket connections without consuming a worker thread per open stream."
+          ],
+          "answer": "D",
+          "explanation": "ASGI's non-blocking I/O event loop handles hundreds of simultaneous slow-streaming AI connections efficiently without exhausting server thread pools."
+        },
+        {
+          "question": "How do you validate the structure of incoming JSON payloads containing chat messages in Django REST Framework?",
+          "options": [
+            "By converting all payloads to plain text strings.",
+            "Using a DRF `Serializer` (e.g., `MessageSerializer(serializers.Serializer)`) with field validations for `prompt`, `conversation_id`, and `temperature` bounds.",
+            "By inspecting the query string with regex.",
+            "Validation is not needed if the user is authenticated."
+          ],
+          "answer": "B",
+          "explanation": "DRF Serializers validate field presence, data types, length limits, and numerical ranges before execution enters the service layer."
+        },
+        {
+          "question": "How should database connection pooling be configured in Django when high concurrency AI requests are made?",
+          "options": [
+            "Disabling PostgreSQL connection timeouts permanently.",
+            "Connecting to the database using HTTP requests.",
+            "Setting `CONN_MAX_AGE` in `DATABASES` settings or using external connection poolers like `PgBouncer` to prevent exhausting PostgreSQL connection limits under load.",
+            "Opening 10,000 direct database connections per request."
+          ],
+          "answer": "C",
+          "explanation": "Persistent connections (`CONN_MAX_AGE`) and PgBouncer prevent connection exhaustion when many concurrent API requests interact with the database."
+        },
+        {
+          "question": "What tool is best integrated into Django to capture real-time application errors, performance bottlenecks, and AI API exceptions in production?",
+          "options": [
+            "Git commit logs",
+            "Sentry (via `sentry-sdk[django]`) with breadcrumbs capturing HTTP requests, database queries, and AI API error stack traces.",
+            "Printing error messages to the operating system terminal.",
+            "Microsoft Word"
+          ],
+          "answer": "B",
+          "explanation": "`sentry-sdk` monitors live exceptions, performance transactions, and upstream AI outages in production Django deployments with detailed contextual alerts."
+        },
+        {
+          "question": "Why should Django serializers sanitize and escape user input before reflecting it back in HTML or markdown responses?",
+          "options": [
+            "To prevent Cross-Site Scripting (XSS) attacks where malicious users inject raw JavaScript code into chat responses that execute in other users' browsers.",
+            "To make the text load 10x faster.",
+            "To compress the database backup file.",
+            "To force all text into lowercase."
+          ],
+          "answer": "A",
+          "explanation": "Sanitizing HTML/markdown prevents Stored and Reflected XSS vulnerabilities when chat histories are rendered on client interfaces."
+        }
+      ]
+    },
+    {
+      "lessonId": "lesson-stg3-m2-l3",
+      "lessonTitle": "Building Intelligent AI Chatbots & LLM Interfaces",
+      "totalQuestions": 20,
+      "questions": [
+        {
+          "question": "What standard JavaScript web API is used on the frontend to consume streaming Server-Sent Events (SSE) from a backend AI endpoint with custom headers?",
+          "options": [
+            "`fetch()` with `response.body.getReader()` and `TextDecoderStream` (or libraries like `@microsoft/fetch-event-source` to support POST bodies and Auth headers).",
+            "`document.write()`",
+            "`window.alert()`",
+            "`localStorage.getItem()`"
+          ],
+          "answer": "A",
+          "explanation": "Using `fetch()` with `ReadableStream` reader (or `@microsoft/fetch-event-source`) allows consuming chunked SSE streams with custom Authorization headers and POST payloads."
+        },
+        {
+          "question": "How do you implement an 'Abort / Stop Generating' button in a React chat interface when an LLM is streaming a response?",
+          "options": [
+            "Instantiate an `AbortController()`, pass its `signal` to the `fetch()` request options, and call `controller.abort()` when the user clicks the Stop button.",
+            "Close the user's web browser tab automatically.",
+            "Send a message to the backend via email.",
+            "Reload the entire page with `window.location.reload()`."
+          ],
+          "answer": "A",
+          "explanation": "`AbortController.abort()` immediately cancels the client fetch request and terminates the underlying HTTP/SSE network connection."
+        },
+        {
+          "question": "What is 'Optimistic UI Update' and why is it essential in conversational AI interfaces?",
+          "options": [
+            "Hiding all error messages from the user.",
+            "Displaying positive smiley faces on every button.",
+            "Immediately appending the user's message to the chat list UI with a pending status before the backend network request completes, ensuring instantaneous user feedback.",
+            "Assuming the backend server will never crash."
+          ],
+          "answer": "C",
+          "explanation": "Optimistic updates instantly render the user's input in the UI, eliminating any perceived lag while the backend request is in transit."
+        },
+        {
+          "question": "How should a frontend chat UI handle automatic scrolling during continuous token streaming?",
+          "options": [
+            "Scroll to the top of the webpage on every token.",
+            "Disable CSS scrolling completely.",
+            "Automatically scroll to the bottom of the message container on each new chunk unless the user has manually scrolled up to inspect previous messages.",
+            "Lock the scrollbar permanently so the user can never scroll."
+          ],
+          "answer": "C",
+          "explanation": "Smart auto-scroll pins the view to the bottom during streaming while respecting user scroll position if they manually scroll up to read history."
+        },
+        {
+          "question": "What is the 'Sliding Context Window' strategy for managing multi-turn chat history when conversations grow very long?",
+          "options": [
+            "Deleting the entire conversation history after 3 messages.",
+            "Keeping only the system prompt plus the most recent N turns of conversation (or summarized past history) within the LLM prompt to avoid exceeding context limits and reduce costs.",
+            "Moving the chat window across the computer monitor.",
+            "Shrinking the size of the chat box UI."
+          ],
+          "answer": "B",
+          "explanation": "Sliding window retains the most recent message pairs (and optionally summarizes older turns), keeping prompt token size predictable and bounded."
+        },
+        {
+          "question": "How can rich code blocks with syntax highlighting and a 'Copy Code' button be safely rendered in a React chat component?",
+          "options": [
+            "Using `dangerouslySetInnerHTML` with raw un-sanitized user strings.",
+            "Converting code snippets into JPEG images on the backend.",
+            "Printing code as plain text without line breaks.",
+            "Using `react-markdown` with `rehype-highlight` / `prismjs` and a custom code component override to render syntax highlighting and copy buttons."
+          ],
+          "answer": "D",
+          "explanation": "`react-markdown` securely parses markdown into virtual DOM elements, while syntax highlighters (Prism/highlight.js) render syntax colors and custom UI controls."
+        },
+        {
+          "question": "How does a modern AI chat application automatically generate concise, descriptive titles for newly created chat sessions?",
+          "options": [
+            "By triggering a lightweight, fast background LLM call (e.g. Gemini Flash or GPT-4o-mini) after the first user exchange with the prompt: 'Summarize this request in 3-5 words as a title'.",
+            "By naming all chats 'Untitled Chat 123'.",
+            "By using the user's email address as the title.",
+            "By asking the user to manually type a 50-character title before sending their first message."
+          ],
+          "answer": "A",
+          "explanation": "An asynchronous prompt to a lightweight model extracts a 3-5 word summary of the first turn to populate the conversation list in the sidebar."
+        },
+        {
+          "question": "How should clickable citations and source references be displayed in a RAG-powered enterprise chatbot UI?",
+          "options": [
+            "Hiding all sources to keep the UI clean.",
+            "Printing the entire 500-page PDF raw text inside the chat bubble.",
+            "As interactive citation badges/chips (e.g. `[1]`, `[Doc A]`) that open a drawer or modal showing the exact retrieved text chunk, document title, and page number when clicked.",
+            "Sending source files via postal mail."
+          ],
+          "answer": "C",
+          "explanation": "Interactive citation chips allow users to inspect the grounding context, building trust and enabling verification of RAG responses."
+        },
+        {
+          "question": "What UX pattern is commonly used to suggest follow-up questions or next actions at the bottom of an assistant's response?",
+          "options": [
+            "Full-screen survey questionnaires.",
+            "Audio alarms that play on completion.",
+            "Dynamic 'Suggested Follow-up' chips generated by the LLM that the user can click to immediately send as their next prompt.",
+            "Pop-up advertising banners."
+          ],
+          "answer": "C",
+          "explanation": "Suggested prompt chips reduce user typing effort, guiding productive conversational flows based on context."
+        },
+        {
+          "question": "How do you render dynamic Function Calling (Tool Calling) results—like an interactive flight card, weather forecast, or SQL table—in the chat stream?",
+          "options": [
+            "By converting the data into an Excel file for download only.",
+            "By inspecting the structured `tool_calls` JSON output from the model and dynamically rendering specialized React UI widget components instead of raw markdown text.",
+            "By printing raw JSON strings in the chat bubble.",
+            "By redirecting the user to an external website."
+          ],
+          "answer": "B",
+          "explanation": "Structured tool outputs can be mapped to bespoke React components (charts, tables, confirmation cards) for rich, interactive user experiences."
+        },
+        {
+          "question": "How can user feedback (thumbs up / thumbs down) be gathered in a chat UI to build evaluation datasets for future model fine-tuning?",
+          "options": [
+            "Logging feedback in browser cookies only.",
+            "Asking the user to write a physical letter.",
+            "Calling the user on the phone after every chat turn.",
+            "Adding feedback action buttons on each assistant message that trigger an API call storing the message ID, rating, prompt, completion, and optional user correction in a feedback database table."
+          ],
+          "answer": "D",
+          "explanation": "Granular message-level feedback captures high-signal pairs (prompt, response, user correction) valuable for RLHF, fine-tuning, and prompt evaluation."
+        },
+        {
+          "question": "How can developers support multimodal image attachments in a React chat input box?",
+          "options": [
+            "Requiring users to host images on public web servers first.",
+            "Asking users to paste raw binary hex codes into the text input.",
+            "Converting images to ASCII art before sending.",
+            "Providing drag-and-drop and file picker inputs that generate instant thumbnail previews (via `URL.createObjectURL()`), convert files to Base64 or upload to S3, and pass file references with the prompt payload."
+          ],
+          "answer": "D",
+          "explanation": "File previews and direct S3 uploads with progress bars allow seamless multimodal image analysis in conversational interfaces."
+        },
+        {
+          "question": "What keyboard shortcut is standard in chat applications for sending messages versus adding a newline?",
+          "options": [
+            "`Enter` key sends the message; `Shift + Enter` inserts a newline in the multiline `<textarea>`.",
+            "`Escape` sends the message; `Tab` inserts a newline.",
+            "`Ctrl + Alt + Delete` sends the message.",
+            "`Spacebar` sends the message; `Backspace` inserts a newline."
+          ],
+          "answer": "A",
+          "explanation": "`Enter` to submit and `Shift + Enter` for newlines is the universally expected UX pattern across modern chat applications (Slack, ChatGPT, Claude)."
+        },
+        {
+          "question": "How should voice input (Speech-to-Text) be implemented in a web chat application?",
+          "options": [
+            "Recording keystroke typing sounds.",
+            "Using the browser's native `webkitSpeechRecognition` (Web Speech API) for real-time client transcription or recording audio via `MediaRecorder` and sending audio blobs to the OpenAI Whisper API.",
+            "Writing an audio decoder in pure CSS.",
+            "Asking the user to whistle into the microphone."
+          ],
+          "answer": "B",
+          "explanation": "The Web Speech API provides browser-level speech recognition, while Whisper API provides high-accuracy transcription for recorded audio blobs."
+        },
+        {
+          "question": "How should offline network states or temporary connection drops be handled in a chat UI?",
+          "options": [
+            "Deleting all existing chat history immediately.",
+            "Redirecting the user to an error 404 page.",
+            "Freezing the entire operating system.",
+            "Listening to `navigator.onLine` / window `offline` events, displaying an offline banner, preserving unsent user draft text in state/localStorage, and offering a 'Retry' button when connectivity is restored."
+          ],
+          "answer": "D",
+          "explanation": "Resilient chat UIs preserve user input drafts during network blips and provide explicit retry mechanisms without losing message context."
+        },
+        {
+          "question": "How do you enable exporting chat history for users who want to save their conversation externally?",
+          "options": [
+            "Emailing the entire database to the user.",
+            "Printing the conversation to the developer console only.",
+            "Taking a screenshot of the user's screen without permission.",
+            "Providing an 'Export Chat' dropdown that compiles conversation turns into downloadable Markdown (`.md`), PDF, or JSON files using client-side Blob generation (`new Blob([content], {type: 'text/markdown'})`)."
+          ],
+          "answer": "D",
+          "explanation": "Client-side Blob URLs (`URL.createObjectURL(blob)`) enable instant export to Markdown, JSON, or formatted PDF documents."
+        },
+        {
+          "question": "What is 'System Persona Switching' in an AI chatbot UI?",
+          "options": [
+            "Changing the theme colors of the web application.",
+            "Allowing the user to select from a gallery of predefined personas (e.g., 'Senior Python Architect', 'Technical Interviewer', 'Bug Fixer') which updates the system instruction passed to the backend for subsequent turns.",
+            "Logging out the current user and logging in as admin.",
+            "Switching the language of the browser."
+          ],
+          "answer": "B",
+          "explanation": "Persona switching dynamically injects specialized system instructions to guide model domain expertise, tone, and formatting style."
+        },
+        {
+          "question": "What Accessibility (a11y) considerations must be built into conversational AI interfaces for visually impaired users?",
+          "options": [
+            "Playing loud sound effects on every generated letter.",
+            "Disabling screen readers to save CPU memory.",
+            "Using ARIA live regions (`aria-live='polite'`) so screen readers announce incoming assistant replies, providing high-contrast themes, and ensuring full keyboard navigability.",
+            "Removing all text and using only icons."
+          ],
+          "answer": "C",
+          "explanation": "`aria-live='polite'` notifies assistive screen reader technologies when streaming content updates arrive without disrupting the user."
+        },
+        {
+          "question": "How do you implement an auto-resizing text input (textarea) that expands with multiline user input up to a max height?",
+          "options": [
+            "Converting the textarea into an HTML `<table>`.",
+            "Updating the textarea's `style.height` dynamically based on its `scrollHeight` on every input change event, resetting height to 'auto' before measuring.",
+            "Restricting user input to a single word only.",
+            "Using fixed 10px height permanently."
+          ],
+          "answer": "B",
+          "explanation": "Setting `height = 'auto'` then `height = min(scrollHeight, maxHeight) + 'px'` creates a smooth expandable textarea (like ChatGPT and Slack)."
+        },
+        {
+          "question": "Why is displaying model token counters and cost estimates valuable in enterprise AI dashboard interfaces?",
+          "options": [
+            "It provides transparent cost awareness and helps developers and users monitor API consumption, evaluate prompt efficiency, and stay within organizational budgets.",
+            "It makes the web page load faster.",
+            "It is required by the HTTP/2 specification.",
+            "It replaces the need for backend database backups."
+          ],
+          "answer": "A",
+          "explanation": "Real-time token and cost telemetry empowers enterprise users to optimize prompt brevity, detect runaway loops, and manage cloud spending."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,691 @@
+{
+  "courseId": "crs-1786624019154-w",
+  "courseTitle": "Python Full Stack + DSA with AI",
+  "stageId": "top-stg-2",
+  "stageTitle": "Stage 2: Backend + DSA",
+  "moduleId": "subtop-1787203553997",
+  "moduleTitle": "Django Templates & Static Files Setup",
+  "lessons": [
+    {
+      "lessonId": "lesson-1787204452715",
+      "lessonTitle": "Django Template Language(DTL), Filters, & Tags",
+      "totalQuestions": 20,
+      "questions": [
+        {
+          "question": "What is the primary delimiter syntax used in Django Template Language (DTL) to output variable values passed from a view context?",
+          "options": [
+            "<%= variable_name %>",
+            "${variable_name}",
+            "{% variable_name %}",
+            "{{ variable_name }}"
+          ],
+          "answer": "D",
+          "explanation": "In DTL, double curly braces `{{ variable_name }}` are used to evaluate and output variable values, while `{% tag %}` is used for template tags and control flow."
+        },
+        {
+          "question": "Consider the following Django view context: `context = {'user': {'profile': {'name': 'Alice'}}}`. How does DTL access the name property inside a template?",
+          "options": [
+            "{{ user->profile->name }}",
+            "{{ user.profile.name }}",
+            "{{ user['profile']['name'] }}",
+            "{{ user(profile)(name) }}"
+          ],
+          "answer": "B",
+          "explanation": "DTL uses dot notation `.` uniformly for dictionary key lookups, attribute lookups, method calls, and list index accesses."
+        },
+        {
+          "question": "What happens when a method is invoked on an object inside a DTL template, such as `{{ user.get_full_name }}`?",
+          "options": [
+            "Django prohibits all method executions inside templates for security reasons.",
+            "Django automatically executes callable methods that take no required arguments without using parentheses `()`.",
+            "Django requires parentheses like `{{ user.get_full_name() }}`, otherwise a SyntaxError is thrown.",
+            "Django displays the method's memory reference instead of calling it."
+          ],
+          "answer": "B",
+          "explanation": "In DTL, callable attributes without required parameters are automatically called upon dot access without writing `()`."
+        },
+        {
+          "question": "Which DTL tag loop structure correctly renders an alternative message when the provided collection is empty?",
+          "options": [
+            "{% for item in items %}<li>{{ item }}</li>{% empty %}<p>No items found.</p>{% endfor %}",
+            "{% for item in items %}<li>{{ item }}</li>{% default %}<p>No items found.</p>{% endfor %}",
+            "{% for item in items %}<li>{{ item }}</li>{% else %}<p>No items found.</p>{% endfor %}",
+            "{% loop item in items %}<li>{{ item }}</li>{% empty %}<p>No items found.</p>{% endloop %}"
+          ],
+          "answer": "A",
+          "explanation": "The `{% for ... %}{% empty %}...{% endfor %}` tag allows specifying fallback HTML rendered if the iterable is empty or does not exist."
+        },
+        {
+          "question": "What will the DTL filter expression `{{ 'django web framework'|title }}` output?",
+          "options": [
+            "\"django web framework\"",
+            "\"Django Web Framework\"",
+            "\"DJANGO WEB FRAMEWORK\"",
+            "\"Django web framework\""
+          ],
+          "answer": "B",
+          "explanation": "The `title` filter converts a string to titlecase by capitalizing the first letter of each word."
+        },
+        {
+          "question": "In a `{% for %}` loop in DTL, which built-in loop variable returns the 1-based index of the current iteration?",
+          "options": [
+            "forloop.counter",
+            "forloop.current",
+            "forloop.index",
+            "forloop.counter0"
+          ],
+          "answer": "A",
+          "explanation": "`forloop.counter` is the 1-indexed loop counter (1, 2, 3...). `forloop.counter0` is 0-indexed (0, 1, 2...)."
+        },
+        {
+          "question": "What does the `|default:\"Anonymous\"` filter do when applied as `{{ user.username|default:\"Anonymous\" }}`?",
+          "options": [
+            "Sets the database column default value to 'Anonymous'.",
+            "Outputs 'Anonymous' only if user.username is exactly None.",
+            "Raises a TemplateSyntaxError if user.username is undefined.",
+            "Outputs 'Anonymous' if user.username evaluates to false (e.g., None, empty string '', False, or an empty list)."
+          ],
+          "answer": "D",
+          "explanation": "The `default` filter returns the specified default string whenever the variable resolves to a falsy value."
+        },
+        {
+          "question": "Why does Django automatically escape HTML characters (like `<`, `>`, `&`, `\"`, `'`) in template variable outputs by default?",
+          "options": [
+            "To compress HTML payloads for faster HTTP transfer speeds.",
+            "To enforce strict XHTML compliance across all browsers.",
+            "To prevent SQL Injection vulnerabilities in database queries.",
+            "To prevent Cross-Site Scripting (XSS) attacks by escaping untrusted user input."
+          ],
+          "answer": "D",
+          "explanation": "Auto-escaping in Django templates protects applications against XSS attacks by converting unsafe HTML characters into safe HTML entities."
+        },
+        {
+          "question": "Which filter is used to instruct Django to render a trusted string containing HTML tags without escaping them?",
+          "options": [
+            "|raw",
+            "|unescape",
+            "|safe",
+            "|noescape"
+          ],
+          "answer": "C",
+          "explanation": "The `|safe` filter marks a string as safe for HTML rendering, preventing Django's autoescape engine from escaping HTML tags."
+        },
+        {
+          "question": "What will the filter expression `{{ post.content|truncatewords:3 }}` produce if `post.content` is 'Django is a high level Python framework'?",
+          "options": [
+            "\"Django is a ...\"",
+            "\"Django is a high ...\"",
+            "\"Django is a\"",
+            "\"Dja...\""
+          ],
+          "answer": "A",
+          "explanation": "`truncatewords:3` truncates the string after 3 words and appends an ellipsis (`...`)."
+        },
+        {
+          "question": "How do you define a single-line comment in Django Template Language?",
+          "options": [
+            "{# This is a comment #}",
+            "<!-- # This is a comment # -->",
+            "{% comment 'This is a comment' %}",
+            "// This is a comment"
+          ],
+          "answer": "A",
+          "explanation": "`{# ... #}` creates a single-line template comment that is completely stripped during rendering and never sent to the browser."
+        },
+        {
+          "question": "Which DTL tag is used to temporarily assign or alias a complex expression to a local variable within a template block?",
+          "options": [
+            "{% assign total = order.items.count %}",
+            "{% let total = order.items.count %}{{ total }}{% endlet %}",
+            "{% with total=order.items.count %}{{ total }}{% endwith %}",
+            "{% set total = order.items.count %}"
+          ],
+          "answer": "C",
+          "explanation": "The `{% with var=value %}...{% endwith %}` tag caches the result of a complex variable or query under a simple name for the block's scope."
+        },
+        {
+          "question": "Which decorator from `django.template` is used to register a custom template filter inside a `templatetags/` module?",
+          "options": [
+            "@register.custom_filter('my_filter')",
+            "@django.filter('my_filter')",
+            "@register.filter(name='my_filter')",
+            "@template.filter_tag('my_filter')"
+          ],
+          "answer": "C",
+          "explanation": "Custom filters are created by instantiating `register = template.Library()` and decorating a Python function with `@register.filter`."
+        },
+        {
+          "question": "What tag must be included at the top of a template before using a custom tag library defined in `custom_tags.py`?",
+          "options": [
+            "{% include custom_tags %}",
+            "{% load custom_tags %}",
+            "{% require custom_tags %}",
+            "{% import custom_tags %}"
+          ],
+          "answer": "B",
+          "explanation": "`{% load <tag_library_name> %}` loads custom tag and filter libraries from an installed app's `templatetags` directory."
+        },
+        {
+          "question": "What does the `{% verbatim %}` tag do in a Django template?",
+          "options": [
+            "Stops the Django template engine from rendering any template tags or variables inside the block, useful for client-side JS frameworks like Vue or Angular.",
+            "Outputs text in an HTML `<pre>` tag with monospace formatting.",
+            "Disables CSS styling for that specific section of the document.",
+            "Executes raw Python code directly on the server without sandboxing."
+          ],
+          "answer": "A",
+          "explanation": "The `{% verbatim %}...{% endverbatim %}` tag instructs DTL to ignore `{{ }}` and `{% %}` syntax, preventing clashes with frontend frameworks like Vue or Angular."
+        },
+        {
+          "question": "What is the output of `{{ \"2026-05-15\"|date:\"Y\" }}` when evaluated with a valid Python datetime object for May 15, 2026?",
+          "options": [
+            "\"15\"",
+            "\"05\"",
+            "\"2026\"",
+            "\"2026-05\""
+          ],
+          "answer": "C",
+          "explanation": "The `date:\"Y\"` filter formats a date object to output its 4-digit year representation."
+        },
+        {
+          "question": "Which DTL tag is used to cycle through a list of CSS class strings on each iteration of a loop, such as alternating table row colors?",
+          "options": [
+            "{% switch 'row1' 'row2' %}",
+            "{% toggle 'row1' 'row2' %}",
+            "{% alternate 'row1', 'row2' %}",
+            "{% cycle 'row1' 'row2' %}"
+          ],
+          "answer": "D",
+          "explanation": "The `{% cycle 'value1' 'value2' ... %}` tag outputs one of the given arguments on each encounter, cycling sequentially across iterations."
+        },
+        {
+          "question": "What built-in filter converts newline characters `\\n` in plain text into `<p>` and `<br>` HTML tags?",
+          "options": [
+            "|nl2br",
+            "|splitlines",
+            "|breaklines",
+            "|linebreaks"
+          ],
+          "answer": "D",
+          "explanation": "The `linebreaks` filter replaces single newlines with `<br>` and pairs of newlines with `</p><p>` tags."
+        },
+        {
+          "question": "What happens if a template references a variable that does not exist in the context, e.g. `{{ non_existent_variable }}` (assuming default settings)?",
+          "options": [
+            "Django raises a VariableDoesNotExist crash.",
+            "Django aborts the HTTP request with a 500 Server Error.",
+            "Django renders an empty string `\"\"` silently without throwing a runtime exception.",
+            "Django renders the string \"undefined\"."
+          ],
+          "answer": "C",
+          "explanation": "By default, invalid or missing template variables evaluate to `settings.string_if_invalid` (which defaults to an empty string `\"\"`)."
+        },
+        {
+          "question": "What is the difference between `@register.simple_tag` and `@register.inclusion_tag` in custom Django template tags?",
+          "options": [
+            "`simple_tag` runs on the client side, while `inclusion_tag` runs on the backend server.",
+            "`simple_tag` returns a formatted string to render in place, while `inclusion_tag` processes data and renders an entire secondary template.",
+            "`simple_tag` is deprecated in Django 5.x and replaced by `inclusion_tag`.",
+            "`simple_tag` accepts no parameters, while `inclusion_tag` can accept infinite arguments."
+          ],
+          "answer": "B",
+          "explanation": "`@register.simple_tag` outputs raw text or HTML, whereas `@register.inclusion_tag('template_name.html')` renders another sub-template with a returned context dictionary."
+        }
+      ]
+    },
+    {
+      "lessonId": "lesson-1787204473594",
+      "lessonTitle": "Template Inheritance & Layout Strategies",
+      "totalQuestions": 20,
+      "questions": [
+        {
+          "question": "What must be the very first template tag in a child template that extends a base layout?",
+          "options": [
+            "{% extends \"base.html\" %}",
+            "{% inherit \"base.html\" %}",
+            "{% import \"base.html\" %}",
+            "{% include \"base.html\" %}"
+          ],
+          "answer": "A",
+          "explanation": "The `{% extends \"...\" %}` tag informs the template engine that the current file inherits from a parent template and must be the first tag in the child file."
+        },
+        {
+          "question": "Which tag pair defines a placeholder section in a parent template that child templates can override or fill?",
+          "options": [
+            "{% slot content %}{% endslot %}",
+            "{% section content %}{% endsection %}",
+            "{% yield content %}{% endyield %}",
+            "{% block content %}{% endblock %}"
+          ],
+          "answer": "D",
+          "explanation": "`{% block <name> %}...{% endblock %}` defines overridable layout regions in Django templates."
+        },
+        {
+          "question": "How can a child template retain content defined in the parent template's block and append new content to it?",
+          "options": [
+            "By using `{% extends block %}`.",
+            "By calling `{{ super() }}`.",
+            "By calling `{{ block.super }}` inside the child's `{% block %}` definition.",
+            "By calling `{% parent.content %}`."
+          ],
+          "answer": "C",
+          "explanation": "`{{ block.super }}` injects the rendered contents of the parent template's matching block into the child's block."
+        },
+        {
+          "question": "What is the difference between `{% include %}` and `{% extends %}` in Django templates?",
+          "options": [
+            "`{% extends %}` implements layout inheritance (parent-child skeleton), while `{% include %}` embeds an external reusable sub-template snippet.",
+            "`{% extends %}` imports CSS stylesheets, while `{% include %}` imports HTML templates.",
+            "`{% extends %}` copies Python logic, while `{% include %}` copies database records.",
+            "`{% extends %}` can be used anywhere in the file, while `{% include %}` must be the first line."
+          ],
+          "answer": "A",
+          "explanation": "`{% extends %}` provides page scaffolding via inheritance, whereas `{% include %}` composes modular widgets/partials (like navbars and footers)."
+        },
+        {
+          "question": "What setting in `settings.py` instructs Django to search for templates inside a `templates/` directory located within each installed app?",
+          "options": [
+            "'LOCAL_TEMPLATES': True in TEMPLATES.",
+            "'LOAD_FROM_APPS': True in STATICFILES_FINDERS.",
+            "'AUTO_DISCOVER': True in INSTALLED_APPS.",
+            "'APP_DIRS': True inside the TEMPLATES configuration list."
+          ],
+          "answer": "D",
+          "explanation": "Setting `'APP_DIRS': True` enables Django's `app_directories.Loader` to find templates inside `<app_name>/templates/` folders."
+        },
+        {
+          "question": "Why is it best practice to organize app templates as `myapp/templates/myapp/index.html` (namespacing) rather than `myapp/templates/index.html`?",
+          "options": [
+            "Django refuses to load templates unless the folder name is repeated twice.",
+            "Namespacing automatically compresses template files for production.",
+            "It allows templates to bypass CSRF token validation.",
+            "To prevent template name collisions when multiple apps have templates with the same filename (e.g. index.html)."
+          ],
+          "answer": "D",
+          "explanation": "Because Django merges template directories across apps, namespacing templates inside an app-named subdirectory prevents apps from accidentally overriding each other's templates."
+        },
+        {
+          "question": "What is the role of a Django Context Processor?",
+          "options": [
+            "A middleware that compiles template HTML into bytecode before sending it to clients.",
+            "A Python function that takes a request object and returns a dictionary of variables made globally available to all rendered templates.",
+            "A background worker process that compiles static CSS and JavaScript files.",
+            "A database trigger that formats SQL query results into JSON."
+          ],
+          "answer": "B",
+          "explanation": "Context processors inject global variables (e.g. `request`, `user`, `settings`) into every template rendered via `RequestContext`."
+        },
+        {
+          "question": "Which built-in context processor provides access to `{{ user }}` and permissions inside templates without explicitly passing them from views?",
+          "options": [
+            "'django.contrib.auth.context_processors.auth'",
+            "'django.core.context_processors.session'",
+            "'django.contrib.security.context_processors.account'",
+            "'django.template.context_processors.user'"
+          ],
+          "answer": "A",
+          "explanation": "`django.contrib.auth.context_processors.auth` adds `user` and `perms` objects into the template context for authenticated sessions."
+        },
+        {
+          "question": "How can you pass additional local context variables to an included template using `{% include %}`?",
+          "options": [
+            "{% include \"partials/card.html\" :title=\"Article 1\" %}",
+            "{% include \"partials/card.html\" (title=\"Article 1\", author=post.author) %}",
+            "{% include \"partials/card.html\" with title=\"Article 1\" author=post.author %}",
+            "{% include \"partials/card.html\" context={'title': 'Article 1'} %}"
+          ],
+          "answer": "C",
+          "explanation": "The `with` keyword in `{% include \"...\" with key=val %}` passes extra keyword arguments into the included template's scope."
+        },
+        {
+          "question": "What does adding the `only` keyword to an `{% include %}` tag do, as in `{% include \"sidebar.html\" with user=profile only %}`?",
+          "options": [
+            "Limits rendering of the template strictly to authenticated admin users.",
+            "Suppresses all error logs generated during template rendering.",
+            "Restricts the included template context exclusively to the variables specified after `with`, isolating it from the parent context.",
+            "Ensures the template is only rendered once per HTTP session."
+          ],
+          "answer": "C",
+          "explanation": "Adding `only` renders the included template with only the provided `with` variables, preventing inheritance of the outer template context."
+        },
+        {
+          "question": "What is a multi-tier template inheritance strategy in large Django projects?",
+          "options": [
+            "A cluster configuration where templates are fetched from three separate database servers.",
+            "A structured hierarchy (e.g., base.html -> layout_2col.html -> blog_detail.html) where intermediate templates specialize layouts for distinct site sections.",
+            "A technique where HTML templates inherit from CSS stylesheets directly.",
+            "A caching pattern where templates are pre-rendered into three different languages."
+          ],
+          "answer": "B",
+          "explanation": "Multi-tier inheritance uses a root `base.html` for site-wide assets/navigation, intermediate layout templates for specific sections (e.g., dashboard, blog), and leaf templates for individual views."
+        },
+        {
+          "question": "How do you configure a project-level `templates/` directory located at the project root in `settings.py`?",
+          "options": [
+            "'DIRS': [BASE_DIR / 'templates']",
+            "'PROJECT_TEMPLATES': BASE_DIR / 'templates'",
+            "'DIRS': ['/root/templates']",
+            "'ROOT_TEMPLATE_PATH': 'templates'"
+          ],
+          "answer": "A",
+          "explanation": "In `settings.TEMPLATES`, setting `'DIRS': [BASE_DIR / 'templates']` adds the project root templates folder to the template search path."
+        },
+        {
+          "question": "Which template loader class is recommended in Django production environments to cache compiled template instances in memory?",
+          "options": [
+            "'django.template.loaders.redis.RedisTemplateLoader'",
+            "'django.template.loaders.cached.Loader'",
+            "'django.template.loaders.filesystem.MemoryLoader'",
+            "'django.template.loaders.fast.FastLoader'"
+          ],
+          "answer": "B",
+          "explanation": "`django.template.loaders.cached.Loader` compiles templates once and stores them in memory, drastically improving rendering performance in production."
+        },
+        {
+          "question": "What is the signature of a custom context processor function in Django?",
+          "options": [
+            "def custom_processor(user, session): return {}",
+            "def custom_processor(response): return response",
+            "def custom_processor(request): return {'key': 'value'}",
+            "def custom_processor(template, context): return context"
+          ],
+          "answer": "C",
+          "explanation": "A Django context processor is a standard Python function that takes `request` as its sole argument and returns a dictionary."
+        },
+        {
+          "question": "What happens if a child template defines a `{% block header %}` that does not exist in the parent `base.html`?",
+          "options": [
+            "Django inserts the block into the HTML `<head>` tag by default.",
+            "Django ignores the block and does not render its contents, without throwing an error.",
+            "Django automatically appends the unknown block to the bottom of `<body>`.",
+            "Django raises a MissingBlockError during template compilation."
+          ],
+          "answer": "B",
+          "explanation": "Blocks defined in child templates that have no matching `{% block %}` name in parent templates are simply ignored."
+        },
+        {
+          "question": "Can a Django template have multiple `{% extends %}` tags to inherit from multiple parent templates simultaneously?",
+          "options": [
+            "Yes, DTL supports multiple inheritance by comma-separating templates like `{% extends 'a.html', 'b.html' %}`.",
+            "Yes, as long as each `{% extends %}` targets a different HTML section.",
+            "Yes, but only in Django 5.0 and above.",
+            "No, DTL supports only single template inheritance per file; multiple `{% extends %}` tags cause a TemplateSyntaxError."
+          ],
+          "answer": "D",
+          "explanation": "Django templates only support single inheritance. A template can extend at most one parent template."
+        },
+        {
+          "question": "Which built-in tag is used in templates to safely generate a URL path from a view's named URL route?",
+          "options": [
+            "{% route 'blog:post_detail' post.slug %}",
+            "{% path 'blog:post_detail' slug=post.slug %}",
+            "{% href 'blog:post_detail' post.slug %}",
+            "{% url 'blog:post_detail' slug=post.slug %}"
+          ],
+          "answer": "D",
+          "explanation": "The `{% url 'name' arg1 arg2 %}` tag performs reverse URL resolution directly inside DTL templates."
+        },
+        {
+          "question": "What is the best way to conditionally add CSS classes to an HTML element based on a context variable in DTL?",
+          "options": [
+            "<div class=\"badge {{ task.is_completed ? 'badge-success' : 'badge-warning' }}\">",
+            "<div class=\"badge {% if task.is_completed %}badge-success{% else %}badge-warning{% endif %}\">",
+            "<div class=\"badge\" class:active=\"task.is_completed\">",
+            "<div class=\"badge\" ng-class=\"{'badge-success': task.is_completed}\">"
+          ],
+          "answer": "B",
+          "explanation": "DTL uses `{% if condition %}value{% else %}alt{% endif %}` inline inside HTML attributes because ternary operators like `?:` are not supported."
+        },
+        {
+          "question": "Why should business logic (such as raw database queries or complex mathematical transformations) be avoided in Django templates?",
+          "options": [
+            "Templates compile to WebAssembly and cannot communicate with database servers.",
+            "Django automatically deletes template files that contain more than 10 lines of logic.",
+            "To adhere to MVT separation of concerns; views and models should handle data/logic, while templates remain strictly presentational.",
+            "Running database queries in templates disables client-side caching."
+          ],
+          "answer": "C",
+          "explanation": "Separation of concerns is fundamental to Django's MVT architecture. Presentation should remain decoupled from business logic and data manipulation."
+        },
+        {
+          "question": "How do you configure custom context processors in `settings.py`?",
+          "options": [
+            "Add the dotted Python path string (e.g., `'core.context_processors.site_settings'`) to `TEMPLATES[0]['OPTIONS']['context_processors']`.",
+            "Add them to the `MIDDLEWARE` list in `settings.py`.",
+            "Register them inside `admin.py` using `admin.site.register_context_processor()`.",
+            "Add them to `INSTALLED_APPS` as separate application packages."
+          ],
+          "answer": "A",
+          "explanation": "Custom context processors are registered by adding their full Python dotted path to the `context_processors` list in `TEMPLATES[0]['OPTIONS']`."
+        }
+      ]
+    },
+    {
+      "lessonId": "lesson-1787204496392",
+      "lessonTitle": "Handling Static Files & User Media Uploads",
+      "totalQuestions": 20,
+      "questions": [
+        {
+          "question": "What is the fundamental architectural distinction between Static Files and Media Files in Django?",
+          "options": [
+            "Static files are developer-managed assets (CSS, JS, site logos) bundled with code; Media files are user-uploaded files generated dynamically at runtime.",
+            "Static files are stored in PostgreSQL; Media files are stored on disk.",
+            "Static files run on the client; Media files execute on the server.",
+            "Static files are public; Media files are always encrypted and private."
+          ],
+          "answer": "A",
+          "explanation": "Static files are static codebase assets shipped by developers, while Media files are user-uploaded content (avatars, PDFs, attachments) generated during app use."
+        },
+        {
+          "question": "Which setting in `settings.py` defines the base URL prefix from which static assets will be served in the browser?",
+          "options": [
+            "STATIC_PATH = '/assets/'",
+            "STATIC_HOST = 'http://localhost/static'",
+            "STATIC_URL = '/static/'",
+            "STATIC_PREFIX = '/public/'"
+          ],
+          "answer": "C",
+          "explanation": "`STATIC_URL` specifies the public URL path (e.g., `/static/`) that the browser uses to request static files."
+        },
+        {
+          "question": "Which tag library must be loaded in a template before using the `{% static 'images/logo.png' %}` tag?",
+          "options": [
+            "{% load staticfiles %}",
+            "{% load static %}",
+            "{% import static %}",
+            "{% load assets %}"
+          ],
+          "answer": "B",
+          "explanation": "`{% load static %}` loads the static tag library in modern Django, enabling `{% static 'path' %}` resolution."
+        },
+        {
+          "question": "What is the purpose of the `STATICFILES_DIRS` setting in `settings.py`?",
+          "options": [
+            "Lists all prohibited static file extensions (e.g. .exe, .sh).",
+            "Defines the directory where `collectstatic` outputs compiled production assets.",
+            "Defines the cache directory for JavaScript minification.",
+            "Specifies additional filesystem directories where Django looks for static files beyond the standard `static/` subfolders of installed apps."
+          ],
+          "answer": "D",
+          "explanation": "`STATICFILES_DIRS` is a list of directory paths (like `[BASE_DIR / 'static']`) where Django searches for project-level static assets."
+        },
+        {
+          "question": "What does the management command `python manage.py collectstatic` do?",
+          "options": [
+            "Copies all static assets from each app's `static/` folder and `STATICFILES_DIRS` into the single directory defined by `STATIC_ROOT`.",
+            "Compiles TypeScript files into minified JavaScript.",
+            "Uploads user media files to an Amazon S3 bucket.",
+            "Deletes old CSS files from the browser cache."
+          ],
+          "answer": "A",
+          "explanation": "`collectstatic` gathers static files from all installed applications and custom directories into `STATIC_ROOT` for production web server hosting (e.g., Nginx)."
+        },
+        {
+          "question": "Which two settings must be defined in `settings.py` to support user media uploads?",
+          "options": [
+            "`USER_FILES_URL` and `STORAGE_DIR`",
+            "`MEDIA_URL` (public URL prefix) and `MEDIA_ROOT` (filesystem directory path).",
+            "`MEDIA_PREFIX` and `MEDIA_STORAGE`",
+            "`UPLOAD_URL` and `UPLOAD_PATH`"
+          ],
+          "answer": "B",
+          "explanation": "`MEDIA_ROOT` is the absolute filesystem path where uploaded files are stored, and `MEDIA_URL` is the base URL used to serve them."
+        },
+        {
+          "question": "Which Python package is a mandatory prerequisite for using Django's `models.ImageField`?",
+          "options": [
+            "ImageMagick",
+            "Pillow",
+            "OpenCV",
+            "PyPNG"
+          ],
+          "answer": "B",
+          "explanation": "Django's `ImageField` uses `Pillow` (the Python Imaging Library fork) to validate and process image dimensions and formats."
+        },
+        {
+          "question": "What attribute must be added to an HTML `<form>` element to allow file and image uploads via HTTP POST?",
+          "options": [
+            "type=\"file-upload\"",
+            "method=\"UPLOAD\"",
+            "enctype=\"multipart/form-data\"",
+            "enctype=\"application/x-www-form-urlencoded\""
+          ],
+          "answer": "C",
+          "explanation": "`enctype=\"multipart/form-data\"` encodes form payload as multipart chunks, allowing binary file content to be sent to the server."
+        },
+        {
+          "question": "In a Django view processing a file upload, how are the uploaded files accessed alongside standard form data?",
+          "options": [
+            "form = UploadForm(request.POST, request.FILES)",
+            "form = UploadForm(request.POST['files'])",
+            "form = UploadForm(request.BODY)",
+            "form = UploadForm(request.DATA)"
+          ],
+          "answer": "A",
+          "explanation": "Uploaded files are stored in the dictionary-like `request.FILES` object and must be passed to the form constructor along with `request.POST`."
+        },
+        {
+          "question": "How do you configure dynamic subfolders by date when defining a model file field, e.g. `upload_to='documents/%Y/%m/'`?",
+          "options": [
+            "The developer must write a custom cron job to move files into yearly folders.",
+            "This syntax is invalid and causes a ModelValidationError.",
+            "Django automatically interpolates `%Y` and `%m` with the current 4-digit year and 2-digit month when the file is saved.",
+            "Django creates a single folder named '%Y/%m/' literally on disk."
+          ],
+          "answer": "C",
+          "explanation": "Django natively supports strftime formatting tokens (like `%Y/%m/%d`) in the `upload_to` parameter of `FileField` and `ImageField`."
+        },
+        {
+          "question": "How are media files typically served during local development in `urls.py` when `DEBUG = True`?",
+          "options": [
+            "By executing `python manage.py runserver --serve-media`.",
+            "Django serves media files automatically with zero configuration even in production.",
+            "from django.conf.urls.static import static\nif settings.DEBUG:\n    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)",
+            "By adding 'django.middleware.media.MediaMiddleware' to MIDDLEWARE."
+          ],
+          "answer": "C",
+          "explanation": "In development (`DEBUG=True`), helper function `static()` binds `MEDIA_URL` routes to serve local files from `MEDIA_ROOT` via the development server."
+        },
+        {
+          "question": "Why should Django's built-in development server NEVER be used to serve static and media files in production?",
+          "options": [
+            "Django does not compile Python code when serving static files.",
+            "Static files are incompatible with HTTPS encryption on the dev server.",
+            "Django's development server deletes static files automatically after 100 requests.",
+            "The development server is single-threaded, inefficient at handling binary static streams, and insecure for concurrent production traffic."
+          ],
+          "answer": "D",
+          "explanation": "Django's internal server is designed strictly for local testing. In production, static/media files should be handled by Nginx, Cloudflare, WhiteNoise, or AWS S3."
+        },
+        {
+          "question": "Which popular Python package allows Django to easily serve its own static files in production as a WSGI middleware without needing Nginx?",
+          "options": [
+            "GunicornStatic",
+            "PyStaticServer",
+            "FastStatic",
+            "WhiteNoise"
+          ],
+          "answer": "D",
+          "explanation": "WhiteNoise embeds directly into Django's WSGI pipeline to provide high-performance static file serving and gzip/brotli compression."
+        },
+        {
+          "question": "Which third-party library is industry standard for connecting Django's storage system to cloud services like Amazon S3, Google Cloud Storage, or Azure Blob?",
+          "options": [
+            "django-s3-connector",
+            "django-cloud-files",
+            "django-aws-upload",
+            "django-storages"
+          ],
+          "answer": "D",
+          "explanation": "`django-storages` (paired with `boto3` for AWS) provides pluggable storage backends for cloud object storage providers."
+        },
+        {
+          "question": "How can you access the public URL of an uploaded image `avatar` on a `Profile` model instance in a template?",
+          "options": [
+            "{{ profile.avatar.get_link }}",
+            "{{ profile.avatar.url }}",
+            "{{ profile.avatar.path }}",
+            "{{ profile.avatar.src }}"
+          ],
+          "answer": "B",
+          "explanation": "The `.url` attribute of a `FileField` or `ImageField` returns the full relative or absolute URL path to the file."
+        },
+        {
+          "question": "What is the security danger of saving user-uploaded files directly with their original user-provided filename on the server filesystem?",
+          "options": [
+            "It causes browser tabs to crash due to Unicode font errors.",
+            "It forces the Django server to downgrade from HTTP/2 to HTTP/1.0.",
+            "Path traversal attacks (e.g. `../../etc/passwd`) or executing malicious scripts (e.g. uploading `shell.php` or `.exe`).",
+            "It permanently locks the database table from future write operations."
+          ],
+          "answer": "C",
+          "explanation": "Unvalidated user filenames can enable directory traversal, file overwrites, and arbitrary code execution if served directly by a web server."
+        },
+        {
+          "question": "Which setting in `settings.py` controls the storage backend used for user-uploaded media files in modern Django?",
+          "options": [
+            "FILE_STORAGE_CLASS = 'DefaultStorage'",
+            "STORAGES = {'default': {'BACKEND': 'django.core.files.storage.FileSystemStorage'}}",
+            "UPLOAD_ENGINE = 'disk'",
+            "MEDIA_BACKEND = 'local.fs'"
+          ],
+          "answer": "B",
+          "explanation": "In modern Django (4.2+), the `STORAGES` dictionary configures backends for `'default'` (media) and `'staticfiles'` (static assets)."
+        },
+        {
+          "question": "What is the difference between `file_field.url` and `file_field.path` in Django models?",
+          "options": [
+            "There is no difference; both return identical strings.",
+            "`.url` is for local disk files, while `.path` is for cloud storage.",
+            "`.url` is encrypted, while `.path` is plain text.",
+            "`.url` provides the web-accessible URL string (e.g. `/media/docs/file.pdf`), while `.path` returns the local absolute filesystem path (e.g. `C:\\project\\media\\docs\\file.pdf`)."
+          ],
+          "answer": "D",
+          "explanation": "`.url` gives the HTTP route for client browsers, whereas `.path` gives the local operating system filepath (valid only for local filesystem storage)."
+        },
+        {
+          "question": "What is the maximum default memory size in Django before an uploaded file is streamed to a temporary disk file rather than kept in RAM?",
+          "options": [
+            "2.5 MB (configured via `FILE_UPLOAD_MAX_MEMORY_SIZE`)",
+            "1 GB",
+            "100 KB",
+            "50 MB"
+          ],
+          "answer": "A",
+          "explanation": "By default, files larger than 2.5 MB (`FILE_UPLOAD_MAX_MEMORY_SIZE = 2621440`) are written to temporary disk files by `TemporaryFileUploadHandler` to preserve RAM."
+        },
+        {
+          "question": "How can you validate that an uploaded file is strictly a PDF document before saving it in a Django form?",
+          "options": [
+            "Implement a `clean_file()` method in the Form to inspect `file.content_type` or use `python-magic` to check MIME headers.",
+            "Rely solely on the file extension string `.pdf` in the client URL.",
+            "Set `models.FileField(extension_only=['pdf'])` in models.py.",
+            "Add `accept=\".pdf\"` on the HTML form (client-side only validation is completely secure)."
+          ],
+          "answer": "A",
+          "explanation": "Server-side validation in `clean_<fieldname>()` inspecting MIME types (via `file.content_type` or `python-magic`) is required because client-side HTML checks or extensions can be easily spoofed."
+        }
+      ]
+    }
+  ]
+}

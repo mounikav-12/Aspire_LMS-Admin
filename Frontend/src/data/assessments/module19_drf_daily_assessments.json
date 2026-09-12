@@ -1,0 +1,691 @@
+{
+  "courseId": "crs-1786624019154-w",
+  "courseTitle": "Python Full Stack + DSA with AI",
+  "stageId": "top-stg-2",
+  "stageTitle": "Stage 2: Backend + DSA",
+  "moduleId": "subtop-1787203608548",
+  "moduleTitle": "Django REST Framework (DRF) Core",
+  "lessons": [
+    {
+      "lessonId": "lesson-1787204810822",
+      "lessonTitle": "REST API Architecture & DRF Setup",
+      "totalQuestions": 20,
+      "questions": [
+        {
+          "question": "Which of the following describes the 'Statelessness' constraint in REST architectural design?",
+          "options": [
+            "The server is forbidden from saving any data to SQL databases.",
+            "Client web browsers cannot store cookies or local storage data.",
+            "The web server must restart its process after every incoming request.",
+            "Each client HTTP request must contain all the information necessary for the server to understand and process the request, without relying on stored server-side session context."
+          ],
+          "answer": "D",
+          "explanation": "Statelessness means the server never stores client session state between requests; authentication credentials or tokens must accompany every individual request."
+        },
+        {
+          "question": "What is the primary difference between HTTP PUT and HTTP PATCH methods in RESTful API design?",
+          "options": [
+            "PUT is asynchronous, while PATCH is synchronous.",
+            "PUT is used for full resource replacement (requiring all resource fields), whereas PATCH is used for partial resource updates (modifying only supplied fields).",
+            "PUT creates new database tables, while PATCH deletes rows.",
+            "PUT can only send JSON, while PATCH can only send XML."
+          ],
+          "answer": "B",
+          "explanation": "HTTP PUT replaces the entire target resource with the submitted payload. HTTP PATCH applies a delta/partial modification to existing resource fields."
+        },
+        {
+          "question": "Which HTTP status code should be returned when a new resource is successfully created via a POST request in a REST API?",
+          "options": [
+            "204 No Content",
+            "200 OK",
+            "201 Created",
+            "202 Accepted"
+          ],
+          "answer": "C",
+          "explanation": "HTTP `201 Created` indicates that the request succeeded and resulted in the creation of a new resource, often returning the created resource and a Location header."
+        },
+        {
+          "question": "What is the key difference between HTTP status code 401 Unauthorized and 403 Forbidden in REST APIs?",
+          "options": [
+            "401 is for server errors; 403 is for client errors.",
+            "401 is for mobile apps; 403 is for desktop browsers.",
+            "401 indicates missing or invalid authentication credentials (unauthenticated); 403 indicates the user is authenticated but lacks permission to access the resource.",
+            "401 means the database is locked; 403 means the URL does not exist."
+          ],
+          "answer": "C",
+          "explanation": "401 Unauthorized means 'authentication required or invalid credentials'. 403 Forbidden means 'authenticated identity recognized, but access is refused due to insufficient privileges'."
+        },
+        {
+          "question": "Which setting in `settings.py` is required to enable Django REST Framework in a Django project?",
+          "options": [
+            "Setting `DRF_ENABLED = True` in settings.py.",
+            "Adding `'rest_framework'` to `INSTALLED_APPS`.",
+            "Adding `'django.contrib.rest'` to MIDDLEWARE.",
+            "Installing the REST binary in the operating system PATH."
+          ],
+          "answer": "B",
+          "explanation": "Adding `'rest_framework'` to the `INSTALLED_APPS` list registers DRF's templates, static files, and management features within the Django project."
+        },
+        {
+          "question": "What feature does `rest_framework.renderers.BrowsableAPIRenderer` provide in DRF during development?",
+          "options": [
+            "An automated web crawler that indexes APIs into Google Search.",
+            "A 3D graphics rendering engine for gaming APIs.",
+            "A client-side compiler that converts Python code into JavaScript.",
+            "A fully interactive web UI accessible in the browser that allows developers to inspect API responses and interactively submit GET, POST, PUT, and DELETE requests."
+          ],
+          "answer": "D",
+          "explanation": "The Browsable API renderer provides a clean, interactive HTML interface when endpoints are visited in a web browser, making manual testing and API discovery effortless."
+        },
+        {
+          "question": "Which dictionary in `settings.py` configures global default behaviors for Django REST Framework (such as default authentications, permissions, and pagination)?",
+          "options": [
+            "DRF_CONFIG = { ... }",
+            "REST_FRAMEWORK = { ... }",
+            "API_SETTINGS = { ... }",
+            "DJANGO_REST_SETTINGS = { ... }"
+          ],
+          "answer": "B",
+          "explanation": "All global DRF settings (e.g. `DEFAULT_PERMISSION_CLASSES`, `DEFAULT_AUTHENTICATION_CLASSES`, `PAGE_SIZE`) are declared inside the `REST_FRAMEWORK` dictionary in `settings.py`."
+        },
+        {
+          "question": "What is Content Negotiation in REST API architecture?",
+          "options": [
+            "A cryptographic handshake determining SSL cipher suites.",
+            "The process by which the client and server agree on the media format of the response (e.g., JSON or HTML) based on the client's `Accept` HTTP header.",
+            "A database indexing strategy for text compression.",
+            "A pricing negotiation protocol between buyers and API providers."
+          ],
+          "answer": "B",
+          "explanation": "Content negotiation inspects incoming request headers (such as `Accept: application/json`) to select the appropriate response renderer (JSON, XML, or Browsable API)."
+        },
+        {
+          "question": "Which third-party Django package is industry standard for configuring Cross-Origin Resource Sharing (CORS) headers to allow frontend apps (React/Vue) to call DRF APIs?",
+          "options": [
+            "django-api-cors",
+            "drf-cors-security",
+            "django-cors-headers",
+            "django-cross-origin"
+          ],
+          "answer": "C",
+          "explanation": "`django-cors-headers` adds necessary `Access-Control-Allow-Origin` HTTP headers to API responses, allowing single-page frontend apps hosted on different origins to communicate with DRF."
+        },
+        {
+          "question": "What HTTP status code is returned when a DELETE request successfully deletes a resource without returning any response body content?",
+          "options": [
+            "202 Accepted",
+            "200 OK",
+            "204 No Content",
+            "404 Not Found"
+          ],
+          "answer": "C",
+          "explanation": "HTTP `204 No Content` indicates that the action was successfully fulfilled and there is no additional content to send in the response payload."
+        },
+        {
+          "question": "What does it mean that an HTTP method is 'Idempotent' in REST design?",
+          "options": [
+            "The request executes in less than 10 milliseconds.",
+            "The request requires two-factor authentication.",
+            "The request never returns an error status code.",
+            "Making multiple identical requests has the same effect on the server state as making a single request (e.g., GET, PUT, DELETE)."
+          ],
+          "answer": "D",
+          "explanation": "An HTTP method is idempotent if the side-effects of N > 0 identical requests is the same as for a single request. `GET`, `PUT`, `DELETE`, and `HEAD` are idempotent; `POST` is not."
+        },
+        {
+          "question": "How do you configure global pagination in DRF using `PageNumberPagination` with 20 items per page in `settings.py`?",
+          "options": [
+            "REST_FRAMEWORK = {\n    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',\n    'PAGE_SIZE': 20\n}",
+            "PAGINATION = {'TYPE': 'page_number', 'LIMIT': 20}",
+            "REST_FRAMEWORK = {'PAGE_LIMIT': 20, 'ENABLE_PAGINATION': True}",
+            "PAGINATE_BY = 20"
+          ],
+          "answer": "A",
+          "explanation": "Configuring `DEFAULT_PAGINATION_CLASS` and `PAGE_SIZE` in `REST_FRAMEWORK` enables uniform query parameter pagination (`?page=2`) across all list views."
+        },
+        {
+          "question": "Which HTTP status code is returned when client input fails data validation (e.g. missing required field or malformed email)?",
+          "options": [
+            "403 Forbidden",
+            "500 Internal Server Error",
+            "400 Bad Request",
+            "422 Unprocessable Request"
+          ],
+          "answer": "C",
+          "explanation": "DRF returns `400 Bad Request` with a JSON payload of field errors whenever `serializer.is_valid()` fails."
+        },
+        {
+          "question": "What is the purpose of the `CORS_ALLOWED_ORIGINS` setting in `settings.py` when using `django-cors-headers`?",
+          "options": [
+            "Specifies a whitelist of trusted origin URLs (e.g. `['http://localhost:3000', 'https://myapp.com']`) permitted to make cross-origin HTTP requests to the API.",
+            "Lists the IP addresses of blocked malicious bot networks.",
+            "Specifies the database servers allowed to replicate data.",
+            "Lists the domains where emails can be forwarded."
+          ],
+          "answer": "A",
+          "explanation": "`CORS_ALLOWED_ORIGINS` explicitly declares the origins (schemes, domains, ports) authorized to access API endpoints from web browsers."
+        },
+        {
+          "question": "Which HTTP method is considered both 'Safe' and 'Idempotent' according to HTTP standards?",
+          "options": [
+            "GET",
+            "CONNECT",
+            "PATCH",
+            "POST"
+          ],
+          "answer": "A",
+          "explanation": "`GET` is a 'safe' method because it only retrieves data without modifying server state, and 'idempotent' because consecutive requests produce identical results."
+        },
+        {
+          "question": "Where in the `MIDDLEWARE` list should `corsheaders.middleware.CorsMiddleware` be placed in `settings.py`?",
+          "options": [
+            "Position does not matter in Django middleware.",
+            "At the very bottom of the MIDDLEWARE list as the last entry.",
+            "Inside `INSTALLED_APPS` instead of `MIDDLEWARE`.",
+            "As high as possible, strictly before any middleware that can generate responses (like `CommonMiddleware`)."
+          ],
+          "answer": "D",
+          "explanation": "`CorsMiddleware` must be placed above `CommonMiddleware` so that it can attach CORS response headers before other middlewares process or return responses."
+        },
+        {
+          "question": "What HTTP header does a client use to specify the format of the data being sent in a POST or PUT request body?",
+          "options": [
+            "Content-Type (e.g. `Content-Type: application/json`)",
+            "Accept",
+            "Authorization",
+            "User-Agent"
+          ],
+          "answer": "A",
+          "explanation": "`Content-Type` indicates the media type of the request body payload, while `Accept` indicates the desired response media type."
+        },
+        {
+          "question": "What HTTP status code is returned when a requested resource URL (e.g. `/api/products/999/`) does not exist?",
+          "options": [
+            "404 Not Found",
+            "502 Bad Gateway",
+            "400 Bad Request",
+            "204 No Content"
+          ],
+          "answer": "A",
+          "explanation": "`404 Not Found` indicates that the origin server did not find a current representation for the target resource."
+        },
+        {
+          "question": "What happens if a client attempts to send an HTTP POST request to an API endpoint that only permits GET requests?",
+          "options": [
+            "The POST request is silently converted to a GET request.",
+            "DRF returns an HTTP 405 Method Not Allowed response with an `Allow` header listing permitted methods.",
+            "DRF returns HTTP 200 OK with empty brackets `[]`.",
+            "The server crashes and throws an UnhandledException."
+          ],
+          "answer": "B",
+          "explanation": "When an unhandled HTTP method is received, DRF responds with `405 Method Not Allowed` and includes an `Allow: GET, HEAD, OPTIONS` header."
+        },
+        {
+          "question": "What is the primary benefit of designing APIs according to REST standards over arbitrary ad-hoc HTTP endpoints?",
+          "options": [
+            "REST APIs execute 100x faster than raw C sockets.",
+            "REST APIs automatically write frontend React user interfaces.",
+            "REST APIs eliminate the need for databases entirely.",
+            "Predictable resource-oriented URIs, standard status codes, client-server decoupling, and compatibility with standard web caches and HTTP clients."
+          ],
+          "answer": "D",
+          "explanation": "REST provides a standardized, interoperable architectural blueprint that ensures scalability, cacheability, and seamless client-server integration."
+        }
+      ]
+    },
+    {
+      "lessonId": "lesson-1787204831427",
+      "lessonTitle": "Serializers & ModelSerializers in DRF",
+      "totalQuestions": 20,
+      "questions": [
+        {
+          "question": "What are the two primary responsibilities of Serializers in Django REST Framework?",
+          "options": [
+            "Compressing image files and optimizing database indexes.",
+            "Routing incoming URLs and serving static CSS files.",
+            "Encrypting server hard drives and managing SSL certificates.",
+            "Serialization (converting complex ORM model instances to native Python datatypes/JSON) and Deserialization (parsing and validating incoming data to convert into model instances)."
+          ],
+          "answer": "D",
+          "explanation": "Serializers handle both outbound translation (ORM -> Python dict -> JSON) and inbound validation/persistence (JSON -> Python dict -> ORM model instance)."
+        },
+        {
+          "question": "What is the main advantage of using `serializers.ModelSerializer` over `serializers.Serializer`?",
+          "options": [
+            "`ModelSerializer` renders HTML forms automatically in React.",
+            "`ModelSerializer` works without a database backend.",
+            "`ModelSerializer` automatically inspects the model to generate fields, validation rules, and default `create()` and `update()` implementations.",
+            "`ModelSerializer` bypasses all validation checks to increase throughput."
+          ],
+          "answer": "C",
+          "explanation": "`ModelSerializer` eliminates boilerplate by automatically creating serializer fields and persistence methods (`create()` and `update()`) based on a target Django Model."
+        },
+        {
+          "question": "How do you validate data and raise an immediate HTTP 400 Bad Request exception if invalid in DRF?",
+          "options": [
+            "serializer.validate_or_abort()",
+            "serializer.is_valid(raise_exception=True)",
+            "serializer.check_validity(strict=True)",
+            "if not serializer.is_valid(): raise Http500()"
+          ],
+          "answer": "B",
+          "explanation": "Passing `raise_exception=True` to `serializer.is_valid()` causes DRF to automatically raise a `serializers.ValidationError`, which DRF translates into an HTTP `400 Bad Request` response."
+        },
+        {
+          "question": "How do you implement field-level validation for a field named `price` in a DRF Serializer?",
+          "options": [
+            "Set `price = serializers.DecimalField(validator='price_check')`.",
+            "Define a method `def validate_price(self, value):` that returns `value` if valid or raises `serializers.ValidationError('...')` if invalid.",
+            "Define `def check_price(self, value):` returning True/False.",
+            "Decorate the field with `@field_validator('price')`."
+          ],
+          "answer": "B",
+          "explanation": "DRF calls methods named `validate_<field_name>(self, value)` during validation. The method must return the validated value or raise `serializers.ValidationError`."
+        },
+        {
+          "question": "How do you implement cross-field validation comparing multiple fields (e.g. `start_date` and `end_date`) in a DRF Serializer?",
+          "options": [
+            "Override the `validate(self, attrs)` method on the serializer class, perform assertions on the `attrs` dictionary, and return `attrs`.",
+            "Write multiple `validate_<fieldname>` methods and share global variables.",
+            "Override `def clean(self):` like in Django Forms.",
+            "Add `compare_fields = ['start_date', 'end_date']` in `class Meta:`."
+          ],
+          "answer": "A",
+          "explanation": "The object-level `validate(self, attrs)` method receives the entire dictionary of validated attributes (`attrs`) and is used for cross-field validation."
+        },
+        {
+          "question": "What field type in DRF is used to add a read-only computed property to a serializer that executes a custom method on the serializer class?",
+          "options": [
+            "serializers.ComputedField()",
+            "serializers.CustomFunctionField()",
+            "serializers.SerializerMethodField()",
+            "serializers.MethodPropertyField()"
+          ],
+          "answer": "C",
+          "explanation": "`SerializerMethodField` is a read-only field that gets its value by calling `get_<field_name>(self, obj)` on the serializer class, where `obj` is the model instance."
+        },
+        {
+          "question": "Given `full_name = serializers.SerializerMethodField()`, which method name will DRF automatically look for to compute the field value?",
+          "options": [
+            "def full_name_handler(self, obj):",
+            "def calculate_full_name(self, obj):",
+            "def get_full_name(self, obj):",
+            "def compute_full_name(self, instance):"
+          ],
+          "answer": "C",
+          "explanation": "By convention, `SerializerMethodField` executes `get_<field_name>(self, obj)`, taking the current object instance as an argument."
+        },
+        {
+          "question": "How can you specify that a field should only be used when creating or updating a record, but never included in API output responses (e.g. `password`)?",
+          "options": [
+            "Add `password` to `exclude_output = ['password']`",
+            "extra_kwargs = {'password': {'write_only': True}} in class Meta (or password = serializers.CharField(write_only=True))",
+            "Set `read_only = False` on the field",
+            "Set `password = serializers.HiddenField()`"
+          ],
+          "answer": "B",
+          "explanation": "`write_only=True` ensures the field can be submitted in requests (deserialization) but will be omitted when serializing representations to JSON."
+        },
+        {
+          "question": "How do you declare that `id` and `created_at` fields in a `ModelSerializer` cannot be modified by incoming API requests?",
+          "options": [
+            "read_only_fields = ['id', 'created_at'] inside class Meta",
+            "disabled_inputs = ['id', 'created_at']",
+            "locked_fields = ('id', 'created_at')",
+            "immutable_fields = ['id', 'created_at']"
+          ],
+          "answer": "A",
+          "explanation": "`read_only_fields` in `class Meta` designates fields that are included in serialized output representations but ignored during deserialization updates/inserts."
+        },
+        {
+          "question": "How do you serialize a Many-to-One relationship where a `Course` contains a list of multiple `Module` objects using a nested serializer?",
+          "options": [
+            "modules = ModuleSerializer(is_collection=True)",
+            "modules = ModuleSerializer(nested=True)",
+            "modules = ModuleSerializer(many=True, read_only=True)",
+            "modules = serializers.NestedList(ModuleSerializer)"
+          ],
+          "answer": "C",
+          "explanation": "Passing `many=True` to a nested serializer instance instructs DRF to serialize an iterable QuerySet of related child records as a JSON array of objects."
+        },
+        {
+          "question": "Which relational field displays the string representation `__str__()` of related objects in serialized output?",
+          "options": [
+            "serializers.DisplayRelatedField()",
+            "serializers.ReprField()",
+            "serializers.TextRelationField()",
+            "serializers.StringRelatedField(many=True, read_only=True)"
+          ],
+          "answer": "D",
+          "explanation": "`StringRelatedField` represents the target of the relationship using its `__str__()` method string value."
+        },
+        {
+          "question": "Which relational field represents related objects using a specific unique field on the target model (e.g., `slug_field='username'`)?",
+          "options": [
+            "serializers.UniqueField(lookup='username')",
+            "serializers.KeyRelatedField(field='username')",
+            "serializers.IdentifierField('username')",
+            "serializers.SlugRelatedField(slug_field='username', queryset=User.objects.all())"
+          ],
+          "answer": "D",
+          "explanation": "`SlugRelatedField` represents the relationship target using a unique field on the target model (such as a username or slug) rather than its numeric primary key."
+        },
+        {
+          "question": "How do you instantiate a serializer for a collection of multiple model instances (a QuerySet) rather than a single instance?",
+          "options": [
+            "serializer = ProductSerializer(queryset, collection=True)",
+            "serializer = ProductSerializer(queryset, many=True)",
+            "serializer = ProductSerializer(list(queryset))",
+            "serializer = ProductSerializer.as_list(queryset)"
+          ],
+          "answer": "B",
+          "explanation": "Setting `many=True` tells the serializer to serialize a collection/QuerySet of objects, returning a list of serialized items in `serializer.data`."
+        },
+        {
+          "question": "When instantiating a serializer to update an existing object with partial data (e.g. PATCH request), which argument must be passed?",
+          "options": [
+            "serializer = ProductSerializer(instance, data=request.data, strict=False)",
+            "serializer = ProductSerializer(instance, data=request.data, partial=True)",
+            "serializer = ProductSerializer(instance, data=request.data, allow_null=True)",
+            "serializer = ProductSerializer(instance, patch_data=request.data)"
+          ],
+          "answer": "B",
+          "explanation": "`partial=True` allows partial updates where missing required fields in the request payload do not trigger validation errors."
+        },
+        {
+          "question": "What is the difference between `serializer.data` and `serializer.validated_data`?",
+          "options": [
+            "`serializer.data` is the outgoing serialized primitive dictionary/representation; `serializer.validated_data` is the validated internal Python dictionary available after `is_valid()`.",
+            "`serializer.data` is for SQL; `serializer.validated_data` is for NoSQL.",
+            "`serializer.data` is encrypted; `serializer.validated_data` is plaintext.",
+            "There is no difference; they are exact aliases."
+          ],
+          "answer": "A",
+          "explanation": "`validated_data` contains the cleaned Python data resulting from deserialization. `data` contains the formatted output dictionary prepared for rendering to JSON."
+        },
+        {
+          "question": "How do you customize the saving logic of a `ModelSerializer` to perform a custom database operation upon `serializer.save()`?",
+          "options": [
+            "Override `def post_save(self):` inside `class Meta:`.",
+            "Add a trigger directly in PostgreSQL.",
+            "Override `def save_to_db(self):` in views.py.",
+            "Override the `create(self, validated_data)` or `update(self, instance, validated_data)` method on the serializer class."
+          ],
+          "answer": "D",
+          "explanation": "Overriding `create()` and `update()` on serializer classes allows custom persistence logic, handling nested writes, password hashing, or additional business steps."
+        },
+        {
+          "question": "What validator from `rest_framework.validators` enforces that a field value must be unique across the model table?",
+          "options": [
+            "UniqueValidator(queryset=Product.objects.all())",
+            "NoDuplicateValidator()",
+            "UniqueConstraintValidator()",
+            "SingleValueValidator()"
+          ],
+          "answer": "A",
+          "explanation": "`UniqueValidator` enforces table-level uniqueness for specific serializer fields with customizable error messages."
+        },
+        {
+          "question": "What is a `HyperlinkedModelSerializer` in DRF?",
+          "options": [
+            "A serializer that connects directly to web scraping tools.",
+            "A serializer that requires WebSockets to transmit data.",
+            "A subclass of `ModelSerializer` that represents relationships with hyperlinked URLs (e.g., `url` field) instead of primary key IDs.",
+            "A serializer that converts HTML links into image files."
+          ],
+          "answer": "C",
+          "explanation": "`HyperlinkedModelSerializer` uses hyperlinked URLs (e.g. `http://api.com/users/1/`) to represent relationships and identity, adhering strictly to REST HATEOAS principles."
+        },
+        {
+          "question": "What happens if you attempt to access `serializer.validated_data` before calling `serializer.is_valid()`?",
+          "options": [
+            "It returns `None` silently.",
+            "The server restarts automatically.",
+            "It returns unvalidated raw user inputs from request.",
+            "DRF raises an `AssertionError` stating that you must call `.is_valid()` before accessing `.validated_data`."
+          ],
+          "answer": "D",
+          "explanation": "Accessing `validated_data` or `errors` before calling `is_valid()` triggers an `AssertionError` to prevent accessing unvalidated data."
+        },
+        {
+          "question": "How can you pass additional non-request context (such as the `request` object) to a serializer instance?",
+          "options": [
+            "serializer = ProductSerializer(data=request.data, context={'request': request})",
+            "serializer = ProductSerializer(data=request.data, extra={'req': request})",
+            "serializer.set_request(request)",
+            "serializer = ProductSerializer(data=request.data, scope=request)"
+          ],
+          "answer": "A",
+          "explanation": "Passing `context={'request': request}` provides the serializer with extra context accessible inside serializer methods via `self.context.get('request')`."
+        }
+      ]
+    },
+    {
+      "lessonId": "lesson-1787204862883",
+      "lessonTitle": "Function & Class-Based Views: APIView, Generic Views",
+      "totalQuestions": 20,
+      "questions": [
+        {
+          "question": "Which decorator is used to convert a standard Django function-based view into a DRF API view that receives `Request` objects and returns `Response` objects?",
+          "options": [
+            "@rest_view(['GET', 'POST'])",
+            "@api_view(['GET', 'POST'])",
+            "@json_view",
+            "@drf_endpoint(['GET', 'POST'])"
+          ],
+          "answer": "B",
+          "explanation": "`@api_view(['GET', 'POST', ...])` wraps a function-based view, handling `Request` parsing, `Response` formatting, and HTTP 405 method enforcement."
+        },
+        {
+          "question": "What is the primary difference between Django's standard `HttpRequest` and DRF's `rest_framework.request.Request`?",
+          "options": [
+            "DRF's `Request` only supports GET requests.",
+            "DRF's `Request` is encrypted with blockchain.",
+            "Standard Django `HttpRequest` can only be used with React.",
+            "DRF's `Request` parses incoming JSON, form data, or multipart payloads transparently into `request.data`, and query params into `request.query_params`."
+          ],
+          "answer": "D",
+          "explanation": "DRF's `Request` wraps Django's standard request, adding `request.data` (which parses JSON, multipart, and form data) and `request.query_params` (clean query string access)."
+        },
+        {
+          "question": "What is the base class for all Class-Based Views in Django REST Framework?",
+          "options": [
+            "django.views.generic.View",
+            "rest_framework.generics.BaseView",
+            "rest_framework.controllers.APIController",
+            "rest_framework.views.APIView"
+          ],
+          "answer": "D",
+          "explanation": "`APIView` is the fundamental base class for all DRF class-based views, subclassing Django's `View` and adding authentication, permissions, throttling, and request/response handling."
+        },
+        {
+          "question": "How are different HTTP methods handled inside an `APIView` subclass?",
+          "options": [
+            "By decorating methods with `@http_get` and `@http_post`.",
+            "By using an `if request.method == 'GET':` branch inside a single `dispatch()` method.",
+            "By defining matching handler methods on the class: `def get(self, request):`, `def post(self, request):`, `def put(self, request):`, `def delete(self, request):`.",
+            "By configuring route rules in `settings.py`."
+          ],
+          "answer": "C",
+          "explanation": "`APIView` dispatches requests to method handlers named after lowercase HTTP verbs (`get`, `post`, `put`, `patch`, `delete`, `head`, `options`)."
+        },
+        {
+          "question": "What parameters are typically passed to `rest_framework.response.Response`?",
+          "options": [
+            "Response(template_name='api.html', context=data)",
+            "Response(body=data, code=200)",
+            "Response(json_string, content_type='application/json')",
+            "Response(data, status=status.HTTP_200_OK)"
+          ],
+          "answer": "D",
+          "explanation": "`Response(data, status=status.HTTP_200_OK)` accepts raw unrendered Python datatypes (dicts, lists) and status codes, using content negotiation to serialize them into JSON or Browsable API HTML."
+        },
+        {
+          "question": "Which DRF generic view provides both `GET` (list all items) and `POST` (create a new item) endpoints out-of-the-box with minimal code?",
+          "options": [
+            "generics.CreateAPIView",
+            "generics.ListCreateAPIView",
+            "generics.RetrieveUpdateAPIView",
+            "generics.ListAPIView"
+          ],
+          "answer": "B",
+          "explanation": "`ListCreateAPIView` combines `ListModelMixin` and `CreateModelMixin`, implementing GET (listing a queryset) and POST (validating and saving a new instance)."
+        },
+        {
+          "question": "Which DRF generic view provides `GET` (retrieve detail), `PUT`/`PATCH` (update), and `DELETE` (destroy) endpoints for a single object instance?",
+          "options": [
+            "generics.RetrieveUpdateDestroyAPIView",
+            "generics.SingleObjectAPIView",
+            "generics.DetailAPIView",
+            "generics.CRUDAPIView"
+          ],
+          "answer": "A",
+          "explanation": "`RetrieveUpdateDestroyAPIView` represents a single model instance endpoint supporting GET (read), PUT/PATCH (update), and DELETE (delete)."
+        },
+        {
+          "question": "Which two class attributes are mandatory when configuring a DRF Generic View subclass (e.g. `ListCreateAPIView`)?",
+          "options": [
+            "`queryset` (the base ORM QuerySet) and `serializer_class` (the serializer class used for representation/validation).",
+            "`url_pattern` and `http_methods`",
+            "`model` and `template_name`",
+            "`database_table` and `fields`"
+          ],
+          "answer": "A",
+          "explanation": "Generic views rely on `queryset = Product.objects.all()` and `serializer_class = ProductSerializer` to determine what data to fetch and how to serialize it."
+        },
+        {
+          "question": "How do you dynamically filter the QuerySet returned by a generic view based on the currently authenticated user?",
+          "options": [
+            "Delete all other users' records in the database.",
+            "Set `queryset = Product.objects.filter(owner=request.user)` as a static class attribute.",
+            "Filter the queryset in `admin.py`.",
+            "Override the `get_queryset(self)` method to return `Product.objects.filter(owner=self.request.user)`."
+          ],
+          "answer": "D",
+          "explanation": "Overriding `get_queryset(self)` dynamically evaluates query logic per request, allowing filtering by `self.request.user` or query string parameters."
+        },
+        {
+          "question": "Which hook method in generic create views allows attaching attributes (like the authenticated author) to the instance before saving?",
+          "options": [
+            "def pre_save_serializer(self, serializer):\n    serializer.author = request.user",
+            "def perform_create(self, serializer):\n    serializer.save(author=self.request.user)",
+            "def before_save(self, instance):\n    instance.author = self.request.user",
+            "def save_hook(self, request):\n    pass"
+          ],
+          "answer": "B",
+          "explanation": "`perform_create(self, serializer)` is called during object creation, allowing extra keyword arguments (e.g. `author=self.request.user`) to be passed to `serializer.save()`."
+        },
+        {
+          "question": "What is the role of DRF Mixins (`rest_framework.mixins`)?",
+          "options": [
+            "Encrypt JSON payloads over HTTPS.",
+            "Provide reusable building blocks for common view actions (`ListModelMixin`, `CreateModelMixin`, `RetrieveModelMixin`, `UpdateModelMixin`, `DestroyModelMixin`) to combine with `GenericAPIView`.",
+            "Act as database connection pools.",
+            "Compile CSS styles for API documentation."
+          ],
+          "answer": "B",
+          "explanation": "Mixins provide the core action methods (`.list()`, `.create()`, `.retrieve()`, `.update()`, `.destroy()`), which generic views compose together."
+        },
+        {
+          "question": "How can a generic view use different serializers for `list` vs `retrieve` actions?",
+          "options": [
+            "Create two separate database tables.",
+            "Override the `get_serializer_class(self)` method to return different serializer classes conditionally based on `self.action` or request method.",
+            "Serializers cannot be changed dynamically in DRF.",
+            "Define `serializer_classes = {'list': A, 'retrieve': B}` as a tuple."
+          ],
+          "answer": "B",
+          "explanation": "Overriding `get_serializer_class(self)` allows dynamic selection of serializers (e.g. lightweight `ProductListSerializer` vs detailed `ProductDetailSerializer`)."
+        },
+        {
+          "question": "How do you specify view-level authentication and permission classes in an `APIView` subclass?",
+          "options": [
+            "class ProductDetail(APIView):\n    authentication_classes = [TokenAuthentication]\n    permission_classes = [IsAuthenticated]",
+            "class ProductDetail(APIView):\n    security_rules = {'auth': True}",
+            "class ProductDetail(APIView):\n    guard = [TokenAuth, PermAuth]",
+            "class ProductDetail(APIView):\n    auth = 'token'\n    permissions = 'all'"
+          ],
+          "answer": "A",
+          "explanation": "Setting `authentication_classes` and `permission_classes` on an `APIView` overrides global settings for that specific view."
+        },
+        {
+          "question": "What method on `GenericAPIView` retrieves the specific single model instance based on the URL lookup keyword argument (e.g. `pk`) and checks object permissions?",
+          "options": [
+            "self.get_instance()",
+            "self.fetch_record()",
+            "self.get_object()",
+            "self.find_by_pk()"
+          ],
+          "answer": "C",
+          "explanation": "`self.get_object()` looks up the object matching `lookup_field` (default `pk`), raises `Http404` if missing, and executes `check_object_permissions()`."
+        },
+        {
+          "question": "What status code constants module does DRF provide for clean, readable HTTP status code usage?",
+          "options": [
+            "`from rest_framework import status` (e.g. `status.HTTP_200_OK`, `status.HTTP_400_BAD_REQUEST`)",
+            "`from django.http import status_codes`",
+            "`from rest_framework.codes import HTTP_200`",
+            "`import http_status`"
+          ],
+          "answer": "A",
+          "explanation": "DRF's `status` module provides explicit, human-readable integer constants for all standard HTTP status codes."
+        },
+        {
+          "question": "Which hook method in generic update views is called right before saving an updated instance?",
+          "options": [
+            "def pre_update(self, serializer): pass",
+            "def on_update_save(self): pass",
+            "def save_update(self): pass",
+            "def perform_update(self, serializer):\n    serializer.save()"
+          ],
+          "answer": "D",
+          "explanation": "`perform_update(self, serializer)` is the designated hook for customizing how updates are persisted."
+        },
+        {
+          "question": "Which hook method in generic destroy views is called to perform the deletion of a model instance?",
+          "options": [
+            "def on_delete_hook(self, obj): pass",
+            "def purge_instance(self, obj): pass",
+            "def perform_destroy(self, instance):\n    instance.delete()",
+            "def destroy_record(self, instance): pass"
+          ],
+          "answer": "C",
+          "explanation": "`perform_destroy(self, instance)` executes `instance.delete()` by default and can be overridden for soft-deletion patterns (e.g. `instance.is_deleted = True; instance.save()`)."
+        },
+        {
+          "question": "What is the primary architectural trade-off when choosing between `APIView` and `generics.ListCreateAPIView`?",
+          "options": [
+            "`APIView` provides maximum explicit control over request handling; `generics.ListCreateAPIView` provides rapid development with standard CRUD conventions and less code.",
+            "`APIView` is asynchronous; `generics` is synchronous.",
+            "`APIView` cannot connect to PostgreSQL; `generics` can.",
+            "`APIView` only supports XML; `generics` only supports JSON."
+          ],
+          "answer": "A",
+          "explanation": "`APIView` gives low-level granular control over custom request lifecycles. Concrete generics encapsulate standard boilerplate CRUD patterns into clean declarative views."
+        },
+        {
+          "question": "How do you register an `APIView` subclass inside a `urls.py` routing file?",
+          "options": [
+            "path('products/', views.ProductListAPIView.run(), name='product-list')",
+            "path('products/', views.ProductListAPIView.dispatch_view(), name='product-list')",
+            "path('products/', views.ProductListAPIView.as_view(), name='product-list')",
+            "path('products/', views.ProductListAPIView, name='product-list')"
+          ],
+          "answer": "C",
+          "explanation": "Like all Django Class-Based Views, DRF's `APIView` subclasses must be bound to URL routes by calling `.as_view()`."
+        },
+        {
+          "question": "What exception handling does `APIView` provide out-of-the-box?",
+          "options": [
+            "It catches all Python syntax errors and fixes them automatically.",
+            "It catches database connection errors and switches to SQLite.",
+            "It catches DRF `APIException` subclasses (like `ValidationError`, `PermissionDenied`, `AuthenticationFailed`) and automatically converts them into appropriate HTTP error responses.",
+            "It suppresses all errors and returns HTTP 200 OK."
+          ],
+          "answer": "C",
+          "explanation": "`APIView` routes exceptions through `exception_handler`, ensuring standard `APIException` instances return clean JSON error payloads with correct HTTP status codes (400, 401, 403, 404, 429)."
+        }
+      ]
+    }
+  ]
+}

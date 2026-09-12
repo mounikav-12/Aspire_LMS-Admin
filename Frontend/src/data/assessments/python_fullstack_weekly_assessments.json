@@ -1,0 +1,2087 @@
+[
+  {
+    "weekNumber": 1,
+    "title": "Week 1 Comprehensive Assessment: Modules 1–4",
+    "courseId": "crs-1786624019154-w",
+    "courseName": "Python Full Stack + DSA with AI",
+    "coveredModulesCount": 4,
+    "coveredModules": [
+      "Git & GitHub Version Control",
+      "HTML5 & Web Architecture",
+      "CSS3 Fundamentals & Box Model",
+      "Advanced CSS Layouts & Responsive Design"
+    ],
+    "durationMinutes": 90,
+    "totalMarks": 150,
+    "theoreticalMcqCount": 20,
+    "practicalCodingCount": 2,
+    "theoreticalQuestions": [
+      {
+        "question": "What is the primary architectural purpose of a distributed version control system like Git?",
+        "options": [
+          "Every developer clone contains the entire project history and repository mirror",
+          "Central server stores all code while clients keep only metadata",
+          "Code is compiled on a central mainframe before distribution",
+          "Version control replaces the need for backups and operating systems"
+        ],
+        "answer": "A",
+        "explanation": "In Git's distributed model, every client checkout is a full repository mirror with the complete commit history, enabling offline work and decentralized collaboration."
+      },
+      {
+        "question": "Which of the following is considered a primary best practice when implementing Core Git Commands: init, add, commit, push, pull?",
+        "options": [
+          "Writing modular, maintainable, and thoroughly tested logic with clear separation of concerns",
+          "Combining all logic, data schemas, and presentation rules into a single large file",
+          "Ignoring error handling and edge cases to minimize execution time",
+          "Hardcoding configuration parameters and database passwords directly in source code"
+        ],
+        "answer": "A",
+        "explanation": "Best practices for Core Git Commands: init, add, commit, push, pull mandate modular architecture, proper exception handling, and clean code separation."
+      },
+      {
+        "question": "When debugging an issue related to Branching Strategy & Merge Conflicts, what should be the first diagnostic step?",
+        "options": [
+          "Inspect runtime logs, error stack traces, and test input boundaries to isolate the failure point",
+          "Reinstall the operating system immediately",
+          "Disable all security policies and delete configuration files",
+          "Change random lines of code until the application compiles"
+        ],
+        "answer": "A",
+        "explanation": "Systematic debugging relies on analyzing stack traces, logging contextual values, and evaluating edge conditions."
+      },
+      {
+        "question": "How does GitHub Pull Requests & Collaboration Workflows directly contribute to the overall Python Full Stack application lifecycle?",
+        "options": [
+          "It enables robust communication, data transformation, or architectural stability across layers.",
+          "It replaces the need for backend servers and database storage entirely.",
+          "It is only applicable to desktop applications and unsupported on the web.",
+          "It forces the browser to bypass HTTP protocols and communicate via raw UDP packets."
+        ],
+        "answer": "A",
+        "explanation": "In a full-stack architecture, each module provides specific abstractions—from UI reactivity to API contracts and database persistence."
+      },
+      {
+        "question": "What is the expected behavior if invalid input or unhandled edge cases are passed to routines in Web Architecture & Client-Server Communication Model?",
+        "options": [
+          "An explicit exception or validation error should be raised, caught, and handled gracefully",
+          "The application should crash silently without recording any logs",
+          "The computer processor should automatically overclock",
+          "The program should invent random placeholder data without alerting the user"
+        ],
+        "answer": "A",
+        "explanation": "Robust engineering requires structured input validation and graceful exception propagation rather than silent failures."
+      },
+      {
+        "question": "Which performance metric is most critical when optimizing implementations of HTML5 Document Structure & Semantic Elements?",
+        "options": [
+          "Execution time, memory footprint, and network latency efficiency",
+          "The physical weight of the developer's laptop",
+          "The number of comments written per line of code",
+          "The speed of the computer's cooling fan"
+        ],
+        "answer": "A",
+        "explanation": "Optimization focuses on computational complexity (time), memory allocation (space), and I/O overhead."
+      },
+      {
+        "question": "In a multi-developer production environment, how should updates to HTML Forms, Input Types, & Client-Side Validation be managed?",
+        "options": [
+          "Through feature branches, code reviews, automated linting, and CI/CD pipelines",
+          "By editing files directly on the live production server over FTP",
+          "By emailing zipped copies of modified files to team members",
+          "By disabling version control checks and committing directly to main without review"
+        ],
+        "answer": "A",
+        "explanation": "Modern DevOps workflows mandate Git branching, peer code reviews, continuous integration, and automated testing."
+      },
+      {
+        "question": "What security consideration must always be addressed when working with HTML Tables, Media Tags & Accessibility?",
+        "options": [
+          "Input sanitization, authentication validation, and protection against unauthorized data access",
+          "Encrypting files using rot13 encoding",
+          "Allowing open CORS and wildcard permissions across all endpoints by default",
+          "Storing API keys and private certificates in public repositories"
+        ],
+        "answer": "A",
+        "explanation": "Security best practices require thorough input sanitization, strict least-privilege permissions, and secure secret management."
+      },
+      {
+        "question": "Which tool or utility is standard industry practice for automated unit testing in CSS Syntax, Rules, and Element/Class/ID Selectors?",
+        "options": [
+          "Automated test frameworks (e.g. pytest for Python, Jest/Mocha for JS) with assertion coverage",
+          "Manually refreshing the web browser once a week",
+          "Printing debug variables to the console and deleting them before deployment",
+          "Assuming the code works without testing if it compiled once"
+        ],
+        "answer": "A",
+        "explanation": "Automated test suites ensure regressions are caught early and software contracts remain compliant over time."
+      },
+      {
+        "question": "What architectural pattern is primarily exemplified by The CSS Box Model: Margin, Padding, Border, & Content?",
+        "options": [
+          "Separation of concerns, modularity, and reusable component design",
+          "Spaghetti code architecture with tightly coupled circular dependencies",
+          "Monolithic hardcoding without abstraction layers",
+          "Client-only architecture without server persistence"
+        ],
+        "answer": "A",
+        "explanation": "High-quality software design emphasizes separation of concerns, DRY (Don't Repeat Yourself), and testability."
+      },
+      {
+        "question": "How does CSS Colors, Typography, & Visual Backgrounds scale when handling increasing user traffic and large volumes of data?",
+        "options": [
+          "By leveraging asynchronous processing, caching strategies, and efficient data structures",
+          "By duplicating code lines across multiple files",
+          "By increasing the size of the font in code editors",
+          "By restricting access to only one user per hour"
+        ],
+        "answer": "A",
+        "explanation": "Scalability is achieved through algorithmic efficiency, asynchronous non-blocking I/O, caching, and horizontal scaling."
+      },
+      {
+        "question": "What is the consequence of failing to release resources or close connections in Flexbox Architecture & Practical Alignments?",
+        "options": [
+          "Memory leaks, connection pool exhaustion, and potential application crashes over time",
+          "Immediate hardware destruction of the CPU",
+          "Automatic speed increases due to caching everything in memory forever",
+          "No consequence; operating systems handle infinite open sockets with zero overhead"
+        ],
+        "answer": "A",
+        "explanation": "Unclosed connections and unmanaged memory allocations result in resource starvation, degraded latency, and server crashes."
+      },
+      {
+        "question": "Which configuration approach is recommended when deploying applications utilizing CSS Grid System & Multi-Column Layouts?",
+        "options": [
+          "Twelve-Factor App principles using environment variables for settings and secrets",
+          "Hardcoding production database URLs directly inside component files",
+          "Writing secrets in plaintext on a sticky note attached to the server",
+          "Embedding API keys in HTML meta tags visible to web scrapers"
+        ],
+        "answer": "A",
+        "explanation": "Twelve-Factor methodology recommends storing all configuration that varies across environments in environment variables."
+      },
+      {
+        "question": "In terms of API design and data interchange in Positioning: Relative, Absolute, Fixed, Sticky, what standard format is dominant?",
+        "options": [
+          "JSON (JavaScript Object Notation) over HTTP REST or GraphQL",
+          "Raw binary machine code dumps",
+          "Unformatted comma-separated text files sent via email",
+          "Proprietary binary formats unsupported by modern browsers"
+        ],
+        "answer": "A",
+        "explanation": "JSON is the universal language-independent data interchange standard for modern web and mobile APIs."
+      },
+      {
+        "question": "What role does type safety or dynamic type validation play during execution of Media Queries & Responsive UI Design Patterns?",
+        "options": [
+          "It prevents type coercion bugs, validates runtime contracts, and improves developer tooling",
+          "It slows down code execution by a factor of 1000x",
+          "It is forbidden in Python and JavaScript applications",
+          "It requires every variable to be re-declared in three different languages"
+        ],
+        "answer": "A",
+        "explanation": "Type checking (and type hints in Python) enhances code readability, enables IDE auto-completion, and catches type bugs early."
+      },
+      {
+        "question": "How should database queries or asynchronous operations in Flexbox Architecture & Practical Alignments be structured to prevent blocking?",
+        "options": [
+          "Using non-blocking async/await, background task queues, or indexed database query plans",
+          "Using infinite while loops with time.sleep() on the main execution thread",
+          "Executing all queries synchronously on the frontend UI thread",
+          "Running queries without WHERE clauses or limits"
+        ],
+        "answer": "A",
+        "explanation": "Non-blocking asynchronous syntax and background workers prevent thread starvation and keep user interfaces responsive."
+      },
+      {
+        "question": "What does the command `git diff` without arguments show?",
+        "options": [
+          "Changes in the working directory that have not yet been staged",
+          "Changes between the staging area and the last commit",
+          "Changes between local master and remote origin/master",
+          "Differences between two remote branches"
+        ],
+        "answer": "A",
+        "explanation": "`git diff` shows the unstaged changes between your current working directory and the staging area (index)."
+      },
+      {
+        "question": "When integrating third-party libraries or SDKs in Web Architecture & Client-Server Communication Model, what safeguard should be applied?",
+        "options": [
+          "Pinning exact dependency versions in requirements.txt or package.json to prevent breaking upstream updates",
+          "Always installing unverified packages from random online forums",
+          "Using wildcard version specifiers like '*' for all production dependencies",
+          "Never using virtual environments and installing everything directly to global system Python"
+        ],
+        "answer": "A",
+        "explanation": "Version pinning and lockfiles ensure deterministic, repeatable builds across development, staging, and production environments."
+      },
+      {
+        "question": "What is the primary indicator of clean, professional code when reviewing CSS Syntax, Rules, and Element/Class/ID Selectors?",
+        "options": [
+          "High readability, clear variable naming, modular functions with single responsibilities, and comprehensive test coverage",
+          "Dense, obfuscated one-liners that no other developer can understand",
+          "Using 500-line functions with 20 levels of nested if-else statements",
+          "Exclusively using single-letter variable names like a, b, c, x, y, z"
+        ],
+        "answer": "A",
+        "explanation": "Clean code is self-documenting, adheres to the Single Responsibility Principle, and is straightforward for peers to maintain."
+      },
+      {
+        "question": "What is the capstone objective or ultimate takeaway of mastering Flexbox Architecture & Practical Alignments?",
+        "options": [
+          "The ability to independently architect, implement, debug, and deploy enterprise-grade features with confidence",
+          "Memorizing syntax without understanding fundamental architectural mechanics",
+          "Passing an automated quiz without being able to write working code",
+          "Relying entirely on boilerplate generators without knowing how systems connect"
+        ],
+        "answer": "A",
+        "explanation": "Mastering this module empowers engineers to design resilient, production-ready systems from first principles."
+      }
+    ],
+    "practicalCodingChallenges": [
+      {
+        "title": "Semantic Profile Card Component",
+        "difficulty": "Easy",
+        "category": "Frontend & HTML/CSS",
+        "problemStatement": "Implement a responsive HTML5 card structure with semantic elements (`<article>`, `<header>`, `<figure>`, `<footer>`) that centers both horizontally and vertically using CSS Flexbox without external frameworks.",
+        "starterCode": "<!-- Write your HTML & CSS solution below -->\n<article class=\"profile-card\">\n  <!-- Complete implementation -->\n</article>",
+        "solutionCode": "<article class=\"profile-card\">\n  <figure>\n    <img src=\"avatar.jpg\" alt=\"User avatar\" />\n  </figure>\n  <header>\n    <h2>Jane Doe</h2>\n    <p>Full Stack Engineer</p>\n  </header>\n  <footer>\n    <button>Connect</button>\n  </footer>\n</article>\n<style>\n  body { display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }\n  .profile-card { border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); padding: 1.5rem; text-align: center; }\n</style>",
+        "testCases": [
+          {
+            "input": "Render in standard viewport",
+            "output": "Card centered flex container with semantic tags"
+          }
+        ]
+      },
+      {
+        "title": "Git Merge Conflict Resolution Scenario",
+        "difficulty": "Medium",
+        "category": "Version Control",
+        "problemStatement": "Given two conflicting branches `feature-login` and `main` where both modified `auth.py` at line 12, write the sequence of Git CLI commands to check out main, pull updates, rebase or merge the feature branch, inspect conflicts, and finalize the merge.",
+        "starterCode": "# Step 1: Checkout branch\ngit checkout ...\n# Step 2: Resolve conflict\n...\n# Step 3: Commit and finalize\n...",
+        "solutionCode": "git checkout main\ngit pull origin main\ngit checkout feature-login\ngit merge main\n# Open auth.py, manually resolve <<<<<<< HEAD conflicts\ngit add auth.py\ngit commit -m \"Merge main into feature-login and resolve auth conflict\"\ngit push origin feature-login",
+        "testCases": [
+          {
+            "input": "Merge conflict in auth.py",
+            "output": "Clean commit with conflict markers removed"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "weekNumber": 2,
+    "title": "Week 2 Comprehensive Assessment: Modules 5–8",
+    "courseId": "crs-1786624019154-w",
+    "courseName": "Python Full Stack + DSA with AI",
+    "coveredModulesCount": 4,
+    "coveredModules": [
+      "Bootstrap 5 Framework",
+      "JavaScript Essentials & Control Flow",
+      "JavaScript Functions, Objects & Arrays",
+      "DOM Manipulation & Event Handling"
+    ],
+    "durationMinutes": 90,
+    "totalMarks": 150,
+    "theoreticalMcqCount": 20,
+    "practicalCodingCount": 2,
+    "theoreticalQuestions": [
+      {
+        "question": "In the context of Bootstrap 5 Grid System & Responsive Utilities, what is the foundational concept behind this technology?",
+        "options": [
+          "It establishes core standards, efficiency rules, and reliable runtime execution for undefined.",
+          "It acts strictly as an operating system kernel component with no developer APIs.",
+          "It is deprecated in modern industry practice and replaced by legacy assemblers.",
+          "It is solely used to format plain text files without any execution logic."
+        ],
+        "answer": "A",
+        "explanation": "Bootstrap 5 Grid System & Responsive Utilities focuses on establishing standard engineering patterns, operational efficiency, and best practices within undefined."
+      },
+      {
+        "question": "Which of the following is considered a primary best practice when implementing Bootstrap Components (Navbar, Modals, Cards, Forms)?",
+        "options": [
+          "Writing modular, maintainable, and thoroughly tested logic with clear separation of concerns",
+          "Combining all logic, data schemas, and presentation rules into a single large file",
+          "Ignoring error handling and edge cases to minimize execution time",
+          "Hardcoding configuration parameters and database passwords directly in source code"
+        ],
+        "answer": "A",
+        "explanation": "Best practices for Bootstrap Components (Navbar, Modals, Cards, Forms) mandate modular architecture, proper exception handling, and clean code separation."
+      },
+      {
+        "question": "When debugging an issue related to Customizing Bootstrap Styles & Themes, what should be the first diagnostic step?",
+        "options": [
+          "Inspect runtime logs, error stack traces, and test input boundaries to isolate the failure point",
+          "Reinstall the operating system immediately",
+          "Disable all security policies and delete configuration files",
+          "Change random lines of code until the application compiles"
+        ],
+        "answer": "A",
+        "explanation": "Systematic debugging relies on analyzing stack traces, logging contextual values, and evaluating edge conditions."
+      },
+      {
+        "question": "How does JS Setup, Variables (var, let, const), & Data Types directly contribute to the overall Python Full Stack application lifecycle?",
+        "options": [
+          "It enables robust communication, data transformation, or architectural stability across layers.",
+          "It replaces the need for backend servers and database storage entirely.",
+          "It is only applicable to desktop applications and unsupported on the web.",
+          "It forces the browser to bypass HTTP protocols and communicate via raw UDP packets."
+        ],
+        "answer": "A",
+        "explanation": "In a full-stack architecture, each module provides specific abstractions—from UI reactivity to API contracts and database persistence."
+      },
+      {
+        "question": "What is the expected behavior if invalid input or unhandled edge cases are passed to routines in Operators, Expressions, and Conditional Statements?",
+        "options": [
+          "An explicit exception or validation error should be raised, caught, and handled gracefully",
+          "The application should crash silently without recording any logs",
+          "The computer processor should automatically overclock",
+          "The program should invent random placeholder data without alerting the user"
+        ],
+        "answer": "A",
+        "explanation": "Robust engineering requires structured input validation and graceful exception propagation rather than silent failures."
+      },
+      {
+        "question": "Which performance metric is most critical when optimizing implementations of Loops: for, while, forEach, & Iterations?",
+        "options": [
+          "Execution time, memory footprint, and network latency efficiency",
+          "The physical weight of the developer's laptop",
+          "The number of comments written per line of code",
+          "The speed of the computer's cooling fan"
+        ],
+        "answer": "A",
+        "explanation": "Optimization focuses on computational complexity (time), memory allocation (space), and I/O overhead."
+      },
+      {
+        "question": "In a multi-developer production environment, how should updates to Function Declarations, Expressions, & Arrow Functions be managed?",
+        "options": [
+          "Through feature branches, code reviews, automated linting, and CI/CD pipelines",
+          "By editing files directly on the live production server over FTP",
+          "By emailing zipped copies of modified files to team members",
+          "By disabling version control checks and committing directly to main without review"
+        ],
+        "answer": "A",
+        "explanation": "Modern DevOps workflows mandate Git branching, peer code reviews, continuous integration, and automated testing."
+      },
+      {
+        "question": "What security consideration must always be addressed when working with Advanced Array Methods (map, filter, reduce)?",
+        "options": [
+          "Input sanitization, authentication validation, and protection against unauthorized data access",
+          "Encrypting files using rot13 encoding",
+          "Allowing open CORS and wildcard permissions across all endpoints by default",
+          "Storing API keys and private certificates in public repositories"
+        ],
+        "answer": "A",
+        "explanation": "Security best practices require thorough input sanitization, strict least-privilege permissions, and secure secret management."
+      },
+      {
+        "question": "Which tool or utility is standard industry practice for automated unit testing in Object Manipulation & Higher-Order Functions?",
+        "options": [
+          "Automated test frameworks (e.g. pytest for Python, Jest/Mocha for JS) with assertion coverage",
+          "Manually refreshing the web browser once a week",
+          "Printing debug variables to the console and deleting them before deployment",
+          "Assuming the code works without testing if it compiled once"
+        ],
+        "answer": "A",
+        "explanation": "Automated test suites ensure regressions are caught early and software contracts remain compliant over time."
+      },
+      {
+        "question": "What architectural pattern is primarily exemplified by Selecting and Modifying DOM Elements Dynamically?",
+        "options": [
+          "Separation of concerns, modularity, and reusable component design",
+          "Spaghetti code architecture with tightly coupled circular dependencies",
+          "Monolithic hardcoding without abstraction layers",
+          "Client-only architecture without server persistence"
+        ],
+        "answer": "A",
+        "explanation": "High-quality software design emphasizes separation of concerns, DRY (Don't Repeat Yourself), and testability."
+      },
+      {
+        "question": "How does Event Listeners, Bubbling, and Delegation Patterns scale when handling increasing user traffic and large volumes of data?",
+        "options": [
+          "By leveraging asynchronous processing, caching strategies, and efficient data structures",
+          "By duplicating code lines across multiple files",
+          "By increasing the size of the font in code editors",
+          "By restricting access to only one user per hour"
+        ],
+        "answer": "A",
+        "explanation": "Scalability is achieved through algorithmic efficiency, asynchronous non-blocking I/O, caching, and horizontal scaling."
+      },
+      {
+        "question": "What is the consequence of failing to release resources or close connections in Form Validation & Dynamic HTML Creation?",
+        "options": [
+          "Memory leaks, connection pool exhaustion, and potential application crashes over time",
+          "Immediate hardware destruction of the CPU",
+          "Automatic speed increases due to caching everything in memory forever",
+          "No consequence; operating systems handle infinite open sockets with zero overhead"
+        ],
+        "answer": "A",
+        "explanation": "Unclosed connections and unmanaged memory allocations result in resource starvation, degraded latency, and server crashes."
+      },
+      {
+        "question": "Which configuration approach is recommended when deploying applications utilizing Bootstrap 5 Grid System & Responsive Utilities?",
+        "options": [
+          "Twelve-Factor App principles using environment variables for settings and secrets",
+          "Hardcoding production database URLs directly inside component files",
+          "Writing secrets in plaintext on a sticky note attached to the server",
+          "Embedding API keys in HTML meta tags visible to web scrapers"
+        ],
+        "answer": "A",
+        "explanation": "Twelve-Factor methodology recommends storing all configuration that varies across environments in environment variables."
+      },
+      {
+        "question": "In terms of API design and data interchange in JS Setup, Variables (var, let, const), & Data Types, what standard format is dominant?",
+        "options": [
+          "JSON (JavaScript Object Notation) over HTTP REST or GraphQL",
+          "Raw binary machine code dumps",
+          "Unformatted comma-separated text files sent via email",
+          "Proprietary binary formats unsupported by modern browsers"
+        ],
+        "answer": "A",
+        "explanation": "JSON is the universal language-independent data interchange standard for modern web and mobile APIs."
+      },
+      {
+        "question": "What role does type safety or dynamic type validation play during execution of Function Declarations, Expressions, & Arrow Functions?",
+        "options": [
+          "It prevents type coercion bugs, validates runtime contracts, and improves developer tooling",
+          "It slows down code execution by a factor of 1000x",
+          "It is forbidden in Python and JavaScript applications",
+          "It requires every variable to be re-declared in three different languages"
+        ],
+        "answer": "A",
+        "explanation": "Type checking (and type hints in Python) enhances code readability, enables IDE auto-completion, and catches type bugs early."
+      },
+      {
+        "question": "How should database queries or asynchronous operations in Selecting and Modifying DOM Elements Dynamically be structured to prevent blocking?",
+        "options": [
+          "Using non-blocking async/await, background task queues, or indexed database query plans",
+          "Using infinite while loops with time.sleep() on the main execution thread",
+          "Executing all queries synchronously on the frontend UI thread",
+          "Running queries without WHERE clauses or limits"
+        ],
+        "answer": "A",
+        "explanation": "Non-blocking asynchronous syntax and background workers prevent thread starvation and keep user interfaces responsive."
+      },
+      {
+        "question": "What documentation standard is considered essential for code developed in Bootstrap 5 Grid System & Responsive Utilities?",
+        "options": [
+          "Descriptive docstrings, typed function signatures, and API endpoint specifications (e.g. Swagger/OpenAPI)",
+          "Writing zero comments to protect intellectual property through obscurity",
+          "Writing comments entirely in binary code",
+          "Commenting out working code and replacing it with pseudo-code"
+        ],
+        "answer": "A",
+        "explanation": "Production standards require clean docstrings, clear parameter/return types, and interactive API documentation."
+      },
+      {
+        "question": "When integrating third-party libraries or SDKs in JS Setup, Variables (var, let, const), & Data Types, what safeguard should be applied?",
+        "options": [
+          "Pinning exact dependency versions in requirements.txt or package.json to prevent breaking upstream updates",
+          "Always installing unverified packages from random online forums",
+          "Using wildcard version specifiers like '*' for all production dependencies",
+          "Never using virtual environments and installing everything directly to global system Python"
+        ],
+        "answer": "A",
+        "explanation": "Version pinning and lockfiles ensure deterministic, repeatable builds across development, staging, and production environments."
+      },
+      {
+        "question": "What is the primary indicator of clean, professional code when reviewing Function Declarations, Expressions, & Arrow Functions?",
+        "options": [
+          "High readability, clear variable naming, modular functions with single responsibilities, and comprehensive test coverage",
+          "Dense, obfuscated one-liners that no other developer can understand",
+          "Using 500-line functions with 20 levels of nested if-else statements",
+          "Exclusively using single-letter variable names like a, b, c, x, y, z"
+        ],
+        "answer": "A",
+        "explanation": "Clean code is self-documenting, adheres to the Single Responsibility Principle, and is straightforward for peers to maintain."
+      },
+      {
+        "question": "What is the capstone objective or ultimate takeaway of mastering Selecting and Modifying DOM Elements Dynamically?",
+        "options": [
+          "The ability to independently architect, implement, debug, and deploy enterprise-grade features with confidence",
+          "Memorizing syntax without understanding fundamental architectural mechanics",
+          "Passing an automated quiz without being able to write working code",
+          "Relying entirely on boilerplate generators without knowing how systems connect"
+        ],
+        "answer": "A",
+        "explanation": "Mastering this module empowers engineers to design resilient, production-ready systems from first principles."
+      }
+    ],
+    "practicalCodingChallenges": [
+      {
+        "title": "Custom Array Pipeline with Map, Filter, Reduce",
+        "difficulty": "Easy",
+        "category": "JavaScript Core",
+        "problemStatement": "Write a JavaScript function `processTransactions(transactions)` that takes an array of transaction objects `{ id, type, amount, status }`. It must filter for `status === 'completed'` and `type === 'credit'`, apply a 2% service reward to each amount, and calculate the total accumulated reward balance.",
+        "starterCode": "function processTransactions(transactions) {\n  // Write your implementation using map, filter, and reduce\n}",
+        "solutionCode": "function processTransactions(transactions) {\n  return transactions\n    .filter(t => t.status === 'completed' && t.type === 'credit')\n    .map(t => t.amount * 0.02)\n    .reduce((acc, reward) => acc + reward, 0);\n}",
+        "testCases": [
+          {
+            "input": "[{type:'credit', amount:100, status:'completed'}, {type:'debit', amount:50, status:'completed'}]",
+            "output": "2.0"
+          },
+          {
+            "input": "[{type:'credit', amount:500, status:'pending'}]",
+            "output": "0.0"
+          }
+        ]
+      },
+      {
+        "title": "Dynamic Event Delegation Form Validator",
+        "difficulty": "Medium",
+        "category": "DOM Manipulation",
+        "problemStatement": "Create a single event listener attached to the parent `<form id=\"registration-form\">` using event delegation. When inputs fire the `blur` event, validate that email inputs contain a valid email pattern and passwords are at least 8 characters long, toggling an `.is-invalid` class dynamically.",
+        "starterCode": "const form = document.getElementById('registration-form');\nform.addEventListener('focusout', function(e) {\n  // Implement event delegation validation\n});",
+        "solutionCode": "const form = document.getElementById('registration-form');\nform.addEventListener('focusout', function(e) {\n  const target = e.target;\n  if (target.type === 'email') {\n    const isValid = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(target.value);\n    target.classList.toggle('is-invalid', !isValid);\n  } else if (target.type === 'password') {\n    target.classList.toggle('is-invalid', target.value.length < 8);\n  }\n});",
+        "testCases": [
+          {
+            "input": "Blur on email 'test@example.com'",
+            "output": "class 'is-invalid' removed"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "weekNumber": 3,
+    "title": "Week 3 Comprehensive Assessment: Modules 9–12",
+    "courseId": "crs-1786624019154-w",
+    "courseName": "Python Full Stack + DSA with AI",
+    "coveredModulesCount": 4,
+    "coveredModules": [
+      "Modern ES6+ & Asynchronous JS",
+      "Python Programming Fundamentals",
+      "Advanced Python & Exception Handling",
+      "Object-Oriented Programming(OOP)"
+    ],
+    "durationMinutes": 90,
+    "totalMarks": 150,
+    "theoreticalMcqCount": 20,
+    "practicalCodingCount": 2,
+    "theoreticalQuestions": [
+      {
+        "question": "In the context of Destructuring, Spread/Rest Operators, and Modules, what is the foundational concept behind this technology?",
+        "options": [
+          "It establishes core standards, efficiency rules, and reliable runtime execution for undefined.",
+          "It acts strictly as an operating system kernel component with no developer APIs.",
+          "It is deprecated in modern industry practice and replaced by legacy assemblers.",
+          "It is solely used to format plain text files without any execution logic."
+        ],
+        "answer": "A",
+        "explanation": "Destructuring, Spread/Rest Operators, and Modules focuses on establishing standard engineering patterns, operational efficiency, and best practices within undefined."
+      },
+      {
+        "question": "Which of the following is considered a primary best practice when implementing Promises, Async/Await, and Fetch API Integration?",
+        "options": [
+          "Writing modular, maintainable, and thoroughly tested logic with clear separation of concerns",
+          "Combining all logic, data schemas, and presentation rules into a single large file",
+          "Ignoring error handling and edge cases to minimize execution time",
+          "Hardcoding configuration parameters and database passwords directly in source code"
+        ],
+        "answer": "A",
+        "explanation": "Best practices for Promises, Async/Await, and Fetch API Integration mandate modular architecture, proper exception handling, and clean code separation."
+      },
+      {
+        "question": "When debugging an issue related to Handling JSON Data & Dynamic API Integrations, what should be the first diagnostic step?",
+        "options": [
+          "Inspect runtime logs, error stack traces, and test input boundaries to isolate the failure point",
+          "Reinstall the operating system immediately",
+          "Disable all security policies and delete configuration files",
+          "Change random lines of code until the application compiles"
+        ],
+        "answer": "A",
+        "explanation": "Systematic debugging relies on analyzing stack traces, logging contextual values, and evaluating edge conditions."
+      },
+      {
+        "question": "How does Python Setup, Variables, Data Types & Control Flow directly contribute to the overall Python Full Stack application lifecycle?",
+        "options": [
+          "It enables robust communication, data transformation, or architectural stability across layers.",
+          "It replaces the need for backend servers and database storage entirely.",
+          "It is only applicable to desktop applications and unsupported on the web.",
+          "It forces the browser to bypass HTTP protocols and communicate via raw UDP packets."
+        ],
+        "answer": "A",
+        "explanation": "In a full-stack architecture, each module provides specific abstractions—from UI reactivity to API contracts and database persistence."
+      },
+      {
+        "question": "What is the expected behavior if invalid input or unhandled edge cases are passed to routines in Functions & Variable Scope in Python?",
+        "options": [
+          "An explicit exception or validation error should be raised, caught, and handled gracefully",
+          "The application should crash silently without recording any logs",
+          "The computer processor should automatically overclock",
+          "The program should invent random placeholder data without alerting the user"
+        ],
+        "answer": "A",
+        "explanation": "Robust engineering requires structured input validation and graceful exception propagation rather than silent failures."
+      },
+      {
+        "question": "Which performance metric is most critical when optimizing implementations of Built-in Data Structures: Lists, Tuples, Sets, Dicts?",
+        "options": [
+          "Execution time, memory footprint, and network latency efficiency",
+          "The physical weight of the developer's laptop",
+          "The number of comments written per line of code",
+          "The speed of the computer's cooling fan"
+        ],
+        "answer": "A",
+        "explanation": "Optimization focuses on computational complexity (time), memory allocation (space), and I/O overhead."
+      },
+      {
+        "question": "In a multi-developer production environment, how should updates to Decorators, Generators, and Iterators in Python be managed?",
+        "options": [
+          "Through feature branches, code reviews, automated linting, and CI/CD pipelines",
+          "By editing files directly on the live production server over FTP",
+          "By emailing zipped copies of modified files to team members",
+          "By disabling version control checks and committing directly to main without review"
+        ],
+        "answer": "A",
+        "explanation": "Modern DevOps workflows mandate Git branching, peer code reviews, continuous integration, and automated testing."
+      },
+      {
+        "question": "What security consideration must always be addressed when working with File I/O & Error Handling:try-except-finally?",
+        "options": [
+          "Input sanitization, authentication validation, and protection against unauthorized data access",
+          "Encrypting files using rot13 encoding",
+          "Allowing open CORS and wildcard permissions across all endpoints by default",
+          "Storing API keys and private certificates in public repositories"
+        ],
+        "answer": "A",
+        "explanation": "Security best practices require thorough input sanitization, strict least-privilege permissions, and secure secret management."
+      },
+      {
+        "question": "Which tool or utility is standard industry practice for automated unit testing in Context Managers & Custom Exceptions?",
+        "options": [
+          "Automated test frameworks (e.g. pytest for Python, Jest/Mocha for JS) with assertion coverage",
+          "Manually refreshing the web browser once a week",
+          "Printing debug variables to the console and deleting them before deployment",
+          "Assuming the code works without testing if it compiled once"
+        ],
+        "answer": "A",
+        "explanation": "Automated test suites ensure regressions are caught early and software contracts remain compliant over time."
+      },
+      {
+        "question": "What architectural pattern is primarily exemplified by Classes, Objects, and Constructors:__init__?",
+        "options": [
+          "Separation of concerns, modularity, and reusable component design",
+          "Spaghetti code architecture with tightly coupled circular dependencies",
+          "Monolithic hardcoding without abstraction layers",
+          "Client-only architecture without server persistence"
+        ],
+        "answer": "A",
+        "explanation": "High-quality software design emphasizes separation of concerns, DRY (Don't Repeat Yourself), and testability."
+      },
+      {
+        "question": "How does OOP Principles: Inheritance, Polymorphism, Encapsulation, & Abstraction scale when handling increasing user traffic and large volumes of data?",
+        "options": [
+          "By leveraging asynchronous processing, caching strategies, and efficient data structures",
+          "By duplicating code lines across multiple files",
+          "By increasing the size of the font in code editors",
+          "By restricting access to only one user per hour"
+        ],
+        "answer": "A",
+        "explanation": "Scalability is achieved through algorithmic efficiency, asynchronous non-blocking I/O, caching, and horizontal scaling."
+      },
+      {
+        "question": "What is the consequence of failing to release resources or close connections in Advanced OOP: Dunder Methods & Design Patterns?",
+        "options": [
+          "Memory leaks, connection pool exhaustion, and potential application crashes over time",
+          "Immediate hardware destruction of the CPU",
+          "Automatic speed increases due to caching everything in memory forever",
+          "No consequence; operating systems handle infinite open sockets with zero overhead"
+        ],
+        "answer": "A",
+        "explanation": "Unclosed connections and unmanaged memory allocations result in resource starvation, degraded latency, and server crashes."
+      },
+      {
+        "question": "Which configuration approach is recommended when deploying applications utilizing Destructuring, Spread/Rest Operators, and Modules?",
+        "options": [
+          "Twelve-Factor App principles using environment variables for settings and secrets",
+          "Hardcoding production database URLs directly inside component files",
+          "Writing secrets in plaintext on a sticky note attached to the server",
+          "Embedding API keys in HTML meta tags visible to web scrapers"
+        ],
+        "answer": "A",
+        "explanation": "Twelve-Factor methodology recommends storing all configuration that varies across environments in environment variables."
+      },
+      {
+        "question": "In terms of API design and data interchange in Python Setup, Variables, Data Types & Control Flow, what standard format is dominant?",
+        "options": [
+          "JSON (JavaScript Object Notation) over HTTP REST or GraphQL",
+          "Raw binary machine code dumps",
+          "Unformatted comma-separated text files sent via email",
+          "Proprietary binary formats unsupported by modern browsers"
+        ],
+        "answer": "A",
+        "explanation": "JSON is the universal language-independent data interchange standard for modern web and mobile APIs."
+      },
+      {
+        "question": "What role does type safety or dynamic type validation play during execution of Decorators, Generators, and Iterators in Python?",
+        "options": [
+          "It prevents type coercion bugs, validates runtime contracts, and improves developer tooling",
+          "It slows down code execution by a factor of 1000x",
+          "It is forbidden in Python and JavaScript applications",
+          "It requires every variable to be re-declared in three different languages"
+        ],
+        "answer": "A",
+        "explanation": "Type checking (and type hints in Python) enhances code readability, enables IDE auto-completion, and catches type bugs early."
+      },
+      {
+        "question": "How should database queries or asynchronous operations in Classes, Objects, and Constructors:__init__ be structured to prevent blocking?",
+        "options": [
+          "Using non-blocking async/await, background task queues, or indexed database query plans",
+          "Using infinite while loops with time.sleep() on the main execution thread",
+          "Executing all queries synchronously on the frontend UI thread",
+          "Running queries without WHERE clauses or limits"
+        ],
+        "answer": "A",
+        "explanation": "Non-blocking asynchronous syntax and background workers prevent thread starvation and keep user interfaces responsive."
+      },
+      {
+        "question": "What documentation standard is considered essential for code developed in Destructuring, Spread/Rest Operators, and Modules?",
+        "options": [
+          "Descriptive docstrings, typed function signatures, and API endpoint specifications (e.g. Swagger/OpenAPI)",
+          "Writing zero comments to protect intellectual property through obscurity",
+          "Writing comments entirely in binary code",
+          "Commenting out working code and replacing it with pseudo-code"
+        ],
+        "answer": "A",
+        "explanation": "Production standards require clean docstrings, clear parameter/return types, and interactive API documentation."
+      },
+      {
+        "question": "When integrating third-party libraries or SDKs in Python Setup, Variables, Data Types & Control Flow, what safeguard should be applied?",
+        "options": [
+          "Pinning exact dependency versions in requirements.txt or package.json to prevent breaking upstream updates",
+          "Always installing unverified packages from random online forums",
+          "Using wildcard version specifiers like '*' for all production dependencies",
+          "Never using virtual environments and installing everything directly to global system Python"
+        ],
+        "answer": "A",
+        "explanation": "Version pinning and lockfiles ensure deterministic, repeatable builds across development, staging, and production environments."
+      },
+      {
+        "question": "What is the primary indicator of clean, professional code when reviewing Decorators, Generators, and Iterators in Python?",
+        "options": [
+          "High readability, clear variable naming, modular functions with single responsibilities, and comprehensive test coverage",
+          "Dense, obfuscated one-liners that no other developer can understand",
+          "Using 500-line functions with 20 levels of nested if-else statements",
+          "Exclusively using single-letter variable names like a, b, c, x, y, z"
+        ],
+        "answer": "A",
+        "explanation": "Clean code is self-documenting, adheres to the Single Responsibility Principle, and is straightforward for peers to maintain."
+      },
+      {
+        "question": "What is the capstone objective or ultimate takeaway of mastering Classes, Objects, and Constructors:__init__?",
+        "options": [
+          "The ability to independently architect, implement, debug, and deploy enterprise-grade features with confidence",
+          "Memorizing syntax without understanding fundamental architectural mechanics",
+          "Passing an automated quiz without being able to write working code",
+          "Relying entirely on boilerplate generators without knowing how systems connect"
+        ],
+        "answer": "A",
+        "explanation": "Mastering this module empowers engineers to design resilient, production-ready systems from first principles."
+      }
+    ],
+    "practicalCodingChallenges": [
+      {
+        "title": "Python Custom Timing & Cache Decorator",
+        "difficulty": "Medium",
+        "category": "Python Advanced",
+        "problemStatement": "Implement a Python decorator `@memoize_and_time` that caches function results based on arguments in an in-memory dictionary and prints the execution duration in milliseconds.",
+        "starterCode": "import time\n\ndef memoize_and_time(func):\n    # Implement decorator\n    pass",
+        "solutionCode": "import time\n\ndef memoize_and_time(func):\n    cache = {}\n    def wrapper(*args, **kwargs):\n        key = (args, tuple(sorted(kwargs.items())))\n        if key in cache:\n            return cache[key]\n        start = time.perf_counter()\n        result = func(*args, **kwargs)\n        duration = (time.perf_counter() - start) * 1000\n        print(f\"{func.__name__} executed in {duration:.2f}ms\")\n        cache[key] = result\n        return result\n    return wrapper",
+        "testCases": [
+          {
+            "input": "fibonacci(10)",
+            "output": "Calculated result cached on subsequent call"
+          }
+        ]
+      },
+      {
+        "title": "Bank Account Hierarchy with Dunder Operator Overloading",
+        "difficulty": "Medium",
+        "category": "Python OOP",
+        "problemStatement": "Create a `BankAccount` class with `account_number` and `balance`. Implement `__str__`, `__repr__`, `__add__` (to combine balances of two accounts), and a custom `InsufficientFundsError` exception when `withdraw(amount)` exceeds balance.",
+        "starterCode": "class InsufficientFundsError(Exception):\n    pass\n\nclass BankAccount:\n    # Implement constructor, methods, and dunders\n    pass",
+        "solutionCode": "class InsufficientFundsError(Exception):\n    pass\n\nclass BankAccount:\n    def __init__(self, account_number: str, balance: float = 0.0):\n        self.account_number = account_number\n        self.balance = float(balance)\n    \n    def deposit(self, amount: float):\n        if amount <= 0: raise ValueError(\"Deposit must be positive\")\n        self.balance += amount\n        return self.balance\n        \n    def withdraw(self, amount: float):\n        if amount > self.balance:\n            raise InsufficientFundsError(f\"Cannot withdraw {amount} from balance {self.balance}\")\n        self.balance -= amount\n        return self.balance\n        \n    def __add__(self, other):\n        if isinstance(other, BankAccount):\n            return BankAccount(f\"{self.account_number}+{other.account_number}\", self.balance + other.balance)\n        return NotImplemented\n        \n    def __repr__(self):\n        return f\"BankAccount('{self.account_number}', balance={self.balance:.2f})\"",
+        "testCases": [
+          {
+            "input": "acc1(100) + acc2(200)",
+            "output": "BankAccount balance = 300.00"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "weekNumber": 4,
+    "title": "Week 4 Comprehensive Assessment: Modules 13–16",
+    "courseId": "crs-1786624019154-w",
+    "courseName": "Python Full Stack + DSA with AI",
+    "coveredModulesCount": 4,
+    "coveredModules": [
+      "SQL & Relational Databases (MySQL)",
+      "Advanced SQL & PostgreSQL Integration",
+      "Django Framework Setup & Architecture",
+      "Django Templates & Static Files Setup"
+    ],
+    "durationMinutes": 90,
+    "totalMarks": 150,
+    "theoreticalMcqCount": 20,
+    "practicalCodingCount": 1,
+    "theoreticalQuestions": [
+      {
+        "question": "In the context of RDBMS Concepts & SQL DDL: CREATE, ALTER, what is the foundational concept behind this technology?",
+        "options": [
+          "It establishes core standards, efficiency rules, and reliable runtime execution for undefined.",
+          "It acts strictly as an operating system kernel component with no developer APIs.",
+          "It is deprecated in modern industry practice and replaced by legacy assemblers.",
+          "It is solely used to format plain text files without any execution logic."
+        ],
+        "answer": "A",
+        "explanation": "RDBMS Concepts & SQL DDL: CREATE, ALTER focuses on establishing standard engineering patterns, operational efficiency, and best practices within undefined."
+      },
+      {
+        "question": "Which of the following is considered a primary best practice when implementing SQL DML: INSERT, UPDATE, DELETE & Select Queries?",
+        "options": [
+          "Writing modular, maintainable, and thoroughly tested logic with clear separation of concerns",
+          "Combining all logic, data schemas, and presentation rules into a single large file",
+          "Ignoring error handling and edge cases to minimize execution time",
+          "Hardcoding configuration parameters and database passwords directly in source code"
+        ],
+        "answer": "A",
+        "explanation": "Best practices for SQL DML: INSERT, UPDATE, DELETE & Select Queries mandate modular architecture, proper exception handling, and clean code separation."
+      },
+      {
+        "question": "When debugging an issue related to Filtering, Aggregations, & GROUP BY Clauses, what should be the first diagnostic step?",
+        "options": [
+          "Inspect runtime logs, error stack traces, and test input boundaries to isolate the failure point",
+          "Reinstall the operating system immediately",
+          "Disable all security policies and delete configuration files",
+          "Change random lines of code until the application compiles"
+        ],
+        "answer": "A",
+        "explanation": "Systematic debugging relies on analyzing stack traces, logging contextual values, and evaluating edge conditions."
+      },
+      {
+        "question": "How does SQL Joins: Inner, Left, Right, Full & Subqueries directly contribute to the overall Python Full Stack application lifecycle?",
+        "options": [
+          "It enables robust communication, data transformation, or architectural stability across layers.",
+          "It replaces the need for backend servers and database storage entirely.",
+          "It is only applicable to desktop applications and unsupported on the web.",
+          "It forces the browser to bypass HTTP protocols and communicate via raw UDP packets."
+        ],
+        "answer": "A",
+        "explanation": "In a full-stack architecture, each module provides specific abstractions—from UI reactivity to API contracts and database persistence."
+      },
+      {
+        "question": "What is the expected behavior if invalid input or unhandled edge cases are passed to routines in Database Indexing, Transactions(ACID), & Foreign Keys?",
+        "options": [
+          "An explicit exception or validation error should be raised, caught, and handled gracefully",
+          "The application should crash silently without recording any logs",
+          "The computer processor should automatically overclock",
+          "The program should invent random placeholder data without alerting the user"
+        ],
+        "answer": "A",
+        "explanation": "Robust engineering requires structured input validation and graceful exception propagation rather than silent failures."
+      },
+      {
+        "question": "Which performance metric is most critical when optimizing implementations of PostgreSQL Environment Setup & Shell Commands?",
+        "options": [
+          "Execution time, memory footprint, and network latency efficiency",
+          "The physical weight of the developer's laptop",
+          "The number of comments written per line of code",
+          "The speed of the computer's cooling fan"
+        ],
+        "answer": "A",
+        "explanation": "Optimization focuses on computational complexity (time), memory allocation (space), and I/O overhead."
+      },
+      {
+        "question": "In a multi-developer production environment, how should updates to MVT Architecture & Creating Django Projects/Apps be managed?",
+        "options": [
+          "Through feature branches, code reviews, automated linting, and CI/CD pipelines",
+          "By editing files directly on the live production server over FTP",
+          "By emailing zipped copies of modified files to team members",
+          "By disabling version control checks and committing directly to main without review"
+        ],
+        "answer": "A",
+        "explanation": "Modern DevOps workflows mandate Git branching, peer code reviews, continuous integration, and automated testing."
+      },
+      {
+        "question": "What security consideration must always be addressed when working with Directory Structure & Settings Configuration?",
+        "options": [
+          "Input sanitization, authentication validation, and protection against unauthorized data access",
+          "Encrypting files using rot13 encoding",
+          "Allowing open CORS and wildcard permissions across all endpoints by default",
+          "Storing API keys and private certificates in public repositories"
+        ],
+        "answer": "A",
+        "explanation": "Security best practices require thorough input sanitization, strict least-privilege permissions, and secure secret management."
+      },
+      {
+        "question": "Which tool or utility is standard industry practice for automated unit testing in Request-Response Lifecycle, Views & Routing?",
+        "options": [
+          "Automated test frameworks (e.g. pytest for Python, Jest/Mocha for JS) with assertion coverage",
+          "Manually refreshing the web browser once a week",
+          "Printing debug variables to the console and deleting them before deployment",
+          "Assuming the code works without testing if it compiled once"
+        ],
+        "answer": "A",
+        "explanation": "Automated test suites ensure regressions are caught early and software contracts remain compliant over time."
+      },
+      {
+        "question": "What architectural pattern is primarily exemplified by Django Template Language(DTL), Filters, & Tags?",
+        "options": [
+          "Separation of concerns, modularity, and reusable component design",
+          "Spaghetti code architecture with tightly coupled circular dependencies",
+          "Monolithic hardcoding without abstraction layers",
+          "Client-only architecture without server persistence"
+        ],
+        "answer": "A",
+        "explanation": "High-quality software design emphasizes separation of concerns, DRY (Don't Repeat Yourself), and testability."
+      },
+      {
+        "question": "How does Template Inheritance & Layout Strategies scale when handling increasing user traffic and large volumes of data?",
+        "options": [
+          "By leveraging asynchronous processing, caching strategies, and efficient data structures",
+          "By duplicating code lines across multiple files",
+          "By increasing the size of the font in code editors",
+          "By restricting access to only one user per hour"
+        ],
+        "answer": "A",
+        "explanation": "Scalability is achieved through algorithmic efficiency, asynchronous non-blocking I/O, caching, and horizontal scaling."
+      },
+      {
+        "question": "What is the consequence of failing to release resources or close connections in Handling Static Files & User Media Uploads?",
+        "options": [
+          "Memory leaks, connection pool exhaustion, and potential application crashes over time",
+          "Immediate hardware destruction of the CPU",
+          "Automatic speed increases due to caching everything in memory forever",
+          "No consequence; operating systems handle infinite open sockets with zero overhead"
+        ],
+        "answer": "A",
+        "explanation": "Unclosed connections and unmanaged memory allocations result in resource starvation, degraded latency, and server crashes."
+      },
+      {
+        "question": "Which configuration approach is recommended when deploying applications utilizing RDBMS Concepts & SQL DDL: CREATE, ALTER?",
+        "options": [
+          "Twelve-Factor App principles using environment variables for settings and secrets",
+          "Hardcoding production database URLs directly inside component files",
+          "Writing secrets in plaintext on a sticky note attached to the server",
+          "Embedding API keys in HTML meta tags visible to web scrapers"
+        ],
+        "answer": "A",
+        "explanation": "Twelve-Factor methodology recommends storing all configuration that varies across environments in environment variables."
+      },
+      {
+        "question": "In terms of API design and data interchange in SQL Joins: Inner, Left, Right, Full & Subqueries, what standard format is dominant?",
+        "options": [
+          "JSON (JavaScript Object Notation) over HTTP REST or GraphQL",
+          "Raw binary machine code dumps",
+          "Unformatted comma-separated text files sent via email",
+          "Proprietary binary formats unsupported by modern browsers"
+        ],
+        "answer": "A",
+        "explanation": "JSON is the universal language-independent data interchange standard for modern web and mobile APIs."
+      },
+      {
+        "question": "What role does type safety or dynamic type validation play during execution of MVT Architecture & Creating Django Projects/Apps?",
+        "options": [
+          "It prevents type coercion bugs, validates runtime contracts, and improves developer tooling",
+          "It slows down code execution by a factor of 1000x",
+          "It is forbidden in Python and JavaScript applications",
+          "It requires every variable to be re-declared in three different languages"
+        ],
+        "answer": "A",
+        "explanation": "Type checking (and type hints in Python) enhances code readability, enables IDE auto-completion, and catches type bugs early."
+      },
+      {
+        "question": "How should database queries or asynchronous operations in Django Template Language(DTL), Filters, & Tags be structured to prevent blocking?",
+        "options": [
+          "Using non-blocking async/await, background task queues, or indexed database query plans",
+          "Using infinite while loops with time.sleep() on the main execution thread",
+          "Executing all queries synchronously on the frontend UI thread",
+          "Running queries without WHERE clauses or limits"
+        ],
+        "answer": "A",
+        "explanation": "Non-blocking asynchronous syntax and background workers prevent thread starvation and keep user interfaces responsive."
+      },
+      {
+        "question": "What documentation standard is considered essential for code developed in RDBMS Concepts & SQL DDL: CREATE, ALTER?",
+        "options": [
+          "Descriptive docstrings, typed function signatures, and API endpoint specifications (e.g. Swagger/OpenAPI)",
+          "Writing zero comments to protect intellectual property through obscurity",
+          "Writing comments entirely in binary code",
+          "Commenting out working code and replacing it with pseudo-code"
+        ],
+        "answer": "A",
+        "explanation": "Production standards require clean docstrings, clear parameter/return types, and interactive API documentation."
+      },
+      {
+        "question": "When integrating third-party libraries or SDKs in SQL Joins: Inner, Left, Right, Full & Subqueries, what safeguard should be applied?",
+        "options": [
+          "Pinning exact dependency versions in requirements.txt or package.json to prevent breaking upstream updates",
+          "Always installing unverified packages from random online forums",
+          "Using wildcard version specifiers like '*' for all production dependencies",
+          "Never using virtual environments and installing everything directly to global system Python"
+        ],
+        "answer": "A",
+        "explanation": "Version pinning and lockfiles ensure deterministic, repeatable builds across development, staging, and production environments."
+      },
+      {
+        "question": "What is the primary indicator of clean, professional code when reviewing MVT Architecture & Creating Django Projects/Apps?",
+        "options": [
+          "High readability, clear variable naming, modular functions with single responsibilities, and comprehensive test coverage",
+          "Dense, obfuscated one-liners that no other developer can understand",
+          "Using 500-line functions with 20 levels of nested if-else statements",
+          "Exclusively using single-letter variable names like a, b, c, x, y, z"
+        ],
+        "answer": "A",
+        "explanation": "Clean code is self-documenting, adheres to the Single Responsibility Principle, and is straightforward for peers to maintain."
+      },
+      {
+        "question": "What is the capstone objective or ultimate takeaway of mastering Django Template Language(DTL), Filters, & Tags?",
+        "options": [
+          "The ability to independently architect, implement, debug, and deploy enterprise-grade features with confidence",
+          "Memorizing syntax without understanding fundamental architectural mechanics",
+          "Passing an automated quiz without being able to write working code",
+          "Relying entirely on boilerplate generators without knowing how systems connect"
+        ],
+        "answer": "A",
+        "explanation": "Mastering this module empowers engineers to design resilient, production-ready systems from first principles."
+      }
+    ],
+    "practicalCodingChallenges": [
+      {
+        "title": "SQL Multi-Table Aggregation with Window Functions",
+        "difficulty": "Hard",
+        "category": "SQL & Databases",
+        "problemStatement": "Write an SQL query on tables `customers(id, name, city)` and `orders(id, customer_id, order_date, total_amount)`. The query must return each customer's name, total order count, total expenditure, and rank customers within their city using `DENSE_RANK() OVER (PARTITION BY city ORDER BY total_expenditure DESC)`.",
+        "starterCode": "-- Write your SQL query below\nSELECT ...",
+        "solutionCode": "SELECT \n  c.id,\n  c.name,\n  c.city,\n  COUNT(o.id) AS total_orders,\n  COALESCE(SUM(o.total_amount), 0) AS total_expenditure,\n  DENSE_RANK() OVER (\n    PARTITION BY c.city \n    ORDER BY COALESCE(SUM(o.total_amount), 0) DESC\n  ) AS city_spending_rank\nFROM customers c\nLEFT JOIN orders o ON c.id = o.customer_id\nGROUP BY c.id, c.name, c.city\nORDER BY c.city, city_spending_rank;",
+        "testCases": [
+          {
+            "input": "Customers across New York and Chicago",
+            "output": "Ranked spending by partition city"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "weekNumber": 5,
+    "title": "Week 5 Comprehensive Assessment: Modules 17–20",
+    "courseId": "crs-1786624019154-w",
+    "courseName": "Python Full Stack + DSA with AI",
+    "coveredModulesCount": 4,
+    "coveredModules": [
+      "Django Models & Database ORM",
+      "Django Forms, Authentication & Auth",
+      "Django REST Framework (DRF) Core",
+      "DRF Advanced: ViewSets, JWT Auth & Testing"
+    ],
+    "durationMinutes": 90,
+    "totalMarks": 150,
+    "theoreticalMcqCount": 20,
+    "practicalCodingCount": 1,
+    "theoreticalQuestions": [
+      {
+        "question": "In the context of Model Fields & Relationships: OneToOne, ForeignKey, ManyToMany, what is the foundational concept behind this technology?",
+        "options": [
+          "It establishes core standards, efficiency rules, and reliable runtime execution for undefined.",
+          "It acts strictly as an operating system kernel component with no developer APIs.",
+          "It is deprecated in modern industry practice and replaced by legacy assemblers.",
+          "It is solely used to format plain text files without any execution logic."
+        ],
+        "answer": "A",
+        "explanation": "Model Fields & Relationships: OneToOne, ForeignKey, ManyToMany focuses on establishing standard engineering patterns, operational efficiency, and best practices within undefined."
+      },
+      {
+        "question": "Which of the following is considered a primary best practice when implementing Django ORM Queries & Migrations Management?",
+        "options": [
+          "Writing modular, maintainable, and thoroughly tested logic with clear separation of concerns",
+          "Combining all logic, data schemas, and presentation rules into a single large file",
+          "Ignoring error handling and edge cases to minimize execution time",
+          "Hardcoding configuration parameters and database passwords directly in source code"
+        ],
+        "answer": "A",
+        "explanation": "Best practices for Django ORM Queries & Migrations Management mandate modular architecture, proper exception handling, and clean code separation."
+      },
+      {
+        "question": "When debugging an issue related to Admin Interface Customization & Model Managers, what should be the first diagnostic step?",
+        "options": [
+          "Inspect runtime logs, error stack traces, and test input boundaries to isolate the failure point",
+          "Reinstall the operating system immediately",
+          "Disable all security policies and delete configuration files",
+          "Change random lines of code until the application compiles"
+        ],
+        "answer": "A",
+        "explanation": "Systematic debugging relies on analyzing stack traces, logging contextual values, and evaluating edge conditions."
+      },
+      {
+        "question": "How does Django Forms & ModelForms with CSRF Protection directly contribute to the overall Python Full Stack application lifecycle?",
+        "options": [
+          "It enables robust communication, data transformation, or architectural stability across layers.",
+          "It replaces the need for backend servers and database storage entirely.",
+          "It is only applicable to desktop applications and unsupported on the web.",
+          "It forces the browser to bypass HTTP protocols and communicate via raw UDP packets."
+        ],
+        "answer": "A",
+        "explanation": "In a full-stack architecture, each module provides specific abstractions—from UI reactivity to API contracts and database persistence."
+      },
+      {
+        "question": "What is the expected behavior if invalid input or unhandled edge cases are passed to routines in User Authentication System: Login, Logout, Register?",
+        "options": [
+          "An explicit exception or validation error should be raised, caught, and handled gracefully",
+          "The application should crash silently without recording any logs",
+          "The computer processor should automatically overclock",
+          "The program should invent random placeholder data without alerting the user"
+        ],
+        "answer": "A",
+        "explanation": "Robust engineering requires structured input validation and graceful exception propagation rather than silent failures."
+      },
+      {
+        "question": "Which performance metric is most critical when optimizing implementations of Permission & Group Management in Django?",
+        "options": [
+          "Execution time, memory footprint, and network latency efficiency",
+          "The physical weight of the developer's laptop",
+          "The number of comments written per line of code",
+          "The speed of the computer's cooling fan"
+        ],
+        "answer": "A",
+        "explanation": "Optimization focuses on computational complexity (time), memory allocation (space), and I/O overhead."
+      },
+      {
+        "question": "In a multi-developer production environment, how should updates to REST API Architecture & DRF Setup be managed?",
+        "options": [
+          "Through feature branches, code reviews, automated linting, and CI/CD pipelines",
+          "By editing files directly on the live production server over FTP",
+          "By emailing zipped copies of modified files to team members",
+          "By disabling version control checks and committing directly to main without review"
+        ],
+        "answer": "A",
+        "explanation": "Modern DevOps workflows mandate Git branching, peer code reviews, continuous integration, and automated testing."
+      },
+      {
+        "question": "What security consideration must always be addressed when working with Serializers & ModelSerializers in DRF?",
+        "options": [
+          "Input sanitization, authentication validation, and protection against unauthorized data access",
+          "Encrypting files using rot13 encoding",
+          "Allowing open CORS and wildcard permissions across all endpoints by default",
+          "Storing API keys and private certificates in public repositories"
+        ],
+        "answer": "A",
+        "explanation": "Security best practices require thorough input sanitization, strict least-privilege permissions, and secure secret management."
+      },
+      {
+        "question": "Which tool or utility is standard industry practice for automated unit testing in Function & Class-Based Views: APIView, Generic Views?",
+        "options": [
+          "Automated test frameworks (e.g. pytest for Python, Jest/Mocha for JS) with assertion coverage",
+          "Manually refreshing the web browser once a week",
+          "Printing debug variables to the console and deleting them before deployment",
+          "Assuming the code works without testing if it compiled once"
+        ],
+        "answer": "A",
+        "explanation": "Automated test suites ensure regressions are caught early and software contracts remain compliant over time."
+      },
+      {
+        "question": "What architectural pattern is primarily exemplified by ViewSets, Routers, & Custom API Actions?",
+        "options": [
+          "Separation of concerns, modularity, and reusable component design",
+          "Spaghetti code architecture with tightly coupled circular dependencies",
+          "Monolithic hardcoding without abstraction layers",
+          "Client-only architecture without server persistence"
+        ],
+        "answer": "A",
+        "explanation": "High-quality software design emphasizes separation of concerns, DRY (Don't Repeat Yourself), and testability."
+      },
+      {
+        "question": "How does JWT Authentication: SimpleJWT Integration & Permissions scale when handling increasing user traffic and large volumes of data?",
+        "options": [
+          "By leveraging asynchronous processing, caching strategies, and efficient data structures",
+          "By duplicating code lines across multiple files",
+          "By increasing the size of the font in code editors",
+          "By restricting access to only one user per hour"
+        ],
+        "answer": "A",
+        "explanation": "Scalability is achieved through algorithmic efficiency, asynchronous non-blocking I/O, caching, and horizontal scaling."
+      },
+      {
+        "question": "What is the consequence of failing to release resources or close connections in Filtering, Pagination, & API Testing with pytest/Postman?",
+        "options": [
+          "Memory leaks, connection pool exhaustion, and potential application crashes over time",
+          "Immediate hardware destruction of the CPU",
+          "Automatic speed increases due to caching everything in memory forever",
+          "No consequence; operating systems handle infinite open sockets with zero overhead"
+        ],
+        "answer": "A",
+        "explanation": "Unclosed connections and unmanaged memory allocations result in resource starvation, degraded latency, and server crashes."
+      },
+      {
+        "question": "Which configuration approach is recommended when deploying applications utilizing Model Fields & Relationships: OneToOne, ForeignKey, ManyToMany?",
+        "options": [
+          "Twelve-Factor App principles using environment variables for settings and secrets",
+          "Hardcoding production database URLs directly inside component files",
+          "Writing secrets in plaintext on a sticky note attached to the server",
+          "Embedding API keys in HTML meta tags visible to web scrapers"
+        ],
+        "answer": "A",
+        "explanation": "Twelve-Factor methodology recommends storing all configuration that varies across environments in environment variables."
+      },
+      {
+        "question": "In terms of API design and data interchange in Django Forms & ModelForms with CSRF Protection, what standard format is dominant?",
+        "options": [
+          "JSON (JavaScript Object Notation) over HTTP REST or GraphQL",
+          "Raw binary machine code dumps",
+          "Unformatted comma-separated text files sent via email",
+          "Proprietary binary formats unsupported by modern browsers"
+        ],
+        "answer": "A",
+        "explanation": "JSON is the universal language-independent data interchange standard for modern web and mobile APIs."
+      },
+      {
+        "question": "What role does type safety or dynamic type validation play during execution of REST API Architecture & DRF Setup?",
+        "options": [
+          "It prevents type coercion bugs, validates runtime contracts, and improves developer tooling",
+          "It slows down code execution by a factor of 1000x",
+          "It is forbidden in Python and JavaScript applications",
+          "It requires every variable to be re-declared in three different languages"
+        ],
+        "answer": "A",
+        "explanation": "Type checking (and type hints in Python) enhances code readability, enables IDE auto-completion, and catches type bugs early."
+      },
+      {
+        "question": "How should database queries or asynchronous operations in ViewSets, Routers, & Custom API Actions be structured to prevent blocking?",
+        "options": [
+          "Using non-blocking async/await, background task queues, or indexed database query plans",
+          "Using infinite while loops with time.sleep() on the main execution thread",
+          "Executing all queries synchronously on the frontend UI thread",
+          "Running queries without WHERE clauses or limits"
+        ],
+        "answer": "A",
+        "explanation": "Non-blocking asynchronous syntax and background workers prevent thread starvation and keep user interfaces responsive."
+      },
+      {
+        "question": "What documentation standard is considered essential for code developed in Model Fields & Relationships: OneToOne, ForeignKey, ManyToMany?",
+        "options": [
+          "Descriptive docstrings, typed function signatures, and API endpoint specifications (e.g. Swagger/OpenAPI)",
+          "Writing zero comments to protect intellectual property through obscurity",
+          "Writing comments entirely in binary code",
+          "Commenting out working code and replacing it with pseudo-code"
+        ],
+        "answer": "A",
+        "explanation": "Production standards require clean docstrings, clear parameter/return types, and interactive API documentation."
+      },
+      {
+        "question": "When integrating third-party libraries or SDKs in Django Forms & ModelForms with CSRF Protection, what safeguard should be applied?",
+        "options": [
+          "Pinning exact dependency versions in requirements.txt or package.json to prevent breaking upstream updates",
+          "Always installing unverified packages from random online forums",
+          "Using wildcard version specifiers like '*' for all production dependencies",
+          "Never using virtual environments and installing everything directly to global system Python"
+        ],
+        "answer": "A",
+        "explanation": "Version pinning and lockfiles ensure deterministic, repeatable builds across development, staging, and production environments."
+      },
+      {
+        "question": "What is the primary indicator of clean, professional code when reviewing REST API Architecture & DRF Setup?",
+        "options": [
+          "High readability, clear variable naming, modular functions with single responsibilities, and comprehensive test coverage",
+          "Dense, obfuscated one-liners that no other developer can understand",
+          "Using 500-line functions with 20 levels of nested if-else statements",
+          "Exclusively using single-letter variable names like a, b, c, x, y, z"
+        ],
+        "answer": "A",
+        "explanation": "Clean code is self-documenting, adheres to the Single Responsibility Principle, and is straightforward for peers to maintain."
+      },
+      {
+        "question": "What is the capstone objective or ultimate takeaway of mastering ViewSets, Routers, & Custom API Actions?",
+        "options": [
+          "The ability to independently architect, implement, debug, and deploy enterprise-grade features with confidence",
+          "Memorizing syntax without understanding fundamental architectural mechanics",
+          "Passing an automated quiz without being able to write working code",
+          "Relying entirely on boilerplate generators without knowing how systems connect"
+        ],
+        "answer": "A",
+        "explanation": "Mastering this module empowers engineers to design resilient, production-ready systems from first principles."
+      }
+    ],
+    "practicalCodingChallenges": [
+      {
+        "title": "Django REST Framework ViewSet with SimpleJWT & Custom Action",
+        "difficulty": "Hard",
+        "category": "Django & DRF",
+        "problemStatement": "Implement a DRF `CourseViewSet(viewsets.ModelViewSet)` with permissions `IsAuthenticatedOrReadOnly`. Add a custom `@action(detail=True, methods=['post'], permission_classes=[IsAuthenticated])` named `enroll` that increments student enrollment count and returns a JSON response.",
+        "starterCode": "from rest_framework import viewsets, status\nfrom rest_framework.decorators import action\nfrom rest_framework.response import Response\nfrom rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly\n\nclass CourseViewSet(viewsets.ModelViewSet):\n    # Complete implementation\n    pass",
+        "solutionCode": "from rest_framework import viewsets, status\nfrom rest_framework.decorators import action\nfrom rest_framework.response import Response\nfrom rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly\nfrom .models import Course\nfrom .serializers import CourseSerializer\n\nclass CourseViewSet(viewsets.ModelViewSet):\n    queryset = Course.objects.all()\n    serializer_class = CourseSerializer\n    permission_classes = [IsAuthenticatedOrReadOnly]\n\n    @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated])\n    def enroll(self, request, pk=None):\n        course = self.get_object()\n        course.enrolled_count = (course.enrolled_count or 0) + 1\n        course.save()\n        return Response({\n            'success': True,\n            'message': f'Enrolled in {course.title}',\n            'enrolled_count': course.enrolled_count\n        }, status=status.HTTP_200_OK)",
+        "testCases": [
+          {
+            "input": "POST /api/courses/1/enroll/ with Bearer Token",
+            "output": "HTTP 200 enrolled_count + 1"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "weekNumber": 6,
+    "title": "Week 6 Comprehensive Assessment: Modules 21–24",
+    "courseId": "crs-1786624019154-w",
+    "courseName": "Python Full Stack + DSA with AI",
+    "coveredModulesCount": 4,
+    "coveredModules": [
+      "Redis Caching & AWS S3 Cloud Storage",
+      "Data Structures using Python - Part 1",
+      "Data Structures & Algorithms - Part 2",
+      "Introduction to AI, Prompt Engineering & LLMs"
+    ],
+    "durationMinutes": 90,
+    "totalMarks": 150,
+    "theoreticalMcqCount": 20,
+    "practicalCodingCount": 1,
+    "theoreticalQuestions": [
+      {
+        "question": "In the context of Redis Installation & Caching Django Views/Queries, what is the foundational concept behind this technology?",
+        "options": [
+          "It establishes core standards, efficiency rules, and reliable runtime execution for undefined.",
+          "It acts strictly as an operating system kernel component with no developer APIs.",
+          "It is deprecated in modern industry practice and replaced by legacy assemblers.",
+          "It is solely used to format plain text files without any execution logic."
+        ],
+        "answer": "A",
+        "explanation": "Redis Installation & Caching Django Views/Queries focuses on establishing standard engineering patterns, operational efficiency, and best practices within undefined."
+      },
+      {
+        "question": "Which of the following is considered a primary best practice when implementing File Uploads & Cloud Storage Integration: AWS S3?",
+        "options": [
+          "Writing modular, maintainable, and thoroughly tested logic with clear separation of concerns",
+          "Combining all logic, data schemas, and presentation rules into a single large file",
+          "Ignoring error handling and edge cases to minimize execution time",
+          "Hardcoding configuration parameters and database passwords directly in source code"
+        ],
+        "answer": "A",
+        "explanation": "Best practices for File Uploads & Cloud Storage Integration: AWS S3 mandate modular architecture, proper exception handling, and clean code separation."
+      },
+      {
+        "question": "When debugging an issue related to Using Cloudinary for Media & CDN Optimization, what should be the first diagnostic step?",
+        "options": [
+          "Inspect runtime logs, error stack traces, and test input boundaries to isolate the failure point",
+          "Reinstall the operating system immediately",
+          "Disable all security policies and delete configuration files",
+          "Change random lines of code until the application compiles"
+        ],
+        "answer": "A",
+        "explanation": "Systematic debugging relies on analyzing stack traces, logging contextual values, and evaluating edge conditions."
+      },
+      {
+        "question": "How does Time & Space Complexity: Big-O Notation Analysis directly contribute to the overall Python Full Stack application lifecycle?",
+        "options": [
+          "It enables robust communication, data transformation, or architectural stability across layers.",
+          "It replaces the need for backend servers and database storage entirely.",
+          "It is only applicable to desktop applications and unsupported on the web.",
+          "It forces the browser to bypass HTTP protocols and communicate via raw UDP packets."
+        ],
+        "answer": "A",
+        "explanation": "In a full-stack architecture, each module provides specific abstractions—from UI reactivity to API contracts and database persistence."
+      },
+      {
+        "question": "What is the expected behavior if invalid input or unhandled edge cases are passed to routines in Arrays, Matrix Operations & Linked Lists: Singly & Doubly?",
+        "options": [
+          "An explicit exception or validation error should be raised, caught, and handled gracefully",
+          "The application should crash silently without recording any logs",
+          "The computer processor should automatically overclock",
+          "The program should invent random placeholder data without alerting the user"
+        ],
+        "answer": "A",
+        "explanation": "Robust engineering requires structured input validation and graceful exception propagation rather than silent failures."
+      },
+      {
+        "question": "Which performance metric is most critical when optimizing implementations of Stacks & Queues: Implementation & Use Cases?",
+        "options": [
+          "Execution time, memory footprint, and network latency efficiency",
+          "The physical weight of the developer's laptop",
+          "The number of comments written per line of code",
+          "The speed of the computer's cooling fan"
+        ],
+        "answer": "A",
+        "explanation": "Optimization focuses on computational complexity (time), memory allocation (space), and I/O overhead."
+      },
+      {
+        "question": "In a multi-developer production environment, how should updates to Recursion & Searching Algorithms: Linear, Binary Search be managed?",
+        "options": [
+          "Through feature branches, code reviews, automated linting, and CI/CD pipelines",
+          "By editing files directly on the live production server over FTP",
+          "By emailing zipped copies of modified files to team members",
+          "By disabling version control checks and committing directly to main without review"
+        ],
+        "answer": "A",
+        "explanation": "Modern DevOps workflows mandate Git branching, peer code reviews, continuous integration, and automated testing."
+      },
+      {
+        "question": "What security consideration must always be addressed when working with Sorting Algorithms: Bubble, Quick, Merge Sort?",
+        "options": [
+          "Input sanitization, authentication validation, and protection against unauthorized data access",
+          "Encrypting files using rot13 encoding",
+          "Allowing open CORS and wildcard permissions across all endpoints by default",
+          "Storing API keys and private certificates in public repositories"
+        ],
+        "answer": "A",
+        "explanation": "Security best practices require thorough input sanitization, strict least-privilege permissions, and secure secret management."
+      },
+      {
+        "question": "Which tool or utility is standard industry practice for automated unit testing in Treees: Binary Tres, BST Traversals & Operations?",
+        "options": [
+          "Automated test frameworks (e.g. pytest for Python, Jest/Mocha for JS) with assertion coverage",
+          "Manually refreshing the web browser once a week",
+          "Printing debug variables to the console and deleting them before deployment",
+          "Assuming the code works without testing if it compiled once"
+        ],
+        "answer": "A",
+        "explanation": "Automated test suites ensure regressions are caught early and software contracts remain compliant over time."
+      },
+      {
+        "question": "What architectural pattern is primarily exemplified by What is AI/ML/DL/LLM & Generative AI Ecosystem?",
+        "options": [
+          "Separation of concerns, modularity, and reusable component design",
+          "Spaghetti code architecture with tightly coupled circular dependencies",
+          "Monolithic hardcoding without abstraction layers",
+          "Client-only architecture without server persistence"
+        ],
+        "answer": "A",
+        "explanation": "High-quality software design emphasizes separation of concerns, DRY (Don't Repeat Yourself), and testability."
+      },
+      {
+        "question": "How does Google Gemini & OpenAI API Setup and Access scale when handling increasing user traffic and large volumes of data?",
+        "options": [
+          "By leveraging asynchronous processing, caching strategies, and efficient data structures",
+          "By duplicating code lines across multiple files",
+          "By increasing the size of the font in code editors",
+          "By restricting access to only one user per hour"
+        ],
+        "answer": "A",
+        "explanation": "Scalability is achieved through algorithmic efficiency, asynchronous non-blocking I/O, caching, and horizontal scaling."
+      },
+      {
+        "question": "What is the consequence of failing to release resources or close connections in Prompt Engineering Strategies & Few-Shot Prompting?",
+        "options": [
+          "Memory leaks, connection pool exhaustion, and potential application crashes over time",
+          "Immediate hardware destruction of the CPU",
+          "Automatic speed increases due to caching everything in memory forever",
+          "No consequence; operating systems handle infinite open sockets with zero overhead"
+        ],
+        "answer": "A",
+        "explanation": "Unclosed connections and unmanaged memory allocations result in resource starvation, degraded latency, and server crashes."
+      },
+      {
+        "question": "Which configuration approach is recommended when deploying applications utilizing Redis Installation & Caching Django Views/Queries?",
+        "options": [
+          "Twelve-Factor App principles using environment variables for settings and secrets",
+          "Hardcoding production database URLs directly inside component files",
+          "Writing secrets in plaintext on a sticky note attached to the server",
+          "Embedding API keys in HTML meta tags visible to web scrapers"
+        ],
+        "answer": "A",
+        "explanation": "Twelve-Factor methodology recommends storing all configuration that varies across environments in environment variables."
+      },
+      {
+        "question": "In terms of API design and data interchange in Time & Space Complexity: Big-O Notation Analysis, what standard format is dominant?",
+        "options": [
+          "JSON (JavaScript Object Notation) over HTTP REST or GraphQL",
+          "Raw binary machine code dumps",
+          "Unformatted comma-separated text files sent via email",
+          "Proprietary binary formats unsupported by modern browsers"
+        ],
+        "answer": "A",
+        "explanation": "JSON is the universal language-independent data interchange standard for modern web and mobile APIs."
+      },
+      {
+        "question": "What role does type safety or dynamic type validation play during execution of Recursion & Searching Algorithms: Linear, Binary Search?",
+        "options": [
+          "It prevents type coercion bugs, validates runtime contracts, and improves developer tooling",
+          "It slows down code execution by a factor of 1000x",
+          "It is forbidden in Python and JavaScript applications",
+          "It requires every variable to be re-declared in three different languages"
+        ],
+        "answer": "A",
+        "explanation": "Type checking (and type hints in Python) enhances code readability, enables IDE auto-completion, and catches type bugs early."
+      },
+      {
+        "question": "How should database queries or asynchronous operations in What is AI/ML/DL/LLM & Generative AI Ecosystem be structured to prevent blocking?",
+        "options": [
+          "Using non-blocking async/await, background task queues, or indexed database query plans",
+          "Using infinite while loops with time.sleep() on the main execution thread",
+          "Executing all queries synchronously on the frontend UI thread",
+          "Running queries without WHERE clauses or limits"
+        ],
+        "answer": "A",
+        "explanation": "Non-blocking asynchronous syntax and background workers prevent thread starvation and keep user interfaces responsive."
+      },
+      {
+        "question": "What documentation standard is considered essential for code developed in Redis Installation & Caching Django Views/Queries?",
+        "options": [
+          "Descriptive docstrings, typed function signatures, and API endpoint specifications (e.g. Swagger/OpenAPI)",
+          "Writing zero comments to protect intellectual property through obscurity",
+          "Writing comments entirely in binary code",
+          "Commenting out working code and replacing it with pseudo-code"
+        ],
+        "answer": "A",
+        "explanation": "Production standards require clean docstrings, clear parameter/return types, and interactive API documentation."
+      },
+      {
+        "question": "When integrating third-party libraries or SDKs in Time & Space Complexity: Big-O Notation Analysis, what safeguard should be applied?",
+        "options": [
+          "Pinning exact dependency versions in requirements.txt or package.json to prevent breaking upstream updates",
+          "Always installing unverified packages from random online forums",
+          "Using wildcard version specifiers like '*' for all production dependencies",
+          "Never using virtual environments and installing everything directly to global system Python"
+        ],
+        "answer": "A",
+        "explanation": "Version pinning and lockfiles ensure deterministic, repeatable builds across development, staging, and production environments."
+      },
+      {
+        "question": "What is the primary indicator of clean, professional code when reviewing Recursion & Searching Algorithms: Linear, Binary Search?",
+        "options": [
+          "High readability, clear variable naming, modular functions with single responsibilities, and comprehensive test coverage",
+          "Dense, obfuscated one-liners that no other developer can understand",
+          "Using 500-line functions with 20 levels of nested if-else statements",
+          "Exclusively using single-letter variable names like a, b, c, x, y, z"
+        ],
+        "answer": "A",
+        "explanation": "Clean code is self-documenting, adheres to the Single Responsibility Principle, and is straightforward for peers to maintain."
+      },
+      {
+        "question": "What is the capstone objective or ultimate takeaway of mastering What is AI/ML/DL/LLM & Generative AI Ecosystem?",
+        "options": [
+          "The ability to independently architect, implement, debug, and deploy enterprise-grade features with confidence",
+          "Memorizing syntax without understanding fundamental architectural mechanics",
+          "Passing an automated quiz without being able to write working code",
+          "Relying entirely on boilerplate generators without knowing how systems connect"
+        ],
+        "answer": "A",
+        "explanation": "Mastering this module empowers engineers to design resilient, production-ready systems from first principles."
+      }
+    ],
+    "practicalCodingChallenges": [
+      {
+        "title": "Implement Least Recently Used (LRU) Cache in Python",
+        "difficulty": "Hard",
+        "category": "Data Structures & Algorithms",
+        "problemStatement": "Design a data structure that follows the constraints of a Least Recently Used (LRU) cache with `get(key)` and `put(key, value)` in O(1) time complexity using a Doubly Linked List and Hash Map.",
+        "starterCode": "class LRUCache:\n    def __init__(self, capacity: int):\n        pass\n    def get(self, key: int) -> int:\n        pass\n    def put(self, key: int, value: int) -> None:\n        pass",
+        "solutionCode": "class Node:\n    def __init__(self, key=0, val=0):\n        self.key = key\n        self.val = val\n        self.prev = None\n        self.next = None\n\nclass LRUCache:\n    def __init__(self, capacity: int):\n        self.cap = capacity\n        self.cache = {}\n        self.head = Node()\n        self.tail = Node()\n        self.head.next = self.tail\n        self.tail.prev = self.head\n\n    def _remove(self, node):\n        node.prev.next = node.next\n        node.next.prev = node.prev\n\n    def _add(self, node):\n        node.next = self.head.next\n        node.prev = self.head\n        self.head.next.prev = node\n        self.head.next = node\n\n    def get(self, key: int) -> int:\n        if key in self.cache:\n            node = self.cache[key]\n            self._remove(node)\n            self._add(node)\n            return node.val\n        return -1\n\n    def put(self, key: int, value: int) -> None:\n        if key in self.cache:\n            self._remove(self.cache[key])\n        node = Node(key, value)\n        self._add(node)\n        self.cache[key] = node\n        if len(self.cache) > self.cap:\n            lru = self.tail.prev\n            self._remove(lru)\n            del self.cache[lru.key]",
+        "testCases": [
+          {
+            "input": "put(1,1), put(2,2), get(1), put(3,3), get(2)",
+            "output": "get(1) -> 1, get(2) -> -1 (evicted)"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "weekNumber": 7,
+    "title": "Week 7 Comprehensive Assessment: Modules 25–28",
+    "courseId": "crs-1786624019154-w",
+    "courseName": "Python Full Stack + DSA with AI",
+    "coveredModulesCount": 4,
+    "coveredModules": [
+      "AI Integration with Python & LangChain",
+      "Docker Containerization & Cloud Deployment",
+      "System Design & Software Architecture",
+      "Capstone Project Mentoring & Review - 1"
+    ],
+    "durationMinutes": 90,
+    "totalMarks": 150,
+    "theoreticalMcqCount": 20,
+    "practicalCodingCount": 1,
+    "theoreticalQuestions": [
+      {
+        "question": "In the context of LangChain Framework Basics, Prompt Templates & Chains, what is the foundational concept behind this technology?",
+        "options": [
+          "It establishes core standards, efficiency rules, and reliable runtime execution for undefined.",
+          "It acts strictly as an operating system kernel component with no developer APIs.",
+          "It is deprecated in modern industry practice and replaced by legacy assemblers.",
+          "It is solely used to format plain text files without any execution logic."
+        ],
+        "answer": "A",
+        "explanation": "LangChain Framework Basics, Prompt Templates & Chains focuses on establishing standard engineering patterns, operational efficiency, and best practices within undefined."
+      },
+      {
+        "question": "Which of the following is considered a primary best practice when implementing Integrating OpenAI/Gemini APIs in Django Backend?",
+        "options": [
+          "Writing modular, maintainable, and thoroughly tested logic with clear separation of concerns",
+          "Combining all logic, data schemas, and presentation rules into a single large file",
+          "Ignoring error handling and edge cases to minimize execution time",
+          "Hardcoding configuration parameters and database passwords directly in source code"
+        ],
+        "answer": "A",
+        "explanation": "Best practices for Integrating OpenAI/Gemini APIs in Django Backend mandate modular architecture, proper exception handling, and clean code separation."
+      },
+      {
+        "question": "When debugging an issue related to Building Intelligent AI Chatbots & LLM Interfaces, what should be the first diagnostic step?",
+        "options": [
+          "Inspect runtime logs, error stack traces, and test input boundaries to isolate the failure point",
+          "Reinstall the operating system immediately",
+          "Disable all security policies and delete configuration files",
+          "Change random lines of code until the application compiles"
+        ],
+        "answer": "A",
+        "explanation": "Systematic debugging relies on analyzing stack traces, logging contextual values, and evaluating edge conditions."
+      },
+      {
+        "question": "How does Docker Concepts & Creating Dockerfiles directly contribute to the overall Python Full Stack application lifecycle?",
+        "options": [
+          "It enables robust communication, data transformation, or architectural stability across layers.",
+          "It replaces the need for backend servers and database storage entirely.",
+          "It is only applicable to desktop applications and unsupported on the web.",
+          "It forces the browser to bypass HTTP protocols and communicate via raw UDP packets."
+        ],
+        "answer": "A",
+        "explanation": "In a full-stack architecture, each module provides specific abstractions—from UI reactivity to API contracts and database persistence."
+      },
+      {
+        "question": "What is the expected behavior if invalid input or unhandled edge cases are passed to routines in Containerizing Django Applications & Docker Compose?",
+        "options": [
+          "An explicit exception or validation error should be raised, caught, and handled gracefully",
+          "The application should crash silently without recording any logs",
+          "The computer processor should automatically overclock",
+          "The program should invent random placeholder data without alerting the user"
+        ],
+        "answer": "A",
+        "explanation": "Robust engineering requires structured input validation and graceful exception propagation rather than silent failures."
+      },
+      {
+        "question": "Which performance metric is most critical when optimizing implementations of Deploying Full Stack Applications to Cloud (Render/AWS/Vercel)?",
+        "options": [
+          "Execution time, memory footprint, and network latency efficiency",
+          "The physical weight of the developer's laptop",
+          "The number of comments written per line of code",
+          "The speed of the computer's cooling fan"
+        ],
+        "answer": "A",
+        "explanation": "Optimization focuses on computational complexity (time), memory allocation (space), and I/O overhead."
+      },
+      {
+        "question": "In a multi-developer production environment, how should updates to System Design Fundamentals: HLD vs LLD be managed?",
+        "options": [
+          "Through feature branches, code reviews, automated linting, and CI/CD pipelines",
+          "By editing files directly on the live production server over FTP",
+          "By emailing zipped copies of modified files to team members",
+          "By disabling version control checks and committing directly to main without review"
+        ],
+        "answer": "A",
+        "explanation": "Modern DevOps workflows mandate Git branching, peer code reviews, continuous integration, and automated testing."
+      },
+      {
+        "question": "What security consideration must always be addressed when working with Load Balancing & Database Sharding?",
+        "options": [
+          "Input sanitization, authentication validation, and protection against unauthorized data access",
+          "Encrypting files using rot13 encoding",
+          "Allowing open CORS and wildcard permissions across all endpoints by default",
+          "Storing API keys and private certificates in public repositories"
+        ],
+        "answer": "A",
+        "explanation": "Security best practices require thorough input sanitization, strict least-privilege permissions, and secure secret management."
+      },
+      {
+        "question": "Which tool or utility is standard industry practice for automated unit testing in Caching Strategies & Scalable Web Architecture?",
+        "options": [
+          "Automated test frameworks (e.g. pytest for Python, Jest/Mocha for JS) with assertion coverage",
+          "Manually refreshing the web browser once a week",
+          "Printing debug variables to the console and deleting them before deployment",
+          "Assuming the code works without testing if it compiled once"
+        ],
+        "answer": "A",
+        "explanation": "Automated test suites ensure regressions are caught early and software contracts remain compliant over time."
+      },
+      {
+        "question": "What architectural pattern is primarily exemplified by Project Scope Finalization & Architecture Validation?",
+        "options": [
+          "Separation of concerns, modularity, and reusable component design",
+          "Spaghetti code architecture with tightly coupled circular dependencies",
+          "Monolithic hardcoding without abstraction layers",
+          "Client-only architecture without server persistence"
+        ],
+        "answer": "A",
+        "explanation": "High-quality software design emphasizes separation of concerns, DRY (Don't Repeat Yourself), and testability."
+      },
+      {
+        "question": "How does Database Design Review & API Contract Definition scale when handling increasing user traffic and large volumes of data?",
+        "options": [
+          "By leveraging asynchronous processing, caching strategies, and efficient data structures",
+          "By duplicating code lines across multiple files",
+          "By increasing the size of the font in code editors",
+          "By restricting access to only one user per hour"
+        ],
+        "answer": "A",
+        "explanation": "Scalability is achieved through algorithmic efficiency, asynchronous non-blocking I/O, caching, and horizontal scaling."
+      },
+      {
+        "question": "What is the consequence of failing to release resources or close connections in Project Scope Finalization & Architecture Validation?",
+        "options": [
+          "Memory leaks, connection pool exhaustion, and potential application crashes over time",
+          "Immediate hardware destruction of the CPU",
+          "Automatic speed increases due to caching everything in memory forever",
+          "No consequence; operating systems handle infinite open sockets with zero overhead"
+        ],
+        "answer": "A",
+        "explanation": "Unclosed connections and unmanaged memory allocations result in resource starvation, degraded latency, and server crashes."
+      },
+      {
+        "question": "Which configuration approach is recommended when deploying applications utilizing LangChain Framework Basics, Prompt Templates & Chains?",
+        "options": [
+          "Twelve-Factor App principles using environment variables for settings and secrets",
+          "Hardcoding production database URLs directly inside component files",
+          "Writing secrets in plaintext on a sticky note attached to the server",
+          "Embedding API keys in HTML meta tags visible to web scrapers"
+        ],
+        "answer": "A",
+        "explanation": "Twelve-Factor methodology recommends storing all configuration that varies across environments in environment variables."
+      },
+      {
+        "question": "In terms of API design and data interchange in Docker Concepts & Creating Dockerfiles, what standard format is dominant?",
+        "options": [
+          "JSON (JavaScript Object Notation) over HTTP REST or GraphQL",
+          "Raw binary machine code dumps",
+          "Unformatted comma-separated text files sent via email",
+          "Proprietary binary formats unsupported by modern browsers"
+        ],
+        "answer": "A",
+        "explanation": "JSON is the universal language-independent data interchange standard for modern web and mobile APIs."
+      },
+      {
+        "question": "What role does type safety or dynamic type validation play during execution of System Design Fundamentals: HLD vs LLD?",
+        "options": [
+          "It prevents type coercion bugs, validates runtime contracts, and improves developer tooling",
+          "It slows down code execution by a factor of 1000x",
+          "It is forbidden in Python and JavaScript applications",
+          "It requires every variable to be re-declared in three different languages"
+        ],
+        "answer": "A",
+        "explanation": "Type checking (and type hints in Python) enhances code readability, enables IDE auto-completion, and catches type bugs early."
+      },
+      {
+        "question": "How should database queries or asynchronous operations in Project Scope Finalization & Architecture Validation be structured to prevent blocking?",
+        "options": [
+          "Using non-blocking async/await, background task queues, or indexed database query plans",
+          "Using infinite while loops with time.sleep() on the main execution thread",
+          "Executing all queries synchronously on the frontend UI thread",
+          "Running queries without WHERE clauses or limits"
+        ],
+        "answer": "A",
+        "explanation": "Non-blocking asynchronous syntax and background workers prevent thread starvation and keep user interfaces responsive."
+      },
+      {
+        "question": "What documentation standard is considered essential for code developed in LangChain Framework Basics, Prompt Templates & Chains?",
+        "options": [
+          "Descriptive docstrings, typed function signatures, and API endpoint specifications (e.g. Swagger/OpenAPI)",
+          "Writing zero comments to protect intellectual property through obscurity",
+          "Writing comments entirely in binary code",
+          "Commenting out working code and replacing it with pseudo-code"
+        ],
+        "answer": "A",
+        "explanation": "Production standards require clean docstrings, clear parameter/return types, and interactive API documentation."
+      },
+      {
+        "question": "When integrating third-party libraries or SDKs in Docker Concepts & Creating Dockerfiles, what safeguard should be applied?",
+        "options": [
+          "Pinning exact dependency versions in requirements.txt or package.json to prevent breaking upstream updates",
+          "Always installing unverified packages from random online forums",
+          "Using wildcard version specifiers like '*' for all production dependencies",
+          "Never using virtual environments and installing everything directly to global system Python"
+        ],
+        "answer": "A",
+        "explanation": "Version pinning and lockfiles ensure deterministic, repeatable builds across development, staging, and production environments."
+      },
+      {
+        "question": "What is the primary indicator of clean, professional code when reviewing System Design Fundamentals: HLD vs LLD?",
+        "options": [
+          "High readability, clear variable naming, modular functions with single responsibilities, and comprehensive test coverage",
+          "Dense, obfuscated one-liners that no other developer can understand",
+          "Using 500-line functions with 20 levels of nested if-else statements",
+          "Exclusively using single-letter variable names like a, b, c, x, y, z"
+        ],
+        "answer": "A",
+        "explanation": "Clean code is self-documenting, adheres to the Single Responsibility Principle, and is straightforward for peers to maintain."
+      },
+      {
+        "question": "What is the capstone objective or ultimate takeaway of mastering Project Scope Finalization & Architecture Validation?",
+        "options": [
+          "The ability to independently architect, implement, debug, and deploy enterprise-grade features with confidence",
+          "Memorizing syntax without understanding fundamental architectural mechanics",
+          "Passing an automated quiz without being able to write working code",
+          "Relying entirely on boilerplate generators without knowing how systems connect"
+        ],
+        "answer": "A",
+        "explanation": "Mastering this module empowers engineers to design resilient, production-ready systems from first principles."
+      }
+    ],
+    "practicalCodingChallenges": [
+      {
+        "title": "Production Dockerfile & Compose for Django + PostgreSQL + Redis",
+        "difficulty": "Hard",
+        "category": "Cloud & DevOps",
+        "problemStatement": "Write a production-grade multi-container `docker-compose.yml` defining services for `web` (Django application on port 8000), `db` (PostgreSQL 16 with volume persistence and healthcheck), and `cache` (Redis Alpine). Ensure the `web` service depends on `db` and `cache` health.",
+        "starterCode": "# Write docker-compose.yml\nversion: '3.8'\nservices:\n  ...",
+        "solutionCode": "version: '3.8'\nservices:\n  db:\n    image: postgres:16-alpine\n    environment:\n      POSTGRES_DB: aspire_db\n      POSTGRES_USER: aspire_user\n      POSTGRES_PASSWORD: aspire_secure_password\n    volumes:\n      - pgdata:/var/lib/postgresql/data\n    healthcheck:\n      test: [\"CMD-SHELL\", \"pg_isready -U aspire_user -d aspire_db\"]\n      interval: 5s\n      timeout: 5s\n      retries: 5\n\n  cache:\n    image: redis:7-alpine\n    ports:\n      - \"6379:6379\"\n\n  web:\n    build: .\n    command: gunicorn backend.wsgi:application --bind 0.0.0.0:8000\n    volumes:\n      - .:/app\n    ports:\n      - \"8000:8000\"\n    depends_on:\n      db:\n        condition: service_healthy\n      cache:\n        condition: service_started\n    environment:\n      - DATABASE_URL=postgres://aspire_user:aspire_secure_password@db:5432/aspire_db\n      - REDIS_URL=redis://cache:6379/1\n\nvolumes:\n  pgdata:",
+        "testCases": [
+          {
+            "input": "docker-compose up --build",
+            "output": "All three containers started with database healthcheck verified"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "weekNumber": 8,
+    "title": "Week 8 Comprehensive Assessment: Modules 29–31",
+    "courseId": "crs-1786624019154-w",
+    "courseName": "Python Full Stack + DSA with AI",
+    "coveredModulesCount": 3,
+    "coveredModules": [
+      "Capstone Project Development & Mentoring - 2",
+      "Resume Building, LinkedIn & GitHub Portfolio",
+      "Mock Technical Interviews & Valedictory"
+    ],
+    "durationMinutes": 90,
+    "totalMarks": 150,
+    "theoreticalMcqCount": 20,
+    "practicalCodingCount": 1,
+    "theoreticalQuestions": [
+      {
+        "question": "In the context of Frontend-Backend Integration & AI Feature Tuning, what is the foundational concept behind this technology?",
+        "options": [
+          "It establishes core standards, efficiency rules, and reliable runtime execution for undefined.",
+          "It acts strictly as an operating system kernel component with no developer APIs.",
+          "It is deprecated in modern industry practice and replaced by legacy assemblers.",
+          "It is solely used to format plain text files without any execution logic."
+        ],
+        "answer": "A",
+        "explanation": "Frontend-Backend Integration & AI Feature Tuning focuses on establishing standard engineering patterns, operational efficiency, and best practices within undefined."
+      },
+      {
+        "question": "Which of the following is considered a primary best practice when implementing Bug Fixing & Security Auditing?",
+        "options": [
+          "Writing modular, maintainable, and thoroughly tested logic with clear separation of concerns",
+          "Combining all logic, data schemas, and presentation rules into a single large file",
+          "Ignoring error handling and edge cases to minimize execution time",
+          "Hardcoding configuration parameters and database passwords directly in source code"
+        ],
+        "answer": "A",
+        "explanation": "Best practices for Bug Fixing & Security Auditing mandate modular architecture, proper exception handling, and clean code separation."
+      },
+      {
+        "question": "When debugging an issue related to Performance Optimization, what should be the first diagnostic step?",
+        "options": [
+          "Inspect runtime logs, error stack traces, and test input boundaries to isolate the failure point",
+          "Reinstall the operating system immediately",
+          "Disable all security policies and delete configuration files",
+          "Change random lines of code until the application compiles"
+        ],
+        "answer": "A",
+        "explanation": "Systematic debugging relies on analyzing stack traces, logging contextual values, and evaluating edge conditions."
+      },
+      {
+        "question": "How does Creating ATS-Compliant Resume & GitHub Presentation directly contribute to the overall Python Full Stack application lifecycle?",
+        "options": [
+          "It enables robust communication, data transformation, or architectural stability across layers.",
+          "It replaces the need for backend servers and database storage entirely.",
+          "It is only applicable to desktop applications and unsupported on the web.",
+          "It forces the browser to bypass HTTP protocols and communicate via raw UDP packets."
+        ],
+        "answer": "A",
+        "explanation": "In a full-stack architecture, each module provides specific abstractions—from UI reactivity to API contracts and database persistence."
+      },
+      {
+        "question": "What is the expected behavior if invalid input or unhandled edge cases are passed to routines in README Design, Linkedin Profile Optimization & Branding?",
+        "options": [
+          "An explicit exception or validation error should be raised, caught, and handled gracefully",
+          "The application should crash silently without recording any logs",
+          "The computer processor should automatically overclock",
+          "The program should invent random placeholder data without alerting the user"
+        ],
+        "answer": "A",
+        "explanation": "Robust engineering requires structured input validation and graceful exception propagation rather than silent failures."
+      },
+      {
+        "question": "Which performance metric is most critical when optimizing implementations of Technical Coding Practice & DSA Live Problem Solving?",
+        "options": [
+          "Execution time, memory footprint, and network latency efficiency",
+          "The physical weight of the developer's laptop",
+          "The number of comments written per line of code",
+          "The speed of the computer's cooling fan"
+        ],
+        "answer": "A",
+        "explanation": "Optimization focuses on computational complexity (time), memory allocation (space), and I/O overhead."
+      },
+      {
+        "question": "In a multi-developer production environment, how should updates to HR Interview Prep, Capstone Demos, & Certification be managed?",
+        "options": [
+          "Through feature branches, code reviews, automated linting, and CI/CD pipelines",
+          "By editing files directly on the live production server over FTP",
+          "By emailing zipped copies of modified files to team members",
+          "By disabling version control checks and committing directly to main without review"
+        ],
+        "answer": "A",
+        "explanation": "Modern DevOps workflows mandate Git branching, peer code reviews, continuous integration, and automated testing."
+      },
+      {
+        "question": "What security consideration must always be addressed when working with Creating ATS-Compliant Resume & GitHub Presentation?",
+        "options": [
+          "Input sanitization, authentication validation, and protection against unauthorized data access",
+          "Encrypting files using rot13 encoding",
+          "Allowing open CORS and wildcard permissions across all endpoints by default",
+          "Storing API keys and private certificates in public repositories"
+        ],
+        "answer": "A",
+        "explanation": "Security best practices require thorough input sanitization, strict least-privilege permissions, and secure secret management."
+      },
+      {
+        "question": "Which tool or utility is standard industry practice for automated unit testing in Technical Coding Practice & DSA Live Problem Solving?",
+        "options": [
+          "Automated test frameworks (e.g. pytest for Python, Jest/Mocha for JS) with assertion coverage",
+          "Manually refreshing the web browser once a week",
+          "Printing debug variables to the console and deleting them before deployment",
+          "Assuming the code works without testing if it compiled once"
+        ],
+        "answer": "A",
+        "explanation": "Automated test suites ensure regressions are caught early and software contracts remain compliant over time."
+      },
+      {
+        "question": "What architectural pattern is primarily exemplified by Frontend-Backend Integration & AI Feature Tuning?",
+        "options": [
+          "Separation of concerns, modularity, and reusable component design",
+          "Spaghetti code architecture with tightly coupled circular dependencies",
+          "Monolithic hardcoding without abstraction layers",
+          "Client-only architecture without server persistence"
+        ],
+        "answer": "A",
+        "explanation": "High-quality software design emphasizes separation of concerns, DRY (Don't Repeat Yourself), and testability."
+      },
+      {
+        "question": "How does Creating ATS-Compliant Resume & GitHub Presentation scale when handling increasing user traffic and large volumes of data?",
+        "options": [
+          "By leveraging asynchronous processing, caching strategies, and efficient data structures",
+          "By duplicating code lines across multiple files",
+          "By increasing the size of the font in code editors",
+          "By restricting access to only one user per hour"
+        ],
+        "answer": "A",
+        "explanation": "Scalability is achieved through algorithmic efficiency, asynchronous non-blocking I/O, caching, and horizontal scaling."
+      },
+      {
+        "question": "What is the consequence of failing to release resources or close connections in Technical Coding Practice & DSA Live Problem Solving?",
+        "options": [
+          "Memory leaks, connection pool exhaustion, and potential application crashes over time",
+          "Immediate hardware destruction of the CPU",
+          "Automatic speed increases due to caching everything in memory forever",
+          "No consequence; operating systems handle infinite open sockets with zero overhead"
+        ],
+        "answer": "A",
+        "explanation": "Unclosed connections and unmanaged memory allocations result in resource starvation, degraded latency, and server crashes."
+      },
+      {
+        "question": "Which configuration approach is recommended when deploying applications utilizing Frontend-Backend Integration & AI Feature Tuning?",
+        "options": [
+          "Twelve-Factor App principles using environment variables for settings and secrets",
+          "Hardcoding production database URLs directly inside component files",
+          "Writing secrets in plaintext on a sticky note attached to the server",
+          "Embedding API keys in HTML meta tags visible to web scrapers"
+        ],
+        "answer": "A",
+        "explanation": "Twelve-Factor methodology recommends storing all configuration that varies across environments in environment variables."
+      },
+      {
+        "question": "In terms of API design and data interchange in Creating ATS-Compliant Resume & GitHub Presentation, what standard format is dominant?",
+        "options": [
+          "JSON (JavaScript Object Notation) over HTTP REST or GraphQL",
+          "Raw binary machine code dumps",
+          "Unformatted comma-separated text files sent via email",
+          "Proprietary binary formats unsupported by modern browsers"
+        ],
+        "answer": "A",
+        "explanation": "JSON is the universal language-independent data interchange standard for modern web and mobile APIs."
+      },
+      {
+        "question": "What role does type safety or dynamic type validation play during execution of Technical Coding Practice & DSA Live Problem Solving?",
+        "options": [
+          "It prevents type coercion bugs, validates runtime contracts, and improves developer tooling",
+          "It slows down code execution by a factor of 1000x",
+          "It is forbidden in Python and JavaScript applications",
+          "It requires every variable to be re-declared in three different languages"
+        ],
+        "answer": "A",
+        "explanation": "Type checking (and type hints in Python) enhances code readability, enables IDE auto-completion, and catches type bugs early."
+      },
+      {
+        "question": "How should database queries or asynchronous operations in Frontend-Backend Integration & AI Feature Tuning be structured to prevent blocking?",
+        "options": [
+          "Using non-blocking async/await, background task queues, or indexed database query plans",
+          "Using infinite while loops with time.sleep() on the main execution thread",
+          "Executing all queries synchronously on the frontend UI thread",
+          "Running queries without WHERE clauses or limits"
+        ],
+        "answer": "A",
+        "explanation": "Non-blocking asynchronous syntax and background workers prevent thread starvation and keep user interfaces responsive."
+      },
+      {
+        "question": "What documentation standard is considered essential for code developed in Creating ATS-Compliant Resume & GitHub Presentation?",
+        "options": [
+          "Descriptive docstrings, typed function signatures, and API endpoint specifications (e.g. Swagger/OpenAPI)",
+          "Writing zero comments to protect intellectual property through obscurity",
+          "Writing comments entirely in binary code",
+          "Commenting out working code and replacing it with pseudo-code"
+        ],
+        "answer": "A",
+        "explanation": "Production standards require clean docstrings, clear parameter/return types, and interactive API documentation."
+      },
+      {
+        "question": "When integrating third-party libraries or SDKs in Technical Coding Practice & DSA Live Problem Solving, what safeguard should be applied?",
+        "options": [
+          "Pinning exact dependency versions in requirements.txt or package.json to prevent breaking upstream updates",
+          "Always installing unverified packages from random online forums",
+          "Using wildcard version specifiers like '*' for all production dependencies",
+          "Never using virtual environments and installing everything directly to global system Python"
+        ],
+        "answer": "A",
+        "explanation": "Version pinning and lockfiles ensure deterministic, repeatable builds across development, staging, and production environments."
+      },
+      {
+        "question": "What is the primary indicator of clean, professional code when reviewing Frontend-Backend Integration & AI Feature Tuning?",
+        "options": [
+          "High readability, clear variable naming, modular functions with single responsibilities, and comprehensive test coverage",
+          "Dense, obfuscated one-liners that no other developer can understand",
+          "Using 500-line functions with 20 levels of nested if-else statements",
+          "Exclusively using single-letter variable names like a, b, c, x, y, z"
+        ],
+        "answer": "A",
+        "explanation": "Clean code is self-documenting, adheres to the Single Responsibility Principle, and is straightforward for peers to maintain."
+      },
+      {
+        "question": "What is the capstone objective or ultimate takeaway of mastering Creating ATS-Compliant Resume & GitHub Presentation?",
+        "options": [
+          "The ability to independently architect, implement, debug, and deploy enterprise-grade features with confidence",
+          "Memorizing syntax without understanding fundamental architectural mechanics",
+          "Passing an automated quiz without being able to write working code",
+          "Relying entirely on boilerplate generators without knowing how systems connect"
+        ],
+        "answer": "A",
+        "explanation": "Mastering this module empowers engineers to design resilient, production-ready systems from first principles."
+      }
+    ],
+    "practicalCodingChallenges": [
+      {
+        "title": "API Rate Limiter & OWASP Security Middleware",
+        "difficulty": "Hard",
+        "category": "System Design & Security",
+        "problemStatement": "Implement a custom Django middleware `SecurityAuditAndRateLimitMiddleware` that inspects incoming requests. It must block IPs exceeding 60 requests per minute using Redis token bucket counters and inject OWASP security headers (`X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `Content-Security-Policy: default-src 'self'`).",
+        "starterCode": "class SecurityAuditAndRateLimitMiddleware:\n    def __init__(self, get_response):\n        self.get_response = get_response\n    def __call__(self, request):\n        # Implement rate limiting and security headers\n        pass",
+        "solutionCode": "import time\nfrom django.http import JsonResponse\nimport redis\n\nr = redis.Redis(host='localhost', port=6379, db=0)\n\nclass SecurityAuditAndRateLimitMiddleware:\n    def __init__(self, get_response):\n        self.get_response = get_response\n\n    def __call__(self, request):\n        ip = request.META.get('HTTP_X_FORWARDED_FOR', request.META.get('REMOTE_ADDR', '127.0.0.1')).split(',')[0]\n        current_minute = int(time.time() // 60)\n        key = f\"rate_limit:{ip}:{current_minute}\"\n        \n        req_count = r.incr(key)\n        if req_count == 1:\n            r.expire(key, 60)\n            \n        if req_count > 60:\n            return JsonResponse({'error': 'Too Many Requests', 'status': 429}, status=429)\n            \n        response = self.get_response(request)\n        response['X-Content-Type-Options'] = 'nosniff'\n        response['X-Frame-Options'] = 'DENY'\n        response['Content-Security-Policy'] = \"default-src 'self'\"\n        return response",
+        "testCases": [
+          {
+            "input": "61 requests sent within 10 seconds",
+            "output": "HTTP 429 Too Many Requests response returned on 61st call"
+          }
+        ]
+      }
+    ]
+  }
+]

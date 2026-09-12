@@ -1214,13 +1214,13 @@ export function LmsDataProvider({ children }) {
       courseId: row.course_id || row.courseId || meta.courseId || 'crs-1786624019154-w',
       courseName: row.course_name || row.courseName || meta.courseName || 'Python Full Stack + DSA with AI',
       stageId: row.stage_id || row.stageId || meta.stageId || 'top-stg-1',
-      stageName: row.stage_name || row.stageName || meta.stageName || 'Stage 1: Frontend & Programming Foundations',
+      stageName: row.stage_name || row.stageName || meta.stageName || '',
       subtopicId: row.subtopic_id || row.subtopicId || meta.subtopicId || 'mod-git',
-      subtopicName: row.subtopic_name || row.subtopicName || meta.subtopicName || 'Git & GitHub Version Control',
-      innerTopicId: row.inner_topic_id || row.innerTopicId || row.moduleId || meta.innerTopicId || meta.moduleId || 'lesson-1787196281985-0',
-      moduleId: row.inner_topic_id || row.innerTopicId || row.moduleId || meta.innerTopicId || meta.moduleId || 'lesson-1787196281985-0',
-      moduleName: row.module_name || row.moduleName || meta.moduleName || meta.innerTopicTitle || 'Git Architecture & Version Control Concepts',
-      topicName: row.module_name || row.moduleName || meta.moduleName || meta.innerTopicTitle || 'Git Architecture & Version Control Concepts',
+      subtopicName: row.subtopic_name || row.subtopicName || meta.subtopicName || '',
+      innerTopicId: row.inner_topic_id || row.innerTopicId || row.moduleId || meta.innerTopicId || meta.moduleId || '',
+      moduleId: row.inner_topic_id || row.innerTopicId || row.moduleId || meta.innerTopicId || meta.moduleId || '',
+      moduleName: row.module_name || row.moduleName || meta.moduleName || meta.innerTopicTitle || '',
+      topicName: row.module_name || row.moduleName || meta.moduleName || meta.innerTopicTitle || '',
       createdAt: row.created_at || row.createdAt || meta.createdAt || ''
     };
   };

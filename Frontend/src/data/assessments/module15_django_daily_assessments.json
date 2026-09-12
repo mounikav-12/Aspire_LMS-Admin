@@ -1,0 +1,692 @@
+{
+  "courseId": "crs-1786624019154-w",
+  "courseTitle": "Python Full Stack + DSA with AI",
+  "stageId": "top-stg-2",
+  "stageTitle": "Stage 2: Backend + DSA",
+  "moduleId": "subtop-1787203534393",
+  "moduleTitle": "Module 15: Django Framework Setup & Architecture",
+  "totalLessons": 3,
+  "lessons": [
+    {
+      "lessonId": "lesson-1787204268506",
+      "lessonTitle": "Lesson 1: MVT Architecture & Creating Django Projects/Apps",
+      "totalQuestions": 20,
+      "questions": [
+        {
+          "question": "How does Django's MVT (Model-View-Template) architecture correspond to the traditional MVC design pattern?",
+          "options": [
+            "Model handles data (Model), Template handles presentation (View in MVC), and View handles business logic and request dispatching (Controller in MVC).",
+            "Template handles data queries, Model handles HTML rendering, and View handles WSGI servers.",
+            "Django completely discards MVC principles in favor of Microservices.",
+            "Model handles views, View handles database schemas, and Template handles routing."
+          ],
+          "answer": "A",
+          "explanation": "In Django's MVT pattern, the Model is the ORM data layer, the Template is the presentation layer (equivalent to View in MVC), and the View processes HTTP requests and executes business logic (equivalent to Controller in MVC)."
+        },
+        {
+          "question": "Which command initializes a new Django project named `core_project` in the current working directory without creating an extra nested folder?",
+          "options": [
+            "django-admin create-project core_project",
+            "django-admin startproject core_project .",
+            "python manage.py startproject core_project",
+            "django init core_project --current"
+          ],
+          "answer": "B",
+          "explanation": "Appending `.` to `django-admin startproject core_project .` instructs Django to place `manage.py` and the project package directly in the current directory."
+        },
+        {
+          "question": "Which command creates a new modular application named `users` inside an existing Django project?",
+          "options": [
+            "python manage.py makeapp users",
+            "python manage.py startapp users",
+            "python manage.py create-app users",
+            "django-admin newapp users"
+          ],
+          "answer": "B",
+          "explanation": "`python manage.py startapp <app_name>` creates the application directory containing `models.py`, `views.py`, `apps.py`, `admin.py`, and `migrations/`."
+        },
+        {
+          "question": "What is the core architectural difference between a Django Project and a Django App?",
+          "options": [
+            "A project contains Python code, while an app contains only HTML templates.",
+            "An app runs on the server, while a project runs in the client browser.",
+            "A project can contain at most one app.",
+            "A project is an entire web application configuration comprising settings and root URLs; an app is a self-contained, reusable web module (e.g. blog, auth, cart)."
+          ],
+          "answer": "D",
+          "explanation": "In Django terminology, a project is a collection of configurations and apps that form a full website. An app is a modular Python package providing specific functionality (like an authentication system or blog)."
+        },
+        {
+          "question": "Which command runs the Django development server on port 8080 accessible from any local network IP address?",
+          "options": [
+            "python manage.py startserver --port 8080",
+            "python manage.py runserver 0.0.0.0:8080",
+            "python manage.py run 8080",
+            "django-admin serve --host 0.0.0.0 --port 8080"
+          ],
+          "answer": "B",
+          "explanation": "`python manage.py runserver 0.0.0.0:8080` binds the development server to `0.0.0.0` (all incoming IP interfaces) on port `8080`."
+        },
+        {
+          "question": "What is the primary role of the `manage.py` script generated in a Django project?",
+          "options": [
+            "The production entry point used by Apache and Nginx web servers.",
+            "A compiled binary file that speeds up Python execution.",
+            "A project-specific command-line wrapper script that sets DJANGO_SETTINGS_MODULE and delegates management commands to django.core.management.",
+            "The primary database file where SQLite tables are stored."
+          ],
+          "answer": "C",
+          "explanation": "`manage.py` is an auto-generated script that sets the `DJANGO_SETTINGS_MODULE` environment variable and acts as the project's CLI entry point."
+        },
+        {
+          "question": "What is the architectural difference between `wsgi.py` and `asgi.py` in a Django project directory?",
+          "options": [
+            "wsgi.py is deprecated and replaced by asgi.py in all scenarios.",
+            "wsgi.py is used in development, while asgi.py is used exclusively in production.",
+            "wsgi.py connects to PostgreSQL, while asgi.py connects to MySQL.",
+            "wsgi.py exposes the synchronous WSGI entry point for standard web servers (Gunicorn/uWSGI); asgi.py exposes the asynchronous ASGI entry point for WebSockets and async views (Uvicorn/Daphne)."
+          ],
+          "answer": "D",
+          "explanation": "WSGI (Web Server Gateway Interface) is the synchronous Python standard for web servers. ASGI (Asynchronous Server Gateway Interface) supports async Python features, WebSockets, and long-polling."
+        },
+        {
+          "question": "What action does the `python manage.py check` command perform?",
+          "options": [
+            "Inspects the entire Django codebase and installed app configurations for common structural errors and misconfigurations without running the server.",
+            "Runs all automated unit tests and calculates code coverage.",
+            "Checks if the database server has internet connectivity.",
+            "Verifies user passwords against leaked credential databases."
+          ],
+          "answer": "A",
+          "explanation": "The system check framework (`python manage.py check`) performs static validation across all installed applications, settings, and models to catch potential issues early."
+        },
+        {
+          "question": "Which command launches an interactive Python shell preloaded with all Django project settings and ORM models?",
+          "options": [
+            "python manage.py console",
+            "django-admin terminal",
+            "python -m django.shell",
+            "python manage.py shell"
+          ],
+          "answer": "D",
+          "explanation": "`python manage.py shell` initializes the Django environment, loads `settings.py`, and launches an interactive REPL (IPython/bpython if installed, or standard Python shell)."
+        },
+        {
+          "question": "What is the function of `apps.py` generated inside a newly created Django app directory?",
+          "options": [
+            "It defines the HTML templates used by the app.",
+            "It stores the database tables and columns for the app.",
+            "It lists external third-party pip dependencies required by the app.",
+            "It defines the AppConfig subclass where app metadata, signals initialization, and application registry settings are configured."
+          ],
+          "answer": "D",
+          "explanation": "`apps.py` defines the `AppConfig` class for the application, where application metadata (like `default_auto_field`, `name`, and `ready()` startup hooks) is specified."
+        },
+        {
+          "question": "Why is registering an application in `INSTALLED_APPS` using its full AppConfig path (e.g., `'users.apps.UsersConfig'`) recommended?\n```python\nINSTALLED_APPS = [\n    'django.contrib.admin',\n    'django.contrib.auth',\n    'users.apps.UsersConfig',\n]\n```",
+          "options": [
+            "It automatically compiles the app into a C shared library.",
+            "It bypasses database migrations for that app.",
+            "It explicitly loads the AppConfig class, ensuring custom app configurations, verbose names, and ready() signal hooks execute reliably.",
+            "Django throws a SyntaxError if a short app name string is used."
+          ],
+          "answer": "C",
+          "explanation": "Referencing the `AppConfig` subclass (e.g. `'users.apps.UsersConfig'`) ensures all application customizations, signals registered in `ready()`, and verbose metadata are loaded correctly by the app registry."
+        },
+        {
+          "question": "Why is Django's built-in `python manage.py runserver` strictly unsuitable for production deployments?",
+          "options": [
+            "It automatically deletes database tables when restarted.",
+            "It only supports SQLite and refuses to connect to PostgreSQL or MySQL.",
+            "It is single-threaded, lacks security hardening, does not scale under load, and is designed purely for local development and debugging.",
+            "It cannot run on Linux operating systems."
+          ],
+          "answer": "C",
+          "explanation": "`runserver` has not gone through security audits or performance optimizations. Production deployments require production WSGI/ASGI servers like Gunicorn, uWSGI, or Uvicorn behind a reverse proxy (Nginx)."
+        },
+        {
+          "question": "What is the purpose of the `__init__.py` file present in Django project and application directories?",
+          "options": [
+            "It initializes the frontend React build process.",
+            "It is an empty placeholder required only by Windows OS.",
+            "It contains database migration records.",
+            "It marks the directory as a Python package, allowing its modules (views, models, urls) to be imported throughout the project."
+          ],
+          "answer": "D",
+          "explanation": "`__init__.py` tells Python that the directory should be treated as a Python package, enabling module imports like `from myapp.views import home`."
+        },
+        {
+          "question": "Which collection of built-in components exemplifies Django's \"Batteries-Included\" design philosophy?",
+          "options": [
+            "Built-in Kubernetes deployment orchestrator and Docker daemon.",
+            "Pre-installed React compiler, MongoDB driver, and Redis cluster manager.",
+            "ORM, Admin Interface, User Authentication & Permissions, Session Management, CSRF Security, and Form Handling.",
+            "Hardware GPU acceleration and deep learning neural network libraries."
+          ],
+          "answer": "C",
+          "explanation": "Django provides everything needed to build robust web applications out of the box, including an ORM, an admin dashboard, user auth, sessions, CSRF protection, and forms."
+        },
+        {
+          "question": "When does the `ready()` method defined inside an `AppConfig` class execute?\n```python\nfrom django.apps import AppConfig\n\nclass BlogConfig(AppConfig):\n    name = 'blog'\n    def ready(self):\n        import blog.signals\n```",
+          "options": [
+            "Once Django has fully populated the application registry and imported all models during startup.",
+            "Only when python manage.py migrate is executed.",
+            "When the user logs in to the admin panel.",
+            "Every time an HTTP request hits a blog view."
+          ],
+          "answer": "A",
+          "explanation": "`AppConfig.ready()` is invoked once by the app registry when Django starts up and all models have been loaded, making it the standard place to register model signals."
+        },
+        {
+          "question": "What is the core principle of the \"Don't Repeat Yourself\" (DRY) software philosophy in Django?",
+          "options": [
+            "All HTML pages must share the exact same CSS stylesheet without variation.",
+            "Every distinct piece of knowledge or data model should have a single, unambiguous, authoritative representation in the codebase.",
+            "You must not write the same Python loop more than once in a file.",
+            "Database tables can only have one column of each data type."
+          ],
+          "answer": "B",
+          "explanation": "DRY encourages defining models, validation logic, and configurations in a single central location (e.g. `models.py`) so forms, admin, and ORM derive behavior automatically."
+        },
+        {
+          "question": "How can a developer generate a cryptographically secure random secret key using Django's built-in utility in terminal?",
+          "options": [
+            "python -c \"from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())\"",
+            "django-admin make_key --length=50",
+            "python manage.py generate-secret-key",
+            "python -m django.crypto --new-key"
+          ],
+          "answer": "A",
+          "explanation": "`django.core.management.utils.get_random_secret_key()` generates a 50-character cryptographically secure string suitable for `SECRET_KEY` in `settings.py`."
+        },
+        {
+          "question": "In Django's Model-View-Template architecture, which component communicates directly with the database engine?",
+          "options": [
+            "Template",
+            "Model (using Django ORM)",
+            "URL Dispatcher",
+            "Staticfiles Handler"
+          ],
+          "answer": "B",
+          "explanation": "The Model layer encapsulates the database schema, business rules, and data operations through Django's Object-Relational Mapping (ORM)."
+        },
+        {
+          "question": "Which command displays a list of all available management subcommands and options in a Django project?",
+          "options": [
+            "python manage.py --list-all",
+            "django-admin show-commands",
+            "python manage.py help",
+            "python manage.py info"
+          ],
+          "answer": "C",
+          "explanation": "`python manage.py help` (or simply `python manage.py`) lists all registered management commands provided by Django core and installed apps."
+        },
+        {
+          "question": "What is the operational difference between `django-admin` and `python manage.py`?",
+          "options": [
+            "django-admin is a global utility that works without an active project, whereas manage.py is project-specific and automatically configures DJANGO_SETTINGS_MODULE.",
+            "django-admin connects to PostgreSQL, while manage.py connects to SQLite.",
+            "django-admin is for production, while manage.py is for development.",
+            "django-admin is used only on Mac/Linux, while manage.py is used on Windows."
+          ],
+          "answer": "A",
+          "explanation": "`django-admin` is installed in the Python environment and creates initial projects. `manage.py` is generated inside each project to run commands against that specific project's settings."
+        }
+      ]
+    },
+    {
+      "lessonId": "lesson-1787204292866",
+      "lessonTitle": "Lesson 2: Directory Structure & Settings Configuration",
+      "totalQuestions": 20,
+      "questions": [
+        {
+          "question": "What path does `BASE_DIR` reference in modern Django `settings.py`?\n```python\nfrom pathlib import Path\nBASE_DIR = Path(__file__).resolve().parent.parent\n```",
+          "options": [
+            "The Python virtual environment site-packages folder.",
+            "The inner configuration package containing settings.py.",
+            "The user's home directory (/home/user).",
+            "The root directory of the Django project containing the manage.py script."
+          ],
+          "answer": "D",
+          "explanation": "`__file__` is `settings.py`. `.parent` is the inner configuration folder (e.g. `core/`), and `.parent.parent` is the project root containing `manage.py`."
+        },
+        {
+          "question": "Why is setting `DEBUG = False` mandatory in production Django environments?",
+          "options": [
+            "DEBUG = True prevents Django from rendering HTML templates.",
+            "DEBUG = True disables all database write operations.",
+            "DEBUG = True exposes sensitive server environment variables, source code tracebacks, SQL queries, and database credentials to any user on error.",
+            "DEBUG = False speeds up CPU clock frequencies on the server."
+          ],
+          "answer": "C",
+          "explanation": "When `DEBUG = True`, unhandled exceptions display detailed debug pages revealing source code snippets, local variables, settings, and database credentials to visitors."
+        },
+        {
+          "question": "What occurs if an incoming HTTP request arrives with an unrecognized Host header when `DEBUG = False`?\n```python\nDEBUG = False\nALLOWED_HOSTS = ['example.com', 'api.example.com']\n```",
+          "options": [
+            "Django serves the request normally with a warning in logs.",
+            "Django automatically adds the malicious domain to ALLOWED_HOSTS.",
+            "Django rejects the request with a SuspiciousOperation (HTTP 400 Bad Request) error to prevent HTTP Host header poisoning attacks.",
+            "The request is redirected to Google.com."
+          ],
+          "answer": "C",
+          "explanation": "`ALLOWED_HOSTS` validates the HTTP `Host` header against a whitelist to protect against HTTP Host header poisoning attacks when `DEBUG = False`."
+        },
+        {
+          "question": "Which Python database adapter package is required for Django to connect to a PostgreSQL database?\n```python\nDATABASES = {\n    'default': {\n        'ENGINE': 'django.db.backends.postgresql',\n        'NAME': 'production_db',\n        'USER': 'postgres',\n        ...\n    }\n}\n```",
+          "options": [
+            "psycopg2 (or psycopg2-binary / psycopg 3)",
+            "sqlite3",
+            "pg-python",
+            "django-postgres-driver"
+          ],
+          "answer": "A",
+          "explanation": "Django's PostgreSQL backend (`django.db.backends.postgresql`) relies on the `psycopg2` or `psycopg` C-adapter library to communicate with PostgreSQL servers."
+        },
+        {
+          "question": "What is the critical security purpose of the `SECRET_KEY` setting in Django?",
+          "options": [
+            "It provides cryptographic signing for session cookies, password reset tokens, CSRF tokens, and signed messages.",
+            "It is the SSL/TLS certificate private key for HTTPS.",
+            "It is the master password used to log in to the PostgreSQL database.",
+            "It encrypts all HTML templates on disk."
+          ],
+          "answer": "A",
+          "explanation": "`SECRET_KEY` is used as the cryptographic salt/key for all signed data in Django (sessions, tokens, message signing). Compromise of `SECRET_KEY` allows session forgery."
+        },
+        {
+          "question": "How does setting `USE_TZ = True` in `settings.py` affect datetime storage in the database?\n```python\nTIME_ZONE = 'UTC'\nUSE_TZ = True\n```",
+          "options": [
+            "Stores all datetime values in UTC internally in the database and translates them to local timezone when rendered in templates or forms.",
+            "Converts all timestamps to Unix epoch integers.",
+            "Stores datetimes in the local system timezone without timezone metadata.",
+            "Disables all date and time operations across the ORM."
+          ],
+          "answer": "A",
+          "explanation": "With `USE_TZ = True`, Django uses timezone-aware datetimes internally and stores them in UTC in database backends supporting timezones, preventing daylight saving bugs."
+        },
+        {
+          "question": "What is the industry best practice for handling sensitive credentials (like `SECRET_KEY` and database passwords) in Django?",
+          "options": [
+            "Store them in plaintext in a public static CSS file.",
+            "Hardcode them directly in settings.py and commit them to public GitHub repositories.",
+            "Read them from environment variables or a .env file using libraries like python-decouple or django-environ, keeping them out of version control.",
+            "Hardcode them in the HTML base template."
+          ],
+          "answer": "C",
+          "explanation": "Sensitive settings should never be committed to git repositories; they should be loaded dynamically from server environment variables or a secure `.env` file."
+        },
+        {
+          "question": "What data type is assigned to `DEBUG` when loaded via `python-decouple` with `cast=bool`?\n```python\nfrom decouple import config\nDEBUG = config('DEBUG', default=False, cast=bool)\n```",
+          "options": [
+            "A dictionary object",
+            "An integer (1 or 0)",
+            "A Python boolean (True or False)",
+            "A raw string ('True' or 'False')"
+          ],
+          "answer": "C",
+          "explanation": "`decouple.config(..., cast=bool)` intelligently parses common boolean string representations (`'True'`, `'true'`, `'1'`, `'yes'`) into a native Python `bool`."
+        },
+        {
+          "question": "What is the purpose of the `MIDDLEWARE` setting in `settings.py`?",
+          "options": [
+            "A configuration setting for CPU thread scheduling.",
+            "A list of framework hooks that intercept and process all incoming HTTP requests before reaching views and outgoing HTTP responses before returning to clients.",
+            "A list of frontend JavaScript libraries imported by templates.",
+            "A list of database drivers installed on the operating system."
+          ],
+          "answer": "B",
+          "explanation": "Django middleware is a pipeline of components executed in order for every request and in reverse order for every response, handling security, sessions, auth, and CSRF."
+        },
+        {
+          "question": "What does setting `'APP_DIRS': True` accomplish inside the `TEMPLATES` configuration?\n```python\nTEMPLATES = [{\n    'BACKEND': 'django.template.backends.django.DjangoTemplates',\n    'DIRS': [BASE_DIR / 'templates'],\n    'APP_DIRS': True,\n    ...\n}]\n```",
+          "options": [
+            "It disallows global templates in BASE_DIR.",
+            "It compiles Python views into template files.",
+            "It converts templates into static CSS files.",
+            "It enables Django to automatically discover HTML templates stored inside a 'templates/' directory in every installed application."
+          ],
+          "answer": "D",
+          "explanation": "`'APP_DIRS': True` instructs the Django template engine to search for templates inside a `templates` subdirectory in each application listed in `INSTALLED_APPS`."
+        },
+        {
+          "question": "What is the purpose of `STATIC_ROOT` in a Django production configuration?\n```python\nSTATIC_URL = '/static/'\nSTATIC_ROOT = BASE_DIR / 'staticfiles'\n```",
+          "options": [
+            "The directory where user uploaded video files are saved.",
+            "The folder where SQLite database backups are stored.",
+            "The URL path where users access uploaded avatars.",
+            "The single absolute filesystem directory where python manage.py collectstatic gathers all static files for deployment."
+          ],
+          "answer": "D",
+          "explanation": "`STATIC_ROOT` is the destination directory where `collectstatic` aggregates static files from all apps so a production web server (Nginx/Apache/S3) can serve them directly."
+        },
+        {
+          "question": "What is the purpose of `ROOT_URLCONF` in `settings.py`?",
+          "options": [
+            "A string indicating the full Python module path to the root URLconf file that routes top-level URLs (e.g., 'core.urls').",
+            "The root directory where the Python executable is located.",
+            "The domain name of the production web server.",
+            "The URL address of the database server."
+          ],
+          "answer": "A",
+          "explanation": "`ROOT_URLCONF` specifies the root URL routing module loaded by Django when resolving incoming request URLs."
+        },
+        {
+          "question": "What is the default primary key field type configured by `DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'`?",
+          "options": [
+            "A 128-bit UUID string.",
+            "A 64-bit integer auto-incrementing primary key supporting up to 9 quintillion records.",
+            "A 32-bit integer supporting up to 2 billion records.",
+            "A 16-bit small integer supporting up to 32,767 records."
+          ],
+          "answer": "B",
+          "explanation": "`BigAutoField` creates a 64-bit integer auto-incrementing primary key (`BIGINT`), preventing integer overflow in tables with billions of rows."
+        },
+        {
+          "question": "Which setting in `settings.py` controls the default language code for translations and localization?",
+          "options": [
+            "DJANGO_LANG = 'en'",
+            "LANGUAGE_CODE = 'en-us'",
+            "LOCALE_DEFAULT = 'en'",
+            "TRANSLATION_LANG = 'english'"
+          ],
+          "answer": "B",
+          "explanation": "`LANGUAGE_CODE` specifies the default language string (e.g. `'en-us'`, `'es'`, `'fr'`) used by Django's internationalization (i18n) framework."
+        },
+        {
+          "question": "How can you specify a custom settings file when running management commands?\n```\nmyproject/settings/\n├── base.py\n├── dev.py\n└── prod.py\n```",
+          "options": [
+            "python manage.py runserver -s dev.py",
+            "python manage.py runserver --config=dev",
+            "django-admin runserver --use-settings=dev",
+            "python manage.py runserver --settings=myproject.settings.dev"
+          ],
+          "answer": "D",
+          "explanation": "The `--settings` flag (or `DJANGO_SETTINGS_MODULE` environment variable) tells Django which settings module to load."
+        },
+        {
+          "question": "What does the `django.contrib.messages` framework provide in Django?",
+          "options": [
+            "An encrypted chat and instant messaging WebSocket server.",
+            "A logging framework that writes errors to disk.",
+            "A direct email delivery gateway to send SMTP newsletters.",
+            "A flash messaging system for storing and displaying one-time notification alerts (e.g. success, error, warning) to users across redirects."
+          ],
+          "answer": "D",
+          "explanation": "`django.contrib.messages` allows views to queue messages (`messages.success(request, 'Profile updated!')`) that are displayed on the next rendered page and then dismissed."
+        },
+        {
+          "question": "What is the effect of setting `CONN_MAX_AGE = 0` in the `DATABASES` configuration?",
+          "options": [
+            "Queries timeout after 0 milliseconds.",
+            "Database connections are closed immediately at the end of each HTTP request.",
+            "Disables all database connection pooling in production.",
+            "Database connections are kept open indefinitely forever."
+          ],
+          "answer": "B",
+          "explanation": "`CONN_MAX_AGE = 0` (the default) creates a new database connection per request and closes it at request termination. Setting it to a positive integer enables persistent database connections."
+        },
+        {
+          "question": "What does `django.contrib.sessions` manage in a Django application?",
+          "options": [
+            "Stores arbitrary user session data across HTTP requests backed by database, cache, or signed cookies.",
+            "Calculates CPU performance metrics on the server.",
+            "Tracks database migration history.",
+            "Manages DNS records for the domain."
+          ],
+          "answer": "A",
+          "explanation": "`django.contrib.sessions` provides session management, storing session state on the server (by default in the `django_session` database table) and placing a session ID cookie on the client."
+        },
+        {
+          "question": "Which database backend engine string is used to configure MySQL in `settings.py`?",
+          "options": [
+            "'ENGINE': 'django.db.mysql'",
+            "'ENGINE': 'mysql.connector.django'",
+            "'ENGINE': 'django.db.backends.mysql'",
+            "'ENGINE': 'django.backends.sql.mysql'"
+          ],
+          "answer": "C",
+          "explanation": "Django's built-in MySQL backend is referenced by `'ENGINE': 'django.db.backends.mysql'` in `settings.py`."
+        },
+        {
+          "question": "What is the difference between `MEDIA_ROOT` and `MEDIA_URL` in `settings.py`?",
+          "options": [
+            "MEDIA_ROOT and MEDIA_URL are identical aliases.",
+            "MEDIA_ROOT is the absolute filesystem folder where uploaded files are stored; MEDIA_URL is the public URL prefix for serving them.",
+            "MEDIA_ROOT is used in production; MEDIA_URL is used in development.",
+            "MEDIA_ROOT is for images; MEDIA_URL is for video files."
+          ],
+          "answer": "B",
+          "explanation": "`MEDIA_ROOT` defines where Django saves uploaded files on the server disk (e.g. `/var/www/media/`), and `MEDIA_URL` defines the base public URL path (e.g. `/media/`)."
+        }
+      ]
+    },
+    {
+      "lessonId": "lesson-1787204317486",
+      "lessonTitle": "Lesson 3: Request-Response Lifecycle, Views & Routing",
+      "totalQuestions": 20,
+      "questions": [
+        {
+          "question": "What is the conceptual execution sequence of an incoming HTTP request in Django?",
+          "options": [
+            "Middleware -> Database -> Template -> View -> HTTP Response",
+            "URL Router -> Template -> View -> Middleware -> Database",
+            "View -> Model -> URL Router -> Middleware -> HTTP Response",
+            "WSGI/ASGI -> Middleware (Request) -> URL Router -> View Function -> Middleware (Response) -> HTTP Response"
+          ],
+          "answer": "D",
+          "explanation": "A request enters via WSGI/ASGI, passes through request middleware hooks, resolves via URLconf to a View, executes view logic, passes through response middleware, and returns an `HttpResponse`."
+        },
+        {
+          "question": "What is mandatory for all Django Function-Based Views (FBVs)?\n```python\nfrom django.http import HttpResponse\n\ndef home_view(request):\n    return HttpResponse(\"<h1>Welcome</h1>\")\n```",
+          "options": [
+            "Must be decorated with @classmethod.",
+            "Must return a Python dictionary.",
+            "Must accept an HttpRequest instance as the first parameter and return an HttpResponse (or subclass) instance.",
+            "Must accept at least three arguments: request, response, and context."
+          ],
+          "answer": "C",
+          "explanation": "Every Django view function must take `request` (`HttpRequest`) as its first argument and return an `HttpResponse` object (or a subclass like `JsonResponse` or `HttpResponseRedirect`)."
+        },
+        {
+          "question": "What arguments does `article_detail` receive when a user requests `/articles/2026/python-guide/`?\n```python\nfrom django.urls import path\nfrom . import views\n\nurlpatterns = [\n    path('articles/<int:year>/<slug:slug>/', views.article_detail, name='article_detail'),\n]\n```",
+          "options": [
+            "request, year=2026 (integer), slug='python-guide' (string)",
+            "request, '2026/python-guide'",
+            "request only, with params accessed via request.GET",
+            "request, year='2026' (string), slug='python-guide' (string)"
+          ],
+          "answer": "A",
+          "explanation": "Path converters parse and cast URL parameters: `<int:year>` converts `'2026'` to the Python integer `2026`, and `<slug:slug>` captures `'python-guide'` as a string keyword argument."
+        },
+        {
+          "question": "What does the `render()` shortcut function return in a Django view?\n```python\nfrom django.shortcuts import render\n\ndef user_profile(request, username):\n    context = {\"username\": username, \"score\": 95}\n    return render(request, \"users/profile.html\", context)\n```",
+          "options": [
+            "A redirect response to users/profile.html.",
+            "An HttpResponse object containing the rendered HTML string combined with the context dictionary.",
+            "A raw Template object without HTTP headers.",
+            "A Python dictionary containing the context variables."
+          ],
+          "answer": "B",
+          "explanation": "`render(request, template_name, context)` loads the template, fills it with context data, and wraps the resulting HTML string in a standard `HttpResponse(content, status=200)`."
+        },
+        {
+          "question": "What `Content-Type` header is set automatically when returning a `JsonResponse`?\n```python\nfrom django.http import JsonResponse\n\ndef api_status(request):\n    data = {\"status\": \"ok\", \"version\": 2.0}\n    return JsonResponse(data, status=200)\n```",
+          "options": [
+            "text/html",
+            "text/plain",
+            "application/xml",
+            "application/json"
+          ],
+          "answer": "D",
+          "explanation": "`JsonResponse` serializes the provided dictionary into a JSON string via `json.dumps()` and sets `Content-Type: application/json`."
+        },
+        {
+          "question": "What attribute must `courses/urls.py` define when included with a namespace in the project URLs?\n```python\n# project/urls.py\nurlpatterns = [\n    path('courses/', include('courses.urls', namespace='courses')),\n]\n```",
+          "options": [
+            "app_name = 'courses' at the module level in courses/urls.py.",
+            "A class named CoursesNamespace.",
+            "namespace = 'courses' inside views.py.",
+            "A global variable ROOT_NAMESPACE = 'courses'."
+          ],
+          "answer": "A",
+          "explanation": "When using URL namespaces, the app's `urls.py` module must specify `app_name = '<namespace>'` to allow unambiguous reverse lookups like `reverse('courses:detail')`."
+        },
+        {
+          "question": "What string is returned by `reverse('user-detail', args=[42])`?\n```python\n# Given: path('user/<int:id>/', views.user_detail, name='user-detail')\nurl = reverse('user-detail', args=[42])\n```",
+          "options": [
+            "'https://localhost/user/42/'",
+            "'user_detail(id=42)'",
+            "'/user/42/'",
+            "'user-detail?id=42'"
+          ],
+          "answer": "C",
+          "explanation": "`reverse()` performs reverse URL resolution, looking up the URL pattern named `'user-detail'` and injecting the argument `42` to produce `'/user/42/'`."
+        },
+        {
+          "question": "What is returned when querying GET parameters from the URL `/search/?q=django&page=2`?\n```python\ndef search_view(request):\n    query = request.GET.get('q', '')\n    page = int(request.GET.get('page', 1))\n    return HttpResponse(f\"Query: {query}, Page: {page}\")\n```",
+          "options": [
+            "Query: , Page: 1",
+            "Query: django, Page: 1",
+            "Query: django, Page: 2",
+            "Query: None, Page: 2"
+          ],
+          "answer": "C",
+          "explanation": "`request.GET` parses the query string: `request.GET.get('q')` returns `'django'`, and `request.GET.get('page')` returns `'2'` (cast to `2`)."
+        },
+        {
+          "question": "What happens if no database record matches the query in `get_object_or_404`?\n```python\nfrom django.shortcuts import get_object_or_404\nfrom .models import Course\n\ndef course_view(request, course_id):\n    course = get_object_or_404(Course, id=course_id)\n    return render(request, \"course.html\", {\"course\": course})\n```",
+          "options": [
+            "Redirects the user to the home page.",
+            "It catches Course.DoesNotExist and raises an Http404 exception, rendering the 404 error page.",
+            "Creates a new empty Course instance.",
+            "Returns None and causes a server 500 error."
+          ],
+          "answer": "B",
+          "explanation": "`get_object_or_404(Model, **kwargs)` calls `Model.objects.get(**kwargs)`. If the object does not exist (`DoesNotExist`), it raises `django.http.Http404`."
+        },
+        {
+          "question": "What data structure does `request.POST` represent in Django?",
+          "options": [
+            "A QueryDict instance (a dictionary-like class customized to handle multiple values for the same key).",
+            "A raw unparsed binary byte string.",
+            "A standard immutable Python tuple.",
+            "A JSON string."
+          ],
+          "answer": "A",
+          "explanation": "`request.POST` is a `QueryDict`, a dictionary subclass that supports multiple values per key (e.g. multiple checkboxes with the same name via `getlist()`)."
+        },
+        {
+          "question": "What is the primary difference between `re_path()` and `path()` in Django URL routing?",
+          "options": [
+            "re_path() only works with Class-Based Views.",
+            "path() is deprecated in Django 4+.",
+            "re_path() is used exclusively for API endpoints.",
+            "re_path() uses full Python regular expressions for complex pattern matching, whereas path() uses simplified angle-bracket converters."
+          ],
+          "answer": "D",
+          "explanation": "`path()` uses standard converters like `<int:id>` or `<slug:slug>`. `re_path()` allows complex regex patterns using `r'^articles/(?P<year>[0-9]{4})/$'`."
+        },
+        {
+          "question": "What HTTP status code is issued by default when using `redirect('url-name')`?\n```python\nfrom django.shortcuts import redirect\n\ndef old_page(request):\n    return redirect('new-page')\n```",
+          "options": [
+            "302 (Found / Temporary Redirect)",
+            "307 (Temporary Redirect)",
+            "200 (OK)",
+            "301 (Moved Permanently)"
+          ],
+          "answer": "A",
+          "explanation": "`redirect()` returns an `HttpResponseRedirect` with HTTP status code `302` (temporary redirect) by default."
+        },
+        {
+          "question": "How do you issue a permanent 301 redirect in Django using `redirect()`?",
+          "options": [
+            "redirect('new-url', status=301)",
+            "redirect('new-url', permanent=True)",
+            "HttpResponsePermanentRedirect('new-url')",
+            "redirect_permanent('new-url')"
+          ],
+          "answer": "B",
+          "explanation": "Passing `permanent=True` to `redirect()` returns an `HttpResponsePermanentRedirect` with status code `301`."
+        },
+        {
+          "question": "Which of the following lists all 5 built-in URL path converters supported by Django out-of-the-box?",
+          "options": [
+            "string, number, float, regex, date",
+            "str, int, slug, uuid, path",
+            "int, float, char, boolean, json",
+            "text, decimal, uuid, email, url"
+          ],
+          "answer": "B",
+          "explanation": "Django provides 5 default converters: `str` (any non-empty string except `/`), `int` (0 or positive integers), `slug` (letters, numbers, hyphens, underscores), `uuid` (UUID formatted string), and `path` (any string including `/`)."
+        },
+        {
+          "question": "How can you access HTTP request headers in modern Django (>= 2.2)?\n```python\ndef my_view(request):\n    auth = request.headers.get('Authorization')\n```",
+          "options": [
+            "Using the case-insensitive request.headers dictionary-like mapping.",
+            "Headers must be read by manually parsing sys.stdin.",
+            "Headers can only be read from request.COOKIES.",
+            "Headers are only accessible in Class-Based Views."
+          ],
+          "answer": "A",
+          "explanation": "`request.headers` provides a case-insensitive lookup interface for HTTP headers (e.g. `request.headers.get('User-Agent')` or `request.headers.get('authorization')`)."
+        },
+        {
+          "question": "Which HTML form attribute is required for `request.FILES` to receive uploaded files in a POST request?",
+          "options": [
+            "enctype=\"application/x-www-form-urlencoded\"",
+            "method=\"PUT\"",
+            "enctype=\"multipart/form-data\"",
+            "type=\"file/upload\""
+          ],
+          "answer": "C",
+          "explanation": "HTML forms must have `enctype=\"multipart/form-data\"` and `method=\"POST\"` for file data to be encoded in parts and populated into `request.FILES`."
+        },
+        {
+          "question": "What happens if a Django view function accidentally terminates without returning an `HttpResponse` object (returning `None`)?",
+          "options": [
+            "Django automatically renders a blank index.html page.",
+            "Django returns an empty HTTP 200 OK response with 0 bytes.",
+            "The server restarts automatically.",
+            "Django raises a ValueError stating the view did not return an HttpResponse object."
+          ],
+          "answer": "D",
+          "explanation": "If a view returns `None`, Django raises `ValueError: The view <view_name> didn't return an HttpResponse object. It returned None instead.`"
+        },
+        {
+          "question": "Which middleware attaches the `request.user` object representing the current logged-in user?",
+          "options": [
+            "django.contrib.sessions.middleware.SessionMiddleware",
+            "django.contrib.auth.middleware.AuthenticationMiddleware",
+            "django.middleware.csrf.CsrfViewMiddleware",
+            "django.middleware.security.SecurityMiddleware"
+          ],
+          "answer": "B",
+          "explanation": "`AuthenticationMiddleware` uses the session data from `SessionMiddleware` to retrieve the user from the database and attach it to `request.user`."
+        },
+        {
+          "question": "What is the effect of explicitly raising `Http404` inside a view?\n```python\nfrom django.http import Http404\n\ndef detail(request, item_id):\n    if item_id > 1000:\n        raise Http404(\"Item does not exist\")\n    return HttpResponse(f\"Item {item_id}\")\n```",
+          "options": [
+            "Triggers a 500 Internal Server Error traceback.",
+            "Redirects the browser to /404.html via HTTP 302.",
+            "Prints a warning to the console but continues view execution.",
+            "Immediately terminates the view and renders the standard HTTP 404 Not Found error response."
+          ],
+          "answer": "D",
+          "explanation": "Raising `Http404` halts view execution; Django catches it and renders the 404 handler view (`handler404` / `404.html`)."
+        },
+        {
+          "question": "What is the unique capability of the `path` converter (e.g. `<path:file_path>`) compared to the `str` converter?",
+          "options": [
+            "It only matches absolute Windows drive letters (C:\\).",
+            "It converts file paths into absolute URL strings automatically.",
+            "It matches any non-empty string including forward slash characters ('/'), allowing matching of multi-segment folder/file paths.",
+            "It validates that the file exists on the server's hard drive."
+          ],
+          "answer": "C",
+          "explanation": "While `<str:name>` stops at the first `/`, `<path:subpath>` matches strings containing `/`, enabling capture of full URL paths like `documents/2026/reports/finance.pdf`."
+        }
+      ]
+    }
+  ]
+}

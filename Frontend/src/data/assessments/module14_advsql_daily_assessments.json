@@ -1,0 +1,692 @@
+{
+  "courseId": "crs-1786624019154-w",
+  "courseTitle": "Python Full Stack + DSA with AI",
+  "stageId": "top-stg-2",
+  "stageTitle": "Stage 2: Backend + DSA",
+  "moduleId": "subtop-1787203515689",
+  "moduleTitle": "Module 14: Advanced SQL & PostgreSQL Integration",
+  "totalLessons": 3,
+  "lessons": [
+    {
+      "lessonId": "lesson-1787204175255",
+      "lessonTitle": "Lesson 1: SQL Joins: Inner, Left, Right, Full & Subqueries",
+      "totalQuestions": 20,
+      "questions": [
+        {
+          "question": "What is the result of executing the following `LEFT JOIN` query?\n```sql\n-- Table A (id: 1, 2, 3), Table B (a_id: 1, 2, 4)\nSELECT a.id, b.a_id FROM a LEFT JOIN b ON a.id = b.a_id;\n```",
+          "options": [
+            "(1, 1), (2, 2), (NULL, 4)",
+            "(1, 1), (2, 2), (3, NULL)",
+            "(1, 1), (2, 2), (3, 4)",
+            "(1, 1), (2, 2)"
+          ],
+          "answer": "B",
+          "explanation": "`LEFT JOIN` returns all records from the left table (`A`). Where matches exist in `B` (`1`, `2`), matching values are returned. For `id = 3` with no match in `B`, `b.a_id` is filled with `NULL`."
+        },
+        {
+          "question": "Why is `UNION` used to combine `LEFT JOIN` and `RIGHT JOIN` in MySQL?\n```sql\nSELECT a.id, b.id FROM a LEFT JOIN b ON a.id = b.id\nUNION\nSELECT a.id, b.id FROM a RIGHT JOIN b ON a.id = b.id;\n```",
+          "options": [
+            "LEFT JOIN cannot return columns from table B without UNION.",
+            "UNION accelerates query execution by utilizing multiple CPU cores.",
+            "RIGHT JOIN throws a syntax error unless paired with UNION.",
+            "MySQL does not natively support the FULL OUTER JOIN keyword, so combining LEFT JOIN and RIGHT JOIN with UNION simulates full outer join behavior."
+          ],
+          "answer": "D",
+          "explanation": "Because MySQL lacks a native `FULL OUTER JOIN` syntax, developers simulate it by taking the union of a `LEFT JOIN` and a `RIGHT JOIN`, eliminating duplicates via `UNION`."
+        },
+        {
+          "question": "What is displayed for the CEO row (where `manager_id` is `NULL`) in the following `SELF JOIN` query?\n```sql\nSELECT e.name AS employee, m.name AS manager\nFROM employees e\nLEFT JOIN employees m ON e.manager_id = m.id;\n```",
+          "options": [
+            "The CEO row is completely omitted from the query output.",
+            "employee = CEO_Name, manager = CEO_Name",
+            "employee = CEO_Name, manager = NULL",
+            "Raises an error: manager_id cannot be NULL in SELF JOIN"
+          ],
+          "answer": "C",
+          "explanation": "Using `LEFT JOIN` ensures that employee rows with `manager_id IS NULL` (such as top-level executives or CEOs) are preserved in the result with `manager` displayed as `NULL`."
+        },
+        {
+          "question": "How many rows are produced when executing a `CROSS JOIN` between a `sizes` table with 3 rows and a `colors` table with 4 rows?\n```sql\nSELECT * FROM sizes CROSS JOIN colors;\n```",
+          "options": [
+            "4",
+            "7",
+            "12",
+            "3"
+          ],
+          "answer": "C",
+          "explanation": "`CROSS JOIN` produces the Cartesian product of the two tables: `3 * 4 = 12` combinations."
+        },
+        {
+          "question": "What does the following correlated subquery with `EXISTS` retrieve?\n```sql\nSELECT c.name FROM customers c\nWHERE EXISTS (\n    SELECT 1 FROM orders o WHERE o.customer_id = c.id AND o.amount > 1000\n);\n```",
+          "options": [
+            "Customers who have placed at least one order with an amount strictly greater than 1000.",
+            "Customers who have never placed any order.",
+            "Customers whose total sum of all orders exceeds 1000.",
+            "All orders greater than 1000 formatted with customer names."
+          ],
+          "answer": "A",
+          "explanation": "For each customer row `c`, `EXISTS` checks if the inner subquery finds at least one matching order row with `amount > 1000`. If found, the customer is included in the output."
+        },
+        {
+          "question": "What does the following query retrieve using `LEFT JOIN ... WHERE right_id IS NULL`?\n```sql\nSELECT u.id, u.name\nFROM users u\nLEFT JOIN subscriptions s ON u.id = s.user_id\nWHERE s.user_id IS NULL;\n```",
+          "options": [
+            "Users who currently do not have any subscription record.",
+            "Users who have multiple active subscriptions.",
+            "Users with expired subscriptions.",
+            "All subscriptions that have no assigned user."
+          ],
+          "answer": "A",
+          "explanation": "The `LEFT JOIN` returns all users and fills subscription columns with `NULL` where no match exists. Filtering `WHERE s.user_id IS NULL` isolates users without any matching subscription."
+        },
+        {
+          "question": "Why is an alias like `AS dept_summary` required for subqueries in the `FROM` clause?\n```sql\nSELECT avg_dept_sal FROM (\n    SELECT department, AVG(salary) AS avg_dept_sal\n    FROM employees\n    GROUP BY department\n) AS dept_summary;\n```",
+          "options": [
+            "To automatically create a persistent database view.",
+            "To specify the database schema where the table is stored.",
+            "To order the subquery results ascending.",
+            "SQL requires every derived table in the FROM clause to have an explicit table alias identifier."
+          ],
+          "answer": "D",
+          "explanation": "According to the SQL standard, subqueries in the `FROM` clause (derived tables) must have an explicit alias so outer query clauses can reference their columns unambiguously."
+        },
+        {
+          "question": "What does the condition `price > ALL (...)` evaluate to in the following query?\n```sql\nSELECT product_name, price FROM products\nWHERE price > ALL (SELECT price FROM products WHERE category = 'Accessories');\n```",
+          "options": [
+            "Products whose price is greater than at least one price in Accessories.",
+            "Products whose price is strictly greater than the maximum price in the Accessories category.",
+            "Products whose price is greater than the average price in Accessories.",
+            "Products that belong to all categories except Accessories."
+          ],
+          "answer": "B",
+          "explanation": "`> ALL (subquery)` requires the value to be greater than every individual value returned by the subquery, which is equivalent to being greater than `MAX(price)` of that subquery."
+        },
+        {
+          "question": "What does `salary > ANY (...)` evaluate to in the following query?\n```sql\nSELECT name FROM employees\nWHERE salary > ANY (SELECT salary FROM employees WHERE department = 'Sales');\n```",
+          "options": [
+            "Employees whose salary is greater than every salary in Sales.",
+            "Employees who work in any department except Sales.",
+            "Employees whose salary is greater than at least one (i.e. greater than the minimum) salary in Sales.",
+            "Employees whose salary equals the total sum of Sales salaries."
+          ],
+          "answer": "C",
+          "explanation": "`> ANY (subquery)` evaluates to true if the value is greater than at least one value in the subquery result set (equivalent to `> MIN(salary)`)."
+        },
+        {
+          "question": "How does a Correlated Subquery differ from a Standard Non-Correlated Subquery?",
+          "options": [
+            "A correlated subquery references columns from the outer query and must be evaluated for each outer row, whereas a non-correlated subquery executes once independently.",
+            "A standard subquery requires an explicit alias, while correlated subqueries cannot use aliases.",
+            "A correlated subquery can only return strings, while a standard subquery returns numbers.",
+            "A correlated subquery runs in a separate background thread, while standard subqueries run on the main thread."
+          ],
+          "answer": "A",
+          "explanation": "Correlated subqueries depend on values from the current candidate row of the outer query, meaning the database engine re-evaluates the inner query for each outer row."
+        },
+        {
+          "question": "What is the primary architectural advantage of Common Table Expressions (CTEs) defined using `WITH`?\n```sql\nWITH HighEarners AS (\n    SELECT id, name, salary FROM employees WHERE salary > 100000\n)\nSELECT COUNT(*) FROM HighEarners;\n```",
+          "options": [
+            "Converts SQL relational data into NoSQL document collections.",
+            "Permanently saves the query result to disk as a physical database table.",
+            "Disables all index checks to speed up raw throughput.",
+            "Improves query readability, enables modular decomposition, and supports hierarchical recursive queries."
+          ],
+          "answer": "D",
+          "explanation": "CTEs (`WITH` clauses) provide readable, temporary named result sets that can be referenced multiple times within the execution of a single query, and also enable recursive hierarchy traversal."
+        },
+        {
+          "question": "Why is `NOT EXISTS` generally preferred over `NOT IN` when subqueries can return `NULL` values?",
+          "options": [
+            "NOT EXISTS uses boolean existence checks safe from Three-Valued Logic NULL pitfalls that cause NOT IN to return zero rows.",
+            "NOT IN can only accept a maximum of 10 items.",
+            "NOT IN is deprecated in modern SQL-99 standards.",
+            "NOT EXISTS executes faster because it bypasses all table locks."
+          ],
+          "answer": "A",
+          "explanation": "If a subquery returns even a single `NULL`, `NOT IN (subquery)` evaluates to `UNKNOWN` for all rows and returns an empty set. `NOT EXISTS` evaluates row existence cleanly without this flaw."
+        },
+        {
+          "question": "What does the following multi-table join retrieve?\n```sql\nSELECT o.order_id, u.username, p.product_name\nFROM orders o\nINNER JOIN users u ON o.user_id = u.id\nINNER JOIN order_items oi ON o.order_id = oi.order_id\nINNER JOIN products p ON oi.product_id = p.id;\n```",
+          "options": [
+            "All products currently out of stock.",
+            "Detailed order line items associating each order with its user username and specific product names.",
+            "A summary total of order amounts grouped by country.",
+            "A list of all registered users regardless of whether they have placed orders."
+          ],
+          "answer": "B",
+          "explanation": "The 4-table inner join traverses from `orders` to `users`, through `order_items` line items, and connects to `products`, outputting matched order details."
+        },
+        {
+          "question": "What value is returned in the `overall_avg` column for each employee row?\n```sql\nSELECT name, salary,\n       (SELECT AVG(salary) FROM employees) AS overall_avg\nFROM employees;\n```",
+          "options": [
+            "The exact same overall average salary value repeated across every individual employee row.",
+            "The average salary of the employee's specific department only.",
+            "A cumulative running average up to that employee's row.",
+            "NULL for all rows except the first row."
+          ],
+          "answer": "A",
+          "explanation": "A scalar subquery in the `SELECT` list produces a single scalar value (`AVG(salary)` across all employees), which is repeated for each projected output row."
+        },
+        {
+          "question": "What does the `USING (customer_id)` clause accomplish in a join?\n```sql\nSELECT * FROM orders INNER JOIN customers USING (customer_id);\n```",
+          "options": [
+            "Forces MySQL to use a hash join instead of a nested loop join.",
+            "Converts customer_id values into UUID format.",
+            "Creates an index on customer_id before executing the join.",
+            "Joins on orders.customer_id = customers.customer_id and outputs customer_id once without duplicate columns in SELECT *."
+          ],
+          "answer": "D",
+          "explanation": "`USING (column)` is shorthand for `ON tableA.col = tableB.col` when the column name is identical in both tables; it also coalesces the join column in `SELECT *`."
+        },
+        {
+          "question": "In relational algebra, what type of join is equivalent to a Cartesian Product filtered by an equality condition on keys?",
+          "options": [
+            "Full Outer Join",
+            "Equi-join / Inner Join",
+            "Cross Anti-Join",
+            "Natural Outer Join"
+          ],
+          "answer": "B",
+          "explanation": "An Equi-Join (a type of Inner Join) is mathematically defined as the Cartesian Product ($\times$) of two relations followed by a selection ($sigma$) on equality between specified attributes."
+        },
+        {
+          "question": "What does the window function `RANK() OVER (PARTITION BY department ORDER BY salary DESC)` compute?\n```sql\nSELECT name, department, salary,\n       RANK() OVER (PARTITION BY department ORDER BY salary DESC) as sal_rank\nFROM employees;\n```",
+          "options": [
+            "The total count of employees in each department.",
+            "The percentage of total company payroll allocated to each department.",
+            "The descending salary rank for each employee calculated independently within their specific department.",
+            "The global salary rank of each employee across the entire company."
+          ],
+          "answer": "C",
+          "explanation": "`PARTITION BY department` divides the rows into department partitions, and `ORDER BY salary DESC` ranks employees from highest to lowest salary within each department."
+        },
+        {
+          "question": "Which of the following `LEFT JOIN` queries is logically identical to `SELECT * FROM A RIGHT JOIN B ON A.id = B.a_id;`?",
+          "options": [
+            "SELECT * FROM A FULL JOIN B ON A.id = B.a_id;",
+            "SELECT * FROM B LEFT JOIN A ON A.id = B.a_id;",
+            "SELECT * FROM B LEFT JOIN A ON B.a_id = NULL;",
+            "SELECT * FROM A LEFT JOIN B ON A.id = B.a_id;"
+          ],
+          "answer": "B",
+          "explanation": "Swapping the order of tables in a `RIGHT JOIN` (`A RIGHT JOIN B`) converts it directly to an equivalent `LEFT JOIN` (`B LEFT JOIN A`)."
+        },
+        {
+          "question": "What is a \"Semi-Join\" in database query execution?",
+          "options": [
+            "A join that matches only the first 50% of records in a table.",
+            "A join performed between a relational database and a NoSQL cache.",
+            "A join that returns rows from the first table where at least one match exists in the second table, without duplicating rows or pulling second table columns.",
+            "A join that converts floating-point numbers to integers."
+          ],
+          "answer": "C",
+          "explanation": "A semi-join returns each row from the outer table at most once if a matching row exists in the inner table (frequently used to optimize `EXISTS` and `IN` subqueries)."
+        },
+        {
+          "question": "What integers are returned by the following recursive CTE?\n```sql\nWITH RECURSIVE NumberSequence AS (\n    SELECT 1 AS n\n    UNION ALL\n    SELECT n + 1 FROM NumberSequence WHERE n < 5\n)\nSELECT * FROM NumberSequence;\n```",
+          "options": [
+            "1, 2, 3, 4",
+            "0, 1, 2, 3, 4, 5",
+            "5",
+            "1, 2, 3, 4, 5"
+          ],
+          "answer": "D",
+          "explanation": "The anchor member initializes `n = 1`. The recursive member repeatedly adds 1 (`n + 1`) while `n < 5`, producing `1, 2, 3, 4, 5`."
+        }
+      ]
+    },
+    {
+      "lessonId": "lesson-1787204204304",
+      "lessonTitle": "Lesson 2: Database Indexing, Transactions(ACID), & Foreign Keys",
+      "totalQuestions": 20,
+      "questions": [
+        {
+          "question": "What does the \"A\" (Atomicity) property in ACID transactions guarantee?",
+          "options": [
+            "Queries automatically lock the entire database against all reads.",
+            "All operations within a transaction succeed completely or all modifications are aborted and rolled back to leave data untouched.",
+            "All transactions run at atomic clock speed under 1 nanosecond.",
+            "Database records cannot be split across multiple hard drives."
+          ],
+          "answer": "B",
+          "explanation": "Atomicity ensures that a transaction is treated as a single, indivisible unit of work: either all operations commit successfully, or the entire transaction is rolled back on error."
+        },
+        {
+          "question": "What is the balance of account 1 after the following transaction is rolled back?\n```sql\nSTART TRANSACTION;\nUPDATE accounts SET balance = balance - 100 WHERE id = 1;\nUPDATE accounts SET balance = balance + 100 WHERE id = 9999; -- non-existent\nROLLBACK;\n```",
+          "options": [
+            "Account 1 balance is set to NULL.",
+            "Account 1 balance becomes 0.",
+            "Account 1 balance is decreased by 100 permanently.",
+            "Account 1 balance remains at its original value before the transaction began."
+          ],
+          "answer": "D",
+          "explanation": "`ROLLBACK` undos all modifications made during the active transaction, restoring `accounts` to its pre-transaction state."
+        },
+        {
+          "question": "What is the \"Leftmost Prefix Rule\" for composite B-tree indexes `INDEX idx_abc (a, b, c)`?",
+          "options": [
+            "The index can optimize queries filtering on (a), (a, b), or (a, b, c), but cannot be used if leading column (a) is omitted.",
+            "The index can only be used if all three columns (a, b, c) are present in the WHERE clause.",
+            "The index is used regardless of which columns are queried.",
+            "The index sorts rows from right to left in reverse alphabetical order."
+          ],
+          "answer": "A",
+          "explanation": "B-tree composite indexes are structured hierarchically starting with the leftmost column. A query filtering only on `b` or `c` cannot navigate the index tree without `a`."
+        },
+        {
+          "question": "In an `EXPLAIN` query execution plan, what does a `type: ALL` indicate?\n```sql\nEXPLAIN SELECT * FROM users WHERE email = 'test@example.com';\n```",
+          "options": [
+            "The query utilizes all available CPU cores in parallel.",
+            "The query matched all records in the table.",
+            "An optimal index was used to find the exact row in O(1) time.",
+            "A full table scan is performed, reading every single row in the table because no usable index was found."
+          ],
+          "answer": "D",
+          "explanation": "`type: ALL` in MySQL `EXPLAIN` signifies a full table scan, the least efficient access method where the engine inspects every row sequentially."
+        },
+        {
+          "question": "What is a \"Covering Index\" in relational database optimization?",
+          "options": [
+            "An index that compresses text columns into gzip format.",
+            "An index that automatically encrypts table data on disk.",
+            "An index that covers every table across the entire database.",
+            "An index that contains all columns requested by a query, allowing the engine to satisfy the query entirely from the index tree without reading table data pages."
+          ],
+          "answer": "D",
+          "explanation": "When an index includes all columns needed for filtering and projection (e.g. `INDEX (dept_id, salary)` for `SELECT salary FROM emp WHERE dept_id = 5`), it avoids secondary table lookups (index-only scan)."
+        },
+        {
+          "question": "What concurrency anomaly is prevented by the `READ COMMITTED` isolation level that occurs in `READ UNCOMMITTED`?",
+          "options": [
+            "Phantom Reads",
+            "Deadlocks",
+            "Dirty Reads (reading uncommitted data written by concurrent transactions that might subsequently be rolled back).",
+            "Non-Repeatable Reads"
+          ],
+          "answer": "C",
+          "explanation": "`READ COMMITTED` guarantees that a query only sees data committed prior to query start, preventing Dirty Reads."
+        },
+        {
+          "question": "What rows are committed to the `logs` table after the following transaction?\n```sql\nSTART TRANSACTION;\nINSERT INTO logs VALUES ('Step 1');\nSAVEPOINT sp1;\nINSERT INTO logs VALUES ('Step 2');\nROLLBACK TO sp1;\nCOMMIT;\n```",
+          "options": [
+            "Zero rows (empty table)",
+            "Only 'Step 2'",
+            "Only 'Step 1'",
+            "Both 'Step 1' and 'Step 2'"
+          ],
+          "answer": "C",
+          "explanation": "`ROLLBACK TO sp1` rolls back changes made after `sp1` (discarding 'Step 2'), leaving 'Step 1' intact to be saved upon `COMMIT`."
+        },
+        {
+          "question": "What is the default transaction isolation level in the MySQL InnoDB storage engine?",
+          "options": [
+            "READ UNCOMMITTED",
+            "READ COMMITTED",
+            "SERIALIZABLE",
+            "REPEATABLE READ"
+          ],
+          "answer": "D",
+          "explanation": "MySQL InnoDB defaults to `REPEATABLE READ`, which uses Multi-Version Concurrency Control (MVCC) and next-key locking to prevent dirty reads and non-repeatable reads."
+        },
+        {
+          "question": "What is the difference between a Clustered Index and a Non-Clustered (Secondary) Index in MySQL InnoDB?",
+          "options": [
+            "A clustered index stores table row data directly in its leaf pages (ordered by PRIMARY KEY), while secondary indexes store index columns and point to the primary key.",
+            "A clustered index is stored in RAM, while non-clustered indexes are stored on SSD.",
+            "Clustered indexes only work on VARCHAR columns.",
+            "A table can have multiple clustered indexes but only one secondary index."
+          ],
+          "answer": "A",
+          "explanation": "In InnoDB, the table data is physically organized as a B-tree clustered on the `PRIMARY KEY`. Secondary indexes contain the indexed columns plus the row's primary key value."
+        },
+        {
+          "question": "What defines a \"Phantom Read\" concurrency anomaly in database transactions?",
+          "options": [
+            "When a transaction reads modified column values of an existing row.",
+            "When a transaction re-executes a range query and discovers new additional rows that were inserted and committed by another transaction.",
+            "When two transactions update the same row simultaneously.",
+            "When a transaction reads uncommitted changes from an aborted transaction."
+          ],
+          "answer": "B",
+          "explanation": "A phantom read occurs when a transaction queries a range of rows (`WHERE salary > 50000`), and a concurrent transaction inserts and commits a new matching row, causing subsequent re-reads to return extra rows."
+        },
+        {
+          "question": "What does the `FOR UPDATE` clause accomplish in a `SELECT` query?\n```sql\nSTART TRANSACTION;\nSELECT * FROM inventory WHERE item_id = 5 FOR UPDATE;\n```",
+          "options": [
+            "Deletes the row immediately from the database.",
+            "Converts the table into read-only mode for all users.",
+            "Acquires an exclusive row-level lock on item_id = 5, preventing other transactions from updating, deleting, or acquiring exclusive locks on it until commit.",
+            "Automatically updates item_id to 5 in all tables."
+          ],
+          "answer": "C",
+          "explanation": "`SELECT ... FOR UPDATE` applies an exclusive lock (X-lock) on the selected rows, ensuring concurrency safety during read-modify-write patterns."
+        },
+        {
+          "question": "What is the primary performance drawback of creating excessive indexes on a high-write table?",
+          "options": [
+            "The database engine disables foreign key constraints automatically.",
+            "SELECT queries become infinitely slower.",
+            "INSERT, UPDATE, and DELETE operations become slower because the database engine must synchronously update and rebalance all associated index B-trees.",
+            "It limits the table to a maximum of 1000 rows."
+          ],
+          "answer": "C",
+          "explanation": "While indexes accelerate reads, every write (`INSERT`, `UPDATE`, `DELETE`) incurs overhead to modify, split, and rebalance multiple B-tree indexes on disk."
+        },
+        {
+          "question": "What does \"Durability\" in ACID transactions guarantee?",
+          "options": [
+            "The database hardware will never fail or experience power outages.",
+            "Once a transaction commits, its modifications are permanently recorded in non-volatile storage and will not be lost even in the event of a system crash.",
+            "All database queries will execute in the same constant time.",
+            "Passwords stored in the database are encrypted with quantum-safe algorithms."
+          ],
+          "answer": "B",
+          "explanation": "Durability guarantees committed transactions survive system crashes or power failures, implemented via Write-Ahead Logging (WAL / Redo Log) flushed to disk before acknowledging commit."
+        },
+        {
+          "question": "What causes a \"Deadlock\" in relational database management systems?",
+          "options": [
+            "Two or more transactions each hold locks on resources the other transactions need, creating a circular wait where neither can proceed.",
+            "A query contains syntax errors in the WHERE clause.",
+            "A user forgets to close their terminal window.",
+            "The database hard drive runs out of physical storage space."
+          ],
+          "answer": "A",
+          "explanation": "A deadlock is a circular dependency where Transaction A waits for a lock held by Transaction B, while Transaction B waits for a lock held by Transaction A."
+        },
+        {
+          "question": "What is true about the `SERIALIZABLE` transaction isolation level?\n```sql\nSET TRANSACTION ISOLATION LEVEL SERIALIZABLE;\n```",
+          "options": [
+            "It allows dirty reads but prevents phantom reads.",
+            "It provides the strictest isolation, eliminating dirty reads, non-repeatable reads, and phantom reads, at the expense of lower concurrency throughput.",
+            "It makes queries run faster by disabling locks.",
+            "It is supported only in SQLite and disallowed in MySQL."
+          ],
+          "answer": "B",
+          "explanation": "`SERIALIZABLE` enforces full serializability, executing transactions as if they occurred sequentially one after another, eliminating all concurrency anomalies at the cost of concurrency contention."
+        },
+        {
+          "question": "What is a \"Non-Repeatable Read\" anomaly in database transactions?",
+          "options": [
+            "A transaction reads a row, another transaction modifies or deletes that row and commits, and the first transaction re-reads the row observing altered values.",
+            "A transaction reads rows from a deleted database.",
+            "A query fails to execute because the database connection timed out.",
+            "A transaction is unable to read any rows from a table."
+          ],
+          "answer": "A",
+          "explanation": "A non-repeatable read occurs when data read by a transaction changes between consecutive reads within the same transaction due to a concurrent transaction's committed update."
+        },
+        {
+          "question": "What does `Cardinality` indicate in the output of `SHOW INDEX FROM table_name;`?",
+          "options": [
+            "The depth of the B-tree search structure.",
+            "An estimate of the number of unique values in the index (higher cardinality indicates higher index selectivity and efficiency).",
+            "The number of times the index was rebuilt by the database administrator.",
+            "The total disk space in megabytes occupied by the index."
+          ],
+          "answer": "B",
+          "explanation": "Cardinality represents the number of distinct values in the index. High cardinality (close to total row count, like in `email` or `user_id`) indicates high selectivity."
+        },
+        {
+          "question": "In Multi-Version Concurrency Control (MVCC), how do concurrent read operations avoid blocking concurrent write operations?",
+          "options": [
+            "The database pauses all incoming web traffic during writes.",
+            "Writers write directly to RAM while readers read from backup tape drives.",
+            "Readers view a consistent point-in-time snapshot of the data (undo log versions) without acquiring shared read locks that would block writers.",
+            "Readers are automatically converted into background daemon threads."
+          ],
+          "answer": "C",
+          "explanation": "MVCC maintains multiple version records (via Undo Logs). Readers access an immutable snapshot corresponding to their transaction start timestamp without locking writers."
+        },
+        {
+          "question": "What is enforced by a Unique Composite Index `CREATE UNIQUE INDEX idx_tenant_email ON accounts(tenant_id, email);`?",
+          "options": [
+            "Within any given tenant_id, emails must be unique, while allowing identical emails across different tenants.",
+            "Every tenant_id must have at least 10 email addresses.",
+            "An email can only exist once across the entire database regardless of tenant_id.",
+            "tenant_id and email must both be numeric integers."
+          ],
+          "answer": "A",
+          "explanation": "The unique constraint is enforced on the tuple `(tenant_id, email)`, providing multi-tenant isolation where each tenant can have `admin@company.com` independently."
+        },
+        {
+          "question": "Why might a B-tree index on `created_at` be ignored when running `WHERE YEAR(created_at) = 2026`?",
+          "options": [
+            "MySQL requires all date comparisons to use the LIKE operator.",
+            "Indexes are disabled during the year 2026.",
+            "B-trees cannot store temporal date data types.",
+            "Applying a function (YEAR()) to an indexed column prevents direct B-tree range seek (non-sargable query); using a range condition allows index utilization."
+          ],
+          "answer": "D",
+          "explanation": "Functions wrapped around column names in `WHERE` clauses make queries non-sargable (Search Argument Able). Rewriting as `created_at >= '2026-01-01' AND created_at < '2027-01-01'` enables B-tree range seeking."
+        }
+      ]
+    },
+    {
+      "lessonId": "lesson-1787204231659",
+      "lessonTitle": "Lesson 3: PostgreSQL Environment Setup & Shell Commands",
+      "totalQuestions": 20,
+      "questions": [
+        {
+          "question": "Which command connects to a PostgreSQL database named `app_db` as user `postgres` on localhost via `psql`?",
+          "options": [
+            "psql -U postgres -d app_db -h localhost -p 5432",
+            "connect postgres@localhost:app_db",
+            "mysql -u postgres -p app_db",
+            "pg-connect --user postgres app_db"
+          ],
+          "answer": "A",
+          "explanation": "`psql` uses `-U` for username, `-d` for database name, `-h` for hostname, and `-p` for port (default 5432)."
+        },
+        {
+          "question": "What does the `\\dt` meta-command do inside the `psql` shell?",
+          "options": [
+            "Lists all user-defined relational tables in the current connected schema.",
+            "Displays detailed database disk usage statistics.",
+            "Drops all tables in the database.",
+            "Describes user permissions and login passwords."
+          ],
+          "answer": "A",
+          "explanation": "In `psql`, `\\dt` stands for 'describe tables' and lists all standard tables in the search path."
+        },
+        {
+          "question": "Which `psql` meta-command inspects the structure, columns, types, and indexes of a table named `users`?",
+          "options": [
+            "DESCRIBE users;",
+            "\\schema users",
+            "\\show users",
+            "\\d users"
+          ],
+          "answer": "D",
+          "explanation": "In `psql`, `\\d table_name` displays detailed column definitions, data types, nullability, default values, foreign keys, and indexes for that table."
+        },
+        {
+          "question": "What `psql` command switches the active connection to another database named `analytics_db`?",
+          "options": [
+            "\\open analytics_db",
+            "\\c analytics_db",
+            "USE analytics_db;",
+            "\\switch analytics_db"
+          ],
+          "answer": "B",
+          "explanation": "`\\c <dbname>` (or `\\connect <dbname>`) connects to a new database within an existing `psql` terminal session."
+        },
+        {
+          "question": "How does PostgreSQL's native `JSONB` data type differ from plain `JSON`?",
+          "options": [
+            "JSONB requires an external Redis server to be running.",
+            "JSONB is limited to 255 characters while JSON has unlimited capacity.",
+            "JSONB is stored in a decomposed binary format supporting GIN indexing and fast lookups, while JSON stores exact plaintext.",
+            "JSONB can only store numbers while JSON stores text."
+          ],
+          "answer": "C",
+          "explanation": "`JSONB` parses JSON into a structured binary representation, removing whitespace and duplicate keys, and enables efficient indexing using GIN/GIST index trees."
+        },
+        {
+          "question": "Which `psql` meta-command toggles expanded table display mode (displaying rows vertically)?",
+          "options": [
+            "\\vertical",
+            "\\e",
+            "\\v",
+            "\\x"
+          ],
+          "answer": "D",
+          "explanation": "`\\x` (expanded display) toggles vertical record layout in `psql`, which is useful when querying wide tables with many columns (equivalent to `\\G` in MySQL)."
+        },
+        {
+          "question": "What is the primary advantage of `GENERATED ALWAYS AS IDENTITY` over legacy `SERIAL` in PostgreSQL?\n```sql\nCREATE TABLE products (\n    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,\n    name VARCHAR(100) NOT NULL\n);\n```",
+          "options": [
+            "It converts integer IDs into 64-bit encryption keys.",
+            "It allows duplicate IDs to exist in the primary key column.",
+            "It runs only on 32-bit hardware architectures.",
+            "It complies with SQL:2003 standards, manages internal sequences cleanly, and prevents accidental manual insertion of keys unless OVERRIDING SYSTEM VALUE is specified."
+          ],
+          "answer": "D",
+          "explanation": "`GENERATED ALWAYS AS IDENTITY` is the modern SQL standard replacement for `SERIAL`, preventing accidental explicit insertions from corrupting sequence counters."
+        },
+        {
+          "question": "Which `psql` command reads and executes an external SQL script file named `schema.sql`?",
+          "options": [
+            "\\run schema.sql",
+            "\\i schema.sql",
+            "\\load schema.sql",
+            "\\execute schema.sql"
+          ],
+          "answer": "B",
+          "explanation": "`\\i <filepath>` reads and executes commands from the specified SQL script file in `psql`."
+        },
+        {
+          "question": "What information does the `\\l` (or `\\list`) meta-command display in `psql`?",
+          "options": [
+            "Lists all foreign keys defined in the current table.",
+            "Lists all databases on the PostgreSQL server cluster along with owner, character encoding, and access privileges.",
+            "Lists all active query locks in memory.",
+            "Lists all logged-in client IP addresses."
+          ],
+          "answer": "B",
+          "explanation": "`\\l` lists all databases existing in the current PostgreSQL instance cluster."
+        },
+        {
+          "question": "What is the primary purpose of the PostgreSQL command-line utility `pg_dump`?",
+          "options": [
+            "To wipe all data and destroy database schemas instantly.",
+            "To export and backup a PostgreSQL database into a SQL script file or compressed archive format.",
+            "To monitor CPU and memory utilization of PostgreSQL background workers.",
+            "To format SQL source code with standard indentation."
+          ],
+          "answer": "B",
+          "explanation": "`pg_dump` is the standard command-line utility used to generate consistent logical backups of a PostgreSQL database."
+        },
+        {
+          "question": "How do you query articles containing the tag `'postgres'` in PostgreSQL when using an Array column `tags TEXT[]`?\n```sql\nSELECT * FROM articles WHERE 'postgres' = ANY(tags);\n```",
+          "options": [
+            "Using tags LIKE '%postgres%' only.",
+            "Using tags.contains('postgres') function syntax.",
+            "Using the '= ANY(tags)' operator to test if 'postgres' exists within the array elements.",
+            "Arrays cannot be queried in WHERE clauses in PostgreSQL."
+          ],
+          "answer": "C",
+          "explanation": "PostgreSQL supports native arrays. Testing membership can be performed cleanly using `'item' = ANY(array_column)` or the array overlap operator `tags && ARRAY['postgres']`."
+        },
+        {
+          "question": "What does the `\\du` meta-command do in `psql`?",
+          "options": [
+            "Lists all database user roles and their assigned administrative privileges (Superuser, Create DB, Login).",
+            "Drops the currently logged-in user account.",
+            "Shows active database connections.",
+            "Displays disk usage statistics for tables."
+          ],
+          "answer": "A",
+          "explanation": "`\\du` (describe users/roles) lists all roles along with role attributes (e.g. `Superuser`, `Create role`, `Create DB`, `Bypass RLS`)."
+        },
+        {
+          "question": "Which `psql` meta-command toggles query execution time measurement?",
+          "options": [
+            "\\stats",
+            "\\timing",
+            "\\time",
+            "\\benchmark"
+          ],
+          "answer": "B",
+          "explanation": "`\\timing` toggles execution timing display in `psql`, showing query run duration in milliseconds after each statement."
+        },
+        {
+          "question": "What is the standard default port number for PostgreSQL database servers?",
+          "options": [
+            "5432",
+            "8080",
+            "3306",
+            "27017"
+          ],
+          "answer": "A",
+          "explanation": "The default TCP/IP listening port for PostgreSQL is 5432 (MySQL uses 3306, MongoDB uses 27017)."
+        },
+        {
+          "question": "What is generated for `id` when inserting a record into a table with `id UUID DEFAULT uuid_generate_v4() PRIMARY KEY`?\n```sql\nCREATE EXTENSION IF NOT EXISTS \"uuid-ossp\";\nCREATE TABLE orders (\n    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,\n    amount DECIMAL(10, 2)\n);\n```",
+          "options": [
+            "A base64 encoded MD5 hash of the amount column.",
+            "A UNIX timestamp integer in milliseconds.",
+            "A globally unique 128-bit randomly generated Version 4 UUID string.",
+            "A sequential auto-incrementing integer starting at 1."
+          ],
+          "answer": "C",
+          "explanation": "`uuid_generate_v4()` creates a random Version 4 UUID (e.g., `'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'`), ideal for distributed systems."
+        },
+        {
+          "question": "Which `psql` meta-command exits and closes the interactive terminal session?",
+          "options": [
+            "\\q",
+            "\\close",
+            "\\bye",
+            "\\exit"
+          ],
+          "answer": "A",
+          "explanation": "`\\q` is the standard `psql` meta-command to quit the shell."
+        },
+        {
+          "question": "What is the difference between `TIMESTAMP` and `TIMESTAMPTZ` in PostgreSQL?",
+          "options": [
+            "TIMESTAMPTZ can only store future dates.",
+            "TIMESTAMP supports milliseconds, while TIMESTAMPTZ only supports seconds.",
+            "TIMESTAMP is stored as string text, while TIMESTAMPTZ is stored as binary.",
+            "TIMESTAMPTZ stores UTC timestamps and converts them to the client's session timezone upon retrieval, while TIMESTAMP ignores timezone offsets."
+          ],
+          "answer": "D",
+          "explanation": "`TIMESTAMPTZ` (timestamp with time zone) standardizes storage in UTC and formats output dynamically according to the client session's `TimeZone` setting."
+        },
+        {
+          "question": "What does the `RETURNING` clause do in PostgreSQL `INSERT` statements?\n```sql\nINSERT INTO customers (name, email)\nVALUES ('Jane Doe', 'jane@example.com')\nRETURNING id, created_at;\n```",
+          "options": [
+            "Redirects the output to an external audit table.",
+            "Prints the query execution plan without modifying data.",
+            "Undoes the insert and returns previous column values.",
+            "Returns the newly generated id and created_at values from the inserted row directly in the result set."
+          ],
+          "answer": "D",
+          "explanation": "`RETURNING` allows `INSERT`, `UPDATE`, and `DELETE` queries to return modified or generated columns immediately, avoiding a subsequent `SELECT`."
+        },
+        {
+          "question": "Which command-line tool creates a new database directly from the terminal without opening `psql`?",
+          "options": [
+            "initdb new_database_name",
+            "psql-newdb new_database_name",
+            "createdb -U postgres new_database_name",
+            "pg_create new_database_name"
+          ],
+          "answer": "C",
+          "explanation": "`createdb` is a PostgreSQL wrapper utility that executes `CREATE DATABASE` SQL commands from the operating system shell."
+        },
+        {
+          "question": "What does `ON CONFLICT ... DO UPDATE` (UPSERT) do in PostgreSQL?\n```sql\nINSERT INTO counters (key_name, val) VALUES ('page_views', 1)\nON CONFLICT (key_name)\nDO UPDATE SET val = counters.val + 1;\n```",
+          "options": [
+            "Creates a new duplicate row with a randomized key_name.",
+            "Deletes the counter row whenever a conflict occurs.",
+            "Inserts key_name with value 1, or increments val by 1 if a unique constraint conflict occurs on key_name.",
+            "Raises a unique constraint violation error and halts execution."
+          ],
+          "answer": "C",
+          "explanation": "`ON CONFLICT (target) DO UPDATE` provides native atomic Upsert functionality in PostgreSQL, updating the conflicting row in place if a unique index violation occurs."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,691 @@
+{
+  "courseId": "crs-1786624019154-w",
+  "courseTitle": "Python Full Stack + DSA with AI",
+  "stageId": "top-stg-4",
+  "stageTitle": "Stage 4: System Design & Career Preparation",
+  "moduleId": "mod-stg4-m3",
+  "moduleTitle": "Capstone Project Development & Mentoring - 2",
+  "lessons": [
+    {
+      "lessonId": "lesson-stg4-m3-l1",
+      "lessonTitle": "Frontend-Backend Integration & AI Feature Tuning",
+      "totalQuestions": 20,
+      "questions": [
+        {
+          "question": "When integrating a React SPA with a Django REST Framework backend, what is the primary architectural purpose of configuring an Axios response interceptor for handling HTTP 401 Unauthorized errors?",
+          "options": [
+            "To encrypt all payload data in transit using client-side RSA public keys before resending.",
+            "To convert 401 errors into 200 OK responses with null payloads to prevent the frontend UI from crashing.",
+            "To automatically catch expired access token responses, pause outgoing requests, request a new access token using the refresh token, and replay the original failed requests seamlessly.",
+            "To redirect the user directly to the login page without checking if a refresh token exists."
+          ],
+          "answer": "C",
+          "explanation": "Axios response interceptors intercept 401 Unauthorized responses to transparently invoke the token refresh endpoint, update the authentication headers, and retry the original pending requests without disrupting the user session."
+        },
+        {
+          "question": "In a web application streaming real-time LLM responses from a Python backend to a React frontend, why is Server-Sent Events (SSE) via 'text/event-stream' often preferred over full-duplex WebSockets?",
+          "options": [
+            "SSE completely bypasses backend firewall and CORS rules because it uses UDP sockets.",
+            "SSE operates over standard HTTP/1.1 or HTTP/2, natively supports automatic client reconnection, and is lightweight and unidirectional, making it ideal for LLM token streaming.",
+            "SSE allows binary bi-directional video encoding while WebSockets only support plain ASCII text.",
+            "WebSockets cannot transmit JSON data or string fragments across different origins."
+          ],
+          "answer": "B",
+          "explanation": "Server-Sent Events (SSE) use standard HTTP with unidirectional streaming from server to client, built-in reconnection logic, and lower overhead compared to maintaining full-duplex WebSocket connections for LLM token generation."
+        },
+        {
+          "question": "When tuning generative AI model parameters in a production application, how does adjusting 'temperature' compare to adjusting 'top_p' (nucleus sampling)?",
+          "options": [
+            "Temperature sets the maximum character count of the response, whereas top_p controls the inference timeout in milliseconds.",
+            "Temperature scales the probability distribution of tokens (lower values make output more deterministic), while top_p limits candidate selection to the smallest cumulative probability pool exceeding threshold p.",
+            "Temperature controls the GPU temperature during inference, while top_p controls CPU core pinning.",
+            "Higher temperature guarantees strictly valid JSON syntax, whereas top_p induces creative storytelling."
+          ],
+          "answer": "B",
+          "explanation": "Temperature flattens or sharpens the logits distribution prior to softmax (low temperature = deterministic and focused), while top_p dynamically selects from the top cumulative probability mass (nucleus), preventing low-probability outliers."
+        },
+        {
+          "question": "How should a frontend application process a streaming response from an SSE endpoint using the standard Fetch API and ReadableStream?",
+          "options": [
+            "Acquire response.body.getReader(), decode incoming chunks using TextDecoder in an async while(true) loop, and append parsed tokens to component state.",
+            "Convert the response object to an ArrayBuffer and extract elements using Web Workers.",
+            "Use document.write() to inject the raw byte stream directly into the DOM.",
+            "Call response.json() continuously in an interval loop until the stream closes."
+          ],
+          "answer": "A",
+          "explanation": "Reading a Fetch stream involves calling `response.body.getReader()`, using `TextDecoder('utf-8')` to decode chunks in a `while(true)` loop reading `{ value, done }`, and updating UI state progressively."
+        },
+        {
+          "question": "To ensure that an LLM returns strictly structured JSON conforming to an application's database schema, which backend validation pattern is considered industry best practice in Python?",
+          "options": [
+            "Utilize OpenAI/Gemini Structured Outputs or Tool Calling with strict JSON Schema, and validate the output against a Pydantic model before persisting.",
+            "Use eval() on the raw LLM response string to parse arbitrary Python dictionaries directly.",
+            "Disable model temperature and rely on regex search over unformatted plain text outputs.",
+            "Rely solely on system prompts asking the model 'Please format strictly as JSON' without schema enforcement."
+          ],
+          "answer": "A",
+          "explanation": "Using LLM structured output modes with JSON Schema combined with Pydantic schema validation provides compile-time and runtime guarantees that outputs conform strictly to data contracts."
+        },
+        {
+          "question": "What is the primary risk of directly interpolating unvalidated user inputs into LLM system prompts without proper delimiters or sanitization, and how is it mitigated?",
+          "options": [
+            "CPU kernel panic; mitigated by increasing RAM allocation for the ASGI web server.",
+            "Prompt injection attacks, where malicious inputs override system instructions; mitigated by separating system rules, using XML/Markdown delimiters, and applying input guardrails.",
+            "Database stack overflow; mitigated by compressing prompt strings with gzip.",
+            "Client-side cross-site scripting (XSS); mitigated by disabling JavaScript in the backend."
+          ],
+          "answer": "B",
+          "explanation": "Prompt injection occurs when user input manipulates the model into ignoring system instructions. Mitigation includes strict delimiter separation (e.g. `<user_input>`), system guardrails, and input sanitization."
+        },
+        {
+          "question": "When a user abruptly stops an active AI generation or navigates away from a chat page in a React frontend, what mechanism should be used to cancel the in-flight HTTP stream?",
+          "options": [
+            "Reload the entire browser window using window.location.reload() to sever TCP connections.",
+            "Send a secondary HTTP DELETE request to the server root endpoint with empty credentials.",
+            "Pass an AbortSignal from an AbortController instance to the fetch request, and call controller.abort() upon user cancellation or component unmount.",
+            "Set the state variable to null and allow the background stream to continue downloading silently."
+          ],
+          "answer": "C",
+          "explanation": "Instantiating an `AbortController`, passing `controller.signal` to `fetch()`, and calling `controller.abort()` in component cleanup or on click terminates network streams immediately."
+        },
+        {
+          "question": "In an AI-powered full stack application, what is the role of an Exponential Backoff with Jitter algorithm when communicating with third-party LLM APIs?",
+          "options": [
+            "To decrypt SSL handshakes faster during high network latency.",
+            "To compress network payloads dynamically across congested WebSocket frames.",
+            "To pre-warm GPU model caches before user requests arrive at the gateway.",
+            "To gracefully retry requests when encountering HTTP 429 (Rate Limit) or 503 errors with exponentially increasing randomized wait times, avoiding thundering herd spikes."
+          ],
+          "answer": "D",
+          "explanation": "Exponential backoff with jitter multiplies retry delays exponentially while adding random noise (jitter) to prevent synchronized retry waves from overwhelming upstream LLM providers during rate limiting."
+        },
+        {
+          "question": "When rendering LLM-generated Markdown and code snippets in a React frontend, what security measure must be implemented to prevent Stored XSS vulnerabilities?",
+          "options": [
+            "Sanitize the parsed HTML using a trusted library like DOMPurify before rendering, or use React Markdown with strict HTML escaping enabled.",
+            "Convert all incoming characters to ASCII codes and display them as plain raw numbers.",
+            "Disable React Virtual DOM reconciliation for all Markdown container elements.",
+            "Use dangerouslySetInnerHTML directly with raw string output from the LLM."
+          ],
+          "answer": "A",
+          "explanation": "LLM outputs may contain untrusted or adversarial HTML/JavaScript tags. Sanitizing generated markup with DOMPurify or disabling raw HTML rendering in markdown parsers is vital to prevent Cross-Site Scripting (XSS)."
+        },
+        {
+          "question": "How should a token refresh race condition be handled in a frontend app when five parallel API requests fail simultaneously with HTTP 401?",
+          "options": [
+            "Queue the four subsequent requests in a promise-based retry queue while the first request triggers a single token refresh, then replay all queued requests with the new token.",
+            "Retry all five requests in an infinite recursive loop until the token miraculously resolves.",
+            "Immediately log out the user and clear all browser local storage upon the first 401 error.",
+            "Fire five simultaneous refresh token requests and overwrite the token storage five times sequentially."
+          ],
+          "answer": "A",
+          "explanation": "An Axios interceptor should maintain an `isRefreshing` flag and a pending promise queue so only one refresh API call is made, and all parallel pending requests resolve once the new token is acquired."
+        },
+        {
+          "question": "What is 'Sliding Window Memory' (Window Buffer Memory) in multi-turn conversational AI applications, and why is it essential?",
+          "options": [
+            "Opening a floating OS window on top of the user's desktop to record screen interactions.",
+            "Retaining only the most recent 'k' conversation turns (or summarizing earlier turns) to prevent context window overflow and contain escalating API token costs.",
+            "Storing all chat transcripts permanently in browser IndexedDB without ever sending them to the backend.",
+            "Caching all user keystrokes in Redis before the user presses the submit button."
+          ],
+          "answer": "B",
+          "explanation": "Sliding window memory maintains a bounded conversation history (e.g. last 6 messages or running summary) to ensure token counts stay within LLM context limits and predictable budget bounds."
+        },
+        {
+          "question": "What technique allows a frontend UI to display partially generated JSON structures (e.g., streaming cards/tables) before the LLM has emitted the closing braces?",
+          "options": [
+            "Sending each single character to a backend regex server for syntactic reconstruction.",
+            "Waiting until the entire 4,000-token stream finishes before parsing anything into the UI.",
+            "Using partial JSON streaming parsers that auto-complete open brackets and keys on each chunk to render valid intermediate JavaScript objects.",
+            "Evaluating the unfinished string with JSON.parse() inside a try-catch block and suppressing all errors."
+          ],
+          "answer": "C",
+          "explanation": "Partial/best-effort JSON streaming parsers inspect incomplete token streams, auto-close unclosed quotes/brackets, and emit usable snapshot objects so UI cards or tables can render in real time."
+        },
+        {
+          "question": "What is the primary function of an LLM Fallback & Circuit Breaker strategy in a production full stack system?",
+          "options": [
+            "Preventing users from sending more than one message per calendar day.",
+            "Re-training the foundation model on local server CPUs whenever an error occurs.",
+            "Terminating the application server immediately whenever an API latency exceeds 50 milliseconds.",
+            "Automatically routing requests to a secondary model provider or cached fallback response when the primary model experiences timeouts or 5xx outages."
+          ],
+          "answer": "D",
+          "explanation": "A circuit breaker trips when an upstream LLM API fails repeatedly, quickly redirecting traffic to fallback models (e.g. OpenAI to Gemini or Claude) or cached responses without hanging user threads."
+        },
+        {
+          "question": "Why should an application calculate and enforce Token Budgeting for Retrieval-Augmented Generation (RAG) context before dispatching requests to the LLM?",
+          "options": [
+            "To ensure that vector database embeddings are strictly 64-bit floating point numbers.",
+            "Because LLMs charge a flat monthly fee regardless of the number of tokens processed.",
+            "To reduce the database disk size of the PostgreSQL vector index.",
+            "To prevent combined prompt, document retrieval chunks, and chat history from exceeding the model's maximum context window and causing hard API failures."
+          ],
+          "answer": "D",
+          "explanation": "Token budgeting ensures that retrieved context snippets, system instructions, and chat history are strategically truncated or prioritized so the total prompt stays well within the model's context limits."
+        },
+        {
+          "question": "When connecting a frontend client hosted on 'https://app.example.com' to a backend API on 'https://api.example.com', what header must the backend include to allow credentialed requests (cookies/Authorization headers)?",
+          "options": [
+            "Access-Control-Allow-Credentials: true with an explicit Access-Control-Allow-Origin: https://app.example.com (not a wildcard '*').",
+            "Access-Control-Allow-Origin: * with Access-Control-Allow-Credentials: true.",
+            "Access-Control-Allow-Methods: GET, POST without CORS credentials enabled.",
+            "X-Frame-Options: SAMEORIGIN with Content-Security-Policy: default-src 'none'."
+          ],
+          "answer": "A",
+          "explanation": "When CORS requests include credentials (`withCredentials: true`), browsers reject wildcards (`*`) and require `Access-Control-Allow-Credentials: true` along with an explicit origin match."
+        },
+        {
+          "question": "What is the key benefit of implementing 'Optimistic UI Updates' when a user sends an AI prompt in a chat interface?",
+          "options": [
+            "The user's network bandwidth consumption is reduced by 50%.",
+            "Database transactions are skipped entirely on the server side.",
+            "The backend executes LLM generation twice as fast because the frontend predicts the tokens in advance.",
+            "The message immediately appears in the conversation feed with a pending state, enhancing perceived responsiveness before the backend finishes processing."
+          ],
+          "answer": "D",
+          "explanation": "Optimistic UI updates render the user's action immediately in the interface while network requests proceed in the background, providing instantaneous feedback and high perceived performance."
+        },
+        {
+          "question": "What is 'Few-Shot Prompting' and how is it practically applied in tuning LLM features within an application?",
+          "options": [
+            "Prompting the model repeatedly in five concurrent threads and averaging the responses.",
+            "Limiting the model's output length to fewer than five words per response.",
+            "Providing 2 to 5 high-quality input-output demonstration examples inside the prompt to guide the model towards the desired tone, format, and edge-case handling.",
+            "Fine-tuning the neural network weights on millions of unlabeled examples on a local GPU cluster."
+          ],
+          "answer": "C",
+          "explanation": "Few-shot prompting provides contextual demonstrations (input-output pairs) within the prompt to dramatically improve model adherence to complex formats and domain-specific rules without fine-tuning."
+        },
+        {
+          "question": "How can token usage and cost be tracked per user in a SaaS application integrating OpenAI/Anthropic APIs?",
+          "options": [
+            "Multiply the character length of the raw prompt by a random floating-point constant.",
+            "Inspect the browser's localStorage usage after each API response.",
+            "Extract usage metadata (prompt_tokens, completion_tokens) from API response headers or payload objects, and asynchronously log them to a user billing database table.",
+            "Count the number of HTTP requests without tracking individual token metrics."
+          ],
+          "answer": "C",
+          "explanation": "LLM API responses include `usage` metadata containing exact prompt and completion token counts, which backends record against user accounts to manage quotas, analytics, and billing."
+        },
+        {
+          "question": "What is the purpose of integrating Content Moderation endpoints (e.g. OpenAI Moderation API or Google Safety Attributes) prior to LLM inference?",
+          "options": [
+            "To compress English text into compact binary bytecode.",
+            "To translate all incoming foreign languages into Latin before processing.",
+            "To verify whether the user has paid their monthly subscription invoice.",
+            "To check for hate speech, self-harm, sexual violence, and harassment inputs before triggering generation, blocking violations early and reducing inference waste."
+          ],
+          "answer": "D",
+          "explanation": "Content moderation APIs filter toxic, harmful, or policy-violating prompts before expensive model calls, ensuring compliance with safety standards and preventing abuse."
+        },
+        {
+          "question": "In LangChain or LlamaIndex, what role does an OutputFixingParser play when an LLM fails to output valid JSON conforming to the requested schema?",
+          "options": [
+            "It substitutes all null values with random integers between 1 and 100.",
+            "It catches the parsing exception, sends the erroneous output along with the schema back to the LLM, and asks the model to fix the syntax errors.",
+            "It deletes the user's database records and terminates the web server process.",
+            "It converts the application backend from Python to JavaScript automatically."
+          ],
+          "answer": "B",
+          "explanation": "An OutputFixingParser intercepts JSON/schema parsing failures, constructs a remedial prompt containing the broken output and error trace, and asks an LLM to correct the syntax errors."
+        }
+      ]
+    },
+    {
+      "lessonId": "lesson-stg4-m3-l2",
+      "lessonTitle": "Bug Fixing & Security Auditing",
+      "totalQuestions": 20,
+      "questions": [
+        {
+          "question": "Which of the following database query practices in Django is vulnerable to SQL Injection, and how should it be fixed?",
+          "options": [
+            "Vulnerable: User.objects.get(id=input); Fixed: User.objects.filter(id__exact=input).",
+            "Vulnerable: User.objects.all().order_by('id'); Fixed: User.objects.raw('SELECT * FROM users').",
+            "Vulnerable: User.objects.raw(f'SELECT * FROM users WHERE username = \\'{input}\\''); Fixed: User.objects.raw('SELECT * FROM users WHERE username = %s', [input]).",
+            "Vulnerable: User.objects.filter(username=input); Fixed: User.objects.raw(f'SELECT * FROM users WHERE username = {input}')."
+          ],
+          "answer": "C",
+          "explanation": "F-string formatting directly interpolates raw user input into SQL strings, causing SQL injection. Using parameterized queries (`%s` with a parameter list) ensures the database engine escapes values safely."
+        },
+        {
+          "question": "What is Broken Object Level Authorization (BOLA / IDOR), and how is it properly prevented in Django REST Framework views?",
+          "options": [
+            "An attacker overflows memory buffers in the database; prevented by limiting string field lengths to 255 characters.",
+            "An attacker accesses or modifies another user's resource by altering the ID in the URL; prevented by scoping querysets (e.g. queryset.filter(user=request.user)) or using DRF permission classes.",
+            "An attacker sends malformed JSON to crash the serializer; prevented by using try-except blocks in models.",
+            "An attacker modifies HTTP status codes in transit; prevented by enforcing HTTPS encryption."
+          ],
+          "answer": "B",
+          "explanation": "BOLA/IDOR occurs when endpoints allow access to records by ID without checking if the authenticated user owns that record. Filtering querysets by `request.user` or implementing object-level permissions prevents unauthorized access."
+        },
+        {
+          "question": "What is the primary security risk of storing JWT access and refresh tokens in browser 'localStorage', and what is the recommended alternative?",
+          "options": [
+            "Tokens in localStorage expire automatically every 5 minutes; the recommended approach is storing them in HTML meta tags.",
+            "Tokens in localStorage are vulnerable to theft via Cross-Site Scripting (XSS); the recommended approach is storing refresh tokens in HttpOnly, Secure, SameSite cookies.",
+            "Tokens in localStorage cannot be read by JavaScript; the recommended approach is storing them in URL query parameters.",
+            "Tokens in localStorage consume excessive hard drive space; the recommended approach is storing them in sessionStorage."
+          ],
+          "answer": "B",
+          "explanation": "JavaScript has full access to `localStorage`, meaning any XSS vulnerability can exfiltrate tokens. Storing sensitive tokens in `HttpOnly` cookies makes them inaccessible to client-side scripts."
+        },
+        {
+          "question": "How does the 'SameSite=Strict' or 'SameSite=Lax' cookie attribute protect a web application against Cross-Site Request Forgery (CSRF) attacks?",
+          "options": [
+            "It instructs the browser not to send the cookie on cross-site requests (e.g. when an external site attempts to forge an unauthorized POST request to your backend).",
+            "It prevents search engines from indexing the application's login URL.",
+            "It disables all HTTP caching headers across all client browsers.",
+            "It forces the browser to encrypt the cookie payload with AES-256 on the client device."
+          ],
+          "answer": "A",
+          "explanation": "The `SameSite` attribute prevents the browser from attaching cookies to cross-origin requests, blocking CSRF attacks where third-party malicious sites trick authenticated browsers into making state-changing requests."
+        },
+        {
+          "question": "In a DRF ModelSerializer, what security vulnerability occurs if an engineer sets `fields = '__all__'` on a User or Order model without restricting writable fields?",
+          "options": [
+            "Mass Assignment (Over-Posting), allowing malicious users to modify restricted fields such as 'is_staff', 'is_superuser', or 'role' in request payloads.",
+            "Denial of Service due to infinite JSON serialization recursion.",
+            "Cross-Origin Resource Sharing (CORS) header stripping.",
+            "SQL Injection through the serializer validation pipeline."
+          ],
+          "answer": "A",
+          "explanation": "Mass assignment occurs when serializers accept all model attributes for write operations, enabling attackers to inject administrative privileges (`is_superuser: true`) unless fields are explicitly restricted with `read_only_fields`."
+        },
+        {
+          "question": "What is the purpose of running static security analysis tools like 'Bandit' on a Python codebase prior to deployment?",
+          "options": [
+            "To execute load tests against database connection pools.",
+            "To scan Python Abstract Syntax Trees (AST) for common security issues like hardcoded passwords, insecure imports, SQL injection risks, and weak cryptography.",
+            "To automatically fix front-end CSS alignment bugs in responsive viewports.",
+            "To compress Python bytecode files into standalone Docker images."
+          ],
+          "answer": "B",
+          "explanation": "Bandit is a security-focused static code analysis tool designed to find common security vulnerabilities (e.g., hardcoded secrets, shell injections, unsafe yaml/pickle loading) in Python code."
+        },
+        {
+          "question": "Why is using Python's 'pickle' or 'yaml.load()' with untrusted user input considered a critical security vulnerability?",
+          "options": [
+            "They cause significant database memory fragmentation on PostgreSQL servers.",
+            "They convert all string variables into immutable tuples, breaking serializer workflows.",
+            "They allow arbitrary code execution during deserialization because serialized payloads can construct and execute malicious Python objects.",
+            "They expose server IP addresses in public DNS records."
+          ],
+          "answer": "C",
+          "explanation": "Python `pickle` and un-sandboxed `yaml.load()` can instantiate arbitrary objects and execute system commands during deserialization, leading directly to Remote Code Execution (RCE)."
+        },
+        {
+          "question": "How does a timing attack exploit standard string comparison ('==' / 'strcmp') during token or password verification, and what is the fix?",
+          "options": [
+            "Standard comparisons run asynchronously; fix by using threading locks.",
+            "Standard comparisons cause CPU overclocking; fix by adding a 1-second time.sleep() delay to every comparison.",
+            "Standard comparisons convert characters to uppercase; fix by converting both strings to MD5 hashes first.",
+            "Standard comparisons return false at the first mismatched byte, revealing how many initial characters were correct; fix by using constant-time comparisons like secrets.compare_digest()."
+          ],
+          "answer": "D",
+          "explanation": "Early-exit string comparisons leak character matching progress through microsecond timing differences. `secrets.compare_digest()` runs in constant time regardless of where differences occur, mitigating timing attacks."
+        },
+        {
+          "question": "What is Server-Side Request Forgery (SSRF), and how should an AI application that scrapes user-provided URLs protect against it?",
+          "options": [
+            "An attacker supplies internal IP addresses (e.g., 127.0.0.1, 169.254.169.254) to access cloud metadata or private services; protected by allowlisting domains and blocking private IP ranges.",
+            "An attacker steals session cookies from HTTP headers; protected by enabling HTTPS.",
+            "An attacker floods the server with GET requests; protected by increasing the web server worker timeout.",
+            "An attacker sends forged email headers from the client's browser; protected by configuring SPF and DKIM records."
+          ],
+          "answer": "A",
+          "explanation": "SSRF occurs when a server fetches a remote resource specified by an untrusted user without validating that the target is external, exposing internal endpoints (e.g. AWS metadata `169.254.169.254`). Mitigation requires strict IP/domain allowlisting."
+        },
+        {
+          "question": "Why is leaving 'DEBUG = True' in a production Django 'settings.py' file a severe security hazard?",
+          "options": [
+            "Unhandled exceptions display interactive stack traces containing database credentials, secret keys, environment variables, and source code to public users.",
+            "It deletes all media files uploaded to the media storage bucket every 24 hours.",
+            "The server restricts incoming web traffic to fewer than 5 requests per minute.",
+            "Django disables all database query indexing when DEBUG is True."
+          ],
+          "answer": "A",
+          "explanation": "With `DEBUG = True`, any 500 error renders a detailed debug page displaying local variables, database connection strings, API secrets, and server architecture to attackers."
+        },
+        {
+          "question": "How does a Content Security Policy (CSP) header mitigate Cross-Site Scripting (XSS) and data exfiltration?",
+          "options": [
+            "By automatically converting all HTTP GET requests to encrypted POST requests.",
+            "By restricting the domains from which scripts, stylesheets, images, and fonts can be loaded and executed, while blocking unauthorized inline scripts and eval().",
+            "By validating database schema migrations before they run in production.",
+            "By compressing JavaScript bundles before they reach the browser engine."
+          ],
+          "answer": "B",
+          "explanation": "CSP headers (`Content-Security-Policy`) specify trusted source whitelists for scripts and assets, preventing malicious inline scripts, injected third-party scripts, and unauthorized data exfiltration."
+        },
+        {
+          "question": "What is a 'Race Condition' in an e-commerce or booking system, and how can it be prevented in Django ORM during checkout?",
+          "options": [
+            "Memory leaks in Celery workers; prevented by setting max-tasks-per-child.",
+            "Network packets arriving out of order over UDP; prevented by switching to TCP sockets.",
+            "Multiple concurrent requests read identical inventory before updating, leading to overselling; prevented by using database transactions with 'select_for_update()' or F() expressions.",
+            "Frontend animations running faster than backend response times; prevented by adding CSS transition delays."
+          ],
+          "answer": "C",
+          "explanation": "Concurrent threads reading and writing shared resources without pessimistic locking can oversell items. Wrapping the operation in `transaction.atomic()` and selecting with `.select_for_update()` locks the row until commit."
+        },
+        {
+          "question": "What is a common cause of memory leaks in React single-page applications, and how is it resolved?",
+          "options": [
+            "Declaring constants inside component render bodies.",
+            "Storing state variables in React useState hooks instead of Redux.",
+            "Using functional components instead of legacy class components.",
+            "Failing to clean up subscriptions, event listeners, intervals, or abort controllers in the cleanup return function of useEffect."
+          ],
+          "answer": "D",
+          "explanation": "Neglecting to clear timers (`clearInterval`), remove DOM event listeners (`removeEventListener`), or cancel active subscriptions in `useEffect` cleanup functions causes uncollected memory references on unmount."
+        },
+        {
+          "question": "What is Path Traversal (Directory Traversal), and how should a file-download endpoint in Python sanitize filenames to prevent it?",
+          "options": [
+            "Attackers modify URL hash fragments to bypass frontend routing; prevented by using React Router DOM.",
+            "Attackers rename database tables via SQL; prevented by using foreign key constraints.",
+            "Attackers upload files larger than 10MB; prevented by setting DATA_UPLOAD_MAX_MEMORY_SIZE.",
+            "Attackers use sequences like '../../etc/passwd' to access arbitrary system files; prevented by resolving absolute paths and verifying they reside inside the allowed base directory."
+          ],
+          "answer": "D",
+          "explanation": "Path traversal attacks use relative path separators (`../`) to access files outside the upload directory. Resolving the absolute path with `os.path.abspath` or `Path.resolve()` and asserting it starts with the safe directory path prevents traversal."
+        },
+        {
+          "question": "Which password hashing algorithm is the standard secure default in modern Django, and why are MD5 and SHA1 strictly prohibited?",
+          "options": [
+            "PBKDF2 with SHA256 (or Argon2/bcrypt); MD5 and SHA1 are fast, non-salted algorithms vulnerable to rainbow table lookups and rapid GPU collision attacks.",
+            "Plaintext base64 encoding; MD5 is deprecated because it does not support Unicode characters.",
+            "AES-256 symmetric encryption; SHA1 is rejected because it requires private key management.",
+            "RSA-4096 asymmetric encryption; MD5 is prohibited because it cannot be decrypted."
+          ],
+          "answer": "A",
+          "explanation": "Modern password hashing requires computationally intensive key stretching and salting (PBKDF2, Argon2, bcrypt). MD5 and SHA1 are obsolete and easily reversed via GPU brute-forcing and rainbow tables."
+        },
+        {
+          "question": "What security vulnerability arises when an application constructs Regular Expressions dynamically from user input without validation?",
+          "options": [
+            "Automatic generation of invalid SSL certificates.",
+            "Arbitrary file deletion on the database server.",
+            "Cross-Site Scripting via regex character interpolation.",
+            "Regular Expression Denial of Service (ReDoS), where catastrophic backtracking causes 100% CPU utilization and hangs the server process."
+          ],
+          "answer": "D",
+          "explanation": "ReDoS occurs when regex engines encounter complex nested quantifiers that cause catastrophic backtracking on crafted inputs, exhausting CPU resources and halting event loops."
+        },
+        {
+          "question": "How does implementing Rate Limiting (throttling) using Redis in a Django REST Framework API protect against brute-force attacks?",
+          "options": [
+            "By encrypting the user's password using the Redis memory cache before validation.",
+            "By forcing all incoming requests to pass through a CAPTCHA on every single page load.",
+            "By tracking request counts per IP address or user ID over a sliding time window and returning HTTP 429 Too Many Requests when thresholds are exceeded.",
+            "By permanently banning user accounts whenever they enter an incorrect password once."
+          ],
+          "answer": "C",
+          "explanation": "Rate limiting tracks request frequency per IP/user in memory-backed stores (Redis) and throttles abusive traffic with HTTP 429 status codes, blunting automated credential stuffing and DDoS attempts."
+        },
+        {
+          "question": "What is 'Session Fixation', and how does Django natively protect against it during user authentication?",
+          "options": [
+            "An attacker freezes the user's browser screen; Django prevents this by clearing browser cache on reload.",
+            "An attacker modifies session cookies in transit; Django prevents this by disabling cookies completely.",
+            "An attacker forces a known session ID onto a victim; Django prevents this by cycling/regenerating the session ID upon successful login via django.contrib.auth.login().",
+            "An attacker guesses session expiration timestamps; Django prevents this by making sessions permanent."
+          ],
+          "answer": "C",
+          "explanation": "Session fixation occurs when an attacker establishes a session token and tricks a victim into authenticating with it. Django's `login()` function automatically rotates and re-keys the session ID upon login."
+        },
+        {
+          "question": "Why should sensitive environment variables and API keys never be committed to a Git repository, and what tool helps detect accidental leaks?",
+          "options": [
+            "Environment variables reduce Git repository clone speeds by 90%.",
+            "Git servers require separate licenses for every environment variable stored.",
+            "Git repositories automatically compress and delete files containing the string 'KEY'.",
+            "Git commit histories are permanent and accessible to anyone with repository access; pre-commit hooks and scanners like Trufflehog/GitGuardian detect leaks before push."
+          ],
+          "answer": "D",
+          "explanation": "Public or compromised repositories leak secrets across version history. Automated secret scanning tools (Trufflehog, GitGuardian) and pre-commit hooks intercept credentials before commits are pushed."
+        },
+        {
+          "question": "In React, why is assigning unescaped user input to 'dangerouslySetInnerHTML' a severe vulnerability?",
+          "options": [
+            "It strips all CSS styling from child components permanently.",
+            "It bypasses React's built-in XSS protection and directly injects raw HTML/script tags into the DOM, enabling arbitrary script execution in victim browsers.",
+            "It causes React to crash because the virtual DOM cannot parse HTML strings.",
+            "It automatically forwards user input to third-party advertising trackers."
+          ],
+          "answer": "B",
+          "explanation": "`dangerouslySetInnerHTML` bypasses React's automatic string escaping, allowing attackers to inject malicious `<script>` tags or inline handlers (`onerror=...`), leading directly to XSS."
+        }
+      ]
+    },
+    {
+      "lessonId": "lesson-stg4-m3-l3",
+      "lessonTitle": "Performance Optimization",
+      "totalQuestions": 20,
+      "questions": [
+        {
+          "question": "What is the 'N+1 Query Problem' in ORM frameworks like Django, and how is it resolved for ForeignKey relationships?",
+          "options": [
+            "Querying the database N+1 times due to infinite recursion in serializers; resolved by deleting foreign key constraints.",
+            "Fetching records from N different databases simultaneously; resolved by consolidating into a single MySQL instance.",
+            "Executing 1 initial query to fetch N parent records, followed by N separate queries to fetch related child records; resolved using select_related() to perform an SQL JOIN.",
+            "Executing N queries in parallel across N database worker nodes; resolved by disabling database pooling."
+          ],
+          "answer": "C",
+          "explanation": "The N+1 problem occurs when accessing related attributes in a loop generates a query for each parent row. `select_related()` uses an SQL `JOIN` to fetch single-valued relationships (ForeignKey, OneToOne) in a single query."
+        },
+        {
+          "question": "When optimizing Many-to-Many or reverse ForeignKey queries in Django ORM, why should you use 'prefetch_related()' instead of 'select_related()'?",
+          "options": [
+            "select_related() is deprecated in modern Django versions above 4.0.",
+            "select_related() cannot perform SQL JOINs efficiently on multi-valued relationships without creating massive duplicate row matrices; prefetch_related() executes a separate batch query and joins in Python.",
+            "prefetch_related() converts SQL queries into NoSQL document lookups in Redis.",
+            "prefetch_related() bypasses database indexing entirely to run faster in memory."
+          ],
+          "answer": "B",
+          "explanation": "`prefetch_related()` handles multi-valued relationships (M2M, reverse ForeignKey) by executing separate queries with `WHERE id IN (...)` and joining the records in Python, avoiding Cartesian product row explosions."
+        },
+        {
+          "question": "How does a B-Tree Database Index improve SELECT query performance, and what is its trade-off?",
+          "options": [
+            "It compresses database tables by 90%; the trade-off is that queries cannot use WHERE clauses.",
+            "It reduces search time complexity from O(N) full-table scans to O(log N) tree traversals; the trade-off is additional storage overhead and slower INSERT/UPDATE/DELETE operations.",
+            "It replaces disk storage with RAM; the trade-off is total data loss when the database server restarts.",
+            "It forces all queries to execute asynchronously; the trade-off is increased network bandwidth."
+          ],
+          "answer": "B",
+          "explanation": "B-Tree indexes maintain balanced search trees allowing $O(log N)$ lookups, range queries, and ordering. However, every write operation must update the index, consuming storage and slightly slowing write throughput."
+        },
+        {
+          "question": "What is the 'Cache-Aside' (Lazy Loading) pattern in backend caching architectures with Redis?",
+          "options": [
+            "The application first checks Redis for the requested data; if absent (cache miss), it queries the database, writes the result to Redis with a TTL, and returns it to the client.",
+            "The client browser stores all API responses in localStorage and never queries the server.",
+            "Redis periodically dumps all key-value pairs into CSV files on the application server.",
+            "The database automatically pushes every write directly to Redis without application intervention."
+          ],
+          "answer": "A",
+          "explanation": "In Cache-Aside, the application code manages caching: it attempts to read from cache first, falls back to the database on misses, and populates the cache for subsequent requests."
+        },
+        {
+          "question": "What is the 'Thundering Herd' (Cache Stampede) problem, and how can it be mitigated when a high-traffic cache key expires?",
+          "options": [
+            "Thousands of concurrent requests simultaneously experience a cache miss and flood the database; mitigated using distributed locks (mutex) or probabilistic early cache regeneration (XFetch).",
+            "Database connection pools reject all write queries during bulk inserts; mitigated by disabling foreign keys.",
+            "Frontend components re-render uncontrollably in an infinite loop; mitigated by React.memo.",
+            "Redis runs out of memory and crashes all connected ASGI worker processes; mitigated by increasing swap space."
+          ],
+          "answer": "A",
+          "explanation": "A cache stampede occurs when an expired hot key causes concurrent requests to hit the database simultaneously. Using mutex locks ensures only one worker rebuilds the cache while others wait or serve stale data."
+        },
+        {
+          "question": "In React frontend performance tuning, how does 'React.memo' differ from 'useMemo' and 'useCallback'?",
+          "options": [
+            "useCallback converts synchronous functions into Web Workers automatically.",
+            "React.memo memoizes a component to prevent re-renders if props are unchanged; useMemo memoizes a computed value; useCallback memoizes a callback function definition between renders.",
+            "React.memo is used for backend caching, while useMemo and useCallback are strictly CSS layout hooks.",
+            "useMemo triggers component re-renders, while React.memo prevents database mutations."
+          ],
+          "answer": "B",
+          "explanation": "`React.memo` is a Higher-Order Component that skips re-rendering when props don't change. `useMemo` caches calculation results across renders, and `useCallback` preserves function references."
+        },
+        {
+          "question": "Why does Offset-based pagination ('OFFSET 100000 LIMIT 20') degrade database performance on large datasets, and what is the faster alternative?",
+          "options": [
+            "The database runs out of memory when calculating the offset; the alternative is fetching all rows into the frontend memory.",
+            "OFFSET locks the entire database table for write operations; the alternative is using random sampling.",
+            "The database must scan and discard 100,000 rows before returning 20; the alternative is Keyset/Cursor-based pagination ('WHERE id > last_seen_id LIMIT 20') utilizing an indexed column.",
+            "OFFSET only works on MySQL and is unsupported on PostgreSQL."
+          ],
+          "answer": "C",
+          "explanation": "High offsets require the database engine to traverse and discard all skipped records before returning results ($O(N)$ work). Cursor/keyset pagination uses indexed inequality filters (`WHERE id > cursor`) for constant $O(1)$ seek time."
+        },
+        {
+          "question": "What is 'Code Splitting' via dynamic imports ('React.lazy()' / 'import()') in modern frontend development, and why is it beneficial?",
+          "options": [
+            "Running frontend JavaScript across multiple CPU cores using multithreading.",
+            "Splitting JavaScript source files across multiple GitHub repositories to avoid merge conflicts.",
+            "Dividing React components into separate CSS and HTML files during compilation.",
+            "Breaking large monolithic JavaScript bundles into smaller chunks loaded on-demand when specific routes or components are visited, reducing initial page load time."
+          ],
+          "answer": "D",
+          "explanation": "Code splitting generates separate bundle chunks that are fetched over the network only when required (e.g. visiting a specific route), drastically lowering the initial bundle size and First Contentful Paint (FCP)."
+        },
+        {
+          "question": "What is 'DOM Virtualization' (Windowing) as implemented in libraries like 'react-window', and when should it be used?",
+          "options": [
+            "Rendering only the subset of list items currently visible in the viewport rather than thousands of DOM nodes, maintaining 60 FPS scrolling on large datasets.",
+            "Simulating DOM tree changes without updating the browser layout engine.",
+            "Replacing all HTML DOM elements with HTML5 Canvas drawing commands.",
+            "Running React inside a virtual machine in the cloud rather than the user's browser."
+          ],
+          "answer": "A",
+          "explanation": "DOM virtualization renders only the visible rows in the viewport (plus a small overscan buffer), recycling DOM elements during scroll and preventing browser slowdown when displaying thousands of items."
+        },
+        {
+          "question": "How does the 'HTTP 304 Not Modified' response status and the 'ETag' header optimize web asset delivery?",
+          "options": [
+            "The client sends 'If-None-Match: <hash>'; if the asset has not changed, the server returns 304 with an empty body, saving bandwidth by utilizing the client's cached copy.",
+            "The server redirects the request to an external mirror CDN server.",
+            "The client compresses the payload before uploading it to the server.",
+            "The server forces the client to download a fresh copy of the asset on every single request."
+          ],
+          "answer": "A",
+          "explanation": "ETags provide validation tokens for resources. If the client's cached ETag matches the server's version, the server responds with a lightweight 304 Not Modified status without re-transmitting the resource body."
+        },
+        {
+          "question": "When executing bulk record creations in Django ORM, why is 'bulk_create([objs])' vastly superior to iterating over a loop calling '.save()'?",
+          "options": [
+            "bulk_create() automatically encrypts every column before writing to disk.",
+            "bulk_create() bundles all insertions into a single multi-row SQL INSERT statement, reducing network round-trips from N to 1.",
+            "Calling .save() in a loop locks the entire database server indefinitely.",
+            "bulk_create() bypasses database constraints and foreign keys to avoid validation errors."
+          ],
+          "answer": "B",
+          "explanation": "Calling `.save()` in a loop creates $N$ separate network round-trips and transaction boundaries. `bulk_create()` generates a single `INSERT INTO table (col) VALUES (...), (...)` query, yielding orders of magnitude speedups."
+        },
+        {
+          "question": "Why should long-running operations like sending emails, generating PDF reports, or calling LLM APIs be offloaded to Celery background tasks?",
+          "options": [
+            "Because Celery runs tasks directly inside the user's browser.",
+            "To bypass database connection limits by disabling SQL authentication.",
+            "To prevent blocking ASGI/WSGI web request-response worker threads, keeping HTTP response latencies low and preventing request timeouts.",
+            "Because Python web servers cannot send emails or execute HTTP requests directly."
+          ],
+          "answer": "C",
+          "explanation": "HTTP worker threads should respond within milliseconds. Offloading heavy tasks to background workers (Celery) via a message broker (Redis/RabbitMQ) keeps web servers responsive under load."
+        },
+        {
+          "question": "What is the primary function of Database Connection Pooling (e.g. PgBouncer or Django's CONN_MAX_AGE)?",
+          "options": [
+            "Automatically backing up database tables to AWS S3 every 10 minutes.",
+            "Translating SQL queries into GraphQL queries on the fly.",
+            "Splitting database tables across multiple physical hard drives.",
+            "Reusing existing established database connections across multiple HTTP requests to eliminate the CPU and latency overhead of repeated TCP and SSL handshakes."
+          ],
+          "answer": "D",
+          "explanation": "Establishing database connections requires expensive TCP handshakes, SSL negotiation, and process spawning. Connection pooling maintains open connections that are recycled across requests."
+        },
+        {
+          "question": "What is 'Debouncing' in frontend development, and how does it optimize real-time search input performance?",
+          "options": [
+            "Immediately triggering a function and ignoring all subsequent events for a fixed time duration.",
+            "Encrypting search query strings before sending them to the backend API.",
+            "Executing the search query in a background service worker thread.",
+            "Delaying function execution until a specified delay has elapsed since the last time the event was triggered, preventing an API request on every keystroke."
+          ],
+          "answer": "D",
+          "explanation": "Debouncing waits for user input to pause (e.g. 300ms after the last keystroke) before firing the search request, cutting unnecessary intermediate network calls and database load."
+        },
+        {
+          "question": "How does Gzip or Brotli compression configured at the web server (Nginx/Cloudflare) level improve web performance?",
+          "options": [
+            "It compresses text-based HTTP responses (HTML, CSS, JS, JSON) on the fly, reducing byte transfer size over the wire by up to 70-80%.",
+            "It permanently reduces the size of database table rows stored on disk.",
+            "It minifies JavaScript variable names directly inside the browser engine.",
+            "It converts REST API endpoints into binary gRPC streams."
+          ],
+          "answer": "A",
+          "explanation": "Gzip and Brotli compression algorithms reduce the size of text payloads over the network, dramatically speeding up download times on high-latency or mobile networks."
+        },
+        {
+          "question": "In PostgreSQL, what is the key difference between 'EXPLAIN' and 'EXPLAIN ANALYZE' when profiling slow SQL queries?",
+          "options": [
+            "EXPLAIN requires superuser permissions, while EXPLAIN ANALYZE is available to read-only users.",
+            "EXPLAIN runs the query on the replica, while EXPLAIN ANALYZE runs it on the primary database.",
+            "EXPLAIN is for SELECT queries only, while EXPLAIN ANALYZE is for UPDATE/DELETE queries.",
+            "EXPLAIN generates the query execution plan based on optimizer cost estimates without running it; EXPLAIN ANALYZE actually executes the query and reports real execution times."
+          ],
+          "answer": "D",
+          "explanation": "`EXPLAIN` displays the query planner's estimated cost and plan. `EXPLAIN ANALYZE` actually executes the query, outputting real execution times, actual row counts, and buffer hit statistics."
+        },
+        {
+          "question": "What does the 'Largest Contentful Paint' (LCP) Core Web Vital metric measure, and what is an effective way to optimize it?",
+          "options": [
+            "The amount of layout shift during page scroll; optimized by removing all CSS stylesheets.",
+            "The total memory consumed by React state hooks; optimized by switching to Redux.",
+            "The render time of the largest image or text block visible in the viewport; optimized by preloading hero images, using CDNs, and optimizing server response times.",
+            "The total time spent parsing JavaScript before user interaction; optimized by adding more console.log statements."
+          ],
+          "answer": "C",
+          "explanation": "LCP measures how long it takes for the primary viewport content (hero image, heading) to render. Optimization involves fast server responses, CDN caching, image compression, and `<link rel='preload'>`."
+        },
+        {
+          "question": "How does serving static frontend assets through a Content Delivery Network (CDN) reduce latency for international users?",
+          "options": [
+            "By translating the JavaScript codebase into the user's native spoken language.",
+            "By rewriting backend database queries into edge SQL functions.",
+            "By caching static assets at geographically distributed Edge PoPs (Points of Presence) close to end users, terminating TLS handshakes and serving assets locally.",
+            "By hosting the primary PostgreSQL master database in every user's living room."
+          ],
+          "answer": "C",
+          "explanation": "CDNs cache static assets on distributed edge servers worldwide, minimizing physical distance, network hops, and round-trip times for global users."
+        },
+        {
+          "question": "What is 'Tree Shaking' in modern JavaScript bundlers (Vite/Rollup/Webpack), and what code style is required for it to work?",
+          "options": [
+            "A compression algorithm that converts JavaScript into WebAssembly binaries.",
+            "A CSS optimization that deletes unused HTML tags from templates.",
+            "A technique to automatically remove all console.log statements from production code.",
+            "Dead code elimination that strips unused exports from the final bundle; requires ES6 static module syntax ('import / export') rather than CommonJS ('require')."
+          ],
+          "answer": "D",
+          "explanation": "Tree shaking analyzes static ES module dependency graphs (`import/export`) to detect and eliminate unreferenced code, shrinking JavaScript production bundle sizes."
+        },
+        {
+          "question": "What is the purpose of Python's 'tracemalloc' module during backend performance profiling?",
+          "options": [
+            "To automatically optimize slow SQL query execution plans.",
+            "To trace memory allocations, identify memory leaks, and pinpoint exact source code lines consuming the largest amounts of RAM.",
+            "To profile database network latency across multiple microservices.",
+            "To track CPU core temperature and fan speeds on the host machine."
+          ],
+          "answer": "B",
+          "explanation": "`tracemalloc` is Python's built-in memory profiling library that tracks memory allocations per file and line number, helping developers diagnose memory leaks and object retention issues."
+        }
+      ]
+    }
+  ]
+}

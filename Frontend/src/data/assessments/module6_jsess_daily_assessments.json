@@ -1,0 +1,688 @@
+{
+  "moduleId": "mod-jsess",
+  "moduleName": "Module 6: JavaScript Essentials & Control Flow",
+  "courseId": "crs-1786624019154-w",
+  "lessons": [
+    {
+      "lessonId": "lesson-1787196281985-18",
+      "lessonTitle": "Lesson 1: JS Setup, Variables (var, let, const), & Data Types",
+      "totalQuestions": 20,
+      "questions": [
+        {
+          "question": "What is the primary difference in scoping between `var` and `let`/`const` in JavaScript?",
+          "options": [
+            "`var` is strictly asynchronous, while `let` and `const` execute synchronously",
+            "`let` and `const` can be redeclared multiple times in the same scope, but `var` cannot",
+            "`var` is block-scoped, while `let` and `const` are module-scoped only",
+            "`var` is function-scoped (or globally scoped if outside a function), while `let` and `const` are block-scoped (confined to `{}` blocks)"
+          ],
+          "answer": "D",
+          "explanation": "`var` declarations ignore curly brace `{}` blocks (like `if`, `for`) and attach to the enclosing function or global window, whereas `let` and `const` strictly respect block scope."
+        },
+        {
+          "question": "What happens when you access a `let` or `const` variable before its line of declaration in code?",
+          "options": [
+            "The variable returns `null` automatically",
+            "The variable returns `undefined` without throwing any errors",
+            "The browser reloads the webpage",
+            "A `ReferenceError` is thrown because the variable is trapped in the Temporal Dead Zone (TDZ)"
+          ],
+          "answer": "D",
+          "explanation": "While `let` and `const` declarations are hoisted, they remain uninitialized in the Temporal Dead Zone (TDZ) from block start until declaration, throwing a `ReferenceError` if accessed early."
+        },
+        {
+          "question": "Why does `const user = { name: 'Alice' }; user.name = 'Bob';` execute successfully without error?",
+          "options": [
+            "JavaScript automatically converts `const` objects to `let` when properties change",
+            "Strings are mutable reference types in JavaScript",
+            "`const` prevents reassignment of the variable identifier binding, but the underlying object stored in heap memory remains mutable",
+            "The `name` property is a built-in primitive that bypasses `const` constraints"
+          ],
+          "answer": "C",
+          "explanation": "`const` creates an immutable variable binding (you cannot do `user = {}`), but does not make the object value itself immutable; object properties can still be modified."
+        },
+        {
+          "question": "Which of the following lists all 7 primitive data types defined in modern ECMAScript?",
+          "options": [
+            "string, number, boolean, null, undefined, symbol, bigint",
+            "number, text, flag, null, undefined, pointer, struct",
+            "string, number, boolean, array, object, function, null",
+            "integer, float, char, string, boolean, list, dict"
+          ],
+          "answer": "A",
+          "explanation": "JavaScript has exactly 7 primitive types: string, number, boolean, null, undefined, symbol, and bigint. Arrays, functions, and plain objects are all reference objects."
+        },
+        {
+          "question": "What is the historical quirk returned by `typeof null` in JavaScript?",
+          "options": [
+            "\"object\"",
+            "\"undefined\"",
+            "\"primitive\"",
+            "\"null\""
+          ],
+          "answer": "A",
+          "explanation": "Due to a legacy bug in JavaScript's original 1995 implementation where type tags stored `000` for objects and `null` was represented as a NULL pointer (all zeros), `typeof null` returns `\"object\"`."
+        },
+        {
+          "question": "What does the expression `typeof NaN` evaluate to in JavaScript?",
+          "options": [
+            "\"number\"",
+            "\"NaN\"",
+            "\"error\"",
+            "\"undefined\""
+          ],
+          "answer": "A",
+          "explanation": "`NaN` stands for 'Not-a-Number', but in the IEEE 754 floating-point specification and JavaScript type system, its official data type is `number`."
+        },
+        {
+          "question": "What is the difference between `Number.isNaN(value)` and the global `isNaN(value)` function?",
+          "options": [
+            "There is no difference; both are interchangeable synonyms",
+            "`Number.isNaN()` checks if the value is strictly `NaN` without type coercion, whereas global `isNaN()` coerces non-numeric values to numbers first",
+            "`Number.isNaN()` converts strings to floats automatically",
+            "Global `isNaN()` only works in Node.js, while `Number.isNaN()` is browser-only"
+          ],
+          "answer": "B",
+          "explanation": "Global `isNaN('hello')` coerces `'hello'` to `NaN` and returns `true`, while `Number.isNaN('hello')` does not coerce and correctly returns `false` because `'hello'` is a string."
+        },
+        {
+          "question": "Why does `0.1 + 0.2 === 0.3` evaluate to `false` in JavaScript?",
+          "options": [
+            "Strict equality `===` only compares integer numbers in JavaScript",
+            "Binary floating-point arithmetic (IEEE 754) cannot represent certain base-10 decimal fractions with exact precision, resulting in `0.30000000000000004`",
+            "The `+` operator automatically concatenates decimal numbers as strings",
+            "JavaScript does not support mathematical addition of decimal numbers"
+          ],
+          "answer": "B",
+          "explanation": "Like most languages using IEEE 754 double-precision floats, binary representation of fractions like 0.1 and 0.2 produces rounding approximations, making `0.1 + 0.2 = 0.30000000000000004`."
+        },
+        {
+          "question": "What is the primary purpose of the `BigInt` data type introduced in ES2020?",
+          "options": [
+            "To represent complex numbers with real and imaginary coordinates",
+            "To store high-resolution bitmap images directly in variable memory",
+            "To safely represent and perform arithmetic on integers larger than `Number.MAX_SAFE_INTEGER` ($2^{53} - 1$)",
+            "To accelerate mathematical calculations by offloading them to GPU cores"
+          ],
+          "answer": "C",
+          "explanation": "`BigInt` allows working with arbitrarily large integers beyond JavaScript's safe integer limit ($9,007,199,254,740,991$), designated with an `n` suffix (e.g., `9007199254740995n`)."
+        },
+        {
+          "question": "What unique property is guaranteed when creating a `Symbol` in JavaScript (e.g., `const s1 = Symbol('id'); const s2 = Symbol('id');`)?",
+          "options": [
+            "Symbols can only store integer numbers between 0 and 255",
+            "Every Symbol is guaranteed to be completely unique and immutable; `s1 === s2` evaluates to `false`",
+            "Symbols automatically expose all private class properties to the global window",
+            "`s1 === s2` evaluates to `true` because their description strings match"
+          ],
+          "answer": "B",
+          "explanation": "`Symbol()` creates an entirely unique token every time it is called, even if provided the same descriptive string, preventing property collision on objects."
+        },
+        {
+          "question": "Which of the following is true regarding string immutability in JavaScript?",
+          "options": [
+            "Characters in strings can be modified in-place using index assignment: `str[0] = 'X'`",
+            "Strings can only contain alphanumeric ASCII characters",
+            "Strings stored in `let` variables are mutable, while `const` strings are immutable",
+            "Strings cannot be modified in-place; methods like `.replace()`, `.slice()`, and `.toUpperCase()` always return a brand new string"
+          ],
+          "answer": "D",
+          "explanation": "All primitive values in JavaScript (including strings) are immutable; assigning `str[0] = 'X'` fails silently (or throws an error in strict mode), and methods return new string copies."
+        },
+        {
+          "question": "What are the 8 falsy values that evaluate to `false` in a boolean context in JavaScript?",
+          "options": [
+            "false, 0, \"null\", \"undefined\", [], () => {}",
+            "false, 0, \"0\", [], {}, null, undefined, NaN",
+            "false, -1, \"false\", null, undefined, NaN, Infinity",
+            "false, 0, -0, 0n, \"\", null, undefined, NaN"
+          ],
+          "answer": "D",
+          "explanation": "In JavaScript, exactly 8 values are falsy: `false`, `0`, `-0`, `0n` (BigInt zero), `\"\"` (empty string), `null`, `undefined`, and `NaN`. Note that `[]`, `{}`, and `\"0\"` are truthy!"
+        },
+        {
+          "question": "What is the difference between `null` and `undefined` in JavaScript?",
+          "options": [
+            "`undefined` indicates a variable has been declared but not assigned a value, while `null` is an intentional assignment representing the absence of an object value",
+            "`undefined` only exists inside functions, while `null` is global only",
+            "There is no difference; both evaluate to strict equality: `null === undefined`",
+            "`null` is a primitive type, whereas `undefined` is a complex object type"
+          ],
+          "answer": "A",
+          "explanation": "`undefined` is the default uninitialized state of variables and missing return values, whereas `null` is an explicit, deliberate assignment indicating 'empty/no value'."
+        },
+        {
+          "question": "What happens when you enable Strict Mode by placing `\"use strict\";` at the beginning of a script or function?",
+          "options": [
+            "It compiles the JavaScript code into WebAssembly ahead of time",
+            "It converts all JavaScript variables into statically-typed TypeScript types",
+            "It prevents accidental global variable creation, throws errors on silent failures (like assigning to read-only properties), and disables `with` statements",
+            "It forces all asynchronous functions to execute synchronously"
+          ],
+          "answer": "C",
+          "explanation": "`\"use strict\";` catches common coding errors by eliminating silent bugs, prohibiting undeclared variables, throwing errors on invalid property deletions, and securing `this`."
+        },
+        {
+          "question": "How does JavaScript memory allocation handle Primitives versus Reference Objects?",
+          "options": [
+            "Objects are stored on the Stack, while Primitives are stored on the Heap",
+            "Primitives are fixed-size values stored directly on the Call Stack, while Objects are stored on the Heap with memory address references kept on the Stack",
+            "Both Primitives and Objects are stored in the browser's IndexedDB database",
+            "JavaScript does not use Stack or Heap memory models"
+          ],
+          "answer": "B",
+          "explanation": "Primitive data types have fixed sizes stored directly on the Stack. Dynamic, variable-size data (Objects, Arrays) reside in Heap memory, referenced by stack pointers."
+        },
+        {
+          "question": "What is the result of `parseInt('42px', 10)` versus `Number('42px')`?",
+          "options": [
+            "`parseInt` returns `NaN`, while `Number` returns `42`",
+            "`parseInt('42px', 10)` parses leading digits and returns `42`, while `Number('42px')` fails on non-numeric characters and returns `NaN`",
+            "Both expressions return `42`",
+            "Both expressions return `NaN`"
+          ],
+          "answer": "B",
+          "explanation": "`parseInt()` parses characters sequentially until it encounters an invalid character, returning `42`. `Number()` attempts full type coercion, failing and returning `NaN` on `'42px'`."
+        },
+        {
+          "question": "What is a Tagged Template Literal in JavaScript (e.g., `myTag`Hello ${name}` `)?",
+          "options": [
+            "A CSS preprocessor syntax used in Sass",
+            "A regular expression pattern used to sanitize SQL queries",
+            "An HTML template tag (`<template>`) placed inside JavaScript",
+            "A syntax that allows parsing a template literal with a custom function, receiving an array of raw strings and interpolated expression arguments"
+          ],
+          "answer": "D",
+          "explanation": "Tagged templates pass the string fragments and evaluated expressions to a function (e.g., `function myTag(strings, ...values)`), widely used in libraries like styled-components."
+        },
+        {
+          "question": "What does the expression `Boolean([])` evaluate to in JavaScript?",
+          "options": [
+            "true (All objects, including empty arrays and empty objects, are truthy)",
+            "undefined",
+            "false (Because the array contains zero elements)",
+            "NaN"
+          ],
+          "answer": "A",
+          "explanation": "In JavaScript, all objects (including empty arrays `[]` and empty plain objects `{}`) are truthy; only the 8 specific falsy primitives evaluate to `false`."
+        },
+        {
+          "question": "Which string method extracts a portion of a string from index `start` up to (but not including) index `end` without modifying the original string?",
+          "options": [
+            "str.splice(start, end)",
+            "str.pop(start, end)",
+            "str.slice(start, end)",
+            "str.cut(start, end)"
+          ],
+          "answer": "C",
+          "explanation": "`str.slice(start, end)` extracts a substring up to `end` index and supports negative indices. `splice()` is an array method that mutates arrays."
+        },
+        {
+          "question": "What is the Garbage Collection mechanism predominantly used by modern JavaScript engines like V8?",
+          "options": [
+            "Immediate deletion of variables upon function definition",
+            "Strict reference counting without cycle detection",
+            "Mark-and-Sweep algorithm (tracing reachable objects from global roots and freeing unreachable memory)",
+            "Manual `free()` and `malloc()` memory pointer commands"
+          ],
+          "answer": "C",
+          "explanation": "Modern JS engines use generational Mark-and-Sweep garbage collection, tracing memory roots (globals, active execution contexts) and sweeping unreachable objects to resolve circular reference leaks."
+        }
+      ]
+    },
+    {
+      "lessonId": "lesson-1787196281985-19",
+      "lessonTitle": "Lesson 2: Operators, Expressions, and Conditional Statements",
+      "totalQuestions": 20,
+      "questions": [
+        {
+          "question": "What is the output of the expressions `'5' + 3` and `'5' - 3` in JavaScript?",
+          "options": [
+            "`8` and `2`",
+            "`'53'` (string concatenation) and `2` (arithmetic subtraction with numeric coercion)",
+            "`NaN` and `2`",
+            "`'53'` and `'5-3'`"
+          ],
+          "answer": "B",
+          "explanation": "The `+` operator triggers string concatenation if either operand is a string (`'5' + 3 = '53'`). The `-` operator only exists for arithmetic, forcing numeric coercion (`5 - 3 = 2`)."
+        },
+        {
+          "question": "What is the fundamental difference between abstract equality (`==`) and strict equality (`===`)?",
+          "options": [
+            "`==` performs implicit type coercion before comparison, whereas `===` requires both type AND value to be strictly identical without coercion",
+            "`==` is used for objects, while `===` is used for numbers only",
+            "`==` is faster than `===` because it skips type validation",
+            "`===` converts both operands to strings before comparing"
+          ],
+          "answer": "A",
+          "explanation": "Strict equality (`===`) checks both data type and value without coercion. Abstract equality (`==`) coerces operands following complex type conversion rules before comparing."
+        },
+        {
+          "question": "What does the Nullish Coalescing Operator (`??`) do in an expression `const port = userPort ?? 3000;`?",
+          "options": [
+            "It returns `3000` only if `userPort` is strictly `null` or `undefined`, preserving valid falsy values like `0`, `\"\"`, or `false`",
+            "It throws an error if `userPort` is a string",
+            "It returns `3000` whenever `userPort` is any falsy value (including `0` or `\"\"`)",
+            "It checks if `userPort` equals the integer `3000`"
+          ],
+          "answer": "A",
+          "explanation": "`??` only falls back when the left operand is nullish (`null` or `undefined`). In contrast, `||` falls back on any falsy value (which wrongly overwrites `userPort = 0`)."
+        },
+        {
+          "question": "How does the Optional Chaining Operator (`?.`) prevent runtime crashes when accessing deeply nested properties (e.g., `user?.address?.city`)?",
+          "options": [
+            "It catches the error and restarts JavaScript execution from the beginning of the file",
+            "It automatically creates empty object nodes `{}` in memory for missing properties",
+            "It forces the browser to fetch missing properties from the backend API",
+            "If any reference in the chain evaluates to `null` or `undefined`, expression evaluation short-circuits and immediately returns `undefined` instead of throwing a `TypeError`"
+          ],
+          "answer": "D",
+          "explanation": "Optional chaining (`?.`) short-circuits gracefully upon reaching `null` or `undefined`, returning `undefined` instead of throwing `TypeError: Cannot read properties of undefined`."
+        },
+        {
+          "question": "What is the return value of the short-circuit expression `\"Hello\" && 0 && \"World\"`?",
+          "options": [
+            "0 (Logical AND short-circuits and returns the first falsy operand it encounters)",
+            "\"World\"",
+            "false",
+            "\"Hello\""
+          ],
+          "answer": "A",
+          "explanation": "Logical AND (`&&`) evaluates left to right: it checks `'Hello'` (truthy), moves to `0` (falsy), short-circuits immediately, and returns the actual value `0`."
+        },
+        {
+          "question": "What is the return value of the expression `false || \"\" || \"Default Value\"`?",
+          "options": [
+            "\"\"",
+            "false",
+            "true",
+            "\"Default Value\" (Logical OR returns the first truthy value found, or the last value if all are falsy)"
+          ],
+          "answer": "D",
+          "explanation": "Logical OR (`||`) scans left to right: `false` is falsy, `\"\"` is falsy, so it reaches and returns the truthy value `'Default Value'`."
+        },
+        {
+          "question": "What does the double NOT operator `!!value` accomplish in JavaScript?",
+          "options": [
+            "It reverses the polarity of a binary bitwise byte",
+            "It explicitly casts/converts any truthy or falsy value into a pure primitive boolean (`true` or `false`)",
+            "It creates an asynchronous promise that rejects immediately",
+            "It multiplies a numeric value by negative one twice"
+          ],
+          "answer": "B",
+          "explanation": "The first `!` inverts the value to an opposite boolean, and the second `!` inverts it back, providing a concise way to cast any variable to a boolean."
+        },
+        {
+          "question": "What is the syntax of the Ternary Operator in JavaScript?",
+          "options": [
+            "if (condition) -> expressionIfTrue else expressionIfFalse",
+            "condition ? (expressionIfFalse) : (expressionIfTrue)",
+            "condition : expressionIfTrue ? expressionIfFalse",
+            "condition ? expressionIfTrue : expressionIfFalse"
+          ],
+          "answer": "D",
+          "explanation": "The ternary operator is the only JavaScript operator taking 3 operands: `condition ? ifTrue : ifFalse`, returning the evaluated branch expression."
+        },
+        {
+          "question": "What happens in a `switch` statement if a matching `case` block omits the `break` statement?",
+          "options": [
+            "The JavaScript engine throws a syntax compilation error and halts",
+            "Execution falls through to execute subsequent `case` blocks sequentially regardless of whether their case conditions match (Case Fallthrough)",
+            "The `default` clause is executed immediately",
+            "The `switch` statement loops indefinitely in an infinite cycle"
+          ],
+          "answer": "B",
+          "explanation": "Without a `break` statement, execution continues downwards through subsequent `case` statements (fallthrough), executing their code until a `break` or `switch` end is reached."
+        },
+        {
+          "question": "What comparison algorithm is used internally by the `switch (x)` statement to match `case y:` clauses?",
+          "options": [
+            "Strict Equality comparison (`x === y`)",
+            "Object.is() equivalence",
+            "String conversion equality (`String(x) === String(y)`)",
+            "Abstract Equality comparison (`x == y`)"
+          ],
+          "answer": "A",
+          "explanation": "`switch` statements strictly compare evaluated expressions against case clauses using `===` (e.g., `switch('5')` will NOT match `case 5:`)."
+        },
+        {
+          "question": "What is the 'Guard Clause' pattern in function control flow?",
+          "options": [
+            "Enforcing private variable encapsulation via closures",
+            "Using cryptographic hash checks before variable assignment",
+            "Checking for invalid inputs or edge conditions at the very beginning of a function and returning early to avoid nested `if-else` blocks",
+            "Wrapping every function body in a `try-catch` block"
+          ],
+          "answer": "C",
+          "explanation": "Guard clauses handle errors, invalid states, or base cases upfront with early `return` statements, keeping the main happy-path logic flat and readable."
+        },
+        {
+          "question": "What is the result of the comparisons `null == undefined` and `null === undefined`?",
+          "options": [
+            "`true` for both comparisons",
+            "`false` for `==`, and `true` for `===`",
+            "`false` for both comparisons",
+            "`true` for abstract equality (`==`), but `false` for strict equality (`===`)"
+          ],
+          "answer": "D",
+          "explanation": "Under abstract equality rules, `null == undefined` is explicitly defined to return `true`. Under strict equality, their types differ (`object` vs `undefined`), so `null === undefined` is `false`."
+        },
+        {
+          "question": "Why does `NaN === NaN` evaluate to `false` in JavaScript?",
+          "options": [
+            "Because `NaN` is a dynamic function rather than a value",
+            "`NaN === NaN` actually evaluates to `true` in modern ES6+",
+            "According to IEEE 754 specifications, `NaN` is not equal to any value, including itself; `Number.isNaN()` or `Object.is()` must be used to test for `NaN`",
+            "Because `===` converts `NaN` to zero before checking"
+          ],
+          "answer": "C",
+          "explanation": "IEEE 754 specifies that `NaN` represents an invalid numerical result and cannot equal anything (even another `NaN`). Use `Number.isNaN(x)` or `Object.is(NaN, NaN)`."
+        },
+        {
+          "question": "What does the Logical OR Assignment operator `x ||= y` do?",
+          "options": [
+            "It assigns `y` to `x` only if `x` is currently falsy (`x || (x = y)`)",
+            "It performs bitwise OR assignment on 32-bit integers",
+            "It compares `x` and `y` and returns a boolean value",
+            "It assigns `y` to `x` only if `x` is strictly `null`"
+          ],
+          "answer": "A",
+          "explanation": "Logical assignment `x ||= y` evaluates `x`, and if `x` is falsy, assigns `x = y` (useful for setting default configurations)."
+        },
+        {
+          "question": "What is the purpose of the `finally` block in a `try...catch...finally` construct?",
+          "options": [
+            "To suppress all runtime errors without logging to the console",
+            "To execute only when no errors occur in the `try` block",
+            "To execute cleanup code guaranteed to run regardless of whether an exception was thrown or caught in the `try`/`catch` blocks",
+            "To restart the `try` block if an error occurred"
+          ],
+          "answer": "C",
+          "explanation": "The `finally` block always executes after `try` and `catch` finish (even if `try` or `catch` contains a `return` statement), commonly used to close file handles or reset loading states."
+        },
+        {
+          "question": "What is the difference between post-increment (`x++`) and pre-increment (`++x`) when assigned to a variable?",
+          "options": [
+            "There is no functional difference in return value between them",
+            "`x++` is valid in loops only, while `++x` is for arithmetic expressions",
+            "`x++` returns the original value before incrementing, while `++x` increments the value first and returns the updated value",
+            "`++x` multiplies `x` by 2, while `x++` adds 1"
+          ],
+          "answer": "C",
+          "explanation": "If `let x = 5; let y = x++;`, `y` becomes 5 and `x` becomes 6. If `let y = ++x;`, `x` becomes 6 and `y` becomes 6."
+        },
+        {
+          "question": "What does the `instanceof` operator test in JavaScript?",
+          "options": [
+            "Whether a function returns a Promise object",
+            "Whether an object's prototype chain contains the `.prototype` property of a constructor function or class",
+            "Whether a variable has been declared in local scope",
+            "Whether two objects have identical memory addresses"
+          ],
+          "answer": "B",
+          "explanation": "`obj instanceof ClassName` traverses `obj`'s prototype chain to see if `ClassName.prototype` appears anywhere in the chain."
+        },
+        {
+          "question": "What does the `in` operator test in the expression `'name' in user`?",
+          "options": [
+            "Whether the string `'name'` is a substring inside the `user` string",
+            "Whether the specified property name exists as a direct or inherited property in the target object",
+            "Whether the `user` array contains an element with value `'name'`",
+            "Whether the `user` variable is an instance of a Map collection"
+          ],
+          "answer": "B",
+          "explanation": "The `in` operator returns `true` if the specified property key exists in the object or anywhere in its prototype chain."
+        },
+        {
+          "question": "How can you manually trigger a custom runtime error in JavaScript control flow?",
+          "options": [
+            "System.err('Invalid input parameter');",
+            "error.raise('Invalid input parameter');",
+            "console.error('Invalid input parameter');",
+            "throw new Error('Invalid input parameter');"
+          ],
+          "answer": "D",
+          "explanation": "The `throw` statement accompanied by an `Error` object instance (`throw new Error(...)`) halts execution and transfers control to the nearest `catch` block."
+        },
+        {
+          "question": "What is the result of evaluating `[1, 2] == '1,2'` in JavaScript?",
+          "options": [
+            "`undefined`",
+            "`false` (Because an array can never equal a string)",
+            "`true` (The array is coerced to a string via `.toString()` before abstract equality comparison)",
+            "TypeError: Invalid comparison operands"
+          ],
+          "answer": "C",
+          "explanation": "When comparing an object/array to a string with `==`, JavaScript converts the object to a primitive via `[1, 2].toString()` which produces `'1,2'`, making `'1,2' == '1,2'` evaluate to `true`."
+        }
+      ]
+    },
+    {
+      "lessonId": "lesson-1787196281985-20",
+      "lessonTitle": "Lesson 3: Loops: for, while, forEach, & Iterations",
+      "totalQuestions": 20,
+      "questions": [
+        {
+          "question": "What is the classic closure output issue when using `var` inside a `for` loop with `setTimeout` (e.g., `for (var i = 0; i < 3; i++) { setTimeout(() => console.log(i), 100); }`)?",
+          "options": [
+            "It logs `3, 3, 3` because `var` is function-scoped and all timer callbacks share the exact same mutated `i` variable",
+            "It logs `0, 1, 2` as expected",
+            "It throws a `ReferenceError`",
+            "It logs `undefined, undefined, undefined`"
+          ],
+          "answer": "A",
+          "explanation": "Because `var` is function-scoped, a single shared `i` variable is hoisted. By the time `setTimeout` callbacks run after the loop completes, `i` has incremented to 3. Replacing `var` with block-scoped `let` logs `0, 1, 2`."
+        },
+        {
+          "question": "How does a `do...while` loop differ fundamentally from a standard `while` loop?",
+          "options": [
+            "A `while` loop guarantees at least one execution, while `do...while` does not",
+            "A `do...while` loop tests its exit condition AFTER executing the body, guaranteeing that the loop body runs at least once",
+            "A `do...while` loop runs asynchronously in the background",
+            "A `do...while` loop only iterates through object properties"
+          ],
+          "answer": "B",
+          "explanation": "`while` is a pre-test loop (checks condition before entering), while `do...while` is a post-test loop that always executes its block at least once before evaluating the condition."
+        },
+        {
+          "question": "What is the difference in behavior between `break` and `continue` statements inside a loop?",
+          "options": [
+            "`continue` restarts the loop from index 0",
+            "`break` immediately terminates the entire loop, whereas `continue` skips the remainder of the current iteration and jumps to the next cycle",
+            "`break` only works in `switch` statements and is illegal inside loops",
+            "`continue` terminates the loop, while `break` pauses for 1 second"
+          ],
+          "answer": "B",
+          "explanation": "`break` exits the enclosing loop completely, while `continue` aborts the current pass and advances to the loop's next increment/condition check."
+        },
+        {
+          "question": "Why is the `for...in` statement generally discouraged for iterating over standard Array elements?",
+          "options": [
+            "It iterates over all enumerable property keys (including non-integer keys and inherited prototype properties) as strings, with no guaranteed index order",
+            "`for...in` throws a fatal TypeError when applied to arrays with more than 10 items",
+            "`for...in` deletes array elements as it reads them",
+            "`for...in` is deprecated in ES6 and removed from modern browsers"
+          ],
+          "answer": "A",
+          "explanation": "`for...in` is designed for inspecting object keys. On arrays, it returns indices as strings (`\"0\"`, `\"1\"`), iterates over prototype properties if extended, and does not guarantee numerical order. Use `for...of` or `for` instead."
+        },
+        {
+          "question": "What does the `for...of` statement iterate over in JavaScript?",
+          "options": [
+            "The property key names of plain JavaScript objects",
+            "The private methods of ECMAScript classes",
+            "The values of iterable collections such as Arrays, Strings, Maps, Sets, and NodeLists",
+            "Only CSS class selectors in the DOM tree"
+          ],
+          "answer": "C",
+          "explanation": "`for...of` invokes the collection's `[Symbol.iterator]` method, directly yielding each value in sequence across iterable data structures."
+        },
+        {
+          "question": "What is a major limitation of `Array.prototype.forEach()` compared to a standard `for` or `for...of` loop?",
+          "options": [
+            "`forEach` mutates the original array automatically",
+            "`forEach` can only process arrays with fewer than 100 elements",
+            "You cannot use `break` or `continue` statements to terminate early, and it cannot properly await asynchronous promises sequentially",
+            "`forEach` cannot access the index of each array item"
+          ],
+          "answer": "C",
+          "explanation": "`forEach` always runs its callback for every element; `break` or `continue` syntax is invalid inside `forEach`, and passing an `async` callback causes all promises to fire concurrently without awaiting."
+        },
+        {
+          "question": "How do you iterate over both the keys and values of a plain object using `for...of`?",
+          "options": [
+            "for (const key, value in myObject) { ... }",
+            "for (const [key, value] of myObject) { ... }",
+            "for (const item of Object.items(myObject)) { ... }",
+            "for (const [key, value] of Object.entries(myObject)) { ... }"
+          ],
+          "answer": "D",
+          "explanation": "Plain objects are not iterable directly with `for...of`, but `Object.entries(myObject)` returns an array of `[key, value]` pairs that can be cleanly unpacked."
+        },
+        {
+          "question": "What is a Labeled Statement in JavaScript and what is its primary use case?",
+          "options": [
+            "Adding accessibility labels to HTML form inputs dynamically",
+            "Prefixing a loop with an identifier label (e.g., `outerLoop: for (...)`) to allow `break outerLoop;` or `continue outerLoop;` from within deeply nested inner loops",
+            "Renaming variables in minified production bundles",
+            "Creating named bookmarks in browser history"
+          ],
+          "answer": "B",
+          "explanation": "Labels (e.g., `topLoop: for (...)`) give nested loops a name, enabling a `break topLoop;` inside an inner loop to break out of multiple nested loops simultaneously."
+        },
+        {
+          "question": "What is the underlying protocol required for any custom object to work with the `for...of` loop or spread operator (`...`)?",
+          "options": [
+            "The object must implement the Iterable protocol by having a `[Symbol.iterator]` method that returns an Iterator with a `.next()` method",
+            "The object must be declared using the `class` keyword",
+            "The object must have a numeric `.length` property and `id` property",
+            "The object must inherit directly from `Array.prototype`"
+          ],
+          "answer": "A",
+          "explanation": "The Iterable protocol requires an object to have a `[Symbol.iterator]()` method returning an iterator object with a `.next()` method that yields `{ value, done }`."
+        },
+        {
+          "question": "What happens when a Generator Function (`function*`) encounters a `yield` keyword during execution?",
+          "options": [
+            "It throws an asynchronous rejection to the event loop",
+            "It pauses function execution and sends the yielded value back to the caller, retaining its entire local state until `.next()` is called again",
+            "It terminates the function permanently and clears all memory variables",
+            "It restarts the generator from line 1"
+          ],
+          "answer": "B",
+          "explanation": "Generators pause execution at each `yield`, returning `{ value, done: false }` to the iterator consumer, and resume right where they stopped on the next `.next()` invocation."
+        },
+        {
+          "question": "What common bug occurs when mutating an array using `.splice()` inside a forward-counting `for (let i = 0; i < arr.length; i++)` loop?",
+          "options": [
+            "The browser crashes due to a stack overflow error",
+            "The array length permanently becomes `Infinity`",
+            "Removing an item shifts remaining elements left, causing the loop to skip evaluating the element immediately following the deleted item",
+            "All remaining array numbers are converted to negative values"
+          ],
+          "answer": "C",
+          "explanation": "When removing an element at index `i`, subsequent elements shift down by 1. Since `i` increments to `i + 1` next, the element that moved into index `i` is skipped. Iterating backwards (`for (let i = arr.length - 1; i >= 0; i--)`) prevents this."
+        },
+        {
+          "question": "What is the essential component of any recursive function to prevent an infinite call stack loop?",
+          "options": [
+            "An explicit `while (true)` wrapper statement",
+            "A `try-catch` error suppression block",
+            "A Base Case (a condition that terminates recursion and returns a value without making further recursive calls)",
+            "A `setTimeout` delay of at least 10 milliseconds"
+          ],
+          "answer": "C",
+          "explanation": "Recursive functions must have at least one base case that returns a concrete result without self-calling; without it, the function triggers maximum call stack size exceeded (`RangeError`)."
+        },
+        {
+          "question": "What is the Big-O time complexity of two nested loops iterating over an array of length $N$ (e.g., `for (let i = 0; i < n; i++) for (let j = 0; j < n; j++)`)?",
+          "options": [
+            "$O(N^2)$ (Quadratic time complexity)",
+            "$O(N)$ (Linear time complexity)",
+            "$O(1)$ (Constant time complexity)",
+            "$O(\\log N)$ (Logarithmic time complexity)"
+          ],
+          "answer": "A",
+          "explanation": "When an outer loop runs $N$ times and an inner loop runs $N$ times for each outer pass, total operations equal $N \\times N = N^2$, resulting in $O(N^2)$ quadratic complexity."
+        },
+        {
+          "question": "How do you iterate asynchronously through streams or async generators sequentially in modern ES2018+ JavaScript?",
+          "options": [
+            "while.await (asyncIterable.hasNext()) { ... }",
+            "for await (const item of asyncIterable) { ... }",
+            "for (await item of asyncIterable) { ... }",
+            "async for (const item in asyncIterable) { ... }"
+          ],
+          "answer": "B",
+          "explanation": "The `for await...of` loop pauses execution on each iteration until the asynchronous promise returned by the async iterable resolves."
+        },
+        {
+          "question": "What is the result of running `for (const key of Object.keys({ a: 1, b: 2 }))`?",
+          "options": [
+            "It throws a TypeError because objects cannot have keys",
+            "It iterates through `['a', 1]` and `['b', 2]` arrays",
+            "It iterates through the values `1` and `2`",
+            "It iterates through the strings `'a'` and `'b'`"
+          ],
+          "answer": "D",
+          "explanation": "`Object.keys()` returns an array of an object's own enumerable string property names (here `['a', 'b']`)."
+        },
+        {
+          "question": "Which loop construct is best suited when the exact number of iterations is unknown in advance, but depends on an external runtime condition being met?",
+          "options": [
+            "Array.prototype.forEach()",
+            "switch (condition)",
+            "for (let i = 0; i < 100; i++)",
+            "while (condition) { ... }"
+          ],
+          "answer": "D",
+          "explanation": "`while` loops excel when looping depends on dynamic conditions (e.g., reading until end of file, waiting for user input, polling status) rather than a fixed count."
+        },
+        {
+          "question": "What will happen if a `while` loop has a condition that never becomes false and contains no `break` or `return`?",
+          "options": [
+            "An Infinite Loop occurs, blocking the JavaScript single-threaded event loop and freezing the browser tab / CPU thread",
+            "The browser offloads the loop to a background web worker automatically",
+            "The JavaScript engine automatically terminates the loop after 1000 iterations",
+            "The loop converts itself into an asynchronous Promise"
+          ],
+          "answer": "A",
+          "explanation": "Because JavaScript execution is single-threaded, a synchronous infinite loop starves the event loop, causing the browser tab to hang and become unresponsive."
+        },
+        {
+          "question": "In `Array.prototype.forEach((element, index, array) => ...)`, what does the second argument `index` represent?",
+          "options": [
+            "The number of remaining unprocessed items",
+            "The memory pointer address of the element",
+            "The total length of the array",
+            "The numerical 0-based index of the current element being processed in the array"
+          ],
+          "answer": "D",
+          "explanation": "The callback passed to `forEach` receives `(currentValue, index, array)`, where `index` is the integer position of that element."
+        },
+        {
+          "question": "What is the output of `for (const char of 'JS') console.log(char);`?",
+          "options": [
+            "It throws a TypeError because strings are not iterable",
+            "It logs `'JS'` once as a single string",
+            "It logs `'J'` on the first iteration and `'S'` on the second iteration",
+            "It logs `0` and `1`"
+          ],
+          "answer": "C",
+          "explanation": "Strings are primitive iterables in JavaScript; iterating over a string with `for...of` yields each individual character (and correctly handles Unicode code points)."
+        },
+        {
+          "question": "How can you optimize a traditional `for` loop over an array so it doesn't recompute the `.length` property on every single iteration?",
+          "options": [
+            "Use `for (let i = 0; i != null; i++)`",
+            "Set `arr.length = Infinity` before the loop",
+            "Wrap the loop inside `eval()`",
+            "Cache the length in the initialization clause: `for (let i = 0, len = arr.length; i < len; i++)`"
+          ],
+          "answer": "D",
+          "explanation": "Caching `len = arr.length` evaluates the array length once upfront rather than querying the property on each iteration (a micro-optimization in tight performance loops)."
+        }
+      ]
+    }
+  ]
+}

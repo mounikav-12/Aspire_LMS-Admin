@@ -1,0 +1,691 @@
+{
+  "courseId": "crs-1786624019154-w",
+  "courseTitle": "Python Full Stack + DSA with AI",
+  "stageId": "top-stg-2",
+  "stageTitle": "Stage 2: Backend + DSA",
+  "moduleId": "subtop-1787203589865",
+  "moduleTitle": "Django Forms, Authentication & Auth",
+  "lessons": [
+    {
+      "lessonId": "lesson-1787204731932",
+      "lessonTitle": "Django Forms & ModelForms with CSRF Protection",
+      "totalQuestions": 20,
+      "questions": [
+        {
+          "question": "What is the primary difference between `forms.Form` and `forms.ModelForm` in Django?",
+          "options": [
+            "`forms.Form` requires manual declaration of all form fields; `forms.ModelForm` automatically generates fields, labels, and validation rules directly from a Django Model.",
+            "`forms.Form` is deprecated in Django 5.0 and replaced by `forms.ModelForm`.",
+            "`forms.Form` works with HTML5; `forms.ModelForm` works only with React.",
+            "`forms.Form` executes database queries automatically; `forms.ModelForm` cannot connect to databases."
+          ],
+          "answer": "A",
+          "explanation": "`forms.Form` is used for arbitrary forms (e.g. contact forms, calculators), whereas `forms.ModelForm` introspects a specified Django model to generate fields, types, and persistence logic."
+        },
+        {
+          "question": "What security attack does Django's `{% csrf_token %}` tag prevent in HTML forms submitting POST requests?",
+          "options": [
+            "Cross-Site Request Forgery (CSRF), where malicious third-party websites trick an authenticated user's browser into submitting unauthorized commands.",
+            "Denial of Service (DoS) network flood attacks.",
+            "SQL Injection (SQLi) attacks on database tables.",
+            "Man-in-the-Middle (MitM) packet sniffing."
+          ],
+          "answer": "A",
+          "explanation": "CSRF protection ensures that incoming state-changing HTTP requests (POST, PUT, DELETE) originated intentionally from within the application rather than a forged third-party site."
+        },
+        {
+          "question": "In a Django view processing a form submission, which condition checks that the form data passed all validation rules?",
+          "options": [
+            "if form.is_valid():",
+            "if form.check_errors() == 0:",
+            "if form.status == 'SUCCESS':",
+            "if form.validate():"
+          ],
+          "answer": "A",
+          "explanation": "`form.is_valid()` executes field-level cleaners, custom `clean_<fieldname>()` methods, and the general `clean()` method, returning `True` if no validation errors occurred."
+        },
+        {
+          "question": "Where is validated and type-cast form data stored after `form.is_valid()` returns `True`?",
+          "options": [
+            "Inside `form.validated_values` tuple.",
+            "Inside the `form.cleaned_data` dictionary.",
+            "Inside `request.POST` as a JSON string.",
+            "Directly in Python's global namespace."
+          ],
+          "answer": "B",
+          "explanation": "Django parses, sanitizes, and type-converts valid form inputs into Python datatypes (e.g. `datetime`, `int`, `bool`) and stores them in `form.cleaned_data`."
+        },
+        {
+          "question": "How do you implement a custom field-level validator for an `email` field in a Django Form class?",
+          "options": [
+            "Set `email = forms.EmailField(validator_func='check')`.",
+            "Define a method named `clean_email(self)` on the form class that retrieves `self.cleaned_data.get('email')` and returns the sanitized value or raises `ValidationError`.",
+            "Override `def validate_email(email_str):` in urls.py.",
+            "Decorate the field with `@validator('email')` in models.py."
+          ],
+          "answer": "B",
+          "explanation": "Django's form validation pipeline automatically discovers and calls methods adhering to the `clean_<fieldname>(self)` naming pattern."
+        },
+        {
+          "question": "How do you perform cross-field validation in a Django form (e.g. ensuring `password` and `password_confirm` match)?",
+          "options": [
+            "Write a JavaScript alert popup inside the template.",
+            "Add `compare_fields=['password', 'password_confirm']` in `class Meta:`.",
+            "Override the `clean(self)` method on the form, inspect `super().clean()`, and raise `forms.ValidationError` if fields do not match.",
+            "Override `def save(self):` in models.py."
+          ],
+          "answer": "C",
+          "explanation": "The form-wide `clean()` method runs after all individual field-level `clean_<fieldname>()` methods, making it the correct place for multi-field cross-validation."
+        },
+        {
+          "question": "What is the purpose of passing `commit=False` to a ModelForm's save method, as in `post = form.save(commit=False)`?",
+          "options": [
+            "It cancels the form submission and rolls back the database transaction.",
+            "It creates and returns a model instance from the form data without saving it immediately to the database, allowing extra attributes (e.g. `post.author = request.user`) to be attached before calling `post.save()`.",
+            "It saves the record in memory cache and never writes to disk.",
+            "It marks the database row as inactive with `is_active=False`."
+          ],
+          "answer": "B",
+          "explanation": "`form.save(commit=False)` constructs the model instance in memory, allowing developers to set non-form fields (such as foreign keys or author) before saving."
+        },
+        {
+          "question": "When using `form.save(commit=False)` on a ModelForm that includes Many-to-Many fields, what method must be called after saving the parent instance?",
+          "options": [
+            "form.save_m2m()",
+            "instance.save_many()",
+            "form.commit_relationships()",
+            "models.sync_m2m()"
+          ],
+          "answer": "A",
+          "explanation": "When `commit=False` is used, Django cannot automatically save many-to-many relationship data because the parent record lacks a primary key until saved. Calling `form.save_m2m()` persists those relationships."
+        },
+        {
+          "question": "How do you customize the HTML widget and CSS classes of a field in a `ModelForm`?",
+          "options": [
+            "Widgets can only be customized using jQuery on the client side.",
+            "Define a `widgets` dictionary inside `class Meta:` mapping field names to widget instances, e.g. `widgets = {'content': forms.Textarea(attrs={'class': 'form-control', 'rows': 5})}`.",
+            "Set `style_class = 'form-control'` in models.py.",
+            "Add inline CSS directly to the database column in PostgreSQL."
+          ],
+          "answer": "B",
+          "explanation": "In a `ModelForm`, HTML attributes (CSS classes, rows, placeholders) are configured via the `widgets` dictionary inside `class Meta`."
+        },
+        {
+          "question": "Which shortcut method renders a Django form with each field enclosed in `<p>` paragraphs in HTML?",
+          "options": [
+            "{{ form.paragraphs }}",
+            "{{ form.to_html }}",
+            "{{ form.render_paragraphs }}",
+            "{{ form.as_p }}"
+          ],
+          "answer": "D",
+          "explanation": "`{{ form.as_p }}` outputs each label, widget, and error list wrapped in an HTML `<p>` tag. Other helpers include `{{ form.as_table }}` and `{{ form.as_ul }}` (or `{{ form.as_div }}` in Django 4.1+)."
+        },
+        {
+          "question": "How can you specify that a ModelForm should include all fields from a model except `created_at` and `view_count`?",
+          "options": [
+            "class Meta:\n    model = Article\n    remove = ('created_at', 'view_count')",
+            "class Meta:\n    model = Article\n    skip_fields = ['created_at', 'view_count']",
+            "class Meta:\n    model = Article\n    exclude = ['created_at', 'view_count']",
+            "class Meta:\n    model = Article\n    fields = '__all__'\n    ignore = ['created_at', 'view_count']"
+          ],
+          "answer": "C",
+          "explanation": "The `exclude` list in `ModelForm.Meta` instructs Django to generate form fields for every model column except those listed."
+        },
+        {
+          "question": "What occurs when a user submits an invalid form via POST in a properly architected Django view?",
+          "options": [
+            "Django deletes the user's session cookie and logs them out.",
+            "The server redirects to a 500 error page immediately.",
+            "The browser displays a blank white screen.",
+            "The view re-renders the same template passing the bound `form` instance containing user inputs and error messages to display validation feedback."
+          ],
+          "answer": "D",
+          "explanation": "When validation fails, re-rendering the template with the bound form allows Django to populate input fields with previously entered data and render field-specific error messages."
+        },
+        {
+          "question": "What is the difference between a bound form and an unbound form in Django?",
+          "options": [
+            "A bound form is used only in Django admin; an unbound form is used in user views.",
+            "An unbound form has no data attached (rendered empty for GET requests); a bound form has submitted data bound to it (e.g. `Form(request.POST)`) and can be validated.",
+            "A bound form connects to SQLite; an unbound form connects to PostgreSQL.",
+            "A bound form is encrypted with SSL; an unbound form is plaintext."
+          ],
+          "answer": "B",
+          "explanation": "An unbound form (`form = PostForm()`) renders empty initial inputs. A bound form (`form = PostForm(request.POST)`) binds data to fields and allows calling `form.is_valid()`."
+        },
+        {
+          "question": "Which field type in `django.forms` is used to render a password input where characters are masked as dots or asterisks?",
+          "options": [
+            "forms.EncryptedField()",
+            "forms.HiddenField(mask=True)",
+            "forms.CharField(widget=forms.PasswordInput)",
+            "forms.SecretStringField()"
+          ],
+          "answer": "C",
+          "explanation": "`forms.CharField(widget=forms.PasswordInput)` renders an `<input type=\"password\">` HTML element."
+        },
+        {
+          "question": "What method on a form object returns non-field-specific errors (such as errors raised from general `clean()` cross-validation)?",
+          "options": [
+            "form.global_errors()",
+            "form.general_errors()",
+            "form.top_errors()",
+            "form.non_field_errors()"
+          ],
+          "answer": "D",
+          "explanation": "`form.non_field_errors()` returns an `ErrorList` of validation errors that do not belong to a single specific field."
+        },
+        {
+          "question": "How does Django handle CSRF validation for asynchronous AJAX / Fetch requests sending JSON payloads?",
+          "options": [
+            "CSRF protection is automatically disabled for all AJAX requests.",
+            "The client must pass the database password in the request body.",
+            "The JavaScript client must read the `csrftoken` cookie and attach it as an `X-CSRFToken` request header in the fetch request.",
+            "AJAX requests must use HTTP GET instead of POST."
+          ],
+          "answer": "C",
+          "explanation": "Django's `CsrfViewMiddleware` checks for the token in the `X-CSRFToken` HTTP header for AJAX/Fetch requests when a hidden form input is not present."
+        },
+        {
+          "question": "What happens if a POST request is submitted to a Django view without a valid CSRF token (and the view is not exempt)?",
+          "options": [
+            "Django converts the POST request into a GET request.",
+            "Django accepts the request but writes a warning to the console.",
+            "The server restarts and logs the client's IP address.",
+            "Django's `CsrfViewMiddleware` rejects the request and returns an HTTP 403 Forbidden error response."
+          ],
+          "answer": "D",
+          "explanation": "Missing or mismatched CSRF tokens trigger an HTTP 403 Forbidden response with a CSRF verification failed message."
+        },
+        {
+          "question": "Which decorator can be applied to a view function to exempt it from CSRF verification (useful for external webhooks)?",
+          "options": [
+            "@bypass_security",
+            "@disable_csrf_token",
+            "@no_csrf",
+            "@csrf_exempt"
+          ],
+          "answer": "D",
+          "explanation": "`from django.views.decorators.csrf import csrf_exempt` marks a view as exempt from CSRF token verification (e.g. for Stripe or GitHub webhooks)."
+        },
+        {
+          "question": "How do you render individual form field errors manually in a custom HTML template layout?",
+          "options": [
+            "{% if form.title.errors %}<div class=\"error\">{{ form.title.errors }}</div>{% endif %}",
+            "{{ form.errors.get_title() }}",
+            "{{ form.field_error('title') }}",
+            "{% show_error 'title' %}"
+          ],
+          "answer": "A",
+          "explanation": "Individual fields in a bound form expose `.errors`, `.label_tag`, `.help_text`, and `.value` for granular manual template styling."
+        },
+        {
+          "question": "What parameter is passed to a ModelForm to populate it with existing database records for an edit/update view?",
+          "options": [
+            "form = ArticleForm(record=article_obj)",
+            "form = ArticleForm(initial_data=article_obj.to_dict())",
+            "form = ArticleForm(request.POST or None, instance=article_obj)",
+            "form = ArticleForm(model_target=article_obj)"
+          ],
+          "answer": "C",
+          "explanation": "Passing `instance=model_instance` binds the form to an existing database object, pre-populating fields and ensuring `form.save()` performs an `UPDATE` rather than an `INSERT`."
+        }
+      ]
+    },
+    {
+      "lessonId": "lesson-1787204763754",
+      "lessonTitle": "User Authentication System: Login, Logout, Register",
+      "totalQuestions": 20,
+      "questions": [
+        {
+          "question": "Which built-in model does Django provide out-of-the-box in `django.contrib.auth.models` for handling user authentication?",
+          "options": [
+            "User",
+            "Account",
+            "Member",
+            "AuthProfile"
+          ],
+          "answer": "A",
+          "explanation": "`django.contrib.auth.models.User` is Django's default user model providing fields like `username`, `password`, `email`, `first_name`, `last_name`, `is_staff`, and `is_active`."
+        },
+        {
+          "question": "How does Django securely store user passwords in the database by default?",
+          "options": [
+            "Passwords are stored as plain text inside an encrypted database volume.",
+            "Passwords are encrypted with standard ROT13 and base64 encoding.",
+            "Passwords are converted into public SSH keys.",
+            "Passwords are never stored in plaintext; they are hashed with a cryptographic salt using the PBKDF2 algorithm with a SHA-256 hash."
+          ],
+          "answer": "D",
+          "explanation": "Django uses one-way cryptographic hashing (defaulting to PBKDF2 with SHA-256 and thousands of iterations) paired with per-user salts, ensuring passwords cannot be reversed if compromised."
+        },
+        {
+          "question": "What function from `django.contrib.auth` verifies a user's credentials against authentication backends without logging them in?",
+          "options": [
+            "verify_credentials(username, password)",
+            "authenticate(request, username=username, password=password)",
+            "check_user(username, password)",
+            "validate_login(username, password)"
+          ],
+          "answer": "B",
+          "explanation": "`authenticate()` inspects configured authentication backends, verifies credentials, and returns the `User` instance if valid, or `None` if invalid."
+        },
+        {
+          "question": "What function from `django.contrib.auth` attaches the authenticated user's ID to the current HTTP session to log them in?",
+          "options": [
+            "create_user_session(user)",
+            "set_auth_user(request, user)",
+            "start_session(request, user)",
+            "login(request, user)"
+          ],
+          "answer": "D",
+          "explanation": "`login(request, user)` saves the user's ID in Django's session framework and regenerates the session ID to protect against session fixation attacks."
+        },
+        {
+          "question": "What does the `logout(request)` function do in Django?",
+          "options": [
+            "Blocks the client's IP address from future requests.",
+            "Sets `user.is_active = False` permanently in the database.",
+            "Flushes the user's session data from the backend store and deletes the session cookie from the client's browser.",
+            "Deletes the user's account from the database."
+          ],
+          "answer": "C",
+          "explanation": "`logout(request)` removes the authenticated user ID from the session and deletes the session record, ending the logged-in state."
+        },
+        {
+          "question": "Which decorator is used on function-based views to redirect unauthenticated users to the login page?",
+          "options": [
+            "@require_authenticated",
+            "@auth_needed",
+            "@login_required(login_url='login')",
+            "@protect_view"
+          ],
+          "answer": "C",
+          "explanation": "`@login_required` checks `request.user.is_authenticated`. If false, it redirects the user to `settings.LOGIN_URL` (or the specified `login_url`)."
+        },
+        {
+          "question": "Which mixin is used in Class-Based Views (CBVs) to enforce that a user must be logged in to access the view?",
+          "options": [
+            "AuthenticatedViewMixin",
+            "UserAuthMixin",
+            "AuthRequiredMixin",
+            "LoginRequiredMixin"
+          ],
+          "answer": "D",
+          "explanation": "`from django.contrib.auth.mixins import LoginRequiredMixin` is inherited by class-based views to enforce authentication before dispatching requests."
+        },
+        {
+          "question": "What is the role of the `next` query parameter in URLs like `/accounts/login/?next=/dashboard/settings/`?",
+          "options": [
+            "Forces Django to render page number 2 of the login form.",
+            "Stores the original destination URL so Django can redirect the user back to where they were trying to go after successfully logging in.",
+            "Tracks the user's next scheduled password expiration date.",
+            "Specifies the fallback login page if authentication fails."
+          ],
+          "answer": "B",
+          "explanation": "When an unauthenticated user hits a `@login_required` view, Django captures the requested path in `?next=...` and redirects there upon successful authentication."
+        },
+        {
+          "question": "Which built-in Django form is commonly used for user registration out-of-the-box?",
+          "options": [
+            "NewAccountForm",
+            "SignUpForm",
+            "UserCreationForm",
+            "RegisterUserForm"
+          ],
+          "answer": "C",
+          "explanation": "`from django.contrib.auth.forms import UserCreationForm` is a built-in ModelForm for creating new `User` records with password confirmation."
+        },
+        {
+          "question": "How should you update a user's password programmatically on a model instance to ensure it is properly hashed?",
+          "options": [
+            "user.update_password_hash('new_secure_password')",
+            "user.set_password('new_secure_password')\nuser.save()",
+            "user.encrypt_password('new_secure_password')",
+            "user.password = 'new_secure_password'\nuser.save()"
+          ],
+          "answer": "B",
+          "explanation": "`user.set_password()` hashes the raw password string before saving. Assigning directly to `user.password` stores the password as raw text, preventing authentication."
+        },
+        {
+          "question": "What is the difference between `user.is_authenticated` and `user.is_anonymous` in Django templates and views?",
+          "options": [
+            "`user.is_authenticated` is a method that must be called like `user.is_authenticated()` in Django 5.x.",
+            "`user.is_authenticated` requires two-factor authentication; `user.is_anonymous` is for single-factor.",
+            "`user.is_authenticated` is `True` for logged-in users and `False` for `AnonymousUser`; `user.is_anonymous` is the exact inverse.",
+            "`user.is_authenticated` checks if the user has an email; `user.is_anonymous` checks if the user has a username."
+          ],
+          "answer": "C",
+          "explanation": "In modern Django, `is_authenticated` and `is_anonymous` are boolean properties on User and AnonymousUser objects."
+        },
+        {
+          "question": "Which setting in `settings.py` defines the default URL destination after a user logs in successfully if no `next` parameter exists?",
+          "options": [
+            "LOGIN_REDIRECT_URL = 'dashboard'",
+            "AUTH_REDIRECT_ROUTE = 'dashboard'",
+            "HOME_URL = 'dashboard'",
+            "DEFAULT_SUCCESS_URL = 'dashboard'"
+          ],
+          "answer": "A",
+          "explanation": "`LOGIN_REDIRECT_URL` specifies the named route or URL path where users are redirected after successful authentication."
+        },
+        {
+          "question": "When should a project define a Custom User Model by subclassing `AbstractUser` or `AbstractBaseUser`?",
+          "options": [
+            "Custom User models are forbidden in modern Django.",
+            "At the very beginning of a new project before running the first initial migrations, allowing custom user fields (like email-as-username or phone number).",
+            "Whenever the database backend is switched to SQLite.",
+            "Only after the project has over 1,000,000 registered users in production."
+          ],
+          "answer": "B",
+          "explanation": "Django strongly recommends configuring a custom user model (via `AUTH_USER_MODEL = 'myapp.CustomUser'`) at project setup because migrating user models mid-project is notoriously complex."
+        },
+        {
+          "question": "What is the difference between subclassing `AbstractUser` and `AbstractBaseUser` for a custom user model?",
+          "options": [
+            "`AbstractUser` retains all default Django fields (first_name, last_name, permissions) while allowing extra fields; `AbstractBaseUser` provides only core auth/password mechanics, requiring you to define all fields and a custom manager.",
+            "`AbstractUser` is deprecated.",
+            "`AbstractUser` does not support passwords; `AbstractBaseUser` does.",
+            "`AbstractUser` is for NoSQL databases; `AbstractBaseUser` is for SQL databases."
+          ],
+          "answer": "A",
+          "explanation": "`AbstractUser` is ideal for extending the standard model (e.g. adding bio, avatar), while `AbstractBaseUser` gives full architectural control (e.g. custom identifier, no username)."
+        },
+        {
+          "question": "Which setting in `settings.py` tells Django to use a custom user model located at `users.models.CustomUser`?",
+          "options": [
+            "AUTH_USER_MODEL = 'users.CustomUser'",
+            "CUSTOM_USER = 'users.models.CustomUser'",
+            "USER_MODEL_CLASS = 'users.CustomUser'",
+            "AUTHENTICATION_USER = 'users.CustomUser'"
+          ],
+          "answer": "A",
+          "explanation": "`AUTH_USER_MODEL = '<app_label>.<ModelName>'` informs Django's auth framework, admin, and foreign keys to reference the custom user model."
+        },
+        {
+          "question": "How do you check if a password entered by a user matches the hashed password stored in the database without logging the user in?",
+          "options": [
+            "user.verify_pwd(raw_password)",
+            "user.compare_hash(raw_password)",
+            "user.password == raw_password",
+            "user.check_password(raw_password)"
+          ],
+          "answer": "D",
+          "explanation": "`user.check_password(raw_password)` hashes `raw_password` using the stored salt and algorithm and returns `True` if it matches `user.password`."
+        },
+        {
+          "question": "What built-in form from `django.contrib.auth.forms` handles user credential validation for standard login views?",
+          "options": [
+            "SignInForm",
+            "AuthenticationForm",
+            "CredentialForm",
+            "UserLoginForm"
+          ],
+          "answer": "B",
+          "explanation": "`AuthenticationForm` takes `request` and `data=request.POST`, validating the username and password against configured authentication backends."
+        },
+        {
+          "question": "What is the recommended way to reference the active User model in foreign key definitions across other apps in `models.py`?",
+          "options": [
+            "models.ForeignKey('auth.ActiveUser', on_delete=models.CASCADE)",
+            "models.ForeignKey('django.contrib.auth.models.User', on_delete=models.CASCADE)",
+            "models.ForeignKey(User, on_delete=models.CASCADE)",
+            "models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)"
+          ],
+          "answer": "D",
+          "explanation": "Referencing `settings.AUTH_USER_MODEL` ensures foreign keys remain decoupled and correctly bind to custom user models if configured."
+        },
+        {
+          "question": "What built-in Django CBV (Class-Based View) handles user login without requiring manual form rendering or authentication code in `views.py`?",
+          "options": [
+            "django.contrib.auth.views.LoginView",
+            "django.contrib.auth.views.UserAuthView",
+            "django.contrib.auth.views.SessionLoginView",
+            "django.views.auth.SignInView"
+          ],
+          "answer": "A",
+          "explanation": "`LoginView.as_view(template_name='login.html')` handles GET rendering and POST authentication automatically."
+        },
+        {
+          "question": "How can you invalidate all existing active login sessions for a user when their password is changed?",
+          "options": [
+            "Delete the entire `auth_user` table in the database.",
+            "Force all client web browsers to clear their DNS cache.",
+            "Django automatically updates the user's session authentication hash upon password change; calling `update_session_auth_hash(request, user)` in the view preserves only the current session.",
+            "Restart the Gunicorn server process on the host machine."
+          ],
+          "answer": "C",
+          "explanation": "Django rotates the session auth hash on password change. Calling `update_session_auth_hash(request, user)` prevents the user's current session from being logged out while invalidating all other active sessions."
+        }
+      ]
+    },
+    {
+      "lessonId": "lesson-1787204782683",
+      "lessonTitle": "Permission & Group Management in Django",
+      "totalQuestions": 20,
+      "questions": [
+        {
+          "question": "What 4 default permissions does Django automatically generate for every model registered in an app (e.g. for model `Article` in app `blog`)?",
+          "options": [
+            "`add_article`, `change_article`, `delete_article`, and `view_article`",
+            "`get_article`, `post_article`, `put_article`, `patch_article`",
+            "`insert_article`, `select_article`, `update_article`, `delete_article`",
+            "`create_article`, `read_article`, `update_article`, `destroy_article`"
+          ],
+          "answer": "A",
+          "explanation": "Django creates 4 standard permissions per model: `add_<model>`, `change_<model>`, `delete_<model>`, and `view_<model>` under the app's permission codename format."
+        },
+        {
+          "question": "How do you check if an authenticated user has permission to change articles in Python view code?",
+          "options": [
+            "user.has_perm('blog.change_article')",
+            "user.can('change_article')",
+            "user.permissions.has('change_article')",
+            "user.check_permission('blog:change')"
+          ],
+          "answer": "A",
+          "explanation": "`user.has_perm('<app_label>.<permission_codename>')` evaluates whether the user has the specified permission directly or through group membership."
+        },
+        {
+          "question": "How do you check permissions inside a Django template using the auth context processor?",
+          "options": [
+            "{% if perms.blog.change_article %}<button>Edit Article</button>{% endif %}",
+            "{% if permissions.blog_change_article %}<button>Edit</button>{% endif %}",
+            "{% if user.has_perm('blog.change_article') %}<button>Edit</button>{% endif %}",
+            "{% if can('blog.change_article') %}<button>Edit</button>{% endif %}"
+          ],
+          "answer": "A",
+          "explanation": "The `django.contrib.auth.context_processors.auth` processor injects a `perms` object into template contexts, accessible via `perms.<app_label>.<codename>`."
+        },
+        {
+          "question": "Which decorator protects a function-based view by requiring a specific permission and returning HTTP 403 if unauthorized?",
+          "options": [
+            "@guard_permission('blog.delete_article')",
+            "@check_auth_rule('blog.delete_article')",
+            "@permission_required('blog.delete_article', raise_exception=True)",
+            "@require_perm('blog.delete_article', status=403)"
+          ],
+          "answer": "C",
+          "explanation": "`@permission_required(..., raise_exception=True)` checks the permission and raises `PermissionDenied` (resulting in HTTP 403) instead of redirecting to login."
+        },
+        {
+          "question": "What is the purpose of Django's `Group` model (`django.contrib.auth.models.Group`)?",
+          "options": [
+            "Creates chat rooms for WebSocket communication.",
+            "Clusters multiple server instances in Kubernetes.",
+            "Allows grouping users together to assign a collective set of permissions to all members simultaneously (e.g. 'Editors', 'Moderators').",
+            "Groups database tables into separate SQLite files."
+          ],
+          "answer": "C",
+          "explanation": "Groups represent user roles. Permissions assigned to a Group automatically apply to every user added to that group."
+        },
+        {
+          "question": "How do you add a user instance `user_obj` to an existing group named `Editors`?",
+          "options": [
+            "Group.objects.assign(user=user_obj, role='Editors')",
+            "user_obj.groups = ['Editors']",
+            "user_obj.add_group('Editors')",
+            "editor_group = Group.objects.get(name='Editors')\nuser_obj.groups.add(editor_group)"
+          ],
+          "answer": "D",
+          "explanation": "`user.groups` is a ManyToMany relationship manager supporting `.add()`, `.remove()`, and `.clear()`."
+        },
+        {
+          "question": "How do you define custom model permissions in Django?",
+          "options": [
+            "Add `@permission('can_publish')` on top of model methods.",
+            "Define `CUSTOM_PERMISSIONS = ['can_publish']` in `settings.py`.",
+            "Create a `permissions.json` file in the app root.",
+            "Define a `permissions` tuple inside the model's `class Meta:`, e.g. `permissions = [('can_publish', 'Can publish article'), ('can_archive', 'Can archive article')]`."
+          ],
+          "answer": "D",
+          "explanation": "Custom permissions are declared in the model's `class Meta` as pairs of `(codename, human_readable_description)`."
+        },
+        {
+          "question": "What is the difference between `is_staff` and `is_superuser` on Django's User model?",
+          "options": [
+            "There is no difference; both are synonyms.",
+            "`is_staff` grants access to log in to the Django Admin portal; `is_superuser` automatically grants ALL permissions without explicit assignment.",
+            "`is_staff` is for paid users; `is_superuser` is for trial users.",
+            "`is_staff` has database admin rights; `is_superuser` is a normal end-user."
+          ],
+          "answer": "B",
+          "explanation": "`is_staff` allows accessing `/admin/`. `is_superuser` bypasses all permission checks (`user.has_perm()` always returns `True`)."
+        },
+        {
+          "question": "What is the consequence of setting `is_active = False` on a Django User record?",
+          "options": [
+            "The user is deactivated and cannot log in to the system, but their past records and relationships in the database remain intact.",
+            "The user's database record is permanently deleted along with all related data.",
+            "The user's password is reset to a random string sent via email.",
+            "The user is downgraded to a guest account with read-only access."
+          ],
+          "answer": "A",
+          "explanation": "`is_active = False` is Django's mechanism for soft-deactivating accounts without triggering cascade deletes across foreign key relationships."
+        },
+        {
+          "question": "Which mixin is used in Class-Based Views (CBVs) to enforce permission requirements?",
+          "options": [
+            "CheckPermissionMixin",
+            "PermissionRequiredMixin",
+            "HasPermMixin",
+            "AccessControlMixin"
+          ],
+          "answer": "B",
+          "explanation": "`from django.contrib.auth.mixins import PermissionRequiredMixin` allows setting `permission_required = 'app.perm_codename'` on CBVs."
+        },
+        {
+          "question": "How do you check if a user has ALL permissions in a list of permissions?",
+          "options": [
+            "user.has_perm_list(['blog.add_article', 'blog.change_article'])",
+            "user.validate_permissions(['blog.add_article', 'blog.change_article'])",
+            "user.all_perms(['blog.add_article', 'blog.change_article'])",
+            "user.has_perms(['blog.add_article', 'blog.change_article'])"
+          ],
+          "answer": "D",
+          "explanation": "`user.has_perms(perm_list)` returns `True` only if the user possesses every permission in the provided iterable."
+        },
+        {
+          "question": "Where are Django's permission definitions persisted in the database?",
+          "options": [
+            "In the PostgreSQL system catalogue.",
+            "In a hidden `.django_perms` binary cache file.",
+            "In the `auth_permission` table linked to `django_content_type`.",
+            "In the browser's HTTP session cookie."
+          ],
+          "answer": "C",
+          "explanation": "Permissions are stored as rows in `auth_permission`, each linked to a specific model via Django's ContentTypes framework (`django_content_type`)."
+        },
+        {
+          "question": "How can you check if a user belongs to a specific group named 'Subscribers' in Python?",
+          "options": [
+            "user.has_group('Subscribers')",
+            "user.groups.contains('Subscribers')",
+            "user.groups.filter(name='Subscribers').exists()",
+            "user.is_in_group('Subscribers')"
+          ],
+          "answer": "C",
+          "explanation": "`user.groups` is an ORM `QuerySet`, so `.filter(name='Subscribers').exists()` is the standard, efficient lookup pattern."
+        },
+        {
+          "question": "Which permission string would check if a user can delete comments in an app labeled `feedback` for a model named `Comment`?",
+          "options": [
+            "'feedback.can_delete_comment'",
+            "'feedback.delete_comment'",
+            "'Comment.delete'",
+            "'feedback.comment_delete'"
+          ],
+          "answer": "B",
+          "explanation": "The standard permission format is `<app_label>.<action>_<modelname>` (all lowercase)."
+        },
+        {
+          "question": "What happens when you delete a `Group` that contains 50 active users?",
+          "options": [
+            "Django raises a ProtectedError and prevents group deletion.",
+            "All 50 users are automatically converted into superusers.",
+            "All 50 users are cascade-deleted from the database.",
+            "The group is deleted and users lose the permissions granted by that group, but the user accounts themselves are NOT deleted."
+          ],
+          "answer": "D",
+          "explanation": "The user-to-group junction table entries are deleted, removing the group's collective permissions from members without deleting the user accounts."
+        },
+        {
+          "question": "How do you assign a specific permission `can_publish` to a group `editors_group` programmatically?",
+          "options": [
+            "Permission.assign(group=editors_group, name='can_publish')",
+            "editors_group.permissions = ['can_publish']",
+            "editors_group.add_permission('can_publish')",
+            "from django.contrib.auth.models import Permission\nperm = Permission.objects.get(codename='can_publish')\neditors_group.permissions.add(perm)"
+          ],
+          "answer": "D",
+          "explanation": "Permissions are added to groups via the `group.permissions.add(permission_instance)` ManyToMany manager."
+        },
+        {
+          "question": "How can you programmatically fetch all permissions a user has, combining direct permissions and group permissions?",
+          "options": [
+            "user.get_all_permissions()",
+            "user.list_permissions()",
+            "user.get_effective_perms()",
+            "user.permissions.all()"
+          ],
+          "answer": "A",
+          "explanation": "`user.get_all_permissions()` returns a set of all permission strings that the user has, combining both direct individual permissions and group-inherited permissions."
+        },
+        {
+          "question": "What is the purpose of Django's ContentTypes framework (`django.contrib.contenttypes`) in the permission system?",
+          "options": [
+            "It determines the HTTP Content-Type response header for REST APIs.",
+            "It tracks all models installed in the project, allowing permissions to be generically associated with specific models in the database.",
+            "It minifies CSS and JavaScript MIME content types.",
+            "It stores image and video binary data in PostgreSQL."
+          ],
+          "answer": "B",
+          "explanation": "ContentTypes tracks all models in `django_content_type`, allowing `auth_permission` records to link permission codenames to specific database models."
+        },
+        {
+          "question": "What exception is raised when a user fails a permission check in a view decorated with `@permission_required(..., raise_exception=True)`?",
+          "options": [
+            "django.core.exceptions.ValidationError",
+            "django.http.Http404",
+            "django.core.exceptions.PermissionDenied",
+            "django.contrib.auth.AuthError"
+          ],
+          "answer": "C",
+          "explanation": "`PermissionDenied` is caught by Django's handler403 to render the standard 403 Forbidden HTTP response page."
+        },
+        {
+          "question": "Why should permissions generally be assigned to Groups rather than directly to individual User accounts in enterprise Django applications?",
+          "options": [
+            "Group permissions run faster because they bypass SQL queries.",
+            "Role-Based Access Control (RBAC) via Groups simplifies user onboarding/offboarding, ensures consistent security policies, and eliminates manual permission maintenance per user.",
+            "Direct permissions on users are deleted every time the server restarts.",
+            "Django limits individual user accounts to a maximum of 3 direct permissions."
+          ],
+          "answer": "B",
+          "explanation": "RBAC with Groups ensures scalable, maintainable security architecture: permissions belong to roles (e.g. Support, Finance, Content Lead), and users are simply assigned to roles."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,688 @@
+{
+  "moduleId": "mod-jsfunc",
+  "moduleName": "Module 7: JavaScript Functions, Objects & Arrays",
+  "courseId": "crs-1786624019154-w",
+  "lessons": [
+    {
+      "lessonId": "lesson-1787196281985-21",
+      "lessonTitle": "Lesson 1: Function Declarations, Expressions, & Arrow Functions",
+      "totalQuestions": 20,
+      "questions": [
+        {
+          "question": "How does hoisting differ between Function Declarations (`function foo(){}`) and Function Expressions (`const foo = function(){}`)?",
+          "options": [
+            "Function Expressions are hoisted with their body, while Function Declarations cannot be called before definition",
+            "Neither Function Declarations nor Function Expressions participate in hoisting",
+            "Function Declarations are hoisted along with their entire function body, whereas Function Expressions are hoisted as variable bindings only (trapped in TDZ or initialized to `undefined`)",
+            "Both forms are hoisted identically with full function body execution"
+          ],
+          "answer": "C",
+          "explanation": "Function declarations are fully hoisted with implementation, allowing them to be invoked anywhere in the enclosing scope. Function expressions follow standard variable hoisting rules (`let`/`const` remain uninitialized in TDZ)."
+        },
+        {
+          "question": "How do Arrow Functions handle the `this` context compared to traditional `function` declarations?",
+          "options": [
+            "Arrow functions bind `this` to the global `window` object in all cases",
+            "Arrow functions allow dynamic rebinding of `this` via `.bind()` and `.call()`",
+            "Arrow functions do not have their own `this`; they lexically inherit `this` from the enclosing outer execution context",
+            "Arrow functions automatically bind `this` to the nearest HTML DOM element"
+          ],
+          "answer": "C",
+          "explanation": "Arrow functions have lexical `this` scoping, meaning they capture `this` from the enclosing scope at definition time and cannot be rebound using `.bind()`, `.call()`, or `.apply()`."
+        },
+        {
+          "question": "Why can't Arrow Functions be used as Constructor Functions with the `new` keyword?",
+          "options": [
+            "Arrow functions can only return primitive numbers and strings",
+            "Arrow functions require at least 3 parameters to construct an object",
+            "Arrow functions are strictly asynchronous and cannot return synchronous instances",
+            "Arrow functions lack an internal `[[Construct]]` method and do not possess a `.prototype` property"
+          ],
+          "answer": "D",
+          "explanation": "Arrow functions do not have a `prototype` property or internal construct mechanism; invoking `new (() => {})` throws a `TypeError: ... is not a constructor`."
+        },
+        {
+          "question": "What is a Closure in JavaScript?",
+          "options": [
+            "A function bundled together with references to its surrounding lexical environment, allowing it to access outer variables even after the outer function has finished executing",
+            "A method used to close open WebSocket connections and database pools",
+            "A built-in encryption algorithm for securing localStorage data",
+            "An automated syntax error thrown when curly braces `{}` are unmatched"
+          ],
+          "answer": "A",
+          "explanation": "A closure gives a function access to its outer scope variables even after the outer function has returned and popped off the call stack, enabling data privacy and stateful factories."
+        },
+        {
+          "question": "How do Rest Parameters (`...args`) differ from the legacy `arguments` object inside a function?",
+          "options": [
+            "`...args` produces a genuine JavaScript Array containing only excess arguments, while `arguments` is an array-like object containing all passed arguments and lacking array methods like `.map()`",
+            "`...args` is limited to a maximum of 3 arguments",
+            "`arguments` is a true Array, while `...args` is a linked list",
+            "`...args` only works in Node.js, while `arguments` is browser-only"
+          ],
+          "answer": "A",
+          "explanation": "Rest parameters (`...args`) produce a real `Array` instance (supporting `.map()`, `.filter()`, `.reduce()`), whereas `arguments` is an array-like object missing prototype array methods."
+        },
+        {
+          "question": "How do you implicitly return an object literal from an arrow function without syntax ambiguity?",
+          "options": [
+            "Use double curly braces: `const create = () => {{ a: 1 }};`",
+            "Wrap the object literal in parentheses: `const create = () => ({ a: 1 });`",
+            "Use brackets: `const create = () => [{ a: 1 }];`",
+            "Prefix with return keyword without braces: `const create = () => return { a: 1 };`"
+          ],
+          "answer": "B",
+          "explanation": "Without parentheses, JavaScript treats `{}` as a function body block rather than an object literal. Wrapping in `({ a: 1 })` enables concise implicit object returns."
+        },
+        {
+          "question": "What is the primary purpose of an Immediately Invoked Function Expression (IIFE)?",
+          "options": [
+            "To create a private execution scope immediately upon definition, preventing variables from leaking into the global namespace",
+            "To force a function to run on a background Web Worker thread",
+            "To pause JavaScript execution until the DOM is fully loaded",
+            "To compile JavaScript code into native machine assembly"
+          ],
+          "answer": "A",
+          "explanation": "IIFEs (`(function(){ ... })()`) create an isolated local scope, historically used in module patterns to avoid polluting the global window object."
+        },
+        {
+          "question": "What is the difference between `.call()` and `.apply()` when explicitly setting a function's `this` context?",
+          "options": [
+            "`.apply()` permanently binds `this`, while `.call()` does not",
+            "`.call()` accepts arguments individually as a comma-separated list, while `.apply()` accepts arguments as a single array",
+            "`.call()` is asynchronous, while `.apply()` is synchronous",
+            "`.call()` works only on arrow functions, while `.apply()` works on regular functions"
+          ],
+          "answer": "B",
+          "explanation": "Both immediately invoke the function with a custom `this` value: `fn.call(context, arg1, arg2)` vs `fn.apply(context, [arg1, arg2])` (remember: **A**pply = **A**rray, **C**all = **C**omma)."
+        },
+        {
+          "question": "What does the `.bind()` method return when called on a function?",
+          "options": [
+            "A boolean indicating if the binding was successful",
+            "The evaluated return value of the immediately executed function",
+            "An exact clone of the global `window` object",
+            "A brand new function with its `this` context and optional initial parameters permanently bound"
+          ],
+          "answer": "D",
+          "explanation": "Unlike `call` and `apply` which invoke immediately, `fn.bind(thisArg)` returns a new bound function that can be executed later with the locked `this` context."
+        },
+        {
+          "question": "What defines a 'Pure Function' in functional programming?",
+          "options": [
+            "A function that executes in under 1 millisecond",
+            "Given the same arguments, it always returns the exact same result and produces zero observable side effects (e.g., modifying globals or mutating arguments)",
+            "A function that does not use any `if-else` conditional statements",
+            "A function that contains no comments or whitespace"
+          ],
+          "answer": "B",
+          "explanation": "Pure functions are deterministic (same input $\\rightarrow$ same output) and have no side effects (no network calls, DOM mutation, or variable reassignments outside scope)."
+        },
+        {
+          "question": "What is a Higher-Order Function (HOF)?",
+          "options": [
+            "A function that takes one or more functions as arguments, or returns a function as its result",
+            "A function that has a higher mathematical execution priority",
+            "A function that can only be invoked by administrators",
+            "A function declared inside the global scope of the document"
+          ],
+          "answer": "A",
+          "explanation": "In JavaScript, functions are first-class citizens; functions that accept callback functions (e.g., `.map()`, `addEventListener`) or return new functions are Higher-Order Functions."
+        },
+        {
+          "question": "What is Function Currying?",
+          "options": [
+            "Converting synchronous code into asynchronous Promise chains",
+            "Combining two strings into a single formatted URL slug",
+            "Encrypting function source code to prevent reverse engineering",
+            "A technique of translating a function that takes multiple arguments into a sequence of nested functions that each take a single argument: $f(a, b, c) \\rightarrow f(a)(b)(c)$"
+          ],
+          "answer": "D",
+          "explanation": "Currying transforms a multi-argument function into unary functions called sequentially (e.g., `const add = a => b => a + b; add(2)(3) // 5`)."
+        },
+        {
+          "question": "Why is defining an object method as an Arrow Function generally an anti-pattern (e.g., `const obj = { val: 42, getVal: () => this.val };`)?",
+          "options": [
+            "`this` inside the arrow function resolves to the outer lexical scope (`window` or `undefined`) rather than the calling object `obj`, causing `obj.getVal()` to return `undefined`",
+            "Object methods must have names longer than 5 characters",
+            "Arrow functions cannot return numbers or boolean values",
+            "Arrow functions in objects cause memory leaks during garbage collection"
+          ],
+          "answer": "A",
+          "explanation": "Because arrow functions do not have dynamic `this` binding, `this` does not refer to `obj`, but to the enclosing scope (usually `window` or `{}` in Node module scope)."
+        },
+        {
+          "question": "What does the `fn.length` property represent on a JavaScript function?",
+          "options": [
+            "The number of times the function has been called during runtime",
+            "The byte size of the function in heap memory",
+            "The number of formal parameters declared before the first parameter with a default value or rest parameter",
+            "The total number of lines of source code in the function body"
+          ],
+          "answer": "C",
+          "explanation": "`fn.length` indicates the function's arity—the number of expected formal arguments, excluding rest parameters (`...args`) and parameters with default values."
+        },
+        {
+          "question": "When are Default Function Parameter values evaluated in JavaScript (e.g., `function getItem(id = getDefaultId())`)?",
+          "options": [
+            "Every 5 seconds in a background interval timer",
+            "At parse/compile time when the script is first loaded into the V8 engine",
+            "At call time, only when the function is invoked with an omitted argument or with `undefined`",
+            "Whenever the function is invoked with `null`"
+          ],
+          "answer": "C",
+          "explanation": "Default parameters evaluate at runtime call time; if the argument is `null`, `null` is passed and the default is NOT used. The default triggers only for `undefined` or omitted arguments."
+        },
+        {
+          "question": "What is the output of invoking `(function(a){ return (function(){ return a; })(); })(10);`?",
+          "options": [
+            "ReferenceError: a is not defined",
+            "10 (The inner function forms a closure over parameter `a` of the outer function)",
+            "undefined",
+            "null"
+          ],
+          "answer": "B",
+          "explanation": "The inner immediately-invoked function retains access to `a` via the scope chain and closure, returning `10`."
+        },
+        {
+          "question": "What is Partial Application in functional programming?",
+          "options": [
+            "Executing a function partially and pausing it indefinitely without returning",
+            "Fixing a number of arguments to a function, producing another function of smaller arity",
+            "Catching errors in half of the try-catch blocks",
+            "Deploying only 50% of an application's microservices to production"
+          ],
+          "answer": "B",
+          "explanation": "Partial application takes a function of $N$ arguments and pre-applies $M$ arguments ($M < N$), returning a function that accepts the remaining $N - M$ arguments (e.g., using `fn.bind(null, arg1)`)."
+        },
+        {
+          "question": "What happens when a function without an explicit `return` statement completes execution?",
+          "options": [
+            "It returns `null`",
+            "It returns `0`",
+            "It throws an unhandled error",
+            "It returns `undefined` by default"
+          ],
+          "answer": "D",
+          "explanation": "In JavaScript, any function that finishes executing without encountering a `return <value>` statement implicitly returns `undefined`."
+        },
+        {
+          "question": "How does the `this` keyword behave in a standalone regular function call in Strict Mode (`\"use strict\"; function show(){ console.log(this); } show();`)?",
+          "options": [
+            "`this` points to the global `window` object",
+            "`this` points to an empty object `{}`",
+            "`this` points to the `show` function itself",
+            "`this` is `undefined`"
+          ],
+          "answer": "D",
+          "explanation": "In non-strict mode, standalone calls default `this` to the global object (`window`). In Strict Mode, `this` remains `undefined` to prevent accidental global modifications."
+        },
+        {
+          "question": "What is a Memoization higher-order function designed to do?",
+          "options": [
+            "Record audio notes during user typing sessions",
+            "Compress JavaScript code to reduce HTTP transfer size",
+            "Cache the results of expensive function calls based on input arguments to return cached outputs on repeated identical inputs",
+            "Limit the maximum call stack depth to 10 frames"
+          ],
+          "answer": "C",
+          "explanation": "Memoization stores function results in a lookup table (e.g., an object or `Map`); if the function is called again with the same arguments, the cached result is returned immediately ($O(1)$)."
+        }
+      ]
+    },
+    {
+      "lessonId": "lesson-1787196281985-22",
+      "lessonTitle": "Lesson 2: Advanced Array Methods (map, filter, reduce)",
+      "totalQuestions": 20,
+      "questions": [
+        {
+          "question": "Which of the following array methods mutates the original array in-place rather than returning a new array?",
+          "options": [
+            "splice()",
+            "map()",
+            "filter()",
+            "slice()"
+          ],
+          "answer": "A",
+          "explanation": "`splice()`, `push()`, `pop()`, `shift()`, `unshift()`, `sort()`, and `reverse()` mutate the array in-place. Methods like `slice()`, `map()`, and `filter()` return new arrays."
+        },
+        {
+          "question": "What is the primary purpose of `Array.prototype.map()`?",
+          "options": [
+            "To sort elements alphabetically in ascending order",
+            "To transform every element in an array by calling a provided callback function and returning a new array of the exact same length",
+            "To filter out unwanted elements based on a condition",
+            "To reduce an array into a single accumulated primitive value"
+          ],
+          "answer": "B",
+          "explanation": "`.map()` applies a transformation callback to each element and produces a new array with the same number of elements containing the returned values."
+        },
+        {
+          "question": "What is the return value of `Array.prototype.filter()` when no elements satisfy the predicate condition?",
+          "options": [
+            "An empty array `[]`",
+            "-1",
+            "undefined",
+            "null"
+          ],
+          "answer": "A",
+          "explanation": "`.filter()` always returns an array containing all matching elements; if none match, it returns an empty array `[]` (which is truthy)."
+        },
+        {
+          "question": "What are the 4 arguments passed to the callback function of `Array.prototype.reduce((acc, cur, idx, arr) => ...)`?",
+          "options": [
+            "Accumulator (`acc`), Current Element (`cur`), Current Index (`idx`), and Source Array (`arr`)",
+            "Target, Source, Prototype, and Context",
+            "Previous Element, Next Element, Total Count, and Result",
+            "Key, Value, Map, and Scope"
+          ],
+          "answer": "A",
+          "explanation": "The `reduce` reducer callback receives `(accumulator, currentValue, currentIndex, array)`, updating the accumulator value across iterations."
+        },
+        {
+          "question": "What happens if you call `.reduce()` on an empty array without providing an initial value argument?",
+          "options": [
+            "It returns `undefined` without error",
+            "It returns an empty array `[]`",
+            "It throws a `TypeError: Reduce of empty array with no initial value`",
+            "It returns `0` automatically"
+          ],
+          "answer": "C",
+          "explanation": "If no initial value is provided, `reduce` uses the first element as initial accumulator. On an empty array, there is no first element, causing a fatal `TypeError`."
+        },
+        {
+          "question": "What is the difference between `Array.prototype.find()` and `Array.prototype.filter()`?",
+          "options": [
+            "`find()` returns the very first matching element value (or `undefined`), while `filter()` returns an array of all matching elements",
+            "There is no difference; both return arrays",
+            "`find()` mutates the array, while `filter()` is immutable",
+            "`filter()` returns the index of the element, while `find()` returns the value"
+          ],
+          "answer": "A",
+          "explanation": "`find()` short-circuits on the first match and returns that single item directly. `filter()` iterates through the entire array and collects all matching items in a new array."
+        },
+        {
+          "question": "What is the output of `[10, 2, 5, 1].sort()` in standard JavaScript without a custom comparator function?",
+          "options": [
+            "`[10, 5, 2, 1]` (Descending numerical order)",
+            "`[10, 2, 5, 1]` (No sorting occurs)",
+            "`[1, 10, 2, 5]` (Elements are converted to strings and sorted in lexicographical/alphabetical Unicode order)",
+            "`[1, 2, 5, 10]` (Correct numerical ascending order)"
+          ],
+          "answer": "C",
+          "explanation": "By default, `.sort()` converts elements to strings, sorting `'10'` before `'2'` because `'1'` precedes `'2'`. Numerical sorting requires a comparator: `.sort((a, b) => a - b)`."
+        },
+        {
+          "question": "How does `[NaN].includes(NaN)` compare to `[NaN].indexOf(NaN)`?",
+          "options": [
+            "Both return `true`",
+            "`[NaN].includes(NaN)` returns `true`, while `[NaN].indexOf(NaN)` returns `-1`",
+            "Both return `-1`",
+            "`includes` returns `false`, while `indexOf` returns `0`"
+          ],
+          "answer": "B",
+          "explanation": "`indexOf()` uses Strict Equality (`===`), and since `NaN !== NaN`, it fails to find `NaN` (-1). `includes()` uses the SameValueZero algorithm and correctly detects `NaN`."
+        },
+        {
+          "question": "What is the difference between `Array.prototype.some()` and `Array.prototype.every()`?",
+          "options": [
+            "`every()` returns an array, while `some()` returns a boolean",
+            "`some()` mutates the array, while `every()` does not",
+            "`some()` only checks even numbers, while `every()` checks odd numbers",
+            "`some()` returns `true` if AT LEAST ONE element passes the test, while `every()` returns `true` only if ALL elements pass the test"
+          ],
+          "answer": "D",
+          "explanation": "`some()` checks for existential condition ($exists$) and short-circuits on the first truthy value. `every()` checks universal condition ($\forall$) and short-circuits on the first falsy value."
+        },
+        {
+          "question": "What does `[1, [2, [3, 4]]].flat(2)` return?",
+          "options": [
+            "[1, 2, [3, 4]]",
+            "[[1, 2], [3, 4]]",
+            "[1, 2, 3, [4]]",
+            "[1, 2, 3, 4] (Flattens nested arrays up to a depth of 2)"
+          ],
+          "answer": "D",
+          "explanation": "`.flat(depth)` recursively flattens sub-arrays up to the specified depth; depth 2 completely flattens a 2-level deeply nested array into `[1, 2, 3, 4]`."
+        },
+        {
+          "question": "What does `Array.prototype.flatMap()` do?",
+          "options": [
+            "It sorts and filters an array simultaneously",
+            "It converts a 2D array into an HTML table",
+            "It maps each element using a mapping function, then flattens the resulting array by a depth of 1 in a single efficient pass",
+            "It compresses array data into a zip file"
+          ],
+          "answer": "C",
+          "explanation": "`arr.flatMap(fn)` is equivalent to `arr.map(fn).flat(1)`, efficiently transforming and unwrapping arrays in one operation."
+        },
+        {
+          "question": "How do modern ES2023 immutable array methods like `.toSorted()` and `.toReversed()` differ from `.sort()` and `.reverse()`?",
+          "options": [
+            "They execute asynchronously using Web Workers",
+            "They convert array values into strings permanently",
+            "They sort arrays in reverse order only",
+            "They return a brand new sorted/reversed copy of the array without mutating the original source array"
+          ],
+          "answer": "D",
+          "explanation": "ES2023 introduced non-mutating equivalents: `toSorted()`, `toReversed()`, `toSpliced()`, and `with()`, allowing functional manipulation without mutating source data."
+        },
+        {
+          "question": "What is the modern, concise idiom to remove duplicate primitive values from an array `[1, 2, 2, 3, 1]`?",
+          "options": [
+            "array.filter(Boolean)",
+            "[...new Set(array)]",
+            "Array.unique(array)",
+            "array.deduplicate()"
+          ],
+          "answer": "B",
+          "explanation": "Passing an array into a `Set` strips all duplicates because Set values must be unique; spreading back into an array `[...new Set(array)]` yields `[1, 2, 3]`."
+        },
+        {
+          "question": "How can you generate an array of numbers from 0 to 9 in a single line using `Array.from()`?",
+          "options": [
+            "new Array(10).range();",
+            "Array.generate(0, 10);",
+            "Array.from(10);",
+            "Array.from({ length: 10 }, (_, i) => i);"
+          ],
+          "answer": "D",
+          "explanation": "`Array.from({ length: 10 }, (v, i) => i)` creates an array of length 10 and executes the map callback for each index, generating `[0, 1, 2, ..., 9]`."
+        },
+        {
+          "question": "How do iteration methods like `.forEach()` and `.map()` treat 'sparse' array holes (e.g., `const arr = [1, , 3];`)?",
+          "options": [
+            "They throw a `ReferenceError` on empty slots",
+            "They stop loop execution immediately upon hitting a hole",
+            "They skip empty holes entirely without executing the callback on unassigned indices",
+            "They convert empty holes into `undefined` and execute the callback"
+          ],
+          "answer": "C",
+          "explanation": "Array prototype methods (like `forEach`, `map`, `filter`) skip unassigned sparse holes, only invoking the callback for indices that actually exist on the array."
+        },
+        {
+          "question": "What is the modern standard ECMAScript method to group array elements by a categorical key (e.g., grouping users by role)?",
+          "options": [
+            "users.groupBy('role')",
+            "users.categorize(user => user.role)",
+            "Array.group(users, 'role')",
+            "Object.groupBy(users, user => user.role)"
+          ],
+          "answer": "D",
+          "explanation": "`Object.groupBy(items, callback)` (standardized in ES2024) groups items into an object whose keys are the return values of the callback function."
+        },
+        {
+          "question": "How can you safely create a true Deep Clone of a nested multi-dimensional array in modern JavaScript?",
+          "options": [
+            "myArray.slice()",
+            "structuredClone(myArray)",
+            "Array.from(myArray)",
+            "[...myArray]"
+          ],
+          "answer": "B",
+          "explanation": "Spread `[...arr]` and `.slice()` only perform a shallow copy (nested arrays still share references). `structuredClone()` recursively creates a true deep copy."
+        },
+        {
+          "question": "What does the expression `['a', 'b', 'c'].slice(1, 3)` return?",
+          "options": [
+            "['b', 'c'] (Extracts elements from index 1 up to, but not including, index 3)",
+            "['a', 'b']",
+            "['a', 'b', 'c']",
+            "['b']"
+          ],
+          "answer": "A",
+          "explanation": "`slice(start, end)` extracts items starting at index 1 (`'b'`) up to index 3 (exclusive), returning `['b', 'c']` without modifying the original array."
+        },
+        {
+          "question": "How do you find the maximum numeric value in an array `[12, 45, 8, 99]` using `reduce`?",
+          "options": [
+            "arr.reduce((max, cur) => max + cur, 0)",
+            "arr.reduce((max, cur) => cur > max ? cur : max, arr[0])",
+            "arr.reduce((max, cur) => cur < max ? cur : max)",
+            "arr.reduce(Math.sum)"
+          ],
+          "answer": "B",
+          "explanation": "The reducer compares the accumulator `max` with each `cur` element, carrying forward the higher value across the array to find `99`."
+        },
+        {
+          "question": "What is the difference between `Array.of(7)` and `new Array(7)`?",
+          "options": [
+            "`Array.of(7)` throws an error because it requires at least 2 arguments",
+            "`Array.of(7)` creates 7 empty slots, while `new Array(7)` creates `[7]`",
+            "`Array.of(7)` creates an array with one element `[7]`, whereas `new Array(7)` creates an empty array with length 7 and 7 sparse holes",
+            "Both expressions create the exact same array `[7]`"
+          ],
+          "answer": "C",
+          "explanation": "`new Array(7)` creates a sparse array with `length = 7` and no elements. `Array.of(7)` avoids this single-number constructor trap and returns `[7]`."
+        }
+      ]
+    },
+    {
+      "lessonId": "lesson-1787196281985-23",
+      "lessonTitle": "Lesson 3: Object Manipulation & Higher-Order Functions",
+      "totalQuestions": 20,
+      "questions": [
+        {
+          "question": "What is the difference between accessing object properties using Dot Notation (`obj.prop`) versus Bracket Notation (`obj[prop]`)?",
+          "options": [
+            "Dot notation creates a new property if it does not exist, while bracket notation does not",
+            "Bracket notation only works for arrays, not plain objects",
+            "Dot notation is asynchronous, while bracket notation is synchronous",
+            "Bracket notation allows dynamic property evaluation, variables as keys, and keys containing spaces or special characters; dot notation only accepts static valid identifiers"
+          ],
+          "answer": "D",
+          "explanation": "Bracket notation `obj[expression]` dynamically evaluates the expression inside brackets (e.g., `obj['user-age']` or `obj[myVar]`), whereas dot notation requires a static identifier."
+        },
+        {
+          "question": "What does the Computed Property Name syntax accomplish in an object literal (e.g., `const key = 'role'; const user = { [key]: 'admin' };`)?",
+          "options": [
+            "It marks the property as private and non-enumerable",
+            "It converts the property value into an encrypted hash",
+            "It dynamically evaluates the expression inside brackets `[]` and uses the resulting value as the object's property name",
+            "It binds a getter function to the property automatically"
+          ],
+          "answer": "C",
+          "explanation": "Computed property names allow dynamic keys inside object literals without needing a secondary assignment (`obj[key] = 'admin'`)."
+        },
+        {
+          "question": "How does Object Destructuring with property renaming work (e.g., renaming `id` to `userId`)?",
+          "options": [
+            "const { id: userId } = user;",
+            "const { userId = id } = user;",
+            "const { id as userId } = user;",
+            "const { id -> userId } = user;"
+          ],
+          "answer": "A",
+          "explanation": "The syntax `const { propertyName: newVariableName } = object;` unpacks `propertyName` and assigns its value to `newVariableName`."
+        },
+        {
+          "question": "What is the key limitation of copying nested objects using the Spread Operator (`const clone = { ...original };`)?",
+          "options": [
+            "It converts the object into an array automatically",
+            "It fails and throws a runtime error if the object has more than 5 properties",
+            "It removes all string properties from the clone",
+            "It creates a Shallow Copy only; nested child objects and arrays are copied by reference and still share memory with the original object"
+          ],
+          "answer": "D",
+          "explanation": "Object spread `{ ...obj }` only copies top-level properties. If a property is a nested object (`user.address`), the clone only receives a copy of the pointer address."
+        },
+        {
+          "question": "What is the fundamental difference between `Object.freeze()` and `Object.seal()`?",
+          "options": [
+            "`Object.freeze()` makes an object completely immutable (cannot add, delete, or modify existing properties), while `Object.seal()` prevents adding/deleting properties but allows modifying existing writable properties",
+            "There is no difference; they are exact aliases",
+            "`Object.seal()` converts all properties to functions, while `freeze` does not",
+            "`Object.freeze()` only works on arrays, while `Object.seal()` works on objects"
+          ],
+          "answer": "A",
+          "explanation": "`Object.freeze()` sets `writable: false` and `configurable: false` on all properties. `Object.seal()` sets `configurable: false` (no add/delete) but leaves `writable: true` (existing values can change)."
+        },
+        {
+          "question": "Why should developers use `Object.hasOwn(obj, 'prop')` instead of `obj.hasOwnProperty('prop')` in modern JavaScript?",
+          "options": [
+            "`Object.hasOwn()` also checks prototype chain properties",
+            "`Object.hasOwn()` runs 100x faster by compiling directly to GPU shaders",
+            "`obj.hasOwnProperty()` is deprecated and removed from modern browsers",
+            "`Object.hasOwn()` is safe to use on objects created without a prototype (e.g., `Object.create(null)`) or objects where `hasOwnProperty` has been overridden"
+          ],
+          "answer": "D",
+          "explanation": "Calling `obj.hasOwnProperty()` on an object created via `Object.create(null)` crashes with a `TypeError`. ES2022's `Object.hasOwn(obj, prop)` safely handles all objects."
+        },
+        {
+          "question": "What does `Object.fromEntries()` do?",
+          "options": [
+            "It transforms a list of key-value pairs (such as a 2D array `[['a', 1], ['b', 2]]` or a `Map`) into a plain JavaScript object",
+            "It checks if an object contains any entries",
+            "It extracts all values from an object into a single array",
+            "It deletes all non-enumerable properties from an object"
+          ],
+          "answer": "A",
+          "explanation": "`Object.fromEntries()` is the inverse of `Object.entries()`, turning array pairs or Maps back into plain `{ a: 1, b: 2 }` objects."
+        },
+        {
+          "question": "In property descriptors via `Object.defineProperty()`, what does setting `enumerable: false` do?",
+          "options": [
+            "The property becomes read-only and cannot be modified",
+            "The property throws an error whenever accessed",
+            "The property will not show up in `for...in` loops, `Object.keys()`, or `JSON.stringify()`, but remains accessible via direct property lookup",
+            "The property is deleted from memory permanently"
+          ],
+          "answer": "C",
+          "explanation": "Non-enumerable properties are hidden from general iteration (`for...in`, `Object.keys`, `Object.entries`) while remaining directly readable and usable."
+        },
+        {
+          "question": "What is the primary difference between a JavaScript `Map` and a plain Object (`{}`)?",
+          "options": [
+            "`Map` cannot be iterated using loops, while plain objects can",
+            "`Map` allows keys of ANY data type (including functions, objects, and numbers), preserves insertion order, and has an $O(1)$ `.size` property",
+            "Plain objects can only hold up to 100 properties, while `Map` has no limit",
+            "Plain objects encrypt their property keys, while `Map` stores plain text"
+          ],
+          "answer": "B",
+          "explanation": "A `Map` supports keys of any type (e.g., objects as keys), maintains precise insertion order, has `.size`, and avoids default prototype key collisions."
+        },
+        {
+          "question": "How does a `WeakMap` differ from a standard `Map` in terms of memory management?",
+          "options": [
+            "`WeakMap` deletes all stored data after 60 seconds automatically",
+            "`WeakMap` keys must be Objects, and references to keys are held 'weakly', allowing them to be garbage-collected if no other references exist elsewhere",
+            "`WeakMap` cannot store values; it only stores keys",
+            "`WeakMap` consumes more memory because it creates duplicate backups"
+          ],
+          "answer": "B",
+          "explanation": "In `WeakMap`, object keys do not prevent garbage collection, making `WeakMap` ideal for private state storage and DOM node caching without causing memory leaks."
+        },
+        {
+          "question": "What is the difference between a Debounce function and a Throttle function?",
+          "options": [
+            "Debounce delays execution until a certain time has elapsed since the LAST call, while Throttle guarantees execution at fixed maximum regular intervals",
+            "Throttle cancels all future calls, while Debounce accelerates execution",
+            "There is no difference; they are interchangeable terms",
+            "Debounce is for mouse clicks, while Throttle is exclusively for audio volume"
+          ],
+          "answer": "A",
+          "explanation": "Debouncing waits for user activity to stop (ideal for search autocomplete typing); Throttling limits continuous triggers to once every $N$ milliseconds (ideal for scroll/resize events)."
+        },
+        {
+          "question": "What is Function Composition in JavaScript (e.g., `compose(f, g)(x)`)?",
+          "options": [
+            "Combining two strings into a single CSS class name",
+            "Passing the output of one function as the input to the next function, evaluated from right to left: $f(g(x))$",
+            "Inheriting properties from multiple parent prototype classes",
+            "Executing two asynchronous functions in parallel using `Promise.all`"
+          ],
+          "answer": "B",
+          "explanation": "Composition combines mathematical functions such that $(f \\circ g)(x) = f(g(x))$, cleanly separating small, reusable transformation steps."
+        },
+        {
+          "question": "What is the Prototype Chain lookup mechanism in JavaScript when accessing `obj.prop`?",
+          "options": [
+            "JavaScript creates the missing property automatically with value `null`",
+            "JavaScript queries the backend database for missing properties",
+            "JavaScript checks `obj` for the property; if not found, it traverses up `obj.__proto__` through successive prototypes until found or reaching `null`",
+            "JavaScript searches all active variables in global scope before checking the object"
+          ],
+          "answer": "C",
+          "explanation": "Property lookup inspects the object instance, then delegates upward through its prototype chain (`Object.getPrototypeOf(obj)`) until reaching `Object.prototype`, ending at `null`."
+        },
+        {
+          "question": "How do you create an object that has NO prototype whatsoever (a truly dictionary-like object with no `toString` or `hasOwnProperty` methods)?",
+          "options": [
+            "Object.create(null)",
+            "Object.freeze({})",
+            "new Object(null)",
+            "const obj = {}; obj.prototype = null;"
+          ],
+          "answer": "A",
+          "explanation": "`Object.create(null)` creates a clean object without inheriting from `Object.prototype`, preventing prototype pollution attacks and prototype key conflicts in dictionary maps."
+        },
+        {
+          "question": "What does `structuredClone(obj)` handle that `JSON.parse(JSON.stringify(obj))` fails to support?",
+          "options": [
+            "HTML5 video playback controls",
+            "CSS stylesheets and media queries",
+            "SQL database connection credentials",
+            "Circular references, `Date` objects, `Map`, `Set`, `RegExp`, `ArrayBuffer`, and `BigInt` data types"
+          ],
+          "answer": "D",
+          "explanation": "`structuredClone()` natively supports complex structures (circular references, Maps, Sets, Dates, BigInts), whereas JSON serialization drops Dates into strings, deletes `undefined`/Functions/Symbols, and crashes on BigInt/circular references."
+        },
+        {
+          "question": "What is the role of Getters (`get`) and Setters (`set`) in JavaScript objects?",
+          "options": [
+            "They allow an object to send HTTP GET and POST requests automatically",
+            "They convert synchronous functions into Web Worker threads",
+            "They define accessor properties that execute functions behind the scenes when reading or assigning a property value",
+            "They restrict an object to holding only string data"
+          ],
+          "answer": "C",
+          "explanation": "Getters and setters bind an object property to a function, enabling computed properties, data encapsulation, and input validation upon assignment."
+        },
+        {
+          "question": "What is the result of spreading two objects with identical keys: `const result = { ...{ a: 1, b: 2 }, ...{ b: 99, c: 3 } };`?",
+          "options": [
+            "{ a: 1, b: [2, 99], c: 3 }",
+            "{ a: 1, b: 2, c: 3 }",
+            "TypeError: Duplicate object keys",
+            "{ a: 1, b: 99, c: 3 } (The last spread object overrides conflicting keys from earlier objects)"
+          ],
+          "answer": "D",
+          "explanation": "When spreading objects, property conflicts resolve in favor of the rightmost object; `{ b: 99 }` overrides `{ b: 2 }`, resulting in `{ a: 1, b: 99, c: 3 }`."
+        },
+        {
+          "question": "What does `Object.values(obj)` return?",
+          "options": [
+            "A string summary of the object's constructor",
+            "A set of the object's property names",
+            "An array containing all of the object's own enumerable property values in standard iteration order",
+            "A boolean indicating if the object has values"
+          ],
+          "answer": "C",
+          "explanation": "`Object.values()` returns an array of the values corresponding to an object's own enumerable string-keyed properties."
+        },
+        {
+          "question": "What is a 'Set' collection in JavaScript and what is its most defining characteristic?",
+          "options": [
+            "A fixed-size array that cannot grow or shrink",
+            "A collection of values where each value must be unique; duplicate values are automatically discarded",
+            "A key-value map where keys must be functions",
+            "An array that only stores negative floating point numbers"
+          ],
+          "answer": "B",
+          "explanation": "`Set` stores unique values of any type, providing fast $O(1)$ membership checks with `.has()` and automatic deduplication."
+        },
+        {
+          "question": "Why is `Object.freeze()` described as a 'Shallow Freeze'?",
+          "options": [
+            "Because it only works inside the browser Developer Console",
+            "Because it only freezes immediate top-level properties; nested child objects remain completely mutable unless recursively frozen",
+            "Because it only freezes numbers and leaves strings mutable",
+            "Because the freeze effect automatically expires after 10 minutes"
+          ],
+          "answer": "B",
+          "explanation": "`Object.freeze()` only locks the direct surface properties of an object. If a property references another object (`obj.nested.x = 10`), the nested object can still be modified unless deeply frozen."
+        }
+      ]
+    }
+  ]
+}

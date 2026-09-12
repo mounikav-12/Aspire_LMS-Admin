@@ -1,0 +1,691 @@
+{
+  "courseId": "crs-1786624019154-w",
+  "courseTitle": "Python Full Stack + DSA with AI",
+  "stageId": "top-stg-2",
+  "stageTitle": "Stage 2: Backend + DSA",
+  "moduleId": "subtop-1787203763954",
+  "moduleTitle": "Data Structures & Algorithms - Part 2",
+  "lessons": [
+    {
+      "lessonId": "lesson-1787205194282",
+      "lessonTitle": "Recursion & Searching Algorithms: Linear, Binary Search",
+      "totalQuestions": 20,
+      "questions": [
+        {
+          "question": "What are the two mandatory components that every properly constructed recursive function must possess?",
+          "options": [
+            "A try-catch exception block and a global dictionary.",
+            "A database connection string and a foreign key constraint.",
+            "A multi-threaded worker pool and a while loop.",
+            "A Base Case (terminating condition to prevent infinite loops) and a Recursive Case (reducing the input toward the base case)."
+          ],
+          "answer": "D",
+          "explanation": "Without a base case, recursion continues indefinitely until a call stack overflow occurs. The recursive case must decompose the input toward the base case."
+        },
+        {
+          "question": "What error is raised in Python when a recursive function exceeds the maximum permitted call stack limit?",
+          "options": [
+            "RecursionError: maximum recursion depth exceeded",
+            "MemorySegmentationFault",
+            "SystemExitError",
+            "StackOverflowFatalException"
+          ],
+          "answer": "A",
+          "explanation": "CPython protects against execution stack overflow by enforcing a default recursion limit (typically 1000 frames), raising `RecursionError` if exceeded."
+        },
+        {
+          "question": "What prerequisite condition MUST be satisfied before applying standard Binary Search on an array?",
+          "options": [
+            "The array must be stored on a Solid State Drive.",
+            "The array elements must be sorted in ascending (or descending) order, or exhibit a monotonic boolean predicate property.",
+            "The array size must be an exact power of 2.",
+            "The array must contain exclusively prime numbers."
+          ],
+          "answer": "B",
+          "explanation": "Binary search relies on sorted ordering to eliminate half of the remaining search space with each comparison."
+        },
+        {
+          "question": "Why is `mid = left + (right - left) // 2` preferred over `mid = (left + right) // 2` when computing the midpoint in Binary Search?",
+          "options": [
+            "Because Python does not support the addition operator `+` inside while loops.",
+            "To prevent integer overflow in fixed-width 32-bit integer languages (such as C++/Java) when left + right exceeds 2³¹ - 1.",
+            "Because `(left + right) // 2` calculates the square root instead of the midpoint.",
+            "Because `left + (right - left) // 2` executes on the GPU in parallel."
+          ],
+          "answer": "B",
+          "explanation": "While Python handles arbitrarily large integers, `left + (right - left) // 2` is the universal industry-standard defensive pattern avoiding 32-bit overflow."
+        },
+        {
+          "question": "What is the time complexity of searching for an element in an unsorted array of size (n) using Linear Search versus a sorted array using Binary Search?",
+          "options": [
+            "Linear Search: O(n log n); Binary Search: O(1).",
+            "Linear Search: O(1); Binary Search: O(n²).",
+            "Linear Search: O(log n); Binary Search: O(n).",
+            "Linear Search: O(n) worst-case; Binary Search: O(log n) worst-case."
+          ],
+          "answer": "D",
+          "explanation": "Linear search checks elements one by one ((O(n))). Binary search halves the candidate range at each step ((O(log n)))."
+        },
+        {
+          "question": "What function in Python's standard `bisect` module returns the leftmost insertion index to maintain sorted order when target elements already exist in the list?",
+          "options": [
+            "`bisect.find_first(arr, target)`",
+            "`bisect.lower_index(arr, target)`",
+            "`bisect.search_left(arr, target)`",
+            "`bisect.bisect_left(arr, target)`"
+          ],
+          "answer": "D",
+          "explanation": "`bisect_left` finds the first position where `target` can be inserted without violating sorted order (equivalent to C++ `std::lower_bound`)."
+        },
+        {
+          "question": "How do you search for a target value in a Rotated Sorted Array (e.g. `[4, 5, 6, 7, 0, 1, 2]`) in (O(log n)) time?",
+          "options": [
+            "Rotate the array back to original position using a temporary copy.",
+            "Use linear search scanning from left to right.",
+            "At each step, identify which half of the array is normally sorted (left or right) and check if the target falls within that sorted half's boundary range.",
+            "Sort the entire array first using `arr.sort()` in O(n log n) time."
+          ],
+          "answer": "C",
+          "explanation": "In any rotated sorted array, at least one half (`left...mid` or `mid...right`) is always sorted, allowing standard range checks to choose the next half."
+        },
+        {
+          "question": "What is the 'Binary Search on Answer' technique in algorithmic problem solving?",
+          "options": [
+            "Binary searching over a monotonic candidate range of possible answer values (e.g. minimum capacity or maximum speed) and verifying feasibility with an O(n) validation helper function.",
+            "Converting all text strings into binary ASCII bytes.",
+            "Writing binary search inside a SQL stored procedure.",
+            "Using binary search to generate random answers in quizzes."
+          ],
+          "answer": "A",
+          "explanation": "When feasibility of a solution is monotonic (e.g. if speed (S) works, any speed (> S) also works), binary search efficiently finds the optimal threshold in (O(n log(\text{range})))."
+        },
+        {
+          "question": "How do you find both the first and last position of a target element in a sorted array containing duplicates in (O(log n)) time?",
+          "options": [
+            "Convert the array to a Python set and look up indices.",
+            "Find one occurrence with binary search, then linearly scan the entire array in O(n).",
+            "Execute two independent binary searches: one finding the leftmost boundary (`bisect_left`) and one finding the rightmost boundary (`bisect_right - 1`).",
+            "Use a triple-nested for loop."
+          ],
+          "answer": "C",
+          "explanation": "Two separate logarithmic binary searches pinpoint the exact first and last index occurrences in (O(log n)) total time."
+        },
+        {
+          "question": "How do you search for a target value in an (M \times N) matrix where each row and column is independently sorted in ascending order in (O(M + N)) time?",
+          "options": [
+            "Flatten the entire matrix into a 1D list and sort it.",
+            "Start at the top-right corner: if the current element is greater than the target, move left; if smaller, move down.",
+            "Perform binary search across every single row taking O(M log N).",
+            "Start at the center and move randomly in all four directions."
+          ],
+          "answer": "B",
+          "explanation": "Starting at the top-right corner allows eliminating an entire column (by moving left) or an entire row (by moving down) in each step, guaranteeing (O(M+N)) time."
+        },
+        {
+          "question": "How can you find a 'Peak Element' (an element strictly greater than its neighbors) in an unsorted array in (O(log n)) time?",
+          "options": [
+            "Compute the average of all numbers and return the closest integer.",
+            "Sort the array and take the middle element.",
+            "If `arr[mid] < arr[mid + 1]`, a peak must exist in the right half (`left = mid + 1`); otherwise a peak exists in the left half (`right = mid`).",
+            "A peak can only be found in O(n) by checking every element."
+          ],
+          "answer": "C",
+          "explanation": "Following the upward gradient always leads to at least one local maximum, enabling (O(log n)) binary search on an unsorted array."
+        },
+        {
+          "question": "What is Backtracking in recursive algorithm design?",
+          "options": [
+            "Reversing an array using pointers.",
+            "A systematic search technique that incrementally builds candidate solutions and abandons ('backtracks') a candidate path as soon as it determines it cannot lead to a valid solution.",
+            "Translating Python code back into assembly language.",
+            "Deleting git commit history on production servers."
+          ],
+          "answer": "B",
+          "explanation": "Backtracking explores state-space trees with pruning (e.g. N-Queens, Sudoku, Subsets), reverting state changes when dead-ends are reached."
+        },
+        {
+          "question": "How many total subsets are generated for a set of size (n) (Power Set), and what is the time complexity to generate them all?",
+          "options": [
+            "2ⁿ subsets, requiring O(n · 2ⁿ) total time to generate and copy.",
+            "n² subsets, requiring O(n²) time.",
+            "n! subsets, requiring O(n!) time.",
+            "2n subsets, requiring O(n) time."
+          ],
+          "answer": "A",
+          "explanation": "Each element has 2 choices (include or exclude), yielding (2^n) subsets. Copying each subset of average length (n/2) takes (O(n cdot 2^n)) time."
+        },
+        {
+          "question": "What is the total number of permutations for an array of (n) distinct elements?",
+          "options": [
+            "2ⁿ permutations.",
+            "n² permutations.",
+            "n³ permutations.",
+            "n! (n factorial), taking O(n · n!) time to generate all permutations."
+          ],
+          "answer": "D",
+          "explanation": "There are (n!) distinct permutations of (n) items. Generating each permutation takes (O(n)) copy operations, resulting in (O(n cdot n!)) complexity."
+        },
+        {
+          "question": "How does Top-Down Dynamic Programming (Memoization) optimize recursive exponential functions like Fibonacci?",
+          "options": [
+            "It converts the recursive function into machine assembly code.",
+            "It deletes all base cases.",
+            "It runs the function on a GPU cluster.",
+            "It stores computed results in a dictionary or lookup table (e.g. using `@functools.lru_cache`), avoiding redundant re-computation of overlapping subproblems and reducing time from O(2ⁿ) to O(n)."
+          ],
+          "answer": "D",
+          "explanation": "Memoization caches the return value of function calls based on argument inputs, solving each distinct subproblem exactly once."
+        },
+        {
+          "question": "In the classic Tower of Hanoi problem with (n) disks, what is the minimum number of moves required to solve the puzzle?",
+          "options": [
+            "n² moves.",
+            "n log n moves.",
+            "2ⁿ - 1 moves (Time Complexity: O(2ⁿ))",
+            "2n + 1 moves."
+          ],
+          "answer": "C",
+          "explanation": "The recurrence relation is (T(n) = 2T(n-1) + 1), which solves directly to (2^n - 1) total moves."
+        },
+        {
+          "question": "How do you compute the integer square root (lfloor sqrt{x} \rfloor) in (O(log x)) time without using `math.sqrt()`?",
+          "options": [
+            "Compute `x / 2` repeatedly.",
+            "Binary search the integer range `1...x`: if `mid * mid <= x` and `(mid + 1) * (mid + 1) > x`, return `mid`.",
+            "Convert x to binary string and count zeroes.",
+            "Iterate `i = 1, 2, 3...` until `i * i > x` taking O(√x) time."
+          ],
+          "answer": "B",
+          "explanation": "Binary searching the range ([1, x]) identifies the exact floor square root in (O(log x)) steps."
+        },
+        {
+          "question": "What is Tail Call Optimization (TCO) and does standard CPython implement it?",
+          "options": [
+            "An optimization where the compiler reuses the current stack frame for recursive calls in tail position; CPython intentionally does NOT implement TCO in order to preserve complete debug stack traces.",
+            "A feature that speeds up while loops; fully supported in Python 3.",
+            "A memory compression tool that CPython runs automatically on all functions.",
+            "An optimization that converts recursive functions into C++ binaries."
+          ],
+          "answer": "A",
+          "explanation": "Guido van Rossum chose not to support TCO in Python so that full, informative tracebacks are maintained for debugging and recursion limits."
+        },
+        {
+          "question": "When is Exponential Search used in preference to standard Binary Search?",
+          "options": [
+            "When the CPU has multiple cores.",
+            "When the list contains negative numbers.",
+            "When searching in an unbounded (infinite) list or streaming data where the total array size is unknown, finding a range in O(log i) time where i is the target's index.",
+            "When sorting strings alphabetically."
+          ],
+          "answer": "C",
+          "explanation": "Exponential search doubles the step index ((1, 2, 4, 8, 16 dots)) to find a bounding range ([2^{k-1}, 2^k]) before applying binary search."
+        },
+        {
+          "question": "What is the time complexity of Ternary Search when finding the maximum of a unimodal function?",
+          "options": [
+            "O(log₃ n)  ⟹  O(log n)",
+            "O(n³)",
+            "O(3ⁿ)",
+            "O(n log n)"
+          ],
+          "answer": "A",
+          "explanation": "Ternary search divides the search interval into 3 equal segments using two midpoints (`m1` and `m2`), discarding one third of the search space in each step ((O(log_3 n)))."
+        }
+      ]
+    },
+    {
+      "lessonId": "lesson-1787205218699",
+      "lessonTitle": "Sorting Algorithms: Bubble, Quick, Merge Sort",
+      "totalQuestions": 20,
+      "questions": [
+        {
+          "question": "What does it mean for a sorting algorithm to be 'Stable'?",
+          "options": [
+            "It executes in O(n log n) time on all hardware.",
+            "It uses exactly O(1) auxiliary space.",
+            "It preserves the original relative order of elements that have equal sorting keys in the output.",
+            "It never crashes or throws exceptions regardless of input."
+          ],
+          "answer": "C",
+          "explanation": "Stability ensures that duplicate keys maintain their original relative sequence after sorting (e.g. sorting by name, then by grade)."
+        },
+        {
+          "question": "How can Bubble Sort be optimized to achieve (O(n)) best-case time complexity on already-sorted arrays?",
+          "options": [
+            "Introduce a boolean flag `swapped = False`; if no swaps occur during a complete pass, break early.",
+            "Divide the array into two halves like Merge Sort.",
+            "Replace comparison operators with bitwise XOR.",
+            "Run the inner loop in reverse order."
+          ],
+          "answer": "A",
+          "explanation": "If a pass over (n) elements makes zero swaps, the array is verified as sorted and the algorithm terminates in (O(n)) linear time."
+        },
+        {
+          "question": "What is the time and space complexity of Selection Sort across best, average, and worst cases?",
+          "options": [
+            "Time: O(n log n) average, O(n²) worst; Space: O(n).",
+            "Time: O(n) best, O(n²) worst; Space: O(1).",
+            "Time: O(n log n) in all cases; Space: O(1).",
+            "Time: O(n²) in all cases; Space: O(1) auxiliary space (unstable by default)."
+          ],
+          "answer": "D",
+          "explanation": "Selection Sort always performs (n(n-1)/2) comparisons regardless of initial array ordering, but performs at most (O(n)) total swaps."
+        },
+        {
+          "question": "Why is Insertion Sort widely used in hybrid sorting algorithms (like Timsort) for small datasets ((n le 32))?",
+          "options": [
+            "It has minimal constant-factor overhead, runs in O(n) time on nearly-sorted data, and operates completely in-place with high CPU cache locality.",
+            "Because it automatically vectorizes on GPUs.",
+            "Because it requires zero CPU comparisons.",
+            "Because it runs in O(1) time on all modern processors."
+          ],
+          "answer": "A",
+          "explanation": "For small partitions, Insertion Sort's simplicity and low overhead outperform algorithms with asymptotically superior Big-O like QuickSort."
+        },
+        {
+          "question": "What is the time complexity of Merge Sort in the Best, Average, and Worst cases?",
+          "options": [
+            "Best: O(n log n), Average: O(n log n), Worst: O(n log n)",
+            "Best: O(n log n), Average: O(n²), Worst: O(n²)",
+            "Best: O(1), Average: O(n log n), Worst: O(n log n)",
+            "Best: O(n), Average: O(n log n), Worst: O(n²)"
+          ],
+          "answer": "A",
+          "explanation": "Merge Sort consistently divides arrays in half ((log n) levels) and performs linear merging ((O(n))) at each level across all cases."
+        },
+        {
+          "question": "What is the primary drawback of Merge Sort when applied to contiguous arrays in memory?",
+          "options": [
+            "It cannot sort string datatypes.",
+            "It requires O(n) auxiliary memory space to hold temporary merged sub-arrays.",
+            "Its worst-case time complexity is O(n²).",
+            "It is an unstable sorting algorithm."
+          ],
+          "answer": "B",
+          "explanation": "Unlike in-place algorithms like HeapSort or QuickSort, standard Merge Sort allocates (O(n)) additional buffer memory during merging."
+        },
+        {
+          "question": "What causes QuickSort to degrade to its worst-case time complexity of (O(n²))?",
+          "options": [
+            "When the array size is a prime number.",
+            "When the CPU operates on 64-bit architecture.",
+            "When the array contains floating-point numbers.",
+            "When the selected pivot is repeatedly the smallest or largest element (e.g. picking the first element on an already-sorted array without randomization)."
+          ],
+          "answer": "D",
+          "explanation": "Extremely unbalanced partitions ((1) element and (n-1) elements) produce (n) recursion levels of (O(n)) work, totaling (O(n^2))."
+        },
+        {
+          "question": "How does the 'Median-of-Three' pivot selection strategy protect QuickSort from (O(n²)) worst-case performance?",
+          "options": [
+            "It divides the array into three equal thirds.",
+            "It sorts three elements and deletes the rest of the array.",
+            "It computes the statistical standard deviation of the array.",
+            "It selects the median value among the first, middle, and last elements of the partition as the pivot, preventing worst-case behavior on sorted or reverse-sorted data."
+          ],
+          "answer": "D",
+          "explanation": "Median-of-three avoids selecting extreme minimum/maximum elements as pivots on pre-sorted inputs, ensuring balanced partitions."
+        },
+        {
+          "question": "What is the average auxiliary space complexity of QuickSort due to recursive call stack frames?",
+          "options": [
+            "O(1) strictly under all conditions.",
+            "O(n log n) stack space.",
+            "O(log n) average stack space; O(n) worst-case stack space.",
+            "O(n) auxiliary heap memory for arrays."
+          ],
+          "answer": "C",
+          "explanation": "Although QuickSort partitions elements in-place in the array, the recursion stack depth is (O(log n)) on average and (O(n)) in worst case."
+        },
+        {
+          "question": "Is standard QuickSort a Stable sorting algorithm?",
+          "options": [
+            "It is only stable when run in single-threaded mode.",
+            "No, QuickSort is unstable because partitioning performs non-adjacent swaps that can change the relative order of identical keys.",
+            "Yes, QuickSort is always stable.",
+            "It is only stable when sorting floating-point numbers."
+          ],
+          "answer": "B",
+          "explanation": "During partitioning, elements equal to the pivot or other elements can be swapped across large distances, violating relative order."
+        },
+        {
+          "question": "How does Dutch National Flag (3-Way) Partitioning optimize QuickSort for arrays with many duplicate elements?",
+          "options": [
+            "It discards duplicate elements permanently.",
+            "It converts duplicates into unique UUIDs.",
+            "It partitions the array into three sections: elements < pivot, elements == pivot, and elements > pivot in a single O(n) pass, avoiding recursing on duplicate elements.",
+            "It sorts elements into red, white, and blue colors."
+          ],
+          "answer": "C",
+          "explanation": "3-Way partitioning groups all equal keys together in one pass, enabling (O(n)) linear sorting on arrays with few unique values."
+        },
+        {
+          "question": "What is HeapSort and what are its time and auxiliary space complexities?",
+          "options": [
+            "Time: O(n) best, O(n log n) worst; Space: O(n).",
+            "Time: O(log n); Space: O(1).",
+            "A comparison sort that converts the array into a Binary Max-Heap and repeatedly extracts the root; Time: O(n log n) in all cases; Space: O(1) in-place.",
+            "Time: O(n²) in all cases; Space: O(n)."
+          ],
+          "answer": "C",
+          "explanation": "HeapSort combines the optimal (O(n log n)) worst-case time of Merge Sort with the (O(1)) in-place space advantage of QuickSort (though it is unstable)."
+        },
+        {
+          "question": "What is the proven theoretical lower bound for the number of comparisons required by ANY comparison-based sorting algorithm in the worst case?",
+          "options": [
+            "Ω(n)",
+            "Ω(n²)",
+            "Ω(log n)",
+            "Ω(n log n)"
+          ],
+          "answer": "D",
+          "explanation": "A decision tree of (n!) permutations has height (ge lceil log_2(n!) \rceil approx n log_2 n - n log_2 e = Omega(n log n))."
+        },
+        {
+          "question": "Under what specific condition can Non-Comparison Sorting algorithms (like Counting Sort or Radix Sort) sort in (O(n)) linear time?",
+          "options": [
+            "When the input elements are integers (or fixed-length strings) bounded within a known, relatively small range k.",
+            "When the elements are arbitrary Python objects.",
+            "When running on a computer with at least 64GB of RAM.",
+            "When the array is already sorted."
+          ],
+          "answer": "A",
+          "explanation": "Counting and Radix sort use direct array indexing rather than pairwise comparisons, achieving (O(n + k)) or (O(d(n+b))) when ranges are bounded."
+        },
+        {
+          "question": "What is the Quickselect algorithm used for, and what is its average time complexity?",
+          "options": [
+            "Sorting an array in O(log n) time.",
+            "Searching for duplicate elements in O(1) time.",
+            "Finding the k-th smallest (or largest) element in an unsorted array in O(n) average time without sorting the whole array.",
+            "Encrypting array elements with SHA-256."
+          ],
+          "answer": "C",
+          "explanation": "Quickselect partitions the array like QuickSort but recurses into only ONE partition containing index (k), solving in (n + n/2 + n/4 dots = O(n)) average time."
+        },
+        {
+          "question": "How do you sort a list of tuples `students = [('Alice', 85), ('Bob', 92), ('Charlie', 85)]` by score descending, then by name ascending in Python?",
+          "options": [
+            "students.sort(key=lambda s: (-s[1], s[0]))",
+            "students.sort(reverse=True, key=lambda s: s[0] and s[1])",
+            "sorted(students, by=['desc', 'asc'])",
+            "students.sort(comparator=['score:desc', 'name:asc'])"
+          ],
+          "answer": "A",
+          "explanation": "Tuples compare element by element; negating numeric values (`-s[1]`) achieves descending sort while strings (`s[0]`) sort ascending."
+        },
+        {
+          "question": "What sorting algorithm is most appropriate for sorting linked lists in (O(n log n)) time with (O(1)) auxiliary pointer space?",
+          "options": [
+            "HeapSort",
+            "Merge Sort (because linked lists can be merged and split in O(1) auxiliary space without array copying).",
+            "QuickSort",
+            "Bubble Sort"
+          ],
+          "answer": "B",
+          "explanation": "Linked list nodes can be rearranged simply by updating pointers, making Merge Sort strictly (O(1)) auxiliary space on linked lists."
+        },
+        {
+          "question": "In External Merge Sort (used when datasets exceed physical RAM size, e.g. 500GB file on 8GB RAM), what is the general strategy?",
+          "options": [
+            "Increase virtual swap memory and run standard QuickSort.",
+            "Compress the 500GB file into a 1MB ZIP archive.",
+            "Stream the entire file directly to a GPU.",
+            "Sort smaller chunks that fit in RAM, write sorted chunks ('runs') to disk, and perform a K-Way Merge of all runs using a min-heap."
+          ],
+          "answer": "D",
+          "explanation": "External sorting breaks massive datasets into memory-sized chunks, sorts them internally, and merges them from disk via a (k)-way min-heap."
+        },
+        {
+          "question": "What is the best-case time complexity of standard Insertion Sort when given an array that is ALREADY sorted?",
+          "options": [
+            "O(1)",
+            "O(n) because each element is compared to its immediate left neighbor only once and requires zero shifts.",
+            "O(n²)",
+            "O(n log n)"
+          ],
+          "answer": "B",
+          "explanation": "For each element from index 1 to (n-1), the while loop condition fails immediately on the first comparison, completing in (n-1) comparisons ((O(n)))."
+        },
+        {
+          "question": "Which of the following sorting algorithms is in-place AND guaranteed (O(n log n)) worst-case time complexity?",
+          "options": [
+            "Merge Sort (requires O(n) auxiliary space)",
+            "HeapSort",
+            "Bubble Sort (worst-case is O(n²))",
+            "QuickSort (worst-case is O(n²))"
+          ],
+          "answer": "B",
+          "explanation": "HeapSort operates directly inside the original array ((O(1)) space) and guarantees (O(n log n)) time across best, average, and worst cases."
+        }
+      ]
+    },
+    {
+      "lessonId": "lesson-1787205252428",
+      "lessonTitle": "Trees: Binary Trees, BST Traversals & Operations",
+      "totalQuestions": 20,
+      "questions": [
+        {
+          "question": "What fundamental invariant defines a Binary Search Tree (BST)?",
+          "options": [
+            "Every node must have exactly two child nodes.",
+            "For every node N, all values in its left subtree are strictly less than N.val, and all values in its right subtree are strictly greater than N.val.",
+            "All leaf nodes must reside on the same horizontal level.",
+            "The root node value must equal the total number of tree nodes."
+          ],
+          "answer": "B",
+          "explanation": "The BST ordering property ((\text{left} < \text{node} < \text{right})) enables efficient logarithmic search, insertion, and deletion."
+        },
+        {
+          "question": "Which Depth-First Search (DFS) traversal order on a Binary Search Tree yields node values in strictly ASCENDING sorted order?",
+          "options": [
+            "Level-Order Traversal",
+            "Pre-Order Traversal (Root ⟶ Left ⟶ Right)",
+            "In-Order Traversal (Left ⟶ Root ⟶ Right)",
+            "Post-Order Traversal (Left ⟶ Right ⟶ Root)"
+          ],
+          "answer": "C",
+          "explanation": "In-order traversal visits the left subtree (smaller values), then the current node, then the right subtree (larger values), producing sorted output."
+        },
+        {
+          "question": "What is the time complexity of searching, inserting, or deleting a node in a Balanced BST (like AVL or Red-Black Tree) versus a Degenerate (skewed) BST?",
+          "options": [
+            "Both are strictly O(log n) under all conditions.",
+            "Balanced BST: O(1); Degenerate BST: O(log n).",
+            "Balanced BST: O(n); Degenerate BST: O(n²).",
+            "Balanced BST: O(log n); Degenerate BST: O(n) (collapses into a linked list)."
+          ],
+          "answer": "D",
+          "explanation": "When a BST is balanced, tree height is (h = log_2 n). When inserting sorted elements into an unbalanced BST, height becomes (n), degrading operations to (O(n))."
+        },
+        {
+          "question": "How is the maximum depth (height) of a binary tree computed recursively in Python?",
+          "options": [
+            "def maxDepth(root):\n    return len(root.children)",
+            "def maxDepth(root):\n    return 1 if root.left else 0",
+            "def maxDepth(root):\n    return root.val * 2",
+            "def maxDepth(root):\n    if not root:\n        return 0\n    return 1 + max(maxDepth(root.left), maxDepth(root.right))"
+          ],
+          "answer": "D",
+          "explanation": "The height of any subtree is 1 (for the root) plus the maximum of the heights of its left and right subtrees in (O(n)) time."
+        },
+        {
+          "question": "How do you invert (mirror) a binary tree in Python so that all left and right children are swapped?",
+          "options": [
+            "def invertTree(root):\n    return root.right",
+            "def invertTree(root):\n    del root.left",
+            "def invertTree(root):\n    root.val = -root.val\n    return root",
+            "def invertTree(root):\n    if root:\n        root.left, root.right = invertTree(root.right), invertTree(root.left)\n    return root"
+          ],
+          "answer": "D",
+          "explanation": "Recursively swapping `root.left` and `root.right` for all nodes transforms the tree into its mirror image in (O(n)) time."
+        },
+        {
+          "question": "How do you correctly validate whether a binary tree is a valid Binary Search Tree (BST)?",
+          "options": [
+            "Sum all leaf nodes and verify the sum is positive.",
+            "Check only that `node.left.val < node.val < node.right.val` for immediate children.",
+            "Pass valid value range bounds (low, high) down the recursive calls: `validate(node.left, low, node.val)` and `validate(node.right, node.val, high)`.",
+            "Check if the tree is complete using BFS."
+          ],
+          "answer": "C",
+          "explanation": "Checking only immediate children is insufficient (e.g. a node in the right subtree could be smaller than a grandparent). Bounds ensure all subtree ancestors are respected."
+        },
+        {
+          "question": "How do you find the Lowest Common Ancestor (LCA) of two nodes `p` and `q` in a Binary Search Tree (BST)?",
+          "options": [
+            "Traverse all paths to leaves and find the longest common suffix.",
+            "Compare the string names of p and q.",
+            "Always return the tree root regardless of p and q.",
+            "If both `p.val` and `q.val` are smaller than `root.val`, recurse left; if both are greater, recurse right; otherwise, `root` is the split point (LCA)."
+          ],
+          "answer": "D",
+          "explanation": "In a BST, the first node where paths to (p) and (q) diverge (or where `root` equals (p) or (q)) is guaranteed to be the LCA."
+        },
+        {
+          "question": "When deleting a node that has TWO children from a Binary Search Tree, what replaces the deleted node's position?",
+          "options": [
+            "The In-order Successor (smallest node in the right subtree) or In-order Predecessor (largest node in the left subtree).",
+            "A `None` placeholder node.",
+            "The root node of the entire tree.",
+            "A random leaf node from the left subtree."
+          ],
+          "answer": "A",
+          "explanation": "The in-order successor maintains the BST property because it is larger than all elements in the left subtree and smaller than all remaining elements in the right subtree."
+        },
+        {
+          "question": "What is the In-order Successor of a node in a BST?",
+          "options": [
+            "The parent node.",
+            "The node's right child directly.",
+            "The node with the smallest key strictly greater than the given node's key (the leftmost node in its right subtree).",
+            "The rightmost leaf in the tree."
+          ],
+          "answer": "C",
+          "explanation": "In-order successor is the next node visited in in-order sequence: `curr = node.right; while curr.left: curr = curr.left`."
+        },
+        {
+          "question": "What traversal is used to serialize a Binary Tree into a string representation that can be uniquely reconstructed?",
+          "options": [
+            "Post-order traversal ignoring leaves.",
+            "Pre-order traversal (storing `None`/null markers for missing children) or Level-Order BFS traversal.",
+            "Counting total nodes only.",
+            "In-order traversal without null markers."
+          ],
+          "answer": "B",
+          "explanation": "Pre-order with explicit null markers captures root position first and allows exact unambiguous reconstruction of tree hierarchy."
+        },
+        {
+          "question": "What defines an AVL Tree (a self-balancing binary search tree)?",
+          "options": [
+            "For every node in the tree, the height difference (balance factor) between its left and right subtrees is at most 1 (-1, 0, or +1).",
+            "All node values must be prime numbers.",
+            "The tree must contain exactly 1024 nodes.",
+            "Every node contains an audio-video link (AVL)."
+          ],
+          "answer": "A",
+          "explanation": "AVL trees enforce strict height balancing ((|\text{height}(\text{left}) - \text{height}(\text{right})| le 1)), guaranteeing (O(log n)) search, insert, and delete."
+        },
+        {
+          "question": "What mechanism is used by self-balancing trees (AVL and Red-Black Trees) to restore height balance after an insertion or deletion?",
+          "options": [
+            "Deleting random nodes until balance is achieved.",
+            "Tree Rotations (Left Rotation, Right Rotation, Left-Right Rotation, and Right-Left Rotation) in O(1) time.",
+            "Rebuilding the entire tree from scratch on every write.",
+            "Converting all tree keys to strings."
+          ],
+          "answer": "B",
+          "explanation": "Rotations reconfigure parent-child pointer relationships locally in (O(1)) time without violating the BST in-order property."
+        },
+        {
+          "question": "What is the 'Diameter of a Binary Tree'?",
+          "options": [
+            "The maximum width of the tree monitor display in inches.",
+            "The total number of leaf nodes multiplied by 2.",
+            "The length of the longest path between any two nodes in a tree, which may or may not pass through the root.",
+            "The memory address difference between root and deepest leaf."
+          ],
+          "answer": "C",
+          "explanation": "For any node, the longest path passing through it is `left_height + right_height`. The tree diameter is the maximum such value across all nodes in (O(n))."
+        },
+        {
+          "question": "How do you check if a Binary Tree is Symmetric (a mirror reflection of itself around its center)?",
+          "options": [
+            "Verify all leaf nodes have even numbers.",
+            "Recursively check `isMirror(t1, t2)`: `t1.val == t2.val` and `isMirror(t1.left, t2.right)` and `isMirror(t1.right, t2.left)`.",
+            "Check if pre-order equals post-order.",
+            "Count total nodes on left and right subtrees and check if equal."
+          ],
+          "answer": "B",
+          "explanation": "Symmetry requires that left child of the left subtree matches the right child of the right subtree, and vice versa."
+        },
+        {
+          "question": "Which tree traversal algorithm is typically used when you need to delete/free all nodes of a binary tree from bottom-up in languages like C++?",
+          "options": [
+            "Post-Order Traversal (Left ⟶ Right ⟶ Root)",
+            "In-Order Traversal",
+            "Pre-Order Traversal",
+            "Level-Order Traversal"
+          ],
+          "answer": "A",
+          "explanation": "Post-order ensures child subtrees are processed and freed before their parent node is deleted, preventing dangling pointer errors."
+        },
+        {
+          "question": "How do you reconstruct a unique binary tree given its `preorder` and `inorder` traversal arrays?",
+          "options": [
+            "The first element of `preorder` is the root; locate the root in `inorder` to split elements into left and right subtrees, then recurse.",
+            "Sort both arrays and zip them together.",
+            "Reconstruction is impossible without post-order.",
+            "Reverse `inorder` and attach to `preorder`."
+          ],
+          "answer": "A",
+          "explanation": "Pre-order provides the root identity, while in-order partitions left and right subtrees. Using a hash map for in-order lookups yields an (O(n)) construction algorithm."
+        },
+        {
+          "question": "What is the space complexity of Breadth-First Search (Level-Order Traversal) on a full binary tree with (n) nodes?",
+          "options": [
+            "O(1) strictly.",
+            "O(n) because the queue holds up to n/2 leaf nodes at the deepest level.",
+            "O(log n).",
+            "O(n²)."
+          ],
+          "answer": "B",
+          "explanation": "In a balanced binary tree, the last level contains approximately (n/2 approx 50%) of all tree nodes, requiring (O(n)) queue memory."
+        },
+        {
+          "question": "What is a 'Full Binary Tree' versus a 'Complete Binary Tree'?",
+          "options": [
+            "Full: tree is stored in RAM; Complete: tree is stored on disk.",
+            "Full: all nodes have 1 child; Complete: tree has zero leaves.",
+            "There is no difference; they are exact synonyms.",
+            "Full: every node has either 0 or 2 children; Complete: all levels are fully filled except possibly the last, which is filled from left to right."
+          ],
+          "answer": "D",
+          "explanation": "A full binary tree prohibits degree-1 nodes. A complete binary tree is packed left-to-right on the lowest level, enabling contiguous array representations (used in Heaps)."
+        },
+        {
+          "question": "How do you solve the 'Path Sum' problem (finding if a root-to-leaf path equals `targetSum`) in (O(n)) time?",
+          "options": [
+            "def hasPathSum(root, targetSum):\n    if not root: return False\n    if not root.left and not root.right: return root.val == targetSum\n    return hasPathSum(root.left, targetSum - root.val) or hasPathSum(root.right, targetSum - root.val)",
+            "Check if `root.val == targetSum`.",
+            "Sum all tree nodes and check if sum equals targetSum.",
+            "Traverse only the left boundary of the tree."
+          ],
+          "answer": "A",
+          "explanation": "Subtracting the current node's value as you traverse down and checking for leaf nodes with remaining sum equal to 0 verifies root-to-leaf path sums."
+        },
+        {
+          "question": "What is a Trie (Prefix Tree) and what is its primary advantage over a Hash Table for string lookups?",
+          "options": [
+            "A tree that can only hold up to 3 words.",
+            "A tree that encrypts passwords with SHA-256.",
+            "A tree structure where nodes represent characters; supports O(L) prefix queries (e.g. autocomplete, startsWith) where L is the string length, independent of the number of stored words N.",
+            "A binary tree that stores floating-point numbers."
+          ],
+          "answer": "C",
+          "explanation": "Tries enable fast prefix searches (`startsWith(\"app\")`), auto-complete lookups, and lexicographical sorting in (O(L)) time."
+        }
+      ]
+    }
+  ]
+}

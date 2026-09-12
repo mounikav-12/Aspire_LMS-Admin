@@ -1,0 +1,464 @@
+{
+  "courseId": "crs-1786624019154-w",
+  "courseTitle": "Python Full Stack + DSA with AI",
+  "stageId": "top-stg-4",
+  "stageTitle": "Stage 4: System Design & Career Preparation",
+  "moduleId": "mod-stg4-m2",
+  "moduleTitle": "Capstone Project Mentoring & Review - 1",
+  "lessons": [
+    {
+      "lessonId": "lesson-stg4-m2-l1",
+      "lessonTitle": "Project Scope Finalization & Architecture Validation",
+      "totalQuestions": 20,
+      "questions": [
+        {
+          "question": "What is the primary role of a Product Requirements Document (PRD) during the initial phase of full-stack capstone project development?",
+          "options": [
+            "To clearly define the product's vision, target user personas, functional feature requirements, acceptance criteria, and non-functional constraints, serving as the single source of truth for development.",
+            "To store database passwords in plaintext.",
+            "To generate automated CSS stylesheets.",
+            "To write JavaScript unit tests automatically."
+          ],
+          "answer": "A",
+          "explanation": "A PRD outlines user stories, functional scopes, technical boundaries, and acceptance criteria, aligning developers and stakeholders before writing code."
+        },
+        {
+          "question": "How does the MoSCoW prioritization framework help prevent 'Scope Creep' during software project development?",
+          "options": [
+            "By enforcing that all features must be completed within 24 hours.",
+            "By assigning random deadlines to software engineers.",
+            "By categorizing features into Must-have (critical MVP), Should-have (important but non-blocking), Could-have (nice-to-have), and Won't-have (deferred to future releases), maintaining focus on core deliverables.",
+            "By translating user stories into the Russian language."
+          ],
+          "answer": "C",
+          "explanation": "MoSCoW ensures engineering effort is strictly prioritized on core MVP features (Must-haves) before spending time on optional enhancements."
+        },
+        {
+          "question": "What is the 'Definition of Done' (DoD) in agile software engineering?",
+          "options": [
+            "When all team members leave the office for the day.",
+            "When the project budget reaches zero dollars.",
+            "A formal checklist of technical criteria (e.g. code reviewed, unit tests passing, documentation updated, deployed to staging) that a feature must satisfy before being considered complete.",
+            "When a developer finishes typing their code and commits it without testing."
+          ],
+          "answer": "C",
+          "explanation": "The DoD establishes an agreed-upon quality bar, ensuring features meet testing, code quality, security, and deployment standards before release."
+        },
+        {
+          "question": "What is the C4 Model used for in software architecture documentation?",
+          "options": [
+            "A database normalization standard beyond 3NF.",
+            "An explosive military standard for testing hardware resilience.",
+            "A programming language designed for quantum computers.",
+            "A hierarchical way to visualize software architecture across 4 zoom levels: Context (system landscape), Containers (apps & data stores), Components (modules within containers), and Code (classes & interfaces)."
+          ],
+          "answer": "D",
+          "explanation": "The C4 model (Context, Containers, Components, Code) provides clear, multi-level architectural diagrams for communicating technical designs to various audiences."
+        },
+        {
+          "question": "Why is a Modular Monolith architecture often the most practical and robust choice for an individual capstone project compared to distributed Microservices?",
+          "options": [
+            "Because Microservices are prohibited by cloud hosting providers.",
+            "It provides clean domain separation with simple local function calls, shared database ACID transactions, and zero distributed network latency or complex orchestration overhead (like distributed tracing and Kubernetes).",
+            "Because Modular Monoliths cannot connect to PostgreSQL.",
+            "Because Modular Monoliths do not require writing tests."
+          ],
+          "answer": "B",
+          "explanation": "Modular monoliths provide domain encapsulation while avoiding the immense operational complexity, distributed transaction pitfalls, and network overhead of microservices."
+        },
+        {
+          "question": "What is an Architecture Decision Record (ADR) and why should teams maintain them in project repositories?",
+          "options": [
+            "A database table that stores user passwords.",
+            "A legal contract signed by cloud vendors.",
+            "An automated Git commit log generated by GitHub Actions.",
+            "A short markdown document capturing an important architectural decision, the context/problem statement, the options evaluated, the chosen solution, and its trade-offs and consequences."
+          ],
+          "answer": "D",
+          "explanation": "ADRs document why technical decisions (e.g. choice of PostgreSQL over MongoDB, or JWT over Session Auth) were made, preserving architectural rationale for future developers."
+        },
+        {
+          "question": "How should client-side state be architecturally separated in a modern React application?",
+          "options": [
+            "Storing all application data inside global JavaScript `window` variables.",
+            "Saving all UI state as cookies in the browser.",
+            "Separating Server Cache State (managed by TanStack Query / RTK Query) from Local UI State (managed by React `useState`/`useReducer`), Global App State (Zustand/Context), and URL Routing State.",
+            "Creating 100 separate Redux stores."
+          ],
+          "answer": "C",
+          "explanation": "Modern React architecture separates server cache state (handling caching, deduping, refetching) from ephemeral local UI state and global application state."
+        },
+        {
+          "question": "What is the STRIDE threat modeling framework used for during security architecture validation?",
+          "options": [
+            "A systematic methodology to identify security threats across six categories: Spoofing, Tampering, Repudiation, Information Disclosure, Denial of Service, and Elevation of Privilege.",
+            "A database query optimization algorithm.",
+            "A CSS animation framework for UI transitions.",
+            "A step-counter application for smartwatches."
+          ],
+          "answer": "A",
+          "explanation": "STRIDE helps engineering teams analyze system boundaries and data flows to identify and mitigate security vulnerabilities before writing production code."
+        },
+        {
+          "question": "Why is Trunk-Based Development combined with Short-Lived Feature Branches preferred in modern CI/CD workflows?",
+          "options": [
+            "It requires developers to write code directly on production servers.",
+            "It encourages small, frequent pull requests that merge into `main` daily, minimizing merge conflicts, enabling continuous automated testing, and accelerating deployment velocity.",
+            "It deletes the master branch after every deployment.",
+            "It forbids developers from using Git branches completely."
+          ],
+          "answer": "B",
+          "explanation": "Trunk-based development prevents painful long-lived merge conflicts ('merge hell') and ensures code is continually integrated and validated by automated CI pipelines."
+        },
+        {
+          "question": "What is the purpose of establishing Non-Functional Requirements (NFR) metrics (e.g. p95 latency < 200ms, 99.9% uptime) before development?",
+          "options": [
+            "To provide clear, measurable technical benchmarks that guide architecture decisions, database indexing, caching strategies, and load testing criteria.",
+            "To restrict the number of lines of code written per day.",
+            "To choose the background color of the marketing website.",
+            "To determine the salary of software engineers."
+          ],
+          "answer": "A",
+          "explanation": "Measurable NFRs dictate technical decisions such as where to introduce Redis caching, how to structure database queries, and what compute resources to provision."
+        },
+        {
+          "question": "What is the difference between Low-Fidelity Wireframes and High-Fidelity Prototypes in the UI/UX architecture phase?",
+          "options": [
+            "Low-fidelity wireframes only work in dark mode.",
+            "Low-fidelity wireframes focus on structural layout, user flow, and content hierarchy without visual design details; high-fidelity prototypes (Figma) include exact typography, colors, interactions, and design tokens.",
+            "Low-fidelity wireframes are drawn on computers, while high-fidelity prototypes are drawn on paper.",
+            "There is no difference; they are exact synonyms."
+          ],
+          "answer": "B",
+          "explanation": "Wireframes validate information hierarchy and user flows rapidly, while high-fidelity interactive prototypes finalize exact visual styling and micro-interactions before frontend coding."
+        },
+        {
+          "question": "How should third-party API dependencies (e.g. OpenAI, Stripe, Cloudinary) be handled in a robust system architecture to prevent cascade failures?",
+          "options": [
+            "By hardcoding external API calls without try-except blocks.",
+            "By implementing timeout limits, circuit breakers, fallback responses, and caching, ensuring the application remains functional even if an external vendor experiences an outage.",
+            "By assuming external APIs will maintain 100% uptime forever.",
+            "By shutting down the entire web application whenever an API fails."
+          ],
+          "answer": "B",
+          "explanation": "Defensive integration patterns (circuit breakers, timeouts, retry with jitter, cached fallbacks) ensure external outages do not bring down core application features."
+        },
+        {
+          "question": "What is the primary objective of a Minimum Viable Product (MVP) in software product development?",
+          "options": [
+            "To build every possible feature imaginable before showing the product to any users.",
+            "To deliver the smallest possible functional product that solves the core user problem and provides immediate value, allowing rapid validation and feedback with minimum engineering waste.",
+            "To launch an application with zero database tables.",
+            "To create an un-styled website with broken links."
+          ],
+          "answer": "B",
+          "explanation": "An MVP focuses strictly on core value-generating features, validating product hypotheses with real users before investing in secondary features."
+        },
+        {
+          "question": "Why should open-source third-party libraries be audited for licensing compliance (e.g. MIT/Apache 2.0 vs GPL) before inclusion in a commercial full-stack project?",
+          "options": [
+            "Because MIT libraries charge money per download.",
+            "Because GPL libraries cannot run on Linux servers.",
+            "Because Apache licenses only work with the Apache web server.",
+            "Because strong copyleft licenses (like GPL) may legally compel the organization to release its proprietary application source code publicly, whereas permissive licenses (MIT/Apache) do not."
+          ],
+          "answer": "D",
+          "explanation": "Permissive licenses (MIT, Apache 2.0, BSD) permit commercial proprietary use, whereas viral copyleft licenses (GPL v3) require derivative works to be open-sourced."
+        },
+        {
+          "question": "What is 'Planning Poker' (Story Point Estimation) in agile project management?",
+          "options": [
+            "A gambling game played during team lunch breaks.",
+            "An algorithm that computes the fastest SQL query execution plan.",
+            "A method of sorting tasks by alphabetical order.",
+            "A consensus-based estimation technique where team members assign relative effort points (using a Fibonacci sequence: 1, 2, 3, 5, 8, 13) to user stories based on complexity, uncertainty, and effort."
+          ],
+          "answer": "D",
+          "explanation": "Story points quantify relative task complexity and risk using Fibonacci numbers, preventing false precision while establishing team sprint velocity."
+        },
+        {
+          "question": "What automated checks should be enforced in a pull request CI pipeline before code can be merged into `main`?",
+          "options": [
+            "Checking if the computer monitor is 4K resolution.",
+            "Verifying that the developer has pushed at least 100 commits.",
+            "Measuring the developer's typing speed.",
+            "Code linting and formatting checks (ESLint, Black/Flake8), static type checking (TypeScript/Mypy), automated unit and integration tests, and security vulnerability scans."
+          ],
+          "answer": "D",
+          "explanation": "CI pipelines automate quality gates (linting, types, tests, security scans), guaranteeing that broken or non-compliant code cannot be merged to the main trunk."
+        },
+        {
+          "question": "How should cloud infrastructure costs and budget limits be established during the project architecture phase?",
+          "options": [
+            "By provisioning the largest 128-core GPU instances for basic CRUD apps.",
+            "By entering a random credit card number and ignoring monthly bills.",
+            "By setting up AWS/Cloud billing alerts, defining spending caps, selecting free-tier or right-sized server instances, and architecting for efficient resource utilization.",
+            "By turning off cloud servers every 10 minutes."
+          ],
+          "answer": "C",
+          "explanation": "Setting proactive billing thresholds and right-sizing cloud resources prevents unexpected cloud bill shocks during development and staging."
+        },
+        {
+          "question": "What is the purpose of User Journey Mapping in software requirements analysis?",
+          "options": [
+            "To visualize and document the step-by-step path a user takes across touchpoints to achieve a specific goal within the application, identifying friction points and required API interactions.",
+            "To track the physical GPS coordinates of users on a map.",
+            "To design highway roadmaps for automotive navigation.",
+            "To record screen video recordings of users without permission."
+          ],
+          "answer": "A",
+          "explanation": "User journey mapping diagrams each step, action, emotional state, and backend API requirement from entry to task completion."
+        },
+        {
+          "question": "Why is designing for Accessibility (a11y) and WCAG compliance important during the architecture and wireframing phase rather than as an afterthought?",
+          "options": [
+            "Because retrofitting semantic HTML, keyboard navigation, high-contrast color ratios, and ARIA attributes after building a complex UI requires extensive, expensive refactoring of component structures.",
+            "Because screen readers only work on HTML files created in the 1990s.",
+            "Because accessibility features slow down server database queries.",
+            "Because accessible websites are legally prohibited from using JavaScript."
+          ],
+          "answer": "A",
+          "explanation": "Building semantic, keyboard-navigable components from the ground up saves massive refactoring effort and ensures universal access and legal compliance."
+        },
+        {
+          "question": "What is the primary role of a Gantt chart in capstone milestone planning?",
+          "options": [
+            "To render 3D charts in web browsers.",
+            "To calculate memory leak stack traces.",
+            "To provide a visual horizontal timeline of project tasks, milestone deadlines, task durations, and critical path dependencies across the development lifecycle.",
+            "To display database table relationships."
+          ],
+          "answer": "C",
+          "explanation": "Gantt charts illustrate schedule timelines, task dependencies, and resource constraints, helping teams track progress against milestone deadlines."
+        }
+      ]
+    },
+    {
+      "lessonId": "lesson-stg4-m2-l2",
+      "lessonTitle": "Database Design Review & API Contract Definition",
+      "totalQuestions": 20,
+      "questions": [
+        {
+          "question": "What is the primary objective of Database Normalization up to Third Normal Form (3NF)?",
+          "options": [
+            "To eliminate data redundancy, prevent insertion/update/deletion anomalies, and ensure that every non-key column depends solely on the primary key (no transitive dependencies).",
+            "To combine all database tables into one giant spreadsheet.",
+            "To encrypt all database table names with SHA-256.",
+            "To delete all foreign key relationships."
+          ],
+          "answer": "A",
+          "explanation": "3NF ensures atomic values (1NF), full functional dependency on the primary key (2NF), and zero transitive dependencies (3NF), preventing data anomalies."
+        },
+        {
+          "question": "In Django ORM, what is the critical difference between `on_delete=models.CASCADE` and `on_delete=models.PROTECT` on a ForeignKey field?",
+          "options": [
+            "`CASCADE` only works with SQLite, while `PROTECT` is for PostgreSQL.",
+            "`PROTECT` deletes both the database and the server.",
+            "`CASCADE` automatically deletes all related child records when the referenced parent record is deleted; `PROTECT` prevents the parent record from being deleted by raising `ProtectedError` if referenced children exist.",
+            "`CASCADE` encrypts the foreign key, while `PROTECT` makes it public."
+          ],
+          "answer": "C",
+          "explanation": "`CASCADE` propagates deletions downward, while `PROTECT` enforces strict referential integrity by blocking parent deletion if child records depend on it."
+        },
+        {
+          "question": "When should a custom intermediate model (`through='CustomModel'`) be used in a Django `ManyToManyField` relationship?",
+          "options": [
+            "Django prohibits using custom intermediate models.",
+            "When using MySQL database only.",
+            "When the many-to-many relationship itself requires extra metadata attributes (e.g. `enrolled_at`, `role`, `is_active`, or `completion_percentage` in an `Enrollment` model between `User` and `Course`).",
+            "When the table contains more than 10 rows."
+          ],
+          "answer": "C",
+          "explanation": "The `through` parameter allows attaching rich relationship attributes (such as enrollment dates, grades, or permissions) to join tables."
+        },
+        {
+          "question": "What is the difference between a Composite Index and a Partial Index in PostgreSQL/Django?",
+          "options": [
+            "A Partial Index deletes rows that fail the condition.",
+            "A Composite Index only works on numbers, while a Partial Index only works on text.",
+            "There is no difference between Composite and Partial indexes.",
+            "A Composite Index covers multiple columns (e.g. `(user_id, status)`), while a Partial Index indexes only a specific subset of rows that satisfy a filter condition (e.g. `condition=Q(status='active')`), saving index space and write overhead."
+          ],
+          "answer": "D",
+          "explanation": "Partial indexes (`Index(fields=['email'], condition=Q(is_active=True))`) index only matching rows, reducing index storage and maintenance costs."
+        },
+        {
+          "question": "What is 'Soft Delete' in database design and how is it implemented in Django models?",
+          "options": [
+            "Reducing the font size of deleted text in the database.",
+            "Setting a boolean flag `is_deleted = True` (or timestamp `deleted_at`) rather than executing SQL `DELETE`, combined with a custom Model Manager (`objects = ActiveManager()`) that filters out soft-deleted records by default.",
+            "Deleting records only when the server is operating under low CPU load.",
+            "Moving deleted records into browser localStorage."
+          ],
+          "answer": "B",
+          "explanation": "Soft delete preserves historical records for auditing, analytics, and recovery while excluding them from standard application queries via custom managers."
+        },
+        {
+          "question": "What causes the 'N+1 Query Problem' in Django ORM and how is it resolved for ForeignKey and ManyToMany relationships?",
+          "options": [
+            "Having N+1 users connected to the database simultaneously.",
+            "Writing more than N+1 lines of Python code.",
+            "Running database migrations N+1 times.",
+            "Accessing related objects in a loop triggers 1 query for the initial list plus N individual queries for each related item; resolved using `select_related()` (SQL JOIN for ForeignKeys) and `prefetch_related()` (batch IN-queries for ManyToMany/Reverse FKs)."
+          ],
+          "answer": "D",
+          "explanation": "`select_related` performs SQL JOINs for single-valued relationships (1:1, N:1), while `prefetch_related` batches multi-valued lookups (1:N, M:N) into 2 queries total."
+        },
+        {
+          "question": "What is the OpenAPI (Swagger) 3.0 specification and why is it essential for frontend-backend collaboration?",
+          "options": [
+            "A proprietary programming language developed by Google.",
+            "A web development code editor.",
+            "A standardized, machine-readable format for describing REST APIs (endpoints, headers, query parameters, request bodies, and response schemas), enabling automated interactive documentation, client SDK generation, and contract validation.",
+            "A CSS styling framework for API dashboards."
+          ],
+          "answer": "C",
+          "explanation": "OpenAPI provides a formalized API contract that frontend and backend developers agree upon, enabling parallel development, automated mock servers, and type generation."
+        },
+        {
+          "question": "According to RESTful API conventions, which HTTP method should be used for PARTIAL updates to an existing resource?",
+          "options": [
+            "PATCH (which updates only the specified fields, leaving other fields unchanged; PUT replaces the entire resource entity).",
+            "DELETE",
+            "POST",
+            "GET"
+          ],
+          "answer": "A",
+          "explanation": "HTTP `PATCH` applies partial modifications to a resource, whereas `PUT` replaces the complete resource representation."
+        },
+        {
+          "question": "What HTTP status code must a REST API return when a request fails validation due to invalid client input fields (e.g. invalid email format or password too short)?",
+          "options": [
+            "HTTP 301 Moved Permanently",
+            "HTTP 400 Bad Request (or HTTP 422 Unprocessable Entity)",
+            "HTTP 500 Internal Server Error",
+            "HTTP 200 OK"
+          ],
+          "answer": "B",
+          "explanation": "HTTP 400 Bad Request (or 422 Unprocessable Entity) communicates client-side input validation errors alongside detailed field error messages."
+        },
+        {
+          "question": "What is the standard architectural structure of a consistent REST API Response Envelope?",
+          "options": [
+            "A standardized JSON object containing a `success` boolean, a `data` payload (on success), an `error` object with codes/messages (on failure), and optional `meta`/`pagination` metadata.",
+            "A raw text string with comma-separated values.",
+            "A binary image file.",
+            "An HTML webpage containing error messages."
+          ],
+          "answer": "A",
+          "explanation": "Consistent response envelopes (`{success, data, error, meta}`) simplify client-side API parsing, error handling, and pagination across all endpoints."
+        },
+        {
+          "question": "What is the difference between Optimistic Locking and Pessimistic Locking for handling concurrent database updates (e.g. ticket booking or inventory deduction)?",
+          "options": [
+            "Optimistic Locking runs only on Fridays.",
+            "Optimistic Locking checks a `version` number or timestamp at update time (`WHERE id=1 AND version=5`) and fails if modified concurrently; Pessimistic Locking locks database rows explicitly with SQL `SELECT ... FOR UPDATE` until the transaction commits.",
+            "Optimistic Locking is positive, while Pessimistic Locking is sad.",
+            "Pessimistic Locking deletes the database record if a collision occurs."
+          ],
+          "answer": "B",
+          "explanation": "Optimistic locking is ideal for low-conflict scenarios using version checks; pessimistic locking (`select_for_update`) prevents conflicts in high-contention transactions by acquiring row-level locks."
+        },
+        {
+          "question": "How do you implement field-level validation and object-level cross-field validation in Django REST Framework Serializers?",
+          "options": [
+            "Validation is performed only inside JavaScript client code.",
+            "Field-level validation is written in `validate_<field_name>(self, value)` methods; cross-field validation is written in the `validate(self, data)` method returning validated data or raising `serializers.ValidationError`.",
+            "Validation is written directly inside HTML `<form>` tags.",
+            "Validation requires restarting the PostgreSQL database."
+          ],
+          "answer": "B",
+          "explanation": "DRF Serializers execute `validate_<fieldname>` for individual field checks followed by `validate()` for multi-field cross-validation rules."
+        },
+        {
+          "question": "What is RFC 7807 ('Problem Details for HTTP APIs') in standardized API error response design?",
+          "options": [
+            "A standard for sending emails over SMTP.",
+            "An IETF standard defining a standardized JSON format for HTTP API errors including `type` (URI reference), `title` (summary), `status` (HTTP code), `detail` (explanation), and `instance` (request URI).",
+            "A protocol for compressing audio files.",
+            "A guideline for naming Python variables."
+          ],
+          "answer": "B",
+          "explanation": "RFC 7807 provides a universal, structured schema for HTTP errors, enabling clients to parse machine-readable error codes and human-readable diagnostic details."
+        },
+        {
+          "question": "Why is URI Path Versioning (`/api/v1/courses/` vs `/api/v2/courses/`) widely adopted in REST API architecture?",
+          "options": [
+            "Because HTTP headers cannot be read by backend servers.",
+            "Because older API versions are deleted automatically by DNS.",
+            "Because version 1 APIs only work on Windows 95.",
+            "It is explicit, easily testable in browsers/Postman, cache-friendly for CDNs, and allows running new API versions concurrently alongside deprecated versions without breaking existing clients."
+          ],
+          "answer": "D",
+          "explanation": "Path versioning provides explicit clarity, seamless routing, and backwards compatibility while transitioning clients to new API contracts."
+        },
+        {
+          "question": "How should a zero-downtime database column renaming migration be executed across production deployments?",
+          "options": [
+            "Execute `ALTER TABLE RENAME COLUMN` directly on the live production database during peak hours.",
+            "Delete the database and restore from backup with the new column name.",
+            "Shut down all servers for 2 days.",
+            "In three phases: (1) Add the new column and dual-write to both old and new columns, (2) Backfill historical data and switch reads to the new column, (3) Deprecate writes to the old column and drop the old column in a subsequent release."
+          ],
+          "answer": "D",
+          "explanation": "Instant column renames break running application code expecting the old name; multi-phase expand-and-contract migrations ensure zero-downtime compatibility."
+        },
+        {
+          "question": "What is the difference between Page-Number Pagination and Cursor-Based Pagination in DRF API contract design?",
+          "options": [
+            "Cursor-Based pagination deletes all previously read pages.",
+            "There is no difference between Page-Number and Cursor pagination.",
+            "Page-Number pagination only works with PDF files.",
+            "Page-Number pagination uses `?page=3&page_size=20` (easy for jumping to specific pages, slow on massive datasets); Cursor-Based pagination uses an encoded pointer `?cursor=cD0yMDI0` (fast O(1) performance on infinite feeds, immune to row insertion shifts)."
+          ],
+          "answer": "D",
+          "explanation": "Page numbers support jump-to-page navigation but suffer from offset drift; cursor pagination seeks by indexed pointers, perfect for real-time infinite scrolling."
+        },
+        {
+          "question": "How does Mock Service Worker (MSW) or Prism facilitate parallel frontend and backend development once an OpenAPI contract is established?",
+          "options": [
+            "It converts PostgreSQL databases into SQLite databases.",
+            "It automatically writes full Python backend code.",
+            "It intercepts client network requests and returns realistic mock data based on the OpenAPI schema, allowing frontend developers to build and test complete UI workflows before backend APIs are implemented.",
+            "It replaces React with HTML."
+          ],
+          "answer": "C",
+          "explanation": "Mocking tools intercept API calls at the network layer and serve mock responses matching the OpenAPI schema, decoupling frontend development from backend completion."
+        },
+        {
+          "question": "What is the purpose of Django's `CheckConstraint` in model definitions?",
+          "options": [
+            "To enforce database-level validation rules using boolean SQL expressions (e.g. `CheckConstraint(check=Q(price__gte=0), name='price_non_negative')`), ensuring invalid data can never be inserted even via raw SQL.",
+            "To check if the developer's spelling is correct.",
+            "To check if the computer has enough RAM.",
+            "To verify credit card balances with banks."
+          ],
+          "answer": "A",
+          "explanation": "`CheckConstraint` creates native SQL `CHECK` constraints in PostgreSQL/MySQL, guaranteeing database-level invariants independently of Python application code."
+        },
+        {
+          "question": "What tool in the Django ecosystem automatically generates OpenAPI 3.0 schema definitions and interactive Swagger/Redoc UI documentation from DRF ViewSets?",
+          "options": [
+            "`drf-spectacular`",
+            "WhiteNoise",
+            "`django-debug-toolbar`",
+            "Django Admin `ModelAdmin`"
+          ],
+          "answer": "A",
+          "explanation": "`drf-spectacular` is the modern standard OpenAPI 3.0 generator for DRF, producing accurate type schemas, request/response bodies, and interactive Swagger UI."
+        },
+        {
+          "question": "Why should sensitive user fields (like `password_hash`, `two_factor_secret`, `internal_notes`) be marked as `write_only=True` or excluded from Serializer response representations?",
+          "options": [
+            "Because PostgreSQL deletes passwords automatically.",
+            "To make the JSON payload exactly 100 bytes.",
+            "To prevent critical security credentials and internal metadata from ever being serialized into outgoing API JSON responses sent to client browsers or third parties.",
+            "Because Python cannot convert passwords into strings."
+          ],
+          "answer": "C",
+          "explanation": "Marking sensitive fields `write_only=True` (or excluding them from serializers) prevents catastrophic credential leakage in API payloads."
+        }
+      ]
+    }
+  ]
+}

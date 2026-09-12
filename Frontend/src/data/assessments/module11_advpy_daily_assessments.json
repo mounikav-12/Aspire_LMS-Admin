@@ -1,0 +1,692 @@
+{
+  "courseId": "crs-1786624019154-w",
+  "courseTitle": "Python Full Stack + DSA with AI",
+  "stageId": "top-stg-2",
+  "stageTitle": "Stage 2: Backend + DSA",
+  "moduleId": "subtop-1787203318093",
+  "moduleTitle": "Module 11: Advanced Python & Exception Handling",
+  "totalLessons": 3,
+  "lessons": [
+    {
+      "lessonId": "lesson-1787203379640",
+      "lessonTitle": "Lesson 1: Decorators, Generators, and Iterators in Python",
+      "totalQuestions": 20,
+      "questions": [
+        {
+          "question": "What is the output of the following generator function execution?\n```python\ndef count_up():\n    yield 1\n    yield 2\n    yield 3\n\ngen = count_up()\nprint(next(gen), next(gen))\n```",
+          "options": [
+            "(1, 2)",
+            "[1, 2]",
+            "1 2",
+            "1 1"
+          ],
+          "answer": "C",
+          "explanation": "Calling `count_up()` creates a generator object. The first `next(gen)` resumes execution until the first `yield 1`, returning 1. The second `next(gen)` resumes and yields 2. Thus, `1 2` is printed."
+        },
+        {
+          "question": "Consider the following generator expression and list conversions:\n```python\ngen = (x * 2 for x in range(3))\nprint(type(gen).__name__, list(gen), list(gen))\n```\nWhat is the output?",
+          "options": [
+            "generator [0, 2, 4] []",
+            "generator (0, 2, 4) (0, 2, 4)",
+            "generator [0, 2, 4] [0, 2, 4]",
+            "list [0, 2, 4] []"
+          ],
+          "answer": "A",
+          "explanation": "Parentheses around a comprehension create a lazy generator object. The first `list(gen)` exhausts all yielded values `[0, 2, 4]`. Because generators cannot be rewound, the second `list(gen)` evaluates to an empty list `[]`."
+        },
+        {
+          "question": "What is the output of the following decorated function call?\n```python\ndef my_decorator(func):\n    def wrapper():\n        return func().upper() + \"!\"\n    return wrapper\n\n@my_decorator\ndef greet():\n    return \"hello\"\n\nprint(greet())\n```",
+          "options": [
+            "hello!",
+            "HELLO",
+            "hello",
+            "HELLO!"
+          ],
+          "answer": "D",
+          "explanation": "The `@my_decorator` syntax is equivalent to `greet = my_decorator(greet)`. When `greet()` is called, `wrapper()` executes, invoking `func()` ('hello'), converting it to uppercase ('HELLO'), and appending '!' to return 'HELLO!'."
+        },
+        {
+          "question": "What happens when `next()` is called on an exhausted iterator without providing a default fallback argument?\n```python\ndef simple():\n    yield 10\n\nit = simple()\nnext(it)\nnext(it)\n```",
+          "options": [
+            "Returns None",
+            "Raises a GeneratorExit exception",
+            "Raises a StopIteration exception",
+            "Returns 10 repeatedly"
+          ],
+          "answer": "C",
+          "explanation": "When a generator or iterator reaches the end of its sequence and has no more items to yield, subsequent calls to `next()` raise a `StopIteration` exception to signal completion."
+        },
+        {
+          "question": "What is the primary purpose of applying `@functools.wraps(func)` to a decorator wrapper function?\n```python\nfrom functools import wraps\n\ndef my_decorator(func):\n    @wraps(func)\n    def wrapper(*args, **kwargs):\n        return func(*args, **kwargs)\n    return wrapper\n\n@my_decorator\ndef calculate():\n    \"\"\"Calculates something.\"\"\"\n    pass\n\nprint(calculate.__name__, calculate.__doc__)\n```",
+          "options": [
+            "wrapper None",
+            "calculate None",
+            "wrapper Calculates something.",
+            "calculate Calculates something."
+          ],
+          "answer": "D",
+          "explanation": "`functools.wraps` copies metadata (such as `__name__`, `__doc__`, and `__module__`) from the original decorated function `func` to the `wrapper` function, preserving introspective attributes."
+        },
+        {
+          "question": "What is the output of the following chained decorators?\n```python\ndef bold(fn):\n    def wrapper():\n        return \"<b>\" + fn() + \"</b>\"\n    return wrapper\n\ndef italic(fn):\n    def wrapper():\n        return \"<i>\" + fn() + \"</i>\"\n    return wrapper\n\n@bold\n@italic\ndef text():\n    return \"Python\"\n\nprint(text())\n```",
+          "options": [
+            "<b>Python</b>",
+            "<i>Python</i>",
+            "<b><i>Python</i></b>",
+            "<i><b>Python</b></i>"
+          ],
+          "answer": "C",
+          "explanation": "Decorators are applied from bottom to top (innermost to outermost): `bold(italic(text))`. First `italic(text)` returns `<i>Python</i>`, then `bold()` wraps that result in `<b>...</b>`, yielding `<b><i>Python</i></b>`."
+        },
+        {
+          "question": "What is the output of the following generator utilizing the `yield from` expression?\n```python\ndef sub_gen():\n    yield 'a'\n    yield 'b'\n\ndef main_gen():\n    yield 1\n    yield from sub_gen()\n    yield 2\n\nprint(list(main_gen()))\n```",
+          "options": [
+            "['a', 'b', 1, 2]",
+            "[1, 'a', 2]",
+            "[1, ['a', 'b'], 2]",
+            "[1, 'a', 'b', 2]"
+          ],
+          "answer": "D",
+          "explanation": "`yield from <iterable>` delegates iteration directly to a sub-generator or iterable, yielding each element individually from `sub_gen()` before continuing `main_gen()`. Thus `[1, 'a', 'b', 2]` is produced."
+        },
+        {
+          "question": "What is the output of the following custom iterator implementation?\n```python\nclass Counter:\n    def __init__(self, limit):\n        self.limit = limit\n        self.val = 0\n    def __iter__(self):\n        return self\n    def __next__(self):\n        if self.val < self.limit:\n            self.val += 1\n            return self.val\n        raise StopIteration\n\nc = Counter(3)\nprint([x for x in c])\n```",
+          "options": [
+            "[0, 1, 2, 3]",
+            "[0, 1, 2]",
+            "[1, 2, 3]",
+            "[1, 2, 3, 4]"
+          ],
+          "answer": "C",
+          "explanation": "In `__next__`, `self.val` increments before returning: when `self.val` is 0 (<3), it becomes 1; then 2; then 3. When `self.val` is 3, condition fails and `StopIteration` is raised. The list comprehension yields `[1, 2, 3]`."
+        },
+        {
+          "question": "What is the output of passing an argument to a decorator factory?\n```python\ndef repeat(n):\n    def decorator(func):\n        def wrapper(msg):\n            return \" \".join([func(msg)] * n)\n        return wrapper\n    return decorator\n\n@repeat(3)\ndef greet(name):\n    return f\"Hi {name}\"\n\nprint(greet(\"Bob\"))\n```",
+          "options": [
+            "Hi Bob",
+            "Hi Bob Hi Bob Hi Bob",
+            "['Hi Bob', 'Hi Bob', 'Hi Bob']",
+            "Hi Bob 3"
+          ],
+          "answer": "B",
+          "explanation": "`@repeat(3)` calls `repeat(3)` returning `decorator`, which then wraps `greet`. Inside `wrapper`, `[func('Bob')] * 3` creates `['Hi Bob', 'Hi Bob', 'Hi Bob']`, which is joined by space to produce `'Hi Bob Hi Bob Hi Bob'`."
+        },
+        {
+          "question": "What is the result of using `next(iterator, default_value)` when the iterator is already exhausted?\n```python\ngen = (x for x in [100])\nprint(next(gen, \"DONE\"))\nprint(next(gen, \"DONE\"))\n```",
+          "options": [
+            "DONE followed by DONE",
+            "100 followed by StopIteration",
+            "100 followed by DONE",
+            "100 followed by None"
+          ],
+          "answer": "C",
+          "explanation": "The first `next()` yields `100`. The second `next()` encounters an exhausted generator; since a second argument (`'DONE'`) was provided to `next()`, it returns `'DONE'` instead of raising `StopIteration`."
+        },
+        {
+          "question": "What is the architectural difference between an iterable and an iterator in Python?",
+          "options": [
+            "An iterator is always a list while an iterable is a generator function.",
+            "An iterable implements __iter__() returning an iterator; an iterator implements both __iter__() and __next__() to yield items one by one.",
+            "An iterable can only be iterated over once, whereas an iterator can be iterated indefinitely.",
+            "An iterable maintains state across iterations while an iterator resets on every loop."
+          ],
+          "answer": "B",
+          "explanation": "According to Python's iteration protocol, an iterable is any container object implementing `__iter__()` that returns an iterator. An iterator must implement `__next__()` (which returns items or raises `StopIteration`) and `__iter__()` (which returns `self`)."
+        },
+        {
+          "question": "Why are Python generator functions significantly more memory-efficient than returning full lists when handling large datasets?",
+          "options": [
+            "They yield values one at a time on-demand (lazy evaluation) without allocating memory for the entire sequence in RAM.",
+            "They store sequences in compressed binary swap disk files automatically.",
+            "They compile Python bytecode directly to C pointers that bypass Python garbage collection.",
+            "They automatically run across multi-threaded background processes to free RAM."
+          ],
+          "answer": "A",
+          "explanation": "Generators use lazy evaluation: they compute and yield values only when requested via `next()`. Memory consumption remains constant `O(1)` regardless of the total sequence size."
+        },
+        {
+          "question": "What exception is raised when calling `iter()` on an object that does not implement `__iter__()` or `__getitem__()`?\n```python\nclass Item:\n    pass\n\nit = iter(Item())\n```",
+          "options": [
+            "Raises StopIteration immediately",
+            "Returns an empty iterator object",
+            "AttributeError: 'Item' object has no attribute '__next__'",
+            "TypeError: 'Item' object is not iterable"
+          ],
+          "answer": "D",
+          "explanation": "Python's `iter()` built-in checks for `__iter__()` first, and falling back to `__getitem__()`. If neither exists, Python raises a `TypeError` indicating the object is not iterable."
+        },
+        {
+          "question": "What is the output of the following generator function with internal state mutation?\n```python\ndef accumulator():\n    total = 0\n    while total < 5:\n        total += 2\n        yield total\n\nprint(list(accumulator()))\n```",
+          "options": [
+            "[2, 4, 6]",
+            "[2, 4, 5]",
+            "[0, 2, 4]",
+            "[2, 4]"
+          ],
+          "answer": "A",
+          "explanation": "Iteration 1: `total = 2`, yields 2. Iteration 2: `total = 4`, yields 4. Iteration 3: `4 < 5` is true, so `total += 2` becomes 6, yields 6. Next check: `6 < 5` is false, generator exits. The list is `[2, 4, 6]`."
+        },
+        {
+          "question": "What is the purpose of the `generator.send(value)` method in Python?",
+          "options": [
+            "It transfers the generator to a separate background thread for concurrency.",
+            "It resumes generator execution and sends a value into the generator function to become the result of the current yield expression.",
+            "It transmits the generator state over an active TCP network socket.",
+            "It resets the generator's instruction pointer back to line 0."
+          ],
+          "answer": "B",
+          "explanation": "`gen.send(val)` allows two-way communication with generators (coroutine behavior). It resumes the generator and evaluates the `yield` expression inside the generator to the passed `val`."
+        },
+        {
+          "question": "What is the output of using `next()` with `zip()` iterators?\n```python\nnums = iter([1, 2])\nchars = iter(['a', 'b', 'c'])\nzipped = zip(nums, chars)\nprint(next(zipped), next(zipped))\n```",
+          "options": [
+            "(1, 'a') (2, 'b') ('c', None)",
+            "(1, 'a') (2, 'b')",
+            "(1, 2) ('a', 'b')",
+            "[1, 'a'] [2, 'b']"
+          ],
+          "answer": "B",
+          "explanation": "`zip()` returns an iterator of tuples pairing corresponding elements from input iterators. The first `next()` yields `(1, 'a')` and the second yields `(2, 'b')`."
+        },
+        {
+          "question": "When is a Python decorator function executed when placed above a function definition using `@decorator`?",
+          "options": [
+            "At function definition/module load time, not when the decorated function is subsequently called.",
+            "During Python interpreter initialization before any file is imported.",
+            "Every time the garbage collector sweeps local function scopes.",
+            "Only when the decorated function is explicitly called in application code."
+          ],
+          "answer": "A",
+          "explanation": "Decorators are syntactic sugar applied immediately when the module is parsed/imported and the function definition statement is evaluated, replacing the function object with the decorator's return value."
+        },
+        {
+          "question": "What is the output of the following generator processing pipeline?\n```python\ndef evens(seq):\n    for x in seq:\n        if x % 2 == 0:\n            yield x\n\ndef square(seq):\n    for x in seq:\n        yield x * x\n\nres = square(evens(range(6)))\nprint(list(res))\n```",
+          "options": [
+            "[0, 4, 16, 36]",
+            "[0, 4, 16]",
+            "[0, 1, 4, 9, 16, 25]",
+            "[4, 16]"
+          ],
+          "answer": "B",
+          "explanation": "`range(6)` produces 0, 1, 2, 3, 4, 5. `evens` yields 0, 2, 4. `square` squares each yielded even number, producing 0, 4, 16. `list(res)` collects `[0, 4, 16]`."
+        },
+        {
+          "question": "What will `isinstance()` return when checking if a generator is both an `Iterable` and an `Iterator`?\n```python\nfrom collections.abc import Iterable, Iterator\n\ngen = (x for x in range(3))\nprint(isinstance(gen, Iterable), isinstance(gen, Iterator))\n```",
+          "options": [
+            "True False",
+            "False True",
+            "False False",
+            "True True"
+          ],
+          "answer": "D",
+          "explanation": "All generators implement both `__iter__()` and `__next__()`. Therefore, every generator object in Python is both an instance of `Iterable` and `Iterator`."
+        },
+        {
+          "question": "What is the output when a generator function contains a `return` statement in Python 3?\n```python\ndef my_gen():\n    yield 1\n    return \"Finished\"\n\ng = my_gen()\nprint(next(g))\ntry:\n    next(g)\nexcept StopIteration as e:\n    print(e.value)\n```",
+          "options": [
+            "1 followed by Finished",
+            "1 followed by None",
+            "Finished followed by 1",
+            "1 followed by StopIteration"
+          ],
+          "answer": "A",
+          "explanation": "In Python 3, when a generator returns a value using `return val`, that value is attached to the `StopIteration` exception instance under `e.value`. The first `next()` yields 1; the second raises `StopIteration` with value `'Finished'`."
+        }
+      ]
+    },
+    {
+      "lessonId": "lesson-1787203409502",
+      "lessonTitle": "Lesson 2: File I/O & Error Handling: try-except-finally",
+      "totalQuestions": 20,
+      "questions": [
+        {
+          "question": "What is the output of the following `try-except-else-finally` execution flow?\n```python\ndef test_flow():\n    try:\n        val = 10 / 2\n    except ZeroDivisionError:\n        return \"except\"\n    else:\n        return f\"else: {int(val)}\"\n    finally:\n        pass\n\nprint(test_flow())\n```",
+          "options": [
+            "except",
+            "5",
+            "else: 5",
+            "finally"
+          ],
+          "answer": "C",
+          "explanation": "Since no exception occurred inside the `try` block (`10 / 2 = 5.0`), the `except` block is skipped and the `else` block executes, returning `'else: 5'`."
+        },
+        {
+          "question": "What is the output when a `finally` block explicitly contains a `return` statement?\n```python\ndef check():\n    try:\n        return 1\n    finally:\n        return 2\n\nprint(check())\n```",
+          "options": [
+            "Raises SyntaxError: return in finally overrides try block",
+            "(1, 2)",
+            "1",
+            "2"
+          ],
+          "answer": "D",
+          "explanation": "A `return` statement executed inside a `finally` block takes precedence and overrides any previous `return` value or unhandled exception originating from the `try` or `except` blocks."
+        },
+        {
+          "question": "What is the output of catching multiple exception types in a single `except` tuple?\n```python\ndef parse_item(data, key):\n    try:\n        return int(data[key])\n    except (KeyError, ValueError):\n        return -1\n\nprint(parse_item({\"age\": \"abc\"}, \"age\"), parse_item({}, \"missing\"))\n```",
+          "options": [
+            "ValueError KeyError",
+            "-1 KeyError",
+            "None None",
+            "-1 -1"
+          ],
+          "answer": "D",
+          "explanation": "The first call raises `ValueError` (invalid integer string 'abc') and the second raises `KeyError` (missing key 'missing'). Both are caught by the tuple `(KeyError, ValueError)`, returning -1 for both."
+        },
+        {
+          "question": "What is the exact behavior of file opening mode `'w+'` in Python?",
+          "options": [
+            "Opens the file for both reading and writing; creates the file if it does not exist or truncates (erases) existing contents if it does.",
+            "Opens the file for reading and appending without truncating existing data.",
+            "Opens the file exclusively for writing and raises FileExistsError if it already exists.",
+            "Opens the file in read-only binary mode with write buffering."
+          ],
+          "answer": "A",
+          "explanation": "Mode `'w+'` opens a file for update (both reading and writing). If the file exists, its content is immediately truncated (overwritten to 0 length); if it does not exist, a new file is created."
+        },
+        {
+          "question": "What is the output of the following `seek()` and `tell()` file operations?\n```python\nwith open(\"test.txt\", \"w\") as f:\n    f.write(\"Python\")\n\nwith open(\"test.txt\", \"r\") as f:\n    f.seek(2)\n    chunk = f.read(3)\n    pos = f.tell()\nprint(chunk, pos)\n```",
+          "options": [
+            "tho 3",
+            "tho 5",
+            "yth 5",
+            "yth 3"
+          ],
+          "answer": "B",
+          "explanation": "`f.seek(2)` moves the file pointer to byte index 2 ('t'). `f.read(3)` reads 3 characters ('t', 'h', 'o'). The file pointer is now at position index 5 (`f.tell() = 5`)."
+        },
+        {
+          "question": "What is the output of the following ordered `except` blocks?\n```python\ntry:\n    int(\"hello\")\nexcept ValueError:\n    print(\"Caught ValueError\")\nexcept Exception:\n    print(\"Caught Exception\")\n```",
+          "options": [
+            "Caught ValueError\\nCaught Exception",
+            "Caught ValueError",
+            "Caught Exception",
+            "Raises ValueError"
+          ],
+          "answer": "B",
+          "explanation": "Python evaluates `except` blocks from top to bottom. The first matching block handles the error. `ValueError` matches immediately, so `'Caught ValueError'` is printed and subsequent `except` blocks are ignored."
+        },
+        {
+          "question": "What occurs if an `except Exception` clause is placed before a more specific `except ZeroDivisionError` clause?\n```python\ntry:\n    1 / 0\nexcept Exception:\n    print(\"General Exception\")\nexcept ZeroDivisionError:\n    print(\"Zero Division\")\n```",
+          "options": [
+            "Zero Division",
+            "General Exception\\nZero Division",
+            "General Exception",
+            "SyntaxError: except block unreachable"
+          ],
+          "answer": "C",
+          "explanation": "`ZeroDivisionError` is a subclass of `Exception`. Because `except Exception` appears first, it catches the error first, making the subsequent `ZeroDivisionError` block unreachable."
+        },
+        {
+          "question": "What is the fundamental difference between `file.readline()` and `file.readlines()` in Python?",
+          "options": [
+            "readline() strips newline characters while readlines() leaves raw bytes.",
+            "readline() returns a single line string including newline; readlines() returns a list containing all remaining lines as strings.",
+            "Both return generator objects yielding characters one by one.",
+            "readline() returns all lines as a list; readlines() returns a single string."
+          ],
+          "answer": "B",
+          "explanation": "`readline()` reads one line from current file position up to `\\n` as a `str`. `readlines()` reads the entire rest of the file and returns a `list[str]`."
+        },
+        {
+          "question": "What is the output of writing to a file in append mode `'a'`?\n```python\nwith open(\"data.txt\", \"w\") as f:\n    f.write(\"A\")\nwith open(\"data.txt\", \"a\") as f:\n    f.write(\"B\")\nwith open(\"data.txt\", \"r\") as f:\n    print(f.read())\n```",
+          "options": [
+            "A B",
+            "B",
+            "A",
+            "AB"
+          ],
+          "answer": "D",
+          "explanation": "The first `open` with `'w'` writes `'A'`. The second `open` with `'a'` positions the pointer at the end of the file and appends `'B'`. The file content is `'AB'`."
+        },
+        {
+          "question": "Why does catching `BaseException` instead of `Exception` generally violate Python best practices in application code?",
+          "options": [
+            "BaseException cannot catch standard built-in errors like ValueError or TypeError.",
+            "BaseException automatically deletes unclosed file descriptors on disk.",
+            "BaseException only exists in Python 2 and causes syntax errors in Python 3.",
+            "It intercepts system-exiting signals like KeyboardInterrupt and SystemExit, preventing graceful manual program termination (Ctrl+C)."
+          ],
+          "answer": "D",
+          "explanation": "`BaseException` is the root of all exceptions, including `KeyboardInterrupt`, `SystemExit`, and `GeneratorExit`. Catching `BaseException` inadvertently swallows termination signals and makes scripts unkillable via standard means."
+        },
+        {
+          "question": "What is the behavior of using a bare `raise` statement inside an `except` block?\n```python\ndef handle():\n    try:\n        raise ValueError(\"Invalid\")\n    except ValueError:\n        print(\"Logged error\")\n        raise\n\ntry:\n    handle()\nexcept ValueError as e:\n    print(\"Caught:\", e)\n```",
+          "options": [
+            "Logged error only",
+            "Raises RuntimeError: No active exception to re-raise",
+            "Logged error followed by Caught: Invalid",
+            "Caught: Invalid only"
+          ],
+          "answer": "C",
+          "explanation": "A bare `raise` statement re-raises the currently active exception that was caught by the enclosing `except` block, preserving the original traceback and exception instance."
+        },
+        {
+          "question": "What is the function of the `file.flush()` method in Python?",
+          "options": [
+            "It closes the file and deletes all unwritten data.",
+            "It forces buffered write data to be written immediately to the operating system file buffer without closing the file.",
+            "It resets the file read pointer back to position 0.",
+            "It clears the file contents by truncating size to 0 bytes."
+          ],
+          "answer": "B",
+          "explanation": "File I/O in Python is buffered by default. Calling `f.flush()` writes the internal memory buffer out to the OS immediately, ensuring changes are visible to other processes without closing the file handle."
+        },
+        {
+          "question": "What is the output when iterating directly over a file object line by line?\n```python\n# Content of sample.txt:\n# hello\\nworld\nwith open(\"sample.txt\", \"r\") as f:\n    lines = [line.strip() for line in f]\nprint(lines)\n```",
+          "options": [
+            "['hello', 'world']",
+            "['h', 'e', 'l', 'l', 'o']",
+            "['hello\\n', 'world\\n']",
+            "['sample.txt']"
+          ],
+          "answer": "A",
+          "explanation": "A file object is an iterable that yields one line at a time. Stripping whitespace from each line produces `['hello', 'world']`."
+        },
+        {
+          "question": "Which exception is raised when trying to open a non-existent file path in read mode `'r'`?",
+          "options": [
+            "PermissionError",
+            "IsADirectoryError",
+            "FileNotFoundError",
+            "FileExistsError"
+          ],
+          "answer": "C",
+          "explanation": "In Python 3, opening a file path that does not exist in `'r'` mode raises `FileNotFoundError` (which inherits from `OSError`)."
+        },
+        {
+          "question": "What error is raised when opening a file with mode `'x'` if the file already exists?",
+          "options": [
+            "PermissionError",
+            "FileNotFoundError",
+            "ValueError: file already exists",
+            "FileExistsError"
+          ],
+          "answer": "D",
+          "explanation": "Mode `'x'` provides exclusive creation. If the target file already exists, Python raises `FileExistsError` to prevent accidental overwriting."
+        },
+        {
+          "question": "What is the output of the following `try-else-finally` block when no exception is encountered?\n```python\ntry:\n    x = 10\nexcept Exception:\n    print(\"error\")\nelse:\n    print(\"success\")\nfinally:\n    print(\"done\")\n```",
+          "options": [
+            "success followed by done",
+            "success",
+            "error followed by done",
+            "done"
+          ],
+          "answer": "A",
+          "explanation": "When no exception occurs in `try`, the `except` block is skipped, the `else` block runs (printing `'success'`), and then the `finally` block runs unconditionally (printing `'done'`)."
+        },
+        {
+          "question": "What data type is returned when reading a file opened in binary mode `'rb'`?\n```python\nwith open(\"bin.dat\", \"wb\") as f:\n    f.write(b\"Hello\")\nwith open(\"bin.dat\", \"rb\") as f:\n    data = f.read()\nprint(type(data).__name__, data)\n```",
+          "options": [
+            "list [72, 101, 108, 108, 111]",
+            "str Hello",
+            "bytes b'Hello'",
+            "bytearray b'Hello'"
+          ],
+          "answer": "C",
+          "explanation": "Reading a file opened in `'rb'` mode returns raw binary data as an immutable `bytes` object (`b'Hello'`), rather than decoded `str`."
+        },
+        {
+          "question": "What is the effect of calling `file.truncate(size)` on an open writable file in Python?",
+          "options": [
+            "It resizes the file to at most size bytes; if size is smaller than current file length, remaining data is dropped.",
+            "It strips only leading and trailing whitespace characters from the file.",
+            "It creates an automatic compressed backup copy of the file before deletion.",
+            "It deletes the entire file from the operating system disk."
+          ],
+          "answer": "A",
+          "explanation": "`truncate(size)` truncates the file's size to the specified number of bytes. If `size` is omitted, it truncates from the current stream position."
+        },
+        {
+          "question": "In Python 3, what is the default text encoding used by `open()` when the `encoding` parameter is not specified?",
+          "options": [
+            "The platform-dependent locale encoding (e.g., UTF-8 on Linux/macOS, cp1252 or Windows ANSI on default Windows).",
+            "Always UTF-16 Little Endian (UTF-16LE).",
+            "Always ISO-8859-1 (Latin-1).",
+            "Always strict 7-bit ASCII on all operating systems."
+          ],
+          "answer": "A",
+          "explanation": "When `encoding` is not specified in `open()`, Python relies on `locale.getpreferredencoding(False)` which varies across platforms (UTF-8 on Linux/macOS, locale-specific code page on Windows)."
+        },
+        {
+          "question": "What is the output of inspecting `f.closed` inside and outside a `with open(...)` block?\n```python\nwith open(\"test.txt\", \"w\") as f:\n    inside = f.closed\noutside = f.closed\nprint(inside, outside)\n```",
+          "options": [
+            "False False",
+            "False True",
+            "True True",
+            "True False"
+          ],
+          "answer": "B",
+          "explanation": "Inside the `with` block, the file descriptor is open (`f.closed == False`). When the `with` block exits, the context manager automatically invokes `f.close()`, setting `f.closed` to `True`."
+        }
+      ]
+    },
+    {
+      "lessonId": "lesson-1787203434830",
+      "lessonTitle": "Lesson 3: Context Managers & Custom Exceptions",
+      "totalQuestions": 20,
+      "questions": [
+        {
+          "question": "What two magic dunder methods must a Python class implement to support the context manager protocol via the `with` statement?",
+          "options": [
+            "__init__() and __del__()",
+            "__start__() and __stop__()",
+            "__open__() and __close__()",
+            "__enter__() and __exit__()"
+          ],
+          "answer": "D",
+          "explanation": "Python's context management protocol requires `__enter__(self)` (executed before entering the `with` body) and `__exit__(self, exc_type, exc_val, exc_tb)` (executed after leaving the `with` body)."
+        },
+        {
+          "question": "What is the output of the following custom context manager class?\n```python\nclass ManagedResource:\n    def __enter__(self):\n        print(\"Enter\")\n        return \"Resource\"\n    def __exit__(self, exc_type, exc_val, exc_tb):\n        print(\"Exit\")\n\nwith ManagedResource() as r:\n    print(r)\n```",
+          "options": [
+            "Enter followed by Exit followed by Resource",
+            "Enter followed by Resource followed by Exit",
+            "Resource followed by Enter followed by Exit",
+            "Enter followed by None followed by Exit"
+          ],
+          "answer": "B",
+          "explanation": "1. `__enter__()` runs, printing 'Enter' and returning 'Resource' (bound to `r`). 2. The `with` body runs, printing 'Resource'. 3. Upon exiting the block, `__exit__()` runs, printing 'Exit'."
+        },
+        {
+          "question": "In a custom context manager's `__exit__` method, what happens when it returns `True` after an exception occurs inside the `with` block?\n```python\nclass SuppressError:\n    def __enter__(self):\n        return self\n    def __exit__(self, exc_type, exc_val, exc_tb):\n        return True\n\nwith SuppressError():\n    raise ValueError(\"Something broke\")\nprint(\"Continued successfully\")\n```",
+          "options": [
+            "Raises ValueError: Something broke",
+            "Prints True and terminates execution",
+            "Continued successfully (the exception is suppressed)",
+            "Raises RuntimeError: Exception cannot be suppressed"
+          ],
+          "answer": "C",
+          "explanation": "If `__exit__` returns a truthy value (`True`), Python suppresses the exception that occurred within the `with` block and continues execution normally after the `with` statement."
+        },
+        {
+          "question": "What is the output of the following `@contextmanager` generator helper?\n```python\nfrom contextlib import contextmanager\n\n@contextmanager\ndef tag(name):\n    print(f\"<{name}>\")\n    yield\n    print(f\"</{name}>\")\n\nwith tag(\"div\"):\n    print(\"Content\")\n```",
+          "options": [
+            "<div> followed by Content followed by </div>",
+            "Content followed by <div> followed by </div>",
+            "<div> followed by </div> followed by Content",
+            "<div>Content</div>"
+          ],
+          "answer": "A",
+          "explanation": "The code before `yield` executes on enter (`<div>`), the `with` body executes (`Content`), and the code after `yield` executes upon exiting (`</div>`)."
+        },
+        {
+          "question": "How do you properly define and raise a custom user-defined exception with custom attributes?\n```python\nclass InsufficientFundsError(Exception):\n    def __init__(self, balance, amount):\n        super().__init__(f\"Attempted to withdraw {amount} with balance {balance}\")\n        self.balance = balance\n        self.amount = amount\n\ntry:\n    raise InsufficientFundsError(50, 100)\nexcept InsufficientFundsError as e:\n    print(e.balance, e.amount)\n```\nWhat is the output?",
+          "options": [
+            "100 50",
+            "Attempted to withdraw 100 with balance 50",
+            "None None",
+            "50 100"
+          ],
+          "answer": "D",
+          "explanation": "The custom exception inherits from `Exception`, stores `self.balance = 50` and `self.amount = 100`, and passes a descriptive error string to `super().__init__()`. The `except` block accesses `e.balance` (50) and `e.amount` (100)."
+        },
+        {
+          "question": "What is the output of inspecting the underlying cause of an exception chained with `raise ... from ...`?\n```python\ntry:\n    try:\n        int(\"abc\")\n    except ValueError as err:\n        raise RuntimeError(\"Parsing failed\") from err\nexcept RuntimeError as e:\n    print(type(e.__cause__).__name__)\n```",
+          "options": [
+            "Exception",
+            "RuntimeError",
+            "NoneType",
+            "ValueError"
+          ],
+          "answer": "D",
+          "explanation": "The `raise ... from err` syntax performs explicit exception chaining, setting the `__cause__` attribute of the newly raised exception (`RuntimeError`) to the original exception (`ValueError`)."
+        },
+        {
+          "question": "What happens if an unhandled exception occurs inside a `@contextmanager` generator function BEFORE reaching the `yield` statement?",
+          "options": [
+            "The exception is raised immediately, and the code inside the with block is never executed.",
+            "The exception is converted into an empty StopIteration.",
+            "The with-block executes with None as the bound target.",
+            "The generator skips to the code after yield automatically."
+          ],
+          "answer": "A",
+          "explanation": "If an error occurs before `yield` during `__enter__()`, initialization fails, the exception propagates out immediately, and the `with` body is never entered."
+        },
+        {
+          "question": "How do you ensure cleanup code in a `@contextmanager` generator always executes even if an error is raised inside the `with` block?",
+          "options": [
+            "Decorated generator context managers cannot clean up after errors.",
+            "You must explicitly call generator.close() inside the with block.",
+            "Wrap the yield statement in a try...finally block inside the generator function.",
+            "Code placed after yield always runs automatically without try...finally."
+          ],
+          "answer": "C",
+          "explanation": "Exceptions raised inside the `with` block are re-thrown into the generator at the `yield` point. Wrapping `yield` inside `try...finally` guarantees the cleanup in `finally` runs regardless of exceptions."
+        },
+        {
+          "question": "What is the output of using `contextlib.closing` with an object that only has a `close()` method?\n```python\nfrom contextlib import closing\n\nclass MockConnection:\n    def close(self):\n        print(\"Connection closed\")\n\nwith closing(MockConnection()):\n    print(\"Processing query\")\n```",
+          "options": [
+            "Processing query followed by Connection closed",
+            "Connection closed followed by Processing query",
+            "Processing query only",
+            "AttributeError: object has no __enter__"
+          ],
+          "answer": "A",
+          "explanation": "`contextlib.closing(thing)` wraps an object that implements a `close()` method into a context manager, ensuring `thing.close()` is called automatically upon exiting the `with` block."
+        },
+        {
+          "question": "What four arguments are passed to a class's `__exit__` method when an exception occurs inside the `with` block?",
+          "options": [
+            "self, error_message, status_code, stack_depth",
+            "self, exception_instance, return_code, timestamp",
+            "self, exc_type, exc_val, exc_tb (the exception class, exception instance, and traceback object)",
+            "self, error_code, caller_frame, stdout_buffer"
+          ],
+          "answer": "C",
+          "explanation": "When an exception occurs, Python passes `(self, exc_type, exc_val, exc_tb)` to `__exit__`. If no exception occurs, `exc_type`, `exc_val`, and `exc_tb` are all passed as `None`."
+        },
+        {
+          "question": "What is the output of using `contextlib.suppress` to silence specified errors?\n```python\nfrom contextlib import suppress\n\nwith suppress(FileNotFoundError, KeyError):\n    data = {}\n    x = data[\"missing_key\"]\nprint(\"Graceful execution\")\n```",
+          "options": [
+            "Raises FileNotFoundError",
+            "None",
+            "Raises KeyError: 'missing_key'",
+            "Graceful execution"
+          ],
+          "answer": "D",
+          "explanation": "`contextlib.suppress(*exceptions)` catches and silently suppresses any of the specified exception classes occurring within the `with` block, allowing execution to continue smoothly."
+        },
+        {
+          "question": "Why should custom application exception classes inherit from `Exception` rather than `BaseException`?",
+          "options": [
+            "Inheriting from Exception ensures standard except Exception clauses can catch them, without intercepting SystemExit or KeyboardInterrupt.",
+            "Classes inheriting from BaseException cannot accept custom strings in __init__.",
+            "BaseException instances cannot be logged to standard output streams.",
+            "Python interpreter throws a compilation error if inheriting directly from BaseException."
+          ],
+          "answer": "A",
+          "explanation": "Application exceptions should inherit from `Exception` (or a subclass) so that standard exception handling (`except Exception:`) can catch them, while keeping system-level exit signals (`BaseException`) unaffected."
+        },
+        {
+          "question": "What is the execution order of multiple context managers combined in a single `with` statement?\n```python\nclass CM:\n    def __init__(self, name):\n        self.name = name\n    def __enter__(self):\n        print(f\"enter {self.name}\")\n        return self.name\n    def __exit__(self, *args):\n        print(f\"exit {self.name}\")\n\nwith CM(\"A\") as a, CM(\"B\") as b:\n    print(f\"inside {a} {b}\")\n```",
+          "options": [
+            "enter B, enter A, inside A B, exit B, exit A",
+            "inside A B, enter A, enter B, exit B, exit A",
+            "enter A, enter B, inside A B, exit B, exit A",
+            "enter A, enter B, inside A B, exit A, exit B"
+          ],
+          "answer": "C",
+          "explanation": "Multiple context managers behave like nested `with` blocks: `with CM('A'): with CM('B'):`. They enter in left-to-right order ('enter A', 'enter B') and exit in reverse order (LIFO: 'exit B', 'exit A')."
+        },
+        {
+          "question": "What is the output of redirecting standard output using `contextlib.redirect_stdout`?\n```python\nimport io\nfrom contextlib import redirect_stdout\n\nf = io.StringIO()\nwith redirect_stdout(f):\n    print(\"Hello Stream!\")\nprint(\"Captured:\", f.getvalue().strip())\n```",
+          "options": [
+            "TypeError: redirect_stdout expected file path",
+            "Hello Stream! followed by Captured:",
+            "Captured: None",
+            "Captured: Hello Stream!"
+          ],
+          "answer": "D",
+          "explanation": "`redirect_stdout(f)` temporarily reassigns `sys.stdout` to the provided file-like stream `f`. `print()` writes to the `StringIO` buffer instead of the terminal. After the `with` block, `f.getvalue()` retrieves `'Hello Stream!'`."
+        },
+        {
+          "question": "What happens when `__exit__` returns `False` or `None` after an exception is raised inside the `with` block?",
+          "options": [
+            "The exception is silently swallowed and discarded.",
+            "The program immediately halts with SIGSEGV.",
+            "The exception that occurred inside the with block continues to propagate up the call stack.",
+            "Python raises an unhandled ContextManagerExit error."
+          ],
+          "answer": "C",
+          "explanation": "Returning `None` (the default return value when nothing is returned) or `False` from `__exit__` tells Python not to suppress the exception, allowing it to propagate normally to outer try-except handlers."
+        },
+        {
+          "question": "What is the output when catching a custom exception hierarchy?\n```python\nclass AppError(Exception): pass\nclass DatabaseError(AppError): pass\nclass ConnectionTimeoutError(DatabaseError): pass\n\ntry:\n    raise ConnectionTimeoutError(\"Timed out after 30s\")\nexcept AppError as e:\n    print(\"Caught by AppError:\", type(e).__name__)\n```",
+          "options": [
+            "Caught by AppError: ConnectionTimeoutError",
+            "Caught by AppError: AppError",
+            "Raises ConnectionTimeoutError uncaught",
+            "Caught by AppError: DatabaseError"
+          ],
+          "answer": "A",
+          "explanation": "Because `ConnectionTimeoutError` is a subclass of `AppError`, the `except AppError` block catches the exception, and `type(e).__name__` prints the concrete runtime class name `'ConnectionTimeoutError'`."
+        },
+        {
+          "question": "What is the primary role of `contextlib.ExitStack` in Python?",
+          "options": [
+            "To convert recursive functions into iterative loops via context managers.",
+            "To dynamically manage an arbitrary, variable number of context managers and cleanup callbacks programmatically.",
+            "To automatically restart crashed worker threads in a multiprocessing pool.",
+            "To format and print stack traces when a context manager throws an unhandled error."
+          ],
+          "answer": "B",
+          "explanation": "`ExitStack` allows programs to combine and manage an arbitrary collection of context managers and callbacks dynamically at runtime without nesting deeply indented `with` statements."
+        },
+        {
+          "question": "What does the `__traceback__` attribute of a caught exception object contain in Python 3?",
+          "options": [
+            "A raw string formatted with line numbers and file names.",
+            "A traceback object representing the execution stack frames from where the exception was raised.",
+            "An integer status code assigned by the operating system kernel.",
+            "None unless sys.settrace() has been enabled."
+          ],
+          "answer": "B",
+          "explanation": "In Python 3, every exception object has a `__traceback__` attribute containing the linked list of traceback frame objects associated with that exception."
+        },
+        {
+          "question": "What is the output when a context manager's `__enter__` returns an object different from `self`?\n```python\nclass DatabaseSession:\n    def __enter__(self):\n        return {\"connection\": \"active\", \"id\": 42}\n    def __exit__(self, exc_type, exc_val, exc_tb):\n        pass\n\nwith DatabaseSession() as session:\n    print(session[\"id\"])\n```",
+          "options": [
+            "DatabaseSession object",
+            "42",
+            "AttributeError: dict object has no attribute 'session'",
+            "None"
+          ],
+          "answer": "B",
+          "explanation": "The variable in `as <var>` is assigned whatever object `__enter__()` returns. Since `__enter__()` returns the dictionary `{\"connection\": \"active\", \"id\": 42}`, `session[\"id\"]` evaluates to 42."
+        },
+        {
+          "question": "What is the output when explicit exception suppression is performed using `raise ... from None`?\n```python\ntry:\n    try:\n        int(\"invalid\")\n    except ValueError:\n        raise KeyError(\"Key not found\") from None\nexcept KeyError as e:\n    print(e.__cause__, e.__suppress_context__)\n```",
+          "options": [
+            "ValueError False",
+            "None True",
+            "None False",
+            "ValueError True"
+          ],
+          "answer": "B",
+          "explanation": "`raise ... from None` explicitly suppresses the context of previous exceptions, setting `e.__cause__` to `None` and `e.__suppress_context__` to `True` so the previous traceback is hidden."
+        }
+      ]
+    }
+  ]
+}

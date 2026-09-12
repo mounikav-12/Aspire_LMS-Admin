@@ -1929,10 +1929,18 @@ export function MilestonesRoadmapPage() {
                       // Auto-match assessments, coding questions, and practice items for this module
                       const autoMatchedAssessments = (assessments || [])
                         .filter(asm => {
+                          const asmCourseId = asm.courseId || asm.course_id;
+                          if (selectedCourseId && selectedCourseId !== 'ALL' && asmCourseId && asmCourseId !== 'ALL' && asmCourseId !== selectedCourseId) {
+                            return false;
+                          }
+                          const asmStageId = asm.stageId || asm.stage_id;
+                          if (activeStage?.id && asmStageId && !isMatchingStage(asmStageId, activeStage.id)) {
+                            return false;
+                          }
                           const asmModId = stripSuffix(asm.moduleId || asm.innerTopicId || asm.topic_id || asm.module_id);
                           if (asmModId && curModId && asmModId === curModId) return true;
-                          const tName = cleanNorm(asm.topicName || asm.topic_name || asm.title);
-                          return tName && curModTitle && (tName.includes(curModTitle) || curModTitle.includes(tName));
+                          const tName = cleanNorm(asm.topicName || asm.topic_name);
+                          return tName && curModTitle && tName === curModTitle;
                         })
                         .map(asm => ({
                           ...asm,
@@ -1954,10 +1962,18 @@ export function MilestonesRoadmapPage() {
                       // Auto-match quizzes for this module
                       const autoMatchedQuizzes = (quizzes || [])
                         .filter(qz => {
+                          const qzCourseId = qz.courseId || qz.course_id;
+                          if (selectedCourseId && selectedCourseId !== 'ALL' && qzCourseId && qzCourseId !== 'ALL' && qzCourseId !== selectedCourseId) {
+                            return false;
+                          }
+                          const qzStageId = qz.stageId || qz.stage_id;
+                          if (activeStage?.id && qzStageId && !isMatchingStage(qzStageId, activeStage.id)) {
+                            return false;
+                          }
                           const qzModId = stripSuffix(qz.moduleId || qz.innerTopicId || qz.topic_id || qz.module_id);
-                          if (qzModId && curModId && (qzModId === curModId || qzModId.includes(curModId) || curModId.includes(qzModId))) return true;
-                          const tName = cleanNorm(qz.topicName || qz.topic_name || qz.title);
-                          return tName && curModTitle && (tName.includes(curModTitle) || curModTitle.includes(tName));
+                          if (qzModId && curModId && qzModId === curModId) return true;
+                          const tName = cleanNorm(qz.topicName || qz.topic_name);
+                          return tName && curModTitle && tName === curModTitle;
                         })
                         .map(qz => ({
                           ...qz,
@@ -1977,13 +1993,21 @@ export function MilestonesRoadmapPage() {
                           totalMarks: qz.totalMarks || 100
                         }));
 
-                      // Auto-match projects for this module
+                      // Auto-match projects for this module strictly by course, stage and exact module ID
                       const autoMatchedProjects = (projects || [])
                         .filter(p => {
-                          const pModId = stripSuffix(p.moduleId || p.innerTopicId || p.module_id);
-                          if (pModId && curModId && (pModId === curModId || pModId.includes(curModId) || curModId.includes(pModId))) return true;
-                          const tName = cleanNorm(p.topicName || p.title);
-                          return tName && curModTitle && (tName.includes(curModTitle) || curModTitle.includes(tName));
+                          const pCourseId = p.courseId || p.course_id;
+                          if (selectedCourseId && selectedCourseId !== 'ALL' && pCourseId && pCourseId !== 'ALL' && pCourseId !== selectedCourseId) {
+                            return false;
+                          }
+                          const pStageId = p.stageId || p.stage_id;
+                          if (activeStage?.id && pStageId && !isMatchingStage(pStageId, activeStage.id)) {
+                            return false;
+                          }
+                          const pModId = stripSuffix(p.moduleId || p.innerTopicId || p.module_id || p.inner_topic_id);
+                          if (pModId && curModId && pModId === curModId) return true;
+                          const pModName = cleanNorm(p.moduleName || p.topicName);
+                          return pModName && curModTitle && pModName === curModTitle;
                         })
                         .map(p => ({
                           ...p,

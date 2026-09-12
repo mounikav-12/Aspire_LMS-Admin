@@ -1,0 +1,464 @@
+{
+  "courseId": "crs-1786624019154-w",
+  "courseTitle": "Python Full Stack + DSA with AI",
+  "stageId": "top-stg-4",
+  "stageTitle": "Stage 4: Career Launchpad",
+  "moduleId": "mod-stg4-m4",
+  "moduleTitle": "Resume Building, LinkedIn & GitHub Portfolio",
+  "lessons": [
+    {
+      "lessonId": "lesson-stg4-m4-l1",
+      "lessonTitle": "Creating ATS-Compliant Resume & GitHub Presentation",
+      "totalQuestions": 20,
+      "questions": [
+        {
+          "question": "How do modern Applicant Tracking Systems (ATS) parse resumes, and why are complex multi-column graphic layouts (e.g. Canva templates) discouraged for software engineering roles?",
+          "options": [
+            "ATS parsers convert documents into plain text using linear OCR; multi-column tables, text boxes, and embedded graphics cause scrambled text order and dropped technical keywords.",
+            "ATS parsers automatically reject any file smaller than 2 megabytes in size.",
+            "ATS software only scans for hyperlinks and deletes all text paragraphs.",
+            "ATS parsers require all resumes to be submitted exclusively as raw HTML5 web pages."
+          ],
+          "answer": "A",
+          "explanation": "ATS software extracts text sequentially. Multi-column tables, floating text boxes, and graphic elements often cause text to be read across columns out of order, garbling dates, titles, and technical skills."
+        },
+        {
+          "question": "According to Google's standard 'XYZ Formula' for resume bullet points, which of the following is the most effective way to describe a backend optimization project?",
+          "options": [
+            "Worked as a backend developer building Python endpoints for the application.",
+            "Responsible for working on backend APIs and making the database run faster using Django.",
+            "Reduced API response latency by 42% for 50,000+ daily requests by implementing Redis caching and optimizing Django ORM queries with select_related.",
+            "Helped the team with Redis and wrote some SQL queries to improve performance."
+          ],
+          "answer": "C",
+          "explanation": "The XYZ formula ('Accomplished [X], as measured by [Y], by doing [Z]') provides clear, quantified impact and specific technical tools, demonstrating measurable engineering value."
+        },
+        {
+          "question": "When formatting the 'Technical Skills' section of a Full Stack Python Developer resume for optimal ATS scoring, which structure is recommended?",
+          "options": [
+            "Omit the technical skills section entirely and only mention tools inside project narrative paragraphs.",
+            "Represent skill proficiency using visual 5-star rating icons and graphic percentage progress bars.",
+            "Categorize skills into standard headings: Languages (Python, JavaScript, SQL), Frameworks (Django, DRF, React, FastAPI), Databases (PostgreSQL, Redis), DevOps & AI (Docker, Git, LangChain).",
+            "List all technologies as a single comma-separated paragraph of 50 keywords in alphabetical order."
+          ],
+          "answer": "C",
+          "explanation": "Categorizing skills into standard, recognized headings allows ATS parsers to extract hard technical skills cleanly while giving human recruiters an immediate, organized snapshot of your stack."
+        },
+        {
+          "question": "Why are graphic skill meters (e.g., 'Python: 90%', 'React: 4/5 stars') considered harmful on a software developer resume?",
+          "options": [
+            "They force ATS systems to convert all text to binary machine code.",
+            "They are unparseable by ATS, convey no objective engineering competency to hiring managers, and inadvertently highlight perceived weaknesses.",
+            "They violate international copyright laws regarding star glyphs.",
+            "They consume too much printer toner during in-person interviews."
+          ],
+          "answer": "B",
+          "explanation": "Subjective skill ratings ('80% Python') lack objective meaning (what is 100% of Python?), take up valuable space, and cannot be interpreted by ATS text extraction engines."
+        },
+        {
+          "question": "What is the industry best practice regarding file format when submitting a resume online through career portals?",
+          "options": [
+            "Submit a link to a private Google Drive document requiring edit access.",
+            "Submit an executable .exe portfolio installer built with Python PyInstaller.",
+            "Export the resume as a flattened PNG/JPEG image inside a PDF wrapper to lock formatting.",
+            "Submit a clean, text-based, searchable PDF (or .docx if explicitly requested) where text can be highlighted and copied without OCR errors."
+          ],
+          "answer": "D",
+          "explanation": "Text-based PDFs created from Word, Google Docs, or LaTeX preserve layout while ensuring ATS parsers and recruiters can highlight, search, and copy text seamlessly."
+        },
+        {
+          "question": "What is the primary function of a GitHub Profile README ('username/username' repository) for an aspiring software engineer?",
+          "options": [
+            "To serve as an interactive landing page that introduces your technical stack, highlights top featured projects, displays live demos, and provides professional contact links.",
+            "To override the GitHub website stylesheet and change global background colors.",
+            "To host the backend production database for your full-stack applications.",
+            "To prevent unauthorized users from viewing your public repositories."
+          ],
+          "answer": "A",
+          "explanation": "A personal profile README displayed at the top of your GitHub profile creates a strong first impression for technical recruiters, showcasing your identity, tech stack, and key repositories."
+        },
+        {
+          "question": "When curating public GitHub repositories for technical recruiters and hiring managers, which action is most critical?",
+          "options": [
+            "Delete all commit messages and squash the entire history into a single 'Initial commit'.",
+            "Fork popular open-source repositories and make no commits so your repository count looks high.",
+            "Keep all 100+ repositories public, including unfinished classroom exercises and empty test folders.",
+            "Pin 3 to 6 high-quality, full-stack capstone projects with clear READMEs, working live deployment links, and comprehensive test suites, while archiving or hiding trivial tutorial clones."
+          ],
+          "answer": "D",
+          "explanation": "Recruiters evaluate quality over quantity. Pinned, well-documented capstone projects with live demos demonstrate production-readiness, whereas clutter of unfinished repos dilutes impact."
+        },
+        {
+          "question": "Which Git commit message convention reflects professional industry standards on collaborative development teams?",
+          "options": [
+            "Vague emotional messages (e.g. 'finally working please merge').",
+            "Conventional Commits (e.g. 'feat(auth): implement JWT refresh token rotation with blacklist validation').",
+            "Leaving the commit message blank using git commit --allow-empty-message.",
+            "Single-word vague messages (e.g. 'update', 'fix', 'changes', 'wip')."
+          ],
+          "answer": "B",
+          "explanation": "Conventional Commits (`feat:`, `fix:`, `refactor:`, `test:`, `docs:`) with explicit scopes provide clear version history, facilitate automated changelog generation, and signal engineering maturity."
+        },
+        {
+          "question": "Why is it essential to include a comprehensive '.gitignore' file in Python and JavaScript project repositories before pushing to GitHub?",
+          "options": [
+            "To encrypt the entire repository on GitHub using AES-256 keys.",
+            "To speed up the download of the Git command-line tool on Windows.",
+            "Because GitHub refuses to create branches without a .gitignore file.",
+            "To prevent committing sensitive environment variables (.env), heavy dependencies (node_modules, venv), compilation artifacts (__pycache__), and OS metadata (.DS_Store)."
+          ],
+          "answer": "D",
+          "explanation": "`.gitignore` prevents cluttering repos with huge dependency folders (`node_modules`, `venv`), bytecode, and critically, prevents catastrophic leakage of secret keys and `.env` files."
+        },
+        {
+          "question": "What information should be prominently placed in the header contact section of a software engineering resume?",
+          "options": [
+            "Full residential street address, marital status, date of birth, photo, and national identification number.",
+            "Only a Telegram handle and an anonymous cryptocurrency wallet address.",
+            "Full Name, City/State (or 'Open to Remote/Relocation'), Professional Email, Phone Number, LinkedIn Profile URL, GitHub Profile URL, and Portfolio Link.",
+            "A list of high school coursework and childhood hobbies."
+          ],
+          "answer": "C",
+          "explanation": "Modern tech resumes require concise contact details and direct links to GitHub/LinkedIn/Portfolio, while omitting discriminatory or sensitive private data (photo, marital status, full address)."
+        },
+        {
+          "question": "How should an entry-to-mid level candidate describe their Capstone Projects on a resume if they do not yet have 5 years of commercial corporate experience?",
+          "options": [
+            "List only the project title without describing what technologies were used or what the app does.",
+            "Treat capstones as major engineering projects under a dedicated 'Featured Projects' section, detailing architecture, problems solved, technical stack, metrics, and live deployment links.",
+            "Omit projects entirely and leave half the resume page completely blank.",
+            "Falsify work history by claiming the capstone project was an enterprise role at a Fortune 500 company."
+          ],
+          "answer": "B",
+          "explanation": "Detailed, production-grade project descriptions with architectural specifics, measurable performance achievements, and live URLs effectively validate technical competency in place of formal years of tenure."
+        },
+        {
+          "question": "Which of the following action verbs is most impactful when detailing engineering contributions on a resume?",
+          "options": [
+            "Architected, Engineered, Optimized, Implemented, Streamlined, Spearheaded.",
+            "Helped with, Worked on, Was responsible for, Assisted in, Tried to.",
+            "Looked at, Participated somewhat, Handled various things, Talked about.",
+            "Attended meetings for, Watched tutorials on, Read documentation about."
+          ],
+          "answer": "A",
+          "explanation": "Strong, proactive action verbs ('Architected', 'Spearheaded', 'Optimized') convey leadership, ownership, and direct technical contribution."
+        },
+        {
+          "question": "What is the recommended page length for a software engineer with 0 to 4 years of professional experience?",
+          "options": [
+            "Exactly 1 page, tightly formatted with high information density and zero fluff.",
+            "Page length does not matter; 10 pages is standard for entry-level roles.",
+            "At least 4 to 5 pages detailing every school assignment and hobby.",
+            "A single half-page paragraph with no bullet points."
+          ],
+          "answer": "A",
+          "explanation": "Recruiters spend an average of 6 to 10 seconds on initial resume screening. A crisp, impactful 1-page resume ensures all key accomplishments and technical skills are immediately visible."
+        },
+        {
+          "question": "Why should you add open-source software (OSS) licenses (such as MIT or Apache 2.0) to your public GitHub capstone repositories?",
+          "options": [
+            "To prevent GitHub from indexing your repository in search engines.",
+            "To make your code automatically eligible for monetization on the GitHub Marketplace.",
+            "To clearly define how others can view, use, and contribute to your code, demonstrating an understanding of open-source standards and professional software distribution.",
+            "Because Git will not allow users to clone repositories that lack a LICENSE file."
+          ],
+          "answer": "C",
+          "explanation": "Including standard licenses (MIT, Apache 2.0) demonstrates software licensing awareness, signals community collaboration readiness, and grants legal permission for recruiters to test and inspect code."
+        },
+        {
+          "question": "How should an engineer articulate AI and LLM feature integrations on their resume to stand out to modern engineering teams?",
+          "options": [
+            "Write 'Expert in all Artificial Intelligence and knows ChatGPT perfectly.'",
+            "Specify concrete engineering implementation: e.g., 'Engineered a RAG pipeline utilizing LangChain, ChromaDB vector embeddings, and FastAPI streaming with Server-Sent Events to answer queries with sub-second latency.'",
+            "State 'Used AI tools to write my resume and write all my code.'",
+            "List 'AI' under hobbies alongside video games and traveling."
+          ],
+          "answer": "B",
+          "explanation": "Highlighting specific frameworks (LangChain, ChromaDB, FastAPI), architectural patterns (RAG, streaming SSE), and performance metrics demonstrates practical AI engineering competency."
+        },
+        {
+          "question": "What is the primary advantage of establishing a consistent Git commit history (contribution green graph) on GitHub?",
+          "options": [
+            "It increases your GitHub storage limit from 1GB to 100GB.",
+            "It automatically qualifies you for verified developer certification from Microsoft.",
+            "It increases your personal internet bandwidth when pushing code.",
+            "It visually demonstrates consistent coding habits, active project development, discipline, and persistent learning over time to prospective employers."
+          ],
+          "answer": "D",
+          "explanation": "A steady contribution graph shows dedication, continuous learning, and habitual version control usage, which hiring managers and tech leads value highly."
+        },
+        {
+          "question": "What is the danger of using non-standard section headers (e.g., 'Where My Passion Lies' instead of 'Work Experience' or 'My Toolkit' instead of 'Technical Skills') on a resume?",
+          "options": [
+            "Web browsers cannot render fonts used in custom headings.",
+            "It causes PDF files to become read-only and unprintable.",
+            "ATS algorithms fail to categorize the data into recognized standard database fields, leading to parsed profile errors and candidate disqualification.",
+            "It triggers spam filters on corporate email servers."
+          ],
+          "answer": "C",
+          "explanation": "ATS systems rely on standard semantic headings ('Work Experience', 'Technical Skills', 'Education', 'Projects') to parse and index applicant information into correct candidate database schemas."
+        },
+        {
+          "question": "What are GitHub Releases and semantic tags (e.g., 'v1.0.0'), and why should you use them on capstone repositories?",
+          "options": [
+            "They mark stable snapshot milestones in your project's development lifecycle with release notes, showing familiarity with release management and semantic versioning.",
+            "They delete all previous Git branches to save disk space.",
+            "They convert JavaScript code into compiled C++ binaries.",
+            "They automatically deploy the frontend to the Apple App Store."
+          ],
+          "answer": "A",
+          "explanation": "Tagging releases with semantic versioning (`v1.0.0`, `v1.1.0`) accompanied by changelogs shows structured software release management and engineering maturity."
+        },
+        {
+          "question": "Why should you avoid including high school education on a resume once you have completed tertiary education or professional bootcamps?",
+          "options": [
+            "ATS parsers automatically reject any resume containing the word 'School'.",
+            "High school details cause database indexing collisions on LinkedIn.",
+            "High school diplomas are illegal to list on professional resumes in tech.",
+            "High school credentials are superseded by university degrees or professional technical certifications and take up valuable space needed for technical skills and projects."
+          ],
+          "answer": "D",
+          "explanation": "Tertiary education, degrees, bootcamps, and technical certifications supersede secondary school. Omitting high school saves valuable resume real estate for technical competencies."
+        },
+        {
+          "question": "How can an engineer tailor their resume for two different job applications: one for a 'Frontend React Developer' and one for a 'Backend Python Engineer'?",
+          "options": [
+            "Submit a blank resume with a note saying 'Ask me anything in the interview.'",
+            "Maintain two tailored resume variants emphasizing relevant technologies, reordering skill categories, and placing relevant projects and achievements at the top of the page.",
+            "Submit two identical resumes with different font colors to the same job opening.",
+            "List only soft skills on the frontend resume and only math equations on the backend resume."
+          ],
+          "answer": "B",
+          "explanation": "Tailoring resumes ensures that the most relevant technologies, libraries, and project accomplishments align directly with the specific job description's keywords and requirements."
+        }
+      ]
+    },
+    {
+      "lessonId": "lesson-stg4-m4-l2",
+      "lessonTitle": "README Design, Linkedin Profile Optimization & Branding",
+      "totalQuestions": 20,
+      "questions": [
+        {
+          "question": "Which of the following represents the ideal structural flow for a production-grade GitHub repository README.md?",
+          "options": [
+            "Project Title & Badges -> Description & Demo GIF -> Architecture Diagram -> Key Features -> Tech Stack -> Prerequisites & Local Setup -> API Documentation -> Environment Variables -> License.",
+            "Source code copy-pasted as text -> Author's life story -> 100 screenshots with no text -> Unformatted JSON dump.",
+            "List of commit hashes -> Raw database schema dump -> Link to personal Instagram.",
+            "Single sentence saying 'A web application' -> Download link to a .zip file -> Empty footer."
+          ],
+          "answer": "A",
+          "explanation": "A structured README provides an instant overview, visual proof (demo GIF/architecture), clear features, step-by-step local setup instructions, API contracts, and licensing information."
+        },
+        {
+          "question": "Why is including a visual Architecture Diagram (using Mermaid.js or tools like draw.io) in a project README highly impactful?",
+          "options": [
+            "It replaces the need for writing Python unit tests.",
+            "It makes the repository load 50% faster on mobile devices.",
+            "It allows recruiters and engineering leads to quickly understand the system design, data flow, microservices/modules, and third-party integrations at a glance.",
+            "It automatically runs database migrations whenever the diagram is viewed."
+          ],
+          "answer": "C",
+          "explanation": "Architecture diagrams visually communicate system architecture, frontend-backend interactions, database caching layers, and external APIs, proving system design competency."
+        },
+        {
+          "question": "What is the purpose of providing an '.env.example' file in your GitHub repository alongside the README setup guide?",
+          "options": [
+            "To speed up npm install by pre-caching node modules.",
+            "To store real production database passwords publicly on GitHub.",
+            "To show collaborators and recruiters the exact environment variable keys required (e.g. DATABASE_URL, REDIS_PORT) without exposing sensitive secret values or API keys.",
+            "To automatically generate live Bitcoin wallets for anyone who clones the code."
+          ],
+          "answer": "C",
+          "explanation": "An `.env.example` file documents required configuration variables and format templates without leaking actual credentials, secret keys, or passwords."
+        },
+        {
+          "question": "How should a software engineer optimize their LinkedIn Headline to maximize visibility in recruiter searches (LinkedIn Recruiter)?",
+          "options": [
+            "Write a philosophical quote about life without mentioning any software technologies.",
+            "Include target job title, core tech stack, specialized focus, and value proposition (e.g. 'Full Stack Developer | Python, Django, React, FastAPI | AI & RAG Integration | Building Scalable Web Apps').",
+            "Leave the headline blank so recruiters have to guess your technical skills.",
+            "Write a single word such as 'Aspiring Developer' or 'Looking for Opportunities'."
+          ],
+          "answer": "B",
+          "explanation": "Recruiters search LinkedIn using algorithmic keyword matching on headlines. Including exact role titles and primary technologies (Python, Django, React, FastAPI) maximizes search ranking."
+        },
+        {
+          "question": "What content should be included in the LinkedIn 'About' / Summary section for a tech professional?",
+          "options": [
+            "A disclaimer stating that you do not reply to recruiters or hiring managers.",
+            "A single link to a third-party social media video channel.",
+            "A copy-paste of your high school transcript and sports trophies.",
+            "A compelling first-person narrative explaining your engineering journey, key technical capabilities, notable projects built, passion for problem-solving, and a clear call-to-action with contact info."
+          ],
+          "answer": "D",
+          "explanation": "The LinkedIn About section tells your professional story, highlights your technical stack and problem-solving strengths, and makes it easy for recruiters to reach out."
+        },
+        {
+          "question": "How can you leverage the LinkedIn 'Featured' section to effectively showcase your technical skills?",
+          "options": [
+            "Pin interactive media: links to live deployed capstone web apps, demo video walkthroughs, GitHub repository links, technical articles, and verified certifications.",
+            "Feature personal vacation photos and motivational memes.",
+            "Pin text posts complaining about difficult job interview processes.",
+            "Leave the section hidden because recruiters never inspect featured items."
+          ],
+          "answer": "A",
+          "explanation": "The Featured section sits prominently near the top of the profile, making it the ideal showcase for working web app links, GitHub repositories, and demo video walkthroughs."
+        },
+        {
+          "question": "When sending a connection request to a technical recruiter or hiring manager on LinkedIn, what is the best practice?",
+          "options": [
+            "Ask them to send you money before you share your resume.",
+            "Demand an immediate phone interview in all-caps text without introducing yourself.",
+            "Send a blank connection request and follow up immediately with 10 automated generic sales pitches.",
+            "Add a personalized note introducing yourself politely, referencing a specific role or mutual interest, mentioning your primary tech stack, and providing a concise link to your portfolio/projects."
+          ],
+          "answer": "D",
+          "explanation": "A brief, courteous, personalized note highlighting shared interests, relevant technical skills, and portfolio links dramatically increases connection acceptance and response rates."
+        },
+        {
+          "question": "What is the purpose of embedding dynamic CI/CD badges (e.g. GitHub Actions build status, Codecov test coverage) in a repository README?",
+          "options": [
+            "To automatically bill users who download the open-source code.",
+            "To provide immediate visual evidence that the codebase is actively maintained, tests are passing, and automated CI/CD pipelines are enforced.",
+            "To convert Markdown files into compiled executable desktop software.",
+            "To increase the search engine ranking of the developer's personal website."
+          ],
+          "answer": "B",
+          "explanation": "Badges generated from GitHub Actions or Codecov prove that automated testing, linting, and continuous integration workflows are in place and actively succeeding."
+        },
+        {
+          "question": "How does writing technical posts on LinkedIn (e.g. breakdown of a challenging bug fix, architectural tradeoffs, or capstone build journey) help your career?",
+          "options": [
+            "It legally patents your software code under international trademark law.",
+            "It guarantees immediate promotion to Chief Technology Officer (CTO).",
+            "It replaces the need for ever taking technical coding interviews.",
+            "It establishes subject matter expertise, increases algorithmic profile reach, demonstrates communication skills, and attracts inbound recruiter attention."
+          ],
+          "answer": "D",
+          "explanation": "Sharing technical insights, system design decisions, and project build updates builds personal branding, demonstrates problem-solving ability, and drives organic inbound recruiter outreach."
+        },
+        {
+          "question": "What is the recommended approach for organizing the 'Prerequisites & Local Setup' section of a complex full-stack project README?",
+          "options": [
+            "Direct users to call your personal cell phone for verbal setup instructions.",
+            "Write 'Figure it out yourself by reading the source code.'",
+            "List required runtime versions (e.g. Python 3.11+, Node 18+), followed by copy-pasteable bash codeblocks for cloning, environment setup, migrations, and docker-compose launch.",
+            "Provide instructions only for obsolete operating systems like Windows 98."
+          ],
+          "answer": "C",
+          "explanation": "Clear, copy-pasteable CLI commands for environment configuration, dependency installation, database migration, and running servers allow anyone to run and test the app effortlessly."
+        },
+        {
+          "question": "Why should you customize your public LinkedIn Profile URL (e.g., 'linkedin.com/in/john-doe' instead of 'linkedin.com/in/john-doe-982348a7b')?",
+          "options": [
+            "It prevents other users from searching for your profile on Google.",
+            "It looks clean and professional on resumes, business cards, and email signatures, and improves SEO indexing.",
+            "It automatically validates your skill endorsements without tests.",
+            "It enables LinkedIn to double your daily connection request allowance."
+          ],
+          "answer": "B",
+          "explanation": "A customized, clean vanity URL reflects attention to detail, looks professional in resume headers, and avoids messy random alphanumeric strings."
+        },
+        {
+          "question": "What role do LinkedIn 'Skill Endorsements' and 'Skill Assessments' play in candidate discovery?",
+          "options": [
+            "They boost profile ranking in LinkedIn Recruiter search filters when recruiters search for candidates possessing verified competencies in specific skills like Python, React, or SQL.",
+            "They grant academic college degree credits recognized by universities.",
+            "They allow candidates to bypass all corporate background checks.",
+            "They prevent candidates from receiving messages from non-premium users."
+          ],
+          "answer": "A",
+          "explanation": "Recruiters use skill-based filters in LinkedIn Recruiter. Having verified skills and endorsements increases profile match scores and search visibility."
+        },
+        {
+          "question": "How should an engineer document REST API endpoints within a project README or documentation folder?",
+          "options": [
+            "Provide a Markdown table specifying HTTP Method, Endpoint URL, Request Headers/Body format, Response Status codes, and sample JSON output (or link to Swagger/Postman docs).",
+            "State that all endpoints are secret and cannot be disclosed.",
+            "Take screenshots of server terminal logs and paste them as uncompressed bitmap files.",
+            "List only the IP address of the server without endpoint paths."
+          ],
+          "answer": "A",
+          "explanation": "Documenting endpoints with methods (`POST /api/v1/auth/login`), payload examples, and expected responses provides clean API contracts for frontend engineers and technical interviewers."
+        },
+        {
+          "question": "What is the benefit of including a short animated GIF or screen recording in the top section of a GitHub project README?",
+          "options": [
+            "It reduces the file size of the Git repository by 80%.",
+            "It increases the CPU speed of the user's web browser.",
+            "It gives visitors and hiring managers immediate visual proof that the project is functional and showcases key user interactions without requiring them to clone and run the app.",
+            "It automatically translates the project code into Spanish and German."
+          ],
+          "answer": "C",
+          "explanation": "Recruiters rarely clone and install repos during initial screenings. A 10-second GIF demonstrating core UI/UX and features provides immediate proof of functionality."
+        },
+        {
+          "question": "How can you solicit and feature meaningful LinkedIn Recommendations from colleagues, instructors, or mentors?",
+          "options": [
+            "Pay anonymous bot networks to leave hundreds of generic single-word comments.",
+            "Politely request specific recommendations focusing on collaborative problem-solving, work ethic, technical contributions, and project delivery.",
+            "Create fake duplicate accounts to recommend yourself.",
+            "Threaten to report other users unless they write glowing testimonials."
+          ],
+          "answer": "B",
+          "explanation": "Genuine, detailed recommendations from mentors, teammates, or instructors validating your teamwork, adaptability, and engineering execution build authentic social proof."
+        },
+        {
+          "question": "What is a 'Good First Issue' on GitHub open-source repositories, and how can contributing to them enhance your developer brand?",
+          "options": [
+            "An automated bot that stars your repositories every morning.",
+            "A paid advertisement banner displayed on your personal profile.",
+            "A bug that crashes the entire GitHub website on first login.",
+            "Curated beginner-friendly issues designed to help newcomers contribute to open source; successfully merging PRs demonstrates real-world collaboration and version control skills."
+          ],
+          "answer": "D",
+          "explanation": "'Good first issues' allow developers to make tangible open-source contributions. Having merged pull requests in reputable open-source projects proves collaborative competence and code review capability."
+        },
+        {
+          "question": "What are the essential elements of a modern developer Personal Portfolio Website?",
+          "options": [
+            "Background music that plays automatically at full volume with no pause button.",
+            "A single page with only your photo and no links or text.",
+            "Hero section with clear value proposition, About section, Interactive Project Cards with live demo links and GitHub source code, Tech Stack badges, and a functional Contact form.",
+            "A paywall requiring visitors to subscribe for $10 to see your projects."
+          ],
+          "answer": "C",
+          "explanation": "A professional portfolio delivers a frictionless user experience: an introduction, concise bio, interactive project showcase with working demo links and source code, and easy contact avenues."
+        },
+        {
+          "question": "How should a candidate with a non-traditional background (career switcher or bootcamp graduate) position themselves on LinkedIn?",
+          "options": [
+            "Frame previous industry experience as valuable domain expertise and transferable skills (project management, communication, problem-solving) combined with full-stack technical competencies.",
+            "Apologize in every post for not having a traditional computer science degree.",
+            "Claim to have founded multiple Silicon Valley tech unicorns.",
+            "Completely delete all prior life history and pretend they have been writing Python since birth."
+          ],
+          "answer": "A",
+          "explanation": "Combining domain expertise and soft skills from previous careers with modern full-stack development skills creates a distinctive, well-rounded value proposition."
+        },
+        {
+          "question": "What tools can you use to generate dynamic Shields.io badges for tech stacks in your GitHub Profile README?",
+          "options": [
+            "Microsoft Excel spreadsheets converted to raw CSV text.",
+            "AutoCAD 3D rendering software.",
+            "Adobe Photoshop to export 50MB TIFF image banners.",
+            "Shields.io, Simple Icons, and Devicons to generate standardized SVG badges displaying technologies like Python, Django, React, PostgreSQL, and Docker."
+          ],
+          "answer": "D",
+          "explanation": "Shields.io and Simple Icons provide clean, lightweight, standardized SVG badges for displaying tech stacks, toolchains, and social links across GitHub profiles and READMEs."
+        },
+        {
+          "question": "Why is maintaining consistency across all digital professional profiles (LinkedIn, GitHub, Portfolio, Resume) critical for job applicants?",
+          "options": [
+            "Because Git will reject pull requests from mismatched email addresses.",
+            "Inconsistencies in job titles, project descriptions, technical skills, or employment dates trigger background check discrepancies and raise credibility concerns with hiring teams.",
+            "Because web servers crash if two profiles have differing text.",
+            "It is required by browser search engine compliance laws."
+          ],
+          "answer": "B",
+          "explanation": "Aligning dates, job titles, project descriptions, and technical stacks across your resume, LinkedIn, GitHub, and portfolio builds trust and prevents background verification flags."
+        }
+      ]
+    }
+  ]
+}

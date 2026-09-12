@@ -1,0 +1,691 @@
+{
+  "courseId": "crs-1786624019154-w",
+  "courseTitle": "Python Full Stack + DSA with AI",
+  "stageId": "top-stg-3",
+  "stageTitle": "Stage 3: AI, Integration & Deployment",
+  "moduleId": "mod-stg3-m3",
+  "moduleTitle": "Docker Containerization & Cloud Deployment",
+  "lessons": [
+    {
+      "lessonId": "lesson-stg3-m3-l1",
+      "lessonTitle": "Docker Concepts & Creating Dockerfiles",
+      "totalQuestions": 20,
+      "questions": [
+        {
+          "question": "What is the primary architectural difference between Docker Containers and traditional Virtual Machines (VMs)?",
+          "options": [
+            "Virtual Machines run directly inside web browsers, while containers run only on mainframes.",
+            "There is no difference; containers and VMs are identical in architecture.",
+            "Containers require dedicated physical motherboard hardware for each process.",
+            "Containers share the host operating system kernel and isolate processes using Linux namespaces and cgroups, making them lightweight and fast to start, whereas VMs bundle an entire guest OS and run on top of a hypervisor."
+          ],
+          "answer": "D",
+          "explanation": "Containers virtualize at the OS level (sharing host kernel with minimal resource overhead), while VMs virtualize hardware via a hypervisor running full guest operating systems."
+        },
+        {
+          "question": "What Linux kernel features provide process isolation and resource limitation (CPU/memory) in Docker containers?",
+          "options": [
+            "Ext4 disk partitions and swap memory.",
+            "SSH keys and TLS certificates.",
+            "Systemd timers and cron jobs.",
+            "Linux Namespaces (for process, network, and mount isolation) and Control Groups / cgroups (for CPU, memory, and I/O resource limits)."
+          ],
+          "answer": "D",
+          "explanation": "Namespaces provide isolation (what a process can see: PID, NET, MNT, IPC, UTS), while cgroups enforce resource metering (what a process can use: CPU, RAM, disk I/O)."
+        },
+        {
+          "question": "In a Dockerfile, what is the key functional difference between `ENTRYPOINT` and `CMD` instructions?",
+          "options": [
+            "`ENTRYPOINT` is used only for Windows containers, while `CMD` is for Linux.",
+            "`ENTRYPOINT` defines the core immutable executable to run, while `CMD` provides default arguments that can be overridden easily by CLI arguments during `docker run`.",
+            "`ENTRYPOINT` executes during build time, while `CMD` executes during push time.",
+            "`CMD` compiles source code, while `ENTRYPOINT` deletes temporary files."
+          ],
+          "answer": "B",
+          "explanation": "`ENTRYPOINT` sets the base command (e.g. `['python', 'manage.py']`), while `CMD` supplies default parameters (e.g. `['runserver', '0.0.0.0:8000']`) that CLI args can override."
+        },
+        {
+          "question": "How should a Dockerfile for a Python application be structured to maximize Docker's layer caching mechanism during rebuilds?",
+          "options": [
+            "Copy all project source files first, then run `pip install` at the very end.",
+            "Copy `requirements.txt` first and execute `RUN pip install -r requirements.txt` BEFORE copying the application source code with `COPY . .`.",
+            "Delete `requirements.txt` before building the image.",
+            "Run `pip install` inside the `CMD` instruction."
+          ],
+          "answer": "B",
+          "explanation": "Docker caches layers from top to bottom; placing infrequently changing dependency installation (`pip install`) before frequently changing source code (`COPY . .`) prevents redundant re-installations on code edits."
+        },
+        {
+          "question": "What is the purpose of the `.dockerignore` file in a project root directory?",
+          "options": [
+            "To disable Docker daemon logs.",
+            "To configure firewall port rules for Docker.",
+            "To prevent large, sensitive, or unnecessary files (such as `.git`, `__pycache__`, `venv`, `.env`, and `node_modules`) from being copied into the Docker build context, reducing image size and preventing secret leakage.",
+            "To specify which Docker containers should be ignored during unit testing."
+          ],
+          "answer": "C",
+          "explanation": "`.dockerignore` excludes unnecessary files from the build context sent to the Docker daemon, speeding up build transfers and preventing sensitive files from baking into image layers."
+        },
+        {
+          "question": "What is a Docker 'Multi-Stage Build' and what primary advantage does it provide?",
+          "options": [
+            "Executing unit tests on multiple staging servers.",
+            "Running five containers simultaneously on a single computer.",
+            "Using multiple `FROM` instructions in a single Dockerfile to compile dependencies in a heavy builder stage and copy only production artifacts into a slim final runtime image, drastically reducing image size.",
+            "Building images for multiple operating systems at the exact same time."
+          ],
+          "answer": "C",
+          "explanation": "Multi-stage builds allow developers to use compiler tools in intermediate build stages while keeping the final production image minimal, lean, and secure (e.g. reducing image size from 1GB to 150MB)."
+        },
+        {
+          "question": "Why is `python:3.11-slim` generally preferred over `python:3.11-alpine` for production Python/Django applications with C extensions (like `psycopg2`, `numpy`, or `cryptography`)?",
+          "options": [
+            "Because Debian does not require a Dockerfile.",
+            "Because `slim` is based on Debian with standard `glibc` where pre-compiled Python binary wheels install cleanly, whereas Alpine uses `musl libc` which often requires lengthy compilation of C dependencies from source.",
+            "Because `slim` images are 100x smaller than Alpine images.",
+            "Because Alpine Linux cannot run Python 3."
+          ],
+          "answer": "B",
+          "explanation": "Alpine's `musl libc` lacks compatibility with standard PyPI binary wheels (many wheels are built for `manylinux`/glibc), causing long build times and subtle compatibility bugs."
+        },
+        {
+          "question": "What Docker command builds an image named `my-django-app` with tag `v1.0` using the Dockerfile in the current directory?",
+          "options": [
+            "docker create --tag my-django-app:v1.0",
+            "docker compile -n my-django-app:v1.0",
+            "docker build -t my-django-app:v1.0 .",
+            "docker make my-django-app:v1.0"
+          ],
+          "answer": "C",
+          "explanation": "`docker build -t <image_name>:<tag> <context_path>` builds and tags a container image from the specified directory context."
+        },
+        {
+          "question": "In the command `docker run -d -p 8080:8000 --name web_app my-image`, what does the port mapping `-p 8080:8000` specify?",
+          "options": [
+            "It maps port 8080 on the host machine to port 8000 inside the container.",
+            "It restricts network bandwidth between ports 8080 and 8000.",
+            "It opens port 8080 for UDP traffic and port 8000 for TCP traffic.",
+            "It maps port 8000 on the host machine to port 8080 inside the container."
+          ],
+          "answer": "A",
+          "explanation": "Port syntax `-p <host_port>:<container_port>` binds incoming traffic on host port 8080 to container listening port 8000."
+        },
+        {
+          "question": "Why should production containers be configured to run as a non-root user (e.g. `USER appuser`)?",
+          "options": [
+            "To prevent container breakout attacks: if a vulnerability in the application is compromised, the attacker only has unprivileged access rather than root permissions on the host system.",
+            "To reduce container RAM consumption by 50%.",
+            "Because Linux bans root users from accessing network ports.",
+            "Because root users cannot run Python code."
+          ],
+          "answer": "A",
+          "explanation": "Security best practices mandate running unprivileged users (`USER appuser`) to enforce least-privilege security and prevent host filesystem compromise."
+        },
+        {
+          "question": "What is the difference between a Docker 'Named Volume' and a 'Bind Mount'?",
+          "options": [
+            "Named Volumes can only hold text files.",
+            "Bind Mounts only work on Windows operating systems.",
+            "Named Volumes are fully managed by Docker in `/var/lib/docker/volumes/` (ideal for persistent database storage), while Bind Mounts map a specific host directory directly into the container (ideal for live source code editing in dev).",
+            "Named Volumes are temporary and delete on container stop, while Bind Mounts are permanent."
+          ],
+          "answer": "C",
+          "explanation": "Named volumes are isolated and managed by Docker for persistent databases, while bind mounts link host directory paths directly for active development hot-reloading."
+        },
+        {
+          "question": "How do you inspect live log output streaming from a running Docker container named `django_backend`?",
+          "options": [
+            "cat /docker/logs/django_backend",
+            "docker print django_backend",
+            "docker read django_backend.log",
+            "docker logs -f django_backend"
+          ],
+          "answer": "D",
+          "explanation": "`docker logs -f <container_name>` tails and streams stdout/stderr output from the container in real time."
+        },
+        {
+          "question": "How do you execute an interactive Bash shell session inside an active running Docker container?",
+          "options": [
+            "docker open <container_id_or_name> --shell",
+            "docker exec -it <container_id_or_name> /bin/bash",
+            "docker ssh <container_id_or_name>",
+            "docker attach --console <container_id_or_name>"
+          ],
+          "answer": "B",
+          "explanation": "`docker exec -it` allocates a pseudo-TTY (`-t`) and keeps stdin open (`-i`) to run an interactive shell inside an existing container."
+        },
+        {
+          "question": "What is the purpose of the `HEALTHCHECK` instruction in a Dockerfile?",
+          "options": [
+            "It checks the battery life of the physical laptop.",
+            "It instructs Docker how to periodically test whether the application inside the container is healthy and responding (e.g. `CMD curl -f http://localhost:8000/health/ || exit 1`), enabling orchestrators to restart unhealthy containers.",
+            "It scans the source code for spelling mistakes.",
+            "It measures the CPU temperature of the host machine."
+          ],
+          "answer": "B",
+          "explanation": "`HEALTHCHECK` allows Docker to assess application status, transitioning the container state from `starting` to `healthy` or `unhealthy`."
+        },
+        {
+          "question": "What happens when a container receives `SIGTERM` followed by `SIGKILL` during `docker stop`?",
+          "options": [
+            "Docker first sends `SIGTERM` giving the application a grace period (default 10 seconds) to close database connections and finish active requests; if it doesn't terminate, Docker forcefully terminates it with `SIGKILL`.",
+            "Docker immediately deletes the container image from the hard drive.",
+            "Docker restarts the container in safe mode.",
+            "Docker reboots the host operating system."
+          ],
+          "answer": "A",
+          "explanation": "`docker stop` sends `SIGTERM` for graceful shutdown, waiting up to the timeout (10s) before issuing an un-catchable `SIGKILL`."
+        },
+        {
+          "question": "How do you clean up all unused containers, networks, dangling images, and build caches in Docker to reclaim disk storage?",
+          "options": [
+            "docker reset --factory",
+            "rm -rf /docker",
+            "docker delete --everything",
+            "docker system prune -a --volumes"
+          ],
+          "answer": "D",
+          "explanation": "`docker system prune -a --volumes` removes stopped containers, unused networks, unreferenced images, and build cache layers."
+        },
+        {
+          "question": "What is the function of the `WORKDIR` instruction in a Dockerfile?",
+          "options": [
+            "It creates an operating system user account.",
+            "It limits CPU work cycles to a specific percentage.",
+            "It sets the working directory for all subsequent `RUN`, `CMD`, `ENTRYPOINT`, `COPY`, and `ADD` instructions, creating the directory if it does not already exist.",
+            "It specifies the physical office location of the software developer."
+          ],
+          "answer": "C",
+          "explanation": "`WORKDIR /app` sets the current working directory inside the container image, eliminating the need to write repeated `cd` commands."
+        },
+        {
+          "question": "How can environment variables be passed securely into a container at runtime without hardcoding them in the Dockerfile?",
+          "options": [
+            "Using the `--env-file .env` flag or `-e KEY=VALUE` arguments with `docker run`.",
+            "Hardcoding passwords in plaintext comments inside `Dockerfile`.",
+            "Sending environment variables via browser cookies.",
+            "Writing passwords on the host desktop wallpaper."
+          ],
+          "answer": "A",
+          "explanation": "`--env-file` and `-e` inject dynamic environment configuration at runtime, keeping secret keys out of immutable image layers."
+        },
+        {
+          "question": "What is Docker Hub / Amazon ECR / GitHub Packages in the container ecosystem?",
+          "options": [
+            "A Container Registry where versioned container images are stored, shared, and pulled for deployments across staging and production environments.",
+            "A relational database management system.",
+            "A physical hardware rack in a datacenter.",
+            "A web development code editor."
+          ],
+          "answer": "A",
+          "explanation": "Container Registries host, version, and distribute Docker images across cloud clusters and deployment pipelines."
+        },
+        {
+          "question": "What is the difference between `COPY` and `ADD` in a Dockerfile, and why is `COPY` preferred for standard file copying?",
+          "options": [
+            "`COPY` deletes files after copying, while `ADD` preserves them.",
+            "`COPY` is deprecated in Docker.",
+            "`ADD` only works on Linux, while `COPY` works on Windows.",
+            "`COPY` simply copies local files/directories into the container, whereas `ADD` has extra features like auto-extracting tar archives and fetching remote URLs; `COPY` is preferred because it is explicit and predictable."
+          ],
+          "answer": "D",
+          "explanation": "Docker documentation recommends `COPY` over `ADD` for transparency unless explicit archive unpacking or tar extraction is specifically required."
+        }
+      ]
+    },
+    {
+      "lessonId": "lesson-stg3-m3-l2",
+      "lessonTitle": "Containerizing Django Applications & Docker Compose",
+      "totalQuestions": 20,
+      "questions": [
+        {
+          "question": "What is the primary role of Docker Compose in multi-container application development?",
+          "options": [
+            "To compile Python code into C binaries.",
+            "To replace Git for source code version control.",
+            "To write HTML stylesheets for web applications.",
+            "To define and run multi-container applications (e.g. Django web app, PostgreSQL database, Redis cache, and Celery workers) using a single declarative YAML configuration file (`docker-compose.yml`)."
+          ],
+          "answer": "D",
+          "explanation": "Docker Compose allows developers to configure, connect, and manage multi-service architectures (web, database, cache, message broker) with declarative YAML commands."
+        },
+        {
+          "question": "Why should Django's built-in development server (`runserver`) NEVER be used in a production Docker container?",
+          "options": [
+            "Because `runserver` deletes database migrations automatically.",
+            "Because `runserver` charges money per HTTP request.",
+            "Because `runserver` cannot connect to PostgreSQL.",
+            "Because `runserver` is single-threaded, lacks security hardening, is not optimized for high concurrent throughput, and explicitly warns against production usage; production requires a robust WSGI/ASGI server like Gunicorn or Uvicorn."
+          ],
+          "answer": "D",
+          "explanation": "`runserver` is an un-hardened development tool. Production containers must run production WSGI/ASGI application servers like Gunicorn with multiple worker processes."
+        },
+        {
+          "question": "How do services defined within the same `docker-compose.yml` file discover and communicate with each other over the network?",
+          "options": [
+            "By hardcoding the host computer's public IP address.",
+            "Using the service name as the network hostname (e.g., `db:5432` or `redis:6379`) resolved automatically by Docker's built-in internal DNS server on the default bridge network.",
+            "By writing shared data to a floppy disk.",
+            "By broadcasting messages over local Wi-Fi radio frequencies."
+          ],
+          "answer": "B",
+          "explanation": "Docker Compose creates a shared user-defined bridge network where service names (such as `db`, `redis`, `web`) automatically resolve as hostnames via embedded DNS."
+        },
+        {
+          "question": "How do you ensure in `docker-compose.yml` that the Django `web` service only starts AFTER the `db` service is healthy and ready to accept connections?",
+          "options": [
+            "Adding `time.sleep(10)` inside `manage.py`.",
+            "Using `depends_on` with `condition: service_healthy` alongside a database healthcheck definition in the `db` service.",
+            "Disabling PostgreSQL authentication.",
+            "Starting each container manually on separate days."
+          ],
+          "answer": "B",
+          "explanation": "`depends_on: db: condition: service_healthy` ensures the application container waits until the database healthcheck returns healthy before executing migrations."
+        },
+        {
+          "question": "How do you preserve PostgreSQL database data across container restarts and rebuilds in Docker Compose?",
+          "options": [
+            "PostgreSQL preserves data in RAM automatically without disk storage.",
+            "Leaving the computer turned on indefinitely without restarts.",
+            "Mounting a named volume to PostgreSQL's data directory (e.g. `volumes: - postgres_data:/var/lib/postgresql/data`).",
+            "Saving database tables as Excel spreadsheets in `/tmp`."
+          ],
+          "answer": "C",
+          "explanation": "Named volumes decouple database storage from the container lifecycle, persisting data permanently on the host disk even when containers are deleted."
+        },
+        {
+          "question": "How should Celery workers and Celery Beat schedulers be configured in a `docker-compose.yml` for a Django project?",
+          "options": [
+            "Run Celery inside the database container.",
+            "Install Celery on the host operating system outside Docker.",
+            "Define `worker` and `beat` services that build the exact same Django Dockerfile but override the `command` (e.g. `command: celery -A config worker -l info` and `command: celery -A config beat -l info`).",
+            "Celery cannot run inside Docker containers."
+          ],
+          "answer": "C",
+          "explanation": "Celery services reuse the same application image, environment variables, and code, simply overriding the startup command to launch worker/beat processes."
+        },
+        {
+          "question": "How do you collect static files into a shared volume during production deployment of containerized Django?",
+          "options": [
+            "Disable all static CSS and JavaScript in production.",
+            "Execute `python manage.py collectstatic --noinput` during image build or entrypoint, and serve the resulting static volume via WhiteNoise or an Nginx reverse proxy service.",
+            "Download CSS files from CDN on every page reload.",
+            "Manually copy CSS files into the browser cache."
+          ],
+          "answer": "B",
+          "explanation": "`collectstatic` gathers assets into `STATIC_ROOT`, which is either served directly via WhiteNoise middleware or mounted to an Nginx container."
+        },
+        {
+          "question": "What role does Nginx serve when placed in front of Gunicorn in a multi-container Docker Compose architecture?",
+          "options": [
+            "It generates random passwords for admin users.",
+            "It converts Python code into JavaScript.",
+            "It acts as a reverse proxy, handling SSL termination, serving static/media files directly from disk at high speed, load balancing, and protecting Gunicorn from slow clients.",
+            "It replaces the Django database completely."
+          ],
+          "answer": "C",
+          "explanation": "Nginx excels at serving static files, SSL/TLS encryption, request buffering, and reverse-proxying dynamic traffic to backend Gunicorn workers."
+        },
+        {
+          "question": "How do you execute Django database migrations inside a running Docker Compose environment?",
+          "options": [
+            "docker compose exec web python manage.py migrate",
+            "python manage.py migrate --global",
+            "docker run migrate.py",
+            "docker compose migrate"
+          ],
+          "answer": "A",
+          "explanation": "`docker compose exec <service_name> <command>` runs commands directly inside the running service container."
+        },
+        {
+          "question": "How do you enable live code hot-reloading for Django development inside Docker Compose?",
+          "options": [
+            "Mounting the local host directory into the container via a bind mount (e.g. `volumes: - .:/app`), allowing code edits on the host to immediately trigger Django's auto-reloader inside the container.",
+            "Uploading files via FTP to the container.",
+            "Hot-reloading is impossible in Docker.",
+            "Rebuilding the Docker image with `docker compose build` after every keystroke."
+          ],
+          "answer": "A",
+          "explanation": "Bind mounts sync local source files with `/app` inside the container in real time, enabling instant hot-reloading during development."
+        },
+        {
+          "question": "What is the command to start all services defined in `docker-compose.yml` in detached (background) mode while rebuilding any modified images?",
+          "options": [
+            "docker compose launch --new",
+            "docker compose run --background",
+            "docker compose up -d --build",
+            "docker compose start --all"
+          ],
+          "answer": "C",
+          "explanation": "`docker compose up -d --build` builds any updated images, creates networks and volumes, and starts all containers in detached mode."
+        },
+        {
+          "question": "What command stops and removes all containers, networks, and named volumes created by Docker Compose?",
+          "options": [
+            "docker compose delete",
+            "docker compose stop",
+            "docker compose kill --all",
+            "docker compose down -v"
+          ],
+          "answer": "D",
+          "explanation": "`docker compose down -v` shuts down services, removes default networks, and deletes named volumes associated with the project."
+        },
+        {
+          "question": "What should `ALLOWED_HOSTS` and `CSRF_TRUSTED_ORIGINS` in Django's `settings.py` contain when running behind Nginx in a containerized environment?",
+          "options": [
+            "Empty lists `[]`.",
+            "The domain names and host headers used by incoming client requests (e.g. `['api.mydomain.com', 'localhost']`) to pass host and CSRF validation checks.",
+            "Only the string 'docker'.",
+            "Only the local database IP address."
+          ],
+          "answer": "B",
+          "explanation": "Django validates HTTP Host and Origin headers; `ALLOWED_HOSTS` and `CSRF_TRUSTED_ORIGINS` must include the public domains and reverse proxy hostnames."
+        },
+        {
+          "question": "How do you perform a PostgreSQL database backup from a running Docker Compose `db` container to a local `.sql` file?",
+          "options": [
+            "docker compose copy db /backup.sql",
+            "docker compose exec -T db pg_dump -U postgres_user dbname > backup.sql",
+            "docker compose save db > backup.sql",
+            "docker backup --db > backup.sql"
+          ],
+          "answer": "B",
+          "explanation": "`docker compose exec -T` executes `pg_dump` inside the database container and streams the output to a local host SQL file."
+        },
+        {
+          "question": "What is the purpose of `docker-compose.override.yml`?",
+          "options": [
+            "It is automatically merged with `docker-compose.yml` by default to apply local development overrides (like port exposures and volume mounts) without altering the base production compose file.",
+            "It deletes the original `docker-compose.yml` file.",
+            "It forces all containers to run as root.",
+            "It overrides the computer's BIOS settings."
+          ],
+          "answer": "A",
+          "explanation": "Docker Compose merges `docker-compose.override.yml` by default, allowing seamless local development overrides alongside base configurations."
+        },
+        {
+          "question": "How can you limit memory and CPU resources for a service in Docker Compose to prevent runaway memory leaks?",
+          "options": [
+            "Running `manage.py limit_memory`.",
+            "Setting `DEBUG = True`.",
+            "Deleting RAM sticks from the physical server.",
+            "Configuring `deploy.resources.limits.memory: 512M` and `cpus: '0.50'` under the service definition."
+          ],
+          "answer": "D",
+          "explanation": "Setting resource limits in Compose prevents containers from consuming all host RAM and triggering out-of-memory (OOM) kernel kills on other critical services."
+        },
+        {
+          "question": "Why should a custom entrypoint script (e.g. `entrypoint.sh`) in a Django Docker container end with `exec \"$@\"`?",
+          "options": [
+            "To delete all temporary log files.",
+            "To execute all Python scripts in the `/app` directory.",
+            "To replace the shell process with the main command (e.g. Gunicorn), ensuring PID 1 is assigned to the application so it receives OS signals (`SIGTERM`) for graceful shutdowns.",
+            "To restart the container in an infinite loop."
+          ],
+          "answer": "C",
+          "explanation": "`exec \"$@\"` replaces the entrypoint shell process with the container's `CMD`, granting PID 1 to the application so signal forwarding works correctly."
+        },
+        {
+          "question": "How do you view live aggregated logs for only the `web` service in Docker Compose?",
+          "options": [
+            "docker compose logs -f web",
+            "docker compose show web",
+            "docker compose debug web",
+            "docker compose cat web.log"
+          ],
+          "answer": "A",
+          "explanation": "`docker compose logs -f <service_name>` filters log streaming to the specified service."
+        },
+        {
+          "question": "In Docker Compose, what is the default network driver assigned to multi-container applications?",
+          "options": [
+            "Bridge network (providing isolated inter-container communication on the host).",
+            "None network (disabling all networking).",
+            "Overlay network (used exclusively across multiple Docker Swarm hosts).",
+            "Host network (bypassing all network isolation)."
+          ],
+          "answer": "A",
+          "explanation": "Docker Compose automatically provisions a custom user-defined Bridge network for each project, isolating services while enabling internal DNS resolution."
+        },
+        {
+          "question": "How should secrets and environment credentials be passed into Docker Compose in production?",
+          "options": [
+            "Committing database passwords in public GitHub repositories.",
+            "Sending credentials via email.",
+            "Writing passwords in HTML comments.",
+            "Through environment variables loaded from a secure `.env` file on the deployment server or cloud secret managers, never committing production `.env` to Git."
+          ],
+          "answer": "D",
+          "explanation": "Production credentials should be injected via host environment variables, CI/CD secret vaults, or cloud secret managers, keeping version control clean."
+        }
+      ]
+    },
+    {
+      "lessonId": "lesson-stg3-m3-l3",
+      "lessonTitle": "Deploying Full Stack Applications to Cloud (Render/AWS/Vercel)",
+      "totalQuestions": 20,
+      "questions": [
+        {
+          "question": "What is the industry-standard architectural strategy for deploying modern Full Stack applications (e.g. React frontend + Django backend)?",
+          "options": [
+            "Bundling the entire database inside the client's React bundle.",
+            "Running everything inside a single static HTML page with no servers.",
+            "Hosting frontend and backend on a physical computer in the developer's bedroom with dynamic IP.",
+            "Decoupling the frontend (deployed on a global Edge CDN platform like Vercel or Netlify) from the backend API (deployed on Render, AWS ECS, or Railway) connected to a managed cloud database (AWS RDS, Supabase, or Neon)."
+          ],
+          "answer": "D",
+          "explanation": "Decoupled architecture allows the frontend to benefit from global edge CDN caching while the backend scales compute independently and connects to resilient managed cloud databases."
+        },
+        {
+          "question": "What configuration file is required in a React Single Page Application (SPA) on Vercel to prevent HTTP 404 errors when refreshing client-side routes (e.g. `/dashboard`, `/courses`)?",
+          "options": [
+            "A `.htaccess` Apache script.",
+            "A `docker-compose.yml` file.",
+            "A `settings.py` file.",
+            "A `vercel.json` file with a rewrite rule mapping all routes to `index.html` (e.g. `{\"rewrites\": [{\"source\": \"/(.*)\", \"destination\": \"/index.html\"}]}`)."
+          ],
+          "answer": "D",
+          "explanation": "SPAs use client-side routing (React Router); rewrites in `vercel.json` direct all page requests to `index.html` so the JavaScript router can handle the URL."
+        },
+        {
+          "question": "What mandatory security setting in Django's `settings.py` MUST be set to `False` in production environments?",
+          "options": [
+            "`USE_TZ = False`",
+            "`DEBUG = False` to prevent exposing full database tracebacks, environment settings, and internal source code to unauthorized users upon errors.",
+            "`WSGI_APPLICATION = False`",
+            "`STATIC_URL = False`"
+          ],
+          "answer": "B",
+          "explanation": "Running `DEBUG = True` in production is a severe security vulnerability that leaks sensitive environment variables, database schemas, and stack traces."
+        },
+        {
+          "question": "What is the purpose of configuring `CSRF_TRUSTED_ORIGINS` in a production Django REST backend?",
+          "options": [
+            "To allow any anonymous hacker to delete database records.",
+            "To explicitly whitelist the trusted frontend domain URLs (e.g. `['https://my-app.vercel.app']`) allowed to perform state-changing POST, PUT, and DELETE requests, preventing HTTP 403 Forbidden errors.",
+            "To speed up database SQL queries.",
+            "To disable CORS security policies permanently."
+          ],
+          "answer": "B",
+          "explanation": "Django 4.0+ strictly enforces `CSRF_TRUSTED_ORIGINS` for cross-origin HTTPS requests; frontend domain origins must be explicitly listed."
+        },
+        {
+          "question": "How are static assets (CSS, JS, images) and user-uploaded media files stored in scalable cloud production environments?",
+          "options": [
+            "Files are stored in client browser localStorage.",
+            "Files are converted into database tables.",
+            "Static assets are collected via WhiteNoise or stored in AWS S3 with CloudFront CDN, while user media uploads are stored in cloud object storage (AWS S3, Cloudinary) using `django-storages` and `boto3`.",
+            "Files are saved directly on the local ephemeral container disk which deletes on restart."
+          ],
+          "answer": "C",
+          "explanation": "Cloud containers have ephemeral filesystems; persistent media and high-traffic static assets must be hosted on scalable object storage (AWS S3) backed by CDNs (CloudFront)."
+        },
+        {
+          "question": "What is a Continuous Integration and Continuous Deployment (CI/CD) pipeline (e.g. GitHub Actions)?",
+          "options": [
+            "A software tool that writes Python code automatically.",
+            "A manual process of uploading ZIP files via FTP once a month.",
+            "An automated workflow that triggers on code pushes to run test suites, lint checks, Docker builds, and automatically deploy validated builds to staging/production environments.",
+            "A database indexing algorithm."
+          ],
+          "answer": "C",
+          "explanation": "CI/CD automates code verification, container building, testing, and cloud deployment on every Git push or pull request."
+        },
+        {
+          "question": "In cloud PaaS platforms like Render or Heroku, how should database migrations (`python manage.py migrate`) be safely executed during deployment?",
+          "options": [
+            "Migrations should never be run in production.",
+            "Configured in the pre-deploy release phase command (e.g. `preDeployCommand: python manage.py migrate`), ensuring migrations run before new container instances receive live traffic.",
+            "Run inside the client's React frontend.",
+            "Executed manually by connecting to the production database from a coffee shop."
+          ],
+          "answer": "B",
+          "explanation": "Release phase commands execute database migrations automatically during deployment before new app containers spin up and serve live traffic."
+        },
+        {
+          "question": "What is AWS Elastic Container Service (ECS) with AWS Fargate?",
+          "options": [
+            "A local development tool.",
+            "A domain name registrar.",
+            "A serverless container orchestration service that runs Docker containers in production without requiring developers to provision, patch, or manage underlying EC2 virtual machine instances.",
+            "A video streaming service for gaming."
+          ],
+          "answer": "C",
+          "explanation": "AWS Fargate is a serverless compute engine for ECS, managing container scaling, high availability, and infrastructure provisioning automatically."
+        },
+        {
+          "question": "What does an Application Load Balancer (ALB) do in an AWS production web deployment?",
+          "options": [
+            "Distributes incoming HTTP/HTTPS traffic across multiple backend container instances, performs SSL termination, and routes traffic only to healthy instances via continuous health checks.",
+            "Generates artificial intelligence prompts.",
+            "Stores database backup files on disk.",
+            "Compiles Python code into machine instructions."
+          ],
+          "answer": "A",
+          "explanation": "ALBs provide high availability by balancing traffic across multiple container tasks, managing TLS certificates, and isolating failing instances."
+        },
+        {
+          "question": "What is 'Zero-Downtime Deployment' (e.g. Rolling Updates or Blue-Green Deployment)?",
+          "options": [
+            "A deployment strategy where new version containers are started and verified healthy before traffic is shifted away from old containers, ensuring end-users experience zero disruption.",
+            "Deleting the database before each deploy.",
+            "Deploying only during scheduled power outages.",
+            "Shutting down the entire server cluster for 5 hours during upgrades."
+          ],
+          "answer": "A",
+          "explanation": "Zero-downtime deployments spin up new container versions alongside existing ones, smoothly switching traffic with zero user-facing service interruptions."
+        },
+        {
+          "question": "Which Django settings are critical for enforcing HTTPS security in production?",
+          "options": [
+            "`DISABLE_HTTPS = True`.",
+            "`CORS_ALLOW_ALL_ORIGINS = True`.",
+            "`SECURE_SSL_REDIRECT = True`, `SESSION_COOKIE_SECURE = True`, `CSRF_COOKIE_SECURE = True`, and `SECURE_HSTS_SECONDS = 31536000`.",
+            "`DEBUG = True` and `ALLOWED_HOSTS = ['*']`."
+          ],
+          "answer": "C",
+          "explanation": "These security headers enforce HTTPS-only connections, prevent cookie transmission over plaintext HTTP, and mandate HTTP Strict Transport Security (HSTS)."
+        },
+        {
+          "question": "What is the role of Cloudflare or AWS CloudFront when configured in front of a web application?",
+          "options": [
+            "Managing Git branch merges.",
+            "Running PostgreSQL database queries.",
+            "Compiling React JSX code on the server.",
+            "Serving as a Content Delivery Network (CDN) and DDoS shield, caching static assets close to end-users globally and mitigating malicious traffic spikes."
+          ],
+          "answer": "D",
+          "explanation": "CDNs cache assets at edge locations around the world, reducing latency and shielding backend origins from DDoS attacks and traffic surges."
+        },
+        {
+          "question": "How should production database connection limits be managed when scaling backend Django containers horizontally?",
+          "options": [
+            "Opening 5,000 direct connections per container without pooling.",
+            "Using a database connection pooler like `PgBouncer` or AWS RDS Proxy to multiplex thousands of container connections into a pool of persistent database connections.",
+            "Restarting the database server every minute.",
+            "Disabling PostgreSQL connection limits."
+          ],
+          "answer": "B",
+          "explanation": "Connection poolers (PgBouncer/RDS Proxy) prevent PostgreSQL connection exhaustion when dozens of auto-scaling container instances query concurrently."
+        },
+        {
+          "question": "What tool is commonly used to monitor live application performance, endpoint latencies, and transaction bottlenecks in cloud production?",
+          "options": [
+            "Terminal `print()` statements.",
+            "Application Performance Monitoring (APM) tools like Sentry Performance, New Relic, or Datadog.",
+            "Windows Calculator.",
+            "Microsoft Excel."
+          ],
+          "answer": "B",
+          "explanation": "APM tools trace distributed requests across microservices, measuring database query durations, API latencies, and CPU bottlenecks."
+        },
+        {
+          "question": "What is the purpose of an Application Health Check endpoint (e.g. `/health/` or `/api/health/`) in cloud deployments?",
+          "options": [
+            "To allow cloud load balancers and orchestrators (AWS ALB, Kubernetes, Render) to periodically verify that the application and its database connection are functional before routing traffic.",
+            "To display advertisements to visitors.",
+            "To download software updates.",
+            "To measure the user's internet speed."
+          ],
+          "answer": "A",
+          "explanation": "Orchestrators poll health check endpoints; if an instance fails the check (returns non-200), traffic is rerouted and the faulty container is replaced."
+        },
+        {
+          "question": "How do you manage DNS records when pointing a custom domain (e.g., `api.example.com`) to a cloud service (Render/AWS/Vercel)?",
+          "options": [
+            "Typing the domain name into a Word document.",
+            "Disconnecting the server from the internet.",
+            "Sending an email to ICANN headquarters.",
+            "Configuring CNAME or ALIAS/ANAME records in the DNS provider (Cloudflare, Route 53) pointing to the platform's provided hostname."
+          ],
+          "answer": "D",
+          "explanation": "DNS CNAME/ALIAS records map custom domain subdomains to cloud provider endpoints with automatic SSL certificate issuance."
+        },
+        {
+          "question": "How should sensitive production secrets (such as `SECRET_KEY`, database credentials, and OpenAI API keys) be injected into cloud environments?",
+          "options": [
+            "Writing passwords in public HTML comments.",
+            "Hardcoding credentials in client-side React code.",
+            "Configuring them securely via the cloud platform's environment variable dashboard or secrets manager (e.g. AWS Secrets Manager, Render Environment Variables).",
+            "Committing `.env` files containing production secrets to public GitHub repositories."
+          ],
+          "answer": "C",
+          "explanation": "Cloud secret managers and encrypted environment dashboards inject secrets directly into container processes at launch without exposing them in Git."
+        },
+        {
+          "question": "What is an 'Automated Database Snapshot / Point-in-Time Recovery (PITR)' in managed cloud databases?",
+          "options": [
+            "Continuous automated backups and transaction logging that allow restoring the database to any exact second in the past in the event of data corruption or accidental deletion.",
+            "A photograph of the server hardware taken by webcam.",
+            "A tool that deletes old records.",
+            "A git commit of the SQL schema."
+          ],
+          "answer": "A",
+          "explanation": "Managed database PITR enables seamless recovery to any historical timestamp within the retention window by replaying transaction logs over snapshots."
+        },
+        {
+          "question": "What is the purpose of centralized log aggregation (e.g. AWS CloudWatch, Datadog, Papertrail) in containerized deployments?",
+          "options": [
+            "Aggregating stdout/stderr streams from ephemeral containers into a centralized, searchable, and alertable dashboard that persists even after containers terminate.",
+            "Deleting logs to hide bugs.",
+            "Compressing logs into audio files.",
+            "Printing logs on physical paper."
+          ],
+          "answer": "A",
+          "explanation": "Centralized logging collects logs across dynamic container fleets, enabling search, filtering, and real-time alerts regardless of container churn."
+        },
+        {
+          "question": "What cost optimization practice helps minimize cloud expenses for background workloads and non-critical services?",
+          "options": [
+            "Running 100 large instances 24/7 with zero traffic.",
+            "Hardcoding maximum GPU allocations permanently.",
+            "Disabling automated backups.",
+            "Utilizing auto-scaling policies to scale container instances to zero during low-traffic periods and leveraging Spot / Preemptible instances for asynchronous background processing."
+          ],
+          "answer": "D",
+          "explanation": "Auto-scaling to demand, using spot instances for Celery queues, and right-sizing memory allocations prevents over-provisioning and lowers cloud bills."
+        }
+      ]
+    }
+  ]
+}

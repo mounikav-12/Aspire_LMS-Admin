@@ -1,0 +1,915 @@
+{
+  "moduleId": "mod-html",
+  "moduleName": "Module 2: HTML5 & Web Architecture",
+  "courseId": "crs-1786624019154-w",
+  "lessons": [
+    {
+      "lessonId": "lesson-1787196281985-4",
+      "lessonTitle": "Lesson 1: Web Architecture & Client-Server Communication Model",
+      "totalQuestions": 20,
+      "questions": [
+        {
+          "question": "What is the primary role of a DNS (Domain Name System) server in web architecture?",
+          "options": [
+            "Rendering DOM trees and executing JavaScript code on client machines",
+            "Storing HTML, CSS, and JavaScript source files directly on edge web servers",
+            "Translating human-readable domain names (e.g., example.com) into numerical IP addresses",
+            "Encrypting HTTP request payloads before transmission over the public Internet"
+          ],
+          "answer": "C",
+          "explanation": "DNS acts as the Internet's address book, translating domain names like 'google.com' into machine-routable IP addresses like '142.250.190.46'."
+        },
+        {
+          "question": "Which default TCP port numbers are standard for unencrypted HTTP and encrypted HTTPS traffic, respectively?",
+          "options": [
+            "Port 22 for HTTP and Port 80 for HTTPS",
+            "Port 80 for HTTP and Port 443 for HTTPS",
+            "Port 21 for HTTP and Port 443 for HTTPS",
+            "Port 8080 for HTTP and Port 8443 for HTTPS"
+          ],
+          "answer": "B",
+          "explanation": "Standard web protocols use TCP port 80 for standard HTTP traffic and port 443 for SSL/TLS encrypted HTTPS traffic."
+        },
+        {
+          "question": "In the TCP 3-way handshake used to establish a reliable connection between client and server, what is the exact order of packet flags sent?",
+          "options": [
+            "SYN -> SYN-ACK -> ACK",
+            "PING -> PONG -> ACK",
+            "ACK -> SYN -> SYN-ACK",
+            "SYN -> ACK -> FIN"
+          ],
+          "answer": "A",
+          "explanation": "The TCP handshake begins with the client sending a SYN packet, the server replying with SYN-ACK, and the client confirming with an ACK packet before data transmission begins."
+        },
+        {
+          "question": "Which HTTP method is considered both safe (does not alter server state) and idempotent (multiple identical requests yield the same outcome)?",
+          "options": [
+            "GET",
+            "POST",
+            "CONNECT",
+            "PATCH"
+          ],
+          "answer": "A",
+          "explanation": "GET and HEAD are both safe and idempotent because retrieving a resource does not modify server state and calling it repeatedly produces identical results without side effects."
+        },
+        {
+          "question": "What does the HTTP status code 304 'Not Modified' indicate to the client?",
+          "options": [
+            "The server encountered a temporary internal error and cannot process the request",
+            "The client is unauthorized and must provide valid authentication credentials",
+            "The requested resource has not changed since the version specified in the client's cache headers (e.g., If-None-Match / ETag), so the browser should use its cached copy",
+            "The requested URL has permanently moved to a new destination URI"
+          ],
+          "answer": "C",
+          "explanation": "Status code 304 informs the browser that its cached copy of the resource is still fresh based on validation headers (like ETag or If-Modified-Since), saving bandwidth by not resending the response body."
+        },
+        {
+          "question": "Why is HTTP described as a 'stateless' protocol?",
+          "options": [
+            "The protocol cannot send binary data such as images or video streams",
+            "Servers are legally prohibited from caching user data across sessions",
+            "Each request from a client is treated as completely independent, with the server retaining no memory of past requests by default",
+            "Clients must re-establish a brand new TCP connection for every single asset requested"
+          ],
+          "answer": "C",
+          "explanation": "Statelessness means the server does not retain session context between transactions; state must be maintained explicitly using cookies, tokens, or sessions."
+        },
+        {
+          "question": "Which sequence accurately depicts the Critical Rendering Path executed by a web browser?",
+          "options": [
+            "DOM Construction -> Paint -> Layout -> CSSOM Construction -> Compositing",
+            "CSSOM Construction -> Paint -> Render Tree -> Layout -> DOM Construction",
+            "HTML parsing -> DOM Construction + CSSOM Construction -> Render Tree -> Layout (Reflow) -> Paint -> Compositing",
+            "JavaScript Execution -> Layout -> DOM Construction -> Paint -> CSSOM Construction"
+          ],
+          "answer": "C",
+          "explanation": "The browser parses HTML to build the DOM and CSS to build the CSSOM, combines them into a Render Tree, computes exact positions in Layout, paints pixels, and composites layers onto screen."
+        },
+        {
+          "question": "What is the key difference between loading an external script with 'async' versus 'defer' in HTML5?",
+          "options": [
+            "'async' scripts execute as soon as they finish downloading (interrupting HTML parsing), while 'defer' scripts execute only after the entire HTML document is parsed, in order",
+            "'defer' executes immediately when encountered, whereas 'async' waits for user interaction",
+            "'async' scripts only work for inline scripts, whereas 'defer' is required for external URLs",
+            "'defer' scripts block HTML parsing during download, whereas 'async' scripts never download in parallel"
+          ],
+          "answer": "A",
+          "explanation": "Both attributes download scripts asynchronously in the background, but 'async' runs immediately upon download (potentially blocking parsing), while 'defer' guarantees execution in source order after DOM parsing finishes."
+        },
+        {
+          "question": "What is the primary function of a Reverse Proxy (e.g., Nginx, HAProxy) in web architecture?",
+          "options": [
+            "To inspect and filter outgoing traffic initiated by internal employees within a corporate intranet",
+            "To sit in front of web/application servers to handle load balancing, SSL termination, caching, and routing client requests",
+            "To compile JavaScript code into native machine code directly on client devices",
+            "To replace relational database storage engines with file system caches"
+          ],
+          "answer": "B",
+          "explanation": "A reverse proxy sits in front of backend servers to intercept incoming client requests, performing load balancing, SSL termination, caching, and security filtering."
+        },
+        {
+          "question": "When a browser makes a cross-origin HTTP request with custom headers or methods other than GET/POST/HEAD, what does it send first?",
+          "options": [
+            "A TCP RESET packet to test if the remote firewall is open",
+            "A WebSocket upgrade handshake request to verify network latency",
+            "A preliminary GET request containing the user's plain-text session cookie",
+            "A Preflight request using the HTTP 'OPTIONS' method to check server CORS permissions"
+          ],
+          "answer": "D",
+          "explanation": "The browser issues a preflight OPTIONS request containing Origin and Access-Control headers to verify if the server permits the cross-origin operation before sending the actual request."
+        },
+        {
+          "question": "Which HTTP status code series represents Client Errors, such as malformed requests, unauthorized access, or non-existent routes?",
+          "options": [
+            "3xx (e.g., 301, 302, 304)",
+            "5xx (e.g., 500, 502, 503)",
+            "2xx (e.g., 200, 201, 204)",
+            "4xx (e.g., 400, 401, 403, 404)"
+          ],
+          "answer": "D",
+          "explanation": "4xx status codes indicate client-side errors (e.g., 400 Bad Request, 401 Unauthorized, 403 Forbidden, 404 Not Found)."
+        },
+        {
+          "question": "What is the key advantage of WebSockets over traditional HTTP polling for real-time bidirectional applications?",
+          "options": [
+            "WebSockets maintain a persistent, full-duplex TCP connection with minimal frame overhead after an initial HTTP handshake",
+            "WebSockets do not require any network ports or TCP connections",
+            "WebSockets automatically encrypt all data without needing TLS certificates",
+            "WebSockets guarantee zero packet loss over unreliable cellular networks"
+          ],
+          "answer": "A",
+          "explanation": "WebSockets upgrade an HTTP connection to a persistent, bi-directional, full-duplex TCP channel, eliminating the latency and overhead of continuous HTTP request/response cycles."
+        },
+        {
+          "question": "What HTTP header does a server send to tell the browser not to cache a response under any circumstances?",
+          "options": [
+            "Cache-Control: no-store",
+            "Cache-Control: max-age=0",
+            "Pragma: public",
+            "Cache-Control: no-cache"
+          ],
+          "answer": "A",
+          "explanation": "'no-store' directs the browser and intermediate proxies never to store any version of the response in cache. 'no-cache' allows caching but forces revalidation before reuse."
+        },
+        {
+          "question": "In the URL 'https://api.example.com:8080/v1/users?role=admin#section2', which component represents the query parameters?",
+          "options": [
+            "api.example.com",
+            "role=admin",
+            "8080",
+            "#section2"
+          ],
+          "answer": "B",
+          "explanation": "In a URL, the query string follows the '?' symbol (here 'role=admin'), while '#section2' is the fragment/hash identifier."
+        },
+        {
+          "question": "What is the primary difference between HTTP/1.1 and HTTP/2 regarding request handling?",
+          "options": [
+            "HTTP/2 only supports plain text payloads and disallows binary file transfers",
+            "HTTP/2 introduces binary framing and multiplexing, allowing multiple bidirectional streams over a single TCP connection without Head-of-Line blocking at the application layer",
+            "HTTP/2 abandons TCP completely and runs exclusively over UDP",
+            "HTTP/2 eliminates all request headers to reduce bandwidth consumption"
+          ],
+          "answer": "B",
+          "explanation": "HTTP/2 multiplexes multiple requests and responses over a single TCP connection using binary frames, solving HTTP/1.1's application-layer Head-of-Line blocking."
+        },
+        {
+          "question": "What is the role of a Content Delivery Network (CDN) in modern web architecture?",
+          "options": [
+            "Compiling Python or Java backend code into executable binaries on the fly",
+            "Preventing all client-side JavaScript execution to enhance security",
+            "Managing database transactions and enforcing ACID compliance",
+            "Distributing cached static assets across geographically dispersed edge servers to reduce latency and origin server load"
+          ],
+          "answer": "D",
+          "explanation": "CDNs store static assets (images, stylesheets, scripts) on edge servers located geographically close to users, drastically cutting latency and reducing origin server load."
+        },
+        {
+          "question": "Which of the following describes the difference between an Application Server (e.g., Gunicorn, Uvicorn, Node.js) and a Web Server (e.g., Nginx, Apache)?",
+          "options": [
+            "There is no difference; both terms refer to the exact same software component",
+            "Web servers parse SQL queries directly, while application servers handle DNS routing",
+            "Application servers only run on mobile phones, whereas web servers only run in physical cloud datacenters",
+            "Web servers specialize in serving static files and routing traffic, whereas application servers execute dynamic server-side application logic and database interactions"
+          ],
+          "answer": "D",
+          "explanation": "Web servers (Nginx/Apache) handle static files, SSL termination, and reverse proxy routing, while application servers execute dynamic programming logic (Python/Django/Node.js)."
+        },
+        {
+          "question": "Which HTTP status code is returned when a server acting as a gateway or proxy receives an invalid or no response from an upstream server?",
+          "options": [
+            "504 Gateway Timeout",
+            "502 Bad Gateway",
+            "500 Internal Server Error",
+            "404 Not Found"
+          ],
+          "answer": "B",
+          "explanation": "502 Bad Gateway occurs when an intermediary proxy (like Nginx) receives an invalid or dropped response from the upstream application server (like Gunicorn/Node)."
+        },
+        {
+          "question": "What is the Same-Origin Policy (SOP) enforced by modern web browsers?",
+          "options": [
+            "A rule that forces every web server to share its database credentials with clients",
+            "A network restriction preventing a computer from opening multiple browser tabs simultaneously",
+            "A core security mechanism that restricts scripts on one origin from accessing or reading sensitive DOM/data on a different origin (protocol, domain, or port mismatch)",
+            "A policy requiring all web pages to use the same CSS styling framework"
+          ],
+          "answer": "C",
+          "explanation": "Same-Origin Policy isolates potentially malicious documents, preventing scripts on `site-a.com` from reading cookies or DOM data belonging to `site-b.com`."
+        },
+        {
+          "question": "How does Server-Side Rendering (SSR) differ from a Client-Side Rendered Single Page Application (SPA)?",
+          "options": [
+            "SSR does not allow the use of any CSS or styling on web pages",
+            "SSR runs exclusively on client web browsers without needing any server hardware",
+            "SPAs cannot communicate with backend APIs or databases",
+            "SSR generates the complete HTML page on the server for each request, whereas SPAs deliver a minimal HTML shell and render UI components dynamically in the browser via JavaScript"
+          ],
+          "answer": "D",
+          "explanation": "SSR builds full HTML markup on the server before sending it to the client (improving initial page load and SEO), while SPAs download a bundle and build the DOM in the browser via JS."
+        }
+      ]
+    },
+    {
+      "lessonId": "lesson-1787196281985-5",
+      "lessonTitle": "Lesson 2: HTML5 Document Structure & Semantic Elements",
+      "totalQuestions": 20,
+      "questions": [
+        {
+          "question": "What is the primary purpose of the `<!DOCTYPE html>` declaration at the beginning of an HTML file?",
+          "options": [
+            "To allocate memory in the browser's JavaScript engine before page load",
+            "To specify the server-side database schema for web form submissions",
+            "To inform the browser that the document is written in HTML5 and ensure standard rendering mode rather than quirks mode",
+            "To link external CSS and JavaScript files to the document automatically"
+          ],
+          "answer": "C",
+          "explanation": "The `<!DOCTYPE html>` declaration is a document type declaration that tells modern browsers to render the webpage in standards-compliant mode rather than legacy quirks mode."
+        },
+        {
+          "question": "Which `<meta>` tag is essential inside `<head>` to ensure proper scaling and responsive rendering on mobile devices?",
+          "options": [
+            "<meta http-equiv=\"X-UA-Compatible\" content=\"mobile=1\">",
+            "<meta name=\"responsive\" content=\"true\">",
+            "<meta name=\"screen-size\" content=\"device-width\">",
+            "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">"
+          ],
+          "answer": "D",
+          "explanation": "The viewport meta tag instructs mobile browsers to set the viewport width to the device screen width and establish an initial 1:1 zoom ratio."
+        },
+        {
+          "question": "Why should web developers use semantic HTML tags (e.g., `<article>`, `<nav>`, `<header>`) instead of generic `<div>` tags everywhere?",
+          "options": [
+            "Semantic tags encrypt all textual content to prevent web scraping",
+            "Semantic tags convey structural meaning to search engines, assistive technologies (screen readers), and improve code maintainability",
+            "Semantic tags automatically apply modern CSS grid styling without writing any CSS",
+            "Browsers execute JavaScript 50% faster when semantic elements are present"
+          ],
+          "answer": "B",
+          "explanation": "Semantic HTML provides contextual meaning to both search engines (SEO) and accessibility tools (screen readers), making pages accessible and structured."
+        },
+        {
+          "question": "According to HTML5 specifications, how many `<main>` elements should be visible and unique within a single document?",
+          "options": [
+            "As many as desired, with one inside every `<section>` and `<article>`",
+            "Exactly one `<main>` element representing the dominant central content of the document",
+            "At least two: one for desktop view and one for mobile view",
+            "Zero, because `<main>` has been deprecated in HTML5 in favor of `<div id='main'>`"
+          ],
+          "answer": "B",
+          "explanation": "The `<main>` element represents the dominant content unique to that document and must not be duplicated or nested inside `<article>`, `<aside>`, `<footer>`, `<header>`, or `<nav>`."
+        },
+        {
+          "question": "What is the primary semantic distinction between the `<article>` and `<section>` elements in HTML5?",
+          "options": [
+            "`<article>` is meant for self-contained, independently distributable content (e.g., a blog post or tweet), whereas `<section>` groups thematic content typically with a heading",
+            "`<article>` can only contain plain text, whereas `<section>` can only contain images",
+            "`<article>` creates a sidebar layout, whereas `<section>` creates full-width containers",
+            "`<section>` is used exclusively for page headers, whereas `<article>` is used exclusively for footers"
+          ],
+          "answer": "A",
+          "explanation": "An `<article>` represents an independent, reusable composition (like a blog post, comment, or product card), whereas a `<section>` represents a standalone generic section of a document grouped by theme."
+        },
+        {
+          "question": "Which HTML5 element is most appropriate for sidebar content, callout boxes, or related links that are tangentially related to the surrounding content?",
+          "options": [
+            "<aside>",
+            "<appendix>",
+            "<sidebar>",
+            "<section type='side'>"
+          ],
+          "answer": "A",
+          "explanation": "The `<aside>` element represents content tangentially related to the main content around it, such as sidebars, pull quotes, or advertising units."
+        },
+        {
+          "question": "Which element pair is semantically designed to group an illustrative image or code snippet together with its descriptive caption?",
+          "options": [
+            "<img> and <alt>",
+            "<media> and <caption>",
+            "<figure> and <figcaption>",
+            "<picture> and <label>"
+          ],
+          "answer": "C",
+          "explanation": "The `<figure>` element encapsulates self-contained content (like diagrams, photos, or code snippets), and `<figcaption>` provides its associated caption."
+        },
+        {
+          "question": "What is the difference in semantic meaning between `<strong>` vs `<b>`, and `<em>` vs `<i>`?",
+          "options": [
+            "There is no difference in semantics or accessibility between these pairs",
+            "`<strong>` and `<em>` convey importance and linguistic emphasis (read with stress by screen readers), while `<b>` and `<i>` represent stylistic bolding/italics without extra semantic importance",
+            "`<strong>` and `<em>` are deprecated legacy tags, whereas `<b>` and `<i>` are modern HTML5 elements",
+            "`<b>` and `<i>` trigger bold and italic fonts in CSS, while `<strong>` and `<em>` only work in HTML tables"
+          ],
+          "answer": "B",
+          "explanation": "`<strong>` signifies strong importance/urgency, and `<em>` indicates verbal stress emphasis. `<b>` and `<i>` merely apply typographic style without implying structural weight to assistive tech."
+        },
+        {
+          "question": "When creating external links with `target=\"_blank\"`, why is it a security best practice to add `rel=\"noopener noreferrer\"`?",
+          "options": [
+            "To prevent the newly opened target page from accessing the opening window object via `window.opener` (preventing tabnabbing attacks)",
+            "To prevent search engines from indexing the current website",
+            "To force the browser to download the linked webpage as a local PDF file",
+            "To disable all CSS styling on the linked external webpage"
+          ],
+          "answer": "A",
+          "explanation": "Without `rel=\"noopener\"`, the destination page gains a reference to `window.opener` and can manipulate the original tab's location (reverse tabnabbing exploit)."
+        },
+        {
+          "question": "Which of the following represents a correct, accessible HTML heading hierarchy structure?",
+          "options": [
+            "<h3> -> <h1> -> <h6> -> <h5>",
+            "<h1> -> <h2> -> <h3> -> <h2>",
+            "<h1> -> <h4> -> <h2> -> <h6>",
+            "<h6> -> <h5> -> <h4> -> <h3>"
+          ],
+          "answer": "B",
+          "explanation": "Headings must follow a logical sequential order without skipping levels downward (e.g., from `<h1>` directly to `<h4>`), allowing screen readers to construct a meaningful outline."
+        },
+        {
+          "question": "Which HTML tag structure is used to create a Description List (glossary or key-value list)?",
+          "options": [
+            "<ol type='desc'> containing <item> and <val>",
+            "<ul> containing <li> with nested <label> and <text>",
+            "<dictionary> containing <key> and <value>",
+            "<dl> containing pairs of <dt> (term) and <dd> (description)"
+          ],
+          "answer": "D",
+          "explanation": "A description list is declared with `<dl>`, enclosing term items (`<dt>`) and their corresponding definitions or descriptions (`<dd>`)."
+        },
+        {
+          "question": "Which HTML entity should be used to display the literal character '<' in webpage text without triggering HTML parser tag errors?",
+          "options": [
+            "&lt;",
+            "&lessthan;",
+            "&amp;",
+            "&gt;"
+          ],
+          "answer": "A",
+          "explanation": "`&lt;` stands for 'less than' (`<`), while `&gt;` is 'greater than' (`>`), and `&amp;` is the ampersand (`&`)."
+        },
+        {
+          "question": "What is the proper attribute syntax in HTML5 to store private custom data directly on an HTML element for JavaScript consumption?",
+          "options": [
+            "custom-* (e.g., custom-user-id=\"42\")",
+            "meta-* (e.g., meta-user-id=\"42\")",
+            "data-* (e.g., data-user-id=\"42\")",
+            "var-* (e.g., var-user-id=\"42\")"
+          ],
+          "answer": "C",
+          "explanation": "HTML5 specifies the `data-*` prefix for embedding custom data attributes on standard elements, accessible via JavaScript's `element.dataset` property."
+        },
+        {
+          "question": "Which boolean HTML5 global attribute completely hides an element from both visual display and screen reader accessibility trees?",
+          "options": [
+            "invisible",
+            "display-none",
+            "aria-hide",
+            "hidden"
+          ],
+          "answer": "D",
+          "explanation": "The `hidden` attribute specifies that an element is not yet, or is no longer, relevant, hiding it visually and from assistive technologies (similar to `display: none`)."
+        },
+        {
+          "question": "What does the `lang=\"en\"` attribute on the root `<html>` element accomplish?",
+          "options": [
+            "It restricts users from typing non-English characters into input forms",
+            "It sets the character encoding of the database server to English UTF-8",
+            "It automatically translates any foreign words on the webpage into English",
+            "It informs browsers, search engines, and screen readers of the primary natural language of the document for correct pronunciation and indexing"
+          ],
+          "answer": "D",
+          "explanation": "The `lang` attribute declares the base natural language of the text, enabling screen readers to load correct pronunciation engines and assisting search engines."
+        },
+        {
+          "question": "Which element is used to highlight or mark text for reference purposes due to its relevance in another context (e.g., search results)?",
+          "options": [
+            "<spotlight>",
+            "<yellow>",
+            "<highlight>",
+            "<mark>"
+          ],
+          "answer": "D",
+          "explanation": "The `<mark>` tag represents text marked or highlighted for reference or notation purposes, typically due to its relevance in a search query or user action."
+        },
+        {
+          "question": "Which Open Graph `<meta>` property is used by social platforms (LinkedIn, Facebook, Discord) to display a preview thumbnail when a link is shared?",
+          "options": [
+            "<meta name=\"preview-img\" content=\"https://example.com/banner.png\">",
+            "<meta name=\"thumbnail\" content=\"https://example.com/banner.png\">",
+            "<meta property=\"og:image\" content=\"https://example.com/banner.png\">",
+            "<meta property=\"social:poster\" content=\"https://example.com/banner.png\">"
+          ],
+          "answer": "C",
+          "explanation": "The Open Graph protocol defines `og:image` as the standardized property for social share thumbnail previews."
+        },
+        {
+          "question": "What is the semantic role of the `<time>` element in HTML5?",
+          "options": [
+            "To pause JavaScript execution for a specified number of seconds",
+            "To measure the network latency and loading speed of the current webpage",
+            "To represent a specific period in time or a timestamp in a machine-readable format using the `datetime` attribute",
+            "To display an animated real-time countdown clock in the browser toolbar"
+          ],
+          "answer": "C",
+          "explanation": "The `<time>` element represents time or date data, providing a machine-readable ISO format via the `datetime` attribute (e.g., `<time datetime=\"2026-09-11\">`)."
+        },
+        {
+          "question": "Which of the following is a classic inline element by default in HTML?",
+          "options": [
+            "<span>",
+            "<p>",
+            "<section>",
+            "<div>"
+          ],
+          "answer": "A",
+          "explanation": "`<span>` is an inline element that only occupies the width necessary for its content and does not break onto a new line, unlike block elements (`<div>`, `<p>`, `<section>`)."
+        },
+        {
+          "question": "Which attribute can be added to an HTML element to allow users to directly edit its text content directly in the browser?",
+          "options": [
+            "interactive=\"text\"",
+            "contenteditable=\"true\"",
+            "allow-input=\"true\"",
+            "user-editable=\"true\""
+          ],
+          "answer": "B",
+          "explanation": "The global `contenteditable` attribute transforms any HTML element into a rich-text editable region in the browser."
+        }
+      ]
+    },
+    {
+      "lessonId": "lesson-1787196281985-6",
+      "lessonTitle": "Lesson 3: HTML Forms, Input Types, & Client-Side Validation",
+      "totalQuestions": 20,
+      "questions": [
+        {
+          "question": "Which `<form>` attribute specifies the MIME type encoding used when submitting forms containing binary files?",
+          "options": [
+            "enctype=\"binary/octet-stream\"",
+            "enctype=\"text/plain\"",
+            "enctype=\"application/x-www-form-urlencoded\"",
+            "enctype=\"multipart/form-data\""
+          ],
+          "answer": "D",
+          "explanation": "When uploading files via `<input type=\"file\">`, the form must use `method=\"POST\"` and `enctype=\"multipart/form-data\"` so the browser splits inputs into MIME parts."
+        },
+        {
+          "question": "How do you correctly bind an explicit `<label>` to an `<input>` element for maximum accessibility?",
+          "options": [
+            "Set the `<label>`'s `name` attribute equal to the `<input>`'s `name` attribute",
+            "Set the `<label>`'s `for` attribute equal to the `<input>` element's `id` attribute",
+            "Set the `<label>`'s `id` attribute equal to the `<input>`'s `placeholder` attribute",
+            "Set the `<label>`'s `href` attribute to point to the input's CSS class name"
+          ],
+          "answer": "B",
+          "explanation": "Binding `label for=\"xyz\"` to `input id=\"xyz\"` ensures screen readers announce the label when the input receives focus, and clicking the label focuses the input."
+        },
+        {
+          "question": "What happens when a form control has the `disabled` attribute compared to the `readonly` attribute upon form submission?",
+          "options": [
+            "Both `disabled` and `readonly` fields are submitted normally with empty values",
+            "Fields with `readonly` are omitted from submission, while `disabled` fields are submitted",
+            "Fields with `disabled` are omitted from the form submission payload, while fields with `readonly` are included and sent",
+            "Neither `disabled` nor `readonly` fields can ever be inspected via JavaScript DOM"
+          ],
+          "answer": "C",
+          "explanation": "A `disabled` input is ignored during form submission (not submitted in the payload), whereas a `readonly` input prevents user edits but submits its value."
+        },
+        {
+          "question": "Which HTML5 input attribute enforces client-side validation using a regular expression pattern?",
+          "options": [
+            "validate",
+            "pattern",
+            "regex",
+            "match"
+          ],
+          "answer": "B",
+          "explanation": "The `pattern` attribute accepts a JavaScript regular expression (e.g., `pattern=\"[0-9]{10}\"`) that the input's value must match before submission."
+        },
+        {
+          "question": "Which HTML5 element provides pre-defined autocomplete options for an `<input>` field while still allowing custom user input?",
+          "options": [
+            "<datalist>",
+            "<select>",
+            "<autocomplete>",
+            "<optgroup>"
+          ],
+          "answer": "A",
+          "explanation": "A `<datalist>` contains a set of `<option>` elements connected to an `<input list=\"listId\">`, offering suggested autocomplete options without restricting custom entries."
+        },
+        {
+          "question": "How do you group multiple radio buttons together so that selecting one automatically deselects the others?",
+          "options": [
+            "Give all radio buttons in the group the exact same `name` attribute",
+            "Give all radio buttons the exact same `id` attribute",
+            "Wrap each radio button in the same `<fieldset>` without any names",
+            "Set their `type` attribute to `type=\"radio-group\"`"
+          ],
+          "answer": "A",
+          "explanation": "Radio buttons sharing the same `name` attribute belong to a mutual exclusion group where only one radio button can be checked at a time."
+        },
+        {
+          "question": "Which elements are used to semantically group related form controls together with a visible title or caption?",
+          "options": [
+            "<section> and <caption>",
+            "<group> and <title>",
+            "<fieldset> and <legend>",
+            "<formgroup> and <label>"
+          ],
+          "answer": "C",
+          "explanation": "The `<fieldset>` element groups related controls in a form, and `<legend>` provides an accessible caption for the fieldset container."
+        },
+        {
+          "question": "What is the default `type` attribute of a `<button>` element placed inside a `<form>` if none is specified?",
+          "options": [
+            "type=\"menu\"",
+            "type=\"reset\"",
+            "type=\"submit\"",
+            "type=\"button\""
+          ],
+          "answer": "C",
+          "explanation": "By default, standard `<button>` elements inside a form have `type=\"submit\"`. If you want a button to not submit the form, you must explicitly set `type=\"button\"`."
+        },
+        {
+          "question": "Which HTML5 input type provides a slider control for selecting a numerical value within a bounded range?",
+          "options": [
+            "<input type=\"number-bar\">",
+            "<input type=\"scroll\">",
+            "<input type=\"range\">",
+            "<input type=\"slider\">"
+          ],
+          "answer": "C",
+          "explanation": "`<input type=\"range\">` renders a slider control allowing the user to select an imprecise or bounded numeric value between `min` and `max`."
+        },
+        {
+          "question": "What does the `novalidate` attribute on a `<form>` element do?",
+          "options": [
+            "It converts all POST requests into GET requests automatically",
+            "It bypasses the browser's native HTML5 client-side validation constraints upon submission",
+            "It disables all server-side validation checks on backend API endpoints",
+            "It prevents the user from typing special characters into any text field"
+          ],
+          "answer": "B",
+          "explanation": "Adding `novalidate` to `<form>` suppresses browser built-in popup constraint validation messages, useful when handling validation entirely through custom JavaScript."
+        },
+        {
+          "question": "Which HTML element is semantically designed to display the calculated result of a user action or form calculation?",
+          "options": [
+            "<output>",
+            "<calc>",
+            "<computed>",
+            "<result>"
+          ],
+          "answer": "A",
+          "explanation": "The `<output>` element represents the calculation result from script operations or form calculations (e.g., dynamic pricing or range sliders)."
+        },
+        {
+          "question": "Which attribute allows an `<input type=\"file\">` element to accept only JPEG and PNG image files?",
+          "options": [
+            "extensions=\".jpeg, .png\"",
+            "filter=\"*.jpg, *.png\"",
+            "type-restrict=\"images\"",
+            "accept=\"image/jpeg, image/png\""
+          ],
+          "answer": "D",
+          "explanation": "The `accept` attribute specifies a comma-separated list of allowed file types or MIME types that the operating system file picker will filter."
+        },
+        {
+          "question": "What is the purpose of the `step` attribute on numerical and date inputs?",
+          "options": [
+            "It controls the animation speed of form transition effects",
+            "It defines how many times a form can be submitted before timing out",
+            "It determines the tab order when a user presses the Tab key",
+            "It specifies the legal number intervals or increments that the input value can jump by (e.g., step=\"0.01\" for currency)"
+          ],
+          "answer": "D",
+          "explanation": "The `step` attribute defines valid numeric increments (e.g., `step=\"5\"` allows 0, 5, 10, etc., and `step=\"0.01\"` allows cents in financial inputs)."
+        },
+        {
+          "question": "Why is client-side HTML5 form validation alone never sufficient for web application security?",
+          "options": [
+            "Modern web browsers charge licensing fees for verifying form constraints",
+            "HTML5 input validation only works when the client is disconnected from the Internet",
+            "Client-side validation causes severe memory leaks in the browser's DOM parser",
+            "Client-side validation can easily be bypassed, modified, or disabled by attackers using developer tools or direct API requests (e.g., curl/Postman)"
+          ],
+          "answer": "D",
+          "explanation": "Client validation improves user experience, but server-side validation is strictly mandatory because anyone can send raw HTTP requests directly to backend endpoints."
+        },
+        {
+          "question": "Which JavaScript method on an HTML form element can be called to trigger native constraint validation checks programmatically?",
+          "options": [
+            "checkValidity()",
+            "verifyForm()",
+            "isFormCorrect()",
+            "testValidation()"
+          ],
+          "answer": "A",
+          "explanation": "The Constraint Validation API method `element.checkValidity()` returns `true` if an element satisfies all its validation constraints, or `false` otherwise."
+        },
+        {
+          "question": "What is the primary difference between `<progress>` and `<meter>` elements?",
+          "options": [
+            "`<progress>` represents task completion progress toward a goal, while `<meter>` represents a scalar measurement within a known range (e.g., disk usage, battery level)",
+            "`<progress>` only supports binary yes/no states, while `<meter>` supports text inputs",
+            "`<meter>` is used for music volume, while `<progress>` is used exclusively for video streaming",
+            "There is no difference; both are interchangeable synonyms in HTML5"
+          ],
+          "answer": "A",
+          "explanation": "`<progress>` indicates completion percentage of an ongoing task, while `<meter>` represents a scalar gauge measurement within a known range (like disk space or temperature)."
+        },
+        {
+          "question": "What autocomplete attribute value is recommended for password fields to assist password managers when a user registers a new account?",
+          "options": [
+            "autocomplete=\"current-password\"",
+            "autocomplete=\"generate\"",
+            "autocomplete=\"new-password\"",
+            "autocomplete=\"create-pass\""
+          ],
+          "answer": "C",
+          "explanation": "`autocomplete=\"new-password\"` prompts password managers to generate and store a secure strong password instead of autofilling existing credentials."
+        },
+        {
+          "question": "How are form values transmitted when a `<form>` uses `method=\"GET\"`?",
+          "options": [
+            "Sent over a separate background WebSocket channel",
+            "Stored in local browser cookies and never transmitted over the network",
+            "Included as an encrypted JSON binary payload in the HTTP request body",
+            "Appended directly to the destination URL as URI-encoded key-value query parameters"
+          ],
+          "answer": "D",
+          "explanation": "Forms with `method=\"GET\"` encode input names and values as query parameters in the URL (e.g., `/search?q=term`), making them bookmarkable but visible in browser history."
+        },
+        {
+          "question": "What is the purpose of including a hidden input field (`<input type=\"hidden\">`) with a CSRF token in server-rendered forms?",
+          "options": [
+            "To compress images uploaded by the user before network transmission",
+            "To protect the application against Cross-Site Request Forgery by ensuring the form submission originated from an authenticated session on the trusted site",
+            "To bypass HTTPS encryption overhead on local development servers",
+            "To store the user's plain-text credit card number securely in the browser cache"
+          ],
+          "answer": "B",
+          "explanation": "CSRF tokens stored in hidden inputs validate that the request was generated by the actual authenticated user and not forged by a malicious third-party site."
+        },
+        {
+          "question": "Which attribute can be set on an input to automatically focus it when the webpage finishes loading?",
+          "options": [
+            "auto-select",
+            "autofocus",
+            "default-focus",
+            "active"
+          ],
+          "answer": "B",
+          "explanation": "The `autofocus` boolean attribute instructs the browser to place keyboard focus on that specific form control upon initial page load."
+        }
+      ]
+    },
+    {
+      "lessonId": "lesson-1787196281985-7",
+      "lessonTitle": "Lesson 4: HTML Tables, Media Tags & Accessibility",
+      "totalQuestions": 20,
+      "questions": [
+        {
+          "question": "What is the purpose of the `scope` attribute on a `<th>` (table header) element?",
+          "options": [
+            "It controls whether a table row is rendered on desktop or mobile devices",
+            "It explicitly associates header cells with their corresponding columns (`scope=\"col\"`) or rows (`scope=\"row\"`) for screen readers",
+            "It defines the CSS border-radius and background color gradient of the cell",
+            "It limits the number of characters that a user can type into table cells"
+          ],
+          "answer": "B",
+          "explanation": "The `scope` attribute (`col`, `row`, `colgroup`, `rowgroup`) provides clear contextual association between header cells and data cells for assistive technologies."
+        },
+        {
+          "question": "Which HTML attribute is used to make a single table cell span across 3 columns horizontally?",
+          "options": [
+            "span-col=\"3\"",
+            "col-width=\"3\"",
+            "rowspan=\"3\"",
+            "colspan=\"3\""
+          ],
+          "answer": "D",
+          "explanation": "`colspan=\"3\"` causes a `<td>` or `<th>` cell to extend across 3 horizontal columns, while `rowspan` merges cells vertically across rows."
+        },
+        {
+          "question": "Which table element pair is used to apply shared styles or attributes to entire columns without repeating classes on every individual `<td>`?",
+          "options": [
+            "<tablegrid> and <gridcol>",
+            "<columns> and <column>",
+            "<colgroup> and <col>",
+            "<thead-cols> and <th-col>"
+          ],
+          "answer": "C",
+          "explanation": "The `<colgroup>` element and its nested `<col>` child elements allow styling and attribute definitions across vertical table columns."
+        },
+        {
+          "question": "Why should every content image (`<img>`) have a descriptive `alt` attribute?",
+          "options": [
+            "To provide alternative text for visually impaired users using screen readers and as a fallback if the image fails to load",
+            "To force search engine crawlers to download high-resolution copies of the image",
+            "To display an animated tooltip popup when the user hovers their mouse over the image",
+            "To prevent unauthorized users from downloading the image via right-click"
+          ],
+          "answer": "A",
+          "explanation": "The `alt` attribute is vital for accessibility (read aloud by screen readers), SEO indexing, and graceful fallbacks when image requests fail or are slow."
+        },
+        {
+          "question": "What should the `alt` attribute contain for a purely decorative image that conveys no informative meaning (e.g., decorative divider lines)?",
+          "options": [
+            "alt=\"null\"",
+            "alt=\"decorative image\"",
+            "alt=\"\" (an empty alt attribute)",
+            "Omit the alt attribute completely from the <img> tag"
+          ],
+          "answer": "C",
+          "explanation": "An empty `alt=\"\"` tells screen readers to ignore the decorative image completely. Omitting the `alt` tag entirely is an accessibility error that causes screen readers to announce the raw file URL."
+        },
+        {
+          "question": "Which modern attribute on an `<img>` element enables native browser-level deferred loading until the image is near the viewport?",
+          "options": [
+            "defer=\"true\"",
+            "loading=\"lazy\"",
+            "fetch=\"deferred\"",
+            "preload=\"none\""
+          ],
+          "answer": "B",
+          "explanation": "`loading=\"lazy\"` instructs the browser to defer loading images that are below the fold until the user scrolls near them, saving initial bandwidth."
+        },
+        {
+          "question": "Which HTML5 element is specifically designed for 'Art Direction' and serving different image sources based on media query conditions?",
+          "options": [
+            "<image-group> with CSS background rules",
+            "<picture> containing multiple <source> elements and an <img> fallback",
+            "<canvas> with WebGL responsive shaders",
+            "<svg-responsive> with embedded bitmaps"
+          ],
+          "answer": "B",
+          "explanation": "The `<picture>` element wraps multiple `<source media=\"...\">` tags alongside a fallback `<img>`, allowing developers to serve different crops or formats (e.g., AVIF/WebP) per screen size."
+        },
+        {
+          "question": "What is the primary role of the `<track>` element inside `<video>` or `<audio>` tags?",
+          "options": [
+            "To adjust playback volume and bass equalizer frequencies automatically",
+            "To prevent unauthorized video screen recording on client browsers",
+            "To track user watch time and send analytics data to marketing platforms",
+            "To specify timed text tracks such as subtitles, closed captions, or audio descriptions (using WebVTT format)"
+          ],
+          "answer": "D",
+          "explanation": "The `<track>` element attaches timed text streams (like `.vtt` subtitles or captions) with attributes like `kind=\"subtitles\"` and `srclang=\"en\"`."
+        },
+        {
+          "question": "Which attribute is required on an `<iframe>` element to ensure screen reader accessibility?",
+          "options": [
+            "title=\"Descriptive title of frame content\"",
+            "caption=\"Summary\"",
+            "alt=\"Description\"",
+            "aria-frame=\"true\""
+          ],
+          "answer": "A",
+          "explanation": "WCAG guidelines require every `<iframe>` to have a clear, descriptive `title` attribute so screen reader users understand what content the embedded frame contains before focusing it."
+        },
+        {
+          "question": "What does the `sandbox` attribute on an `<iframe>` element accomplish?",
+          "options": [
+            "It limits the CPU and RAM allocation of the embedded page to exactly 10MB",
+            "It renders the embedded webpage in a high-contrast black-and-white theme",
+            "It forces the iframe to load only from localhost testing servers",
+            "It applies strict security restrictions (disabling scripts, popups, form submissions, and same-origin access) unless explicitly re-enabled with tokens"
+          ],
+          "answer": "D",
+          "explanation": "The `sandbox` attribute heavily restricts untrusted third-party iframe content by disabling scripts, forms, popups, and same-origin cookies unless explicit exceptions like `allow-scripts` are added."
+        },
+        {
+          "question": "What is the key technical difference between `<svg>` and `<canvas>` in HTML5?",
+          "options": [
+            "`<canvas>` files are stored in XML format, while `<svg>` is rendered strictly with WebGL",
+            "`<svg>` cannot be styled with CSS, whereas `<canvas>` styles are written exclusively in CSS",
+            "`<svg>` can only be rendered with server-side plugins, while `<canvas>` is supported natively",
+            "`<svg>` is vector-based, retains a searchable/styleable DOM node structure, and scales infinitely without pixelation; `<canvas>` is a raster/pixel-based immediate-mode drawing surface"
+          ],
+          "answer": "D",
+          "explanation": "SVG is an XML-based vector format where every element is part of the DOM tree and scales losslessly. Canvas is a raster surface manipulated via JavaScript pixel drawing APIs."
+        },
+        {
+          "question": "What are the four core accessibility principles defined by the Web Content Accessibility Guidelines (WCAG)?",
+          "options": [
+            "POUR: Perceivable, Operable, Understandable, Robust",
+            "REST: Representational, Encapsulated, Stateless, Tiered",
+            "CRUD: Create, Read, Update, Delete",
+            "FAST: Functional, Accessible, Scalable, Trustworthy"
+          ],
+          "answer": "A",
+          "explanation": "WCAG is structured around the four foundational POUR principles: Perceivable (users can perceive content), Operable (UI components are operable), Understandable (info is clear), and Robust (content works across tools)."
+        },
+        {
+          "question": "What is the foundational 'First Rule of ARIA' in web development?",
+          "options": [
+            "If you can use a native HTML5 element or attribute with the semantics and behavior you require, use it instead of repurposing an element with ARIA",
+            "Every single `<div>` must have an ARIA landmark attribute attached",
+            "Always add `role=\"button\"` to every `<button>` element to ensure full compatibility",
+            "ARIA attributes should only be written in uppercase letters"
+          ],
+          "answer": "A",
+          "explanation": "The First Rule of ARIA states: If a native HTML element (like `<button>`, `<nav>`, `<dialog>`) already has built-in semantic behavior and keyboard support, never replace it with a `<div>` styled with ARIA roles."
+        },
+        {
+          "question": "What does `aria-hidden=\"true\"` do to an HTML element?",
+          "options": [
+            "It disables all mouse click and hover events on the element",
+            "It hides the element and all its children from assistive technologies (screen readers) while keeping it visually visible on screen",
+            "It applies CSS `display: none` to hide the element completely from screen and accessibility trees",
+            "It encrypts the text content inside the element so search engines ignore it"
+          ],
+          "answer": "B",
+          "explanation": "`aria-hidden=\"true\"` strips the element from the accessibility tree (useful for decorative icons accompanying visible text) without affecting visual layout."
+        },
+        {
+          "question": "What is the accessibility impact of assigning `tabindex=\"0\"` to a custom element (like a `<div>`)?",
+          "options": [
+            "It forces the element to be the very first focused element when the page loads",
+            "It turns the element into an automatic submit button for forms",
+            "It inserts the element into the natural keyboard tab navigation order and makes it focusable via the Tab key",
+            "It permanently removes the element from keyboard navigation entirely"
+          ],
+          "answer": "C",
+          "explanation": "`tabindex=\"0\"` places an element into the sequential keyboard navigation flow. `tabindex=\"-1\"` makes it focusable only via JavaScript, while positive tabindex values are discouraged as an anti-pattern."
+        },
+        {
+          "question": "What is the purpose of an 'aria-live' region (e.g., `aria-live=\"polite\"`) in dynamic web applications?",
+          "options": [
+            "It instructs screen readers to announce dynamic content updates (like notifications or status messages) without requiring page reloads",
+            "It measures the user's typing speed inside form inputs",
+            "It streams real-time audio and video directly through the user's microphone",
+            "It forces the browser to refresh the webpage every 5 seconds"
+          ],
+          "answer": "A",
+          "explanation": "An `aria-live` region notifies assistive technologies of live DOM updates. `aria-live=\"polite\"` waits until the user is idle, while `aria-live=\"assertive\"` interrupts current speech."
+        },
+        {
+          "question": "Why is anchor text like 'Click Here' or 'Read More' considered poor for web accessibility?",
+          "options": [
+            "It increases the file size of the HTML document unnecessarily",
+            "It prevents search engines from caching the destination URL",
+            "It triggers spam filters in modern web browsers",
+            "It lacks meaningful context when screen reader users navigate through an extracted list of all links on a page"
+          ],
+          "answer": "D",
+          "explanation": "Screen reader users frequently navigate pages using link lists out of context; descriptive text (e.g., 'View Python Full Stack Syllabus') clarifies the destination, whereas 'Click here' is meaningless alone."
+        },
+        {
+          "question": "What is the purpose of providing a 'Skip to Content' link at the top of a webpage?",
+          "options": [
+            "To load the page in low-bandwidth mode by omitting all images and videos",
+            "To allow keyboard-only and screen reader users to bypass repetitive header navigation menus and jump directly to main content",
+            "To close the current browser window quickly using keyboard shortcuts",
+            "To automatically skip past all paywalls on news subscription websites"
+          ],
+          "answer": "B",
+          "explanation": "A skip link allows keyboard and screen reader users to jump over large navigation headers straight to `<main id=\"main-content\">`, saving significant tabbing effort."
+        },
+        {
+          "question": "Which image format is modern, open-source, and provides superior lossless and lossy compression compared to JPEG and PNG for web delivery?",
+          "options": [
+            "ICO",
+            "TIFF",
+            "AVIF / WebP",
+            "BMP"
+          ],
+          "answer": "C",
+          "explanation": "Modern formats like WebP and AVIF offer 30-50%+ better compression efficiency than legacy JPEG/PNG while supporting alpha transparency and animations."
+        },
+        {
+          "question": "What does the `playsinline` boolean attribute on a mobile `<video>` element do?",
+          "options": [
+            "It restricts playback exclusively to inline CSS keyframe animations",
+            "It embeds the video as an inline base64 string inside the HTML document",
+            "It allows video to play directly within the webpage layout on mobile devices (e.g., iOS Safari) instead of automatically forcing fullscreen mode",
+            "It forces the video to loop indefinitely with subtitles enabled"
+          ],
+          "answer": "C",
+          "explanation": "`playsinline` tells mobile browsers (notably iOS Safari) to play the video inline inside the document flow rather than automatically launching a fullscreen media player."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,688 @@
+{
+  "moduleId": "subtop-1787202208426",
+  "moduleName": "Module 10: Python Programming Fundamentals",
+  "courseId": "crs-1786624019154-w",
+  "lessons": [
+    {
+      "lessonId": "lesson-py-17872004",
+      "lessonTitle": "Lesson 1: Python Setup, Variables, Data Types & Control Flow",
+      "totalQuestions": 20,
+      "questions": [
+        {
+          "question": "What is the output of the following Python division operations? \n```python\nprint(7 / 2, 7 // 2, -7 // 2)\n```",
+          "options": [
+            "3.5 3.0 -4.0",
+            "3.5 3 -4",
+            "3 3 -3",
+            "3.5 3 -3"
+          ],
+          "answer": "B",
+          "explanation": "`7 / 2` performs true floating-point division (3.5). `7 // 2` performs floor division rounding towards negative infinity (3). `-7 // 2` evaluates to -3.5, which floors down to -4."
+        },
+        {
+          "question": "Consider the following code evaluating reference equality (`is`) versus value equality (`==`): \n```python\na = [1, 2, 3]\nb = a\nc = [1, 2, 3]\nprint(a is b, a is c, a == c)\n``` \nWhat is the output?",
+          "options": [
+            "True True True",
+            "False False True",
+            "True False False",
+            "True False True"
+          ],
+          "answer": "D",
+          "explanation": "`a is b` is `True` because `b` references the exact same list object in memory (`id(a) == id(b)`). `a is c` is `False` because `c` is a newly created list with a distinct memory address. `a == c` is `True` because their contents are identical."
+        },
+        {
+          "question": "What is the output of the string slice operations below? \n```python\ns = 'Python'\nprint(s[::-1], s[1:5:2])\n```",
+          "options": [
+            "nohtyP yhn",
+            "nohtyP yto",
+            "Python yto",
+            "nohtyP yh"
+          ],
+          "answer": "D",
+          "explanation": "`s[::-1]` reverses the string ('nohtyP'). `s[1:5:2]` starts at index 1 ('y'), stops before index 5 ('n'), and steps by 2, picking indices 1 ('y') and 3 ('h') to produce 'yh'."
+        },
+        {
+          "question": "What will the following `for...else` loop output? \n```python\nfor i in range(3):\n    if i == 5:\n        break\nelse:\n    print('Loop Finished')\n```",
+          "options": [
+            "Loop Finished",
+            "0 1 2 Loop Finished",
+            "No output is printed",
+            "SyntaxError: else cannot be attached to a for loop"
+          ],
+          "answer": "A",
+          "explanation": "In Python, the `else` clause of a `for` or `while` loop executes if and only if the loop completes all iterations normally without encountering a `break` statement."
+        },
+        {
+          "question": "What does the expression `list(range(10, 2, -3))` evaluate to in Python?",
+          "options": [
+            "[10, 7, 4, 1]",
+            "[10, 7, 4]",
+            "[]",
+            "[10, 8, 6, 4, 2]"
+          ],
+          "answer": "B",
+          "explanation": "`range(start=10, stop=2, step=-3)` starts at 10, decrements by 3 (10, 7, 4), and stops before reaching 2, yielding `[10, 7, 4]`."
+        },
+        {
+          "question": "What is the result of the short-circuit boolean expression `'apple' and 0 or 'banana'` in Python?",
+          "options": [
+            "0",
+            "True",
+            "'banana'",
+            "'apple'"
+          ],
+          "answer": "C",
+          "explanation": "Evaluation proceeds left to right: `'apple' and 0` evaluates `'apple'` (truthy) and returns the second operand `0`. Then `0 or 'banana'` evaluates `0` (falsy) and returns the truthy operand `'banana'`."
+        },
+        {
+          "question": "How does Python evaluate chained comparison operators like `1 < x < 10`?",
+          "options": [
+            "Chained comparisons are illegal and raise a SyntaxError in Python",
+            "It converts all operands into floating-point numbers before comparison",
+            "It evaluates `(1 < x)` to a boolean, then compares `True < 10` or `False < 10`",
+            "It translates to `(1 < x) and (x < 10)`, evaluating the middle expression `x` only once"
+          ],
+          "answer": "D",
+          "explanation": "Python natively supports mathematical chained comparisons: `a < b < c` is evaluated as `a < b and b < c`, with `b` evaluated only once for efficiency and side-effect prevention."
+        },
+        {
+          "question": "What is the primary difference between Python's type system and statically typed languages like C++ or Java?",
+          "options": [
+            "Python does not support data types in memory",
+            "Python variables must have explicit type declarations before assignment",
+            "Python is dynamically typed (variable types are bound to values at runtime rather than fixed to variable names) and strongly typed (implicit incompatible type coercion like `1 + '2'` is forbidden)",
+            "Python is weakly typed and converts strings to integers automatically in all operations"
+          ],
+          "answer": "C",
+          "explanation": "Python is dynamically typed (variables are untyped references to typed objects in heap memory) and strongly typed (`'5' + 2` raises a `TypeError` rather than coercing silently)."
+        },
+        {
+          "question": "What does the Walrus Operator (`:=`) introduced in Python 3.8 allow developers to do?",
+          "options": [
+            "Perform fast parallel multi-threading operations",
+            "Compare two complex numbers for geometric distance",
+            "Assign values to variables within an expression (e.g., `if (n := len(items)) > 5:`)",
+            "Declare immutable constants at the module level"
+          ],
+          "answer": "C",
+          "explanation": "The walrus operator `:=` is the assignment expression operator, allowing variable assignment and evaluation within conditions, comprehensions, and while loops."
+        },
+        {
+          "question": "What is the Small Integer Caching mechanism in CPython?",
+          "options": [
+            "Negative integers are stored in local CPU registers only",
+            "Integers larger than 256 are automatically compressed into 8-bit bytes",
+            "Integers between 0 and 100 cannot be modified in loops",
+            "CPython pre-allocates and caches singleton integer objects in the range `[-5, 256]` in memory, so all references to these numbers share the exact same object identity (`is`)"
+          ],
+          "answer": "D",
+          "explanation": "CPython maintains an array of integer objects for values from -5 to 256. Any variable assigned an integer in this range references the shared global singleton in memory."
+        },
+        {
+          "question": "What is the output of the following Structural Pattern Matching (`match...case`) code? \n```python\npoint = (0, 5)\nmatch point:\n    case (0, 0):\n        print('Origin')\n    case (0, y):\n        print(f'Y-axis at {y}')\n    case (x, 0):\n        print(f'X-axis at {x}')\n    case _:\n        print('Somewhere else')\n```",
+          "options": [
+            "Y-axis at 5",
+            "Somewhere else",
+            "Y-axis at 0",
+            "Origin"
+          ],
+          "answer": "A",
+          "explanation": "Structural pattern matching matches the tuple `(0, 5)` against `case (0, y):`, binding `y = 5` and executing the second case block."
+        },
+        {
+          "question": "What happens when you call `'hello'.index('z')` versus `'hello'.find('z')`?",
+          "options": [
+            "`.find('z')` returns `-1`, while `.index('z')` raises a `ValueError: substring not found`",
+            "`.find('z')` returns `None`, while `.index('z')` returns `0`",
+            "Both methods raise a `ValueError`",
+            "Both methods return `-1`"
+          ],
+          "answer": "A",
+          "explanation": "In Python string methods, `.find()` returns `-1` on missing substrings (ideal for `if s.find(...) != -1`), whereas `.index()` raises a `ValueError`."
+        },
+        {
+          "question": "What is the role of the Python Virtual Machine (PVM) and `__pycache__` folder?",
+          "options": [
+            "Python compiles source code (`.py`) into platform-independent Bytecode (`.pyc` stored in `__pycache__`), which is then executed by the CPython interpreter (PVM)",
+            "The PVM translates Python directly into C++ source files",
+            "`__pycache__` stores temporary browser cookies and session tokens",
+            "The PVM compiles Python into native x86 machine binaries ahead of time"
+          ],
+          "answer": "A",
+          "explanation": "CPython compiles `.py` source into bytecode instructions (`.pyc` cached in `__pycache__` to speed up future imports) and executes them on the Python Virtual Machine."
+        },
+        {
+          "question": "What will `rest` contain after unpacking `a, b, *rest = [1, 2, 3, 4, 5]`?",
+          "options": [
+            "[4, 5]",
+            "3",
+            "[3, 4, 5]",
+            "(3, 4, 5)"
+          ],
+          "answer": "C",
+          "explanation": "Extended iterable unpacking with `*rest` captures all remaining unassigned elements into a new Python list `[3, 4, 5]`."
+        },
+        {
+          "question": "Why does `0.1 + 0.2 == 0.3` evaluate to `False` in Python, and how should floating-point numbers be accurately compared?",
+          "options": [
+            "Python converts all decimal arithmetic to fractions automatically",
+            "IEEE 754 binary floating-point representation has rounding inaccuracies; use `math.isclose(0.1 + 0.2, 0.3)` or the `decimal.Decimal` module for precision",
+            "Because `0.1` and `0.2` are converted to integers; use `round()` only",
+            "Python does not support floating point arithmetic; use `float.compare()`"
+          ],
+          "answer": "B",
+          "explanation": "Due to binary floating-point precision limits, `0.1 + 0.2` is `0.30000000000000004`. The standard library provides `math.isclose()` for tolerant floating-point comparison."
+        },
+        {
+          "question": "What does the Global Interpreter Lock (GIL) in CPython do?",
+          "options": [
+            "It prevents unauthorized users from modifying Python packages in site-packages",
+            "It is a mutex that prevents multiple native OS threads from executing Python bytecodes simultaneously, ensuring CPython memory management thread safety",
+            "It locks Python scripts to a single computer hardware MAC address",
+            "It disables file read/write access during database transactions"
+          ],
+          "answer": "B",
+          "explanation": "The GIL ensures only one thread executes Python bytecode at a time within a single process, making multi-processing (rather than multi-threading) necessary for CPU-bound parallelism."
+        },
+        {
+          "question": "What does `int('1010', 2)` evaluate to in Python?",
+          "options": [
+            "1010",
+            "2",
+            "ValueError: invalid literal for int() with base 10",
+            "10 (Parses the string '1010' as a base-2 binary integer)"
+          ],
+          "answer": "D",
+          "explanation": "The second argument to `int(string, base)` specifies the numeric base (radix). Base 2 parses binary `'1010'` as $1\\times8 + 0\\times4 + 1\\times2 + 0\\times1 = 10$."
+        },
+        {
+          "question": "What will `bool('False')` evaluate to in Python?",
+          "options": [
+            "True (Because any non-empty string is truthy in Python)",
+            "TypeError: Cannot convert text to boolean",
+            "False (Because the string spells the word 'False')",
+            "None"
+          ],
+          "answer": "A",
+          "explanation": "In Python, `bool(string)` tests if the string is non-empty. Only the empty string `\"\"` evaluates to `False`; any non-empty string (including `'False'` or `'0'`) evaluates to `True`."
+        },
+        {
+          "question": "How do you format a floating-point number `num = 123.4567` to 2 decimal places using Python f-strings?",
+          "options": [
+            "f\"{round(num, 2):f}\"",
+            "f\"{num:.2f}\"",
+            "f\"{num:2d}\"",
+            "f\"{num.toPrecision(2)}\""
+          ],
+          "answer": "B",
+          "explanation": "The format specifier `:.2f` in f-strings formats floating-point numbers to fixed 2 decimal places, producing `'123.46'`."
+        },
+        {
+          "question": "What is the difference between `pass` and `continue` in a Python `for` loop?",
+          "options": [
+            "`pass` terminates the loop completely, while `continue` skips to the next item",
+            "There is no difference; both statements are identical",
+            "`pass` is a null statement placeholder that does nothing and continues execution of the current iteration, while `continue` immediately skips the rest of the current iteration and jumps to the next cycle",
+            "`continue` is used only in `try-except` blocks, while `pass` is for loops"
+          ],
+          "answer": "C",
+          "explanation": "`pass` is an executable no-op used when syntax requires a statement block. `continue` alters control flow by skipping the remainder of the loop body for that iteration."
+        }
+      ]
+    },
+    {
+      "lessonId": "lesson-py-17872005",
+      "lessonTitle": "Lesson 2: Functions & Variable Scope in Python",
+      "totalQuestions": 20,
+      "questions": [
+        {
+          "question": "What is the classic 'Mutable Default Argument' bug in Python, and what will the following code output? \n```python\ndef append_item(val, items=[]):\n    items.append(val)\n    return items\n\nprint(append_item(1))\nprint(append_item(2))\n```",
+          "options": [
+            "`[1]` followed by `[2]`",
+            "`[1]` followed by `[2, 2]`",
+            "`[1]` followed by `[1, 2]` (Default arguments are evaluated once at function definition time, sharing the same mutable list across calls)",
+            "TypeError: Default parameter cannot be mutable"
+          ],
+          "answer": "C",
+          "explanation": "Default parameter expressions are evaluated once when the function is defined. A mutable default like `items=[]` persists and accumulates changes across multiple calls. Fix: `def append_item(val, items=None): if items is None: items = []`."
+        },
+        {
+          "question": "What data types do `*args` and `**kwargs` receive inside a Python function?",
+          "options": [
+            "`*args` is a `set`, and `**kwargs` is a `list`",
+            "`*args` collects positional arguments into a `tuple`, and `**kwargs` collects keyword arguments into a `dict`",
+            "`*args` and `**kwargs` are both immutable generators",
+            "`*args` is a `list`, and `**kwargs` is a `tuple`"
+          ],
+          "answer": "B",
+          "explanation": "In function definitions, `*args` packs variable positional arguments into an immutable `tuple`, and `**kwargs` packs named keyword arguments into a `dict`."
+        },
+        {
+          "question": "What does the slash (`/`) and asterisk (`*`) indicate in a function signature: `def func(a, b, /, c, d, *, e, f):`?",
+          "options": [
+            "`/` indicates asynchronous parameters, and `*` indicates pointer addresses",
+            "`a, b` are Positional-Only parameters, `c, d` can be positional or keyword, and `e, f` are Keyword-Only parameters",
+            "`a, b` are private variables, while `e, f` are global variables",
+            "`a, b` are divided by `c, d`, and multiplied by `e, f`"
+          ],
+          "answer": "B",
+          "explanation": "Parameters before `/` must be passed positionally. Parameters after `*` must be passed with keyword names (`e=1, f=2`). Parameters between `/` and `*` can be passed either way."
+        },
+        {
+          "question": "What is the order of scope resolution defined by Python's LEGB rule?",
+          "options": [
+            "Global -> Local -> Enclosing -> Built-in",
+            "Local -> Global -> Enclosing -> Built-in",
+            "Local -> Enclosing -> Global -> Built-in",
+            "Built-in -> Global -> Enclosing -> Local"
+          ],
+          "answer": "C",
+          "explanation": "When resolving variable names, Python searches: 1. **L**ocal (inside function), 2. **E**nclosing (nested outer functions), 3. **G**lobal (module level), and 4. **B**uilt-in (Python builtins)."
+        },
+        {
+          "question": "What causes an `UnboundLocalError` in the following function? \n```python\ncount = 10\ndef increment():\n    count += 1\nincrement()\n```",
+          "options": [
+            "Because `count` is a reserved keyword in Python",
+            "Because Python functions cannot read global variables under any circumstances",
+            "Because integers are mutable reference objects",
+            "Because `count += 1` performs assignment, Python treats `count` as local to `increment()`, but it is referenced before assignment; declare `global count` to fix it"
+          ],
+          "answer": "D",
+          "explanation": "Any assignment inside a function marks the variable as local for the entire function scope. `count += 1` tries to read local `count` before it was assigned, raising `UnboundLocalError` unless declared `global count`."
+        },
+        {
+          "question": "When should the `nonlocal` keyword be used in Python?",
+          "options": [
+            "To modify global variables defined at the top level of a module",
+            "Inside a nested function to modify a variable in the nearest enclosing non-global scope (e.g., inside a closure)",
+            "To import variables from external third-party libraries",
+            "To declare variables that cannot be garbage collected"
+          ],
+          "answer": "B",
+          "explanation": "`nonlocal` binds an identifier to a variable in an outer enclosing function scope, allowing closures to modify state without declaring a global variable."
+        },
+        {
+          "question": "What is the output of the following lambda expression with `sorted()`? \n```python\npairs = [(1, 'one'), (3, 'three'), (2, 'two'), (4, 'four')]\npairs.sort(key=lambda x: len(x[1]))\nprint(pairs)\n```",
+          "options": [
+            "[(4, 'four'), (3, 'three'), (2, 'two'), (1, 'one')]",
+            "[(1, 'one'), (2, 'two'), (3, 'three'), (4, 'four')]",
+            "[(3, 'three'), (4, 'four'), (1, 'one'), (2, 'two')]",
+            "[(1, 'one'), (2, 'two'), (4, 'four'), (3, 'three')]"
+          ],
+          "answer": "D",
+          "explanation": "The lambda key extracts the length of the string `len(x[1])`: 'one' (3), 'two' (3), 'four' (4), 'three' (5). Python's Timsort is stable, maintaining relative order of equal lengths."
+        },
+        {
+          "question": "How does Python handle passing arguments to functions (Parameter Passing Mechanism)?",
+          "options": [
+            "Pass-by-Assignment (Pass-by-Object-Reference): object references are passed by value; mutating a mutable object affects the caller, but reassigning the parameter does not",
+            "Strict Pass-by-Reference (reassigning a parameter changes the caller's variable binding)",
+            "Pass-by-Pointer (parameters are raw memory integer addresses)",
+            "Strict Pass-by-Value (all arguments are deep-copied into new memory)"
+          ],
+          "answer": "A",
+          "explanation": "Python passes object references by value. In-place mutations (`lst.append(1)`) mutate the shared object, while parameter rebinding (`lst = [1]`) merely points the local name to a new object."
+        },
+        {
+          "question": "What will the following code output? \n```python\ndef modify(x, lst):\n    x = 100\n    lst.append(100)\n\nnum = 1\nmy_list = [1]\nmodify(num, my_list)\nprint(num, my_list)\n```",
+          "options": [
+            "1 [1, 100]",
+            "100 [1]",
+            "100 [1, 100]",
+            "1 [1]"
+          ],
+          "answer": "A",
+          "explanation": "`num` is an immutable integer, so `x = 100` rebinds local `x` without changing `num` (1). `my_list` is a mutable list, so `lst.append(100)` mutates the object in place, resulting in `1 [1, 100]`."
+        },
+        {
+          "question": "What is a Python Decorator fundamentally?",
+          "options": [
+            "A Higher-Order Function that accepts a function as an argument, extends or modifies its behavior without modifying its source code, and returns a callable function",
+            "A special comment line starting with `@` that is ignored by the interpreter",
+            "A compiler directive that encrypts function bytecode",
+            "A CSS styling syntax used to render Python in HTML templates"
+          ],
+          "answer": "A",
+          "explanation": "Decorators use the `@decorator` syntactic sugar. `@my_dec def f(): pass` is equivalent to `f = my_dec(f)`, enabling logging, authentication, caching, and timing wrappers."
+        },
+        {
+          "question": "Why is `@functools.wraps(fn)` standard practice when writing custom decorators?",
+          "options": [
+            "It compiles the decorated function into C code",
+            "It preserves the original function's metadata (such as `__name__`, `__doc__`, and `__annotations__`) on the wrapper function",
+            "It forces the decorator to execute asynchronously",
+            "It prevents the function from throwing exceptions"
+          ],
+          "answer": "B",
+          "explanation": "Without `@functools.wraps(fn)`, inspecting `fn.__name__` or `fn.__doc__` after decoration would mistakenly return `'wrapper'` and the wrapper's docstring instead of the original function's info."
+        },
+        {
+          "question": "What does the `functools.partial` function do in Python?",
+          "options": [
+            "It executes 50% of a function and yields control back to the caller",
+            "It catches partial errors in nested try-except blocks",
+            "It creates a new callable with one or more arguments of the original function pre-filled (frozen)",
+            "It splits a function into multiple microthreads"
+          ],
+          "answer": "C",
+          "explanation": "`partial(func, *args, **kwargs)` freezes certain arguments (e.g., `base2 = partial(int, base=2); base2('1010') == 10`), simplifying function signatures."
+        },
+        {
+          "question": "What is the output of the following generator function? \n```python\ndef count_up():\n    yield 1\n    yield 2\n    yield 3\n\ng = count_up()\nprint(next(g), next(g))\n```",
+          "options": [
+            "1 2",
+            "1 1",
+            "[1, 2, 3]",
+            "3 2"
+          ],
+          "answer": "A",
+          "explanation": "Generators pause execution at each `yield`. Calling `next(g)` resumes execution until the next `yield`, returning 1 on the first call and 2 on the second call."
+        },
+        {
+          "question": "What exception is raised when `next()` is called on a generator that has no more values to yield?",
+          "options": [
+            "IndexError",
+            "StopIteration",
+            "GeneratorExit",
+            "EndOfIterationError"
+          ],
+          "answer": "B",
+          "explanation": "When a generator reaches the end of its function body or encounters a `return`, it raises `StopIteration`, signaling to `for` loops that iteration is complete."
+        },
+        {
+          "question": "How do you define a function that returns multiple values, and how does Python return them?",
+          "options": [
+            "Use `return [a, b, c]` which returns a linked list",
+            "Use `return a and b and c`",
+            "Python does not support returning multiple values",
+            "Use `return a, b, c` which automatically packs the values into a single `tuple`"
+          ],
+          "answer": "D",
+          "explanation": "`return a, b` packs `(a, b)` into a tuple. The caller can unpack it with `x, y = func()`."
+        },
+        {
+          "question": "What will `print((lambda x, y=10: x * y)(5))` output?",
+          "options": [
+            "15",
+            "TypeError: lambda missing required argument",
+            "50",
+            "10"
+          ],
+          "answer": "C",
+          "explanation": "The lambda accepts `x` (passed as 5) and uses default `y=10`, computing $5 \\times 10 = 50$."
+        },
+        {
+          "question": "What happens when a recursive function exceeds Python's maximum recursion limit?",
+          "options": [
+            "A `RecursionError: maximum recursion depth exceeded` is raised",
+            "The program terminates with an unhandled SIGSEGV crash",
+            "Python increases system RAM allocation dynamically",
+            "The function automatically converts to an iterative while loop"
+          ],
+          "answer": "A",
+          "explanation": "CPython protects the call stack from C-level stack overflows by raising a catchable `RecursionError` when call depth exceeds `sys.getrecursionlimit()` (default 1000)."
+        },
+        {
+          "question": "What is stored in a function's `__closure__` attribute when it forms a closure?",
+          "options": [
+            "`None`",
+            "A dictionary mapping variable names to their string values",
+            "A boolean flag indicating if the function is pure",
+            "A tuple of `cell` objects containing references to the captured enclosing variables"
+          ],
+          "answer": "D",
+          "explanation": "When a function captures variables from an enclosing scope, CPython stores them as `cell` objects inside `fn.__closure__` (e.g., `fn.__closure__[0].cell_contents`)."
+        },
+        {
+          "question": "What does the `functools.reduce()` function do in Python?",
+          "options": [
+            "It filters out negative numbers from an iterable",
+            "It shrinks list memory allocation by 50%",
+            "It applies a function of two arguments cumulatively to sequence elements, reducing the sequence to a single value",
+            "It sorts an array in descending order"
+          ],
+          "answer": "C",
+          "explanation": "`reduce(lambda acc, x: acc + x, [1, 2, 3, 4], 0)` aggregates a sequence down to a single scalar result (here, computing the sum 10)."
+        },
+        {
+          "question": "What is the result of inspecting `add.__doc__` on `def add(a, b): \"\"\"Calculate sum.\"\"\" return a + b`?",
+          "options": [
+            "None",
+            "\"def add(a, b): return a + b\"",
+            "SyntaxError",
+            "\"Calculate sum.\""
+          ],
+          "answer": "D",
+          "explanation": "The leading string literal inside a function body is assigned to its `__doc__` attribute as its documentation docstring."
+        }
+      ]
+    },
+    {
+      "lessonId": "lesson-py-17872006",
+      "lessonTitle": "Lesson 3: Built-in Data Structures: Lists, Tuples, Sets, Dicts",
+      "totalQuestions": 20,
+      "questions": [
+        {
+          "question": "What will the following nested list comprehension evaluate to? \n```python\nmatrix = [[1, 2], [3, 4], [5, 6]]\nflattened = [num for row in matrix for num in row]\nprint(flattened)\n```",
+          "options": [
+            "[[1, 2], [3, 4], [5, 6]]",
+            "[[1, 3, 5], [2, 4, 6]]",
+            "[1, 2, 3, 4, 5, 6]",
+            "[1, 3, 5, 2, 4, 6]"
+          ],
+          "answer": "C",
+          "explanation": "Nested comprehensions follow standard loop nesting order: `for row in matrix:` outer loop, followed by `for num in row:` inner loop, flattening the 2D matrix to `[1, 2, 3, 4, 5, 6]`."
+        },
+        {
+          "question": "What happens when you attempt to append to a list nested inside an immutable tuple: `t = (1, [2, 3]); t[1].append(4)`?",
+          "options": [
+            "A `TypeError: 'tuple' object does not support item assignment` is raised",
+            "The operation succeeds without error, and `t` becomes `(1, [2, 3, 4])`",
+            "A new tuple is created, leaving `t` unchanged",
+            "The list is deleted from the tuple"
+          ],
+          "answer": "B",
+          "explanation": "A tuple is immutable in that its references cannot be rebound (`t[1] = ...` raises `TypeError`). However, the nested list object itself is mutable, so `t[1].append(4)` mutates the list in place."
+        },
+        {
+          "question": "What is the difference between `d.get('key', 'default')` and `d['key']` when `'key'` does not exist in dictionary `d`?",
+          "options": [
+            "`d.get('key', 'default')` returns `'default'` without error, whereas `d['key']` raises a `KeyError`",
+            "`d['key']` returns `None`, while `d.get()` raises an error",
+            "There is no difference; both return `None`",
+            "`d.get()` adds `'key': 'default'` to the dictionary, while `d['key']` does not"
+          ],
+          "answer": "A",
+          "explanation": "Accessing a missing key via square brackets raises `KeyError`. Using `.get(key, default)` returns the fallback default (or `None` if omitted) safely."
+        },
+        {
+          "question": "How do you merge two dictionaries `d1 = {'a': 1}` and `d2 = {'b': 2, 'a': 99}` using Python 3.9+ dictionary union syntax?",
+          "options": [
+            "merged = d1.merge(d2)",
+            "merged = d1 + d2",
+            "merged = d1 | d2 (resulting in `{'a': 99, 'b': 2}`)",
+            "merged = d1 & d2"
+          ],
+          "answer": "C",
+          "explanation": "Python 3.9 introduced the dictionary union operator `|` (and `|=`). Right-side keys take precedence over left-side keys during collision."
+        },
+        {
+          "question": "What will the following Set operations output? \n```python\na = {1, 2, 3, 4}\nb = {3, 4, 5, 6}\nprint(a & b, a - b, a ^ b)\n```",
+          "options": [
+            "{1, 2, 3, 4, 5, 6} {1, 2} {3, 4}",
+            "{3, 4} {1, 2} {3, 4, 5, 6}",
+            "{3, 4} {5, 6} {1, 2, 5, 6}",
+            "{3, 4} {1, 2} {1, 2, 5, 6}"
+          ],
+          "answer": "D",
+          "explanation": "`&` is Intersection (`{3, 4}`), `-` is Difference (`{1, 2}`), and `^` is Symmetric Difference (elements in either set but not both: `{1, 2, 5, 6}`)."
+        },
+        {
+          "question": "What is the difference between `list.append(x)` and `list.extend(x)` when `x = [4, 5]` and `original = [1, 2, 3]`?",
+          "options": [
+            "`extend()` creates a new list, while `append()` mutates in place",
+            "Both methods produce `[1, 2, 3, 4, 5]`",
+            "`extend(x)` results in `[1, 2, 3, [4, 5]]`, while `append(x)` results in `[1, 2, 3, 4, 5]`",
+            "`append(x)` results in `[1, 2, 3, [4, 5]]`, while `extend(x)` results in `[1, 2, 3, 4, 5]`"
+          ],
+          "answer": "D",
+          "explanation": "`.append(item)` adds the object as a single element. `.extend(iterable)` iterates over the argument and appends each element individually."
+        },
+        {
+          "question": "Why does `{[1, 2]: 'value'}` or `{ {1, 2} }` raise a `TypeError: unhashable type: 'list'`?",
+          "options": [
+            "Dictionary keys and Set elements must be Hashable (immutable with an unchanging `__hash__()` value); mutable objects like lists and sets cannot be hashed",
+            "Because lists cannot store integers inside dictionaries",
+            "Because sets only support floating point numbers",
+            "Because Python dictionaries can only have string keys"
+          ],
+          "answer": "A",
+          "explanation": "Hash tables require keys/elements to be hashable and immutable so their hash bucket location never changes. Mutable containers (`list`, `set`, `dict`) are unhashable."
+        },
+        {
+          "question": "How does `collections.defaultdict(list)` handle accessing a non-existent key `d['new_key']`?",
+          "options": [
+            "It returns `None` and does not modify the dictionary",
+            "It throws a `ValueError`",
+            "It raises a `KeyError` unless `.get()` is used",
+            "It automatically creates the key `'new_key'` with an empty list `[]` as its value and returns it without raising a `KeyError`"
+          ],
+          "answer": "D",
+          "explanation": "`defaultdict(default_factory)` automatically invokes the factory function (here `list()`) to generate and insert a default value when a missing key is accessed."
+        },
+        {
+          "question": "What is the output of using `collections.Counter('abracadabra').most_common(2)`?",
+          "options": [
+            "('a', 'b')",
+            "{'a': 5, 'b': 2}",
+            "[('a', 5), ('b', 2)] (or [('a', 5), ('r', 2)])",
+            "['a', 'b']"
+          ],
+          "answer": "C",
+          "explanation": "`Counter.most_common(n)` returns a list of the `n` most frequent elements and their counts as `(element, count)` tuples."
+        },
+        {
+          "question": "Why is `collections.deque` significantly faster than a standard `list` for implementing queues (FIFO)?",
+          "options": [
+            "`deque` provides $O(1)$ constant time appends and pops from BOTH ends (left and right), whereas `list.pop(0)` takes $O(N)$ linear time due to memory shifting",
+            "`deque` runs on C++ GPU acceleration",
+            "`list` cannot store more than 1,000 elements",
+            "`deque` automatically sorts elements upon insertion"
+          ],
+          "answer": "A",
+          "explanation": "A standard Python list is a dynamic array, so `list.pop(0)` shifts all remaining $N-1$ elements ($O(N)$). `deque` is a doubly linked list of blocks, achieving $O(1)$ operations at both ends."
+        },
+        {
+          "question": "What is the output of the slice assignment `nums = [1, 2, 3, 4, 5]; nums[1:4] = [8, 9]; print(nums)`?",
+          "options": [
+            "[1, [8, 9], 5]",
+            "[1, 8, 9, 5]",
+            "[1, 8, 9, 4, 5]",
+            "ValueError: cannot assign sequence of size 2 to extended slice of size 3"
+          ],
+          "answer": "B",
+          "explanation": "Slice assignment `nums[1:4]` replaces the sub-range `[2, 3, 4]` (indices 1, 2, 3) with the elements `[8, 9]`, resulting in `[1, 8, 9, 5]`."
+        },
+        {
+          "question": "What is the result of `dict(zip(['name', 'age', 'role'], ['Alice', 25, 'Admin']))`?",
+          "options": [
+            "{'name': 25, 'age': 'Alice', 'role': 'Admin'}",
+            "[('name', 'Alice'), ('age', 25), ('role', 'Admin')]",
+            "{'name': 'Alice', 'age': 25, 'role': 'Admin'}",
+            "TypeError: cannot convert zip to dict"
+          ],
+          "answer": "C",
+          "explanation": "`zip(keys, values)` pairs elements into 2-tuples, and `dict()` converts sequence pairs into a key-value dictionary."
+        },
+        {
+          "question": "What will `copy.deepcopy()` do that `copy.copy()` (shallow copy) cannot?",
+          "options": [
+            "It recursively copies all nested child objects, creating an entirely independent clone hierarchy with no shared references",
+            "It ignores private class properties",
+            "It converts a dictionary into a tuple",
+            "It encrypts the copied object using SHA-256"
+          ],
+          "answer": "A",
+          "explanation": "A shallow copy duplicates only the outer container, leaving nested objects shared by reference. `deepcopy` recursively traverses and duplicates all nested objects."
+        },
+        {
+          "question": "What is the average time complexity for checking membership (`if x in collection`) in a Python `list` versus a `set`?",
+          "options": [
+            "$O(1)$ for `list`, and $O(N)$ for `set`",
+            "$O(N)$ linear time for `list`, and $O(1)$ constant time for `set` (via hash table lookup)",
+            "$O(\\log N)$ for both",
+            "$O(N^2)$ for `list`, and $O(N)$ for `set`"
+          ],
+          "answer": "B",
+          "explanation": "Lists must scan sequentially ($O(N)$). Sets compute the hash of `x` to look up the bucket directly ($O(1)$ average)."
+        },
+        {
+          "question": "What is the output of the Dictionary Comprehension `{x: x**2 for x in (1, 2, 3)}`?",
+          "options": [
+            "{1: 2, 2: 4, 3: 6}",
+            "{1: 1, 2: 4, 3: 9}",
+            "[(1, 1), (2, 4), (3, 9)]",
+            "{1, 4, 9}"
+          ],
+          "answer": "B",
+          "explanation": "Dictionary comprehension `{key_expr: value_expr for item in iterable}` constructs key-value pairs, producing `{1: 1, 2: 4, 3: 9}`."
+        },
+        {
+          "question": "What does `d.setdefault('count', 0)` do when `'count'` already exists in `d` with value `42`?",
+          "options": [
+            "It overwrites `d['count']` with `0`",
+            "It returns the existing value `42` and leaves `d['count']` unchanged at `42`",
+            "It increments `d['count']` by 1",
+            "It raises a `KeyError`"
+          ],
+          "answer": "B",
+          "explanation": "`d.setdefault(key, default)` returns the current value if `key` exists; it only inserts `key: default` if `key` is missing."
+        },
+        {
+          "question": "What is the difference between `list.sort()` and the built-in `sorted(list)` function?",
+          "options": [
+            "`list.sort()` returns the sorted list, while `sorted()` returns `None`",
+            "`sorted()` is $O(N^2)$, while `.sort()` is $O(N \\log N)$",
+            "`sorted()` only works on strings, while `.sort()` works on lists",
+            "`list.sort()` mutates the list in place and returns `None`, while `sorted(list)` returns a brand new sorted list without modifying the original"
+          ],
+          "answer": "D",
+          "explanation": "`.sort()` is an in-place list method returning `None`. `sorted()` accepts any iterable and returns a new sorted list."
+        },
+        {
+          "question": "How do you sort a list of dictionaries `users = [{'name': 'B', 'age': 30}, {'name': 'A', 'age': 20}]` by `'age'` in ascending order?",
+          "options": [
+            "sorted(users, compare='age')",
+            "users.sort(by='age')",
+            "users.order_by('age')",
+            "sorted(users, key=lambda u: u['age'])"
+          ],
+          "answer": "D",
+          "explanation": "The `key` parameter accepts a callable (like `lambda u: u['age']` or `operator.itemgetter('age')`) that extracts the comparison key."
+        },
+        {
+          "question": "What is the output of `print(list(enumerate(['a', 'b'], start=1)))`?",
+          "options": [
+            "[(0, 'a'), (1, 'b')]",
+            "[(1, 2), ('a', 'b')]",
+            "[(1, 'a'), (2, 'b')]",
+            "{1: 'a', 2: 'b'}"
+          ],
+          "answer": "C",
+          "explanation": "`enumerate(iterable, start=1)` generates `(index, element)` pairs starting the count from 1, yielding `[(1, 'a'), (2, 'b')]`."
+        },
+        {
+          "question": "What happens when you call `s.remove(x)` versus `s.discard(x)` on a Python set `s` when `x` is NOT present in the set?",
+          "options": [
+            "`s.remove(x)` raises a `KeyError`, while `s.discard(x)` does nothing silently without raising an error",
+            "Both methods raise a `KeyError`",
+            "`s.discard(x)` raises a `ValueError`, while `s.remove(x)` returns `None`",
+            "Both methods return `False` silently"
+          ],
+          "answer": "A",
+          "explanation": "`s.remove(x)` requires the element to exist or raises `KeyError`. `s.discard(x)` is safe and removes the element if present, ignoring it if absent."
+        }
+      ]
+    }
+  ]
+}

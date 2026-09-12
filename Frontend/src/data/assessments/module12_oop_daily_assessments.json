@@ -1,0 +1,692 @@
+{
+  "courseId": "crs-1786624019154-w",
+  "courseTitle": "Python Full Stack + DSA with AI",
+  "stageId": "top-stg-2",
+  "stageTitle": "Stage 2: Backend + DSA",
+  "moduleId": "subtop-1787203469178",
+  "moduleTitle": "Module 12: Object-Oriented Programming (OOP)",
+  "totalLessons": 3,
+  "lessons": [
+    {
+      "lessonId": "lesson-1787203925031",
+      "lessonTitle": "Lesson 1: Classes, Objects, and Constructors:__init__",
+      "totalQuestions": 20,
+      "questions": [
+        {
+          "question": "What is the output of the following code illustrating class variable shadowing?\n```python\nclass Counter:\n    count = 0\n    def increment(self):\n        self.count += 1\n\nc1 = Counter()\nc2 = Counter()\nc1.increment()\nprint(Counter.count, c1.count, c2.count)\n```",
+          "options": [
+            "1 1 1",
+            "1 1 0",
+            "0 1 1",
+            "0 1 0"
+          ],
+          "answer": "D",
+          "explanation": "`self.count += 1` reads the class variable `count` (0), evaluates `0 + 1 = 1`, and assigns it to an instance variable on `c1`. `Counter.count` remains 0, and `c2.count` still reads from the class attribute 0."
+        },
+        {
+          "question": "What is the output of the following mutable class attribute implementation?\n```python\nclass Team:\n    members = []\n    def add(self, member):\n        self.members.append(member)\n\nt1 = Team()\nt2 = Team()\nt1.add(\"Alice\")\nt2.add(\"Bob\")\nprint(t1.members)\n```",
+          "options": [
+            "['Alice']",
+            "[]",
+            "['Bob']",
+            "['Alice', 'Bob']"
+          ],
+          "answer": "D",
+          "explanation": "`members` is defined at the class level and references a single shared list in memory. Mutating `members` via `append()` affects all instances sharing that class attribute."
+        },
+        {
+          "question": "What is the output of calling `@classmethod` and `@staticmethod` methods?\n```python\nclass MathUtils:\n    multiplier = 2\n    @classmethod\n    def calc_cls(cls, val):\n        return val * cls.multiplier\n    @staticmethod\n    def calc_stat(val):\n        return val * 3\n\nprint(MathUtils.calc_cls(5), MathUtils.calc_stat(5))\n```",
+          "options": [
+            "15 15",
+            "15 10",
+            "10 15",
+            "10 10"
+          ],
+          "answer": "C",
+          "explanation": "`@classmethod` automatically receives the class `cls` as its first parameter (`5 * 2 = 10`). `@staticmethod` receives no implicit first argument and operates like a regular plain function (`5 * 3 = 15`)."
+        },
+        {
+          "question": "What is the output of explicitly calling an instance method from the class object?\n```python\nclass Greeter:\n    def greet(self, name):\n        return f\"Hello {name}\"\n\ng = Greeter()\nprint(Greeter.greet(g, \"Python\"))\n```",
+          "options": [
+            "Hello Python",
+            "Hello g",
+            "None",
+            "TypeError: greet() missing required positional argument"
+          ],
+          "answer": "A",
+          "explanation": "`g.greet('Python')` is syntactic sugar for `Greeter.greet(g, 'Python')`. When invoked via the class `Greeter`, passing instance `g` explicitly satisfies the `self` argument."
+        },
+        {
+          "question": "What is the execution sequence between `__new__` and `__init__` during object instantiation?\n```python\nclass Box:\n    def __new__(cls, *args, **kwargs):\n        print(\"New\")\n        return super().__new__(cls)\n    def __init__(self):\n        print(\"Init\")\n\nb = Box()\n```",
+          "options": [
+            "Init followed by New",
+            "Init only",
+            "New followed by Init",
+            "New only"
+          ],
+          "answer": "C",
+          "explanation": "`__new__` is the static constructor that creates and allocates the instance in memory. Once `__new__` returns an instance of `Box`, Python automatically calls `__init__` on the newly created instance to initialize it."
+        },
+        {
+          "question": "What is the output of the following `@property` getter and setter?\n```python\nclass Temperature:\n    def __init__(self, c):\n        self._c = c\n    @property\n    def celsius(self):\n        return self._c\n    @celsius.setter\n    def celsius(self, val):\n        if val < -273.15:\n            raise ValueError(\"Too cold\")\n        self._c = val\n\nt = Temperature(25)\nt.celsius = 30\nprint(t.celsius)\n```",
+          "options": [
+            "30",
+            "25",
+            "AttributeError: can't set attribute",
+            "<property object at ...>"
+          ],
+          "answer": "A",
+          "explanation": "The `@property` decorator defines a getter for `celsius`. The `@celsius.setter` defines a custom setter method that intercepts assignment (`t.celsius = 30`), updates `self._c` to 30, and returns 30 when accessed."
+        },
+        {
+          "question": "What happens when you attempt to add an undefined attribute to an instance of a class that defines `__slots__`?\n```python\nclass Point:\n    __slots__ = ('x', 'y')\n    def __init__(self, x, y):\n        self.x = x\n        self.y = y\n\np = Point(1, 2)\ntry:\n    p.z = 3\nexcept AttributeError:\n    print(\"Cannot add z\")\n```",
+          "options": [
+            "KeyError: 'z'",
+            "Cannot add z",
+            "TypeError: slots must be a list",
+            "z is successfully added as 3"
+          ],
+          "answer": "B",
+          "explanation": "By defining `__slots__ = ('x', 'y')`, Python allocates fixed memory slots for only `x` and `y` and disables the dynamic `__dict__`. Assigning any other attribute like `p.z = 3` raises `AttributeError`."
+        },
+        {
+          "question": "What is the output of using `getattr()` with a fallback default value?\n```python\nclass Config:\n    timeout = 30\n\ncfg = Config()\nprint(getattr(cfg, 'timeout', 10), getattr(cfg, 'retries', 3))\n```",
+          "options": [
+            "10 3",
+            "AttributeError: retries",
+            "30 None",
+            "30 3"
+          ],
+          "answer": "D",
+          "explanation": "`getattr(cfg, 'timeout', 10)` finds `timeout` on the object and returns 30. `getattr(cfg, 'retries', 3)` fails to find `retries` and safely returns the default fallback value 3 without raising an error."
+        },
+        {
+          "question": "What is the fundamental purpose of the `self` parameter in Python class methods?",
+          "options": [
+            "It defines whether the class is abstract or concrete.",
+            "It represents the specific instance of the class upon which the method was called, enabling access to instance attributes and methods.",
+            "It forces the method to run in a separate background thread.",
+            "It is a mandatory language keyword that allocates heap memory."
+          ],
+          "answer": "B",
+          "explanation": "`self` is the explicit first parameter of instance methods. When `obj.method()` is called, Python automatically passes `obj` as `self`, allowing the method to reference instance data."
+        },
+        {
+          "question": "What is the output of using `delattr()` followed by `hasattr()`?\n```python\nclass User:\n    def __init__(self, name):\n        self.name = name\n\nu = User(\"John\")\ndelattr(u, \"name\")\nprint(hasattr(u, \"name\"))\n```",
+          "options": [
+            "AttributeError",
+            "None",
+            "False",
+            "True"
+          ],
+          "answer": "C",
+          "explanation": "`delattr(u, 'name')` deletes the instance attribute `'name'` from `u`. Subsequently, `hasattr(u, 'name')` evaluates to `False`."
+        },
+        {
+          "question": "What does an instance's `__dict__` attribute contain in standard Python classes?\n```python\nclass Product:\n    tax_rate = 0.1\n    def __init__(self, name, price):\n        self.name = name\n        self.price = price\n\np = Product(\"Book\", 20)\nprint(sorted(p.__dict__.keys()))\n```",
+          "options": [
+            "['name', 'price']",
+            "[]",
+            "['name', 'price', 'tax_rate']",
+            "['tax_rate']"
+          ],
+          "answer": "A",
+          "explanation": "An instance's `__dict__` contains only that instance's dynamically assigned attributes (`name` and `price`). Class-level attributes like `tax_rate` are stored in `Product.__dict__`."
+        },
+        {
+          "question": "What is the primary performance benefit of declaring `__slots__` in Python classes?",
+          "options": [
+            "It converts Python code into compiled C++ binary machine code.",
+            "It automatically enforces static type checking at runtime.",
+            "It makes all class methods asynchronous by default.",
+            "It prevents the creation of an instance __dict__, significantly reducing memory consumption and speeding up attribute lookups."
+          ],
+          "answer": "D",
+          "explanation": "Without `__slots__`, every object instance allocates a dynamic dictionary `__dict__`. With `__slots__`, Python uses compact array-like storage, saving significant RAM when creating millions of objects."
+        },
+        {
+          "question": "What is the output of using a `@classmethod` as an alternative constructor (Factory pattern)?\n```python\nclass Date:\n    def __init__(self, year, month, day):\n        self.year = year\n        self.month = month\n        self.day = day\n    @classmethod\n    def from_string(cls, date_str):\n        y, m, d = map(int, date_str.split(\"-\"))\n        return cls(y, m, d)\n\nd = Date.from_string(\"2026-09-11\")\nprint(d.year, d.month, d.day)\n```",
+          "options": [
+            "11 9 2026",
+            "TypeError: 'cls' is not callable",
+            "2026-09-11",
+            "2026 9 11"
+          ],
+          "answer": "D",
+          "explanation": "`Date.from_string` receives the class `Date` as `cls`, parses the hyphen-separated string into integers, calls `cls(2026, 9, 11)`, and returns a new `Date` instance."
+        },
+        {
+          "question": "What happens if a class's `__init__` method attempts to explicitly return a non-None value?\n```python\nclass Test:\n    def __init__(self):\n        return 10\n\nt = Test()\n```",
+          "options": [
+            "10 is silently discarded and t is initialized normally",
+            "Raises TypeError: __init__() should return None, not 'int'",
+            "Raises SyntaxError: return not allowed in __init__",
+            "t is assigned the integer value 10"
+          ],
+          "answer": "B",
+          "explanation": "In Python, `__init__` is responsible only for initializing the newly allocated object and must always return `None`. Returning any non-`None` value raises a `TypeError`."
+        },
+        {
+          "question": "What is the output when a class attribute is modified directly on the Class object?\n```python\nclass Car:\n    wheels = 4\n\nCar.wheels = 6\nc = Car()\nprint(c.wheels)\n```",
+          "options": [
+            "AttributeError",
+            "6",
+            "None",
+            "4"
+          ],
+          "answer": "B",
+          "explanation": "Modifying `Car.wheels = 6` alters the class-level attribute. When `c.wheels` is accessed and not found on instance `c`, Python resolves it from `Car`, printing 6."
+        },
+        {
+          "question": "How does Python distinguish between a bound method and a function defined in a class?",
+          "options": [
+            "When accessed via an instance, a descriptor binds the instance to the function as the first argument (self), creating a bound method.",
+            "Functions become bound methods only when decorated with @staticmethod.",
+            "Bound methods are stored as copy duplicates in every individual instance memory space.",
+            "Python binds methods only when called inside a try-except block."
+          ],
+          "answer": "A",
+          "explanation": "Python functions implement the descriptor protocol (`__get__`). When accessed via `instance.method`, `Function.__get__(instance, Class)` binds the instance to the function, returning a bound method object."
+        },
+        {
+          "question": "What is the output of the following mutable default parameter trap in `__init__`?\n```python\nclass Order:\n    def __init__(self, items=[]):\n        self.items = items\n\no1 = Order()\no1.items.append(\"Apple\")\no2 = Order()\nprint(o2.items)\n```",
+          "options": [
+            "['Apple', 'Apple']",
+            "[]",
+            "['Apple']",
+            "None"
+          ],
+          "answer": "C",
+          "explanation": "Default parameter values are evaluated once when the function is defined, not per invocation. Both `o1` and `o2` receive references to the same default list object in memory."
+        },
+        {
+          "question": "What is the output of comparing `type()` versus `isinstance()` for an inherited class instance?\n```python\nclass Animal: pass\nclass Dog(Animal): pass\n\nd = Dog()\nprint(type(d) == Animal, isinstance(d, Animal))\n```",
+          "options": [
+            "False False",
+            "True False",
+            "False True",
+            "True True"
+          ],
+          "answer": "C",
+          "explanation": "`type(d)` is exactly `Dog` (not `Animal`), so `type(d) == Animal` is `False`. `isinstance(d, Animal)` checks the entire inheritance hierarchy and returns `True`."
+        },
+        {
+          "question": "What is the behavior of private attributes prefixed with double underscores (`__attr`) in Python?\n```python\nclass Account:\n    def __init__(self, pin):\n        self._pin = pin\n        self.__secret = \"xyz\"\n\na = Account(1234)\nprint(a._pin, hasattr(a, \"__secret\"), hasattr(a, \"_Account__secret\"))\n```",
+          "options": [
+            "1234 False True",
+            "1234 True False",
+            "1234 False False",
+            "1234 True True"
+          ],
+          "answer": "A",
+          "explanation": "Attributes with a single underscore (`_pin`) are public by convention. Double underscore attributes (`__secret`) undergo name mangling to `_ClassName__attribute` (`_Account__secret`), hiding `__secret` from direct attribute lookup."
+        },
+        {
+          "question": "What happens behind the scenes when an object is instantiated via `obj = MyClass(x)`?",
+          "options": [
+            "Python invokes __call__() on the instance after destroying the previous instance.",
+            "Python calls MyClass.__new__(cls, x) to allocate memory, and if an instance of MyClass is returned, it invokes MyClass.__init__(obj, x).",
+            "Python converts the class into a C struct and passes it to garbage collection.",
+            "Python calls __init__() directly without allocating memory."
+          ],
+          "answer": "B",
+          "explanation": "Instantiation is a two-step process: `__new__` allocates and returns the raw object instance, and `__init__` initializes its state."
+        }
+      ]
+    },
+    {
+      "lessonId": "lesson-1787203963678",
+      "lessonTitle": "Lesson 2: OOP Principles: Inheritance, Polymorphism, Encapsulation, & Abstraction",
+      "totalQuestions": 20,
+      "questions": [
+        {
+          "question": "What is the output of calling a parent constructor using `super()` in single inheritance?\n```python\nclass Parent:\n    def __init__(self, name):\n        self.name = name\n\nclass Child(Parent):\n    def __init__(self, name, age):\n        super().__init__(name)\n        self.age = age\n\nc = Child(\"Alice\", 10)\nprint(c.name, c.age)\n```",
+          "options": [
+            "Alice None",
+            "Alice 10",
+            "AttributeError: 'Child' object has no attribute 'name'",
+            "None 10"
+          ],
+          "answer": "B",
+          "explanation": "`super().__init__(name)` calls the `Parent` class's constructor, binding `self.name = 'Alice'`, while `self.age = 10` initializes the child attribute."
+        },
+        {
+          "question": "What is the output of the following diamond inheritance hierarchy?\n```python\nclass A:\n    def show(self): return \"A\"\nclass B(A):\n    def show(self): return \"B\"\nclass C(A):\n    def show(self): return \"C\"\nclass D(B, C):\n    pass\n\nd = D()\nprint(d.show())\n```",
+          "options": [
+            "TypeError: ambiguous method resolution",
+            "A",
+            "B",
+            "C"
+          ],
+          "answer": "C",
+          "explanation": "According to Python's C3 Linearization (MRO), class `D(B, C)` searches in the order `[D, B, C, A, object]`. Since `B` overrides `show()`, `d.show()` returns `'B'`."
+        },
+        {
+          "question": "What is the output of inspecting the Method Resolution Order via `.mro()`?\n```python\nclass X: pass\nclass Y(X): pass\nprint([c.__name__ for c in Y.mro()])\n```",
+          "options": [
+            "['object', 'X', 'Y']",
+            "['Y', 'object', 'X']",
+            "['Y', 'X', 'object']",
+            "['Y', 'X']"
+          ],
+          "answer": "C",
+          "explanation": "`Y.mro()` returns the list of classes in method resolution order starting with `Y`, then parent `X`, and ending with the root `object` class."
+        },
+        {
+          "question": "What happens when you attempt to instantiate a subclass of an Abstract Base Class (ABC) without implementing all `@abstractmethod` definitions?\n```python\nfrom abc import ABC, abstractmethod\n\nclass Shape(ABC):\n    @abstractmethod\n    def area(self):\n        pass\n\nclass Circle(Shape):\n    def __init__(self, r):\n        self.r = r\n\ntry:\n    c = Circle(5)\nexcept TypeError:\n    print(\"Cannot instantiate\")\n```",
+          "options": [
+            "Raises NotImplementedError at class definition time",
+            "Circle instance created successfully with area returning None",
+            "Circle defaults to Shape.area()",
+            "Cannot instantiate"
+          ],
+          "answer": "D",
+          "explanation": "Python prevents instantiation of any ABC subclass that has not provided concrete implementations for all abstract methods, raising a `TypeError`."
+        },
+        {
+          "question": "What is the output of the following polymorphic function relying on Duck Typing?\n```python\nclass Dog:\n    def speak(self): return \"Woof\"\nclass Cat:\n    def speak(self): return \"Meow\"\n\ndef animal_sound(animal):\n    return animal.speak()\n\nprint(animal_sound(Dog()), animal_sound(Cat()))\n```",
+          "options": [
+            "TypeError: animal must inherit from AnimalBase",
+            "Woof Meow",
+            "Woof Woof",
+            "Meow Meow"
+          ],
+          "answer": "B",
+          "explanation": "Duck typing in Python allows any object that implements a `speak()` method to be passed into `animal_sound()`, evaluating to `'Woof'` for `Dog` and `'Meow'` for `Cat`."
+        },
+        {
+          "question": "What is the output when accessing private attributes through name mangling across inheritance?\n```python\nclass Base:\n    def __init__(self):\n        self.__val = 42\n    def get_val(self):\n        return self.__val\n\nclass Sub(Base):\n    def __init__(self):\n        super().__init__()\n        self.__val = 99\n\ns = Sub()\nprint(s.get_val())\n```",
+          "options": [
+            "42",
+            "99",
+            "AttributeError: 'Sub' object has no attribute '__val'",
+            "None"
+          ],
+          "answer": "A",
+          "explanation": "Inside `Base`, `self.__val` is mangled to `self._Base__val` (42). In `Sub`, `self.__val = 99` is mangled to `self._Sub__val` (99). `get_val()` defined in `Base` accesses `self._Base__val`, returning 42."
+        },
+        {
+          "question": "What is the execution order of constructors in multiple inheritance with `super()`?\n```python\nclass First:\n    def __init__(self):\n        print(\"First\")\n        super().__init__()\n\nclass Second:\n    def __init__(self):\n        print(\"Second\")\n        super().__init__()\n\nclass Combined(First, Second):\n    def __init__(self):\n        print(\"Combined\")\n        super().__init__()\n\nc = Combined()\n```",
+          "options": [
+            "First followed by Second followed by Combined",
+            "Combined followed by Second followed by First",
+            "Combined only",
+            "Combined followed by First followed by Second"
+          ],
+          "answer": "D",
+          "explanation": "The MRO for `Combined` is `[Combined, First, Second, object]`. `Combined.__init__` prints 'Combined' and calls `super()`, leading to `First.__init__` ('First'), which in turn calls `super()` leading to `Second.__init__` ('Second')."
+        },
+        {
+          "question": "What is the principle of \"Duck Typing\" in Python OOP?",
+          "options": [
+            "\"If it walks like a duck and quacks like a duck, it's a duck\": suitability is determined by the presence of specific methods and properties rather than explicit inheritance.",
+            "A strict static type checking rule where all variables must declare their subclass types.",
+            "A requirement that all classes must inherit directly from a common abstract Duck class.",
+            "A compilation rule that restricts polymorphism to primitive data types only."
+          ],
+          "answer": "A",
+          "explanation": "In duck typing, Python does not check the formal class type of an object; rather, it checks whether the object provides the required methods/attributes at runtime."
+        },
+        {
+          "question": "What is the output of checking inheritance relationships with `issubclass()`?\n```python\nclass Vehicle: pass\nclass Car(Vehicle): pass\nclass ElectricCar(Car): pass\n\nprint(issubclass(ElectricCar, Vehicle), issubclass(Vehicle, Car))\n```",
+          "options": [
+            "True True",
+            "True False",
+            "False True",
+            "False False"
+          ],
+          "answer": "B",
+          "explanation": "`ElectricCar` is a descendant of `Vehicle` (multi-level inheritance), so `issubclass(ElectricCar, Vehicle)` is `True`. `Vehicle` is a parent (not a subclass) of `Car`, so `issubclass(Vehicle, Car)` is `False`."
+        },
+        {
+          "question": "What is the output of extending a parent class method using `super()`?\n```python\nclass Base:\n    def greet(self):\n        return \"Hello\"\n\nclass Derived(Base):\n    def greet(self):\n        return super().greet() + \" World\"\n\nprint(Derived().greet())\n```",
+          "options": [
+            "World",
+            "Hello World World",
+            "Hello",
+            "Hello World"
+          ],
+          "answer": "D",
+          "explanation": "`super().greet()` invokes `Base.greet()`, returning `'Hello'`. Concatenating `' World'` produces `'Hello World'`."
+        },
+        {
+          "question": "Why does Python use the C3 Linearization algorithm for calculating Method Resolution Order (MRO)?",
+          "options": [
+            "To guarantee monotonicity and ensure local precedence order is strictly preserved in complex multiple inheritance structures.",
+            "To eliminate the need for __init__ constructors in base classes.",
+            "To automatically convert python classes into C struct pointers.",
+            "To restrict classes to having at most two parent classes."
+          ],
+          "answer": "A",
+          "explanation": "C3 Linearization guarantees monotonicity (if class A precedes B in a parent's MRO, it will precede B in all subclasses' MROs) and respects explicit declaration order."
+        },
+        {
+          "question": "Can an Abstract Base Class (ABC) in Python contain concrete (implemented) non-abstract methods?\n```python\nfrom abc import ABC, abstractmethod\n\nclass BaseProcessor(ABC):\n    @abstractmethod\n    def process(self):\n        pass\n    def log(self):\n        return \"Logged\"\n\nclass TextProcessor(BaseProcessor):\n    def process(self):\n        return \"Processing\"\n\ntp = TextProcessor()\nprint(tp.process(), tp.log())\n```",
+          "options": [
+            "Processing AttributeError: log is abstract",
+            "TypeError: ABC cannot have concrete methods",
+            "Processing None",
+            "Processing Logged"
+          ],
+          "answer": "D",
+          "explanation": "ABCs can define concrete methods with full implementations alongside abstract methods. Subclasses inherit concrete methods (`tp.log()`) directly."
+        },
+        {
+          "question": "What is the output of method overriding in a simple inheritance hierarchy?\n```python\nclass A:\n    def calc(self, n):\n        return n * 2\nclass B(A):\n    def calc(self, n):\n        return n * 3\n\na = A()\nb = B()\nprint(a.calc(4), b.calc(4))\n```",
+          "options": [
+            "12 12",
+            "12 8",
+            "8 12",
+            "8 8"
+          ],
+          "answer": "C",
+          "explanation": "`a.calc(4)` invokes `A.calc` (`4 * 2 = 8`). `b.calc(4)` invokes `B`'s overridden `calc` (`4 * 3 = 12`)."
+        },
+        {
+          "question": "In Python encapsulation, what is the exact mechanism of prefixing a class attribute with two leading underscores (`__var`)?",
+          "options": [
+            "It encrypts the variable data using AES-256.",
+            "Python rewrites the identifier name internally to _ClassName__var (name mangling) to avoid accidental overrides in subclasses.",
+            "It makes the variable physically private and unreadable in memory.",
+            "It locks the variable as a constant that cannot be assigned new values."
+          ],
+          "answer": "B",
+          "explanation": "Name mangling transforms any identifier of the form `__var` to `_ClassName__var`. This prevents subclasses from accidentally clobbering internal attributes."
+        },
+        {
+          "question": "What is the output of multiple inheritance when both parent classes implement the same method?\n```python\nclass Left:\n    def identify(self): return \"Left\"\nclass Right:\n    def identify(self): return \"Right\"\nclass Bot(Right, Left):\n    pass\n\nprint(Bot().identify())\n```",
+          "options": [
+            "Right",
+            "Left",
+            "Right Left",
+            "TypeError: ambiguous method call"
+          ],
+          "answer": "A",
+          "explanation": "Python resolves methods from left to right in the class definition header: `class Bot(Right, Left)`. Since `Right` is listed first, `Right.identify()` is executed."
+        },
+        {
+          "question": "How are abstract properties declared in Python Abstract Base Classes?\n```python\nfrom abc import ABC, abstractmethod\n\nclass Entity(ABC):\n    @property\n    @abstractmethod\n    def identifier(self):\n        pass\n\nclass User(Entity):\n    @property\n    def identifier(self):\n        return \"USR-001\"\n\nprint(User().identifier)\n```",
+          "options": [
+            "AttributeError: identifier",
+            "<property object at ...>",
+            "USR-001",
+            "TypeError: @property cannot be combined with @abstractmethod"
+          ],
+          "answer": "C",
+          "explanation": "Combining `@property` and `@abstractmethod` creates an abstract property. Subclasses must override `identifier` as a property; accessing `User().identifier` returns `'USR-001'`."
+        },
+        {
+          "question": "What does the `__abstractmethods__` attribute of an Abstract Base Class contain?\n```python\nfrom abc import ABC, abstractmethod\n\nclass Plugin(ABC):\n    @abstractmethod\n    def load(self): pass\n\nprint(Plugin.__abstractmethods__)\n```",
+          "options": [
+            "('load',)",
+            "frozenset({'load'})",
+            "['load']",
+            "{'load': None}"
+          ],
+          "answer": "B",
+          "explanation": "Python stores the names of all unimplemented abstract methods in a `frozenset` on the class under `__abstractmethods__`."
+        },
+        {
+          "question": "What is the core distinction between Abstraction and Encapsulation in Object-Oriented Design?",
+          "options": [
+            "Abstraction is only used in Python, while encapsulation is only used in C++.",
+            "Abstraction prevents inheritance, while encapsulation permits multiple inheritance.",
+            "Abstraction hides implementation complexity and exposes only essential interfaces, whereas encapsulation packages data and functions together while restricting direct access.",
+            "Encapsulation is achieved exclusively through the @property decorator."
+          ],
+          "answer": "C",
+          "explanation": "Abstraction focuses on 'what' an object does (exposing a clean interface), while encapsulation focuses on 'how' it does it (bundling state and safeguarding access)."
+        },
+        {
+          "question": "How does `super()` without arguments operate in Python 3?",
+          "options": [
+            "It skips the immediate parent class and resolves directly to the grandparent class.",
+            "It requires passing super(ClassName, self) explicitly or it throws a TypeError.",
+            "It only functions inside @classmethod methods.",
+            "It automatically determines the current class and instance from compiler cell variables (__class__ and self) without needing explicit parameters."
+          ],
+          "answer": "D",
+          "explanation": "In Python 3, zero-argument `super()` automatically fetches the enclosing class (`__class__`) and current instance (`self`), making `super()` clean and error-free."
+        },
+        {
+          "question": "What is the output of using the `+` operator across different object types (Operator Polymorphism)?\n```python\nprint(3 + 4, \"3\" + \"4\", [3] + [4])\n```",
+          "options": [
+            "7 34 [3, 4]",
+            "7 7 [7]",
+            "7 34 [7]",
+            "34 34 [3, 4]"
+          ],
+          "answer": "A",
+          "explanation": "The `+` operator is polymorphic: for integers it performs addition (`7`), for strings concatenation (`'34'`), and for lists combination (`[3, 4]`)."
+        }
+      ]
+    },
+    {
+      "lessonId": "lesson-1787203994872",
+      "lessonTitle": "Lesson 3: Advanced OOP: Dunder Methods & Design Patterns",
+      "totalQuestions": 20,
+      "questions": [
+        {
+          "question": "What is the difference between `__str__` and `__repr__` in the following code?\n```python\nclass Book:\n    def __init__(self, title):\n        self.title = title\n    def __str__(self):\n        return f\"Book: {self.title}\"\n    def __repr__(self):\n        return f\"Book({self.title!r})\"\n\nb = Book(\"Python 101\")\nprint(str(b), repr(b))\n```",
+          "options": [
+            "Book('Python 101') Book: Python 101",
+            "Book('Python 101') Book('Python 101')",
+            "Book: Python 101 Book('Python 101')",
+            "Book: Python 101 Book: Python 101"
+          ],
+          "answer": "C",
+          "explanation": "`str(b)` invokes `__str__`, returning `'Book: Python 101'`. `repr(b)` invokes `__repr__`, returning `'Book(\\'Python 101\\')'`."
+        },
+        {
+          "question": "What happens when `str(obj)` is called on an instance whose class defines `__repr__` but does NOT define `__str__`?\n```python\nclass Item:\n    def __init__(self, name):\n        self.name = name\n    def __repr__(self):\n        return f\"Item({self.name})\"\n\ni = Item(\"Widget\")\nprint(str(i))\n```",
+          "options": [
+            "AttributeError: Item has no __str__",
+            "Item(Widget)",
+            "Widget",
+            "<Item object at 0x...>"
+          ],
+          "answer": "B",
+          "explanation": "If `__str__` is not defined on a class, Python automatically falls back to invoking `__repr__` as a default string representation."
+        },
+        {
+          "question": "What is the output of the following operator overloading implementation with `__add__`?\n```python\nclass Vector:\n    def __init__(self, x, y):\n        self.x = x\n        self.y = y\n    def __add__(self, other):\n        return Vector(self.x + other.x, self.y + other.y)\n    def __repr__(self):\n        return f\"({self.x}, {self.y})\"\n\nv1 = Vector(1, 2)\nv2 = Vector(3, 4)\nprint(v1 + v2)\n```",
+          "options": [
+            "(3, 8)",
+            "TypeError: unsupported operand type for +",
+            "(1, 2, 3, 4)",
+            "(4, 6)"
+          ],
+          "answer": "D",
+          "explanation": "`v1 + v2` translates to `v1.__add__(v2)`, creating a new `Vector(1 + 3, 2 + 4) = Vector(4, 6)`. Its `__repr__` prints `(4, 6)`."
+        },
+        {
+          "question": "What makes an instance of a Python class callable like a function?\n```python\nclass Multiplier:\n    def __init__(self, factor):\n        self.factor = factor\n    def __call__(self, val):\n        return val * self.factor\n\ndouble = Multiplier(2)\nprint(callable(double), double(5))\n```",
+          "options": [
+            "True 5",
+            "TypeError: 'Multiplier' object is not callable",
+            "False 10",
+            "True 10"
+          ],
+          "answer": "D",
+          "explanation": "Implementing the `__call__` dunder method allows class instances to be called as functions. `callable(double)` is `True`, and `double(5)` evaluates to `5 * 2 = 10`."
+        },
+        {
+          "question": "What is the output of custom sequence indexing via `__len__` and `__getitem__`?\n```python\nclass CustomList:\n    def __init__(self, *items):\n        self.items = list(items)\n    def __len__(self):\n        return len(self.items)\n    def __getitem__(self, idx):\n        return self.items[idx] * 10\n\ncl = CustomList(1, 2, 3)\nprint(len(cl), cl[1])\n```",
+          "options": [
+            "3 10",
+            "3 2",
+            "TypeError: 'CustomList' object is not subscriptable",
+            "3 20"
+          ],
+          "answer": "D",
+          "explanation": "`len(cl)` calls `__len__` (3 items). `cl[1]` calls `__getitem__(1)`, returning `self.items[1] * 10 = 2 * 10 = 20`."
+        },
+        {
+          "question": "What is the output of the following Singleton design pattern implemented using `__new__`?\n```python\nclass Singleton:\n    _instance = None\n    def __new__(cls):\n        if cls._instance is None:\n            cls._instance = super().__new__(cls)\n        return cls._instance\n\ns1 = Singleton()\ns2 = Singleton()\nprint(s1 is s2)\n```",
+          "options": [
+            "None",
+            "False",
+            "TypeError: Singleton() takes no arguments",
+            "True"
+          ],
+          "answer": "D",
+          "explanation": "The Singleton pattern ensures only one instance of the class exists. `__new__` checks `cls._instance`: on the first call it creates the object, and on subsequent calls it returns the cached instance. `s1 is s2` is `True`."
+        },
+        {
+          "question": "What is the output of the following Factory design pattern implementation?\n```python\nclass Dog:\n    def speak(self): return \"Woof\"\nclass Cat:\n    def speak(self): return \"Meow\"\n\nclass PetFactory:\n    @staticmethod\n    def get_pet(pet_type):\n        pets = {\"dog\": Dog, \"cat\": Cat}\n        return pets.get(pet_type, Dog)()\n\npet = PetFactory.get_pet(\"cat\")\nprint(pet.speak())\n```",
+          "options": [
+            "Woof",
+            "None",
+            "Meow",
+            "PetFactory"
+          ],
+          "answer": "C",
+          "explanation": "`PetFactory.get_pet('cat')` looks up `'cat'` in the dictionary, instantiates `Cat()`, and calling `pet.speak()` returns `'Meow'`."
+        },
+        {
+          "question": "What is the output of custom equality comparison via `__eq__`?\n```python\nclass Point:\n    def __init__(self, x, y):\n        self.x = x\n        self.y = y\n    def __eq__(self, other):\n        if not isinstance(other, Point):\n            return False\n        return self.x == other.x and self.y == other.y\n\np1 = Point(2, 3)\np2 = Point(2, 3)\nprint(p1 == p2, p1 is p2)\n```",
+          "options": [
+            "False False",
+            "True False",
+            "True True",
+            "False True"
+          ],
+          "answer": "B",
+          "explanation": "`p1 == p2` triggers `__eq__` which compares the coordinate values (`2 == 2 and 3 == 3`), returning `True`. `p1 is p2` checks object memory identity, which is `False` since they are distinct instances."
+        },
+        {
+          "question": "What is the output of using right-hand arithmetic reflection via `__radd__`?\n```python\nclass Score:\n    def __init__(self, val):\n        self.val = val\n    def __radd__(self, other):\n        return self.val + other\n\ns = Score(50)\nprint(10 + s)\n```",
+          "options": [
+            "TypeError: unsupported operand type for +: 'int' and 'Score'",
+            "10",
+            "60",
+            "50"
+          ],
+          "answer": "C",
+          "explanation": "When evaluating `10 + s`, `int` does not know how to add a `Score` instance. Python falls back to calling `s.__radd__(10)`, returning `50 + 10 = 60`."
+        },
+        {
+          "question": "What is the fundamental difference in intended audience between `__str__` and `__repr__` in Python?",
+          "options": [
+            "__str__ is used for database serialization, while __repr__ is used exclusively in HTML templates.",
+            "__str__ can only return ASCII characters, while __repr__ supports Unicode.",
+            "__str__ is intended to provide a readable string representation for end users, while __repr__ is intended to be unambiguous and primarily for developers/debugging.",
+            "__str__ is called when saving to disk, while __repr__ is called when transmitting over HTTP."
+          ],
+          "answer": "C",
+          "explanation": "`__str__` should be readable and user-friendly, whereas `__repr__` should be unambiguous, ideally containing valid Python code to recreate the object."
+        },
+        {
+          "question": "What does the `@functools.total_ordering` decorator provide for a custom Python class?\n```python\nfrom functools import total_ordering\n\n@total_ordering\nclass Student:\n    def __init__(self, grade):\n        self.grade = grade\n    def __eq__(self, other):\n        return self.grade == other.grade\n    def __lt__(self, other):\n        return self.grade < other.grade\n\ns1 = Student(85)\ns2 = Student(90)\nprint(s1 < s2, s1 <= s2, s1 > s2)\n```",
+          "options": [
+            "True True False",
+            "True False False",
+            "True True True",
+            "TypeError: <= not supported"
+          ],
+          "answer": "A",
+          "explanation": "`@total_ordering` automatically generates the remaining comparison methods (`<=`, `>`, `>=`) from `__eq__` and `__lt__`. Thus `s1 < s2` (True), `s1 <= s2` (True), and `s1 > s2` (False) all work seamlessly."
+        },
+        {
+          "question": "What is the output of custom membership testing via the `__contains__` dunder method?\n```python\nclass RangeContainer:\n    def __init__(self, low, high):\n        self.low = low\n        self.high = high\n    def __contains__(self, item):\n        return self.low <= item <= self.high\n\nrc = RangeContainer(10, 20)\nprint(15 in rc, 25 in rc)\n```",
+          "options": [
+            "False False",
+            "True False",
+            "TypeError: argument of type 'RangeContainer' is not iterable",
+            "True True"
+          ],
+          "answer": "B",
+          "explanation": "The `in` operator invokes `__contains__(item)`. `10 <= 15 <= 20` is `True`, and `10 <= 25 <= 20` is `False`."
+        },
+        {
+          "question": "What is the output of overriding the in-place addition operator with `__iadd__`?\n```python\nclass Counter:\n    def __init__(self, val=0):\n        self.val = val\n    def __iadd__(self, other):\n        self.val += other * 2\n        return self\n\nc = Counter(5)\nc += 3\nprint(c.val)\n```",
+          "options": [
+            "11",
+            "8",
+            "6",
+            "5"
+          ],
+          "answer": "A",
+          "explanation": "`c += 3` invokes `c.__iadd__(3)`, which computes `self.val += 3 * 2` (`5 + 6 = 11`) and returns `self`."
+        },
+        {
+          "question": "What happens if a custom class implements `__eq__` but does NOT implement `__hash__` in Python 3?",
+          "options": [
+            "Python defaults to using id(self) as the hash value.",
+            "Python computes an MD5 checksum of all instance variables.",
+            "Python allows set membership but disallows dict key usage.",
+            "Python automatically sets __hash__ = None, making instances unhashable and raising a TypeError if added to a set or used as a dict key."
+          ],
+          "answer": "D",
+          "explanation": "In Python 3, if a class overrides `__eq__` without defining `__hash__`, its `__hash__` is implicitly set to `None`, making it unhashable to prevent hash collision bugs in sets/dicts."
+        },
+        {
+          "question": "What is the output when an object implements both `__hash__` and `__eq__` for set uniqueness?\n```python\nclass User:\n    def __init__(self, uid):\n        self.uid = uid\n    def __eq__(self, other):\n        return isinstance(other, User) and self.uid == other.uid\n    def __hash__(self):\n        return hash(self.uid)\n\nu1 = User(101)\nu2 = User(101)\ns = {u1, u2}\nprint(len(s))\n```",
+          "options": [
+            "2",
+            "1",
+            "TypeError: unhashable type: 'User'",
+            "0"
+          ],
+          "answer": "B",
+          "explanation": "Because `u1` and `u2` have identical hash values (`hash(101)`) and evaluate as equal (`u1 == u2`), the set detects them as duplicates and stores only one element."
+        },
+        {
+          "question": "What is the output of implementing custom string formatting via `__format__`?\n```python\nclass Temperature:\n    def __init__(self, c):\n        self.c = c\n    def __format__(self, format_spec):\n        if format_spec == \"f\":\n            return f\"{self.c * 9/5 + 32:.1f}°F\"\n        return f\"{self.c}°C\"\n\nt = Temperature(100)\nprint(f\"{t:f}\")\n```",
+          "options": [
+            "100°C",
+            "212.0°F",
+            "212°F",
+            "Temperature object"
+          ],
+          "answer": "B",
+          "explanation": "F-string formatting `f'{t:f}'` passes `'f'` as `format_spec` to `t.__format__('f')`, returning `100 * 9/5 + 32 = 212.0°F`."
+        },
+        {
+          "question": "What is the output of intercepting missing attribute lookups via `__getattr__`?\n```python\nclass DynamicRecord:\n    def __init__(self, data):\n        self.data = data\n    def __getattr__(self, name):\n        if name in self.data:\n            return self.data[name]\n        raise AttributeError(f\"No attribute {name}\")\n\ndr = DynamicRecord({\"status\": \"active\"})\nprint(dr.status)\n```",
+          "options": [
+            "active",
+            "{'status': 'active'}",
+            "AttributeError: No attribute status",
+            "None"
+          ],
+          "answer": "A",
+          "explanation": "When `dr.status` is accessed and not found in `dr.__dict__`, Python falls back to calling `dr.__getattr__('status')`, which finds `'status'` in `self.data` and returns `'active'`."
+        },
+        {
+          "question": "What is the output of the following Strategy design pattern implementation?\n```python\nclass DiscountStrategy:\n    def apply(self, price):\n        return price\nclass PercentageDiscount(DiscountStrategy):\n    def apply(self, price):\n        return price * 0.9\n\nclass ShoppingCart:\n    def __init__(self, strategy=DiscountStrategy()):\n        self.strategy = strategy\n    def checkout(self, total):\n        return self.strategy.apply(total)\n\ncart = ShoppingCart(PercentageDiscount())\nprint(int(cart.checkout(200)))\n```",
+          "options": [
+            "190",
+            "200",
+            "180",
+            "90"
+          ],
+          "answer": "C",
+          "explanation": "The Strategy pattern decouples algorithms from the class using them. The `ShoppingCart` delegates `checkout(200)` to `PercentageDiscount.apply(200)`, computing `200 * 0.9 = 180`."
+        },
+        {
+          "question": "When is an object's `__del__` destructor method invoked in Python?\n```python\nclass Resource:\n    def __del__(self):\n        print(\"Resource destroyed\")\n\ndef scope():\n    r = Resource()\n\nscope()\n```",
+          "options": [
+            "Resource destroyed (when the object's reference count drops to zero)",
+            "Before __init__ runs",
+            "Only when sys.exit() is called explicitly",
+            "__del__ is never called automatically"
+          ],
+          "answer": "A",
+          "explanation": "When `scope()` finishes executing, local variable `r` goes out of scope and its reference count reaches zero. The garbage collector immediately reclaims the object and calls `__del__()`."
+        },
+        {
+          "question": "What is the fundamental role of the Factory Method design pattern in Python?",
+          "options": [
+            "To define an interface for creating objects while delegating the instantiation logic to specific subclasses or factory functions.",
+            "To convert procedural Python functions into asynchronous coroutines.",
+            "To dynamically add slots to classes at runtime.",
+            "To ensure a class has only one global instance throughout the entire application runtime."
+          ],
+          "answer": "A",
+          "explanation": "The Factory pattern provides a standardized creational interface, allowing callers to instantiate appropriate object variants without coupling directly to concrete classes."
+        }
+      ]
+    }
+  ]
+}

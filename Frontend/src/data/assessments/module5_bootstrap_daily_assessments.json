@@ -1,0 +1,688 @@
+{
+  "moduleId": "mod-bootstrap",
+  "moduleName": "Module 5: Bootstrap 5 Framework",
+  "courseId": "crs-1786624019154-w",
+  "lessons": [
+    {
+      "lessonId": "lesson-1787196281985-15",
+      "lessonTitle": "Lesson 1: Bootstrap 5 Grid System & Responsive Utilities",
+      "totalQuestions": 20,
+      "questions": [
+        {
+          "question": "What was one of the most notable architectural changes introduced in Bootstrap 5 compared to Bootstrap 4?",
+          "options": [
+            "Replacing all HTML5 tags with React JSX components",
+            "Completely dropping the jQuery dependency in favor of modern vanilla JavaScript",
+            "Removing the 12-column grid system in favor of table layouts",
+            "Requiring all stylesheets to be written in Python"
+          ],
+          "answer": "B",
+          "explanation": "Bootstrap 5 eliminated the dependency on jQuery, rewritten completely in native vanilla JavaScript with improved performance and smaller bundle sizes."
+        },
+        {
+          "question": "What is the primary difference between `.container` and `.container-fluid` in Bootstrap 5?",
+          "options": [
+            "`.container` has a fixed responsive max-width at each breakpoint tier, while `.container-fluid` always spans 100% width across all viewport sizes",
+            "`.container-fluid` converts all child elements into SVG vector graphics",
+            "`.container` automatically removes all margin and padding gutters",
+            "`.container-fluid` only works on desktop monitors, while `.container` is mobile-only"
+          ],
+          "answer": "A",
+          "explanation": "`.container` adjusts max-width at each breakpoint (`sm`, `md`, `lg`, `xl`, `xxl`), while `.container-fluid` continuously occupies 100% width across all viewports."
+        },
+        {
+          "question": "What are the 6 standard responsive breakpoint tiers in Bootstrap 5?",
+          "options": [
+            "xs (<576px), sm (≥576px), md (≥768px), lg (≥992px), xl (≥1200px), xxl (≥1400px)",
+            "xs (<600px), sm (≥600px), md (≥900px), lg (≥1200px), xl (≥1800px)",
+            "mobile (<480px), tablet (≥480px), desktop (≥1024px), ultra (≥2048px)",
+            "sm (<768px), md (≥768px), lg (≥1024px), xl (≥1440px)"
+          ],
+          "answer": "A",
+          "explanation": "Bootstrap 5 features 6 responsive tiers: `xs` (default <576px), `sm` (576px), `md` (768px), `lg` (992px), `xl` (1200px), and the new `xxl` (1400px)."
+        },
+        {
+          "question": "In the Bootstrap 5 12-column grid system, what is the mandatory parent-child hierarchy rule?",
+          "options": [
+            "Columns must be placed directly inside `<main>` without `.container` or `.row`",
+            "Containers (`.container`) wrap Rows (`.row`), and Rows must be the immediate parents of Columns (`.col-*`)",
+            "Rows can be placed directly inside other Rows without any columns",
+            "Columns must wrap Rows, which in turn wrap Containers"
+          ],
+          "answer": "B",
+          "explanation": "Bootstrap's grid hierarchy strictly requires `.container` (or `.container-fluid`) -> `.row` -> `.col-*` so margins, paddings, and negative row margins calculate correctly."
+        },
+        {
+          "question": "How do you create a column layout that stacks vertically as 100% width on mobile screens, splits into 2 equal columns on tablets (≥768px), and 4 equal columns on desktops (≥992px)?",
+          "options": [
+            "col-1 col-md-2 col-lg-4",
+            "col-xs-12 col-tab-6 col-desk-4",
+            "col-12 col-md-6 col-lg-3",
+            "col-full col-tablet-half col-desktop-quarter"
+          ],
+          "answer": "C",
+          "explanation": "In a 12-column grid: `col-12` = 100% width, `col-md-6` = 6/12 (50% or 2 per row), and `col-lg-3` = 3/12 (25% or 4 per row)."
+        },
+        {
+          "question": "What does the `.col-auto` class do on a grid column in Bootstrap 5?",
+          "options": [
+            "It randomly assigns a column width between 1 and 12",
+            "It sizes the column to fit the natural intrinsic width of its inner content",
+            "It hides the column automatically when other columns are clicked",
+            "It automatically expands the column to 100% width on all screens"
+          ],
+          "answer": "B",
+          "explanation": "`.col-auto` sets column width based on content size (`width: auto`), allowing adjacent columns with `.col` to fill the remaining available space."
+        },
+        {
+          "question": "Which utility class is used to shift a column 3 grid columns to the right on medium screens (≥768px)?",
+          "options": [
+            "offset-md-3",
+            "col-skip-3",
+            "push-md-3",
+            "shift-md-3"
+          ],
+          "answer": "A",
+          "explanation": "`.offset-md-3` applies `margin-left: 25%` (3/12 columns) at the `md` breakpoint to offset the column horizontally."
+        },
+        {
+          "question": "Which Bootstrap 5 gutter classes set a horizontal column gutter of size 3 and vertical row gutter of size 4 on a `.row`?",
+          "options": [
+            "gx-3 gy-4",
+            "gap-x-3 gap-y-4",
+            "gutter-x-3 gutter-y-4",
+            "gutter-h3 gutter-v4"
+          ],
+          "answer": "A",
+          "explanation": "Bootstrap 5 uses `.gx-*` for horizontal gutters (column padding/negative row margins) and `.gy-*` for vertical row gutters between stacked items."
+        },
+        {
+          "question": "What does the shorthand class `.row-cols-md-3` placed on a `.row` accomplish?",
+          "options": [
+            "It sets the font size to 3rem across the entire row",
+            "It limits the maximum number of items in the database to 3",
+            "It automatically formats all immediate child `.col` elements into 3 equal columns per row on medium screens (≥768px) without needing `col-md-4` on every child",
+            "It creates exactly 3 empty rows in the DOM tree"
+          ],
+          "answer": "C",
+          "explanation": "`.row-cols-*` sets how many columns appear per row at the container level, dynamically wrapping children into rows of 3 on `md` screens."
+        },
+        {
+          "question": "Which utility class in Bootstrap 5 applies a margin-top of 4 and margin-bottom of 4 simultaneously?",
+          "options": [
+            "mt-mb-4",
+            "my-4",
+            "margin-v-4",
+            "m-y4"
+          ],
+          "answer": "B",
+          "explanation": "In Bootstrap spacing notation, `y` represents the vertical axis (`top` and `bottom`), so `my-4` sets both `margin-top` and `margin-bottom` to spacing scale 4."
+        },
+        {
+          "question": "How do you hide an element on mobile screens (<768px) and display it as a flexbox container on tablets and desktops (≥768px) using Bootstrap 5 utility classes?",
+          "options": [
+            "d-mobile-none d-desktop-flex",
+            "d-hidden d-md-visible",
+            "hidden-xs flex-md",
+            "d-none d-md-flex"
+          ],
+          "answer": "D",
+          "explanation": "`d-none` hides the element as base style, and `d-md-flex` applies `display: flex` starting at the `md` (≥768px) breakpoint tier."
+        },
+        {
+          "question": "Which class centers text horizontally on mobile and aligns text to the left on medium screens (≥768px)?",
+          "options": [
+            "text-center text-md-start",
+            "text-mobile-center text-desktop-left",
+            "text-align-center text-align-md-left",
+            "align-center align-md-left"
+          ],
+          "answer": "A",
+          "explanation": "Bootstrap 5 uses direction keywords: `start` for left (in LTR mode) and `end` for right, combined with responsive prefixes (e.g., `text-center text-md-start`)."
+        },
+        {
+          "question": "What is the effect of applying `.rounded-pill` to a button or badge element?",
+          "options": [
+            "It makes the button pulse continuously with CSS animations",
+            "It applies a 3D bevel and inset shadow effect",
+            "It turns the element into a circular 100px icon",
+            "It applies a large border-radius (50rem) to create fully rounded stadium/pill shaped ends"
+          ],
+          "answer": "D",
+          "explanation": "`.rounded-pill` sets `border-radius: 50rem`, creating smooth, oblong pill shapes for buttons, badges, and tags."
+        },
+        {
+          "question": "Which utility combination centers an element both horizontally and vertically inside a relative parent container?",
+          "options": [
+            "position-absolute center-all",
+            "position-center margin-auto",
+            "position-absolute top-50 start-50 translate-middle",
+            "position-relative align-middle justify-center"
+          ],
+          "answer": "C",
+          "explanation": "`top-50 start-50` positions the element at 50% from top and left, while `translate-middle` applies `transform: translate(-50%, -50%)` to center it perfectly."
+        },
+        {
+          "question": "What does the `.text-truncate` class do when applied to a block element with a constrained width?",
+          "options": [
+            "It deletes all vowels from the text to save space",
+            "It hides the entire paragraph from the screen",
+            "It shrinks the font size to 8px automatically",
+            "It prevents text wrapping and truncates overflowing text with an ellipsis (`...`)"
+          ],
+          "answer": "D",
+          "explanation": "`.text-truncate` combines `overflow: hidden; text-overflow: ellipsis; white-space: nowrap;` for clean single-line truncation."
+        },
+        {
+          "question": "Which class in Bootstrap 5 applies a large, elevated drop shadow to a card or container?",
+          "options": [
+            "elevation-3",
+            "shadow-high",
+            "shadow-lg",
+            "box-shadow-large"
+          ],
+          "answer": "C",
+          "explanation": "Bootstrap provides 4 shadow utilities: `shadow-none`, `shadow-sm`, `shadow` (regular), and `shadow-lg` (large elevation)."
+        },
+        {
+          "question": "How do you apply a 50% transparent dark background color to a container using Bootstrap 5 utility classes?",
+          "options": [
+            "bg-dark opacity-50",
+            "background-dark-alpha-50",
+            "bg-dark-50",
+            "bg-dark bg-opacity-50"
+          ],
+          "answer": "D",
+          "explanation": "Bootstrap 5 uses CSS variable opacity helpers: `bg-dark bg-opacity-50` sets the background color while setting `--bs-bg-opacity: 0.5` without altering text opacity."
+        },
+        {
+          "question": "Which utility class aligns flex items to the vertical center of a flex container?",
+          "options": [
+            "flex-center-y",
+            "align-items-center",
+            "justify-content-center",
+            "vertical-align-middle"
+          ],
+          "answer": "B",
+          "explanation": "`align-items-center` applies `align-items: center` to align children along the cross axis (vertical in row mode)."
+        },
+        {
+          "question": "What class is used to float an element to the right in Bootstrap 5 (supporting LTR and RTL directions)?",
+          "options": [
+            "pull-right",
+            "align-right",
+            "float-right",
+            "float-end"
+          ],
+          "answer": "D",
+          "explanation": "Bootstrap 5 replaced directional `float-left`/`float-right` with `float-start` and `float-end` to support bidirectional LTR/RTL layouts."
+        },
+        {
+          "question": "What is the effect of setting `.g-0` on a `.row` element?",
+          "options": [
+            "It adds 0px padding inside text elements",
+            "It forces the row to occupy zero height",
+            "It removes all horizontal column gutters and negative row margins completely",
+            "It limits the row to 0 columns"
+          ],
+          "answer": "C",
+          "explanation": "`.g-0` eliminates all gutter spacing between columns and removes the negative margin on `.row`, creating flush grid layouts."
+        }
+      ]
+    },
+    {
+      "lessonId": "lesson-1787196281985-16",
+      "lessonTitle": "Lesson 2: Bootstrap Components (Navbar, Modals, Cards, Forms)",
+      "totalQuestions": 20,
+      "questions": [
+        {
+          "question": "What is the role of the `.navbar-toggler` button in a Bootstrap 5 navigation bar?",
+          "options": [
+            "It submits the navigation search form to the backend server",
+            "It acts as the hamburger toggle button that expands or collapses the mobile navigation menu via `data-bs-toggle=\"collapse\"`",
+            "It toggles between dark mode and light mode themes",
+            "It rotates the brand logo 360 degrees"
+          ],
+          "answer": "B",
+          "explanation": "`.navbar-toggler` renders the mobile hamburger button, triggering the collapsible navigation container (`.collapse.navbar-collapse`)."
+        },
+        {
+          "question": "Which class on a `.navbar` specifies that the navigation links should collapse into a hamburger menu on screens narrower than large desktops (≥992px)?",
+          "options": [
+            "navbar-responsive-desktop",
+            "navbar-collapse-lg",
+            "navbar-expand-lg",
+            "navbar-mobile-lg"
+          ],
+          "answer": "C",
+          "explanation": "`.navbar-expand-lg` keeps the navbar expanded horizontally on `lg` screens (≥992px) and collapses it into a mobile accordion/hamburger on smaller screens."
+        },
+        {
+          "question": "What is the standard HTML structure for a basic Bootstrap 5 Card component?",
+          "options": [
+            "`.card-box` > `.card-item` > `.card-content`",
+            "`.card` > `<header>` > `<main>` > `<footer>`",
+            "`.card` > `.card-row` > `.card-column`",
+            "`.card` > optional `.card-header` + `.card-body` (containing `.card-title` and `.card-text`) + optional `.card-footer`"
+          ],
+          "answer": "D",
+          "explanation": "Bootstrap Cards use a modular structure: `.card` encapsulating `.card-header`, `.card-body` (with `.card-title`, `.card-subtitle`, `.card-text`), and `.card-footer`."
+        },
+        {
+          "question": "Which data attributes are required on a button to trigger and open a Bootstrap 5 Modal dialog with `id=\"loginModal\"`?",
+          "options": [
+            "data-bs-toggle=\"modal\" data-bs-target=\"#loginModal\"",
+            "data-modal-open=\"#loginModal\"",
+            "href=\"#loginModal\" rel=\"modal-popup\"",
+            "data-toggle=\"modal\" data-target=\"#loginModal\""
+          ],
+          "answer": "A",
+          "explanation": "Bootstrap 5 uses namespaced attributes: `data-bs-toggle=\"modal\"` and `data-bs-target=\"#loginModal\"` (the `bs` prefix distinguishes Bootstrap 5 from Bootstrap 4)."
+        },
+        {
+          "question": "How do you prevent a Bootstrap 5 Modal from closing when a user clicks outside the modal dialog backdrop?",
+          "options": [
+            "Add the `.modal-lock` CSS class",
+            "Set `modal-dismiss: none;` in CSS",
+            "Add `data-bs-close=\"false\"` to the modal",
+            "Add `data-bs-backdrop=\"static\"` to the modal container"
+          ],
+          "answer": "D",
+          "explanation": "`data-bs-backdrop=\"static\"` creates a static backdrop that does not close the modal when clicked, requiring users to explicitly click a close or submit button."
+        },
+        {
+          "question": "Which class converts a standard text input into a modern Bootstrap 5 floating label form group?",
+          "options": [
+            ".floating-input",
+            ".input-group-floating",
+            ".form-floating (wrapping an `<input placeholder=\"...\">` and `<label>`)",
+            ".form-animated-label"
+          ],
+          "answer": "C",
+          "explanation": "Wrapping an `<input>` with a defined `placeholder` and a matching `<label>` inside a `.form-floating` container creates smooth floating animated labels."
+        },
+        {
+          "question": "How do you activate native Bootstrap 5 client-side form validation styles upon form submission?",
+          "options": [
+            "Add `validate=\"true\"` to all `<input>` elements",
+            "Include jQuery validation plugin script before the `</body>` tag",
+            "Add the `.was-validated` class to the `<form class=\"needs-validation\">` container via JavaScript",
+            "Call `form.submitBootstrapValidation()` in JavaScript"
+          ],
+          "answer": "C",
+          "explanation": "Bootstrap validation works by applying `.was-validated` to a `.needs-validation` form, activating `:valid` and `:invalid` pseudoclasses and showing `.valid-feedback` / `.invalid-feedback`."
+        },
+        {
+          "question": "Which class creates a toggleable, accessible Accordion component in Bootstrap 5?",
+          "options": [
+            ".collapse-group",
+            ".accordion (containing `.accordion-item`, `.accordion-header`, `.accordion-button`, and `.accordion-collapse`)",
+            ".toggle-box",
+            ".expansion-panel"
+          ],
+          "answer": "B",
+          "explanation": "Bootstrap 5 Accordions use `.accordion` containing structured `.accordion-item` elements with `.accordion-button` toggles and `.accordion-collapse` collapsible bodies."
+        },
+        {
+          "question": "What is the Offcanvas component in Bootstrap 5 primarily used for?",
+          "options": [
+            "Compressing user uploaded image files in the browser",
+            "Building hidden sidebars (drawer menus, shopping carts, filters) that slide into view from the viewport edge",
+            "Exporting HTML tables directly to Microsoft Excel spreadsheets",
+            "Rendering 3D graphic animations using WebGL canvas"
+          ],
+          "answer": "B",
+          "explanation": "The `.offcanvas` component builds slide-in drawer sidebars from the start, end, top, or bottom edges (`offcanvas-start`, `offcanvas-end`)."
+        },
+        {
+          "question": "Why do Bootstrap 5 Tooltips and Popovers require manual JavaScript initialization to work?",
+          "options": [
+            "Tooltips require purchasing an enterprise license key",
+            "Tooltips only function when connected to a live WebSocket server",
+            "Because CSS does not support text rendering inside tooltips",
+            "For performance reasons, Tooltip and Popover components are opt-in and must be initialized via `new bootstrap.Tooltip(el)`"
+          ],
+          "answer": "D",
+          "explanation": "Tooltips and Popovers rely on Popper.js for positioning and are opt-in for performance; developers must initialize them via JavaScript (e.g., `new bootstrap.Tooltip(element)`)."
+        },
+        {
+          "question": "Which class turns a checkbox into a modern iOS-style toggle switch in Bootstrap 5?",
+          "options": [
+            ".toggle-switch",
+            ".form-check.form-switch (wrapping `<input type=\"checkbox\" class=\"form-check-input\">`)",
+            ".form-toggle",
+            ".switch-control"
+          ],
+          "answer": "B",
+          "explanation": "Adding `.form-switch` alongside `.form-check` transforms standard checkbox inputs into toggle switches."
+        },
+        {
+          "question": "How do you create an outline-styled danger (red) button in Bootstrap 5?",
+          "options": [
+            "btn btn-danger-border",
+            "btn-hollow-danger",
+            "btn-outline-red",
+            "btn btn-outline-danger"
+          ],
+          "answer": "D",
+          "explanation": "`.btn-outline-{theme}` (e.g., `.btn-outline-danger`, `.btn-outline-primary`) renders buttons with transparent backgrounds and colored borders until hovered."
+        },
+        {
+          "question": "What class makes a Bootstrap 5 Alert dismissible with a functional close button (`.btn-close`)?",
+          "options": [
+            "alert alert-dismissible fade show (with `<button class=\"btn-close\" data-bs-dismiss=\"alert\"></button>`)",
+            "alert alert-closeable",
+            "alert alert-interactive",
+            "alert alert-cancel"
+          ],
+          "answer": "A",
+          "explanation": "`.alert-dismissible fade show` with `<button class=\"btn-close\" data-bs-dismiss=\"alert\">` creates a smooth fade-out dismissible alert."
+        },
+        {
+          "question": "Which component is designed to render animated skeleton loading placeholders while data is being fetched from an API?",
+          "options": [
+            ".ghost-card",
+            ".loading-shimmer",
+            ".placeholder and .placeholder-glow (or .placeholder-wave)",
+            ".skeleton-loader"
+          ],
+          "answer": "C",
+          "explanation": "Bootstrap 5 Placeholders (`.placeholder` with `.placeholder-glow` or `.placeholder-wave`) provide animated skeleton mockups for loading states."
+        },
+        {
+          "question": "What class is used to center a modal vertically on the screen rather than pinning it to the top?",
+          "options": [
+            "modal-align-middle",
+            "modal-vertical-center",
+            "modal-dialog-centered",
+            "modal-center"
+          ],
+          "answer": "C",
+          "explanation": "Adding `.modal-dialog-centered` to `.modal-dialog` aligns the modal box to the exact vertical center of the viewport."
+        },
+        {
+          "question": "How can you position a small notification badge count in the top-right corner of a button in Bootstrap 5?",
+          "options": [
+            "Set `position-relative` on the `<button>` and `position-absolute top-0 start-100 translate-middle badge` on the `<span>`",
+            "Set `badge-top-right` on the `<button>`",
+            "Wrap the badge in a `<marquee>` tag",
+            "Use `float: top-right;` on the badge"
+          ],
+          "answer": "A",
+          "explanation": "Combining `position-relative` on the button with `position-absolute top-0 start-100 translate-middle` pins the badge directly over the top-right corner."
+        },
+        {
+          "question": "Which class enables smooth horizontal scrolling within a table that overflows narrow viewports?",
+          "options": [
+            "table-responsive (wrapping the `<table>` in `<div class=\"table-responsive\">`)",
+            "table-fluid",
+            "table-overflow",
+            "table-scroll"
+          ],
+          "answer": "A",
+          "explanation": "Wrapping a table in `<div class=\"table-responsive\">` (or `.table-responsive-md`) creates a horizontal scroll wrapper on smaller screens."
+        },
+        {
+          "question": "What is the purpose of the `.carousel.slide` component in Bootstrap 5?",
+          "options": [
+            "Creating drag-and-drop file upload areas",
+            "Rendering interactive SVG pie charts",
+            "Managing multi-step form wizards with state",
+            "Creating an animated slideshow/carousel for cycling through images or text slides with controls and indicators"
+          ],
+          "answer": "D",
+          "explanation": "The Carousel component (`.carousel.slide`) provides an automated image and content slider with previous/next controls and indicators."
+        },
+        {
+          "question": "Which class makes a group of cards in a grid maintain identical uniform heights?",
+          "options": [
+            "card-stretch",
+            "h-100 (applied to each `.card` within a `.row-cols-*` grid)",
+            "card-equal",
+            "card-same-height"
+          ],
+          "answer": "B",
+          "explanation": "Applying `.h-100` (`height: 100%`) to `.card` elements inside a flex/grid row forces all cards in that row to match the height of the tallest card."
+        },
+        {
+          "question": "What is the `.btn-close` class in Bootstrap 5?",
+          "options": [
+            "A standalone generic close icon button styled via CSS background SVG, used in modals, alerts, toasts, and offcanvas components",
+            "A class that hides all open dropdown menus across the entire page",
+            "A JavaScript function that terminates the user's browser session",
+            "A backend database connection closing utility"
+          ],
+          "answer": "A",
+          "explanation": "`.btn-close` renders an accessible, styled SVG 'X' button used uniformly across dismissible alerts, modal headers, offcanvas sidebars, and toasts."
+        }
+      ]
+    },
+    {
+      "lessonId": "lesson-1787196281985-17",
+      "lessonTitle": "Lesson 3: Customizing Bootstrap Styles & Themes",
+      "totalQuestions": 20,
+      "questions": [
+        {
+          "question": "How do you enable Dark Mode globally across an entire website in Bootstrap 5.3+?",
+          "options": [
+            "Set `$enable-dark-mode: true;` in JavaScript",
+            "Add `data-bs-theme=\"dark\"` to the root `<html>` element",
+            "Include the deprecated `bootstrap-dark.css` stylesheet",
+            "Add the class `.dark-mode-all` to the `<body>` element"
+          ],
+          "answer": "B",
+          "explanation": "Bootstrap 5.3+ introduced built-in color modes activated via the `data-bs-theme=\"dark\"` (or `light`) attribute on `<html>` or individual component wrappers."
+        },
+        {
+          "question": "How can you toggle between dark and light themes dynamically using JavaScript in Bootstrap 5.3+?",
+          "options": [
+            "document.body.classList.toggle('bootstrap-dark');",
+            "document.documentElement.setAttribute('data-bs-theme', isDark ? 'dark' : 'light');",
+            "bootstrap.setTheme('dark');",
+            "window.localStorage.theme = 'dark'; location.reload();"
+          ],
+          "answer": "B",
+          "explanation": "Setting `data-bs-theme` on `document.documentElement` switches all Bootstrap CSS custom properties (`--bs-body-bg`, `--bs-body-color`, etc.) in real time."
+        },
+        {
+          "question": "What is the primary recommended approach for deeply customizing Bootstrap themes, colors, and typography for enterprise applications?",
+          "options": [
+            "Using JavaScript `element.style` modifications on every DOM node",
+            "Directly modifying the minified `bootstrap.min.css` file in `node_modules`",
+            "Customizing Bootstrap Sass source files (`.scss`) by overriding `$theme-colors` and default variables before compiling to CSS",
+            "Writing thousands of `!important` rules in a separate override CSS file"
+          ],
+          "answer": "C",
+          "explanation": "Compiling Bootstrap from Sass allows modifying default variables (`$primary`, `$font-family-base`, `$theme-colors`) cleanly without bloat or `!important` specificity wars."
+        },
+        {
+          "question": "Why do default Bootstrap Sass variables use the `!default` flag (e.g., `$primary: #0d6efd !default;`)?",
+          "options": [
+            "It allows developers to define their own custom variable values first without Bootstrap's defaults overwriting them",
+            "It encrypts the variable value for security",
+            "It marks the variable as mandatory for browser rendering",
+            "It prevents the variable from being exported to CSS"
+          ],
+          "answer": "A",
+          "explanation": "In Sass, `!default` assigns a value to a variable only if that variable has not already been declared, enabling effortless variable overrides."
+        },
+        {
+          "question": "How do you add a custom theme color (e.g., 'accent': #e11d48) to Bootstrap's `$theme-colors` map in Sass?",
+          "options": [
+            "@include add-color(\"accent\", #e11d48);",
+            ":root { --theme-accent: #e11d48 !important; }",
+            "$theme-colors: (\"accent\": #e11d48); @import \"bootstrap/scss/bootstrap\";",
+            "bootstrap.colors.add('accent', '#e11d48');"
+          ],
+          "answer": "C",
+          "explanation": "Merging custom colors into the `$theme-colors` map before importing Bootstrap generates all corresponding utilities (`btn-accent`, `bg-accent`, `text-accent`, etc.)."
+        },
+        {
+          "question": "What are CSS Custom Properties (CSS Variables) used for in Bootstrap 5 components?",
+          "options": [
+            "They replace the need for HTML markup entirely",
+            "They store user session login tokens securely in the browser",
+            "They allow real-time runtime style modifications (like changing `--bs-btn-bg` or `--bs-primary`) directly in CSS without recompiling Sass",
+            "They validate HTML form inputs before network transmission"
+          ],
+          "answer": "C",
+          "explanation": "Bootstrap 5 components expose root and component-level CSS variables (e.g., `--bs-primary`, `--bs-card-bg`), enabling dynamic live theming and color mode switching."
+        },
+        {
+          "question": "What is the purpose of using a tool like PurgeCSS or UnCSS in a production build pipeline with Bootstrap?",
+          "options": [
+            "To automatically fix spelling errors in HTML text content",
+            "To generate automatic dark mode images",
+            "To convert all CSS into WebAssembly machine code",
+            "To analyze HTML/JS files and remove unused Bootstrap CSS classes, shrinking production CSS bundle size by up to 80-90%"
+          ],
+          "answer": "D",
+          "explanation": "PurgeCSS scans templates and purges unused selectors from the full Bootstrap stylesheet, reducing CSS bundles from ~200KB to ~15KB."
+        },
+        {
+          "question": "What is the built-in Sass engine in Bootstrap that automatically scales font sizes smoothly across different screen dimensions?",
+          "options": [
+            "ClampScaler",
+            "RFS (Responsive Font Sizing)",
+            "AutoFont CSS",
+            "FluidType.js"
+          ],
+          "answer": "B",
+          "explanation": "Bootstrap uses RFS (Responsive Font Sizing) to automatically calculate fluid font sizes using `clamp()` and media queries for headings and typography."
+        },
+        {
+          "question": "How can you reduce the CSS bundle size when importing Bootstrap using Sass?",
+          "options": [
+            "Disable CSS Grid inside the browser developer settings",
+            "Delete all comments inside HTML files manually",
+            "Change the file extension from `.scss` to `.txt`",
+            "Import only the specific component Sass partials needed (e.g., `@import \"bootstrap/scss/buttons\";`) instead of `@import \"bootstrap/scss/bootstrap\";`"
+          ],
+          "answer": "D",
+          "explanation": "Modular Sass imports allow developers to bundle only required components (grid, buttons, navbar), eliminating unused components from the final CSS bundle."
+        },
+        {
+          "question": "What does the Bootstrap 5 Utilities API in Sass allow developers to do?",
+          "options": [
+            "Modify, extend, or generate brand new responsive utility classes (like custom opacity, spacing, or shadows) through the `$utilities` Sass map",
+            "Connect frontend forms directly to PostgreSQL databases",
+            "Generate backend REST API controllers automatically",
+            "Execute Python scripts directly inside the web browser"
+          ],
+          "answer": "A",
+          "explanation": "The Utilities API in `_utilities.scss` allows adding new utility classes or customizing existing ones via a declarative Sass map structure."
+        },
+        {
+          "question": "How do you enable Right-to-Left (RTL) text direction support in Bootstrap 5 for languages like Arabic or Hebrew?",
+          "options": [
+            "Set `lang=\"ar\"` without changing any stylesheets",
+            "Include a translation plugin script before `</body>`",
+            "Add `text-direction: reverse;` to all paragraph tags",
+            "Add `dir=\"rtl\"` to `<html>` and include the RTLCSS compiled stylesheet (`bootstrap.rtl.min.css`)"
+          ],
+          "answer": "D",
+          "explanation": "Bootstrap 5 natively supports RTL by using RTLCSS compiled builds (`bootstrap.rtl.css`) paired with `<html dir=\"rtl\">`."
+        },
+        {
+          "question": "Which file structure represents the standard best practice when compiling a custom Bootstrap Sass project?",
+          "options": [
+            "`custom.css` containing 500 `!important` rules loaded before Bootstrap",
+            "`custom-variables.scss` -> `@import \"bootstrap/scss/bootstrap\"` -> `custom-overrides.scss` compiled into `main.css`",
+            "`bootstrap.min.css` directly modified inside `node_modules`",
+            "A single inline `<style>` tag on every individual HTML page"
+          ],
+          "answer": "B",
+          "explanation": "Defining variable overrides before importing Bootstrap Sass ensures custom variables take effect, followed by custom component overrides after Bootstrap imports."
+        },
+        {
+          "question": "How do you customize the focus ring color on form inputs using Bootstrap Sass variables?",
+          "options": [
+            "Focus ring colors cannot be customized in Bootstrap",
+            "Set `input:focus { border: glow; }` in CSS",
+            "Override `$input-focus-border-color` and `$input-btn-focus-box-shadow` in your custom variables file",
+            "Add `outline-color: red;` to all `<input>` tags in HTML"
+          ],
+          "answer": "C",
+          "explanation": "Modifying `$input-focus-border-color` and `$input-btn-focus-box-shadow` changes the focus highlight styling across all form controls cleanly."
+        },
+        {
+          "question": "What is the advantage of using Bootstrap Icons via SVG sprites (`<svg class=\"bi\"><use xlink:href=\"#bootstrap\"/></svg>`) over an icon font (`<i class=\"bi-bootstrap\"></i>`)?",
+          "options": [
+            "SVG sprites render sharper on high-DPI screens, load only required icons, and eliminate icon font flickering and render-blocking font downloads",
+            "SVG sprites can only be rendered on Apple macOS computers",
+            "Icon fonts consume 90% less CPU memory than SVG sprites",
+            "Icon fonts are the only format that supports color gradients"
+          ],
+          "answer": "A",
+          "explanation": "Inline SVGs and SVG sprites provide superior rendering sharpness, accessibility, and performance compared to font-based icons."
+        },
+        {
+          "question": "How can you scope Bootstrap 5 styles to a specific container (e.g., `#my-widget`) to prevent style leaks in a microfrontend application?",
+          "options": [
+            "Wrap Bootstrap's Sass imports inside a CSS nesting selector in your Sass root file (e.g., `#my-widget { @import \"bootstrap/scss/bootstrap\"; }`)",
+            "Bootstrap styles cannot be scoped under any circumstances",
+            "Add `scoped=\"true\"` to the `<link>` tag in HTML",
+            "Rename all Bootstrap classes with a random hash suffix manually"
+          ],
+          "answer": "A",
+          "explanation": "Nesting Bootstrap imports inside a parent selector in Sass confines all generated styles to that specific container wrapper."
+        },
+        {
+          "question": "What Sass map controls the maximum container widths at each breakpoint tier in Bootstrap 5?",
+          "options": [
+            "$screen-dimensions",
+            "$grid-containers",
+            "$breakpoint-widths",
+            "$container-max-widths"
+          ],
+          "answer": "D",
+          "explanation": "The `$container-max-widths` map specifies container max-width values for `sm`, `md`, `lg`, `xl`, and `xxl` tiers."
+        },
+        {
+          "question": "How do you override a component-specific CSS variable for just one individual button without affecting other buttons?",
+          "options": [
+            "Modify the global `$btn-padding-y` Sass variable in `_variables.scss`",
+            "Set `button:hover { all: unset; }` in global CSS",
+            "Apply custom inline CSS or a modifier class (e.g., `.btn-custom { --bs-btn-padding-y: 1.2rem; --bs-btn-bg: #8b5cf6; }`)",
+            "Delete the Bootstrap button stylesheet from the server"
+          ],
+          "answer": "C",
+          "explanation": "Component-scoped CSS variables allow targeting single instances (e.g., `.btn-hero { --bs-btn-bg: #8b5cf6; }`) without affecting global button styles."
+        },
+        {
+          "question": "What happens if a developer imports custom Sass variables AFTER `@import \"bootstrap/scss/bootstrap\";`?",
+          "options": [
+            "The browser displays the webpage in black and white mode",
+            "The custom variables are ignored because Bootstrap's defaults have already been evaluated and assigned",
+            "The custom variables take precedence over everything automatically",
+            "The Sass compiler throws a fatal syntax error and crashes"
+          ],
+          "answer": "B",
+          "explanation": "Because Bootstrap variables use `!default`, custom variables MUST be declared before importing Bootstrap; importing them after means Bootstrap has already assigned its defaults."
+        },
+        {
+          "question": "Which Bootstrap 5 Sass variable controls the default body font family across the entire framework?",
+          "options": [
+            "$font-family-base",
+            "$typography-primary",
+            "$global-font",
+            "$body-font"
+          ],
+          "answer": "A",
+          "explanation": "Setting `$font-family-base: 'Inter', sans-serif !default;` updates the default typography font stack across all headings, buttons, and text elements."
+        },
+        {
+          "question": "What is the recommended method for resolving a CSS specificity clash between Bootstrap utility classes and a custom component stylesheet?",
+          "options": [
+            "Add `!important` to every single line of custom CSS",
+            "Set all element display properties to `inline`",
+            "Remove the `<DOCTYPE html>` tag from the HTML page",
+            "Ensure custom component CSS is loaded after Bootstrap and use proper selector specificity rather than scattering `!important` rules"
+          ],
+          "answer": "D",
+          "explanation": "Maintaining clean stylesheet load order (Bootstrap first, custom styles second) and using structured component classes avoids messy `!important` anti-patterns."
+        }
+      ]
+    }
+  ]
+}

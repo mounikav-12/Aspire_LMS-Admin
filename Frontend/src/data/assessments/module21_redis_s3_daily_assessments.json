@@ -1,0 +1,691 @@
+{
+  "courseId": "crs-1786624019154-w",
+  "courseTitle": "Python Full Stack + DSA with AI",
+  "stageId": "top-stg-2",
+  "stageTitle": "Stage 2: Backend + DSA",
+  "moduleId": "subtop-1787203652445",
+  "moduleTitle": "Redis Caching & AWS S3 Cloud Storage",
+  "lessons": [
+    {
+      "lessonId": "lesson-1787205003516",
+      "lessonTitle": "Redis Installation & Caching Django Views/Queries",
+      "totalQuestions": 20,
+      "questions": [
+        {
+          "question": "What is Redis primarily classified as in modern backend system architecture?",
+          "options": [
+            "An operating system virtualization hypervisor.",
+            "An open-source, in-memory key-value data structure store used as a database, cache, message broker, and streaming engine.",
+            "A relational database management system using standard SQL schemas exclusively on mechanical hard drives.",
+            "A client-side JavaScript framework for state management in single-page apps."
+          ],
+          "answer": "B",
+          "explanation": "Redis stores all working datasets directly in RAM, delivering sub-millisecond read and write latency with optional disk persistence."
+        },
+        {
+          "question": "Which of the following data structures is natively supported by Redis for atomic data operations?",
+          "options": [
+            "Relational tables with foreign key constraints.",
+            "Strings, Lists, Sets, Sorted Sets (ZSets), Hashes, Bitmaps, and Streams.",
+            "CSS stylesheets and HTML fragments.",
+            "XML DOM Trees and C++ Pointers only."
+          ],
+          "answer": "B",
+          "explanation": "Redis provides rich native data structures (Strings, Hashes, Lists, Sets, Sorted Sets, Streams) with dedicated atomic manipulation commands."
+        },
+        {
+          "question": "How do you configure Django's default cache backend to use Redis in `settings.py` using Django's built-in Redis backend?",
+          "options": [
+            "CACHES = {'default': {'ENGINE': 'redis.cache.engine'}}",
+            "CACHES = {'default': 'redis://127.0.0.1:6379'}",
+            "REDIS_CACHE = True\nREDIS_HOST = 'localhost'",
+            "CACHES = {\n    'default': {\n        'BACKEND': 'django.core.cache.backends.redis.RedisCache',\n        'LOCATION': 'redis://127.0.0.1:6379/1',\n    }\n}"
+          ],
+          "answer": "D",
+          "explanation": "Django 4.0+ provides built-in `RedisCache` backend configured with `redis://<host>:<port>/<db_number>` location."
+        },
+        {
+          "question": "How do you set a cached value with a 5-minute (300 seconds) expiration timeout using Django's low-level cache API?",
+          "options": [
+            "cache.store('top_courses', courses_data, ttl='5m')",
+            "cache.put('top_courses', courses_data, expire=300)",
+            "from django.core.cache import cache\ncache.set('top_courses', courses_data, timeout=300)",
+            "cache.insert('top_courses', courses_data, duration=300)"
+          ],
+          "answer": "C",
+          "explanation": "`cache.set(key, value, timeout=seconds)` stores data in the cache backend with a specified TTL (Time-To-Live)."
+        },
+        {
+          "question": "Which low-level cache method retrieves a value from the cache if it exists, or executes a callable to compute and store the value if it does not?",
+          "options": [
+            "cache.find_or_execute('featured_courses', get_featured_courses)",
+            "cache.fetch_or_create('featured_courses', get_featured_courses)",
+            "cache.retrieve_default('featured_courses', get_featured_courses)",
+            "cache.get_or_set('featured_courses', get_featured_courses, timeout=600)"
+          ],
+          "answer": "D",
+          "explanation": "`cache.get_or_set(key, default_or_callable, timeout)` implements the classic cache-aside pattern atomically in a single concise call."
+        },
+        {
+          "question": "How do you cache the entire HTTP response of a Django function-based view for 15 minutes?",
+          "options": [
+            "from django.views.decorators.cache import cache_page\n\n@cache_page(60 * 15)\ndef course_catalog(request):\n    ...",
+            "@cached_response(900)\ndef course_catalog(request): ...",
+            "@cache_view(timeout='15m')\ndef course_catalog(request): ...",
+            "@redis_cache(minutes=15)\ndef course_catalog(request): ..."
+          ],
+          "answer": "A",
+          "explanation": "The `@cache_page(timeout)` decorator caches the entire rendered HTTP response keyed by URL path, query string, and headers."
+        },
+        {
+          "question": "How do you cache a specific HTML fragment (e.g. an expensive sidebar navigation) inside a Django template?",
+          "options": [
+            "{% load cache %}\n{% cache 600 sidebar_nav request.user.username %}\n    <!-- expensive HTML rendering -->\n{% endcache %}",
+            "{% cache_block timeout=600 %}\n    <!-- HTML -->\n{% endcache_block %}",
+            "<cache duration=\"600\">\n    <!-- HTML -->\n</cache>",
+            "{% redis_cache 600 sidebar %}\n    <!-- HTML -->\n{% endredis_cache %}"
+          ],
+          "answer": "A",
+          "explanation": "The `{% cache timeout key [vary_on_vars] %}` template tag caches rendered HTML blocks for the specified duration."
+        },
+        {
+          "question": "What is the 'Cache-Aside' (Lazy Loading) caching pattern?",
+          "options": [
+            "The cache deletes all data on every incoming HTTP GET request.",
+            "The application first queries the cache; if a cache hit occurs, it returns cached data. On a cache miss, it queries the primary database, stores the result in the cache, and returns it.",
+            "The database automatically pushes all table rows into client browser cookies.",
+            "All writes bypass the database completely and are stored only in volatile RAM."
+          ],
+          "answer": "B",
+          "explanation": "In Cache-Aside, the application code manages cache reads and writes on demand, loading data into cache only when requested."
+        },
+        {
+          "question": "What is a 'Thundering Herd' (Cache Stampede) problem in caching systems?",
+          "options": [
+            "When a hacker attempts brute-force dictionary attacks against Redis passwords.",
+            "When database tables have duplicate primary keys.",
+            "When a popular cached key expires, causing hundreds of concurrent requests to simultaneously hit the database to recompute the same expensive query at the exact same moment.",
+            "When the Redis server runs out of disk space due to excessive log files."
+          ],
+          "answer": "C",
+          "explanation": "A cache stampede occurs when a high-traffic cache key expires, resulting in massive concurrent database load that can overwhelm the backend."
+        },
+        {
+          "question": "How do you explicitly invalidate/delete a cached key when an admin updates a course in Django?",
+          "options": [
+            "from django.core.cache import cache\ncache.delete('course_detail_101')",
+            "cache.purge('course_detail_101')",
+            "cache.remove('course_detail_101')",
+            "cache.drop('course_detail_101')"
+          ],
+          "answer": "A",
+          "explanation": "`cache.delete(key)` removes the specific cached key from the cache store immediately."
+        },
+        {
+          "question": "Which Redis eviction policy removes the least recently used keys out of all keys with an expiration (TTL) set when memory reaches `maxmemory`?",
+          "options": [
+            "noeviction",
+            "volatile-random",
+            "allkeys-lfu",
+            "volatile-lru"
+          ],
+          "answer": "D",
+          "explanation": "`volatile-lru` evicts the least recently used keys among those that have an expire set, preserving non-expiring persistent keys."
+        },
+        {
+          "question": "How do you configure Django to use Redis for storing user sessions instead of database tables?",
+          "options": [
+            "SESSION_STORAGE_TYPE = 'in_memory_redis'",
+            "REDIS_SESSIONS = True",
+            "SESSION_ENGINE = 'django.contrib.sessions.backends.cache'\nSESSION_CACHE_ALIAS = 'default'",
+            "SESSION_BACKEND = 'redis'"
+          ],
+          "answer": "C",
+          "explanation": "Setting `SESSION_ENGINE = 'django.contrib.sessions.backends.cache'` directs session read/write operations to the configured cache backend."
+        },
+        {
+          "question": "Why should you use the `SCAN` command instead of `KEYS *` when inspecting keys on a production Redis instance?",
+          "options": [
+            "`KEYS *` only works on strings, while `SCAN` works on all data types.",
+            "`KEYS *` deletes all matching keys permanently.",
+            "`KEYS *` is a blocking O(N) operation that freezes the single-threaded Redis server until all keys are scanned, whereas `SCAN` is an iterative non-blocking cursor-based command.",
+            "`SCAN` requires root administrative operating system privileges."
+          ],
+          "answer": "C",
+          "explanation": "Because Redis is single-threaded, `KEYS *` blocks all other concurrent client requests. `SCAN` inspects keys incrementally without latency spikes."
+        },
+        {
+          "question": "How can you implement an atomic page-view or API request counter in Redis using `django-redis` or raw redis client?",
+          "options": [
+            "cache.set('course:101:views', cache.get('course:101:views') + 1)",
+            "cache.incr('course:101:views')",
+            "cache.count_up('course:101:views')",
+            "cache.add_one('course:101:views')"
+          ],
+          "answer": "B",
+          "explanation": "`cache.incr(key)` executes the atomic `INCR` command in Redis, avoiding race conditions inherent in manual read-modify-write patterns."
+        },
+        {
+          "question": "How does Cache Versioning work in Django's caching framework?",
+          "options": [
+            "By creating Git commits every time a key is updated.",
+            "By passing a `version` parameter: `cache.get('my_key', version=2)` or `cache.incr_version('my_key')`, which namespaces keys without deleting old values.",
+            "By storing JSON schemas inside the Redis header.",
+            "By renaming the Redis database index on every save."
+          ],
+          "answer": "B",
+          "explanation": "Cache versioning appends a version number to cache keys, allowing instantaneous logical cache invalidation by simply bumping the version number."
+        },
+        {
+          "question": "What is the primary risk of using `noeviction` policy when Redis reaches its configured `maxmemory` limit?",
+          "options": [
+            "Redis will silently overwrite MySQL database tables.",
+            "Redis will automatically delete the entire operating system partition.",
+            "Redis will switch to dial-up modem mode.",
+            "Redis will return out-of-memory errors for all new write operations (`OOM command not allowed when used memory > 'maxmemory'`)."
+          ],
+          "answer": "D",
+          "explanation": "Under `noeviction`, Redis refuses all write commands and throws OOM errors when max memory is exceeded."
+        },
+        {
+          "question": "In what order must `UpdateCacheMiddleware` and `FetchFromCacheMiddleware` be listed in `MIDDLEWARE` for whole-site caching?",
+          "options": [
+            "`FetchFromCacheMiddleware` at the top, `UpdateCacheMiddleware` at the bottom.",
+            "Order does not matter as long as both are present.",
+            "`UpdateCacheMiddleware` must be at the very top of `MIDDLEWARE`, and `FetchFromCacheMiddleware` must be at the very bottom.",
+            "Both must be placed consecutively inside `INSTALLED_APPS`."
+          ],
+          "answer": "C",
+          "explanation": "During response processing, middleware executes in reverse order: `UpdateCacheMiddleware` at the top caches the outgoing response, while `FetchFromCacheMiddleware` at the bottom intercepts incoming requests."
+        },
+        {
+          "question": "Which Redis feature allows sending real-time messages to multiple subscriber clients listening on designated channels?",
+          "options": [
+            "Redis Key Mutation Events",
+            "Redis Transpile Hub",
+            "Redis Socket Tunneling",
+            "Redis Pub/Sub (Publish/Subscribe)"
+          ],
+          "answer": "D",
+          "explanation": "Redis Pub/Sub enables decoupled messaging where publishers send messages to channels and subscribers receive them asynchronously."
+        },
+        {
+          "question": "What security directive in `redis.conf` sets an authentication password to protect Redis from unauthorized access?",
+          "options": [
+            "requirepass <your_strong_password>",
+            "protect_server = True",
+            "security_token: '<password>'",
+            "auth_key = '<password>'"
+          ],
+          "answer": "A",
+          "explanation": "`requirepass` enforces password authentication (`AUTH <password>`) before clients can execute commands."
+        },
+        {
+          "question": "How do you set a key prefix in Django's cache settings to avoid key collisions when multiple projects share the same Redis instance?",
+          "options": [
+            "CACHES = {\n    'default': {\n        'BACKEND': 'django.core.cache.backends.redis.RedisCache',\n        'LOCATION': 'redis://127.0.0.1:6379/1',\n        'KEY_PREFIX': 'aspire_lms',\n    }\n}",
+            "CACHE_PREFIX_URI = 'aspire_lms'",
+            "NAMESPACE = 'aspire_lms'",
+            "REDIS_PREFIX_ALL = 'aspire_lms'"
+          ],
+          "answer": "A",
+          "explanation": "`KEY_PREFIX` automatically prepends a string prefix (e.g. `aspire_lms:1:key_name`) to all cache keys generated by Django."
+        }
+      ]
+    },
+    {
+      "lessonId": "lesson-1787205040185",
+      "lessonTitle": "File Uploads & Cloud Storage Integration: AWS S3",
+      "totalQuestions": 20,
+      "questions": [
+        {
+          "question": "What is Amazon Simple Storage Service (Amazon S3) primarily designed for in web architecture?",
+          "options": [
+            "A serverless compute engine for executing Python scripts.",
+            "A local operating system file system driver for RAM.",
+            "Scalable, high-durability object storage for storing and retrieving any amount of data (such as user-uploaded files, media, and backups) via HTTP API.",
+            "A relational database management system with SQL joins."
+          ],
+          "answer": "C",
+          "explanation": "AWS S3 is an industry-standard object storage service engineered for 99.999999999% (11 9's) data durability."
+        },
+        {
+          "question": "Which two Python packages are standard for integrating Django's file storage system with AWS S3?",
+          "options": [
+            "`boto-storage` and `django-cloud-files`",
+            "`django-aws` and `aws-uploader`",
+            "`s3-python` and `django-s3-connector`",
+            "`boto3` (official AWS SDK for Python) and `django-storages` (custom storage backends for Django)"
+          ],
+          "answer": "D",
+          "explanation": "`boto3` interacts directly with AWS APIs, and `django-storages` provides the pluggable `S3Boto3Storage` backend for Django's file handling."
+        },
+        {
+          "question": "How do you configure Django to use Amazon S3 as the default storage backend for user-uploaded media files in modern Django (4.2+)?",
+          "options": [
+            "STORAGES = {\n    'default': {\n        'BACKEND': 'storages.backends.s3boto3.S3Boto3Storage',\n    },\n    'staticfiles': {\n        'BACKEND': 'django.contrib.staticfiles.storage.StaticFilesStorage',\n    }\n}",
+            "DEFAULT_STORAGE = 'amazon_s3_bucket'",
+            "STORAGE_ENGINE = 'aws.s3'",
+            "MEDIA_BACKEND = 'boto3.S3Storage'"
+          ],
+          "answer": "A",
+          "explanation": "Django 4.2+ uses the `STORAGES` dictionary setting to configure storage backends for `'default'` (media) and `'staticfiles'`."
+        },
+        {
+          "question": "Where should AWS access credentials (`AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`) be stored for production applications?",
+          "options": [
+            "Inside `models.py` as public string constants.",
+            "In a public `s3_config.json` committed to GitHub.",
+            "In HTML `<meta>` tags rendered on the login page.",
+            "In secure environment variables or AWS IAM Roles (EC2/ECS instance profiles), never hardcoded in source code or Git repositories."
+          ],
+          "answer": "D",
+          "explanation": "Hardcoding credentials exposes AWS accounts to automated scraping and compromise. IAM roles or environment variables ensure security."
+        },
+        {
+          "question": "How do you define a file upload field on a Django model that organizes uploads by year and month?",
+          "options": [
+            "resume = models.FileField(storage_path='resumes/date')",
+            "resume = models.FileField(upload_to='resumes/%Y/%m/')",
+            "resume = models.FileField(folder='resumes', format='date')",
+            "resume = models.FileField(directory='resumes/yearly')"
+          ],
+          "answer": "B",
+          "explanation": "`upload_to` accepts strftime date format strings (like `%Y/%m/`) to dynamically organize uploaded files into date-based subdirectories."
+        },
+        {
+          "question": "What is a 'Presigned URL' in AWS S3 and why is it used for private media files?",
+          "options": [
+            "A URL used to sign up for a new AWS account.",
+            "An internal IP address only accessible by AWS engineers.",
+            "A cryptographic, time-limited URL generated by the backend that grants temporary read or write access to a private S3 object without exposing AWS credentials or making the bucket public.",
+            "A permanent public URL that bypasses all security forever."
+          ],
+          "answer": "C",
+          "explanation": "Presigned URLs allow authorized users to download or upload private files directly from S3 within an expiration window (e.g., valid for 15 minutes)."
+        },
+        {
+          "question": "How do you generate a presigned download URL for a private S3 object using `boto3`?",
+          "options": [
+            "s3_client = boto3.client('s3')\nurl = s3_client.generate_presigned_url(\n    'get_object',\n    Params={'Bucket': 'my-bucket', 'Key': 'private/doc.pdf'},\n    ExpiresIn=900\n)",
+            "url = s3.sign_file('my-bucket', 'private/doc.pdf')",
+            "url = s3.get_url_with_token('private/doc.pdf', expire=15)",
+            "url = s3.create_public_link('my-bucket/private/doc.pdf', duration=900)"
+          ],
+          "answer": "A",
+          "explanation": "`generate_presigned_url('get_object', Params={...}, ExpiresIn=seconds)` generates an expiring signed link for secure direct downloads."
+        },
+        {
+          "question": "What is the primary architectural advantage of 'Direct-to-S3' (Presigned POST) file uploads from frontend single-page applications (React)?",
+          "options": [
+            "It eliminates the need for any AWS S3 storage fees.",
+            "Files upload directly from the client's browser to S3, offloading high network bandwidth and memory consumption from the Django application servers.",
+            "It allows uploading files without an internet connection.",
+            "It automatically translates all uploaded documents into French."
+          ],
+          "answer": "B",
+          "explanation": "Direct-to-S3 uploads free Django backend workers from handling multi-megabyte/gigabyte payload streaming, improving app responsiveness."
+        },
+        {
+          "question": "Why should file uploads always be validated on the backend using MIME-type inspection (e.g. `python-magic`) rather than solely relying on file extensions?",
+          "options": [
+            "Because file extensions are deprecated by W3C standards.",
+            "Because Django cannot read file extensions.",
+            "Because operating systems prohibit filenames with extensions.",
+            "Because file extensions can be trivially spoofed (e.g., renaming `malicious.exe` to `photo.jpg`), whereas MIME inspection verifies the true binary file header/magic bytes."
+          ],
+          "answer": "D",
+          "explanation": "Magic byte inspection inspects the actual initial byte signatures of uploaded files to verify legitimate file formats and prevent malware uploads."
+        },
+        {
+          "question": "How do you enforce maximum file upload size validation in a Django Model or Serializer?",
+          "options": [
+            "Add `FILE_SIZE_LIMIT = 5` in `admin.py`",
+            "def validate_file_size(file):\n    max_size_mb = 5\n    if file.size > max_size_mb * 1024 * 1024:\n        raise ValidationError(f'File size must not exceed {max_size_mb}MB')",
+            "Set `models.FileField(max_bytes=5000000)`",
+            "Configure the SQL database to reject large rows"
+          ],
+          "answer": "B",
+          "explanation": "Checking `file.size` in a custom validator or serializer `validate_<field>()` method prevents users from submitting oversized files."
+        },
+        {
+          "question": "How does Django handle uploaded file buffering in memory vs on disk via `FILE_UPLOAD_MAX_MEMORY_SIZE`?",
+          "options": [
+            "All uploads are always written directly to the GPU memory.",
+            "All uploads bypass memory and go directly to tape storage.",
+            "Uploads over 10KB immediately crash the server.",
+            "Uploads smaller than `FILE_UPLOAD_MAX_MEMORY_SIZE` (default 2.5MB) are stored in memory as `InMemoryUploadedFile`; larger files are streamed to temporary disk files as `TemporaryUploadedFile`."
+          ],
+          "answer": "D",
+          "explanation": "Django's upload handlers dynamically buffer small files in RAM for speed while spilling large files to disk to prevent RAM exhaustion."
+        },
+        {
+          "question": "What happens to the actual file in S3 when a Django model instance with a `FileField` is deleted via `instance.delete()`?",
+          "options": [
+            "Django does NOT delete the physical file from S3 storage by default; developers must use `post_delete` signals or S3 lifecycle rules to remove orphaned files.",
+            "The file is converted into an empty text document.",
+            "AWS automatically deletes the entire S3 bucket.",
+            "Django automatically deletes the file and all backups permanently."
+          ],
+          "answer": "A",
+          "explanation": "Django removed automatic file deletion on model delete in version 1.3 to avoid data loss. Signal handlers (`post_delete`) are commonly used to delete files."
+        },
+        {
+          "question": "What S3 feature allows automatically moving old media files to cheaper archival storage (such as S3 Glacier) after a set period?",
+          "options": [
+            "S3 Lifecycle Management Rules",
+            "S3 Auto-Compressor",
+            "AWS Lambda Garbage Collector",
+            "S3 Cron Jobs"
+          ],
+          "answer": "A",
+          "explanation": "S3 Lifecycle rules automate transitions between storage tiers (Standard -> Infrequent Access -> Glacier) and object expiration/deletion."
+        },
+        {
+          "question": "What CORS (Cross-Origin Resource Sharing) configuration is required on an S3 bucket when frontend apps upload files directly from `http://localhost:3000`?",
+          "options": [
+            "A CORS rule allowing `AllowedOrigins: ['http://localhost:3000']`, `AllowedMethods: ['GET', 'POST', 'PUT', 'HEAD']`, and `AllowedHeaders: ['*']`.",
+            "Setting `CORS_PERMIT_ALL = True` in `boto3` settings.",
+            "Setting the S3 bucket name to `localhost`.",
+            "Disabling all firewall rules in the router."
+          ],
+          "answer": "A",
+          "explanation": "Browsers enforce CORS on cross-origin AJAX/Fetch uploads to S3; the bucket's CORS configuration must authorize the client origin and HTTP methods."
+        },
+        {
+          "question": "What AWS service acts as a global Content Delivery Network (CDN) to cache S3 media files closer to users worldwide?",
+          "options": [
+            "AWS Direct Connect",
+            "Amazon Elastic Beanstalk",
+            "Amazon CloudFront",
+            "Amazon Route 53"
+          ],
+          "answer": "C",
+          "explanation": "Amazon CloudFront is AWS's CDN service that integrates with S3 origins to cache static and media assets globally with low latency."
+        },
+        {
+          "question": "How can you separate S3 storage locations for public static assets and private media uploads in `django-storages`?",
+          "options": [
+            "Rename all static files with `.media` extension.",
+            "Static and media files can never share an S3 bucket.",
+            "Create custom storage classes subclassing `S3Boto3Storage` with distinct `location = 'static'` and `location = 'media'` attributes.",
+            "Use two separate physical computers running Django."
+          ],
+          "answer": "C",
+          "explanation": "Subclassing `S3Boto3Storage` allows specifying different bucket subfolders (`location`), ACLs, and cache-control headers for static vs media assets."
+        },
+        {
+          "question": "Which AWS S3 Server-Side Encryption option uses Amazon S3-managed encryption keys (AES-256) at zero additional cost?",
+          "options": [
+            "Client-Side PGP Hashing",
+            "SSE-C with custom client keys only",
+            "TLS Handshake Encryption",
+            "SSE-S3 (Server-Side Encryption with Amazon S3-Managed Keys)"
+          ],
+          "answer": "D",
+          "explanation": "SSE-S3 automatically encrypts data at rest using 256-bit Advanced Encryption Standard (AES-256) managed transparently by AWS."
+        },
+        {
+          "question": "What is the S3 'Multipart Upload' feature and when should it be utilized?",
+          "options": [
+            "A database indexing tool for text search.",
+            "A feature that splits one image into multiple colors.",
+            "A mechanism that uploads large files in independent parts in parallel, improving throughput and allowing failed parts to be retried without restarting the entire upload (recommended for files > 100MB).",
+            "An email protocol for attaching multiple files."
+          ],
+          "answer": "C",
+          "explanation": "Multipart upload breaks large objects into chunks uploaded concurrently, providing resilience and high bandwidth utilization."
+        },
+        {
+          "question": "How do you stream a large file from S3 to an authenticated client without loading the entire file into Django web server RAM?",
+          "options": [
+            "Print the file content to the server terminal.",
+            "Use `StreamingHttpResponse` wrapping the S3 object's raw stream: `StreamingHttpResponse(s3_object['Body'].iter_chunks(), content_type=...)` or redirect to a presigned URL.",
+            "Read all bytes with `f.read()` and return a basic `HttpResponse`.",
+            "Save the file to `C:\\Windows\\Temp` and email it to the user."
+          ],
+          "answer": "B",
+          "explanation": "`StreamingHttpResponse` with chunked reading streams bytes directly to the HTTP client socket without holding the whole object in application memory."
+        },
+        {
+          "question": "What is the purpose of setting `AWS_QUERYSTRING_AUTH = False` in `django-storages` when media files in the bucket are intended to be publicly readable?",
+          "options": [
+            "It encrypts database query strings.",
+            "It generates clean, static public URLs (e.g. `https://bucket.s3.amazonaws.com/media/pic.jpg`) without appending temporary query string signature parameters.",
+            "It turns off all SQL queries in Django.",
+            "It disables user authentication for all web pages."
+          ],
+          "answer": "B",
+          "explanation": "When set to `False`, `django-storages` constructs clean public URLs without attaching expiring query authentication parameters (`?AWSAccessKeyId=...`)."
+        }
+      ]
+    },
+    {
+      "lessonId": "lesson-1787205065199",
+      "lessonTitle": "Using Cloudinary for Media & CDN Optimization",
+      "totalQuestions": 20,
+      "questions": [
+        {
+          "question": "What is Cloudinary primarily utilized for in modern full-stack web applications?",
+          "options": [
+            "A serverless Python code execution runtime.",
+            "An end-to-end cloud-based media management platform that handles image/video storage, real-time dynamic transformations, optimization, and global CDN delivery.",
+            "A relational database that replaces PostgreSQL.",
+            "A CSS framework for responsive layout grids."
+          ],
+          "answer": "B",
+          "explanation": "Cloudinary automates the entire media pipeline, from upload and storage to dynamic AI-powered transformations, format conversions, and CDN delivery."
+        },
+        {
+          "question": "Which two packages are installed to integrate Cloudinary storage and models into a Django project?",
+          "options": [
+            "`django-image-cdn` and `boto3-cloudinary`",
+            "`cloudinary-django-tools` and `py-cloudinary`",
+            "`cloudinary` and `django-cloudinary-storage`",
+            "`django-media-cloud` and `cloudinary-api`"
+          ],
+          "answer": "C",
+          "explanation": "`cloudinary` provides the core SDK while `django-cloudinary-storage` integrates with Django's storage API."
+        },
+        {
+          "question": "How do you configure Cloudinary credentials in Django's `settings.py`?",
+          "options": [
+            "MEDIA_CLOUD = {'PROVIDER': 'cloudinary', 'KEY': '123'}",
+            "CLOUDINARY_STORAGE = {\n    'CLOUD_NAME': 'your_cloud_name',\n    'API_KEY': 'your_api_key',\n    'API_SECRET': 'your_api_secret'\n}",
+            "CLOUDINARY_CONFIG = 'user:password@cloudinary.com'",
+            "CLOUDINARY_CREDENTIALS = ['name', 'key', 'secret']"
+          ],
+          "answer": "B",
+          "explanation": "`CLOUDINARY_STORAGE` in `settings.py` configures the cloud credentials required for API authentication."
+        },
+        {
+          "question": "How do you define an image field on a Django model using Cloudinary's native model field?",
+          "options": [
+            "thumbnail = models.CloudinaryImage(bucket='courses')",
+            "from cloudinary.models import CloudinaryField\n\nclass Course(models.Model):\n    thumbnail = CloudinaryField('image', folder='courses/')",
+            "thumbnail = models.FileField(storage='cloudinary.images')",
+            "thumbnail = models.URLField(cloudinary=True)"
+          ],
+          "answer": "B",
+          "explanation": "`CloudinaryField` stores the media reference and provides convenient access to Cloudinary's transformation and URL generation methods."
+        },
+        {
+          "question": "How does Cloudinary perform dynamic real-time image transformations without requiring pre-rendered files on disk?",
+          "options": [
+            "By running Photoshop via a background desktop macro on the server.",
+            "By executing client-side Canvas scripts inside the user's browser.",
+            "By executing database stored procedures on PostgreSQL.",
+            "By modifying URL path parameters (e.g. `/image/upload/w_300,h_200,c_fill/sample.jpg`), causing Cloudinary's edge servers to transform and cache the image on-the-fly."
+          ],
+          "answer": "D",
+          "explanation": "Cloudinary dynamically generates, optimizes, and caches image variants at CDN edge servers upon request based on URL transformation parameters."
+        },
+        {
+          "question": "What do the `f_auto` and `q_auto` transformation parameters accomplish in Cloudinary delivery URLs?",
+          "options": [
+            "`f_auto` automatically serves the best modern image format (AVIF/WebP) based on the requesting browser, and `q_auto` applies optimal perceptual quality compression to minimize file size.",
+            "`f_auto` formats hard drives; `q_auto` queues database queries.",
+            "`f_auto` enforces 4K resolution; `q_auto` encrypts images with AES-256.",
+            "`f_auto` fixes broken pixels; `q_auto` translates text in images."
+          ],
+          "answer": "A",
+          "explanation": "`f_auto` (auto-format) and `q_auto` (auto-quality) are Cloudinary's cornerstone optimizations for slashing bandwidth while maintaining visual fidelity."
+        },
+        {
+          "question": "Which Cloudinary crop mode with gravity (`c_fill,g_face`) is used to generate avatar thumbnails centered around human faces?",
+          "options": [
+            "`c_thumb,g_face,w_150,h_150` (or `c_fill,g_face`) uses facial recognition algorithms to keep faces centered while cropping.",
+            "`c_pixelate,g_top`",
+            "`c_distort,g_center`",
+            "`c_skew,g_human`"
+          ],
+          "answer": "A",
+          "explanation": "`g_face` uses AI face-detection gravity to ensure facial features are preserved in the center of thumbnail crops."
+        },
+        {
+          "question": "What is the purpose of generating HTML responsive image `srcset` attributes using Cloudinary?",
+          "options": [
+            "It converts raster JPEG images into 3D polygon meshes.",
+            "It translates image alt text into multiple spoken languages.",
+            "It encrypts image files to prevent right-click saving.",
+            "It provides the browser with multiple image URLs at different widths (e.g. 400w, 800w, 1200w), allowing the client device to download the optimal image size for its screen resolution."
+          ],
+          "answer": "D",
+          "explanation": "`srcset` combined with Cloudinary's on-the-fly resizing delivers properly scaled images for mobile, tablet, and desktop screens."
+        },
+        {
+          "question": "What is the difference between 'Eager' and 'Lazy' transformations in Cloudinary?",
+          "options": [
+            "Eager transformations generate transformed variants synchronously during upload; Lazy transformations generate variants asynchronously upon the first request from a client.",
+            "Eager stores files in RAM; Lazy stores files on floppy disks.",
+            "Eager is free; Lazy requires enterprise licensing.",
+            "Eager is for video only; Lazy is for text files only."
+          ],
+          "answer": "A",
+          "explanation": "Eager transformations prepare complex derivatives (e.g. video transcode) ahead of time during upload, while lazy transformations generate them on demand on first view."
+        },
+        {
+          "question": "How do you delete an asset from Cloudinary programmatically using Python when a model instance is deleted?",
+          "options": [
+            "cloudinary.api.delete_file(file_path)",
+            "cloudinary.purge_image(url)",
+            "import cloudinary.uploader\ncloudinary.uploader.destroy(public_id)",
+            "cloudinary.storage.remove_object(public_id)"
+          ],
+          "answer": "C",
+          "explanation": "`cloudinary.uploader.destroy(public_id)` permanently removes the media asset and its derived cached variants from Cloudinary and CDN caches."
+        },
+        {
+          "question": "What is a Cloudinary 'Upload Preset'?",
+          "options": [
+            "A hardware device used to connect cameras to cloud storage.",
+            "A pre-installed WordPress plugin.",
+            "A pre-configured set of upload options (such as destination folder, allowed formats, tags, and incoming transformations) defined in the Cloudinary dashboard.",
+            "A predefined database schema for SQL tables."
+          ],
+          "answer": "C",
+          "explanation": "Upload presets encapsulate upload parameters, enabling consistent asset handling and secure unsigned direct uploads from frontend applications."
+        },
+        {
+          "question": "How do direct 'Unsigned Uploads' from frontend React apps to Cloudinary improve application performance?",
+          "options": [
+            "They bypass all SSL and HTTPS encryption checks.",
+            "They allow uploading files without any file size limits.",
+            "They allow the client browser to upload photos directly to Cloudinary using an unsigned preset without passing media bytes through Django application servers.",
+            "They double the internet speed of the client's home router."
+          ],
+          "answer": "C",
+          "explanation": "Direct unsigned uploads eliminate server bottlenecks by routing media bytes directly to Cloudinary's global ingestion endpoints."
+        },
+        {
+          "question": "How do you add an image overlay or watermark (e.g. company logo) to an image on-the-fly using Cloudinary URL parameters?",
+          "options": [
+            "Using `watermark_plugin = True` in settings.",
+            "Appending `?logo=true` to the URL query string.",
+            "Merging two images in Python using OpenCV before saving.",
+            "Using the `l_<image_public_id>` layer parameter (e.g. `l_watermark_logo,w_100,g_south_east,o_50/sample.jpg`)."
+          ],
+          "answer": "D",
+          "explanation": "Cloudinary's `l_<public_id>` (layer) parameter overlays graphics, logos, or text badges with position gravity (`g_south_east`) and opacity (`o_50`)."
+        },
+        {
+          "question": "How does Cloudinary handle video optimization and adaptive bitrate streaming (HLS/DASH)?",
+          "options": [
+            "It requires users to download entire 10GB video files before playing.",
+            "It plays videos via Flash player.",
+            "It converts videos into animated GIF files exclusively.",
+            "It automatically transcodes videos into multiple resolutions and bitrates and generates streaming playlist files (`.m3u8` for HLS, `.mpd` for DASH) for smooth playback across varying network conditions."
+          ],
+          "answer": "D",
+          "explanation": "Cloudinary supports adaptive streaming formats (HLS/DASH) to ensure buffer-free playback that dynamically adjusts quality based on the viewer's network bandwidth."
+        },
+        {
+          "question": "What is a Content Delivery Network (CDN) and how does it accelerate media delivery?",
+          "options": [
+            "A database indexing algorithm for fast SQL queries.",
+            "A peer-to-peer torrent protocol for sharing media files.",
+            "A geographically distributed network of proxy servers that cache media content at edge locations close to users, drastically reducing latency and server origin load.",
+            "A single supercomputer hosted in Iceland."
+          ],
+          "answer": "C",
+          "explanation": "CDNs replicate media across global Points of Presence (PoPs), serving content from the nearest edge node to minimize Round Trip Time (RTT)."
+        },
+        {
+          "question": "What HTTP header does Cloudinary set to instruct web browsers and intermediate caches that an asset will never change and can be cached long-term?",
+          "options": [
+            "Cache-Control: no-cache, no-store",
+            "Cache-Control: public, max-age=31536000, immutable",
+            "Pragma: no-cache",
+            "Expires: 0"
+          ],
+          "answer": "B",
+          "explanation": "Long max-age directives with `immutable` ensure browsers cache static media assets permanently, avoiding unnecessary validation requests."
+        },
+        {
+          "question": "How can you convert the first page of an uploaded PDF document into a PNG thumbnail image dynamically with Cloudinary?",
+          "options": [
+            "PDF conversion is not supported in cloud media servers.",
+            "By opening the PDF in Adobe Reader manually.",
+            "By writing a C++ PDF parsing script in Django.",
+            "By requesting the PDF asset with a `.png` extension and `pg_1` parameter: `res.cloudinary.com/.../pg_1,w_300/document.png`"
+          ],
+          "answer": "D",
+          "explanation": "Cloudinary supports multi-page document transformation, allowing direct page rendering to image formats via page index parameters (`pg_1`)."
+        },
+        {
+          "question": "How does Django receive notifications when long-running asynchronous video processing completes on Cloudinary?",
+          "options": [
+            "Via Cloudinary Webhook notifications configured with a callback URL endpoint in the Django app (`notification_url='https://api.myapp.com/webhooks/cloudinary/'`).",
+            "By polling the Cloudinary website every second.",
+            "By running an infinite loop `while True: check_status()` in Django.",
+            "Via SMS text messages sent to the server administrator."
+          ],
+          "answer": "A",
+          "explanation": "Webhooks allow Cloudinary to notify Django asynchronously via HTTP POST when asynchronous video encoding or AI tagging tasks complete."
+        },
+        {
+          "question": "What is the key trade-off when choosing Cloudinary over raw AWS S3 + CloudFront?",
+          "options": [
+            "Cloudinary cannot store images; AWS S3 cannot store files.",
+            "Cloudinary provides high-level automated media transformations, AI cropping, and turnkey CDN delivery with less custom code, whereas AWS S3 offers lower raw storage costs and granular infrastructure control.",
+            "Cloudinary only works on Windows; AWS S3 only works on Linux.",
+            "Cloudinary requires physical servers in the office."
+          ],
+          "answer": "B",
+          "explanation": "Cloudinary is a specialized SaaS media platform with advanced transformation APIs, whereas AWS S3 is a foundational raw storage infrastructure service."
+        },
+        {
+          "question": "How can you secure private/paid media files (e.g. premium course videos) hosted on Cloudinary so only authorized users can view them?",
+          "options": [
+            "Set asset type to `authenticated` or `private` and generate expiring Signed URLs or token-based authentication headers on the Django backend.",
+            "Rename the files to random 500-character strings.",
+            "Hide the URL from the browser inspect element tool.",
+            "Disable internet access for unauthenticated users."
+          ],
+          "answer": "A",
+          "explanation": "Cloudinary supports private and authenticated delivery types where access requires cryptographic signatures or expiring HMAC tokens."
+        }
+      ]
+    }
+  ]
+}

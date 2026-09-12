@@ -1,0 +1,464 @@
+{
+  "courseId": "crs-1786624019154-w",
+  "courseTitle": "Python Full Stack + DSA with AI",
+  "stageId": "top-stg-4",
+  "stageTitle": "Stage 4: Career Launchpad",
+  "moduleId": "mod-stg4-m5",
+  "moduleTitle": "Mock Technical Interviews & Valedictory",
+  "lessons": [
+    {
+      "lessonId": "lesson-stg4-m5-l1",
+      "lessonTitle": "Technical Coding Practice & DSA Live Problem Solving",
+      "totalQuestions": 20,
+      "questions": [
+        {
+          "question": "What is the recommended structured framework (e.g. UMPIRE method) when approaching an algorithmic problem in a live technical coding interview?",
+          "options": [
+            "Jump immediately into coding the first solution that comes to mind without speaking to the interviewer.",
+            "Understand requirements and constraints -> Match with data structures/patterns -> Plan the algorithm -> Implement clean code -> Review with test cases -> Evaluate time/space complexity.",
+            "Ask the interviewer to write the solution on the whiteboard and explain each line to you.",
+            "Memorize the LeetCode solution ID and recite the binary representation of the source code."
+          ],
+          "answer": "B",
+          "explanation": "The UMPIRE method (Understand, Match, Plan, Implement, Review, Evaluate) ensures comprehensive requirement clarification, methodical problem-solving, verbal communication, and thorough verification."
+        },
+        {
+          "question": "Why is it critical to clarify constraints (e.g. array size, negative numbers, duplicates, memory limits) before writing any code in a technical interview?",
+          "options": [
+            "To allow the interviewer to look up the answer in the official grading rubric.",
+            "Constraints determine whether an O(N^2) brute-force approach is acceptable or if an O(N log N) / O(N) optimal approach is strictly required, preventing wasted implementation time.",
+            "Because Python will not compile functions that take negative integers without explicit compiler flags.",
+            "Because interviewers deduct points if candidates do not speak continuously for the first 15 minutes."
+          ],
+          "answer": "B",
+          "explanation": "Constraints dictate the necessary time and space complexity boundaries (e.g., $N le 10^5$ requires $O(N)$ or $O(N log N)$), helping narrow down suitable data structures and algorithms."
+        },
+        {
+          "question": "When solving the 'Two Sum' problem where an array is unsorted, how does using a Hash Map improve time complexity over the naive two-loop brute force approach?",
+          "options": [
+            "It sorts the array in O(1) time using hash buckets.",
+            "It allows the algorithm to run across multiple CPU threads automatically.",
+            "It eliminates the need for allocating any extra memory in RAM.",
+            "It reduces time complexity from O(N^2) to O(N) by storing previously seen numbers and performing O(1) complement lookups (target - num) in a single pass."
+          ],
+          "answer": "D",
+          "explanation": "A hash map stores `{ number: index }`. For each element, checking if `target - current` exists takes $O(1)$ time, yielding an overall $O(N)$ time complexity with $O(N)$ auxiliary space."
+        },
+        {
+          "question": "In what algorithmic scenario is the 'Two Pointers' technique (one pointer at the start, one at the end) typically applied with O(N) time and O(1) space?",
+          "options": [
+            "Traversing binary search trees in post-order.",
+            "Searching for pairs that meet a condition (e.g. Two Sum II, Container With Most Water, Trapping Rain Water) in a sorted array or linear structure.",
+            "Inverting binary trees recursively.",
+            "Finding strongly connected components in directed graphs."
+          ],
+          "answer": "B",
+          "explanation": "Two pointers moving inward from both ends allow monotonic decision-making in sorted arrays or bounded sequence problems, achieving $O(N)$ time with $O(1)$ space."
+        },
+        {
+          "question": "How does Floyd's Cycle-Finding Algorithm ('Tortoise and Hare' fast and slow pointers) detect a cycle in a singly linked list in O(N) time and O(1) space?",
+          "options": [
+            "It converts the linked list into an array and performs binary search.",
+            "Both pointers traverse backwards from the tail to the head node.",
+            "The slow pointer advances 1 step while the fast pointer advances 2 steps; if a cycle exists, the fast pointer will eventually overtake and meet the slow pointer within the loop.",
+            "The algorithm modifies each node's value to null until a null pointer exception is thrown."
+          ],
+          "answer": "C",
+          "explanation": "Because the fast pointer moves at twice the speed of the slow pointer, the distance between them reduces by 1 on each step inside a loop, guaranteeing an intersection in $O(N)$ time without extra space."
+        },
+        {
+          "question": "What data structure is optimal for solving problems like 'Daily Temperatures', 'Next Greater Element', and 'Largest Rectangle in Histogram' in linear O(N) time?",
+          "options": [
+            "A Monotonic Stack (storing indices or values in monotonically increasing or decreasing order).",
+            "A Red-Black Self-Balancing Tree.",
+            "A Trie (Prefix Tree).",
+            "A Binary Max-Heap."
+          ],
+          "answer": "A",
+          "explanation": "A monotonic stack maintains elements in sorted order. Pushing and popping elements as conditions are violated resolves 'next greater/smaller element' queries in amortized $O(1)$ per element ($O(N)$ total)."
+        },
+        {
+          "question": "When is Binary Search applicable beyond searching in a sorted array (e.g. 'Binary Search on Answer Space')?",
+          "options": [
+            "When traversing unweighted graphs with negative edge weights.",
+            "When generating all permutations of an array of distinct integers.",
+            "When evaluating mathematical string expressions with parentheses.",
+            "When the problem has a monotonic feasibility property where if an answer 'X' is valid, all values > X (or < X) are also valid (e.g. Koko Eating Bananas, Capacity To Ship Packages)."
+          ],
+          "answer": "D",
+          "explanation": "Binary search on answer space works whenever a predicate function `isPossible(mid)` is monotonic (e.g. `False, False, True, True`), allowing logarithmic $O(log(\text{range}) \times \text{check})$ search."
+        },
+        {
+          "question": "What is the primary difference between Breadth-First Search (BFS) and Depth-First Search (DFS) when finding the shortest path in an unweighted graph or grid?",
+          "options": [
+            "DFS is always faster than BFS because it uses less memory on all graph topologies.",
+            "BFS requires edge weights to be strictly positive prime numbers.",
+            "BFS can only be used on trees, whereas DFS can only be used on matrices.",
+            "BFS explores nodes level-by-level using a Queue, guaranteeing that the first time the target node is reached, it is via the shortest path; DFS explores deeply using a Stack/Recursion and does not guarantee shortest path."
+          ],
+          "answer": "D",
+          "explanation": "BFS expands uniformly outward in concentric layers using a FIFO queue, guaranteeing minimal edge traversal distances in unweighted graphs, unlike DFS."
+        },
+        {
+          "question": "What are the two key characteristics of a problem that indicate it can be solved using Dynamic Programming (DP)?",
+          "options": [
+            "Overlapping Subproblems (the same sub-calculations are repeated multiple times) and Optimal Substructure (an optimal solution to the problem contains optimal solutions to its subproblems).",
+            "Greedy choice property and topological ordering.",
+            "Continuous differentiability and linear independence.",
+            "Quadratic time complexity and zero memory allocation."
+          ],
+          "answer": "A",
+          "explanation": "Dynamic programming applies when subproblems overlap (enabling memoization/tabulation) and optimal substructure exists (solutions to larger instances build upon optimal solutions of sub-instances)."
+        },
+        {
+          "question": "How does Python's built-in 'heapq' module implement a priority queue, and what is its default heap property?",
+          "options": [
+            "It sorts the entire list in O(N log N) time on every single read operation.",
+            "It implements a Max-Heap where heap[0] is always the largest element in O(1) insertion time.",
+            "It creates an immutable B-tree stored in shared operating system memory.",
+            "It implements a Min-Heap on a standard Python list where heap[0] is always the smallest element; insertion (heappush) and extraction (heappop) take O(log N) time."
+          ],
+          "answer": "D",
+          "explanation": "Python's `heapq` module maintains a binary min-heap over a list in-place, providing $O(1)$ access to the minimum element and $O(log N)$ push/pop operations."
+        },
+        {
+          "question": "What is the standard time complexity for finding the 'Top K Frequent Elements' in an array of size N using a Min-Heap of size K?",
+          "options": [
+            "O(1) time and O(N) space.",
+            "O(N log K) time and O(N) space.",
+            "O(N^2) time and O(1) space.",
+            "O(K!) time and O(K) space."
+          ],
+          "answer": "B",
+          "explanation": "Counting frequencies takes $O(N)$ with a hash map. Maintaining a min-heap of size $K$ takes $O(log K)$ per unique element, resulting in an optimal $O(N log K)$ overall time complexity."
+        },
+        {
+          "question": "In Backtracking algorithms (e.g. generating Subsets, Permutations, or solving N-Queens), what is 'Pruning'?",
+          "options": [
+            "Deleting empty nodes from a binary search tree after balancing.",
+            "Removing comments and whitespace from source code before submission.",
+            "Converting recursive functions into iterative loops to prevent call-stack overflow.",
+            "Aborting a recursive exploration branch early as soon as it violates problem constraints, avoiding the exploration of invalid search subtrees."
+          ],
+          "answer": "D",
+          "explanation": "Pruning checks bounding/validity conditions at each step. If a partial state cannot lead to a valid solution, recursion backtracks immediately, pruning exponential state trees."
+        },
+        {
+          "question": "How is Topological Sort implemented using Kahn's Algorithm (BFS approach) to detect cycles and resolve task dependencies?",
+          "options": [
+            "Calculate in-degrees for all vertices -> Push vertices with in-degree 0 to a queue -> Process queue: pop vertex, append to result, decrement neighbors' in-degrees, and enqueue neighbors that reach 0 in-degree.",
+            "Sort all vertex names alphabetically and reverse the list in place.",
+            "Traverse from the vertex with the maximum out-degree using depth-first search.",
+            "Perform binary search on the adjacency matrix rows."
+          ],
+          "answer": "A",
+          "explanation": "Kahn's algorithm repeatedly removes vertices with indegree 0 (no remaining dependencies). If processed vertices count < total vertices, a cycle exists (deadlock)."
+        },
+        {
+          "question": "What is the optimal approach for the 'Merge Intervals' problem (e.g. merging [[1,3],[2,6],[8,10],[15,18]])?",
+          "options": [
+            "Sort intervals by start time in O(N log N) -> Iterate through intervals, comparing current start with previous end: merge if overlapping (new_end = max(end1, end2)), else append.",
+            "Convert intervals to strings and sort lexicographically.",
+            "Compare every interval with every other interval in O(N^2) nested loops without sorting.",
+            "Insert all interval boundaries into a 2D matrix and apply Gaussian elimination."
+          ],
+          "answer": "A",
+          "explanation": "Sorting intervals by start time takes $O(N log N)$. A single linear pass ($O(N)$) then merges overlapping intervals whose `start <= prev_end`."
+        },
+        {
+          "question": "What does the bitwise expression 'n & (n - 1) == 0' determine for a positive integer n?",
+          "options": [
+            "Whether n is an odd prime number.",
+            "Whether n is divisible by 10.",
+            "Whether n is a power of 2 (since powers of 2 have exactly one binary 1-bit, and subtracting 1 flips all bits up to that bit).",
+            "Whether n causes integer overflow in Python 3."
+          ],
+          "answer": "C",
+          "explanation": "In binary, powers of 2 are `100...0` and `n - 1` is `011...1`. Computing `n & (n - 1)` clears the lowest set bit, evaluating to `0` only for powers of 2."
+        },
+        {
+          "question": "How is an LRU (Least Recently Used) Cache designed to support O(1) get() and put() operations?",
+          "options": [
+            "Using a single stack and popping all items to find the target key.",
+            "Combining a Hash Map (for O(1) key-to-node lookup) with a Doubly Linked List (for O(1) node removal and insertion at the most recent end).",
+            "Storing all keys in a SQLite in-memory database table.",
+            "Using a single sorted array and shifting elements on every access in O(N) time."
+          ],
+          "answer": "B",
+          "explanation": "A hash map provides $O(1)$ key lookup to a doubly linked list node, while the doubly linked list allows removing and prepending nodes to the head/tail in $O(1)$ time."
+        },
+        {
+          "question": "What should an engineer do if they get completely stuck or make a mistake during a live technical coding interview?",
+          "options": [
+            "Close the laptop lid and abruptly disconnect from the video call.",
+            "Accuse the interviewer of asking an unfair or invalid question.",
+            "Communicate their current thought process out loud, articulate what part of the problem is causing difficulty, state a brute-force approach, and ask the interviewer for a targeted hint.",
+            "Remain completely silent for 20 minutes while frantically guessing syntax."
+          ],
+          "answer": "C",
+          "explanation": "Interviewers evaluate problem-solving, resilience, and collaborative communication. Explaining where you are stuck and proposing partial ideas allows the interviewer to provide targeted guidance."
+        },
+        {
+          "question": "Why is 'dry running' code with a concrete example before declaring your solution complete essential in a technical interview?",
+          "options": [
+            "It allows the candidate to stall for time so fewer questions are asked.",
+            "It automatically compiles the code into machine bytecode in the browser.",
+            "It demonstrates thoroughness, catches off-by-one errors, null pointer bugs, and unhandled edge cases before running the code, showing strong software engineering rigor.",
+            "It prevents the interviewer from asking follow-up system design questions."
+          ],
+          "answer": "C",
+          "explanation": "Manually tracing sample inputs line-by-line demonstrates rigorous engineering discipline and catches off-by-one bugs or boundary condition errors before execution."
+        },
+        {
+          "question": "In Python, why is appending to and popping from the right end of a list O(1), but inserting/popping at index 0 O(N), and what data structure solves this?",
+          "options": [
+            "Index 0 operations trigger garbage collection; 'dict.keys()' provides O(1) insertions.",
+            "Python reserves index 0 for operating system pointers; 'set' provides O(1) ordering.",
+            "List elements are contiguous in memory, so index 0 operations require shifting all N elements; 'collections.deque' (double-ended queue) provides O(1) operations at both ends.",
+            "Python lists are singly linked lists; 'collections.namedtuple' provides O(1) shifts."
+          ],
+          "answer": "C",
+          "explanation": "Python lists are dynamic arrays requiring $O(N)$ element shifting for front operations. `collections.deque` uses a doubly linked list of blocks, achieving $O(1)$ pops and appends at both ends."
+        },
+        {
+          "question": "What is the Sliding Window pattern's main benefit when finding the 'Longest Substring Without Repeating Characters'?",
+          "options": [
+            "It maintains a dynamic window [left, right] with a hash set/map, expanding right and contracting left only when duplicates occur, processing the string in single-pass O(N) time.",
+            "It checks all O(N^3) possible substrings by generating combinations.",
+            "It converts the string into a binary tree and balances it using AVL rotations.",
+            "It encrypts the string into binary tokens before computing substring lengths."
+          ],
+          "answer": "A",
+          "explanation": "The sliding window technique moves `right` to expand and `left` to contract, ensuring each character is visited at most twice ($O(N)$ total time), drastically outperforming $O(N^2)$ checks."
+        }
+      ]
+    },
+    {
+      "lessonId": "lesson-stg4-m5-l2",
+      "lessonTitle": "HR Interview Prep, Capstone Demos, & Certification",
+      "totalQuestions": 20,
+      "questions": [
+        {
+          "question": "What is the 'STAR Method', and how is it structured for answering behavioral interview questions effectively?",
+          "options": [
+            "Salary (expected pay) -> Title (desired role) -> Amenities (office perks) -> Relocation (housing budget).",
+            "Situation (context/background) -> Task (your responsibility/goal) -> Action (specific steps you took with technical details) -> Result (quantifiable outcome and lessons learned).",
+            "Software (tools used) -> Testing (unit tests) -> Architecture (system diagram) -> Review (code review).",
+            "Speed (coding velocity) -> Tenure (years of experience) -> Accuracy (bug count) -> References (recommendations)."
+          ],
+          "answer": "B",
+          "explanation": "The STAR framework (Situation, Task, Action, Result) provides a clear narrative structure that highlights your individual contributions, problem-solving actions, and measurable impact."
+        },
+        {
+          "question": "How should an engineer structure the answer to the classic opening question: 'Tell me about yourself'?",
+          "options": [
+            "Read your resume line-by-line without adding any context or personality.",
+            "Present (current role, core tech stack, and recent achievements) -> Past (relevant engineering journey and key projects built) -> Future (why you are excited about this specific role/company).",
+            "State that all information is already on your LinkedIn profile and ask for the coding question.",
+            "Recite your entire life story starting from primary school in chronological order."
+          ],
+          "answer": "B",
+          "explanation": "The 'Present-Past-Future' formula creates a focused 90-to-120 second pitch highlighting your core technical competencies, engineering journey, and direct alignment with the target position."
+        },
+        {
+          "question": "When an interviewer asks: 'Tell me about a time you had a technical disagreement with a team member or mentor', what is the best response strategy?",
+          "options": [
+            "Explain how you proved the other person was completely incompetent and forced them to accept your solution.",
+            "Explain that you reported the team member to executive management to resolve the argument.",
+            "State that you have never disagreed with anyone because you avoid all team discussions.",
+            "Describe the technical tradeoff objectively, explain how you evaluated data/benchmarks together respectfully, reached a collaborative consensus, and supported the final decision."
+          ],
+          "answer": "D",
+          "explanation": "Engineering teams value constructive collaboration. Emphasizing objective data-driven evaluation, respectful communication, and team alignment proves maturity and emotional intelligence."
+        },
+        {
+          "question": "What is the recommended 5-minute structure for delivering a high-impact live Capstone Project Demo to hiring managers?",
+          "options": [
+            "5 mins: Scrolling through raw database migration files without explaining what the app does.",
+            "1 min: Problem & Value Proposition -> 1 min: Architecture & Tech Stack -> 2 mins: Live User Flow / AI Demo -> 1 min: Technical Challenges Overcome & Next Milestones.",
+            "5 mins: Showing slides with 2,000 words of plain text and zero visual demonstrations.",
+            "5 mins: Complaining about how hard Docker was to configure."
+          ],
+          "answer": "B",
+          "explanation": "A concise demo hooks the audience with the problem solved, validates system design with an architecture overview, proves execution via live features, and highlights engineering resilience."
+        },
+        {
+          "question": "How should you answer technical questions challenging your architectural choices (e.g. 'Why did you use PostgreSQL instead of MongoDB for your capstone?')?",
+          "options": [
+            "Apologize immediately and promise to rewrite the entire project during the interview.",
+            "Reply that PostgreSQL was the only database you knew how to install.",
+            "Discuss specific technical tradeoffs: data relational integrity, ACID transactions, structured schemas, SQL querying capabilities, and why those requirements fit your project's domain model.",
+            "Argue that MongoDB is completely obsolete and nobody in the tech industry uses it."
+          ],
+          "answer": "C",
+          "explanation": "Articulating why a specific technology was chosen based on schema structure, ACID guarantees, query patterns, and domain requirements demonstrates sound architectural judgment."
+        },
+        {
+          "question": "During salary negotiations, what is a fundamental rule when asked early in the interview process for your current salary or specific salary expectation?",
+          "options": [
+            "Pivot politely by focusing on role fit and stating you expect competitive market compensation based on the responsibilities of the role and your demonstrated value.",
+            "Disclose your lowest acceptable baseline salary immediately to save the recruiter time.",
+            "Refuse to speak until an official contract is signed on paper.",
+            "Immediately demand double the highest figure you can imagine without researching market rates."
+          ],
+          "answer": "A",
+          "explanation": "Deflecting premature salary disclosures keeps negotiation leverage intact while allowing both parties to establish mutual technical and cultural fit based on objective market benchmarks."
+        },
+        {
+          "question": "When the interviewer asks: 'Do you have any questions for us at the end of the interview?', which question demonstrates strong engineering curiosity and cultural fit?",
+          "options": [
+            "'How soon can I take two months of paid vacation after joining?'",
+            "'I have no questions; can you tell me if I passed the interview right now?'",
+            "'Do you monitor how many hours employees spend on social media during work?'",
+            "'What are the biggest technical debt challenges your engineering team is tackling right now, and how does your team approach automated CI/CD and deployment cadence?'"
+          ],
+          "answer": "D",
+          "explanation": "Thoughtful questions regarding engineering practices, technical debt management, deployment cadence, and team culture demonstrate genuine professional engagement and maturity."
+        },
+        {
+          "question": "How should an engineer answer the question: 'What is your biggest weakness?'",
+          "options": [
+            "Use cliché humblebrags like 'I work too hard and I am too much of a perfectionist.'",
+            "State 'I hate working with other people and I do not like taking instructions.'",
+            "Claim 'I have no weaknesses; my code has never had a bug in it.'",
+            "Name an authentic, non-fatal area of improvement, describe active steps you are taking to overcome it, and demonstrate self-awareness and continuous learning."
+          ],
+          "answer": "D",
+          "explanation": "Honest self-awareness combined with concrete actions taken to improve (e.g. improving system benchmarking skills, public speaking) demonstrates growth mindset and authenticity."
+        },
+        {
+          "question": "Why is sending a personalized Thank-You email within 24 hours of completing an interview considered good professional etiquette?",
+          "options": [
+            "It reiterates your enthusiasm for the role, reinforces a memorable technical topic discussed during the conversation, and highlights your professional communication standards.",
+            "It legally compels the company to send an offer letter within 48 hours.",
+            "It allows you to rewrite your coding answers and demand a regrade.",
+            "It replaces the need for taking any future background checks."
+          ],
+          "answer": "A",
+          "explanation": "A personalized follow-up note referencing specific technical topics or insights discussed during the interview reinforces enthusiasm, polish, and professionalism."
+        },
+        {
+          "question": "What is the primary value of completing recognized industry certifications (e.g. AWS Certified Solutions Architect, Python Institute, Meta Backend Certification)?",
+          "options": [
+            "They grant academic doctoral degrees in Computer Science automatically.",
+            "They guarantee lifetime employment without needing to take job interviews.",
+            "They replace the need for writing code or building portfolio projects.",
+            "They provide objective third-party validation of foundational competencies, standardize knowledge, and strengthen resume credibility, especially for career switchers."
+          ],
+          "answer": "D",
+          "explanation": "Certifications validate structured domain mastery and discipline, serving as credible signal boosters that complement practical capstone projects and GitHub portfolios."
+        },
+        {
+          "question": "When evaluating multiple job offers, which comprehensive factors beyond base salary should an engineer consider using a decision matrix?",
+          "options": [
+            "Whichever company makes an offer first regardless of role or pay.",
+            "Total compensation (equity, bonuses, benefits), engineering mentorship quality, team tech stack modernity, company financial runway, and career progression opportunities.",
+            "Only whichever company has the fanciest corporate logo on LinkedIn.",
+            "The color of the office walls and the brand of coffee in the breakroom."
+          ],
+          "answer": "B",
+          "explanation": "Holistic offer evaluation weighs total compensation (equity/bonuses), mentorship from senior engineers, tech stack modernness, company stability, and long-term career growth potential."
+        },
+        {
+          "question": "How should you approach answering 'Estimation / Fermi Problems' (e.g. 'Estimate the daily network bandwidth required for a photo-sharing app with 10 million daily active users')?",
+          "options": [
+            "Guess a random number like '10 terabytes' instantly without explaining your reasoning.",
+            "Write a Python web scraper to look up the exact live server traffic of Instagram.",
+            "Tell the interviewer that estimation questions are impossible without an exact spreadsheet.",
+            "State reasonable assumptions clearly -> Break down the math into manageable components (active users x uploads/day x average file size) -> Calculate step-by-step with sanity checks."
+          ],
+          "answer": "D",
+          "explanation": "Fermi estimation evaluates structured dimensional analysis, clear assumptions, mathematical composure, and systematic reasoning under ambiguity."
+        },
+        {
+          "question": "What is the most constructive action to take immediately after completing any technical or behavioral interview?",
+          "options": [
+            "Conduct a personal debrief: write down all questions asked, identify topics where your answers were hesitant, and research solutions to continuously refine future performance.",
+            "Forget everything that happened and never think about the interview again.",
+            "Delete your GitHub repositories and reformat your computer hard drive.",
+            "Post negative reviews of the interviewers on social media platforms."
+          ],
+          "answer": "A",
+          "explanation": "Writing an immediate interview post-mortem captures gaps while fresh, enabling rapid iterative learning, target practice, and continuous interview skill compounding."
+        },
+        {
+          "question": "How should an engineer answer the question: 'Why do you want to work for our specific company?'",
+          "options": [
+            "Demonstrate thorough research: reference their engineering blog posts, specific product challenges, open-source initiatives, and explain how your skill set directly contributes to their mission.",
+            "Explain that you plan to work there for 2 months and then start a competing business.",
+            "State 'Because I need a job and your company was the first one to call me back.'",
+            "Mention that you heard the company provides free catered lunches on Fridays."
+          ],
+          "answer": "A",
+          "explanation": "Showing genuine domain research (tech stack choices, company product roadmaps, engineering blog posts) proves deliberate intent, passion, and strong organizational alignment."
+        },
+        {
+          "question": "How should a candidate explain a career transition from a non-tech field into Software Engineering during an HR interview?",
+          "options": [
+            "Complain about how terrible their previous industry was and criticize former colleagues.",
+            "Pretend they never worked in any other field and invent fictitious tech jobs.",
+            "Frame the transition as a deliberate, passion-driven progression, highlighting transferable strengths (problem solving, leadership, domain knowledge) coupled with rigorous full-stack training.",
+            "State that they only entered tech because they heard it pays high salaries with minimal effort."
+          ],
+          "answer": "C",
+          "explanation": "Framing career switches positively highlights transferable soft skills, cross-disciplinary domain perspective, and the resilience and discipline required to learn software engineering."
+        },
+        {
+          "question": "When explaining a major production bug or system failure you caused in the past, what mindset should you demonstrate?",
+          "options": [
+            "Explain that bugs are natural and nobody should ever try to fix them.",
+            "A blameless post-mortem mindset: explain the root cause, immediate mitigation, retrospective learnings, and the automated safeguards/tests implemented to prevent recurrence.",
+            "Deny that you have ever introduced a bug into any software system.",
+            "Blame your junior teammates or the cloud infrastructure provider."
+          ],
+          "answer": "B",
+          "explanation": "Engineering organizations value psychological safety, blameless post-mortems, root cause analysis, and the implementation of automated regression tests to prevent repeats."
+        },
+        {
+          "question": "What is the best way to handle 'Imposter Syndrome' and nervousness before a high-stakes technical interview?",
+          "options": [
+            "Assume failure in advance so you don't feel disappointed when rejected.",
+            "Take large doses of unprescribed medication right before logging onto the video call.",
+            "Reframe nervousness as excitement, practice with realistic peer mock interviews, remind yourself of past difficult problems solved, and view the interview as a collaborative technical discussion.",
+            "Stay awake for 48 consecutive hours cramming 500 LeetCode problems without sleeping."
+          ],
+          "answer": "C",
+          "explanation": "Mock interviews, adequate rest, objective reflection on past project accomplishments, and viewing the interview as a peer-to-peer technical discussion build confidence and reduce anxiety."
+        },
+        {
+          "question": "What key competencies should you emphasize when interviewing for Remote Software Engineering positions?",
+          "options": [
+            "Ability to work 24 hours a day without taking any breaks.",
+            "Insistence on having video cameras on in 8-hour continuous live streams.",
+            "Exceptional asynchronous written communication, proactive status updates, self-directed time management, git hygiene, and clear documentation practices.",
+            "Preference for never writing documentation or unit tests."
+          ],
+          "answer": "C",
+          "explanation": "Remote teams rely heavily on clear written documentation, proactive asynchronous updates (Slack/Jira), self-reliance, and clean version control workflows."
+        },
+        {
+          "question": "How can an engineer demonstrate a 'Continuous Learning' mindset when asked how they stay up-to-date with fast-evolving technologies?",
+          "options": [
+            "Claim to invent all new programming paradigms independently without reading existing literature.",
+            "Explain that they rely solely on viral TikTok videos for software architecture news.",
+            "Mention specific tech podcasts, engineering blogs (e.g. Netflix TechBlog, Uber Engineering), open-source repositories followed, and hands-on side experiments with new tools like LLMs/RAG.",
+            "State that technology never changes so reading documentation once is sufficient."
+          ],
+          "answer": "C",
+          "explanation": "Referencing active technical resources (tech blogs, RFCs, open-source repositories) and side experiments demonstrates proactive intellectual curiosity and adaptability."
+        },
+        {
+          "question": "As you conclude the Full Stack + DSA with AI program and enter the software engineering industry, what is the most important long-term career principle?",
+          "options": [
+            "Adopt a growth mindset: embrace difficult engineering challenges, write clean maintainable code, continually master foundational CS concepts, and uplift peers through mentorship.",
+            "Stop learning immediately upon receiving your first job offer.",
+            "Prioritize writing obfuscated code so that no other engineer can modify your work.",
+            "Refuse to work with any technologies created after the year 2010."
+          ],
+          "answer": "A",
+          "explanation": "Software engineering is a lifelong compounding craft. Continuous learning, architectural curiosity, foundational mastery, and supportive collaboration are the hallmarks of great engineers."
+        }
+      ]
+    }
+  ]
+}

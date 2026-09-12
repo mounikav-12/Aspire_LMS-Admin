@@ -1,0 +1,691 @@
+{
+  "courseId": "crs-1786624019154-w",
+  "courseTitle": "Python Full Stack + DSA with AI",
+  "stageId": "top-stg-2",
+  "stageTitle": "Stage 2: Backend + DSA",
+  "moduleId": "subtop-1787203571606",
+  "moduleTitle": "Django Models & Database ORM",
+  "lessons": [
+    {
+      "lessonId": "lesson-1787204637256",
+      "lessonTitle": "Model Fields & Relationships: OneToOne, ForeignKey, ManyToMany",
+      "totalQuestions": 20,
+      "questions": [
+        {
+          "question": "In Django model design, what is the key difference between `null=True` and `blank=True` on a field?",
+          "options": [
+            "`null=True` sets `NULL` constraints at the database level; `blank=True` determines whether the field is optional during form/admin validation.",
+            "`null=True` allows empty strings `\"\"` in MySQL, while `blank=True` saves `NaN` in PostgreSQL.",
+            "`null=True` is for CharField only, while `blank=True` is for IntegerField only.",
+            "`null=True` allows Django admin forms to skip the field, while `blank=True` creates a database trigger."
+          ],
+          "answer": "A",
+          "explanation": "`null=True` allows the underlying database column to store `NULL` values. `blank=True` is validation-related, determining whether the field is required in Django forms and admin."
+        },
+        {
+          "question": "Which `on_delete` option in a `ForeignKey` prevents deletion of the referenced parent record if any related child records still exist by raising a `ProtectedError`?",
+          "options": [
+            "models.PROTECT",
+            "models.DO_NOTHING",
+            "models.CASCADE",
+            "models.SET_NULL"
+          ],
+          "answer": "A",
+          "explanation": "`models.PROTECT` blocks the deletion of a referenced object by raising Django's `django.db.models.ProtectedError`."
+        },
+        {
+          "question": "Consider the model relationship below:\n```python\nclass Article(models.Model):\n    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='articles')\n```\nHow can an instance `user_obj` access all its related articles?",
+          "options": [
+            "Article.objects.filter(user=user_obj.articles)",
+            "user_obj.article_set.all()",
+            "user_obj.Article.get_all()",
+            "user_obj.articles.all()"
+          ],
+          "answer": "D",
+          "explanation": "Defining `related_name='articles'` overrides the default reverse lookup manager `article_set` and allows accessing related objects via `user_obj.articles.all()`."
+        },
+        {
+          "question": "Which field type is best suited for storing monetary currency values precisely without floating-point rounding errors?",
+          "options": [
+            "models.IntegerField()",
+            "models.FloatField()",
+            "models.DecimalField(max_digits=10, decimal_places=2)",
+            "models.BigIntegerField(units='cents')"
+          ],
+          "answer": "C",
+          "explanation": "`DecimalField` maps to Python's `Decimal` type and SQL `DECIMAL`/`NUMERIC`, preventing binary floating-point precision issues with currency."
+        },
+        {
+          "question": "What is the difference between `auto_now_add=True` and `auto_now=True` on a `DateTimeField`?",
+          "options": [
+            "`auto_now_add=True` sets the timestamp only once when the record is created; `auto_now=True` updates the timestamp every time `model.save()` is called.",
+            "`auto_now_add=True` is populated by the database server clock; `auto_now=True` uses the client browser time.",
+            "`auto_now_add=True` is editable in the admin; `auto_now=True` is completely deleted on update.",
+            "`auto_now_add=True` increments the time by 1 hour on save; `auto_now=True` resets time to UTC midnight."
+          ],
+          "answer": "A",
+          "explanation": "`auto_now_add` is ideal for `created_at` audit fields (set on insert), while `auto_now` is ideal for `updated_at` timestamps (refreshed on every update)."
+        },
+        {
+          "question": "When should you use a `through` intermediary model in a `ManyToManyField` definition?",
+          "options": [
+            "Whenever the related model contains more than 1000 rows.",
+            "When you need to store extra metadata attributes (such as `date_joined`, `role`, or `invite_status`) on the junction relationship table.",
+            "Only when the database backend is SQLite.",
+            "When connecting more than 5 models together simultaneously."
+          ],
+          "answer": "B",
+          "explanation": "The `through` argument specifies a custom intermediary model table to hold additional fields describing the relationship between the two entities."
+        },
+        {
+          "question": "What type of database relationship does `models.OneToOneField` enforce?",
+          "options": [
+            "A composite primary key linking two remote database servers.",
+            "A `ForeignKey` with `unique=True` ensuring that exactly one parent record maps to at most one child record.",
+            "A junction table with two foreign keys.",
+            "An array column of IDs stored inside a single row."
+          ],
+          "answer": "B",
+          "explanation": "Under the hood, `OneToOneField` is implemented as a foreign key column with a unique database index constraint (`UNIQUE`), guaranteeing a 1-to-1 relationship."
+        },
+        {
+          "question": "How can you define a custom string representation for a Django model instance when printed or viewed in the admin interface?",
+          "options": [
+            "Set `string_format = True` inside the model's `class Meta:`.",
+            "Override `def to_string(self):` in views.py.",
+            "Define `def __repr_html__(self):` on the model.",
+            "Define the `def __str__(self):` dunder method on the model class returning a string."
+          ],
+          "answer": "D",
+          "explanation": "Python's `__str__(self)` method returns the human-readable string representation of the model instance used throughout Django's admin and template rendering."
+        },
+        {
+          "question": "What does setting `db_index=True` on a model field accomplish in the underlying database?",
+          "options": [
+            "Creates a B-Tree database index on that column to significantly accelerate `filter()` and `order_by()` query lookups.",
+            "Converts the column into an auto-incrementing primary key.",
+            "Encrypts the column data using AES-256 encryption.",
+            "Forces the database engine to store that column in Redis cache."
+          ],
+          "answer": "A",
+          "explanation": "`db_index=True` tells the database to generate an index on that column, speeding up search and filtering operations at the cost of slight write overhead."
+        },
+        {
+          "question": "In modern Django (3.0+), what is the recommended way to define enumerated choice fields on a model?",
+          "options": [
+            "Use raw Python `set()` collections assigned to the field.",
+            "Define an external JSON file and parse it in `models.py`.",
+            "Create a global dictionary in `settings.py` named `MODEL_CHOICES`.",
+            "Subclass `models.TextChoices` or `models.IntegerChoices` inside the model class."
+          ],
+          "answer": "D",
+          "explanation": "`models.TextChoices` and `models.IntegerChoices` provide clean, type-safe, human-readable choice enumerations integrated with Django models."
+        },
+        {
+          "question": "Which inner class inside a Django model is used to define table metadata such as default ordering, custom table names, and database constraints?",
+          "options": [
+            "class Config:",
+            "class Meta:",
+            "class Options:",
+            "class Schema:"
+          ],
+          "answer": "B",
+          "explanation": "The `class Meta` inside any Django model class configures model-level metadata such as `ordering`, `db_table`, `verbose_name`, `indexes`, and `constraints`."
+        },
+        {
+          "question": "What is the consequence of specifying `on_delete=models.SET_NULL` on a `ForeignKey` without also setting `null=True` on that field?",
+          "options": [
+            "Django automatically deletes the entire database table on crash.",
+            "Django silently converts the column to a `CharField` storing the word 'NULL'.",
+            "Django will raise a system check error (`models.E006`) because `SET_NULL` cannot write NULL into a column that forbids NULL values.",
+            "Django ignores `SET_NULL` and defaults to `models.CASCADE`."
+          ],
+          "answer": "C",
+          "explanation": "If `SET_NULL` is specified, the underlying database column must accept nulls (`null=True`), otherwise setting NULL upon parent deletion triggers an integrity error."
+        },
+        {
+          "question": "Consider this model definition:\n```python\nclass Profile(models.Model):\n    user = models.OneToOneField(User, on_delete=models.CASCADE)\n```\nHow can an instance `u = User.objects.get(id=1)` access its corresponding profile?",
+          "options": [
+            "u.profile_set.first()",
+            "u.get_profile()",
+            "u.profile",
+            "u.profile_list[0]"
+          ],
+          "answer": "C",
+          "explanation": "For a `OneToOneField`, the reverse accessor on the target model is the lowercase name of the related model (`u.profile`), returning a single object rather than a QuerySet."
+        },
+        {
+          "question": "How do you define a composite unique constraint in Django 2.2+ using `class Meta`?",
+          "options": [
+            "unique_together = ('course', 'student', primary_key=True)",
+            "composite_key = ['course', 'student']",
+            "constraints = [models.UniqueConstraint(fields=['course', 'student'], name='unique_course_enrollment')]",
+            "unique_fields = {'course': True, 'student': True}"
+          ],
+          "answer": "C",
+          "explanation": "`models.UniqueConstraint` provides advanced unique constraint declarations with custom names and conditional filtering."
+        },
+        {
+          "question": "Which field parameter is used to provide a default value for a field when creating new model instances?",
+          "options": [
+            "default=...",
+            "fallback=...",
+            "placeholder=...",
+            "initial=..."
+          ],
+          "answer": "A",
+          "explanation": "The `default` argument sets a default constant value or a callable (like `uuid.uuid4` or `timezone.now`) evaluated during record instantiation."
+        },
+        {
+          "question": "What is the purpose of the `get_absolute_url()` convention method on a Django model?",
+          "options": [
+            "Validates that external hyperlinked image URLs are active 200 OK endpoints.",
+            "Returns the canonical URL path to view a specific model instance detail page using `reverse()`.",
+            "Generates an HTTPS SSL certificate for the domain hosting the model.",
+            "Downloads the raw SQL representation of the object as a .url file."
+          ],
+          "answer": "B",
+          "explanation": "`get_absolute_url()` is Django's standard method for calculating and returning the canonical URL for an object (e.g. `/posts/42/`)."
+        },
+        {
+          "question": "What happens when you delete an instance of a model that has related objects with `on_delete=models.CASCADE`?",
+          "options": [
+            "The related records have their foreign key foreign IDs set to 0.",
+            "An exception is thrown and deletion is aborted unless confirmed via terminal.",
+            "The parent instance is soft-deleted with an `is_deleted=True` flag.",
+            "All related child records referencing the deleted instance are automatically deleted as well."
+          ],
+          "answer": "D",
+          "explanation": "`CASCADE` propagates the deletion down to all dependent records linked via the foreign key relationship."
+        },
+        {
+          "question": "Which field type generates a universally unique 128-bit identifier commonly used for non-sequential, obfuscated object IDs?",
+          "options": [
+            "models.HashField(algorithm='sha256')",
+            "models.RandomStringField(length=32)",
+            "models.GUIDField(auto_generate=True)",
+            "models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)"
+          ],
+          "answer": "D",
+          "explanation": "`UUIDField` stores Universally Unique Identifiers (UUIDs), often initialized with `default=uuid.uuid4`."
+        },
+        {
+          "question": "In a `ManyToManyField`, how do you add or remove related records on an instance `post_obj.tags`?",
+          "options": [
+            "post_obj.tags.push(tag_instance) and post_obj.tags.splice(tag_instance)",
+            "post_obj.tags.add(tag_instance) and post_obj.tags.remove(tag_instance)",
+            "post_obj.tags.append(tag_instance) and post_obj.tags.pop(tag_instance)",
+            "post_obj.tags.insert(tag_instance) and post_obj.tags.delete(tag_instance)"
+          ],
+          "answer": "B",
+          "explanation": "Django's `ManyRelatedManager` provides `.add()`, `.remove()`, `.clear()`, and `.set()` methods to manage relationship entries in the junction table."
+        },
+        {
+          "question": "What setting inside a model's `class Meta:` controls the default ordering of records returned by `.all()` queries?",
+          "options": [
+            "sort_by = ['-created_at']",
+            "default_sort = ('created_at', 'DESC')",
+            "ordering = ['-created_at', 'title']",
+            "order_query = 'ORDER BY created_at DESC'"
+          ],
+          "answer": "C",
+          "explanation": "`ordering = ['-field_name']` sets the default sorting for model QuerySets, where a prefix `-` denotes descending order."
+        }
+      ]
+    },
+    {
+      "lessonId": "lesson-1787204665015",
+      "lessonTitle": "Django ORM Queries & Migrations Management",
+      "totalQuestions": 20,
+      "questions": [
+        {
+          "question": "What does it mean that Django ORM QuerySets are 'lazy'?",
+          "options": [
+            "QuerySets only work with NoSQL databases.",
+            "Creating a QuerySet does not trigger database activity; SQL queries are only executed when the QuerySet is evaluated (e.g. via iteration, slicing, len(), or list()).",
+            "QuerySets run in a background thread and delay returning results by 500ms.",
+            "QuerySets fail to execute unless explicitly wrapped inside a try-except block."
+          ],
+          "answer": "B",
+          "explanation": "QuerySets are lazy: Django constructs internal SQL AST representations and only hits the database when data is actually read or iterated."
+        },
+        {
+          "question": "What exception is raised when `Product.objects.get(id=999)` finds no matching record in the database?",
+          "options": [
+            "Product.DoesNotExist",
+            "Product.MultipleObjectsReturned",
+            "Product.NullRecordError",
+            "IndexError"
+          ],
+          "answer": "A",
+          "explanation": "`.get()` expects exactly one matching row. If none is found, it raises `<Model>.DoesNotExist`."
+        },
+        {
+          "question": "What exception is raised if `Product.objects.get(category='electronics')` matches multiple rows?",
+          "options": [
+            "Product.DuplicateKeyError",
+            "Product.TooManyRowsException",
+            "Product.MultipleObjectsReturned",
+            "ValueError"
+          ],
+          "answer": "C",
+          "explanation": "If `.get()` finds more than one record satisfying the lookup filter, it raises `<Model>.MultipleObjectsReturned`."
+        },
+        {
+          "question": "Which field lookup syntax is used to filter records where the `title` contains the word 'python' in a case-insensitive manner?",
+          "options": [
+            "Book.objects.filter(title__contains_ci='python')",
+            "Book.objects.filter(title__regex_i='python')",
+            "Book.objects.filter(title.like('%python%'))",
+            "Book.objects.filter(title__icontains='python')"
+          ],
+          "answer": "D",
+          "explanation": "Django uses double underscores `__` for field lookups. `__icontains` performs case-insensitive containment matching (`ILIKE %python%` in SQL)."
+        },
+        {
+          "question": "How do you construct a logical OR query using Django's `Q` objects, such as finding products that are either out of stock (`stock=0`) OR marked on clearance (`is_clearance=True`)?",
+          "options": [
+            "Product.objects.filter(stock=0, OR, is_clearance=True)",
+            "Product.objects.filter(Q(stock=0) || Q(is_clearance=True))",
+            "Product.objects.filter(OR(stock=0, is_clearance=True))",
+            "Product.objects.filter(Q(stock=0) | Q(is_clearance=True))"
+          ],
+          "answer": "D",
+          "explanation": "`Q` objects encapsulate SQL query conditions and can be combined using the pipe operator `|` for OR operations and `&` for AND operations."
+        },
+        {
+          "question": "How do you perform an atomic database-level increment on a counter field (e.g. incrementing `views` by 1) without fetching the record into Python memory first?",
+          "options": [
+            "Post.objects.filter(id=post_id).increment('views', 1)",
+            "post.views += 1; post.save()",
+            "Post.objects.filter(id=post_id).update(views=F('views') + 1)",
+            "Post.objects.filter(id=post_id).update(views=views + 1)"
+          ],
+          "answer": "C",
+          "explanation": "`F()` expressions represent the value of a model field directly in SQL, executing `UPDATE posts SET views = views + 1` at the database level and avoiding race conditions."
+        },
+        {
+          "question": "What is the key performance difference between `select_related()` and `prefetch_related()` in Django ORM?",
+          "options": [
+            "`select_related` uses SQL JOINs for single-valued relationships (ForeignKey, OneToOne); `prefetch_related` performs separate batch queries in Python for multi-valued relationships (ManyToMany, reverse ForeignKeys).",
+            "`select_related` deletes unreferenced rows; `prefetch_related` inserts new rows.",
+            "`select_related` caches queries in Redis; `prefetch_related` writes queries to disk.",
+            "`select_related` is for PostgreSQL only; `prefetch_related` is for MySQL only."
+          ],
+          "answer": "A",
+          "explanation": "`select_related` executes an SQL `JOIN` on single-object relationships (OneToOne, ForeignKey), whereas `prefetch_related` issues an extra query with `IN (...)` and joins data in Python memory (ManyToMany, reverse ForeignKeys)."
+        },
+        {
+          "question": "What common database performance problem is solved by using `select_related()` and `prefetch_related()`?",
+          "options": [
+            "Deadlocks caused by missing primary key indexes.",
+            "SQL syntax parsing overhead in the web browser.",
+            "Database connection pooling timeout errors.",
+            "The N+1 Queries problem, where iterating over N items triggers N individual secondary database queries."
+          ],
+          "answer": "D",
+          "explanation": "Without eager loading, accessing related attributes inside a loop executes 1 query for the parent list plus N separate queries for each related item (N+1 queries)."
+        },
+        {
+          "question": "What is the difference between `aggregate()` and `annotate()` in Django ORM?",
+          "options": [
+            "`aggregate()` is only for integer fields; `annotate()` is for strings.",
+            "`aggregate()` computes a summary across the entire QuerySet returning a dictionary; `annotate()` calculates per-row aggregations returning an enriched QuerySet.",
+            "`aggregate()` filters rows; `annotate()` sorts rows.",
+            "`aggregate()` creates new tables; `annotate()` deletes columns."
+          ],
+          "answer": "B",
+          "explanation": "`aggregate(Avg('price'))` returns a single summary dictionary `{'price__avg': 29.99}`, while `annotate(order_count=Count('orders'))` adds a computed attribute to each object in the QuerySet."
+        },
+        {
+          "question": "Which command generates new migration Python scripts based on changes detected in your `models.py` files?",
+          "options": [
+            "python manage.py db-generate",
+            "python manage.py migrate --generate",
+            "python manage.py makemigrations",
+            "python manage.py createmigrations"
+          ],
+          "answer": "C",
+          "explanation": "`python manage.py makemigrations` inspects model declarations against existing migration history and writes new numbered migration files."
+        },
+        {
+          "question": "Which command executes pending migrations and applies schema changes to the connected SQL database?",
+          "options": [
+            "python manage.py migrate",
+            "python manage.py applymigrations",
+            "python manage.py db-sync",
+            "python manage.py runmigrations"
+          ],
+          "answer": "A",
+          "explanation": "`python manage.py migrate` synchronizes the database schema with the current set of models and migrations."
+        },
+        {
+          "question": "Which command allows you to view the raw SQL statements that a specific migration will execute without actually applying them?",
+          "options": [
+            "python manage.py showsql <app_name>",
+            "python manage.py migrate --dry-run-sql",
+            "python manage.py inspectdb <migration_number>",
+            "python manage.py sqlmigrate <app_name> <migration_number>"
+          ],
+          "answer": "D",
+          "explanation": "`python manage.py sqlmigrate <app> <number>` prints the exact SQL DDL statements generated for that migration."
+        },
+        {
+          "question": "Where does Django store the history of applied migrations in the database to track which migrations have run?",
+          "options": [
+            "In a hidden `.migrations.log` text file at the project root.",
+            "Inside the PostgreSQL system catalogue `pg_proc`.",
+            "In a dedicated database table named `django_migrations`.",
+            "In the browser's LocalStorage."
+          ],
+          "answer": "C",
+          "explanation": "Django records all applied migration filenames and execution timestamps in the `django_migrations` table."
+        },
+        {
+          "question": "How do you roll back all migrations for an app named `store` back to its initial unmigrated state?",
+          "options": [
+            "python manage.py migrate store zero",
+            "python manage.py unapply store",
+            "python manage.py migrate store --reset",
+            "python manage.py rollback store --all"
+          ],
+          "answer": "A",
+          "explanation": "`python manage.py migrate <app_name> zero` rolls back all applied migrations for that specific application."
+        },
+        {
+          "question": "What happens when you add a new non-nullable field without a default value to an existing model with existing database rows during `makemigrations`?",
+          "options": [
+            "Django silently sets all existing rows to null and crashes the database on save.",
+            "Django prompts you interactively in the terminal to either provide a one-off default now or quit and specify a default in `models.py`.",
+            "Django deletes all existing database rows automatically to satisfy the constraint.",
+            "Django aborts with a fatal OS error."
+          ],
+          "answer": "B",
+          "explanation": "Because existing rows cannot have NULL in a NOT NULL column, Django interactively requests a default value or instructs the developer to add `default=...` or `null=True`."
+        },
+        {
+          "question": "Which method is the most efficient way to check if at least one record matching a query exists in the database?",
+          "options": [
+            "Book.objects.filter(is_published=True).count() > 0",
+            "Book.objects.filter(is_published=True).exists()",
+            "bool(list(Book.objects.filter(is_published=True)))",
+            "len(Book.objects.filter(is_published=True)) > 0"
+          ],
+          "answer": "B",
+          "explanation": "`.exists()` executes an optimized `SELECT (1) AS a FROM table WHERE ... LIMIT 1` query without fetching or counting all rows."
+        },
+        {
+          "question": "How can you extract only a list of scalar values for a single column across multiple records, such as all user email addresses?",
+          "options": [
+            "User.objects.values_list('email', flat=True)",
+            "User.objects.values('email').to_list()",
+            "User.objects.select_column('email')",
+            "User.objects.only('email').as_list()"
+          ],
+          "answer": "A",
+          "explanation": "`values_list('field', flat=True)` returns a flat QuerySet of single values `['a@x.com', 'b@x.com']` instead of tuples or dictionaries."
+        },
+        {
+          "question": "How can you wrap multiple database operations inside a single atomic transaction so that all succeed or all roll back together?",
+          "options": [
+            "with django.transaction():\n    pass",
+            "from django.db import transaction\nwith transaction.atomic():\n    # perform database operations",
+            "from django.db import session\nwith session.begin_transaction():\n    pass",
+            "@database.commit_on_success\ndef handle(): pass"
+          ],
+          "answer": "B",
+          "explanation": "`transaction.atomic()` manages database transactions. If an unhandled exception occurs inside the block, all database modifications are automatically rolled back."
+        },
+        {
+          "question": "What does the `~` operator do when used with a `Q` object in Django queries, e.g. `User.objects.filter(~Q(status='banned'))`?",
+          "options": [
+            "Performs a bitwise XOR against the primary key.",
+            "Searches for approximate fuzzy string matches.",
+            "Disables database indexing for that query.",
+            "Negates the condition, matching all records where status is NOT 'banned' (SQL `NOT (status = 'banned')`)."
+          ],
+          "answer": "D",
+          "explanation": "The `~` operator in front of a `Q()` object negates the clause, equivalent to `.exclude(status='banned')`."
+        },
+        {
+          "question": "Which command shows the status of all migrations across all installed apps, marking applied migrations with `[X]` and unapplied with `[ ]`?",
+          "options": [
+            "python manage.py listmigrations",
+            "python manage.py checkmigrations",
+            "python manage.py showmigrations",
+            "python manage.py migration-status"
+          ],
+          "answer": "C",
+          "explanation": "`python manage.py showmigrations` outputs a list of all migration files grouped by app with an `[X]` indicator next to applied migrations."
+        }
+      ]
+    },
+    {
+      "lessonId": "lesson-1787204688502",
+      "lessonTitle": "Admin Interface Customization & Model Managers",
+      "totalQuestions": 20,
+      "questions": [
+        {
+          "question": "What decorator or method is used to register a model class `Product` along with its custom `ProductAdmin` options class in `admin.py`?",
+          "options": [
+            "@admin.site.model(Product)\nclass ProductAdmin: pass",
+            "@admin.register(Product)\nclass ProductAdmin(admin.ModelAdmin): pass",
+            "admin.register_model(Product, ProductAdmin)",
+            "@admin.controller(Product)\nclass ProductAdmin: pass"
+          ],
+          "answer": "B",
+          "explanation": "Models can be registered either via the `@admin.register(ModelClass)` class decorator or with `admin.site.register(ModelClass, AdminClass)`."
+        },
+        {
+          "question": "Which `ModelAdmin` attribute specifies the list of model fields displayed as columns in the admin change list table view?",
+          "options": [
+            "columns = ['title', 'author', 'price', 'created_at']",
+            "show_fields = ('title', 'author', 'price', 'created_at')",
+            "list_display = ('title', 'author', 'price', 'created_at')",
+            "table_fields = ('title', 'author', 'price', 'created_at')"
+          ],
+          "answer": "C",
+          "explanation": "`list_display` is a tuple or list of field names (or callable methods) displayed as tabular columns in the Django admin change list."
+        },
+        {
+          "question": "Which `ModelAdmin` attribute adds interactive sidebar filter widgets for specific fields (such as status, created_date, category)?",
+          "options": [
+            "filters = ('status', 'created_at', 'category')",
+            "list_filter = ('status', 'created_at', 'category')",
+            "filter_by = ('status', 'created_at', 'category')",
+            "sidebar_filters = ['status', 'created_at', 'category']"
+          ],
+          "answer": "B",
+          "explanation": "`list_filter` activates right-hand sidebar filtering widgets for specified fields in the change list view."
+        },
+        {
+          "question": "Which `ModelAdmin` attribute enables a search box at the top of the admin page to search across text columns?",
+          "options": [
+            "search_fields = ('title', 'content', 'author__username')",
+            "query_fields = ('title', 'content')",
+            "lookup_fields = ('title', 'content')",
+            "searchable = ('title', 'content')"
+          ],
+          "answer": "A",
+          "explanation": "`search_fields` adds a search bar that queries the specified database fields using SQL `LIKE` / `ILIKE` clauses (supporting related field lookups like `author__username`)."
+        },
+        {
+          "question": "What is the difference between `admin.TabularInline` and `admin.StackedInline`?",
+          "options": [
+            "`TabularInline` is for SQL databases; `StackedInline` is for NoSQL databases.",
+            "`TabularInline` is read-only; `StackedInline` allows writes.",
+            "`TabularInline` limits child records to 10; `StackedInline` has no limits.",
+            "`TabularInline` displays child records in a compact horizontal table grid; `StackedInline` displays each child record in a stacked block of individual form fields."
+          ],
+          "answer": "D",
+          "explanation": "Both inline classes allow editing related child objects on the parent admin page. `TabularInline` renders child rows horizontally (table), whereas `StackedInline` renders them stacked vertically."
+        },
+        {
+          "question": "Which `ModelAdmin` attribute allows specific columns to be edited directly in the change list table without opening each object's individual detail page?",
+          "options": [
+            "editable_fields = ('price', 'status')",
+            "inline_edit = ('price', 'status')",
+            "quick_edit = ('price', 'status')",
+            "list_editable = ('price', 'status')"
+          ],
+          "answer": "D",
+          "explanation": "`list_editable` specifies fields that can be edited and saved directly from the admin change list view."
+        },
+        {
+          "question": "What is the purpose of `prepopulated_fields = {'slug': ('title',)}` in a `ModelAdmin`?",
+          "options": [
+            "Calculates the SHA-256 checksum of the title.",
+            "Fills the `slug` column with random UUID strings on save.",
+            "Automatically populates the `slug` input field with a URL-safe slug generated from the `title` field in real time via JavaScript as the user types.",
+            "Translates the `title` into multiple foreign languages."
+          ],
+          "answer": "C",
+          "explanation": "`prepopulated_fields` attaches client-side JavaScript to auto-fill fields (like slugs) from source fields (like titles) while editing in the admin."
+        },
+        {
+          "question": "How do you create a custom Model Manager in Django that returns only published articles?",
+          "options": [
+            "class PublishedManager(models.Manager):\n    def get_queryset(self):\n        return super().get_queryset().filter(status='published')",
+            "class PublishedManager:\n    def filter_published(self):\n        return self.objects.all()",
+            "class PublishedManager(models.Admin):\n    def query(self):\n        return self.published()",
+            "class PublishedManager(models.Model):\n    status = 'published'"
+          ],
+          "answer": "A",
+          "explanation": "A custom manager subclasses `models.Manager` and overrides `get_queryset()` to provide a pre-filtered base QuerySet."
+        },
+        {
+          "question": "If a model defines `published = PublishedManager()` and `objects = models.Manager()`, how do you query only published records?",
+          "options": [
+            "Article.published.all()",
+            "Article.get_published()",
+            "Article.managers.published()",
+            "Article.objects.published()"
+          ],
+          "answer": "A",
+          "explanation": "The custom manager is accessed via its attribute name on the model class (`Article.published.all()`)."
+        },
+        {
+          "question": "Which `ModelAdmin` attribute organizes form fields into distinct titled visual sections with optional collapsible styling?",
+          "options": [
+            "form_divisions = {'Main': ['title'], 'Meta': ['status']}",
+            "fieldsets = ((None, {'fields': ('title', 'content')}), ('Metadata', {'classes': ('collapse',), 'fields': ('slug', 'status')}))",
+            "sections = {'General': ['title', 'content'], 'Metadata': ['slug', 'status']}",
+            "groups = (('title', 'content'), ('slug', 'status'))"
+          ],
+          "answer": "B",
+          "explanation": "`fieldsets` controls the layout of admin 'add' and 'change' forms, allowing section headers, field groupings, and CSS classes like `'collapse'`."
+        },
+        {
+          "question": "How do you define a custom bulk action in `ModelAdmin` (e.g. marking selected articles as 'published')?",
+          "options": [
+            "Create a POST route in `urls.py` named `/admin/bulk_publish/`.",
+            "Add `bulk_actions = ['published']` in models.py.",
+            "Define a function `def make_published(modeladmin, request, queryset): queryset.update(status='published')` and add it to `actions = [make_published]`.",
+            "Override `def bulk_update(self):` inside `class Meta:`."
+          ],
+          "answer": "C",
+          "explanation": "Admin actions are functions taking `(modeladmin, request, queryset)` that perform bulk operations on selected QuerySets, registered via `actions = [...]`."
+        },
+        {
+          "question": "What decorator is used in Django 3.2+ to configure custom column headers and ordering on custom admin methods?",
+          "options": [
+            "@admin.column(title='Word Count')",
+            "@admin.property(name='Word Count')",
+            "@admin.display(description='Word Count', ordering='content_length')",
+            "@admin.field_header('Word Count')"
+          ],
+          "answer": "C",
+          "explanation": "The `@admin.display` decorator sets the column title (`description`), sorting field (`ordering`), and boolean icon formatting (`boolean=True`) on admin methods."
+        },
+        {
+          "question": "Which `ModelAdmin` attribute prevents selected fields from being edited by admin users, displaying them as read-only text?",
+          "options": [
+            "locked_columns = ('created_at', 'updated_at')",
+            "immutable_fields = ('created_at', 'updated_at')",
+            "disabled_fields = ('created_at', 'updated_at')",
+            "readonly_fields = ('created_at', 'updated_at', 'id')"
+          ],
+          "answer": "D",
+          "explanation": "`readonly_fields` renders specified fields as uneditable text in the change form, essential for auto-generated timestamps and IDs."
+        },
+        {
+          "question": "When a ForeignKey relates to a table with tens of thousands of rows, which `ModelAdmin` option replaces the slow default `<select>` dropdown with an AJAX autocomplete search field?",
+          "options": [
+            "autocomplete_fields = ['customer', 'product']",
+            "fast_foreign_keys = ['customer', 'product']",
+            "ajax_dropdowns = ['customer', 'product']",
+            "async_select = ['customer', 'product']"
+          ],
+          "answer": "A",
+          "explanation": "`autocomplete_fields` uses Select2 AJAX search to load foreign key choices efficiently, requiring `search_fields` to be defined on the target model's `ModelAdmin`."
+        },
+        {
+          "question": "Which `ModelAdmin` attribute sets the number of items displayed per page in the change list view?",
+          "options": [
+            "page_size = 50",
+            "list_per_page = 50",
+            "items_per_page = 50",
+            "paginate_by = 50"
+          ],
+          "answer": "B",
+          "explanation": "`list_per_page` controls the pagination limit in the Django admin change list view (default is 100)."
+        },
+        {
+          "question": "What is the primary benefit of defining custom QuerySet methods and converting them to a manager using `models.QuerySet.as_manager()`?",
+          "options": [
+            "It disables SQL logging to save disk space.",
+            "It automatically compiles Python queries into C++ binaries.",
+            "It makes the admin dashboard load without JavaScript.",
+            "It allows custom query helper methods to be chained seamlessly (e.g. `Article.objects.published().by_author(user)`)."
+          ],
+          "answer": "D",
+          "explanation": "Using `QuerySet.as_manager()` exposes custom methods on both the Manager and the returned QuerySet, allowing query chaining."
+        },
+        {
+          "question": "How can you restrict an admin user's access so they can only view and edit records they created themselves?",
+          "options": [
+            "Override `get_queryset(self, request)` in the `ModelAdmin` to filter `qs.filter(author=request.user)`.",
+            "Delete the `admin.py` file completely.",
+            "Modify the SQL database user grants directly in PostgreSQL.",
+            "Set `isolated_users = True` in `settings.py`."
+          ],
+          "answer": "A",
+          "explanation": "Overriding `get_queryset(self, request)` in `ModelAdmin` dynamically filters the records visible to the current authenticated admin user."
+        },
+        {
+          "question": "How do you customize the main header and title displayed across the entire Django Admin site?",
+          "options": [
+            "admin.config.set_title(\"My Custom Admin\")",
+            "templates.admin.title = \"My Custom Admin\"",
+            "settings.ADMIN_TITLE = \"My Custom Admin\"",
+            "admin.site.site_header = \"My Custom Admin\"\nadmin.site.site_title = \"My Portal Admin\""
+          ],
+          "answer": "D",
+          "explanation": "`admin.site.site_header`, `admin.site.site_title`, and `admin.site.index_title` can be customized in `urls.py` or `admin.py`."
+        },
+        {
+          "question": "What happens if a custom admin method returns a boolean value and is decorated with `@admin.display(boolean=True)`?",
+          "options": [
+            "Django raises a TypeError because HTML tables cannot render booleans.",
+            "Django displays a visual green checkmark icon for `True` and a red 'X' icon for `False` in the change list table.",
+            "Django converts the value to a checkbox that immediately deletes the row when clicked.",
+            "Django prints the words 'TRUE_VAL' and 'FALSE_VAL' in bold italics."
+          ],
+          "answer": "B",
+          "explanation": "Setting `boolean=True` tells Django Admin to render pretty check/cross SVG icons instead of raw text `True`/`False`."
+        },
+        {
+          "question": "What happens when you delete an object from within the Django admin change form?",
+          "options": [
+            "The database is immediately updated without any confirmation prompt.",
+            "Django sends an email verification link to all registered staff users.",
+            "Django displays a confirmation page listing all related objects that will also be cascade-deleted before prompting the user for final confirmation.",
+            "The deletion request is queued for 24 hours before execution."
+          ],
+          "answer": "C",
+          "explanation": "Django Admin inspects all foreign key relationships and displays a comprehensive cascade deletion warning page before permanently deleting records."
+        }
+      ]
+    }
+  ]
+}

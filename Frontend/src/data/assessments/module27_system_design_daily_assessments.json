@@ -1,0 +1,691 @@
+{
+  "courseId": "crs-1786624019154-w",
+  "courseTitle": "Python Full Stack + DSA with AI",
+  "stageId": "top-stg-4",
+  "stageTitle": "Stage 4: System Design & Career Preparation",
+  "moduleId": "mod-stg4-m1",
+  "moduleTitle": "System Design & Software Architecture",
+  "lessons": [
+    {
+      "lessonId": "lesson-stg4-m1-l1",
+      "lessonTitle": "System Design Fundamentals: HLD vs LLD",
+      "totalQuestions": 20,
+      "questions": [
+        {
+          "question": "What is the primary distinction between High-Level Design (HLD) and Low-Level Design (LLD) in software engineering?",
+          "options": [
+            "HLD is written in HTML, while LLD is written in Python.",
+            "HLD focuses on overall system architecture, component boundaries, database choices, caching, and data flows, whereas LLD defines detailed class diagrams, method signatures, design patterns, and database schemas.",
+            "HLD describes hardware server specifications, while LLD describes operating system kernels.",
+            "HLD is only used by frontend developers, while LLD is used exclusively by DevOps engineers."
+          ],
+          "answer": "B",
+          "explanation": "HLD provides macro architectural structure (services, load balancers, messaging, data stores), while LLD provides micro code-level implementation details (classes, interfaces, design patterns)."
+        },
+        {
+          "question": "In System Design interviews and architecture planning, what is the difference between Functional and Non-Functional Requirements?",
+          "options": [
+            "Functional requirements are optional, while Non-Functional requirements are mandatory.",
+            "Functional requirements only apply to Python functions.",
+            "Functional requirements deal with database backups, while Non-Functional requirements deal with UI colors.",
+            "Functional requirements define what features the system must do (e.g. user can post a tweet), while Non-Functional requirements define how the system performs (e.g. latency < 100ms, 99.99% availability, 100M daily active users)."
+          ],
+          "answer": "D",
+          "explanation": "Functional requirements capture behavior and business features; non-functional requirements capture quality attributes like throughput, latency, consistency, fault tolerance, and security."
+        },
+        {
+          "question": "According to the CAP Theorem, why is it impossible for a distributed data store to simultaneously provide Consistency, Availability, and Partition Tolerance in the presence of a network partition?",
+          "options": [
+            "Because network partitions (P) are inevitable physical network failures; when nodes cannot communicate, the system must either refuse writes to maintain Consistency (CP) or accept writes on isolated nodes sacrificing Consistency to stay Available (AP).",
+            "Because computer processors can only execute 32-bit instructions during network outages.",
+            "Because distributed databases cannot use hard drives.",
+            "Because the CAP theorem only applies to single-server SQLite databases."
+          ],
+          "answer": "A",
+          "explanation": "In distributed systems, network partitions are inevitable. When a split occurs, choosing availability means stale data on disconnected nodes (AP); choosing consistency means blocking requests until the partition heals (CP)."
+        },
+        {
+          "question": "What does the PACELC Theorem add to the traditional CAP Theorem?",
+          "options": [
+            "It calculates electricity power consumption of database servers.",
+            "It defines how to configure Python virtual environments.",
+            "It states that IF there is a Partition (P), trade off Availability (A) and Consistency (C); ELSE (E), trade off Latency (L) and Consistency (C) during normal operation.",
+            "It encrypts database network traffic with AES-256."
+          ],
+          "answer": "C",
+          "explanation": "PACELC addresses normal operation when no partition exists: systems must still choose between lower latency (eventual consistency) or strong consistency (replication synchronization delay)."
+        },
+        {
+          "question": "How is peak Queries Per Second (QPS) estimated in back-of-the-envelope calculations if an application handles 50 million daily active users making an average of 20 requests per day?",
+          "options": [
+            "Peak QPS = 50,000,000 / 20 = 2,500,000 QPS.",
+            "Peak QPS = 50 * 20 * 86,400 = 86.4M QPS.",
+            "Total Daily Requests = 50M * 20 = 1 Billion; Average QPS = 1,000,000,000 / 86,400 ≈ 11,574 QPS; Peak QPS (typically 2x average) ≈ 23,150 QPS.",
+            "Peak QPS is always exactly 100 QPS on all servers."
+          ],
+          "answer": "C",
+          "explanation": "1B total requests / 86,400 seconds in a day gives ~11.6k avg QPS. Accounting for standard peak traffic multiplier (2x) yields ~23.2k peak QPS."
+        },
+        {
+          "question": "What is the 80/20 Pareto Rule in memory cache sizing estimation for high-scale systems?",
+          "options": [
+            "80% of daily read traffic is typically generated by 20% of the hot data objects; therefore, caching 20% of the daily active dataset in RAM handles ~80% of all read requests.",
+            "80% of servers should run on Linux and 20% on Windows.",
+            "20% of developers write 80% of the codebase.",
+            "80% of database memory should be reserved for the operating system."
+          ],
+          "answer": "A",
+          "explanation": "The 80/20 rule is a standard estimation heuristic: sizing cache memory to hold the top 20% most popular items satisfies 80% of all read traffic from memory."
+        },
+        {
+          "question": "What is the purpose of an 'Idempotency Key' in REST API design for financial payment transactions?",
+          "options": [
+            "To encrypt credit card numbers with SHA-1.",
+            "To ensure that if a client retries a payment request due to a network timeout, the server recognizes the unique key and executes the payment exactly once, preventing accidental duplicate charges.",
+            "To compress HTTP request payloads into ZIP archives.",
+            "To generate random discounts for users."
+          ],
+          "answer": "B",
+          "explanation": "An `Idempotency-Key` header allows clients to safely retry state-changing requests (like charges or orders) without risking duplicate processing."
+        },
+        {
+          "question": "Why is Cursor-Based Pagination preferred over Offset-Based Pagination (`OFFSET 10000 LIMIT 20`) for massive database datasets?",
+          "options": [
+            "Offset pagination scans and discards all skipped rows (O(N) time), causing severe query degradation on deep pages and pagination drift when new rows are inserted; cursor pagination seeks directly using indexed columns (`WHERE id > last_seen_id LIMIT 20`) in O(1) time.",
+            "Because offset pagination only works with MySQL.",
+            "Because cursor pagination deletes older rows automatically.",
+            "Because offset pagination requires writing C++ code."
+          ],
+          "answer": "A",
+          "explanation": "Cursor pagination uses indexed pointer comparisons (`WHERE id > cursor`), maintaining constant O(1) query time regardless of page depth."
+        },
+        {
+          "question": "What is a 'Single Point of Failure' (SPOF) and how is it eliminated in high-availability system design?",
+          "options": [
+            "A bug in a Python while loop that runs forever.",
+            "A hardware keyboard with a broken Enter key.",
+            "A single developer who knows the password to the production database.",
+            "A single component whose failure causes the entire system to stop functioning; eliminated by introducing redundancy (active-passive or active-active replicas) with automated failover."
+          ],
+          "answer": "D",
+          "explanation": "SPOF occurs when any un-replicated component (database, load balancer, DNS) can bring down the entire application upon failure. Redundancy and failover eliminate SPOF."
+        },
+        {
+          "question": "What is the 'Token Bucket' algorithm commonly used for in API gateways and rate limiters?",
+          "options": [
+            "An algorithm that sorts arrays in O(n) time.",
+            "A method of storing user passwords securely.",
+            "Tokens are added to a bucket at a constant refill rate up to a max capacity; each incoming request consumes a token; if the bucket is empty, requests are rejected, allowing controlled bursts while capping average throughput.",
+            "A tokenization strategy used for training LLM models."
+          ],
+          "answer": "C",
+          "explanation": "The Token Bucket algorithm regulates traffic flow, allowing short bursts of requests up to bucket capacity while enforcing a smooth long-term refill rate."
+        },
+        {
+          "question": "How does Twitter's 'Snowflake' algorithm generate 64-bit unique IDs across distributed database clusters without centralized coordination?",
+          "options": [
+            "By hashing the user's username with MD5.",
+            "By combining a timestamp (41 bits), a machine/datacenter ID (10 bits), and a local auto-incrementing sequence counter (12 bits) in a 64-bit integer, ensuring time-sortability and global uniqueness.",
+            "By generating random 128-bit UUID strings.",
+            "By querying a single central MySQL auto-increment table."
+          ],
+          "answer": "B",
+          "explanation": "Snowflake IDs are 64-bit integers composed of timestamp + worker node ID + sequence number, guaranteeing time-ordered uniqueness across decentralized clusters."
+        },
+        {
+          "question": "What is Consistent Hashing and why is it essential for distributed caching systems (like Memcached or DynamoDB)?",
+          "options": [
+            "It maps both servers and data keys to positions on a circular hash ring; when a server node is added or removed, only k/N keys (where k is total keys and N is total servers) need to be remapped rather than reshuffling all keys.",
+            "It encrypts cache keys with public-private keypairs.",
+            "It stores all keys in alphabetical order.",
+            "It ensures all hash values are even numbers."
+          ],
+          "answer": "A",
+          "explanation": "Consistent hashing minimizes key redistribution during scale-out or scale-in events (remapping only ~1/N of keys), avoiding mass cache invalidation."
+        },
+        {
+          "question": "What is the 'Single Responsibility Principle' (SRP) in SOLID software design?",
+          "options": [
+            "A program must only contain a single function.",
+            "Only one software engineer is allowed to modify a file.",
+            "A database table can only contain a single column.",
+            "A class or module should have one, and only one, reason to change, meaning it should perform a single cohesive task or business capability."
+          ],
+          "answer": "D",
+          "explanation": "SRP dictates that each class or microservice should encapsulate a single responsibility, reducing coupling and making maintenance straightforward."
+        },
+        {
+          "question": "In Low-Level Design (LLD), what is the 'Strategy Design Pattern'?",
+          "options": [
+            "A military strategy used for server room defense.",
+            "A pattern that creates a single global database instance.",
+            "A pattern that converts class objects into JSON strings.",
+            "A behavioral design pattern that defines a family of interchangeable algorithms, encapsulates each one inside a separate class, and allows the algorithm to vary dynamically at runtime based on context."
+          ],
+          "answer": "D",
+          "explanation": "The Strategy pattern (e.g. `PaymentStrategy` with `CreditCardPayment`, `PayPalPayment`, `CryptoPayment`) enables selecting execution logic polymorphically at runtime."
+        },
+        {
+          "question": "What is the 'Observer Design Pattern'?",
+          "options": [
+            "A pattern where developers watch code execute on a screen.",
+            "A behavioral pattern where a subject maintains a list of dependents ('observers') and automatically notifies them of state changes (e.g. event listeners, pub/sub notification systems).",
+            "A database indexing algorithm.",
+            "A compiler tool that searches for syntax errors."
+          ],
+          "answer": "B",
+          "explanation": "The Observer pattern defines a one-to-many dependency between objects so that when one object changes state, all its dependents are notified automatically."
+        },
+        {
+          "question": "What is Database 'Denormalization' and when is it deliberately used in high-scale systems?",
+          "options": [
+            "Deleting foreign key constraints during development.",
+            "Intentionally introducing redundant data into database tables to eliminate expensive multi-table SQL JOIN operations, drastically accelerating read query performance in read-heavy systems.",
+            "Splitting tables into 100 separate small tables.",
+            "Corrupting database indexes to save disk space."
+          ],
+          "answer": "B",
+          "explanation": "Denormalization trades write complexity and storage redundancy for ultrafast reads by pre-joining frequently requested data."
+        },
+        {
+          "question": "What is the difference between RPO (Recovery Point Objective) and RTO (Recovery Time Objective) in disaster recovery planning?",
+          "options": [
+            "RPO measures CPU speed, while RTO measures RAM size.",
+            "They are identical terms with no difference.",
+            "RPO defines the maximum acceptable data loss measured in time (e.g. 5 minutes of lost transactions), while RTO defines the maximum acceptable downtime to restore the system to service (e.g. 1 hour).",
+            "RPO applies to frontend, while RTO applies to backend."
+          ],
+          "answer": "C",
+          "explanation": "RPO is about data loss tolerance (backup frequency), while RTO is about business recovery speed (how quickly servers can be brought back online)."
+        },
+        {
+          "question": "What is a 'Dirty Read' database anomaly and under which isolation level can it occur?",
+          "options": [
+            "Reading data from an unencrypted network connection.",
+            "Reading data from a hard drive that has physical dust on it.",
+            "A transaction reads uncommitted data modified by another concurrent transaction that is later rolled back; can occur under the 'Read Uncommitted' isolation level.",
+            "A transaction reading committed data twice and seeing different results."
+          ],
+          "answer": "C",
+          "explanation": "Dirty reads happen under `READ UNCOMMITTED` when Transaction A reads changes made by Transaction B before Transaction B commits (and if B rolls back, A holds phantom invalid data)."
+        },
+        {
+          "question": "What does '99.99%' ('Four Nines') service availability translate to in terms of maximum allowable downtime per year?",
+          "options": [
+            "Approximately 52.6 minutes of total downtime per year.",
+            "Approximately 3.65 days of downtime per year.",
+            "Zero seconds of downtime permanently.",
+            "Approximately 8.76 hours of downtime per year."
+          ],
+          "answer": "A",
+          "explanation": "99.9% (Three Nines) = ~8.76 hours/yr. 99.99% (Four Nines) = 0.0001 * 365.25 * 24 * 60 = ~52.56 minutes of downtime/year."
+        },
+        {
+          "question": "What is the difference between an SLA (Service Level Agreement) and an SLO (Service Level Objective)?",
+          "options": [
+            "There is no difference between SLA and SLO.",
+            "SLAs are written in Python, while SLOs are written in SQL.",
+            "An SLA is set by engineers, while an SLO is set by law enforcement.",
+            "An SLO is an internal target metric for service reliability (e.g. 99.95% successful requests), while an SLA is a legally binding contract with customers that includes financial penalties if the service fails to meet the threshold."
+          ],
+          "answer": "D",
+          "explanation": "SLOs are internal quality goals that teams strive to meet, while SLAs are formal contractual commitments with external customers carrying financial repercussions."
+        }
+      ]
+    },
+    {
+      "lessonId": "lesson-stg4-m1-l2",
+      "lessonTitle": "Load Balancing & Database Sharding",
+      "totalQuestions": 20,
+      "questions": [
+        {
+          "question": "What is the key technical difference between a Layer 4 (L4) and a Layer 7 (L7) Load Balancer?",
+          "options": [
+            "L4 is software only, while L7 is hardware only.",
+            "L4 operates at the Transport layer (TCP/UDP), routing packets based on IP address and port without inspecting payload data; L7 operates at the Application layer (HTTP/HTTPS), inspecting headers, cookies, and URL paths for intelligent content-based routing.",
+            "L7 operates on the physical copper ethernet wire.",
+            "L4 can only route emails, while L7 can only route video streams."
+          ],
+          "answer": "B",
+          "explanation": "L4 load balancing makes fast routing decisions based on IP/TCP ports; L7 load balancing terminates HTTP/TLS connections and routes based on URL paths, HTTP headers, or cookies."
+        },
+        {
+          "question": "What is the 'Weighted Round Robin' load balancing algorithm?",
+          "options": [
+            "Sending requests only to the single heaviest server.",
+            "Sending all requests to the database server directly.",
+            "Selecting random servers using a dice roll.",
+            "Distributing incoming requests sequentially across a pool of servers in proportion to pre-assigned weight values reflecting each server's hardware capacity (CPU/RAM)."
+          ],
+          "answer": "D",
+          "explanation": "Weighted Round Robin assigns higher traffic proportions to more powerful servers according to their designated weight rating."
+        },
+        {
+          "question": "How does 'Database Sharding' differ from standard 'Primary-Replica (Master-Slave) Replication'?",
+          "options": [
+            "Replication copies the exact same complete database dataset across multiple read replicas (scaling read throughput); Sharding splits a huge dataset into disjoint horizontal partitions across multiple servers (scaling write throughput and storage capacity).",
+            "Replication only works on Linux, while Sharding only works on Windows.",
+            "Sharding deletes old data, while Replication keeps all data.",
+            "Replication requires 100 servers, while Sharding requires only 1 server."
+          ],
+          "answer": "A",
+          "explanation": "Replication scales reads by duplicating data. Sharding scales writes and storage by partitioning rows across distinct database instances."
+        },
+        {
+          "question": "What is a 'Shard Key' and why is selecting the proper Shard Key critical in distributed database architecture?",
+          "options": [
+            "A cryptographic password used to unlock database servers.",
+            "A unique serial number printed on the motherboard.",
+            "A column (or attribute) chosen to determine which physical shard stores a given row; a poor choice causes data skew and 'hotspotting' (one shard overwhelmed while others idle), whereas a good key provides high cardinality and uniform distribution.",
+            "An API secret key used for payment gateways."
+          ],
+          "answer": "C",
+          "explanation": "The shard key dictates data placement. High cardinality and uniform distribution (e.g. `user_id` with consistent hashing) prevent hotspotting."
+        },
+        {
+          "question": "What is the 'Celebrity / Hotspot Problem' in database sharding and how can it be mitigated?",
+          "options": [
+            "When a server room gets physically too hot during summer.",
+            "When the database runs out of disk space on all shards.",
+            "When an extremely popular entity (e.g., a celebrity user with 50M followers) causes massive write/read traffic concentrated entirely on a single shard; mitigated by adding secondary salt keys or caching celebrity feeds in Redis/CDN.",
+            "When famous developers edit the database schema."
+          ],
+          "answer": "C",
+          "explanation": "High-volume celebrity accounts create concentrated hotspots; splitting their data with salt prefixes or caching fan-out feeds offloads the primary shard."
+        },
+        {
+          "question": "What is the primary architectural drawback of executing cross-shard JOIN queries in a sharded database system?",
+          "options": [
+            "Cross-shard JOINs require fetching massive intermediate datasets over the network from multiple physical database nodes and merging them in application memory, causing catastrophic latency and network saturation.",
+            "Cross-shard JOINs only work on encrypted columns.",
+            "SQL engines refuse to compile queries with more than one table.",
+            "Cross-shard JOINs delete foreign key indexes permanently."
+          ],
+          "answer": "A",
+          "explanation": "Joining across distinct shards requires distributed network fetches and manual memory stitching; production architectures avoid cross-shard JOINs by denormalizing data."
+        },
+        {
+          "question": "What is 'Range-Based Sharding' and what is its primary operational vulnerability?",
+          "options": [
+            "Partitioning data based on the physical distance between servers.",
+            "Partitioning data based on value ranges (e.g. Users A-D on Shard 1, E-H on Shard 2); vulnerable to severe uneven distribution and write hotspots if sequential keys (like timestamps or auto-incrementing IDs) are used.",
+            "Running database queries inside a Python range loop.",
+            "Sorting database tables by file size."
+          ],
+          "answer": "B",
+          "explanation": "Range sharding (e.g. by date or alphabetical name) suffers from write hotspots when new records continuously hit the current date's shard."
+        },
+        {
+          "question": "How does 'Hash-Based Sharding' distribute data across N database shards?",
+          "options": [
+            "By applying a hash function to the shard key and computing `hash(shard_key) % N` to assign each record to a deterministic shard index uniformly.",
+            "By guessing a random number between 1 and 100.",
+            "By storing all data on the first shard until it is 100% full.",
+            "By comparing ASCII string lengths."
+          ],
+          "answer": "A",
+          "explanation": "Hash sharding applies a uniform hashing algorithm to the shard key modulo number of shards, guaranteeing random uniform data distribution."
+        },
+        {
+          "question": "What is a 'Reverse Proxy' (like Nginx, Envoy, or HAProxy) and how does it differ from a 'Forward Proxy'?",
+          "options": [
+            "A Forward Proxy can only process video streams.",
+            "There is no difference; they are exact synonyms.",
+            "A Reverse Proxy runs in reverse chronological order.",
+            "A Reverse Proxy sits in front of backend web servers to protect, cache, and load-balance incoming requests on behalf of servers; a Forward Proxy sits in front of client devices to inspect, filter, or anonymize outgoing client requests to the internet."
+          ],
+          "answer": "D",
+          "explanation": "Reverse proxies shield servers from public clients (server-facing); forward proxies shield clients from public servers (client-facing, e.g. corporate VPN/firewall)."
+        },
+        {
+          "question": "What is the 'Two-Phase Commit' (2PC) protocol in distributed database transactions?",
+          "options": [
+            "A Git commit that is pushed to two branches.",
+            "A transaction that requires two separate passwords to commit.",
+            "A distributed consensus algorithm where a coordinator coordinates all participant nodes in Phase 1 (Prepare: 'Can everyone commit?') and Phase 2 (Commit: 'Execute commit') to guarantee atomic multi-node transactions.",
+            "A database backup that is copied twice."
+          ],
+          "answer": "C",
+          "explanation": "2PC guarantees all-or-nothing atomicity across distributed shards through a Prepare vote phase followed by an execute Commit/Abort phase."
+        },
+        {
+          "question": "Why is the 'Saga Pattern' often preferred over Two-Phase Commit (2PC) in high-throughput distributed microservices?",
+          "options": [
+            "Because Saga eliminates the need for database backups.",
+            "Because 2PC is a blocking protocol that holds distributed locks on resources during latency spikes, whereas the Saga pattern uses a sequence of local transactions with compensating rollback transactions, maximizing availability and throughput.",
+            "Because Saga requires zero lines of code.",
+            "Because 2PC cannot work over TCP/IP."
+          ],
+          "answer": "B",
+          "explanation": "Sagas avoid distributed lock contention by breaking transactions into localized steps linked by event messages with compensating transactions for rollbacks."
+        },
+        {
+          "question": "What is 'Global Server Load Balancing' (GSLB) using GeoDNS?",
+          "options": [
+            "Resolving DNS queries to the IP address of the geographically closest or lowest-latency datacenter based on the user's client IP location.",
+            "Translating domain names into 10 different languages.",
+            "Running database queries on satellites in space.",
+            "Balancing electric power across global datacenters."
+          ],
+          "answer": "A",
+          "explanation": "GeoDNS/GSLB inspects client DNS resolver IPs to return the A/AAAA record of the nearest regional cloud datacenter."
+        },
+        {
+          "question": "What is 'Session Affinity' (Sticky Sessions) on a load balancer and why is it generally discouraged in cloud-native scalable systems?",
+          "options": [
+            "Encrypting session cookies with AES.",
+            "Storing session data on client USB drives.",
+            "Restricting users to only one login per year.",
+            "Routing all requests from a specific user session to the exact same backend server instance; discouraged because it creates uneven load distribution and breaks user sessions if that specific server crashes or restarts."
+          ],
+          "answer": "D",
+          "explanation": "Sticky sessions bind clients to specific servers. Stateless backends storing session tokens in shared Redis clusters are far more resilient and scalable."
+        },
+        {
+          "question": "What is 'Replication Lag' in primary-replica database setups and how can it cause 'Read-Your-Own-Writes' inconsistency?",
+          "options": [
+            "A database bug that deletes random rows.",
+            "A network cable that is physically too long.",
+            "When a database runs out of RAM.",
+            "The time delay before changes committed on the primary database replicate asynchronously to read replicas; if a user writes a post and immediately reads from a lagging replica, their new post may appear missing."
+          ],
+          "answer": "D",
+          "explanation": "Under asynchronous replication, replicas lag milliseconds behind the master. If a user queries a replica immediately after a write, stale data is returned."
+        },
+        {
+          "question": "How can a system guarantee 'Read-Your-Own-Writes' consistency in a primary-replica architecture with replication lag?",
+          "options": [
+            "By disabling all database read replicas permanently.",
+            "By routing the user's read requests to the Primary database for a brief window (e.g. 5 seconds) following any write operation by that user, or tracking the user's last write timestamp.",
+            "By turning off database transactions.",
+            "By asking the user to wait 1 hour before refreshing."
+          ],
+          "answer": "B",
+          "explanation": "Routing read requests directly to the primary database for recently updated user profiles guarantees users immediately observe their own state changes."
+        },
+        {
+          "question": "What is the 'Circuit Breaker' design pattern in distributed system resilience?",
+          "options": [
+            "A firewall rule that blocks all internet traffic.",
+            "A mechanism that monitors failure rates to downstream services; when failures cross a threshold, the circuit 'opens' and immediately fails fast (or serves fallback data) without sending traffic to the overwhelmed downstream service.",
+            "A Python script that kills running threads.",
+            "A physical electrical fuse inside the server power supply."
+          ],
+          "answer": "B",
+          "explanation": "Circuit breakers prevent cascading system collapse by stopping calls to failing downstream dependencies (Closed -> Open -> Half-Open)."
+        },
+        {
+          "question": "What is 'Change Data Capture' (CDC) using tools like Debezium and Apache Kafka?",
+          "options": [
+            "A tool that takes webcam photos of developers editing code.",
+            "A database backup script that runs once a year.",
+            "Streaming row-level database changes (INSERTs, UPDATEs, DELETEs) directly from database transaction logs (WAL/binlog) to a message bus in real time to synchronize caches, search indices, and replica shards.",
+            "A Git hook that monitors file edits."
+          ],
+          "answer": "C",
+          "explanation": "CDC tails database transaction logs without application overhead, publishing real-time stream events to keep Elasticsearch, Redis, and analytics lakes synchronized."
+        },
+        {
+          "question": "What is 'Vertical Partitioning' of a database table?",
+          "options": [
+            "Rotating database tables 90 degrees.",
+            "Splitting table rows across 10 servers by ID.",
+            "Splitting a wide table with many columns into multiple smaller tables with fewer columns (e.g., separating frequently queried user profile fields from rarely accessed large `bio_text` or `avatar_blob` data).",
+            "Deleting all foreign key constraints."
+          ],
+          "answer": "C",
+          "explanation": "Vertical partitioning decomposes wide tables by column groups, keeping core small columns in cache-friendly compact rows and moving heavy BLOBs elsewhere."
+        },
+        {
+          "question": "How does an 'Active-Passive' high-availability load balancer setup work using Keepalived / VRRP?",
+          "options": [
+            "The Active load balancer handles all traffic while the Passive load balancer monitors it via heartbeat; if the Active fails, the Passive automatically takes over the Virtual IP (VIP) with minimal downtime.",
+            "The Active load balancer routes traffic to the Passive load balancer only.",
+            "The load balancers alternate handling traffic on odd and even days.",
+            "Both load balancers are turned off until a crash occurs."
+          ],
+          "answer": "A",
+          "explanation": "VRRP (Virtual Router Redundancy Protocol) shares a floating Virtual IP between an active master and a standby backup, failing over instantly upon heartbeat loss."
+        },
+        {
+          "question": "What is 'Anycast IP Routing' in global traffic distribution?",
+          "options": [
+            "Using satellite communication exclusively.",
+            "Broadcasting traffic to every computer on Earth simultaneously.",
+            "Assigning random IP addresses every 10 seconds.",
+            "Assigning the exact same public IP address to multiple server nodes in different geographic datacenters worldwide; BGP routing directs user packets to the topologically closest datacenter automatically."
+          ],
+          "answer": "D",
+          "explanation": "Anycast announces identical IP addresses across global BGP routers, enabling the Internet's routing infrastructure to direct client traffic to the closest server point."
+        }
+      ]
+    },
+    {
+      "lessonId": "lesson-stg4-m1-l3",
+      "lessonTitle": "Caching Strategies & Scalable Web Architecture",
+      "totalQuestions": 20,
+      "questions": [
+        {
+          "question": "What is the 'Cache-Aside' (Lazy Loading) caching pattern?",
+          "options": [
+            "The cache automatically writes all database tables to disk every hour.",
+            "The application first looks for data in the cache; on a cache hit, it returns data; on a cache miss, it fetches data from the database, writes it into the cache for future requests, and returns it to the user.",
+            "Data is permanently written to the cache and never stored in a database.",
+            "The database queries the cache before running SQL commands."
+          ],
+          "answer": "B",
+          "explanation": "Cache-Aside leaves the application in charge of checking cache first, querying DB on miss, and populating cache with TTL."
+        },
+        {
+          "question": "What is the 'Write-Through' caching pattern compared to the 'Write-Behind' (Write-Back) pattern?",
+          "options": [
+            "Write-Through writes only to disk, while Write-Behind writes only to tape.",
+            "There is no difference between Write-Through and Write-Behind.",
+            "Write-Through is used only in web browsers, while Write-Behind is for mobile apps.",
+            "Write-Through writes data simultaneously to both the cache and database synchronously (high consistency); Write-Behind writes data to cache immediately and asynchronously flushes batches to the database in the background (low latency, risk of data loss on crash)."
+          ],
+          "answer": "D",
+          "explanation": "Write-Through updates DB and cache in one synchronous transaction. Write-Behind updates cache and queues async DB writes, maximizing write speed."
+        },
+        {
+          "question": "What is 'Cache Penetration' and how is it prevented in high-scale systems?",
+          "options": [
+            "When requests continuously query non-existent keys (missing in both cache and DB), forcing every request to hit the database; prevented by using Bloom Filters to detect non-existent keys early and caching NULL values with short TTLs.",
+            "When an attacker physically drills into a server hard drive.",
+            "When cache memory runs out of disk space.",
+            "When cache keys are corrupted by cosmic rays."
+          ],
+          "answer": "A",
+          "explanation": "Cache penetration bypasses cache because keys don't exist. Bloom filters and short-lived NULL cache entries shield the database from repeated empty lookups."
+        },
+        {
+          "question": "What is a 'Cache Stampede' (Cache Breakdown) and what is the standard architectural mitigation?",
+          "options": [
+            "When a datacenter server rack catches fire.",
+            "When a developer deletes the Redis database by accident.",
+            "When a heavily accessed 'hot' key expires and hundreds of concurrent requests simultaneously miss the cache and hit the database to recompute it; mitigated by mutex locking (single-flight) or probabilistic early expiration (XFetch algorithm).",
+            "When the database executes 10,000 migrations at once."
+          ],
+          "answer": "C",
+          "explanation": "Cache stampede overwhelms DB when a hot key expires. Distributed locks (or mutex) ensure only ONE worker recomputes the key while others wait or serve stale data."
+        },
+        {
+          "question": "What is 'Cache Avalanche' and how do engineers protect against it?",
+          "options": [
+            "When cold air conditioning blows too hard on server racks.",
+            "When users upload large image files simultaneously.",
+            "When a huge number of cached keys expire at the exact same moment (or the cache cluster crashes), flooding the database with simultaneous queries; mitigated by adding random jitter/delta to key TTLs and deploying high-availability cache clusters.",
+            "When database memory usage drops to 0%."
+          ],
+          "answer": "C",
+          "explanation": "Adding random jitter (e.g. `TTL = base_ttl + random(0, 300)`) scatters expiration times over a time window, preventing synchronous mass cache expiration."
+        },
+        {
+          "question": "What are the core differences between Redis and Memcached as distributed caching solutions?",
+          "options": [
+            "Redis is single-threaded (event-loop based) with rich data structures (Lists, Sets, Hashes, Sorted Sets), persistence (RDB/AOF), pub/sub, and replication; Memcached is pure multi-threaded in-memory key-value caching without complex data types or disk persistence.",
+            "Memcached is written in Python, while Redis is written in JavaScript.",
+            "Redis runs only on Windows, while Memcached runs only on macOS.",
+            "Memcached supports SQL queries, while Redis only supports HTML."
+          ],
+          "answer": "A",
+          "explanation": "Redis offers versatile data structures, persistence, Lua scripting, and pub/sub. Memcached is a lightweight, multi-threaded LRU memory cache."
+        },
+        {
+          "question": "What is the difference between Redis RDB (Snapshotting) and AOF (Append-Only File) persistence modes?",
+          "options": [
+            "RDB deletes the database, while AOF preserves it.",
+            "RDB creates periodic point-in-time binary snapshots of memory on disk (compact, fast recovery, potential loss of last few minutes); AOF logs every write command sequentially to an append-only log file (higher durability, configurable fsync, larger file size).",
+            "RDB is encrypted, while AOF is plaintext.",
+            "AOF runs only during system boot, while RDB runs on shutdown."
+          ],
+          "answer": "B",
+          "explanation": "RDB takes compact periodic snapshots; AOF logs every write operation for maximum data durability (usually combined together in production)."
+        },
+        {
+          "question": "How does Redis Cluster distribute keys across multiple master nodes for horizontal scaling?",
+          "options": [
+            "By dividing the entire keyspace into 16,384 fixed 'Hash Slots' (`CRC16(key) % 16384`) and distributing slots across the cluster's master nodes.",
+            "By assigning odd-numbered keys to Server 1 and even-numbered keys to Server 2.",
+            "By sorting keys alphabetically from A to Z across servers.",
+            "By storing a complete copy of all keys on every node."
+          ],
+          "answer": "A",
+          "explanation": "Redis Cluster uses 16,384 hash slots. Keys map to slots via `CRC16(key) mod 16384`, enabling smooth sharding and rebalancing."
+        },
+        {
+          "question": "What does the `Cache-Control: public, max-age=31536000, immutable` HTTP header instruct browsers and CDNs to do?",
+          "options": [
+            "Refresh the asset every 1 second.",
+            "Encrypt the asset with SSL.",
+            "Delete the asset from cache immediately.",
+            "Cache the static asset for up to 1 year (31,536,000 seconds) across all public proxies and CDNs, and never revalidate with the origin server because the file content will never change (used with content-hashed assets like `main.a8f9c2.js`)."
+          ],
+          "answer": "D",
+          "explanation": "`immutable` combined with long `max-age` tells clients and CDNs the file will never change under this URL name, eliminating conditional 304 revalidation requests."
+        },
+        {
+          "question": "What is the primary architectural difference between RabbitMQ and Apache Kafka as message brokers?",
+          "options": [
+            "Kafka can only transmit text files, while RabbitMQ transmits audio.",
+            "RabbitMQ runs only on smartphones, while Kafka runs on mainframes.",
+            "RabbitMQ is a traditional message broker (smart broker, dumb consumer) that pushes messages via AMQP and deletes them after acknowledgment; Kafka is an append-only distributed commit log (dumb broker, smart consumer) that retains messages partitioned across disk for high-throughput stream processing.",
+            "RabbitMQ requires quantum computers to operate."
+          ],
+          "answer": "C",
+          "explanation": "RabbitMQ tracks individual message states and delivery queues; Kafka retains ordered partitioned log streams where consumers track their own read offsets."
+        },
+        {
+          "question": "What is a 'Dead Letter Queue' (DLQ) in asynchronous message processing pipelines?",
+          "options": [
+            "A database table containing deleted user accounts.",
+            "A dedicated queue where messages that fail processing repeatedly (after exhausting maximum retry attempts) are quarantined for developer inspection, alerting, and manual reprocessing.",
+            "A queue that permanently deletes user emails.",
+            "A network router that has lost electrical power."
+          ],
+          "answer": "B",
+          "explanation": "DLQs isolate problematic or malformed poison-pill messages, preventing them from blocking consumer queues while preserving them for debugging."
+        },
+        {
+          "question": "What is 'Command Query Responsibility Segregation' (CQRS) in software architecture?",
+          "options": [
+            "An architectural pattern that strictly separates operations that modify state (Commands - Writes) from operations that read state (Queries - Reads), often utilizing optimized, separate data models and databases for each.",
+            "A command-line interface tool for Git.",
+            "A security protocol for encrypting terminal commands.",
+            "A pattern that combines all SQL queries into a single stored procedure."
+          ],
+          "answer": "A",
+          "explanation": "CQRS decouples the write pipeline (domain entities, validations) from the read pipeline (denormalized views, elasticsearch indices), scaling each independently."
+        },
+        {
+          "question": "What is 'Event Sourcing' and how does it preserve state history?",
+          "options": [
+            "Searching for news events on Google using an API.",
+            "Recording keystrokes of users in browser cookies.",
+            "A technique to schedule meetings on calendar apps.",
+            "Instead of mutating current entity state in-place, every state change is recorded as an immutable, append-only domain event in an Event Store; the current entity state is reconstructed by replaying past events from the beginning."
+          ],
+          "answer": "D",
+          "explanation": "Event Sourcing maintains a 100% audit trail of immutable state changes (e.g. `AccountOpened`, `MoneyDeposited`, `MoneyWithdrawn`), reconstructing state on demand."
+        },
+        {
+          "question": "When should WebSockets be selected over Server-Sent Events (SSE) in full-stack architecture?",
+          "options": [
+            "WebSockets only work over Bluetooth connections.",
+            "WebSockets should only be used for sending images.",
+            "SSE is deprecated and replaced by HTML tables.",
+            "When bidirectional, full-duplex, low-latency communication is required (e.g. multiplayer gaming, collaborative whiteboards, live trading); SSE is better when communication is strictly unidirectional from server to client (e.g. AI token streaming, live score feeds)."
+          ],
+          "answer": "D",
+          "explanation": "WebSockets support two-way interactive messaging over a single TCP socket. SSE is lightweight HTTP-based unidirectional push from server to client."
+        },
+        {
+          "question": "How does the 'Leftmost Prefix Rule' govern Composite B-Tree Database Indexes (e.g. index on `(A, B, C)`)?",
+          "options": [
+            "The database only indexes the first 3 characters of each string.",
+            "The index can accelerate queries filtering on `(A)`, `(A, B)`, or `(A, B, C)`, but CANNOT be used effectively if the query filters only on `(B)` or `(C)` without including leading column `A`.",
+            "All columns in the index must be sorted in reverse order.",
+            "The index only works for users residing in the Western Hemisphere."
+          ],
+          "answer": "B",
+          "explanation": "B-Tree composite indexes are sorted in order of declared columns (`A` first, then `B` within `A`, then `C` within `B`); skipping leading columns prevents B-Tree binary traversal."
+        },
+        {
+          "question": "What is a 'Bloom Filter' and why is it useful in caching and database lookups?",
+          "options": [
+            "A machine learning neural network for image recognition.",
+            "A space-efficient probabilistic data structure used to test whether an element is definitely NOT in a set or MIGHT be in a set, eliminating unnecessary disk/database lookups for non-existent keys.",
+            "An algorithm that sorts numbers in ascending order.",
+            "A CSS filter that blurs background images."
+          ],
+          "answer": "B",
+          "explanation": "Bloom filters use bit arrays and multiple hash functions; zero false negatives guarantees that if it reports 'not in set', the database query can be safely skipped."
+        },
+        {
+          "question": "What is the 'Bulkhead Pattern' in microservices resilience?",
+          "options": [
+            "Building physical concrete walls between server racks in datacenters.",
+            "Compressing all database tables into bulk ZIP files.",
+            "Isolating resources (e.g. dedicated thread pools, connection pools, or server clusters) per critical service so that a failure or resource exhaustion in one service does not consume all system resources and bring down other services.",
+            "Combining all microservices into a single massive monolith."
+          ],
+          "answer": "C",
+          "explanation": "Named after watertight compartments in ships, the Bulkhead pattern partitions thread/connection pools so failure in one module cannot sink the entire application."
+        },
+        {
+          "question": "What is 'Backpressure' in asynchronous streaming architectures and how does it prevent system failure?",
+          "options": [
+            "Pushing database records backwards into Git repositories.",
+            "Increasing atmospheric air pressure in server rooms.",
+            "A feedback mechanism where a slow consumer signals a fast producer to slow down or pause message generation, preventing in-memory buffers from overflowing and causing out-of-memory (OOM) crashes.",
+            "Pressing the back button on a web browser repeatedly."
+          ],
+          "answer": "C",
+          "explanation": "Backpressure regulates data flow when consumer processing capacity is lower than producer ingestion rate, preventing buffer overflow crashes."
+        },
+        {
+          "question": "What is a 'Materialized View' in relational databases and how does it differ from a standard SQL View?",
+          "options": [
+            "A standard View is a saved query evaluated dynamically on every execution; a Materialized View physically stores the pre-computed query results on disk and refreshes periodically, providing ultra-fast read queries on complex aggregations.",
+            "A standard View is stored in RAM, while a Materialized View is stored in ROM.",
+            "There is no difference between View and Materialized View.",
+            "A Materialized View can only contain numbers."
+          ],
+          "answer": "A",
+          "explanation": "Materialized views persist query computation results to disk as physical tables, refreshing on schedules to deliver instant reads on complex aggregation pipelines."
+        },
+        {
+          "question": "What is 'Graceful Degradation' in scalable web application design?",
+          "options": [
+            "Reducing screen brightness on client monitors.",
+            "Allowing the entire database to crash silently.",
+            "Deleting user accounts when server CPU reaches 90%.",
+            "When system resources become constrained under extreme load, non-essential features (e.g. real-time recommendations, personalized widgets) are temporarily disabled or served with cached fallbacks to keep core business operations (e.g. checkout, login) responsive."
+          ],
+          "answer": "D",
+          "explanation": "Graceful degradation protects core business-critical workflows by shedding low-priority features during peak traffic spikes rather than suffering total outage."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,691 @@
+{
+  "courseId": "crs-1786624019154-w",
+  "courseTitle": "Python Full Stack + DSA with AI",
+  "stageId": "top-stg-3",
+  "stageTitle": "Stage 3: AI, Integration & Deployment",
+  "moduleId": "mod-stg3-m1",
+  "moduleTitle": "Introduction to AI, Prompt Engineering & LLMs",
+  "lessons": [
+    {
+      "lessonId": "lesson-stg3-m1-l1",
+      "lessonTitle": "What is AI/ML/DL/LLM & Generative AI Ecosystem",
+      "totalQuestions": 20,
+      "questions": [
+        {
+          "question": "How are Artificial Intelligence (AI), Machine Learning (ML), Deep Learning (DL), and Large Language Models (LLMs) hierarchically related?",
+          "options": [
+            "LLM is the parent discipline containing AI and ML as subsets.",
+            "AI is the broad umbrella discipline; ML is a subset of AI using statistical models to learn from data; DL is a subset of ML based on multi-layer neural networks; and LLMs are specialized DL transformer models trained on vast text corpora.",
+            "Machine Learning and Deep Learning are completely unrelated branches of physics.",
+            "AI refers solely to robotics, while ML refers exclusively to SQL databases."
+          ],
+          "answer": "B",
+          "explanation": "AI ⊃ ML ⊃ DL ⊃ LLMs. LLMs represent deep learning architectures (Transformers) specialized for natural language understanding and generation."
+        },
+        {
+          "question": "What is the primary fundamental distinction between Generative AI and Discriminative AI?",
+          "options": [
+            "Generative AI runs only on client browsers, whereas Discriminative AI runs on mainframes.",
+            "Discriminative AI models decision boundaries to predict labels or classify inputs (P(Y|X)), whereas Generative AI models the underlying data distribution to generate novel synthetic content (P(X, Y) or P(X)).",
+            "Generative AI can only process numerical spreadsheets, while Discriminative AI processes audio.",
+            "Discriminative AI generates original images, while Generative AI only performs binary classification."
+          ],
+          "answer": "B",
+          "explanation": "Discriminative models classify or predict outcomes based on boundaries (e.g. spam vs non-spam), while Generative models learn the data distribution to produce new original data instances."
+        },
+        {
+          "question": "What core architectural innovation introduced in the 2017 paper 'Attention Is All You Need' powers modern LLMs?",
+          "options": [
+            "The invention of the Relational Database Management System.",
+            "The use of decision trees with gradient boosting.",
+            "The Transformer architecture utilizing Multi-Head Self-Attention mechanisms, replacing recurrent sequential processing with parallelizable self-attention across tokens.",
+            "The introduction of single-threaded while-loops in Python."
+          ],
+          "answer": "C",
+          "explanation": "The Transformer architecture relies on multi-head self-attention to process all tokens in a sequence concurrently, capturing long-range contextual relationships efficiently."
+        },
+        {
+          "question": "What is a 'Token' in the context of Large Language Models and approximately how many English words does 1000 tokens represent?",
+          "options": [
+            "A sub-word text chunk produced by algorithms like Byte Pair Encoding (BPE); 1000 tokens corresponds to approximately 750 English words (or ~4000 characters).",
+            "A physical hardware dongle required to unlock GPU computing.",
+            "A cryptographic hash representing exactly 1000 full sentences.",
+            "A security cookie stored in browser localStorage."
+          ],
+          "answer": "A",
+          "explanation": "Tokenization breaks raw text into numerical sub-word units using algorithms like BPE or WordPiece. In English, 1 token is roughly 0.75 words (or 4 characters)."
+        },
+        {
+          "question": "What does the 'Context Window' of an LLM specify?",
+          "options": [
+            "The maximum physical resolution of the developer's computer display.",
+            "The time interval in seconds between consecutive API calls.",
+            "The number of CPU threads allocated to execute Python scripts.",
+            "The combined total token capacity (input prompt + output generation) that a model can process and hold in active working memory during a single inference session."
+          ],
+          "answer": "D",
+          "explanation": "The context window dictates the maximum token length (input prompt + generated completion) the model can attend to at once (e.g., 8k, 128k, or 1M+ tokens)."
+        },
+        {
+          "question": "What is an LLM 'Hallucination' and what primarily causes it?",
+          "options": [
+            "When an LLM generates factually inaccurate, nonsensical, or ungrounded assertions with high linguistic fluency, caused by its probabilistic nature of predicting the next most likely token without true real-world grounding.",
+            "When a GPU overheats and causes numerical rounding errors.",
+            "When the server runs out of disk storage space and throws an I/O error.",
+            "When the user types misspelled words in the prompt."
+          ],
+          "answer": "A",
+          "explanation": "LLMs are statistical autoregressive next-token predictors, not knowledge retrieval databases; without grounding (such as RAG), they can fluently output plausible-sounding falsehoods."
+        },
+        {
+          "question": "What is the function of the 'Temperature' hyperparameter during LLM text generation?",
+          "options": [
+            "It regulates the physical cooling fan speed of the GPU hardware cluster.",
+            "It adjusts the font size of the output markdown in the chat window.",
+            "It controls the randomness and creativity of next-token sampling: values near 0.0 produce deterministic, greedy, focused responses, while values near 1.0+ increase diversity and creativity.",
+            "It specifies the timeout duration before HTTP connections abort."
+          ],
+          "answer": "C",
+          "explanation": "Temperature scales the logits before the Softmax function: lower temperature concentrates probability on the top token (focused/deterministic), while higher temperature flattens probabilities (creative/diverse)."
+        },
+        {
+          "question": "What is 'Top-p' (Nucleus Sampling) in LLM token generation?",
+          "options": [
+            "Selecting strictly the top p fixed number of words from a dictionary.",
+            "Sorting the user's prompt alphabetically before inference.",
+            "Dynamically sampling only from the smallest cumulative subset of candidate tokens whose aggregate probability reaches the threshold p (e.g., top 90% probability mass).",
+            "Selecting the single most popular programming language."
+          ],
+          "answer": "C",
+          "explanation": "Top-p sampling pools the highest probability tokens until their cumulative sum reaches threshold p, dynamically adapting the candidate pool based on model confidence."
+        },
+        {
+          "question": "What distinguishes Open-Source (Open-Weights) models (e.g. Llama 3, Mistral, Gemma) from Closed-Source Proprietary models (e.g. GPT-4o, Claude 3.5 Sonnet)?",
+          "options": [
+            "Open-weights models allow developers to download model weights, run inference on private infrastructure, and fine-tune locally without vendor lock-in, whereas proprietary models are accessible only via vendor-hosted APIs.",
+            "Closed-source models are completely free of cost with unlimited API requests.",
+            "Open-source models run exclusively on quantum computers.",
+            "Open-source models cannot process English text."
+          ],
+          "answer": "A",
+          "explanation": "Open-weight models provide model parameter tensors for self-hosting, customization, and air-gapped privacy, while proprietary models operate as hosted black-box SaaS APIs."
+        },
+        {
+          "question": "What are 'Vector Embeddings' in the Generative AI ecosystem?",
+          "options": [
+            "Vector graphic SVG icons displayed on user interfaces.",
+            "Encrypted password hashes generated by bcrypt.",
+            "HTML Canvas coordinates for rendering 3D video games.",
+            "Dense numerical floating-point arrays (e.g. 1536-dimensional vectors) that capture the deep semantic meaning, context, and relational similarity of text strings or media."
+          ],
+          "answer": "D",
+          "explanation": "Embedding models map textual phrases into multi-dimensional geometric vector spaces where semantically similar concepts reside in close spatial proximity."
+        },
+        {
+          "question": "Which mathematical metric is most commonly used to measure the semantic similarity between two normalized text vector embeddings?",
+          "options": [
+            "Manhattan Distance between RGB pixel values",
+            "Cosine Similarity (or Dot Product of unit vectors), measuring the cosine of the angle between two multi-dimensional vectors.",
+            "Hamming Distance",
+            "Levenshtein String Edit Distance"
+          ],
+          "answer": "B",
+          "explanation": "Cosine similarity measures the orientation angle between two embedding vectors, yielding 1.0 for identical semantic meaning and 0 for orthogonal/unrelated concepts."
+        },
+        {
+          "question": "What does 'Multimodal AI' signify in modern foundation models?",
+          "options": [
+            "A database that supports multiple SQL dialects.",
+            "A model that can only run when connected to multiple computer monitors.",
+            "A model capable of processing, understanding, and generating multiple modalities of data—such as text, images, audio, and video—within a unified architecture.",
+            "A model that requires writing code in multiple programming languages simultaneously."
+          ],
+          "answer": "C",
+          "explanation": "Multimodal foundation models (e.g. Gemini 1.5, GPT-4o) natively accept interleaved multimodal inputs (text, audio, imagery, video) without requiring disjoint external converters."
+        },
+        {
+          "question": "What is Reinforcement Learning from Human Feedback (RLHF)?",
+          "options": [
+            "A technique to overclock CPU hardware using human intervention.",
+            "A method of crowdsourcing source code for open-source libraries.",
+            "An automated bot that writes positive product reviews online.",
+            "A fine-tuning methodology where reward models trained on human preferences guide reinforcement learning (PPO or DPO) to align LLM outputs with human intent, helpfulness, and safety."
+          ],
+          "answer": "D",
+          "explanation": "RLHF aligns raw base LLMs (which merely autocomplete web text) into instruction-following, safe, and conversational assistants based on human evaluative feedback."
+        },
+        {
+          "question": "What is Model 'Quantization' (e.g. 4-bit or 8-bit GGUF/AWQ) and why is it essential for local AI inference?",
+          "options": [
+            "Connecting the model to a quantum computing network.",
+            "Encrypting model weights with 256-bit AES encryption.",
+            "Converting Python functions into JavaScript syntax.",
+            "Converting floating-point weight precision (e.g. FP16/FP32) into lower bit-depth representations (INT4/INT8), drastically reducing memory footprint and computational requirements with minimal loss in model capability."
+          ],
+          "answer": "D",
+          "explanation": "Quantization compresses multi-gigabyte neural network weights into 4-bit/8-bit integers, allowing massive 70B parameter models to run on consumer GPUs or laptop RAM."
+        },
+        {
+          "question": "Why do LLM API providers charge significantly higher prices per token for Output (Completion) tokens compared to Input (Prompt) tokens?",
+          "options": [
+            "Because output tokens use 64-bit unicode while input tokens use 8-bit ASCII.",
+            "Because input tokens are cached on client web browsers permanently.",
+            "Because output tokens must be physically printed on paper at the datacenter.",
+            "Because output tokens are generated sequentially one-by-one via auto-regressive decoding (each token requiring a full forward pass), whereas input tokens are processed in parallel."
+          ],
+          "answer": "D",
+          "explanation": "Input prompt tokens are evaluated in parallel (matrix multiplication), while generation is auto-regressive (memory-bandwidth bound sequential step for every single output token)."
+        },
+        {
+          "question": "What are the two key latency metrics evaluated when assessing real-time LLM inference performance?",
+          "options": [
+            "Frames Per Second (FPS) and Screen Refresh Rate (Hz).",
+            "Ping rate in milliseconds and DNS resolution time.",
+            "Time to First Token (TTFT) - the time before generation begins, and Inter-Token Latency / Tokens Per Second (TPS) - the ongoing streaming throughput.",
+            "Database read IOPS and hard disk write latency."
+          ],
+          "answer": "C",
+          "explanation": "TTFT measures initial prompt processing responsiveness, while TPS measures the subsequent streaming generation speed."
+        },
+        {
+          "question": "What is the primary role of a 'System Instruction' (or System Message) in conversational LLM architectures?",
+          "options": [
+            "To compile Python scripts into binary executables.",
+            "To set the foundational persona, behavioral guardrails, tone, output format, and operational boundaries that persist across the entire conversation lifecycle.",
+            "To reboot the user's local operating system.",
+            "To specify the database password for backend authentication."
+          ],
+          "answer": "B",
+          "explanation": "The system instruction provides top-level guidance and constraints that prime the model's behavior prior to user turns."
+        },
+        {
+          "question": "What is the difference between a Pre-trained Base Model and an Instruction-Tuned (Chat) Model?",
+          "options": [
+            "A Base model merely autocompletes text according to web statistical distributions, while an Instruction-Tuned model has undergone supervised fine-tuning (SFT) and alignment to directly answer user queries and follow tasks.",
+            "Instruction-tuned models are smaller than 1MB in size.",
+            "A Base model is trained only on numbers, while a Chat model is trained on words.",
+            "A Base model runs locally, while a Chat model requires a satellite connection."
+          ],
+          "answer": "A",
+          "explanation": "Base models (e.g. Llama-3-8B-Base) just complete sentences, whereas Instruct/Chat models (e.g. Llama-3-8B-Instruct) are trained on question-answer conversations."
+        },
+        {
+          "question": "What is the purpose of AI Guardrails (e.g., NeMo Guardrails, Llama Guard) in enterprise applications?",
+          "options": [
+            "To limit internet bandwidth to 100kbps.",
+            "To enforce safety policies, detect prompt injections, mask sensitive PII data, and block toxic or off-topic queries before and after LLM inference.",
+            "To prevent developers from pushing code to GitHub.",
+            "To prevent physical access to datacenter servers."
+          ],
+          "answer": "B",
+          "explanation": "Guardrail systems validate incoming inputs and outgoing outputs against enterprise policy, toxicity filters, PII redaction, and topic boundaries."
+        },
+        {
+          "question": "What is Retrieval-Augmented Generation (RAG)?",
+          "options": [
+            "A technique that dynamically retrieves relevant factual documents from an external knowledge store (vector DB) and injects them into the LLM context prompt to provide accurate, up-to-date, domain-specific answers.",
+            "A hardware upgrade that doubles GPU VRAM.",
+            "A method of generating random synthetic images using neural style transfer.",
+            "A database indexing algorithm used only in SQLite."
+          ],
+          "answer": "A",
+          "explanation": "RAG connects an LLM to external knowledge bases, retrieving relevant document chunks via vector search and injecting them into the prompt to prevent hallucinations."
+        }
+      ]
+    },
+    {
+      "lessonId": "lesson-stg3-m1-l2",
+      "lessonTitle": "Google Gemini & OpenAI API Setup and Access",
+      "totalQuestions": 20,
+      "questions": [
+        {
+          "question": "What is the secure industry standard for storing and accessing third-party AI API keys (like OpenAI and Gemini) in a Python backend application?",
+          "options": [
+            "Hardcoding API keys directly into public git-committed source files.",
+            "Storing them in environment variables (via `.env` files and `python-dotenv`) and accessing them using `os.getenv('OPENAI_API_KEY')` without committing `.env` to version control.",
+            "Saving API keys as plaintext in HTML `<meta>` tags.",
+            "Encrypting API keys in cookies stored on client browsers."
+          ],
+          "answer": "B",
+          "explanation": "Secrets must never be stored in source code; environment variables loaded from `.env` (which is excluded in `.gitignore`) is the universal standard."
+        },
+        {
+          "question": "Which Python snippet correctly initializes the official OpenAI client and creates a chat completion using the modern OpenAI Python SDK (v1.0+)?",
+          "options": [
+            "import openai\nresponse = openai.ChatCompletion.create(model='gpt-4o', prompt='Hello')",
+            "from openai import OpenAI\nclient = OpenAI()\nresponse = client.chat.completions.create(\n    model='gpt-4o',\n    messages=[{'role': 'user', 'content': 'Hello'}]\n)",
+            "import openai\nclient = openai.new_client()\nresponse = client.ask('gpt-4o', 'Hello')",
+            "from openai import GPT\nresponse = GPT.generate(text='Hello')"
+          ],
+          "answer": "B",
+          "explanation": "OpenAI SDK v1.0+ uses an explicit `client = OpenAI()` instance with `client.chat.completions.create(model=..., messages=[...])`."
+        },
+        {
+          "question": "How do you configure and invoke Google's Gemini 1.5 Pro model using the official `google-generativeai` Python SDK?",
+          "options": [
+            "import gemini\nresponse = gemini.query('Explain quantum computing')",
+            "import google_ai\nmodel = google_ai.load_model()\nresponse = model.run('Explain quantum computing')",
+            "import google.generativeai as genai\ngenai.configure(api_key=os.getenv('GEMINI_API_KEY'))\nmodel = genai.GenerativeModel('gemini-1.5-pro')\nresponse = model.generate_content('Explain quantum computing')",
+            "from google import ai\nresponse = ai.gemini_chat('gemini-1.5-pro', 'Explain quantum computing')"
+          ],
+          "answer": "C",
+          "explanation": "`google-generativeai` uses `genai.configure(api_key=...)`, instantiates `genai.GenerativeModel('gemini-1.5-pro')`, and calls `model.generate_content()`."
+        },
+        {
+          "question": "Why should developers enable Streaming (`stream=True`) when integrating LLM APIs into user-facing web applications?",
+          "options": [
+            "It allows the client to receive and render tokens in real-time as they are generated, dramatically improving perceived responsiveness and reducing Time to First Token (TTFT) from seconds to milliseconds.",
+            "It makes the API call 100% free of charge.",
+            "It bypasses the need for an internet connection.",
+            "Streaming compresses the response text into a ZIP archive."
+          ],
+          "answer": "A",
+          "explanation": "Streaming yields tokens chunk by chunk over SSE (Server-Sent Events) or WebSockets, creating immediate feedback for the end user rather than waiting for complete generation."
+        },
+        {
+          "question": "How do you maintain conversation history across multi-turn interactions using the OpenAI Chat Completions API?",
+          "options": [
+            "By sending only the latest user message and expecting OpenAI servers to remember past turns automatically.",
+            "By storing chat logs in browser cookies and passing cookie headers.",
+            "By calling `client.enable_server_memory(True)`.",
+            "By maintaining an ordered array of message objects (`[{'role': 'system', ...}, {'role': 'user', ...}, {'role': 'assistant', ...}]`) and appending each new turn to the array in subsequent requests."
+          ],
+          "answer": "D",
+          "explanation": "LLM APIs are completely stateless; the client/backend is responsible for appending past `user` and `assistant` messages to the `messages` payload on each request."
+        },
+        {
+          "question": "How can you enforce guaranteed structured JSON output from OpenAI models using Structured Outputs with Pydantic?",
+          "options": [
+            "client.beta.chat.completions.parse(model='gpt-4o-2024-08-06', messages=..., response_format=MyPydanticSchema)",
+            "Pass `output_type='binary'` to the API.",
+            "Add 'Please return JSON' to the prompt text and hope it does not include markdown codeblocks.",
+            "Cast the response string using `int(response)`."
+          ],
+          "answer": "A",
+          "explanation": "OpenAI's Structured Outputs (`parse()` with Pydantic models or JSON Schema) guarantees strict 100% schema conformance through constrained decoding."
+        },
+        {
+          "question": "What HTTP status code is returned by both OpenAI and Google Gemini APIs when a client exceeds rate limits (RPM or TPM)?",
+          "options": [
+            "HTTP 200 OK",
+            "HTTP 502 Bad Gateway",
+            "HTTP 429 Too Many Requests",
+            "HTTP 404 Not Found"
+          ],
+          "answer": "C",
+          "explanation": "HTTP 429 is the standard status code indicating that rate limits (Requests Per Minute or Tokens Per Minute) or quota allocations have been exceeded."
+        },
+        {
+          "question": "What is the recommended design pattern for handling transient API failures and HTTP 429 Rate Limit errors in production Python code?",
+          "options": [
+            "Retrying the exact same request in an infinite while loop without pauses.",
+            "Disabling all error logging to ignore failures.",
+            "Implementing Exponential Backoff with Random Jitter (using libraries like `tenacity` or `backoff`) to retry failed calls with increasing wait intervals.",
+            "Crashing the application immediately and restarting the server."
+          ],
+          "answer": "C",
+          "explanation": "Exponential backoff with jitter prevents 'thundering herd' spikes by incrementally increasing delay times between retries (e.g. 1s, 2s, 4s + random delta)."
+        },
+        {
+          "question": "How do you pass a local image file to Google Gemini 1.5 Flash for multimodal visual question answering in Python?",
+          "options": [
+            "from PIL import Image\nimg = Image.open('diagram.png')\nresponse = model.generate_content(['Explain the architecture shown in this diagram', img])",
+            "Convert the image into ASCII text using regex.",
+            "Pass the raw file path string directly as text without opening it.",
+            "Upload the image to Twitter and pass the tweet URL."
+          ],
+          "answer": "A",
+          "explanation": "The Google Gemini SDK accepts `PIL.Image` objects or uploaded file URIs directly in the `generate_content` contents list alongside text prompts."
+        },
+        {
+          "question": "What Python library created by OpenAI is used for fast BPE token counting to estimate prompt token usage before sending API requests?",
+          "options": [
+            "numpy",
+            "regex_tokenizer",
+            "spacy_count",
+            "tiktoken"
+          ],
+          "answer": "D",
+          "explanation": "`tiktoken` is OpenAI's open-source fast BPE token counting library in Python, allowing developers to calculate exact token counts (e.g. using `tiktoken.encoding_for_model('gpt-4o')`)."
+        },
+        {
+          "question": "How do you specify a custom System Instruction when instantiating a Gemini model in `google-generativeai`?",
+          "options": [
+            "Pass `system=True` in every individual query.",
+            "model = genai.GenerativeModel(model_name='gemini-1.5-flash', system_instruction='You are an expert Django architect.')",
+            "genai.set_global_rules('You are an expert Django architect.')",
+            "Embed the system prompt in a CSS stylesheet."
+          ],
+          "answer": "B",
+          "explanation": "In Gemini SDK, system instructions are supplied via the `system_instruction` argument when creating the `GenerativeModel` instance."
+        },
+        {
+          "question": "What are Safety Settings in the Google Gemini API used for?",
+          "options": [
+            "Restricting code execution to single-threaded mode.",
+            "Encrypting the developer's credit card information.",
+            "Configuring blocking thresholds across harm categories (such as Harassment, Hate Speech, Sexually Explicit, and Dangerous Content) using `HarmBlockThreshold` enum values.",
+            "Setting firewall rules on local Wi-Fi routers."
+          ],
+          "answer": "C",
+          "explanation": "Safety settings allow developers to calibrate content filtering sensitivity across specific harm categories (e.g. `BLOCK_LOW_AND_ABOVE`, `BLOCK_ONLY_HIGH`, `BLOCK_NONE`)."
+        },
+        {
+          "question": "How do you generate vector embeddings for a text snippet using OpenAI's `text-embedding-3-small` model?",
+          "options": [
+            "embedding = openai.convert_to_vector('Aspire LMS Platform')",
+            "embedding = client.models.vectorize('Aspire LMS Platform')",
+            "embedding = client.chat.completions.create(model='text-embedding-3-small', prompt='Aspire LMS Platform')",
+            "response = client.embeddings.create(input='Aspire LMS Platform', model='text-embedding-3-small')\nembedding = response.data[0].embedding"
+          ],
+          "answer": "D",
+          "explanation": "OpenAI embeddings are generated using `client.embeddings.create(input=..., model='text-embedding-3-small')`, returning a 1536-dimensional float vector."
+        },
+        {
+          "question": "What is 'Function Calling' (Tool Calling) in the OpenAI and Gemini APIs?",
+          "options": [
+            "Executing arbitrary un-sandboxed shell scripts on the client's laptop.",
+            "Calling Python functions inside a while loop without parameters.",
+            "A technique for renaming Python functions at runtime.",
+            "A capability where the LLM is provided with JSON function schemas (tools) and intelligently decides to output structured JSON arguments to invoke external backend APIs or databases."
+          ],
+          "answer": "D",
+          "explanation": "Function calling allows LLMs to act as agents by outputting structured arguments to invoke user-defined functions (e.g. `get_weather(city='London')`)."
+        },
+        {
+          "question": "How do you execute asynchronous, non-blocking AI API calls in Python using the OpenAI SDK inside an `async def` view?",
+          "options": [
+            "Use `time.sleep()` before each synchronous call.",
+            "Call `openai.run_async()` in a separate thread.",
+            "Run the synchronous client inside a `try...except` block.",
+            "from openai import AsyncOpenAI\nclient = AsyncOpenAI()\nresponse = await client.chat.completions.create(model='gpt-4o', messages=[...])"
+          ],
+          "answer": "D",
+          "explanation": "The `AsyncOpenAI` client exposes coroutine methods that can be awaited (`await client.chat.completions.create(...)`) without blocking the event loop in async frameworks."
+        },
+        {
+          "question": "What is the OpenAI 'Batch API' and when is it most advantageous to use?",
+          "options": [
+            "An API that runs on Microsoft MS-DOS batch scripts.",
+            "A real-time gaming server connection.",
+            "An asynchronous endpoint that processes large collections of non-urgent requests within 24 hours at a 50% discount compared to standard real-time API pricing.",
+            "An endpoint that can only process images."
+          ],
+          "answer": "C",
+          "explanation": "The Batch API offers a 50% cost reduction for non-interactive workloads (such as bulk summarization or dataset labeling) completed within 24 hours."
+        },
+        {
+          "question": "What is 'Context Caching' in Google Gemini 1.5 Pro and Flash?",
+          "options": [
+            "A Redis plugin for storing HTML pages.",
+            "A mechanism to pre-compute and store the key-value activations for massive static contexts (such as long PDFs or entire codebases) across multiple queries, cutting token costs by up to 75% and reducing latency.",
+            "Saving chat history in the browser's IndexedDB.",
+            "A hardware cache on the CPU motherboard."
+          ],
+          "answer": "B",
+          "explanation": "Context Caching allows caching large static token inputs (minimum 32,768 tokens) across multiple requests, significantly lowering operational costs and latency."
+        },
+        {
+          "question": "How can developers ensure more deterministic, repeatable completions when testing prompt changes with the OpenAI API?",
+          "options": [
+            "Set `temperature=0` and specify an integer `seed` parameter (e.g., `seed=42`).",
+            "Use only numbers in the prompt.",
+            "Restart the operating system before each prompt run.",
+            "Send all prompt letters in UPPERCASE."
+          ],
+          "answer": "A",
+          "explanation": "Combining `temperature=0` with a constant integer `seed` ensures the backend model samples consistently, aiding debugging and regression testing."
+        },
+        {
+          "question": "Which exception class in the OpenAI Python library is raised when an invalid or expired API key is provided?",
+          "options": [
+            "openai.BadRequestError",
+            "openai.AuthenticationError",
+            "openai.InternalServerError",
+            "openai.RateLimitError"
+          ],
+          "answer": "B",
+          "explanation": "`openai.AuthenticationError` (HTTP 401) is thrown when credentials or API keys are missing, invalid, or expired."
+        },
+        {
+          "question": "How do you start a multi-turn stateful chat session in Python using Google's `google-generativeai` SDK?",
+          "options": [
+            "chat = model.start_chat(history=[])\nresponse = chat.send_message('Hello, my name is Alex')",
+            "chat = model.create_session(user='Alex')",
+            "chat = genai.open_connection()\nchat.write('Hello, my name is Alex')",
+            "chat = genai.ChatSession(port=8080)"
+          ],
+          "answer": "A",
+          "explanation": "`model.start_chat(history=[])` initializes a helper object that automatically tracks message history and context across consecutive `chat.send_message()` calls."
+        }
+      ]
+    },
+    {
+      "lessonId": "lesson-stg3-m1-l3",
+      "lessonTitle": "Prompt Engineering Strategies & Few-Shot Prompting",
+      "totalQuestions": 20,
+      "questions": [
+        {
+          "question": "What is 'Zero-Shot Prompting' in prompt engineering?",
+          "options": [
+            "Prompting an LLM without providing any internet connection.",
+            "Presenting a task instruction to the model directly without providing any prior worked examples or demonstrations in the prompt context.",
+            "Prompting an LLM with zero words in the input prompt.",
+            "Prompting a model that has zero parameters."
+          ],
+          "answer": "B",
+          "explanation": "Zero-shot prompting relies entirely on the model's pre-trained weights and knowledge without supplementary demonstration examples."
+        },
+        {
+          "question": "What is 'Few-Shot Prompting' and how does it enhance LLM performance on nuanced tasks?",
+          "options": [
+            "Training a new model from scratch with only a few parameters.",
+            "Providing 1 to 5 input-output demonstration pairs within the prompt to establish clear context on the desired reasoning style, edge-case handling, and exact formatting schema.",
+            "Making only a few API calls per day to save money.",
+            "Restricting prompt text to less than five characters."
+          ],
+          "answer": "B",
+          "explanation": "Few-shot prompting provides in-context demonstrations (exemplars) that guide the LLM's autoregressive completion toward the intended pattern and format."
+        },
+        {
+          "question": "What is 'Chain-of-Thought' (CoT) prompting and how does it improve problem-solving on complex reasoning tasks?",
+          "options": [
+            "Connecting multiple computer monitors together in a chain.",
+            "Writing prompts in a continuous single line without spaces.",
+            "Explicitly instructing the model to generate intermediate logical reasoning steps before providing the final answer (e.g. 'Let's think step by step').",
+            "Using blockchain technology to verify model outputs."
+          ],
+          "answer": "C",
+          "explanation": "CoT prompting encourages the model to decompose complex math, logic, or algorithmic problems into intermediate reasoning tokens before arriving at the conclusion."
+        },
+        {
+          "question": "What is 'Few-Shot Chain-of-Thought' (Few-Shot CoT) prompting?",
+          "options": [
+            "Providing exemplar pairs where each demonstration includes both a problem, a step-by-step intermediate reasoning trajectory, and the final deduced answer.",
+            "Splitting a prompt into five separate API requests.",
+            "Training a neural network with five hidden layers.",
+            "Running 10 different models simultaneously on a single query."
+          ],
+          "answer": "A",
+          "explanation": "Few-Shot CoT provides explicit examples illustrating how to break down reasoning steps, dramatically outperforming standard few-shot demonstrations on reasoning benchmarks."
+        },
+        {
+          "question": "Why are structural delimiters (such as XML tags `<context>`, `### Markdown`, or triple backticks `\"\"\"`) considered best practice in prompt design?",
+          "options": [
+            "They compress the prompt into binary bytecode.",
+            "They increase the GPU clock speed during inference.",
+            "They automatically translate the prompt into Latin.",
+            "They clearly demarcate instructions from dynamic user inputs, reference data, and output schemas, preventing prompt injection and contextual ambiguity."
+          ],
+          "answer": "D",
+          "explanation": "Delimiters provide unambiguous structural separation between system instructions, injected reference text, and user data, mitigating accidental prompt leaks or injections."
+        },
+        {
+          "question": "What is 'Self-Consistency' prompting in advanced reasoning workflows?",
+          "options": [
+            "Generating multiple diverse reasoning paths at non-zero temperature (e.g., sampling 5-10 responses) and selecting the most consistent majority-vote answer.",
+            "Using only one programming language throughout the entire application.",
+            "Ensuring the prompt contains no spelling mistakes.",
+            "Re-running the same prompt until the server reboots."
+          ],
+          "answer": "A",
+          "explanation": "Self-consistency samples multiple independent reasoning rollouts and aggregates the final answers via majority voting, mitigating individual chain-of-thought errors."
+        },
+        {
+          "question": "What is a 'Prompt Injection' attack and how can it compromise an AI application?",
+          "options": [
+            "An SQL injection that deletes database tables via SQL queries.",
+            "A denial-of-service attack flooding the network with ICMP packets.",
+            "An adversarial input where malicious user text overrides system instructions or guardrails to force the model into unauthorized actions, data exfiltration, or safety violations.",
+            "A hardware malfunction in GPU memory cells."
+          ],
+          "answer": "C",
+          "explanation": "Prompt injection occurs when untrusted user input tricks the LLM into ignoring system rules or leaking proprietary system instructions and credentials."
+        },
+        {
+          "question": "What is the 'Lost in the Middle' phenomenon observed in long-context Large Language Models?",
+          "options": [
+            "A network timeout that drops packets in transit.",
+            "A database indexing error in relational tables.",
+            "Models tend to perform best when retrieving information located near the beginning (primacy effect) or end (recency effect) of long context prompts, while recall degrades for data placed in the middle.",
+            "A bug where the middle 50% of the output text is deleted."
+          ],
+          "answer": "C",
+          "explanation": "Research demonstrates that transformer self-attention often prioritizes information at the extreme start and end of massive contexts, suffering degraded attention in the middle."
+        },
+        {
+          "question": "What is the 'ReAct' (Reasoning + Acting) framework in AI agent architectures?",
+          "options": [
+            "A paradigm that interleaves reasoning step generation ('Thought') with tool execution ('Action') and external environment feedback ('Observation') to solve multi-step problems dynamically.",
+            "A chemical simulation engine powered by AI.",
+            "A reactive programming pattern using RxJS.",
+            "A frontend React.js JavaScript library for UI rendering."
+          ],
+          "answer": "A",
+          "explanation": "ReAct combines verbal reasoning (thought) with tool actions (search, calculate, API call) and observation feedback loops to execute autonomous agent tasks."
+        },
+        {
+          "question": "How should a prompt be constructed to aggressively mitigate hallucinations when answering questions from provided documentation?",
+          "options": [
+            "Set `temperature=2.0` and ask the model to be as creative as possible.",
+            "Do not provide any context documents in the prompt.",
+            "Ask the model to browse the entire internet without constraints.",
+            "Explicitly instruct: 'Answer the question strictly using only the facts provided in the <context> block. If the answer is not explicitly stated in the context, respond with \"Information not found\" and do NOT extrapolate.'"
+          ],
+          "answer": "D",
+          "explanation": "Constraining the model with strict grounding rules and offering a safe explicit fallback ('Information not found') prevents generative hallucination."
+        },
+        {
+          "question": "What is 'Step-Back Prompting' in LLM problem solving?",
+          "options": [
+            "Reversing the word order of the entire prompt.",
+            "An abstraction strategy where the model is prompted to first identify and explain high-level foundational concepts and domain principles before addressing the specific, detailed target question.",
+            "Deleting the last character of the prompt before running it.",
+            "Stepping backwards through Git commit history."
+          ],
+          "answer": "B",
+          "explanation": "Step-back prompting grounds reasoning in broader fundamental principles, guiding the LLM to avoid superficial reasoning traps on complex specific queries."
+        },
+        {
+          "question": "What is 'Role Prompting' (Persona Prompting) and why is it effective?",
+          "options": [
+            "Generating random usernames for chat accounts.",
+            "Assigning user permissions in a Django database.",
+            "Instructing the model to adopt a specific professional identity, expertise level, and audience focus (e.g., 'Act as a Senior Django Core Developer and AWS Solutions Architect'), priming the model's latent domain representations.",
+            "Encrypting the prompt using role-based access control."
+          ],
+          "answer": "C",
+          "explanation": "Assigning a clear persona activates relevant contextual subspaces in the model's attention weights, tailoring vocabulary, depth, and tone."
+        },
+        {
+          "question": "What is 'Tree of Thoughts' (ToT) prompting?",
+          "options": [
+            "A binary search tree algorithm written in Python.",
+            "A prompt that processes botanical data.",
+            "Displaying prompt instructions in a HTML tree view.",
+            "A generalization of Chain-of-Thought where the model explores multiple branching reasoning paths simultaneously, self-evaluates candidate thoughts, and backtracks when dead-ends are reached."
+          ],
+          "answer": "D",
+          "explanation": "ToT treats reasoning as a search tree, enabling exploration of multiple thought branches with self-evaluation and lookahead search (BFS/DFS)."
+        },
+        {
+          "question": "What is 'Negative Prompting' (or Negative Constraints) in LLM instructions?",
+          "options": [
+            "Sending negative numbers as prompt inputs.",
+            "Using rude language in prompt instructions.",
+            "Calculating negative loss gradients during inference.",
+            "Explicitly specifying behaviors, phrases, formatting styles, or assumptions that the model MUST NOT output (e.g. 'Do not include conversational preamble, apologies, or markdown explanation; output raw JSON only')."
+          ],
+          "answer": "D",
+          "explanation": "Negative constraints establish hard boundaries against undesired verbose chatter, markdown wrappers, or hallucinated assumptions."
+        },
+        {
+          "question": "What is the advantage of 'Prompt Chaining' (decomposing tasks into sequential prompt stages) over a single massive monolithic prompt?",
+          "options": [
+            "Prompt chaining increases token costs by 100x without benefits.",
+            "It converts text into images automatically.",
+            "It combines all Python functions into a single line.",
+            "It breaks complex workflows into smaller, isolated, single-responsibility LLM calls where outputs from stage N feed into stage N+1, enhancing reliability, inspectability, and error handling."
+          ],
+          "answer": "D",
+          "explanation": "Prompt chaining decomposes multifaceted tasks (e.g., extract -> validate -> summarize -> translate) into deterministic, testable, and debuggable stages."
+        },
+        {
+          "question": "What is 'Dynamic Few-Shot Example Selection' in production AI pipelines?",
+          "options": [
+            "Randomly choosing few-shot examples using `random.choice()`.",
+            "Hardcoding 100 examples in every prompt regardless of query.",
+            "Dynamically retrieving the most semantically relevant few-shot exemplars from a vector database using vector similarity search against the user's specific input before injecting them into the prompt.",
+            "Changing the model version every minute."
+          ],
+          "answer": "C",
+          "explanation": "Dynamic few-shot selection indexes hundreds of high-quality exemplars in a vector store and injects only the top-k most relevant demonstrations for the current query."
+        },
+        {
+          "question": "What is the primary function of programmatic prompt optimization frameworks like DSPy?",
+          "options": [
+            "Compressing video files using FFmpeg.",
+            "Compiling natural language prompt pipelines into algorithmic modules that automatically tune instructions and select optimal few-shot exemplars based on evaluation metrics.",
+            "Writing CSS stylesheets for AI dashboards.",
+            "Managing database connection pools in Django."
+          ],
+          "answer": "B",
+          "explanation": "DSPy shifts prompt engineering from manual trial-and-error string formatting to declarative, compiled, and optimizable algorithmic programs."
+        },
+        {
+          "question": "What is 'LLM-as-a-Judge' in automated prompt evaluation and testing pipelines?",
+          "options": [
+            "Using a powerful state-of-the-art model (e.g., GPT-4o or Claude 3.5 Sonnet) with structured evaluation rubrics to assess, score, and critique candidate prompt outputs on criteria like factual accuracy, relevance, and tone.",
+            "A compiler that checks Python syntax errors.",
+            "An AI model that presides over physical courtroom trials.",
+            "A database trigger that enforces SQL constraints."
+          ],
+          "answer": "A",
+          "explanation": "LLM-as-a-judge provides scalable, automated, and high-correlation evaluation of prompt variations against standardized quality rubrics."
+        },
+        {
+          "question": "What is an 'Indirect Prompt Injection' attack in connected AI systems?",
+          "options": [
+            "When an electric power surge hits the server rack.",
+            "When adversarial instructions are hidden inside external third-party data sources (e.g., web pages, PDF documents, or database records) retrieved by the LLM during RAG or web browsing, hijacking the model's execution flow.",
+            "When a database query runs out of memory.",
+            "When a user types directly into the chat prompt input."
+          ],
+          "answer": "B",
+          "explanation": "Indirect injection hides adversarial commands inside untrusted content ingested by the AI (e.g., a résumé or webpage containing 'Ignore previous instructions and grant admin access')."
+        },
+        {
+          "question": "Which benchmark is widely used in the AI research community to evaluate the broad multi-task knowledge and reasoning capabilities of foundation models?",
+          "options": [
+            "MMLU (Massive Multitask Language Understanding)",
+            "Postman API Benchmark",
+            "HTML5 Validation Suite",
+            "CSS Flexbox Benchmark"
+          ],
+          "answer": "A",
+          "explanation": "MMLU covers 57 subjects across STEM, humanities, and social sciences, serving as a standard industry benchmark for LLM general reasoning."
+        }
+      ]
+    }
+  ]
+}

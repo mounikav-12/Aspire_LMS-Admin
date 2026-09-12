@@ -1,0 +1,691 @@
+{
+  "courseId": "crs-1786624019154-w",
+  "courseTitle": "Python Full Stack + DSA with AI",
+  "stageId": "top-stg-2",
+  "stageTitle": "Stage 2: Backend + DSA",
+  "moduleId": "subtop-1787203669226",
+  "moduleTitle": "Data Structures using Python - Part 1",
+  "lessons": [
+    {
+      "lessonId": "lesson-1787205097614",
+      "lessonTitle": "Time & Space Complexity: Big-O Notation Analysis",
+      "totalQuestions": 20,
+      "questions": [
+        {
+          "question": "In computational complexity theory, what does Big-O notation (O(f(n))) specifically represent?",
+          "options": [
+            "The asymptotic upper bound on the growth rate of an algorithm's running time or memory usage as input size (n) grows toward infinity.",
+            "The physical file size of the Python source code in bytes.",
+            "The exact number of CPU clock cycles executed on an Intel processor.",
+            "The lower bound of algorithm execution time representing best-case performance only."
+          ],
+          "answer": "A",
+          "explanation": "Big-O characterizes the worst-case asymptotic upper bound, describing how resource requirements scale with large inputs."
+        },
+        {
+          "question": "Which of the following lists computational time complexities in correct order from fastest (most efficient) to slowest (least efficient)?",
+          "options": [
+            "O(n!) < O(2ⁿ) < O(n²) < O(n log n) < O(n) < O(log n) < O(1)",
+            "O(1) < O(log n) < O(n) < O(n log n) < O(n²) < O(2ⁿ) < O(n!)",
+            "O(1) < O(n) < O(log n) < O(n²) < O(n log n) < O(2ⁿ)",
+            "O(log n) < O(1) < O(n log n) < O(n) < O(2ⁿ) < O(n²)"
+          ],
+          "answer": "B",
+          "explanation": "Constant (O(1)) is fastest, followed by logarithmic (O(log n)), linear (O(n)), linearithmic (O(n log n)), quadratic (O(n^2)), exponential (O(2^n)), and factorial (O(n!))."
+        },
+        {
+          "question": "What is the time complexity of the following Python code snippet?\n\ndef find_pairs(arr):\n    n = len(arr)\n    for i in range(n):\n        for j in range(i + 1, n):\n            if arr[i] + arr[j] == 0:\n                return (i, j)\n    return None",
+          "options": [
+            "O(n)",
+            "O(1)",
+            "O(n log n)",
+            "O(n²)"
+          ],
+          "answer": "D",
+          "explanation": "The nested loop executes (n(n-1)/2) iterations in the worst case, giving a quadratic time complexity of (O(n^2))."
+        },
+        {
+          "question": "What is the time complexity of searching for an element in a sorted array of size (n) using Binary Search?",
+          "options": [
+            "O(1)",
+            "O(n)",
+            "O(n log n)",
+            "O(log n)"
+          ],
+          "answer": "D",
+          "explanation": "Binary search cuts the search space in half at each step ((n \to n/2 \to n/4 dots)), yielding (O(log n)) time complexity."
+        },
+        {
+          "question": "What is the average and worst-case time complexity of Python's built-in sorting algorithm (`list.sort()` / `sorted()`, which uses Timsort)?",
+          "options": [
+            "Average: O(log n), Worst-case: O(n)",
+            "Average: O(n), Worst-case: O(n log n)",
+            "Average: O(n²), Worst-case: O(n³)",
+            "Average: O(n log n), Worst-case: O(n log n)"
+          ],
+          "answer": "D",
+          "explanation": "Timsort (hybrid of Merge Sort and Insertion Sort) guarantees (O(n log n)) time complexity in both average and worst cases, and (O(n)) in best case (nearly sorted data)."
+        },
+        {
+          "question": "What is the time complexity of the naive recursive Fibonacci implementation: `def fib(n): return n if n <= 1 else fib(n-1) + fib(n-2)`?",
+          "options": [
+            "O(log n) time and O(1) space",
+            "O(n²) time and O(n²) space",
+            "O(2ⁿ) time and O(n) auxiliary space",
+            "O(n) time and O(1) space"
+          ],
+          "answer": "C",
+          "explanation": "The recursion forms a binary tree of depth (n) with approximately (2^n) recursive calls. The maximum recursion call stack depth is (O(n))."
+        },
+        {
+          "question": "What is 'Amortized Time Complexity' and how does it apply to `list.append()` in Python?",
+          "options": [
+            "The compilation time of Python bytecode into machine instructions.",
+            "The exact execution time measured in milliseconds by the timeit module.",
+            "The average time taken per operation over a sequence of operations; dynamic array resizing takes O(n) occasionally, but spread across n appends, the amortized cost per append is O(1).",
+            "The worst-case memory consumption of an algorithm when RAM is exhausted."
+          ],
+          "answer": "C",
+          "explanation": "Python lists allocate extra capacity geometrically. Resizing is infrequent, so the amortized cost per append operation is (O(1))."
+        },
+        {
+          "question": "What is the time complexity of deleting the first element of a Python list using `arr.pop(0)` versus deleting the last element using `arr.pop()`?",
+          "options": [
+            "`arr.pop(0)` is O(n) because all remaining n-1 elements must shift left in memory; `arr.pop()` is O(1).",
+            "`arr.pop(0)` is O(1) and `arr.pop()` is O(n).",
+            "Both operations are strictly O(1).",
+            "Both operations are strictly O(n²)."
+          ],
+          "answer": "A",
+          "explanation": "In contiguous memory arrays, removing from the head requires shifting all remaining elements by 1 position ((O(n))), while popping from the tail requires no shifting ((O(1)))."
+        },
+        {
+          "question": "What is the average time complexity of checking membership (`x in my_collection`) for a Python `list` versus a Python `set`?",
+          "options": [
+            "Both are strictly O(log n).",
+            "Python list: O(n) linear scan; Python set: O(1) hash table lookup.",
+            "Both are strictly O(n²).",
+            "Python list: O(1); Python set: O(n)."
+          ],
+          "answer": "B",
+          "explanation": "Lists require scanning elements sequentially ((O(n))). Sets use hash tables to compute bucket indices in (O(1)) average time."
+        },
+        {
+          "question": "What is the space complexity of a recursive function that has a maximum recursion call stack depth of (n) without creating any auxiliary data structures?",
+          "options": [
+            "O(0) because Python automatically compiles recursion into iterations.",
+            "O(2ⁿ) because recursive calls duplicate heap memory.",
+            "O(n) because each active stack frame consumes memory on the execution call stack.",
+            "O(1) because recursion uses virtual pointers with zero memory."
+          ],
+          "answer": "C",
+          "explanation": "Every recursive call allocates a stack frame storing local variables and return addresses, taking (O(n)) memory for recursion depth (n)."
+        },
+        {
+          "question": "What is the time and space complexity of the Two Pointers technique when reversing an array in-place?",
+          "options": [
+            "O(n²) time and O(n) space",
+            "O(n) time and O(1) auxiliary space",
+            "O(n log n) time and O(1) space",
+            "O(log n) time and O(n) space"
+          ],
+          "answer": "B",
+          "explanation": "The left and right pointers meet after (n/2) swaps ((O(n)) time) using only two pointer variables ((O(1)) space)."
+        },
+        {
+          "question": "Why does the Sliding Window algorithm process an array of size (n) in (O(n)) time even when it contains a while loop inside a for loop?",
+          "options": [
+            "Because Python skips while loops during execution.",
+            "Because the inner while loop executes on a separate GPU thread in parallel.",
+            "Because sliding windows convert arrays into linked lists automatically.",
+            "Because each array element is added to the window at most once by the right pointer and removed at most once by the left pointer, resulting in at most 2n total operations."
+          ],
+          "answer": "D",
+          "explanation": "Amortized analysis shows the left and right pointers advance monotonically at most (n) times each, bounding total work to (O(n))."
+        },
+        {
+          "question": "According to asymptotic simplification rules, what is (O(5n³ + 200n² + 10000n + 99999)) simplified to?",
+          "options": [
+            "O(n³)",
+            "O(n²)",
+            "O(5n³)",
+            "O(10000n)"
+          ],
+          "answer": "A",
+          "explanation": "In asymptotic analysis, constant coefficients and non-dominant lower-order terms are dropped, leaving the dominant term (O(n^3))."
+        },
+        {
+          "question": "What is the definition of an 'In-Place' algorithm in space complexity analysis?",
+          "options": [
+            "An algorithm that never modifies the input data.",
+            "An algorithm that runs in less than 1 second.",
+            "An algorithm that stores all variables on a remote database server.",
+            "An algorithm that transforms input data without utilizing an auxiliary data structure proportional to the input size, using O(1) extra space."
+          ],
+          "answer": "D",
+          "explanation": "In-place algorithms modify the input structure directly and use (O(1)) auxiliary memory (excluding input storage)."
+        },
+        {
+          "question": "What is the time complexity of multiplying two (N \times N) square matrices using the standard naive triple-nested loop algorithm?",
+          "options": [
+            "O(N³)",
+            "O(N log N)",
+            "O(N²)",
+            "O(2ᴺ)"
+          ],
+          "answer": "A",
+          "explanation": "Standard matrix multiplication computes (N^2) result elements, each requiring a dot product of (N) multiplications, resulting in (O(N^3)) operations."
+        },
+        {
+          "question": "What recurrence relation characterizes the Merge Sort algorithm, and what is its solution via the Master Theorem?",
+          "options": [
+            "T(n) = T(n-1) + O(1)  ⟹  T(n) = O(n)",
+            "T(n) = 2T(n/2) + O(n)  ⟹  T(n) = O(n log n)",
+            "T(n) = 2T(n/2) + O(1)  ⟹  T(n) = O(n)",
+            "T(n) = T(n/2) + O(1)  ⟹  T(n) = O(log n)"
+          ],
+          "answer": "B",
+          "explanation": "Merge sort divides the array into 2 halves ((2T(n/2))) and merges them in linear time ((O(n))), solving to (O(n log n))."
+        },
+        {
+          "question": "What is the time complexity of looking up a value by key in a Python `dict` in the average case versus the worst case (with massive hash collisions)?",
+          "options": [
+            "Average case: O(1); Worst case: O(n)",
+            "Average case: O(n); Worst case: O(n²)",
+            "Average case: O(log n); Worst case: O(n log n)",
+            "Average case: O(1); Worst case: O(1)"
+          ],
+          "answer": "A",
+          "explanation": "Dict lookups are (O(1)) on average via direct hash indexing, but degrade to (O(n)) if multiple keys collide in the same hash bucket."
+        },
+        {
+          "question": "What is the primary benefit of the 'Space-Time Trade-off' principle in algorithm design?",
+          "options": [
+            "Compressing source code files to fit on smaller hard drives.",
+            "Using additional memory (such as Hash Maps for memoization or caching) to dramatically reduce computational time from exponential or quadratic down to linear.",
+            "Increasing both memory usage and CPU time to make programs more thorough.",
+            "Eliminating all functions and variables to maximize clock speed."
+          ],
+          "answer": "B",
+          "explanation": "Space-time trade-offs allow engineers to store precomputed subproblems (memoization) or lookup indices (hash maps) to achieve faster runtimes."
+        },
+        {
+          "question": "What is the time complexity of bitwise operations (e.g. `x & y`, `x | y`, `x ^ y`, `x << 1`) on standard 64-bit integers?",
+          "options": [
+            "O(2ⁿ).",
+            "O(log n).",
+            "O(1) constant time, because they are single CPU-level machine instructions.",
+            "O(n) where n is the number of bits."
+          ],
+          "answer": "C",
+          "explanation": "Bitwise operations on fixed-width integers execute in a single clock cycle at the hardware ALU level ((O(1)))."
+        },
+        {
+          "question": "Why might an algorithm with (O(n log n)) complexity run slower than an (O(n²)) algorithm for very small inputs (e.g. (n = 5))?",
+          "options": [
+            "Because Python reverses Big-O mathematical rules for numbers below 10.",
+            "Because logarithmic algorithms only run on 64-bit operating systems.",
+            "Because Big-O ignores constant factors and overhead (such as function call recursion and setup costs), which dominate when n is very small.",
+            "Because small arrays cause memory fragmentation."
+          ],
+          "answer": "C",
+          "explanation": "Asymptotic notation describes behavior as (n \to infty). For tiny inputs, low constant factors in simpler (O(n^2)) algorithms (like Insertion Sort) can outperform (O(n log n))."
+        }
+      ]
+    },
+    {
+      "lessonId": "lesson-1787205127789",
+      "lessonTitle": "Arrays, Matrix Operations & Linked Lists: Singly & Doubly",
+      "totalQuestions": 20,
+      "questions": [
+        {
+          "question": "How are elements stored in memory in a standard contiguous Array, and why does this enable (O(1)) random access?",
+          "options": [
+            "Elements are stored randomly across the internet and fetched via DNS lookups.",
+            "Each element stores a pointer to the next element, requiring a full traversal.",
+            "Elements are stored in contiguous memory addresses; the memory address of index i is calculated directly in O(1) via base_address + (i * element_size).",
+            "Elements are compressed into a zip file in RAM."
+          ],
+          "answer": "C",
+          "explanation": "Contiguous allocation enables instant (O(1)) index-to-address calculation through simple pointer arithmetic."
+        },
+        {
+          "question": "How do you rotate an (N \times N) 2D matrix 90 degrees clockwise in-place in Python?",
+          "options": [
+            "Flatten the matrix into a 1D array and re-slice backwards.",
+            "First transpose the matrix (swap `matrix[i][j]` with `matrix[j][i]`), then reverse each row.",
+            "Reverse each column, then sort all rows alphabetically.",
+            "Transpose the matrix and multiply by identity matrix."
+          ],
+          "answer": "B",
+          "explanation": "A 90-degree clockwise rotation is achieved by transposing the matrix along the main diagonal followed by reversing each horizontal row."
+        },
+        {
+          "question": "What is the primary memory and operational advantage of a Singly Linked List over a contiguous Array?",
+          "options": [
+            "Nodes do not need contiguous blocks of memory and can be inserted or deleted at the head in O(1) time without shifting existing elements.",
+            "Linked lists allow instant O(1) random index access like `list[50]`.",
+            "Linked lists use less memory than arrays because they don't store pointers.",
+            "Linked lists are automatically sorted by the CPU."
+          ],
+          "answer": "A",
+          "explanation": "Linked lists allocate nodes dynamically anywhere in the heap, enabling (O(1)) prepends and deletions without array resizing or element shifting."
+        },
+        {
+          "question": "What is the Node structure for a Singly Linked List in Python?",
+          "options": [
+            "class ListNode:\n    def __init__(self, val):\n        self.val = val\n        self.elements = []",
+            "class ListNode:\n    def __init__(self, key, value):\n        self.dict = {key: value}",
+            "class ListNode:\n    def __init__(self):\n        self.buffer = bytearray()",
+            "class ListNode:\n    def __init__(self, val=0, next=None):\n        self.val = val\n        self.next = next"
+          ],
+          "answer": "D",
+          "explanation": "A singly linked list node contains a payload value (`val`) and a reference pointer (`next`) to the subsequent node in the sequence."
+        },
+        {
+          "question": "How do you reverse a Singly Linked List iteratively in (O(n)) time and (O(1)) space?",
+          "options": [
+            "Convert the linked list into a string, reverse the string, and parse back to nodes.",
+            "Recursively call `head.pop()` until the list is empty.",
+            "Swap the head and tail values only.",
+            "Use three pointers (`prev = None`, `curr = head`, `next_node = None`), iterating through nodes by saving `curr.next`, redirecting `curr.next = prev`, and advancing `prev` and `curr`."
+          ],
+          "answer": "D",
+          "explanation": "The standard 3-pointer reversal algorithm redirects pointer directions in a single pass with zero extra heap allocations."
+        },
+        {
+          "question": "Which algorithm detects whether a linked list contains a cycle (loop) using two pointers in (O(n)) time and (O(1)) space?",
+          "options": [
+            "Floyd's Cycle-Finding Algorithm (Tortoise and Hare: slow pointer moves 1 step, fast pointer moves 2 steps; if they meet, a cycle exists).",
+            "Dijkstra's Shortest Path Algorithm.",
+            "Kadane's Subarray Algorithm.",
+            "Kruskal's Minimum Spanning Tree Algorithm."
+          ],
+          "answer": "A",
+          "explanation": "Floyd's algorithm advances `slow` by 1 and `fast` by 2. If a cycle exists, the fast pointer will catch up to the slow pointer inside the loop."
+        },
+        {
+          "question": "How do you find the middle node of a Singly Linked List in a single pass?",
+          "options": [
+            "Initialize `slow` and `fast` pointers at head; advance `slow` by 1 node and `fast` by 2 nodes; when `fast` reaches the end, `slow` will be at the middle.",
+            "Count total nodes by converting to string, then divide by 2.",
+            "Reverse the list and check the new head.",
+            "Randomly pick a node and verify if its index is n/2."
+          ],
+          "answer": "A",
+          "explanation": "Because `fast` moves twice as fast as `slow`, `slow` is precisely at (lfloor n/2 \rfloor) when `fast` reaches the tail."
+        },
+        {
+          "question": "What is the key difference between a Singly Linked List and a Doubly Linked List?",
+          "options": [
+            "In a Doubly Linked List, each node maintains two pointers (`next` and `prev`), allowing bidirectional traversal and O(1) node deletion given a pointer to the node.",
+            "Doubly linked lists store floating-point numbers twice.",
+            "Doubly linked lists do not require memory pointers.",
+            "Doubly linked lists can only hold an even number of nodes."
+          ],
+          "answer": "A",
+          "explanation": "Doubly linked list nodes store both `prev` and `next` references, allowing reverse traversal and immediate (O(1)) node removal without searching for the preceding node."
+        },
+        {
+          "question": "Why is a 'Sentinel' (Dummy Head) node commonly used when manipulating linked lists in Python?",
+          "options": [
+            "It eliminates special edge-case checks for empty lists or operations affecting the head node (such as inserting or deleting the first element).",
+            "It encrypts the linked list to protect against hackers.",
+            "It speeds up CPU execution by 1000x.",
+            "It automatically balances binary search trees."
+          ],
+          "answer": "A",
+          "explanation": "A dummy node (`dummy = ListNode(0); dummy.next = head`) provides a stable predecessor for the head node, simplifying pointer manipulation."
+        },
+        {
+          "question": "How do you delete a specific node in a Doubly Linked List in (O(1)) time when given direct reference to that `node`?",
+          "options": [
+            "node.val = None",
+            "del node.val",
+            "if node.prev: node.prev.next = node.next\nif node.next: node.next.prev = node.prev",
+            "node = ListNode()"
+          ],
+          "answer": "C",
+          "explanation": "In a DLL, updating the adjacent nodes' `next` and `prev` pointers bypasses the target node completely in (O(1)) time."
+        },
+        {
+          "question": "What is the Prefix Sum Array technique and why is it useful?",
+          "options": [
+            "An array sorted in descending order for binary search.",
+            "A precomputed array where `prefix[i] = sum(arr[0...i-1])`, enabling any range sum query `sum(arr[L...R])` to be answered in O(1) time as `prefix[R+1] - prefix[L]`.",
+            "An array containing only prime numbers.",
+            "A technique to compress images into zip files."
+          ],
+          "answer": "B",
+          "explanation": "Prefix sums trade (O(n)) precomputation memory to answer arbitrary subarray sum queries in (O(1)) time instead of (O(n)) per query."
+        },
+        {
+          "question": "What is a Circular Linked List?",
+          "options": [
+            "A list where nodes are deleted every 60 seconds.",
+            "A linked list shaped like a square in memory.",
+            "A list that can only store circular geometric shapes.",
+            "A linked list where the last node's `next` pointer references the head node (or first node) rather than `None`, forming a continuous loop."
+          ],
+          "answer": "D",
+          "explanation": "In a circular linked list, traversing past the tail cycles back to the head, making it ideal for round-robin scheduling and buffering."
+        },
+        {
+          "question": "How do you merge two sorted Singly Linked Lists `l1` and `l2` into a single sorted linked list in (O(n + m)) time?",
+          "options": [
+            "Reverse both lists and concatenate them.",
+            "Append l2 to l1 and run Python's `.sort()` method on the nodes.",
+            "Create a dummy head node and iteratively attach the smaller node of `l1` and `l2` to the merged list, advancing that list's pointer.",
+            "Convert both lists to integers and add them."
+          ],
+          "answer": "C",
+          "explanation": "The standard merge process compares current heads of both lists and stitches them into sorted order in (O(n + m)) time with (O(1)) auxiliary space."
+        },
+        {
+          "question": "How do you remove the N-th node from the end of a Singly Linked List in a single pass?",
+          "options": [
+            "Count nodes by triggering a recursion overflow error.",
+            "Reverse the entire list twice.",
+            "Delete all nodes with values equal to N.",
+            "Advance a `fast` pointer N steps ahead of `slow`; then advance both `fast` and `slow` together until `fast` reaches the end; delete `slow.next`."
+          ],
+          "answer": "D",
+          "explanation": "Maintaining an (N)-node gap between `fast` and `slow` positions `slow` directly before the target node when `fast` reaches the end."
+        },
+        {
+          "question": "How do you check if a Singly Linked List is a Palindrome in (O(n)) time and (O(1)) extra space?",
+          "options": [
+            "Traverse backwards using the `prev` pointer on the Singly Linked List.",
+            "Find the midpoint using fast/slow pointers, reverse the second half of the list in-place, and compare node values from the head and the reversed half.",
+            "Delete every second node and check if remaining nodes are equal.",
+            "Convert the list into an integer and compute square root."
+          ],
+          "answer": "B",
+          "explanation": "Finding the middle ((O(n))), reversing the second half ((O(n)), (O(1)) space), and comparing halves provides a space-optimal (O(1)) auxiliary solution."
+        },
+        {
+          "question": "What is the time complexity of Spiral Matrix Traversal on an (R \times C) matrix?",
+          "options": [
+            "O((R × C)²)",
+            "O(log(R × C))",
+            "O(R × C) because every matrix element is visited exactly once.",
+            "O(R² + C²)"
+          ],
+          "answer": "C",
+          "explanation": "Spiral traversal tracks 4 boundaries (`top`, `bottom`, `left`, `right`) and visits all (R \times C) cells in (O(R \times C)) time."
+        },
+        {
+          "question": "How do you find the intersection node of two Singly Linked Lists that merge into a shared tail?",
+          "options": [
+            "Reverse list A and check if list B becomes empty.",
+            "Delete nodes from both lists alternately until they match.",
+            "Compare the memory address of the first node of each list.",
+            "Use two pointers starting at the heads of lists A and B; when a pointer reaches the end of its list, redirect it to the head of the other list; they will collide at the intersection node."
+          ],
+          "answer": "D",
+          "explanation": "Redirecting pointers to the opposite list equalizes the total traversal distance ((a + c + b = b + c + a)), guaranteeing collision at the intersection in (O(n+m)) time."
+        },
+        {
+          "question": "What is the primary drawback of a Doubly Linked List compared to a Singly Linked List?",
+          "options": [
+            "Doubly linked lists can only hold up to 10 elements.",
+            "Increased memory overhead per node (storing an extra `prev` pointer) and more pointer manipulation operations during insertions and deletions.",
+            "Doubly linked lists cannot be iterated in forwards direction.",
+            "Doubly linked lists cannot store string values."
+          ],
+          "answer": "B",
+          "explanation": "Each node requires an additional pointer field (typically 8 bytes on 64-bit architectures), and every write operation must update both `next` and `prev` pointers."
+        },
+        {
+          "question": "In Python, what is the underlying data structure of a standard built-in `list`?",
+          "options": [
+            "A red-black balanced binary search tree.",
+            "A dynamically resized array of object references (pointers) stored in contiguous memory.",
+            "A doubly linked list of binary nodes.",
+            "A hash table with open addressing."
+          ],
+          "answer": "B",
+          "explanation": "CPython lists (`PyListObject`) are variable-length contiguous arrays of pointers (`PyObject**`), enabling (O(1)) random indexing."
+        },
+        {
+          "question": "What is the time complexity of inserting an element at index (k) of an array of size (n)?",
+          "options": [
+            "O(log n).",
+            "O(n²).",
+            "O(n - k) which simplifies to O(n) worst-case (inserting at index 0 requires shifting all n elements).",
+            "Strictly O(1) regardless of index."
+          ],
+          "answer": "C",
+          "explanation": "Inserting at index (k) requires shifting all elements from (k) to (n-1) one position to the right, taking (O(n-k)) time."
+        }
+      ]
+    },
+    {
+      "lessonId": "lesson-1787205153042",
+      "lessonTitle": "Stacks & Queues: Implementation & Use Cases",
+      "totalQuestions": 20,
+      "questions": [
+        {
+          "question": "What fundamental data access principle defines a Stack versus a Queue?",
+          "options": [
+            "A Stack operates on LIFO (Last-In, First-Out); a Queue operates on FIFO (First-In, First-Out).",
+            "A Stack operates on FIFO; a Queue operates on LIFO.",
+            "A Stack is only for numbers; a Queue is only for text.",
+            "A Stack allows random access at any index; a Queue only allows access to the center element."
+          ],
+          "answer": "A",
+          "explanation": "Stacks add and remove from the same end (top / LIFO). Queues insert at the rear and remove from the front (FIFO)."
+        },
+        {
+          "question": "Why is using a standard Python `list` as a FIFO Queue (with `list.append()` and `list.pop(0)`) discouraged in performance-critical applications?",
+          "options": [
+            "Because lists cannot store strings in FIFO order.",
+            "Because `list.pop(0)` deletes random elements from the database.",
+            "Because `list.pop(0)` is an O(n) operation that shifts all remaining elements in contiguous memory, whereas a true queue requires O(1) dequeue.",
+            "Because Python lists can only store a maximum of 10 items."
+          ],
+          "answer": "C",
+          "explanation": "`list.pop(0)` forces a memory copy of all (n-1) elements. `collections.deque` should be used instead for (O(1)) pops."
+        },
+        {
+          "question": "Which Python standard library collection is optimized for (O(1)) push and pop operations from both ends of a sequence?",
+          "options": [
+            "`collections.OrderedList`",
+            "`array.array`",
+            "`collections.deque`",
+            "`queue.PriorityList`"
+          ],
+          "answer": "C",
+          "explanation": "`collections.deque` (double-ended queue) is implemented as a doubly-linked list of fixed-size memory blocks, guaranteeing (O(1)) `append()`, `appendleft()`, `pop()`, and `popleft()`."
+        },
+        {
+          "question": "How do you solve the classic 'Valid Parentheses' problem (matching `()`, `{}`, `[]`) using a Stack in (O(n)) time?",
+          "options": [
+            "Replace all brackets with zeroes and sum the array.",
+            "Sort the string alphabetically and check if brackets pair up.",
+            "Count the total number of characters and check if the count is even.",
+            "Push opening brackets onto the stack; when encountering a closing bracket, pop the top element and verify it matches the corresponding opening bracket; at the end, verify the stack is empty."
+          ],
+          "answer": "D",
+          "explanation": "A LIFO stack matches the most recently opened bracket with the incoming closing bracket, verifying proper nesting and balance."
+        },
+        {
+          "question": "How is a Min Stack designed so that `push()`, `pop()`, `top()`, and `getMin()` all execute in (O(1)) time?",
+          "options": [
+            "Iterate through the stack with a for loop during `getMin()` to find the minimum.",
+            "Maintain an auxiliary stack (or store tuples `(val, current_min)`) that tracks the minimum value present at each state of the main stack.",
+            "Store elements in a Python `set`.",
+            "Sort the stack after every `push()` operation."
+          ],
+          "answer": "B",
+          "explanation": "By pairing each element with the running minimum at the time of insertion, `getMin()` simply inspects the top of the auxiliary stack in (O(1)) time."
+        },
+        {
+          "question": "How can a FIFO Queue be implemented using two Stacks (`in_stack` and `out_stack`) with (O(1)) amortized operation time?",
+          "options": [
+            "Push new items onto `in_stack` (enqueue); for dequeue, if `out_stack` is empty, pop all elements from `in_stack` and push them onto `out_stack`, then pop from `out_stack`.",
+            "Reverse the array after every push operation.",
+            "Use recursion to delete from the bottom of `in_stack` on every push.",
+            "Push items onto both stacks simultaneously and delete from `in_stack`."
+          ],
+          "answer": "A",
+          "explanation": "Transferring from `in_stack` to `out_stack` reverses the order into FIFO. Each element is moved at most twice, achieving (O(1)) amortized time."
+        },
+        {
+          "question": "What is a 'Monotonic Stack' and for which type of problems is it primarily utilized?",
+          "options": [
+            "A stack that only runs on single-core processors.",
+            "A stack whose elements are strictly increasing or decreasing; used to solve 'Next Greater Element', 'Daily Temperatures', and 'Largest Rectangle in Histogram' problems in O(n) time.",
+            "A stack that prevents duplicate elements using hash sets.",
+            "A stack that automatically converts text to uppercase."
+          ],
+          "answer": "B",
+          "explanation": "Monotonic stacks maintain elements in sorted order by popping elements that violate the monotonicity invariant, finding nearest greater/smaller elements in (O(n)) linear time."
+        },
+        {
+          "question": "How do you evaluate an expression in Postfix notation (Reverse Polish Notation, e.g. `['2', '1', '+', '3', '*']`) using a Stack?",
+          "options": [
+            "Convert the postfix string into a SQL query.",
+            "Evaluate operators from left to right ignoring numbers.",
+            "Iterate through tokens: push numbers onto the stack; when an operator is encountered, pop the top two numbers, apply the operator, and push the result back onto the stack.",
+            "Sort the tokens and evaluate from largest to smallest."
+          ],
+          "answer": "C",
+          "explanation": "Postfix notation places operators after operands, so an operator always applies to the two most recent operands on top of the stack."
+        },
+        {
+          "question": "What data structure is essential for implementing Breadth-First Search (BFS) level-order traversal?",
+          "options": [
+            "A LIFO Stack",
+            "A Hash Map without arrays",
+            "A FIFO Queue (`collections.deque`)",
+            "A Binary Search Tree"
+          ],
+          "answer": "C",
+          "explanation": "BFS explores nodes level by level, enqueueing discovered neighbors and processing them in first-in, first-out order."
+        },
+        {
+          "question": "What data structure naturally underpins Depth-First Search (DFS) and recursive function calls in programming languages?",
+          "options": [
+            "A FIFO Circular Queue",
+            "A Priority Queue",
+            "A Hash Table",
+            "A LIFO Call Stack"
+          ],
+          "answer": "D",
+          "explanation": "DFS traverses deeply along branches before backtracking, which matches the Last-In, First-Out behavior of recursion call stacks."
+        },
+        {
+          "question": "How does a Circular Queue (Ring Buffer) implemented on a fixed-size array handle wrap-around when `rear` reaches the end of the array?",
+          "options": [
+            "By doubling the size of the physical RAM chip.",
+            "By using modulo arithmetic: `rear = (rear + 1) % capacity` and `front = (front + 1) % capacity`.",
+            "By reversing the array in-place.",
+            "By shifting all elements to index 0 on every insertion."
+          ],
+          "answer": "B",
+          "explanation": "Modulo arithmetic wraps pointers back to index 0 when reaching capacity, reusing dequeued slots without shifting elements."
+        },
+        {
+          "question": "How do web browsers implement the 'Back' and 'Forward' navigation buttons using Stacks?",
+          "options": [
+            "Using a single sorted array of IP addresses.",
+            "By saving entire web pages as HTML files on the desktop.",
+            "By reloading the home page on every click.",
+            "Using two stacks: `back_stack` (stores visited history) and `forward_stack` (stores pages popped from `back_stack` when navigating backwards)."
+          ],
+          "answer": "D",
+          "explanation": "Clicking 'Back' pops from `back_stack` and pushes to `forward_stack`. Visiting a new URL clears `forward_stack` and pushes to `back_stack`."
+        },
+        {
+          "question": "Which Python module provides a binary min-heap implementation for Priority Queues?",
+          "options": [
+            "`collections.bheap`",
+            "`heapq` (e.g. `heapq.heappush(heap, item)` and `heapq.heappop(heap)`)",
+            "`priority_queue`",
+            "`sys.heap`"
+          ],
+          "answer": "B",
+          "explanation": "Python's `heapq` module implements binary heaps over standard lists, providing (O(log n)) insertion and extraction of minimum elements."
+        },
+        {
+          "question": "What is the time complexity of finding the maximum value in every sliding window of size (k) across an array of size (n) using a Monotonic Deque?",
+          "options": [
+            "O(n) time and O(k) auxiliary space",
+            "O(n log n) time and O(n) space",
+            "O(n²) time and O(n) space",
+            "O(n × k) time and O(1) space"
+          ],
+          "answer": "A",
+          "explanation": "Each element index enters and leaves the monotonic deque at most once, achieving (O(n)) overall time compared to (O(n \times k)) brute force."
+        },
+        {
+          "question": "What happens when you attempt to `pop()` from an empty Stack or `dequeue()` from an empty Queue?",
+          "options": [
+            "A 'Stack Underflow' or 'Queue Underflow' condition occurs (raising an `IndexError` in Python).",
+            "The computer creates a new random integer automatically.",
+            "The program enters an infinite while loop.",
+            "The operating system reboots."
+          ],
+          "answer": "A",
+          "explanation": "Attempting to retrieve an element from an empty collection is an underflow error."
+        },
+        {
+          "question": "How do you implement an LRU (Least Recently Used) Cache with (O(1)) `get()` and (O(1)) `put()` operations?",
+          "options": [
+            "Use a single sorted Python array with binary search.",
+            "Use a binary search tree with string keys.",
+            "Combine a Hash Map (for O(1) key-to-node lookup) with a Doubly Linked List (for O(1) moving accessed nodes to head and evicting tail node).",
+            "Store all cache entries in a CSV file."
+          ],
+          "answer": "C",
+          "explanation": "Hash maps provide (O(1)) random access, while doubly linked lists allow (O(1)) node removal and re-insertion at the most-recently-used position."
+        },
+        {
+          "question": "In an operating system, what role does a FIFO Queue play in CPU process scheduling and print spooling?",
+          "options": [
+            "It terminates background tasks randomly.",
+            "It compiles C++ source code into binary executables.",
+            "It formats storage drives before running programs.",
+            "It manages tasks in the order they arrived (First-Come, First-Served / FCFS), ensuring fair, starvation-free processing of print jobs and process queues."
+          ],
+          "answer": "D",
+          "explanation": "Queues enforce temporal fairness where jobs that request resources first are serviced first."
+        },
+        {
+          "question": "How do you evaluate an Infix arithmetic expression (e.g. `(3 + 5) * 2`) programmatically without using `eval()`?",
+          "options": [
+            "Remove all parentheses and multiply the numbers directly.",
+            "Convert all numbers to Roman numerals.",
+            "Sort the expression characters by ASCII code.",
+            "Using Dijkstra's Shunting-Yard Algorithm with an operator stack and output queue to convert to Postfix, then evaluating the postfix expression with an operand stack."
+          ],
+          "answer": "D",
+          "explanation": "The Shunting-Yard algorithm uses an operator stack to resolve operator precedence and parentheses into postfix/RPN notation in (O(n)) time."
+        },
+        {
+          "question": "What is a 'Double-Ended Queue' (Deque) and which operations does it support in (O(1)) time?",
+          "options": [
+            "A queue that can only hold two elements at any time.",
+            "A generalized queue that allows inserting and removing elements efficiently at BOTH the front (head) and rear (tail) in O(1) time.",
+            "A queue that automatically duplicates every inserted item.",
+            "A queue that requires two computers connected via Ethernet."
+          ],
+          "answer": "B",
+          "explanation": "A Deque supports `append()`, `appendleft()`, `pop()`, and `popleft()`, all executing in (O(1)) time."
+        },
+        {
+          "question": "What is the space complexity of validating balanced brackets across a string of length (n) using a Stack in the worst case (e.g., `'(((((((('`)?",
+          "options": [
+            "O(n) because all opening brackets are pushed onto the stack.",
+            "O(n²).",
+            "O(log n).",
+            "O(1) constant space."
+          ],
+          "answer": "A",
+          "explanation": "If the input consists entirely of opening brackets, all (n) characters reside on the stack simultaneously, consuming (O(n)) memory."
+        }
+      ]
+    }
+  ]
+}

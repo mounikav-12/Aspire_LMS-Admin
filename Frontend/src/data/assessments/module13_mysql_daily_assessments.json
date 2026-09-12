@@ -1,0 +1,692 @@
+{
+  "courseId": "crs-1786624019154-w",
+  "courseTitle": "Python Full Stack + DSA with AI",
+  "stageId": "top-stg-2",
+  "stageTitle": "Stage 2: Backend + DSA",
+  "moduleId": "subtop-1787203490227",
+  "moduleTitle": "Module 13: SQL & Relational Databases (MySQL)",
+  "totalLessons": 3,
+  "lessons": [
+    {
+      "lessonId": "lesson-1787204059275",
+      "lessonTitle": "Lesson 1: RDBMS Concepts & SQL DDL: CREATE, ALTER",
+      "totalQuestions": 20,
+      "questions": [
+        {
+          "question": "What is guaranteed when defining a column with `id INT AUTO_INCREMENT PRIMARY KEY` in MySQL?\n```sql\nCREATE TABLE users (\n    id INT AUTO_INCREMENT PRIMARY KEY,\n    username VARCHAR(50) NOT NULL UNIQUE,\n    email VARCHAR(100) NOT NULL\n);\n```",
+          "options": [
+            "The id column accepts negative numbers and duplicate values.",
+            "Every new row automatically receives a unique sequential integer identifier that is non-null and uniquely indexes the record.",
+            "The id values must be manually supplied in every INSERT statement.",
+            "The column values are randomly generated 128-bit UUID strings."
+          ],
+          "answer": "B",
+          "explanation": "`PRIMARY KEY` enforces uniqueness and `NOT NULL` constraints on the column. `AUTO_INCREMENT` automatically generates an incrementing integer (1, 2, 3...) for each newly inserted row."
+        },
+        {
+          "question": "What happens to existing records when an `ALTER TABLE` statement adds a new column with a default value?\n```sql\nALTER TABLE employees\nADD COLUMN status VARCHAR(20) DEFAULT 'active' NOT NULL;\n```",
+          "options": [
+            "All existing rows receive 'active' as their status column value without throwing null constraint errors.",
+            "Existing rows have NULL stored in status, causing a runtime exception.",
+            "All existing rows are deleted to preserve schema consistency.",
+            "The query fails because ALTER TABLE cannot add NOT NULL columns to populated tables."
+          ],
+          "answer": "A",
+          "explanation": "When adding a `NOT NULL` column with a `DEFAULT` clause, MySQL populates all existing rows with the specified default value (`'active'`)."
+        },
+        {
+          "question": "How does `TRUNCATE TABLE` differ from `DELETE FROM` in relational databases?\n```sql\nTRUNCATE TABLE orders;\n```",
+          "options": [
+            "TRUNCATE deletes the table schema definition permanently from the database.",
+            "TRUNCATE is a DDL operation that deallocates data pages, resets AUTO_INCREMENT counters, and does not fire row-level DELETE triggers.",
+            "TRUNCATE creates a rollback backup copy of each row before deleting.",
+            "TRUNCATE is a DML command that scans and deletes rows one by one."
+          ],
+          "answer": "B",
+          "explanation": "`TRUNCATE` is a Data Definition Language (DDL) command. It drops and recreates the data pages, instantly clearing all data and resetting auto-increment sequences without firing per-row delete triggers."
+        },
+        {
+          "question": "What occurs when a referenced parent row is deleted under an `ON DELETE CASCADE` foreign key constraint?\n```sql\nCREATE TABLE orders (\n    order_id INT PRIMARY KEY,\n    user_id INT,\n    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE\n);\n```",
+          "options": [
+            "The deletion is blocked with a foreign key constraint violation error.",
+            "All associated rows in the orders table referencing that user_id are automatically deleted.",
+            "The user_id values in orders are automatically set to NULL.",
+            "The orders table is completely dropped from the database."
+          ],
+          "answer": "B",
+          "explanation": "`ON DELETE CASCADE` automatically propagates the deletion of a parent record in `users` to all child rows in `orders` referencing that parent's primary key."
+        },
+        {
+          "question": "What does the data type `DECIMAL(10, 2)` specify in SQL table definitions?\n```sql\nALTER TABLE products\nMODIFY COLUMN price DECIMAL(10, 2) NOT NULL;\n```",
+          "options": [
+            "A binary floating-point number formatted with 10 bytes of storage.",
+            "A column that stores integers up to 10^2 (100).",
+            "An approximate floating-point value with 10 decimal places and 2 integer digits.",
+            "A fixed-point exact numeric column with up to 10 total digits, of which 2 digits follow the decimal point."
+          ],
+          "answer": "D",
+          "explanation": "`DECIMAL(M, D)` defines exact fixed-point numbers where `M` is precision (total number of digits = 10) and `D` is scale (number of digits after decimal point = 2), e.g. `99999999.99`."
+        },
+        {
+          "question": "In relational database theory (RDBMS), what is \"Referential Integrity\"?",
+          "options": [
+            "A state where every foreign key value in a child table must match an existing primary key value in the referenced parent table or be NULL.",
+            "A requirement that all database queries must execute within 1 millisecond.",
+            "A rule requiring every table to have identical column names across the database.",
+            "A protocol requiring databases to store tables exclusively in plaintext CSV files."
+          ],
+          "answer": "A",
+          "explanation": "Referential integrity ensures relationships between tables remain consistent, preventing orphan records where child rows reference non-existent parent rows."
+        },
+        {
+          "question": "What constraint is enforced by the composite primary key in the following table?\n```sql\nCREATE TABLE course_enrollments (\n    student_id INT,\n    course_id INT,\n    enroll_date DATE,\n    PRIMARY KEY (student_id, course_id)\n);\n```",
+          "options": [
+            "A course can only ever accept one single student.",
+            "A student can only ever enroll in one single course across the entire system.",
+            "Both student_id and course_id must have identical numeric values.",
+            "A student can enroll in a specific course at most once, while allowing students to enroll in different courses and courses to have multiple students."
+          ],
+          "answer": "D",
+          "explanation": "A composite primary key enforces uniqueness on the pair `(student_id, course_id)`, preventing duplicate enrollment of the same student in the same course."
+        },
+        {
+          "question": "What happens when attempting to insert a row violating a `CHECK` constraint?\n```sql\nCREATE TABLE accounts (\n    id INT PRIMARY KEY,\n    balance DECIMAL(10,2) CHECK (balance >= 0)\n);\n\nINSERT INTO accounts VALUES (1, -50.00);\n```",
+          "options": [
+            "The account is created with balance 0.00.",
+            "The balance is saved as NULL without error.",
+            "The database rejects the insert statement and raises a CHECK constraint violation error.",
+            "The value -50.00 is automatically converted to positive 50.00."
+          ],
+          "answer": "C",
+          "explanation": "`CHECK (balance >= 0)` validates that all inserted/updated values satisfy the boolean condition. `-50.00 >= 0` evaluates to False, causing the insert to fail."
+        },
+        {
+          "question": "What is the effect of executing the following `RENAME COLUMN` statement in MySQL 8.0+?\n```sql\nALTER TABLE customers\nRENAME COLUMN contact_phone TO phone_number;\n```",
+          "options": [
+            "Deletes contact_phone and creates an empty phone_number column.",
+            "Creates a duplicate second column named phone_number.",
+            "Renames the column identifier from contact_phone to phone_number while preserving existing data and data types.",
+            "Copies data to a new temporary table and drops customers."
+          ],
+          "answer": "C",
+          "explanation": "`RENAME COLUMN` modifies only the column metadata name in the schema dictionary without altering or re-allocating existing table data."
+        },
+        {
+          "question": "Which SQL command category do `CREATE`, `ALTER`, `DROP`, and `TRUNCATE` belong to?",
+          "options": [
+            "DML (Data Manipulation Language)",
+            "DDL (Data Definition Language)",
+            "TCL (Transaction Control Language)",
+            "DQL (Data Query Language)"
+          ],
+          "answer": "B",
+          "explanation": "DDL commands define, alter, and manage the structure and schema of database objects like databases, tables, columns, and indexes."
+        },
+        {
+          "question": "What is the advantage of using `IF EXISTS` in a `DROP TABLE` statement?\n```sql\nDROP TABLE IF EXISTS audit_logs;\n```",
+          "options": [
+            "It prompts the database administrator for interactive confirmation before dropping.",
+            "It deletes audit_logs only if the table is currently empty.",
+            "It creates audit_logs if it is missing.",
+            "It prevents the SQL script from halting with an error if audit_logs does not exist in the database."
+          ],
+          "answer": "D",
+          "explanation": "`IF EXISTS` provides idempotency: if `audit_logs` exists it is dropped; if it does not exist, MySQL issues a gentle warning rather than terminating execution with an error."
+        },
+        {
+          "question": "How does a `UNIQUE` constraint handle `NULL` values in MySQL InnoDB tables?\n```sql\nCREATE TABLE profiles (\n    id INT PRIMARY KEY,\n    ssn_code VARCHAR(20) UNIQUE\n);\n```",
+          "options": [
+            "Only one row can contain NULL, and subsequent NULL inserts are rejected.",
+            "Inserting NULL converts the value into an empty string ''.",
+            "Multiple rows are allowed to store NULL in ssn_code because in SQL standard, NULL is not considered equal to another NULL.",
+            "NULL values are disallowed under UNIQUE constraints automatically."
+          ],
+          "answer": "C",
+          "explanation": "Under the ANSI SQL standard implemented by MySQL InnoDB, `NULL != NULL`. Hence, multiple distinct rows may contain `NULL` in a unique column."
+        },
+        {
+          "question": "What is the fundamental storage difference between `CHAR(10)` and `VARCHAR(10)` data types?",
+          "options": [
+            "CHAR(10) is limited to 10 bytes total while VARCHAR(10) has unlimited capacity.",
+            "CHAR(10) can only store numbers while VARCHAR(10) stores letters.",
+            "VARCHAR(10) is stored in binary format while CHAR(10) is stored in hexadecimal.",
+            "CHAR(10) always allocates fixed 10 characters padded with spaces, while VARCHAR(10) stores variable length strings plus length prefix bytes."
+          ],
+          "answer": "D",
+          "explanation": "`CHAR(N)` is fixed-length (padded with spaces to `N` characters), whereas `VARCHAR(N)` stores only the actual characters inserted plus 1-2 prefix length bytes."
+        },
+        {
+          "question": "What happens to data when an `ALTER TABLE ... DROP COLUMN` statement is executed?\n```sql\nALTER TABLE inventory\nDROP COLUMN temp_storage_location;\n```",
+          "options": [
+            "The data is exported automatically into a backup CSV file on the server.",
+            "The column and all data stored in it are permanently deleted from the table schema.",
+            "The column is marked hidden but its data remains accessible via SELECT *.",
+            "The column values are set to NULL but the column structure remains."
+          ],
+          "answer": "B",
+          "explanation": "`DROP COLUMN` physically removes the column definition and drops all data associated with that column across all rows in the table."
+        },
+        {
+          "question": "What is the foundational rule of First Normal Form (1NF) in relational database normalization?",
+          "options": [
+            "Every column must contain atomic (indivisible) values, and each record must be unique.",
+            "Every non-key attribute must depend directly on the entire primary key.",
+            "Tables must not contain any numerical float columns.",
+            "All tables must contain at least three foreign key relationships."
+          ],
+          "answer": "A",
+          "explanation": "1NF requires that table attributes contain only atomic (single scalar) values with no repeating groups or comma-separated lists, and each row is uniquely identifiable."
+        },
+        {
+          "question": "What action does `ON DELETE SET NULL` perform when a referenced parent record is deleted?\n```sql\nALTER TABLE comments\nADD CONSTRAINT fk_post\nFOREIGN KEY (post_id) REFERENCES posts(id)\nON DELETE SET NULL;\n```",
+          "options": [
+            "It rejects the deletion of the post row.",
+            "It reassigns the post_id to default value 0.",
+            "It sets the post_id column in referencing comments rows to NULL when the referenced post is deleted.",
+            "It deletes all matching comments rows automatically."
+          ],
+          "answer": "C",
+          "explanation": "`ON DELETE SET NULL` ensures referential integrity by nullifying the child foreign key column (`post_id = NULL`) when the corresponding parent record in `posts` is deleted."
+        },
+        {
+          "question": "What is the function of the `DEFAULT` constraint in SQL column definitions?",
+          "options": [
+            "To restrict column values to only alphanumeric characters.",
+            "To automatically create a B-tree search index on the column.",
+            "To supply a pre-configured fallback value for a column whenever an INSERT query does not provide one.",
+            "To enforce that all values inserted into the column must be identical."
+          ],
+          "answer": "C",
+          "explanation": "The `DEFAULT` clause specifies a literal fallback value (e.g. `DEFAULT 'pending'` or `DEFAULT 0`) applied automatically when an insert omits that column."
+        },
+        {
+          "question": "What is the purpose of creating a secondary index via `CREATE INDEX`?\n```sql\nCREATE INDEX idx_user_email ON users(email);\n```",
+          "options": [
+            "To create a B-tree search structure on the email column, speeding up WHERE filtering and JOIN operations.",
+            "To prevent duplicate email values from being inserted.",
+            "To compress email strings to save disk storage.",
+            "To encrypt email addresses on the storage engine."
+          ],
+          "answer": "A",
+          "explanation": "Indexes create efficient search trees (typically B+ trees) allowing the database engine to find matching rows in `O(log N)` time instead of performing full table scans `O(N)`."
+        },
+        {
+          "question": "What is the conceptual difference between a Surrogate Key and a Natural Key?",
+          "options": [
+            "A surrogate key is always encrypted, while a natural key is plaintext.",
+            "A surrogate key can contain duplicate values, while a natural key cannot.",
+            "A surrogate key is defined in the application layer, while a natural key is in SQL.",
+            "A surrogate key is an artificial identifier with no business meaning (e.g. auto-increment id), while a natural key consists of real-world business attributes (e.g. SSN or email)."
+          ],
+          "answer": "D",
+          "explanation": "Surrogate keys (like integer `id` or UUID) have no domain meaning and exist solely for database identity, while natural keys are inherent domain properties (like Social Security Number or ISBN)."
+        },
+        {
+          "question": "What is the consequence of executing `DROP DATABASE staging_db;` in MySQL?",
+          "options": [
+            "Permanently deletes the staging_db schema along with all contained tables, views, stored procedures, and data rows.",
+            "Disconnects active users from the database without deleting files.",
+            "Moves the database to the operating system recycle bin for 30 days.",
+            "Clears all table rows while preserving empty table structures."
+          ],
+          "answer": "A",
+          "explanation": "`DROP DATABASE` drops the catalog schema and completely deletes all tables, indexes, definitions, and underlying data files permanently."
+        }
+      ]
+    },
+    {
+      "lessonId": "lesson-1787204090933",
+      "lessonTitle": "Lesson 2: SQL DML: INSERT, UPDATE, DELETE & Select Queries",
+      "totalQuestions": 20,
+      "questions": [
+        {
+          "question": "What does the following multi-row `INSERT` statement execute?\n```sql\nINSERT INTO categories (id, name) VALUES\n(1, 'Electronics'),\n(2, 'Books'),\n(3, 'Apparel');\n```",
+          "options": [
+            "Fails because SQL only permits inserting one row per INSERT statement.",
+            "Inserts 3 new rows into categories in a single atomic database operation.",
+            "Creates 3 new separate tables named Electronics, Books, and Apparel.",
+            "Updates existing rows 1, 2, and 3 with new category names."
+          ],
+          "answer": "B",
+          "explanation": "Standard SQL and MySQL support inserting multiple row tuples separated by commas in a single atomic `INSERT INTO ... VALUES (...)` query."
+        },
+        {
+          "question": "What occurs if an `UPDATE` statement is executed without a `WHERE` clause?\n```sql\nUPDATE employees SET salary = salary * 1.1;\n```",
+          "options": [
+            "Raises a syntax error because WHERE clauses are mandatory in UPDATE statements.",
+            "Updates only the first record in the employees table.",
+            "Increases the salary of every single record in the employees table by 10%.",
+            "Prompts the database administrator to specify a target row."
+          ],
+          "answer": "C",
+          "explanation": "In SQL, omitting the `WHERE` clause in an `UPDATE` statement causes the update operation to be applied unconditionally to all rows in the table."
+        },
+        {
+          "question": "What does the `INSERT INTO ... SELECT` statement accomplish?\n```sql\nINSERT INTO active_users (user_id, username)\nSELECT id, username FROM users WHERE status = 'active';\n```",
+          "options": [
+            "Synchronizes updates bidirectionally between both tables.",
+            "Creates a dynamic view named active_users.",
+            "Queries matching active records from users and inserts them directly into active_users.",
+            "Deletes active users from the users table after selecting them."
+          ],
+          "answer": "C",
+          "explanation": "`INSERT INTO ... SELECT` evaluates the `SELECT` query and inserts the resulting result set into the destination table `active_users`."
+        },
+        {
+          "question": "What does the `COALESCE` function return in the following query?\n```sql\nSELECT username, COALESCE(phone, alt_phone, 'N/A') AS contact\nFROM members;\n```",
+          "options": [
+            "Returns 'N/A' only if all member columns are empty strings.",
+            "The first non-NULL value encountered among phone, alt_phone, and 'N/A'.",
+            "The longest string among all arguments.",
+            "A concatenated string joining phone and alt_phone together."
+          ],
+          "answer": "B",
+          "explanation": "`COALESCE(val1, val2, ...)` scans its arguments from left to right and returns the first non-`NULL` value. If both `phone` and `alt_phone` are NULL, it returns `'N/A'`."
+        },
+        {
+          "question": "What rows are deleted by the following `DELETE` statement?\n```sql\nDELETE FROM sessions WHERE last_active < '2026-01-01';\n```",
+          "options": [
+            "Only rows where last_active timestamp is strictly prior to January 1, 2026.",
+            "Only the single oldest session row.",
+            "Rows where last_active is on or after January 1, 2026.",
+            "All rows in the sessions table."
+          ],
+          "answer": "A",
+          "explanation": "The `WHERE` clause restricts the deletion to only records satisfying the condition `last_active < '2026-01-01'`."
+        },
+        {
+          "question": "What is the output of `CONCAT()` when formatting author names?\n```sql\nSELECT CONCAT(first_name, ' ', UPPER(last_name)) AS full_name\nFROM authors;\n-- Assuming first_name = 'Guido', last_name = 'van Rossum'\n```",
+          "options": [
+            "Guido van Rossum",
+            "GUIDO VAN ROSSUM",
+            "Guido VAN ROSSUM",
+            "van Rossum, Guido"
+          ],
+          "answer": "C",
+          "explanation": "`UPPER('van Rossum')` produces `'VAN ROSSUM'`. `CONCAT('Guido', ' ', 'VAN ROSSUM')` yields `'Guido VAN ROSSUM'`."
+        },
+        {
+          "question": "What is the output of the date difference function `DATEDIFF()`?\n```sql\nSELECT DATEDIFF('2026-09-15', '2026-09-10');\n```",
+          "options": [
+            "5",
+            "5 days",
+            "-5",
+            "120"
+          ],
+          "answer": "A",
+          "explanation": "`DATEDIFF(date1, date2)` computes `date1 - date2` in days. September 15 minus September 10 yields the integer `5`."
+        },
+        {
+          "question": "Why are double quotes or backticks used in column aliasing like `AS \"Total Revenue\"`?\n```sql\nSELECT total_amount AS \"Total Revenue\" FROM invoices;\n```",
+          "options": [
+            "To convert the numeric total_amount column into binary text.",
+            "To format the output as currency dollars automatically.",
+            "To prevent the column from appearing in API responses.",
+            "To allow alias identifier names that contain whitespace spaces or reserved SQL keywords."
+          ],
+          "answer": "D",
+          "explanation": "Identifiers with spaces (like `'Total Revenue'`) must be quoted in SQL (double quotes in ANSI SQL, backticks or double quotes in MySQL) so the parser treats them as a single alias token."
+        },
+        {
+          "question": "What is returned when using `DISTINCT` across multiple columns?\n```sql\nSELECT DISTINCT department, city FROM staff;\n```",
+          "options": [
+            "A single concatenated column of department and city.",
+            "Distinct cities and all departments without deduplication.",
+            "Distinct departments and all cities without deduplication.",
+            "Unique pairwise combinations of department and city across all staff records."
+          ],
+          "answer": "D",
+          "explanation": "`DISTINCT` applies to the entire tuple of columns in the `SELECT` list, eliminating duplicate pairs of `(department, city)`."
+        },
+        {
+          "question": "Why does checking `WHERE column = NULL` fail to match null records in SQL?",
+          "options": [
+            "Comparisons with NULL using = always evaluate to UNKNOWN (treated as false in WHERE); IS NULL must be used instead.",
+            "= NULL is valid only in PostgreSQL but disallowed in MySQL.",
+            "NULL is a reserved string and must be written as = 'NULL'.",
+            "= NULL only works on numerical integer columns."
+          ],
+          "answer": "A",
+          "explanation": "In SQL Three-Valued Logic (TRUE, FALSE, UNKNOWN), any equality comparison with `NULL` (`col = NULL` or `NULL = NULL`) yields `UNKNOWN`. `IS NULL` is the dedicated operator to test for missing values."
+        },
+        {
+          "question": "What is the output of extracting a substring with `SUBSTRING('PostgreSQL', 1, 4)` in SQL?",
+          "options": [
+            "Postg",
+            "SQL",
+            "Post",
+            "ostg"
+          ],
+          "answer": "C",
+          "explanation": "SQL string indexing is 1-based (not 0-based). `SUBSTRING('PostgreSQL', 1, 4)` starts at position 1 ('P') and extracts 4 characters ('P', 'o', 's', 't'), producing `'Post'`."
+        },
+        {
+          "question": "What value does `IFNULL(discount, 0.0)` produce in MySQL when `discount` is `NULL`?\n```sql\nSELECT IFNULL(discount, 0.0) FROM orders;\n```",
+          "options": [
+            "NULL",
+            "Raises NullPointerException",
+            "NaN",
+            "0.0"
+          ],
+          "answer": "D",
+          "explanation": "`IFNULL(expr1, expr2)` in MySQL returns `expr1` if `expr1` is not `NULL`; otherwise it returns `expr2` (`0.0`)."
+        },
+        {
+          "question": "What is the output of rounding `123.4567` to two decimal places via `ROUND(123.4567, 2)`?",
+          "options": [
+            "120.00",
+            "123.46",
+            "123.45",
+            "123.00"
+          ],
+          "answer": "B",
+          "explanation": "`ROUND(123.4567, 2)` rounds to 2 decimal places. Since the 3rd decimal digit is 6 (>= 5), it rounds up to `123.46`."
+        },
+        {
+          "question": "What is the difference between `CURDATE()` and `NOW()` in MySQL?",
+          "options": [
+            "CURDATE() is an aggregate function, whereas NOW() is a scalar function.",
+            "CURDATE() returns Unix epoch timestamp, whereas NOW() returns a formatted string.",
+            "CURDATE() returns current date ('YYYY-MM-DD'), whereas NOW() returns both current date and current time ('YYYY-MM-DD HH:MM:SS').",
+            "CURDATE() returns time in UTC, whereas NOW() returns local time."
+          ],
+          "answer": "C",
+          "explanation": "`CURDATE()` returns only the date portion (e.g. `'2026-09-11'`), while `NOW()` returns both the date and time components (e.g. `'2026-09-11 15:30:00'`)."
+        },
+        {
+          "question": "What does the following conditional `CASE` update query perform?\n```sql\nUPDATE products\nSET price = CASE\n    WHEN category_id = 1 THEN price * 0.9\n    ELSE price\nEND;\n```",
+          "options": [
+            "Sets all product prices to 0.9.",
+            "Deletes products where category_id != 1.",
+            "Raises an error because CASE statements cannot be used inside UPDATE.",
+            "Applies a 10% discount exclusively to products in category_id = 1, keeping other product prices unchanged."
+          ],
+          "answer": "D",
+          "explanation": "The `CASE` expression evaluates per row: rows with `category_id = 1` have `price` updated to `price * 0.9`, while all other rows evaluate to `ELSE price` (preserving their original value)."
+        },
+        {
+          "question": "Which SQL command category do `SELECT`, `INSERT`, `UPDATE`, and `DELETE` belong to?",
+          "options": [
+            "DML (Data Manipulation Language)",
+            "DCL (Data Control Language)",
+            "DDL (Data Definition Language)",
+            "TCL (Transaction Control Language)"
+          ],
+          "answer": "A",
+          "explanation": "DML encompasses statements used for managing and manipulating data stored within database tables (`INSERT`, `UPDATE`, `DELETE`, `SELECT`)."
+        },
+        {
+          "question": "What is the difference between `LENGTH()` and `CHAR_LENGTH()` in MySQL?",
+          "options": [
+            "LENGTH() returns the byte size of a string, whereas CHAR_LENGTH() returns the actual character count.",
+            "LENGTH() returns character count, while CHAR_LENGTH() returns word count.",
+            "Both functions are identical aliases with zero difference.",
+            "LENGTH() works only on numbers, while CHAR_LENGTH() works on strings."
+          ],
+          "answer": "A",
+          "explanation": "In multi-byte character encodings like UTF-8, a character like '€' takes 3 bytes: `LENGTH('€') = 3` whereas `CHAR_LENGTH('€') = 1`."
+        },
+        {
+          "question": "What is the behavior of combining `ORDER BY` and `LIMIT` in a MySQL `DELETE` statement?\n```sql\nDELETE FROM temp_cache ORDER BY created_at ASC LIMIT 100;\n```",
+          "options": [
+            "Deletes all records except the 100 oldest records.",
+            "Deletes only the 100 oldest records based on created_at timestamp.",
+            "Fails with a syntax error because LIMIT is forbidden in DELETE.",
+            "Deletes 100 random rows without respecting the order."
+          ],
+          "answer": "B",
+          "explanation": "MySQL supports `ORDER BY ... LIMIT N` in `DELETE` statements to safely purge a bounded batch of rows (e.g. the 100 oldest records)."
+        },
+        {
+          "question": "What is returned by `CONCAT('Hello', NULL, 'World')` in standard MySQL?",
+          "options": [
+            "'' (Empty String)",
+            "NULL",
+            "'HelloWorld'",
+            "'HelloNULLWorld'"
+          ],
+          "answer": "B",
+          "explanation": "In standard MySQL, `CONCAT()` returns `NULL` if any argument is `NULL`. To concatenate while skipping NULLs, `CONCAT_WS()` should be used."
+        },
+        {
+          "question": "What is the role of `REPLACE INTO` in MySQL?",
+          "options": [
+            "Renames an existing database table safely.",
+            "Finds and replaces substrings within VARCHAR columns.",
+            "Replaces all NULL values in a table with zeros.",
+            "Inserts a row if the primary/unique key is new, or deletes the conflicting old row and inserts the new row if a key collision occurs."
+          ],
+          "answer": "D",
+          "explanation": "`REPLACE INTO` acts like `INSERT`, except that if an existing row has the same `PRIMARY KEY` or `UNIQUE` value, the old row is deleted first before the new row is inserted."
+        }
+      ]
+    },
+    {
+      "lessonId": "lesson-1787204117625",
+      "lessonTitle": "Lesson 3: Filtering, Aggregations, & GROUP BY Clauses",
+      "totalQuestions": 20,
+      "questions": [
+        {
+          "question": "What is the behavior of the `BETWEEN` operator in SQL filtering?\n```sql\nSELECT * FROM sales WHERE amount BETWEEN 100 AND 500;\n```",
+          "options": [
+            "Half-open: it matches amount >= 100 AND amount < 500.",
+            "Matches only exact values 100 or 500.",
+            "Inclusive: it matches records where amount >= 100 AND amount <= 500.",
+            "Exclusive: it matches records where amount > 100 AND amount < 500."
+          ],
+          "answer": "C",
+          "explanation": "The SQL `BETWEEN lower AND upper` operator is inclusive of both boundary endpoints (`amount >= 100 AND amount <= 500`)."
+        },
+        {
+          "question": "What does the `%` wildcard match in SQL `LIKE` pattern queries?\n```sql\nSELECT * FROM users WHERE email LIKE '%@gmail.com';\n```",
+          "options": [
+            "Exactly one single character only.",
+            "Only numeric digits from 0 to 9.",
+            "Any whitespace character.",
+            "Zero, one, or multiple arbitrary characters."
+          ],
+          "answer": "D",
+          "explanation": "In SQL `LIKE` clauses, `%` matches any sequence of zero or more characters, matching emails like `'john@gmail.com'` or `'a@gmail.com'`."
+        },
+        {
+          "question": "Which of the following values matches the pattern `LIKE 'A_9'` in SQL?\n```sql\nSELECT * FROM codes WHERE ref_code LIKE 'A_9';\n```",
+          "options": [
+            "'ABC9'",
+            "'A129'",
+            "'AB9'",
+            "'A9'"
+          ],
+          "answer": "C",
+          "explanation": "The underscore `_` wildcard matches exactly one single character. `'AB9'` has length 3 and matches `A` + `B` + `9`."
+        },
+        {
+          "question": "What is the SQL `IN` operator logically equivalent to in the following query?\n```sql\nSELECT title FROM books WHERE status IN ('published', 'archived');\n```",
+          "options": [
+            "WHERE status = 'published' AND status = 'archived'",
+            "WHERE status = 'published' OR status = 'archived'",
+            "WHERE status != 'published' AND status != 'archived'",
+            "WHERE status LIKE '%published%archived%'"
+          ],
+          "answer": "B",
+          "explanation": "`status IN ('A', 'B')` evaluates to true if `status` matches any item in the list, making it equivalent to `status = 'A' OR status = 'B'`."
+        },
+        {
+          "question": "What is the fundamental difference between `COUNT(*)` and `COUNT(column_name)` in SQL aggregations?",
+          "options": [
+            "COUNT(col) returns the sum of numeric column values.",
+            "COUNT(*) counts only unique rows, while COUNT(col) counts duplicate rows.",
+            "COUNT(*) counts all rows including those with NULLs, whereas COUNT(column_name) counts only rows where the specified column is NOT NULL.",
+            "COUNT(*) is slower because it scans indexes on every column."
+          ],
+          "answer": "C",
+          "explanation": "`COUNT(*)` counts total table records in the group. `COUNT(column)` ignores `NULL` values in that specific column and counts only non-null occurrences."
+        },
+        {
+          "question": "What is the output of the following `GROUP BY` query?\n```sql\nSELECT department, COUNT(*) AS emp_count\nFROM employees\nGROUP BY department;\n```",
+          "options": [
+            "A single integer count representing total employees across all departments.",
+            "All individual employee rows sorted by department name.",
+            "Only departments that have zero employees.",
+            "One summary row per distinct department showing the total number of employees in that department."
+          ],
+          "answer": "D",
+          "explanation": "`GROUP BY department` collapses rows with the same department value into a single group, and `COUNT(*)` calculates the row count for each group."
+        },
+        {
+          "question": "What is the key functional difference between `WHERE` and `HAVING` in the following query?\n```sql\nSELECT department, AVG(salary) AS avg_sal\nFROM employees\nWHERE active = 1\nGROUP BY department\nHAVING AVG(salary) > 60000;\n```",
+          "options": [
+            "WHERE filters individual rows before grouping (active = 1), while HAVING filters aggregated group results after grouping (AVG(salary) > 60000).",
+            "WHERE and HAVING are interchangeable synonyms with identical performance.",
+            "WHERE filters groups after aggregation, while HAVING filters individual rows before grouping.",
+            "HAVING can only filter by primary key columns."
+          ],
+          "answer": "A",
+          "explanation": "`WHERE` applies row-level filters before aggregation occurs. `HAVING` applies filters on aggregate functions (`AVG(salary)`) after groups are formed."
+        },
+        {
+          "question": "How are query results sorted when specifying multiple columns in `ORDER BY`?\n```sql\nSELECT name, score, created_at\nFROM players\nORDER BY score DESC, created_at ASC;\n```",
+          "options": [
+            "Sorted only by created_at, ignoring score entirely.",
+            "Results are sorted randomly because combining ASC and DESC is invalid.",
+            "Lowest score first; then latest created_at timestamps first.",
+            "Highest score first; for players with identical scores, earlier created_at timestamps appear first."
+          ],
+          "answer": "D",
+          "explanation": "MySQL sorts primarily by `score DESC` (highest to lowest). If multiple rows share the same score, it breaks ties using `created_at ASC` (earliest to latest)."
+        },
+        {
+          "question": "Which rows are returned by `LIMIT 10 OFFSET 20` when ordering ascending by ID?\n```sql\nSELECT * FROM posts ORDER BY id ASC LIMIT 10 OFFSET 20;\n```",
+          "options": [
+            "Rows 1 through 10.",
+            "Rows 21 through 30 (skips the first 20 rows and fetches the next 10).",
+            "Rows 10 through 20.",
+            "Rows 20 through 30."
+          ],
+          "answer": "B",
+          "explanation": "`OFFSET 20` skips the first 20 matching records, and `LIMIT 10` retrieves the subsequent 10 records (records 21 to 30)."
+        },
+        {
+          "question": "What is the output of `SUM(DISTINCT price)` on values `[10, 10, 20, 30]`?\n```sql\nSELECT SUM(DISTINCT price) FROM items;\n```",
+          "options": [
+            "60",
+            "10",
+            "30",
+            "70"
+          ],
+          "answer": "A",
+          "explanation": "`DISTINCT` eliminates duplicate prices before summing: `10 + 20 + 30 = 60` (the duplicate 10 is counted only once)."
+        },
+        {
+          "question": "Why does the SQL query `SELECT * FROM employees WHERE AVG(salary) > 50000;` cause an execution error?",
+          "options": [
+            "The salary column must be explicitly cast to VARCHAR.",
+            "Aggregate functions cannot be used in a WHERE clause because WHERE filters individual rows before aggregation takes place.",
+            "WHERE clauses only accept boolean integer values 0 and 1.",
+            "AVG() is supported only in PostgreSQL, not MySQL."
+          ],
+          "answer": "B",
+          "explanation": "The SQL engine evaluates `WHERE` before calculating aggregate values. To filter by an aggregate like `AVG(salary)`, a `HAVING` clause must be used."
+        },
+        {
+          "question": "What constitutes each output row when grouping by multiple columns?\n```sql\nSELECT region, product_category, SUM(sales)\nFROM quarterly_sales\nGROUP BY region, product_category;\n```",
+          "options": [
+            "Only rows where region and product_category have identical string values.",
+            "Each unique combination of region and product_category forms an independent group row.",
+            "A single grand total row for the entire dataset.",
+            "Two separate tables: one for region and one for product_category."
+          ],
+          "answer": "B",
+          "explanation": "Multi-column `GROUP BY colA, colB` aggregates data into groups identified by distinct combinations of `(colA, colB)`."
+        },
+        {
+          "question": "What is returned when executing `WHERE id NOT IN (1, 2, NULL)` in SQL?\n```sql\nSELECT * FROM table_a WHERE id NOT IN (1, 2, NULL);\n```",
+          "options": [
+            "0 rows (Empty set), because comparison with NULL produces UNKNOWN, causing NOT IN to never evaluate to TRUE.",
+            "All rows where id IS NULL.",
+            "SyntaxError: NULL is illegal inside IN lists.",
+            "All rows where id is not 1 and not 2."
+          ],
+          "answer": "A",
+          "explanation": "`id NOT IN (1, 2, NULL)` expands to `id != 1 AND id != 2 AND id != NULL`. Since `id != NULL` evaluates to `UNKNOWN`, the entire `AND` chain can never evaluate to `TRUE`."
+        },
+        {
+          "question": "What do `MIN(order_date)` and `MAX(order_date)` calculate when applied to DATE columns?\n```sql\nSELECT MIN(order_date), MAX(order_date) FROM orders;\n```",
+          "options": [
+            "The date with minimum sales revenue and maximum sales revenue.",
+            "The earliest calendar order date and the most recent calendar order date respectively.",
+            "The shortest date string length and longest date string length.",
+            "Random sample dates from the table."
+          ],
+          "answer": "B",
+          "explanation": "When applied to temporal types (`DATE`, `DATETIME`), `MIN()` returns the chronologically earliest date, and `MAX()` returns the chronologically latest date."
+        },
+        {
+          "question": "How is the conditional expression `WHERE category = 'A' OR category = 'B' AND price < 100` evaluated in SQL?",
+          "options": [
+            "OR has higher precedence than AND, evaluating as: (category = 'A' OR category = 'B') AND price < 100.",
+            "Operators are strictly evaluated from left to right without precedence rules.",
+            "AND has higher operator precedence than OR, evaluating as: category = 'A' OR (category = 'B' AND price < 100).",
+            "The query is rejected for missing parentheses."
+          ],
+          "answer": "C",
+          "explanation": "In SQL, logical `AND` has higher precedence than `OR`. To group the `OR` conditions first, explicit parentheses `(category = 'A' OR category = 'B') AND price < 100` must be used."
+        },
+        {
+          "question": "What does `GROUP_CONCAT()` produce in MySQL?\n```sql\nSELECT dept_id, GROUP_CONCAT(emp_name ORDER BY emp_name SEPARATOR ', ') AS team\nFROM staff\nGROUP BY dept_id;\n```",
+          "options": [
+            "A comma-separated string containing sorted employee names for each distinct department.",
+            "A new temporary table for each department.",
+            "The total count of characters across all employee names.",
+            "A nested JSON array of employee objects."
+          ],
+          "answer": "A",
+          "explanation": "`GROUP_CONCAT()` is a MySQL aggregate function that concatenates non-null string values from multiple group rows into a single delimited string."
+        },
+        {
+          "question": "What is the output of combining `AVG()` and `ROUND()` in the following query?\n```sql\nSELECT department, ROUND(AVG(performance_score), 2) AS avg_score\nFROM reviews\nGROUP BY department;\n```",
+          "options": [
+            "The rounded performance score of the highest-rated employee in each department.",
+            "The total count of performance reviews per department multiplied by 2.",
+            "The average performance score per department rounded to 2 decimal places.",
+            "A single average value rounded to the nearest whole integer."
+          ],
+          "answer": "C",
+          "explanation": "`AVG(performance_score)` computes the arithmetic mean for each department group, and `ROUND(..., 2)` truncates/rounds the float result to 2 decimal places."
+        },
+        {
+          "question": "What is the conceptual execution order of SQL clauses within the database engine?",
+          "options": [
+            "LIMIT -> ORDER BY -> DISTINCT -> SELECT -> HAVING -> GROUP BY -> WHERE -> FROM",
+            "FROM -> SELECT -> WHERE -> HAVING -> GROUP BY -> DISTINCT -> LIMIT -> ORDER BY",
+            "SELECT -> FROM -> WHERE -> GROUP BY -> HAVING -> ORDER BY -> LIMIT",
+            "FROM -> WHERE -> GROUP BY -> HAVING -> SELECT -> DISTINCT -> ORDER BY -> LIMIT"
+          ],
+          "answer": "D",
+          "explanation": "SQL is declarative: execution starts by loading tables (`FROM`), filtering rows (`WHERE`), aggregating (`GROUP BY`), filtering aggregates (`HAVING`), projecting columns (`SELECT`), deduplicating (`DISTINCT`), sorting (`ORDER BY`), and slicing (`LIMIT`)."
+        },
+        {
+          "question": "How does MySQL order `NULL` values when sorting with `ORDER BY column ASC` versus `ORDER BY column DESC`?",
+          "options": [
+            "In ASC order, NULL values appear first; in DESC order, NULL values appear last.",
+            "NULL values are automatically omitted from ORDER BY results.",
+            "NULL values are always sorted in the exact middle of the result set.",
+            "In ASC order, NULL values appear last; in DESC order, NULL values appear first."
+          ],
+          "answer": "A",
+          "explanation": "MySQL treats `NULL` as the lowest possible value. Therefore, ascending (`ASC`) puts `NULL`s at the top, and descending (`DESC`) puts `NULL`s at the bottom."
+        },
+        {
+          "question": "What does `COUNT(DISTINCT customer_id)` calculate in the following query?\n```sql\nSELECT country, COUNT(DISTINCT customer_id) AS unique_buyers\nFROM orders\nGROUP BY country;\n```",
+          "options": [
+            "The sum of all customer ID numbers in each country.",
+            "The customer ID with the highest order volume in each country.",
+            "The total number of order transactions placed in each country.",
+            "The number of unique individual customers who placed orders in each country."
+          ],
+          "answer": "D",
+          "explanation": "`COUNT(DISTINCT customer_id)` deduplicates `customer_id` values within each `country` group before counting, reporting unique buyers."
+        }
+      ]
+    }
+  ]
+}
