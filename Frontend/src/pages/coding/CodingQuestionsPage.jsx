@@ -1582,95 +1582,165 @@ export function CodingQuestionsPage() {
             required
           />
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <Select
-              label="1. Course Track"
-              value={formData.courseId}
-              onChange={(e) => {
-                const newCourseId = e.target.value;
-                const selectedC = courses.find((c) => c.id === newCourseId);
-                const nextStages = (milestonesByBatch?.[newCourseId]?.stages?.length > 0)
-                  ? milestonesByBatch[newCourseId].stages
-                  : (milestonesByBatch?.[activeBatchFilter]?.stages?.length > 0)
-                  ? milestonesByBatch[activeBatchFilter].stages
-                  : milestones?.stages || DEFAULT_STAGES;
-                const firstStage = nextStages[0];
-                const firstSubs = getSubtopicsForStage(firstStage);
-                const firstSub = firstSubs[0];
-                setFormData((prev) => ({
-                  ...prev,
-                  courseId: newCourseId,
-                  courseName: selectedC?.title || '',
-                  stageId: firstStage?.id || '',
-                  stageName: firstStage?.title || '',
-                  subtopicId: firstSub?.id || '',
-                  subtopicName: firstSub?.title || '',
-                  innerTopicId: '',
-                  topicName: ''
-                }));
-              }}
-              options={courses.map((c) => ({ value: c.id, label: c.title }))}
-            />
-            <Select
-              label="2. Milestone Stage"
-              value={formData.stageId || currentStageObj?.id || ''}
-              onChange={(e) => {
-                const newStageId = e.target.value;
-                const newStage = modalStagesList.find((s) => s.id === newStageId || isMatchingStage(s.id, newStageId)) || modalStagesList[0];
-                const newSubs = getSubtopicsForStage(newStage);
-                const firstSub = newSubs[0];
-                setFormData((prev) => ({
-                  ...prev,
-                  stageId: newStageId,
-                  stageName: newStage?.title || '',
-                  subtopicId: firstSub?.id || '',
-                  subtopicName: firstSub?.title || '',
-                  innerTopicId: '',
-                  topicName: ''
-                }));
-              }}
-              options={modalStagesList.map((stg) => ({
-                value: stg.id,
-                label: stg.title
-              }))}
-            />
-            <Select
-              label="3. Milestone Subtopic"
-              value={formData.subtopicId || currentSubtopicObj?.id || ''}
-              onChange={(e) => {
-                const newSubId = e.target.value;
-                const targetSub = currentSubtopicsArr.find((st) => st.id === newSubId || cleanId(st.id) === cleanId(newSubId) || cleanStr(st.title) === cleanStr(newSubId)) || currentSubtopicsArr[0];
-                setFormData((prev) => ({
-                  ...prev,
-                  subtopicId: newSubId,
-                  subtopicName: targetSub?.title || '',
-                  innerTopicId: '',
-                  topicName: ''
-                }));
-              }}
-              options={currentSubtopicsArr.map((sub) => ({
-                value: sub.id,
-                label: sub.title
-              }))}
-            />
-            <Select
-              label="4. Specific Lesson (Optional)"
-              value={formData.innerTopicId || ''}
-              onChange={(e) => {
-                const newInnerId = e.target.value;
-                const targetMod = currentInnerTopicsArr.find((m) => m.id === newInnerId || cleanId(m.id) === cleanId(newInnerId) || cleanStr(m.title) === cleanStr(newInnerId));
-                setFormData((prev) => ({
-                  ...prev,
-                  innerTopicId: newInnerId,
-                  topicName: targetMod?.title || ''
-                }));
-              }}
-              options={[
-                { value: '', label: 'None (Module Level)' },
-                ...currentInnerTopicsArr.map((l) => ({ value: l.id, label: l.title }))
-              ]}
-            />
-          </div>
+          {/* 4-TIER CASCADING HIERARCHY SELECTOR (CURRICULUM LOCATION & MILESTONE TOPIC MAPPING) */}
+          {(() => {
+            const handleAutoFillFromMilestone = () => {
+              const subTitleClean = currentSubtopicObj?.title ? currentSubtopicObj.title.replace(/^Module\s+\d+:\s*/i, '') : '';
+              const targetMod = currentInnerTopicsArr.find((m) => m.id === formData.innerTopicId) || currentInnerTopicsArr[0];
+              const modTitle = targetMod?.title || '';
+              const suggestedTitle = modTitle && modTitle !== subTitleClean
+                ? `${modTitle}: Coding Challenge`
+                : (subTitleClean ? `${subTitleClean}: Practical Problem` : 'Coding Question');
+
+              setFormData((prev) => ({
+                ...prev,
+                title: prev.title || suggestedTitle,
+                stageId: currentStageObj?.id || prev.stageId,
+                stageName: currentStageObj?.title || prev.stageName,
+                subtopicId: currentSubtopicObj?.id || prev.subtopicId,
+                subtopicName: currentSubtopicObj?.title || prev.subtopicName,
+                innerTopicId: targetMod?.id || prev.innerTopicId,
+                topicName: modTitle || prev.topicName
+              }));
+              addToast(`Auto-filled from milestone: "${subTitleClean || 'Curriculum'}"`, 'info');
+            };
+
+            return (
+              <div className="bg-gradient-to-br from-slate-50 via-emerald-50/20 to-purple-50/40 p-3.5 sm:p-4 rounded-2xl border border-slate-200/80 shadow-2xs space-y-3">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2.5 border-b border-emerald-100/80">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-7 h-7 rounded-lg bg-emerald-600 text-white flex items-center justify-center shadow-xs flex-shrink-0">
+                      <Layers className="w-3.5 h-3.5" />
+                    </div>
+                    <div>
+                      <h4 className="text-xs font-black text-slate-900 uppercase tracking-wider">
+                        Curriculum Location & Milestone Topic Mapping
+                      </h4>
+                      <p className="text-[11px] text-slate-500 font-medium">
+                        Coding questions automatically sync to this Milestone topic in real-time
+                      </p>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={handleAutoFillFromMilestone}
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold text-emerald-700 bg-emerald-100/80 hover:bg-emerald-200 border border-emerald-300 rounded-lg transition-colors shadow-2xs self-start sm:self-auto cursor-pointer"
+                    title="Auto-populate Coding Question details from selected Milestone topic"
+                  >
+                    <Sparkles className="w-3.5 h-3.5 text-emerald-600 animate-pulse" />
+                    <span>Auto-Fill from Milestone</span>
+                  </button>
+                </div>
+
+                {/* 2x2 Structured Step Layout */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {/* Step 1: Course Track */}
+                  <div className="bg-white/95 p-2.5 sm:p-3 rounded-xl border border-emerald-100/90 shadow-2xs">
+                    <Select
+                      label="1. COURSE TRACK"
+                      value={formData.courseId}
+                      onChange={(e) => {
+                        const newCourseId = e.target.value;
+                        const selectedC = courses.find((c) => c.id === newCourseId);
+                        const nextStages = (milestonesByBatch?.[newCourseId]?.stages?.length > 0)
+                          ? milestonesByBatch[newCourseId].stages
+                          : (milestonesByBatch?.[activeBatchFilter]?.stages?.length > 0)
+                          ? milestonesByBatch[activeBatchFilter].stages
+                          : milestones?.stages || DEFAULT_STAGES;
+                        const firstStage = nextStages[0];
+                        const firstSubs = getSubtopicsForStage(firstStage);
+                        const firstSub = firstSubs[0];
+                        setFormData((prev) => ({
+                          ...prev,
+                          courseId: newCourseId,
+                          courseName: selectedC?.title || '',
+                          stageId: firstStage?.id || '',
+                          stageName: firstStage?.title || '',
+                          subtopicId: firstSub?.id || '',
+                          subtopicName: firstSub?.title || '',
+                          innerTopicId: '',
+                          topicName: ''
+                        }));
+                      }}
+                      options={courses.map((c) => ({ value: c.id, label: c.title }))}
+                    />
+                  </div>
+
+                  {/* Step 2: Course Module / Stage */}
+                  <div className="bg-white/95 p-2.5 sm:p-3 rounded-xl border border-emerald-100/90 shadow-2xs">
+                    <Select
+                      label="2. MILESTONE STAGE"
+                      value={formData.stageId || currentStageObj?.id || ''}
+                      onChange={(e) => {
+                        const newStageId = e.target.value;
+                        const newStage = modalStagesList.find((s) => s.id === newStageId || isMatchingStage(s.id, newStageId)) || modalStagesList[0];
+                        const newSubs = getSubtopicsForStage(newStage);
+                        const firstSub = newSubs[0];
+                        setFormData((prev) => ({
+                          ...prev,
+                          stageId: newStageId,
+                          stageName: newStage?.title || '',
+                          subtopicId: firstSub?.id || '',
+                          subtopicName: firstSub?.title || '',
+                          innerTopicId: '',
+                          topicName: ''
+                        }));
+                      }}
+                      options={modalStagesList.map((stg) => ({
+                        value: stg.id,
+                        label: stg.title
+                      }))}
+                    />
+                  </div>
+
+                  {/* Step 3: Milestone Subtopic / Module Track */}
+                  <div className="bg-white/95 p-2.5 sm:p-3 rounded-xl border border-emerald-100/90 shadow-2xs">
+                    <Select
+                      label="3. MILESTONE SUBTOPIC / MODULE TRACK"
+                      value={formData.subtopicId || currentSubtopicObj?.id || ''}
+                      onChange={(e) => {
+                        const newSubId = e.target.value;
+                        const targetSub = currentSubtopicsArr.find((st) => st.id === newSubId || cleanId(st.id) === cleanId(newSubId) || cleanStr(st.title) === cleanStr(newSubId)) || currentSubtopicsArr[0];
+                        setFormData((prev) => ({
+                          ...prev,
+                          subtopicId: newSubId,
+                          subtopicName: targetSub?.title || '',
+                          innerTopicId: '',
+                          topicName: ''
+                        }));
+                      }}
+                      options={currentSubtopicsArr.map((sub, idx) => ({
+                        value: sub.id,
+                        label: `${idx + 1}. ${sub.title}`
+                      }))}
+                    />
+                  </div>
+
+                  {/* Step 4: Specific Topic Module */}
+                  <div className="bg-white/95 p-2.5 sm:p-3 rounded-xl border border-emerald-100/90 shadow-2xs">
+                    <Select
+                      label="4. SPECIFIC TOPIC MODULE"
+                      value={formData.innerTopicId || ''}
+                      onChange={(e) => {
+                        const newInnerId = e.target.value;
+                        const targetMod = currentInnerTopicsArr.find((m) => m.id === newInnerId || cleanId(m.id) === cleanId(newInnerId) || cleanStr(m.title) === cleanStr(newInnerId));
+                        setFormData((prev) => ({
+                          ...prev,
+                          innerTopicId: newInnerId,
+                          topicName: targetMod?.title || ''
+                        }));
+                      }}
+                      options={[
+                        { value: '', label: 'None (Module Level)' },
+                        ...currentInnerTopicsArr.map((l) => ({ value: l.id, label: l.title }))
+                      ]}
+                    />
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <Select
