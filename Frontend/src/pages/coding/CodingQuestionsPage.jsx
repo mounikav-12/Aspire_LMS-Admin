@@ -1763,20 +1763,7 @@ export function CodingQuestionsPage() {
             );
           })()}
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <CustomSelect
-              label="Programming Language"
-              value={formData.language}
-              onChange={(e) => setFormData({ ...formData, language: e.target.value })}
-              options={[
-                { value: 'JavaScript', label: 'JavaScript' },
-                { value: 'TypeScript', label: 'TypeScript' },
-                { value: 'Python', label: 'Python' },
-                { value: 'Java', label: 'Java' },
-                { value: 'C++', label: 'C++' }
-              ]}
-            />
-
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <CustomSelect
               label="Difficulty Level"
               value={formData.difficulty}
