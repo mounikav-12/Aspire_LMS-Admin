@@ -807,11 +807,11 @@ export const DEFAULT_CURRICULUM_STAGES = [
       { id: "mod-html", title: "HTML5 & Web Architecture", name: "HTML5 & Web Architecture", lessons: DEFAULT_CURRICULUM_LESSONS["mod-html"]?.lessons || [] },
       { id: "mod-css", title: "CSS3 Fundamentals & Box Model", name: "CSS3 Fundamentals & Box Model", lessons: DEFAULT_CURRICULUM_LESSONS["mod-css"]?.lessons || [] },
       { id: "mod-advcss", title: "Advanced CSS Layouts & Responsive Design", name: "Advanced CSS Layouts & Responsive Design", lessons: DEFAULT_CURRICULUM_LESSONS["mod-advcss"]?.lessons || [] },
-      { id: "mod-bootstrap", title: "Bootstrap 5 & UI Frameworks", name: "Bootstrap 5 & UI Frameworks", lessons: DEFAULT_CURRICULUM_LESSONS["mod-bootstrap"]?.lessons || [] },
+      { id: "mod-bootstrap", title: "Bootstrap 5 Framework", name: "Bootstrap 5 Framework", lessons: DEFAULT_CURRICULUM_LESSONS["mod-bootstrap"]?.lessons || [] },
       { id: "mod-jsess", title: "JavaScript Essentials & Control Flow", name: "JavaScript Essentials & Control Flow", lessons: DEFAULT_CURRICULUM_LESSONS["mod-jsess"]?.lessons || [] },
-      { id: "mod-jsfunc", title: "JavaScript Functions, Arrays & Objects", name: "JavaScript Functions, Arrays & Objects", lessons: DEFAULT_CURRICULUM_LESSONS["mod-jsfunc"]?.lessons || [] },
-      { id: "mod-dom", title: "DOM Manipulation & Events", name: "DOM Manipulation & Events", lessons: DEFAULT_CURRICULUM_LESSONS["mod-dom"]?.lessons || [] },
-      { id: "mod-es6async", title: "Modern ES6+ & Asynchronous JavaScript", name: "Modern ES6+ & Asynchronous JavaScript", lessons: DEFAULT_CURRICULUM_LESSONS["mod-es6async"]?.lessons || [] }
+      { id: "mod-jsfunc", title: "JavaScript Functions, Objects & Arrays", name: "JavaScript Functions, Objects & Arrays", lessons: DEFAULT_CURRICULUM_LESSONS["mod-jsfunc"]?.lessons || [] },
+      { id: "mod-dom", title: "DOM Manipulation & Event Handling", name: "DOM Manipulation & Event Handling", lessons: DEFAULT_CURRICULUM_LESSONS["mod-dom"]?.lessons || [] },
+      { id: "mod-es6async", title: "Modern ES6+ & Asynchronous JS", name: "Modern ES6+ & Asynchronous JS", lessons: DEFAULT_CURRICULUM_LESSONS["mod-es6async"]?.lessons || [] }
     ]
   },
   {
@@ -820,20 +820,20 @@ export const DEFAULT_CURRICULUM_STAGES = [
     title: "Stage 2: Backend + DSA",
     name: "Stage 2: Backend + DSA",
     subtopics: [
-      { id: "subtop-1787202208426", title: "Python Fundamentals & Logic Building", name: "Python Fundamentals & Logic Building", lessons: DEFAULT_CURRICULUM_LESSONS["subtop-1787202208426"]?.lessons || [] },
-      { id: "subtop-1787203318093", title: "Python Data Structures: Lists, Tuples, Dictionaries, Sets", name: "Python Data Structures: Lists, Tuples, Dictionaries, Sets", lessons: DEFAULT_CURRICULUM_LESSONS["subtop-1787203318093"]?.lessons || [] },
-      { id: "subtop-1787203469178", title: "Advanced Python & Object-Oriented Programming (OOP)", name: "Advanced Python & Object-Oriented Programming (OOP)", lessons: DEFAULT_CURRICULUM_LESSONS["subtop-1787203469178"]?.lessons || [] },
-      { id: "subtop-1787203490227", title: "Relational Databases & MySQL Essentials", name: "Relational Databases & MySQL Essentials", lessons: DEFAULT_CURRICULUM_LESSONS["subtop-1787203490227"]?.lessons || [] },
-      { id: "subtop-1787203515689", title: "Advanced SQL: Joins, Aggregations, Indexing & Optimization", name: "Advanced SQL: Joins, Aggregations, Indexing & Optimization", lessons: DEFAULT_CURRICULUM_LESSONS["subtop-1787203515689"]?.lessons || [] },
-      { id: "subtop-1787203534393", title: "Django Web Framework: Architecture, Routing & Views", name: "Django Web Framework: Architecture, Routing & Views", lessons: DEFAULT_CURRICULUM_LESSONS["subtop-1787203534393"]?.lessons || [] },
-      { id: "subtop-1787203553997", title: "Django Templates, Forms, & Static Asset Handling", name: "Django Templates, Forms, & Static Asset Handling", lessons: DEFAULT_CURRICULUM_LESSONS["subtop-1787203553997"]?.lessons || [] },
-      { id: "subtop-1787203571606", title: "Django ORM & Model Relationships", name: "Django ORM & Model Relationships", lessons: DEFAULT_CURRICULUM_LESSONS["subtop-1787203571606"]?.lessons || [] },
-      { id: "subtop-1787203589865", title: "Django Authentication, Middleware & Security", name: "Django Authentication, Middleware & Security", lessons: DEFAULT_CURRICULUM_LESSONS["subtop-1787203589865"]?.lessons || [] },
-      { id: "subtop-1787203608548", title: "Django REST Framework (DRF): Serializers & API Views", name: "Django REST Framework (DRF): Serializers & API Views", lessons: DEFAULT_CURRICULUM_LESSONS["subtop-1787203608548"]?.lessons || [] },
-      { id: "subtop-1787203627297", title: "Advanced DRF: ViewSets, Routers, JWT Auth & Permissions", name: "Advanced DRF: ViewSets, Routers, JWT Auth & Permissions", lessons: DEFAULT_CURRICULUM_LESSONS["subtop-1787203627297"]?.lessons || [] },
-      { id: "subtop-1787203652445", title: "Caching with Redis & Cloud Storage with AWS S3", name: "Caching with Redis & Cloud Storage with AWS S3", lessons: DEFAULT_CURRICULUM_LESSONS["subtop-1787203652445"]?.lessons || [] },
-      { id: "subtop-1787203669226", title: "DSA: Arrays, Strings, Sorting & Searching", name: "DSA: Arrays, Strings, Sorting & Searching", lessons: DEFAULT_CURRICULUM_LESSONS["subtop-1787203669226"]?.lessons || [] },
-      { id: "subtop-1787203763954", title: "DSA: Stacks, Queues, Linked Lists & Trees", name: "DSA: Stacks, Queues, Linked Lists & Trees", lessons: DEFAULT_CURRICULUM_LESSONS["subtop-1787203763954"]?.lessons || [] }
+      { id: "subtop-1787202208426", title: "Python Programming Fundamentals", name: "Python Programming Fundamentals", lessons: DEFAULT_CURRICULUM_LESSONS["subtop-1787202208426"]?.lessons || [] },
+      { id: "subtop-1787203318093", title: "Advanced Python & Exception Handling", name: "Advanced Python & Exception Handling", lessons: DEFAULT_CURRICULUM_LESSONS["subtop-1787203318093"]?.lessons || [] },
+      { id: "subtop-1787203469178", title: "Object-Oriented Programming(OOP)", name: "Object-Oriented Programming(OOP)", lessons: DEFAULT_CURRICULUM_LESSONS["subtop-1787203469178"]?.lessons || [] },
+      { id: "subtop-1787203490227", title: "SQL & Relational Databases (MySQL)", name: "SQL & Relational Databases (MySQL)", lessons: DEFAULT_CURRICULUM_LESSONS["subtop-1787203490227"]?.lessons || [] },
+      { id: "subtop-1787203515689", title: "Advanced SQL & PostgreSQL Integration", name: "Advanced SQL & PostgreSQL Integration", lessons: DEFAULT_CURRICULUM_LESSONS["subtop-1787203515689"]?.lessons || [] },
+      { id: "subtop-1787203534393", title: "Django Framework Setup & Architecture", name: "Django Framework Setup & Architecture", lessons: DEFAULT_CURRICULUM_LESSONS["subtop-1787203534393"]?.lessons || [] },
+      { id: "subtop-1787203553997", title: "Django Templates & Static Files Setup", name: "Django Templates & Static Files Setup", lessons: DEFAULT_CURRICULUM_LESSONS["subtop-1787203553997"]?.lessons || [] },
+      { id: "subtop-1787203571606", title: "Django Models & Database ORM", name: "Django Models & Database ORM", lessons: DEFAULT_CURRICULUM_LESSONS["subtop-1787203571606"]?.lessons || [] },
+      { id: "subtop-1787203589865", title: "Django Forms, Authentication & Auth", name: "Django Forms, Authentication & Auth", lessons: DEFAULT_CURRICULUM_LESSONS["subtop-1787203589865"]?.lessons || [] },
+      { id: "subtop-1787203608548", title: "Django REST Framework (DRF) Core", name: "Django REST Framework (DRF) Core", lessons: DEFAULT_CURRICULUM_LESSONS["subtop-1787203608548"]?.lessons || [] },
+      { id: "subtop-1787203627297", title: "DRF Advanced: ViewSets, JWT Auth & Testing", name: "DRF Advanced: ViewSets, JWT Auth & Testing", lessons: DEFAULT_CURRICULUM_LESSONS["subtop-1787203627297"]?.lessons || [] },
+      { id: "subtop-1787203652445", title: "Redis Caching & AWS S3 Cloud Storage", name: "Redis Caching & AWS S3 Cloud Storage", lessons: DEFAULT_CURRICULUM_LESSONS["subtop-1787203652445"]?.lessons || [] },
+      { id: "subtop-1787203669226", title: "Data Structures using Python - Part 1", name: "Data Structures using Python - Part 1", lessons: DEFAULT_CURRICULUM_LESSONS["subtop-1787203669226"]?.lessons || [] },
+      { id: "subtop-1787203763954", title: "Data Structures & Algorithms - Part 2", name: "Data Structures & Algorithms - Part 2", lessons: DEFAULT_CURRICULUM_LESSONS["subtop-1787203763954"]?.lessons || [] }
     ]
   },
   {
@@ -842,9 +842,9 @@ export const DEFAULT_CURRICULUM_STAGES = [
     title: "Stage 3: AI, Integration & Deployment",
     name: "Stage 3: AI, Integration & Deployment",
     subtopics: [
-      { id: "mod-stg3-m1", title: "Generative AI Integration: OpenAI, Claude & Gemini APIs", name: "Generative AI Integration: OpenAI, Claude & Gemini APIs", lessons: DEFAULT_CURRICULUM_LESSONS["mod-stg3-m1"]?.lessons || [] },
-      { id: "mod-stg3-m2", title: "Vector Databases, Embeddings & RAG Architecture", name: "Vector Databases, Embeddings & RAG Architecture", lessons: DEFAULT_CURRICULUM_LESSONS["mod-stg3-m2"]?.lessons || [] },
-      { id: "mod-stg3-m3", title: "Docker, CI/CD Pipelines & Cloud Deployment", name: "Docker, CI/CD Pipelines & Cloud Deployment", lessons: DEFAULT_CURRICULUM_LESSONS["mod-stg3-m3"]?.lessons || [] }
+      { id: "mod-stg3-m1", title: "Introduction to AI, Prompt Engineering & LLMs", name: "Introduction to AI, Prompt Engineering & LLMs", lessons: DEFAULT_CURRICULUM_LESSONS["mod-stg3-m1"]?.lessons || [] },
+      { id: "mod-stg3-m2", title: "AI Integration with Python & LangChain", name: "AI Integration with Python & LangChain", lessons: DEFAULT_CURRICULUM_LESSONS["mod-stg3-m2"]?.lessons || [] },
+      { id: "mod-stg3-m3", title: "Docker Containerization & Cloud Deployment", name: "Docker Containerization & Cloud Deployment", lessons: DEFAULT_CURRICULUM_LESSONS["mod-stg3-m3"]?.lessons || [] }
     ]
   },
   {
@@ -853,8 +853,8 @@ export const DEFAULT_CURRICULUM_STAGES = [
     title: "Stage 4: Career Launchpad",
     name: "Stage 4: Career Launchpad",
     subtopics: [
-      { id: "mod-stg4-m1", title: "Full-Stack System Design & Microservices Architecture", name: "Full-Stack System Design & Microservices Architecture", lessons: DEFAULT_CURRICULUM_LESSONS["mod-stg4-m1"]?.lessons || [] },
-      { id: "mod-stg4-m2", title: "Capstone Project Development & Mentoring - 1", name: "Capstone Project Development & Mentoring - 1", lessons: DEFAULT_CURRICULUM_LESSONS["mod-stg4-m2"]?.lessons || [] },
+      { id: "mod-stg4-m1", title: "System Design & Software Architecture", name: "System Design & Software Architecture", lessons: DEFAULT_CURRICULUM_LESSONS["mod-stg4-m1"]?.lessons || [] },
+      { id: "mod-stg4-m2", title: "Capstone Project Mentoring & Review - 1", name: "Capstone Project Mentoring & Review - 1", lessons: DEFAULT_CURRICULUM_LESSONS["mod-stg4-m2"]?.lessons || [] },
       { id: "mod-stg4-m3", title: "Capstone Project Development & Mentoring - 2", name: "Capstone Project Development & Mentoring - 2", lessons: DEFAULT_CURRICULUM_LESSONS["mod-stg4-m3"]?.lessons || [] },
       { id: "mod-stg4-m4", title: "Resume Building, LinkedIn & GitHub Portfolio", name: "Resume Building, LinkedIn & GitHub Portfolio", lessons: DEFAULT_CURRICULUM_LESSONS["mod-stg4-m4"]?.lessons || [] },
       { id: "mod-stg4-m5", title: "Mock Technical Interviews & Valedictory", name: "Mock Technical Interviews & Valedictory", lessons: DEFAULT_CURRICULUM_LESSONS["mod-stg4-m5"]?.lessons || [] }
@@ -875,9 +875,19 @@ export const SUBTOPIC_MODULE_MAP = {
   'm1_dom': 'mod-dom',
   'm1_es6': 'mod-es6async',
   'm2_py_fund': 'subtop-1787202208426',
+  'm2_py_adv': 'subtop-1787203318093',
   'm2_py_oop': 'subtop-1787203469178',
+  'm2_mysql': 'subtop-1787203490227',
   'm2_postgres': 'subtop-1787203490227',
+  'm2_adv_sql': 'subtop-1787203515689',
+  'm2_django_arch': 'subtop-1787203534393',
   'm2_django_api': 'subtop-1787203534393',
+  'm2_django_templates': 'subtop-1787203553997',
+  'm2_django_orm': 'subtop-1787203571606',
+  'm2_django_auth': 'subtop-1787203589865',
+  'm2_drf_core': 'subtop-1787203608548',
+  'm2_drf_adv': 'subtop-1787203627297',
+  'm2_redis_s3': 'subtop-1787203652445',
   'm2_dsa_arrays': 'subtop-1787203669226',
   'm2_dsa_linkedlist': 'subtop-1787203763954',
   'm2_dsa_trees': 'subtop-1787203763954',

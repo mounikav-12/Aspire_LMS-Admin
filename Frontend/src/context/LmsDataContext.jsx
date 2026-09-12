@@ -2053,7 +2053,12 @@ export function LmsDataProvider({ children }) {
             subtopicName: cq.subtopic_name || cq.subtopicName || '',
             innerTopicId: cq.inner_topic_id || cq.innerTopicId || cq.module_id || cq.moduleId || '',
             moduleName: cq.module_name || cq.moduleName || cq.topic_name || cq.topicName || '',
-            topicName: cq.topic_name || cq.topicName || cq.module_name || cq.moduleName || ''
+            topicName: cq.topic_name || cq.topicName || cq.module_name || cq.moduleName || '',
+            language: cq.language || 'JavaScript',
+            marks: cq.marks !== undefined ? cq.marks : 20,
+            timeLimitMinutes: cq.time_limit_minutes || cq.timeLimitMinutes || 15,
+            inputFormat: cq.input_format || cq.inputFormat || '',
+            outputFormat: cq.output_format || cq.outputFormat || ''
           };
         });
         setCodingQuestionsByBatch(() => {
