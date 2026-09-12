@@ -842,12 +842,13 @@ export function AssessmentListPage() {
     const subLessons = getInnerModulesForSubtopic(firstSub, courseLessons, firstStage?.id);
     const firstMod = subLessons[0];
     const lessonTitle = firstMod?.title || firstSub?.title || '';
+    const subtopicTitle = firstSub?.title || '';
 
     setBatchActiveTab('Weekdays');
     setSelectedWeekdayBatches(allWeekdayBatchesList);
     setSelectedWeekendBatches(allWeekendBatchesList);
     setFormData({
-      title: isDaily ? lessonTitle : '',
+      title: isDaily ? lessonTitle : subtopicTitle,
       evalType: activeMainTab === 'QUIZZES' ? 'quiz' : 'assessment',
       courseId: courses[0]?.id || '',
       courseName: courses[0]?.title || '',
@@ -1133,7 +1134,9 @@ export function AssessmentListPage() {
     const allBatches = [...selectedWeekdayBatches, ...selectedWeekendBatches];
     const targetBatchStr = allBatches.length > 0 ? allBatches.join(', ') : 'All Batches';
 
-    const defaultLessonTitle = currentModObj?.title || currentSubObj?.title || 'Daily Assessment';
+    const defaultLessonTitle = isQuizEval
+      ? (currentSubObj?.title || 'Weekly Assessment')
+      : (currentModObj?.title || currentSubObj?.title || 'Daily Assessment');
     const finalTitle = (formData.title && formData.title.trim() !== '') ? formData.title.trim() : defaultLessonTitle;
 
     const assessmentPayload = {
@@ -1629,7 +1632,7 @@ export function AssessmentListPage() {
             <div className="md:col-span-2">
               <Input
                 label="Evaluation Title"
-                placeholder="e.g. Git Architecture & Version Control Assessment"
+                placeholder={formData.evalType === 'quiz' ? "e.g. Git & GitHub Version Control" : "e.g. Git Architecture & Version Control Assessment"}
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                 required
@@ -1643,13 +1646,23 @@ export function AssessmentListPage() {
                 onChange={(e) => {
                   const newType = e.target.value;
                   const isDaily = newType !== 'quiz';
-                  setFormData((prev) => ({
-                    ...prev,
-                    evalType: newType,
-                    durationMinutes: isDaily ? (Number(prev.durationMinutes) === 45 ? 20 : prev.durationMinutes) : (Number(prev.durationMinutes) === 20 ? 45 : prev.durationMinutes),
-                    totalMarks: isDaily ? (Number(prev.totalMarks) === 100 ? 10 : prev.totalMarks) : (Number(prev.totalMarks) === 10 ? 100 : prev.totalMarks),
-                    title: isDaily && (!prev.title || prev.title.toLowerCase().includes('quiz')) ? (prev.topicName || prev.title) : prev.title
-                  }));
+                  setFormData((prev) => {
+                    const curStage = stagesList.find((s) => s.id === prev.stageId || s.title === prev.stageName) || stagesList[0];
+                    const curSubs = getSubtopicsForStage(curStage);
+                    const curSub = curSubs.find((st) => st.id === prev.subtopicId || st.title === prev.subtopicName) || curSubs[0];
+                    const curLessons = getInnerModulesForSubtopic(curSub, courseLessons, curStage?.id);
+                    const curMod = curLessons.find((m) => (m.id || m.title) === (prev.innerTopicId || prev.moduleId || prev.topicName)) || curLessons[0];
+
+                    return {
+                      ...prev,
+                      evalType: newType,
+                      durationMinutes: isDaily ? (Number(prev.durationMinutes) === 45 ? 20 : prev.durationMinutes) : (Number(prev.durationMinutes) === 20 ? 45 : prev.durationMinutes),
+                      totalMarks: isDaily ? (Number(prev.totalMarks) === 100 ? 10 : prev.totalMarks) : (Number(prev.totalMarks) === 10 ? 100 : prev.totalMarks),
+                      title: isDaily
+                        ? (curMod?.title || curSub?.title || prev.topicName || prev.title)
+                        : (curSub?.title || prev.subtopicName || prev.title)
+                    };
+                  });
                 }}
                 options={[
                   { value: 'assessment', label: 'Practice Assessment' },
@@ -1698,11 +1711,14 @@ export function AssessmentListPage() {
             const existingItems = currentModObj?.items || [];
 
             const handleAutoFillFromMilestone = () => {
-              const lessonTitle = currentModObj?.title || currentSubtopicObj?.title || '';
+              const isQuiz = (formData.evalType || 'assessment') === 'quiz';
+              const autoTitle = isQuiz
+                ? (currentSubtopicObj?.title || currentModObj?.title || '')
+                : (currentModObj?.title || currentSubtopicObj?.title || '');
 
               setFormData((prev) => ({
                 ...prev,
-                title: lessonTitle,
+                title: autoTitle,
                 stageId: currentStageObj?.id || prev.stageId,
                 stageName: currentStageObj?.title || prev.stageName,
                 subtopicId: currentSubtopicObj?.id || prev.subtopicId,
@@ -1710,7 +1726,7 @@ export function AssessmentListPage() {
                 innerTopicId: currentModObj?.id || prev.innerTopicId,
                 topicName: currentModObj?.title || prev.topicName
               }));
-              addToast(`Auto-filled title: "${lessonTitle}"`, 'info');
+              addToast(`Auto-filled title: "${autoTitle}"`, 'info');
             };
 
             return (
@@ -1765,6 +1781,7 @@ export function AssessmentListPage() {
                         const firstLessons = getInnerModulesForSubtopic(firstSub, courseLessons, firstStage?.id);
                         const firstMod = firstLessons[0];
                         const lessonName = firstMod?.title || firstSub?.title || '';
+                        const subtopicName = firstSub?.title || '';
                         setFormData((prev) => ({
                           ...prev,
                           courseId: newCourseId,
@@ -1772,10 +1789,10 @@ export function AssessmentListPage() {
                           stageId: firstStage?.id || '',
                           stageName: firstStage?.title || '',
                           subtopicId: firstSub?.id || '',
-                          subtopicName: firstSub?.title || '',
+                          subtopicName: subtopicName,
                           innerTopicId: firstMod?.id || '',
                           topicName: firstMod?.title || '',
-                          title: prev.evalType !== 'quiz' ? (lessonName || prev.title) : prev.title
+                          title: prev.evalType === 'quiz' ? (subtopicName || prev.title) : (lessonName || prev.title)
                         }));
                       }}
                       options={courses.map((c) => ({ value: c.id, label: c.title }))}
@@ -1795,15 +1812,16 @@ export function AssessmentListPage() {
                         const firstLessons = getInnerModulesForSubtopic(firstSub, courseLessons, newStage?.id);
                         const firstMod = firstLessons[0];
                         const lessonName = firstMod?.title || firstSub?.title || '';
+                        const subtopicName = firstSub?.title || '';
                         setFormData((prev) => ({
                           ...prev,
                           stageId: newStageId,
                           stageName: newStage?.title || '',
                           subtopicId: firstSub?.id || '',
-                          subtopicName: firstSub?.title || '',
+                          subtopicName: subtopicName,
                           innerTopicId: firstMod?.id || '',
                           topicName: firstMod?.title || '',
-                          title: prev.evalType !== 'quiz' ? (lessonName || prev.title) : prev.title
+                          title: prev.evalType === 'quiz' ? (subtopicName || prev.title) : (lessonName || prev.title)
                         }));
                       }}
                       options={stagesList.map((stg) => ({
@@ -1824,13 +1842,14 @@ export function AssessmentListPage() {
                         const targetLessons = getInnerModulesForSubtopic(targetSub, courseLessons, formData.stageId);
                         const firstMod = targetLessons[0];
                         const lessonName = firstMod?.title || targetSub?.title || '';
+                        const subtopicName = targetSub?.title || '';
                         setFormData((prev) => ({
                           ...prev,
                           subtopicId: newSubId,
-                          subtopicName: targetSub?.title || '',
+                          subtopicName: subtopicName,
                           innerTopicId: firstMod?.id || '',
                           topicName: firstMod?.title || '',
-                          title: prev.evalType !== 'quiz' ? (lessonName || prev.title) : prev.title
+                          title: prev.evalType === 'quiz' ? (subtopicName || prev.title) : (lessonName || prev.title)
                         }));
                       }}
                       options={currentSubtopicsArr.map((sub, idx) => ({
@@ -1853,7 +1872,7 @@ export function AssessmentListPage() {
                           ...prev,
                           innerTopicId: newModId,
                           topicName: lessonName,
-                          title: prev.evalType !== 'quiz' ? (lessonName || prev.title) : prev.title
+                          title: prev.evalType === 'quiz' ? (currentSubtopicObj?.title || prev.subtopicName || prev.title) : (lessonName || prev.title)
                         }));
                       }}
                       options={currentInnerModules.map((mod) => ({
