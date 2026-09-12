@@ -8,7 +8,7 @@ import { Modal } from '../../components/common/Modal';
 import { ConfirmDialog } from '../../components/common/ConfirmDialog';
 import { Badge } from '../../components/common/Badge';
 import { EmptyState } from '../../components/common/EmptyState';
-import { DEFAULT_STAGES, getSubtopicsForStage, getInnerModulesForSubtopic } from '../sessions/LiveSessionListPage';
+import { DEFAULT_STAGES, getSubtopicsForStage, getInnerModulesForSubtopic, normalizeStagesList } from '../sessions/LiveSessionListPage';
 import {
   FolderGit2,
   Plus,
@@ -86,24 +86,18 @@ export function RecordingLibraryPage() {
 
   const activeStagesList = React.useMemo(() => {
     const courseMilestones = activeCourseId && activeCourseId !== 'ALL' ? milestonesByBatch?.[activeCourseId]?.stages : null;
-    if (Array.isArray(courseMilestones) && courseMilestones.length > 0 && courseMilestones.some(s => (s.subtopics && s.subtopics.length > 0) || (s.modules && s.modules.length > 0))) {
-      return courseMilestones;
+    if (Array.isArray(courseMilestones) && courseMilestones.length > 0) {
+      return normalizeStagesList(courseMilestones);
     }
     const batchMilestones = milestonesByBatch?.[activeBatchFilter]?.stages;
     if (Array.isArray(batchMilestones) && batchMilestones.length > 0) {
-      return batchMilestones;
+      return normalizeStagesList(batchMilestones);
     }
     if (Array.isArray(milestones?.stages) && milestones.stages.length > 0) {
-      return milestones.stages;
+      return normalizeStagesList(milestones.stages);
     }
     if (activeCourseObj?.topics && activeCourseObj.topics.length > 0) {
-      return activeCourseObj.topics.map((top, idx) => {
-        const matchingMilestoneStage = (milestones?.stages || []).find(ms => isMatchingStage(ms.id, top.id) || idx === (ms.stageIndex || idx));
-        return {
-          ...top,
-          subtopics: (top.subtopics && top.subtopics.length > 0) ? top.subtopics : (matchingMilestoneStage?.subtopics || [])
-        };
-      });
+      return normalizeStagesList(activeCourseObj.topics);
     }
     return DEFAULT_STAGES;
   }, [activeCourseId, activeCourseObj, milestonesByBatch, activeBatchFilter, milestones]);

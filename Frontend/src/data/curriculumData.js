@@ -776,3 +776,138 @@ export const DEFAULT_CURRICULUM_LESSONS = {
     ]
   }
 };
+
+export const getStageNumber = (stage) => {
+  if (!stage) return null;
+  const str = String(stage).trim().toLowerCase();
+  const match = str.match(/(?:stage|stg|top|s)[-_ ]*0*(\d+)/i) || str.match(/(\d+)/);
+  return match ? parseInt(match[1], 10) : null;
+};
+
+export const isMatchingStage = (stageA, stageB) => {
+  if (!stageA || !stageB) return true;
+  if (stageA === 'ALL' || stageB === 'ALL') return true;
+  const cleanA = String(stageA || '').replace(/-(w|s)$/i, '').trim().toLowerCase();
+  const cleanB = String(stageB || '').replace(/-(w|s)$/i, '').trim().toLowerCase();
+  if (cleanA === cleanB) return true;
+  const numA = getStageNumber(stageA);
+  const numB = getStageNumber(stageB);
+  if (numA !== null && numB !== null && numA === numB) return true;
+  return false;
+};
+
+export const DEFAULT_CURRICULUM_STAGES = [
+  {
+    id: "top-stg-1",
+    stageNumber: 1,
+    title: "Stage 1: Frontend & Programming Foundations",
+    name: "Stage 1: Frontend & Programming Foundations",
+    subtopics: [
+      { id: "mod-git", title: "Git & GitHub Version Control", name: "Git & GitHub Version Control", lessons: DEFAULT_CURRICULUM_LESSONS["mod-git"]?.lessons || [] },
+      { id: "mod-html", title: "HTML5 & Web Architecture", name: "HTML5 & Web Architecture", lessons: DEFAULT_CURRICULUM_LESSONS["mod-html"]?.lessons || [] },
+      { id: "mod-css", title: "CSS3 Fundamentals & Box Model", name: "CSS3 Fundamentals & Box Model", lessons: DEFAULT_CURRICULUM_LESSONS["mod-css"]?.lessons || [] },
+      { id: "mod-advcss", title: "Advanced CSS Layouts & Responsive Design", name: "Advanced CSS Layouts & Responsive Design", lessons: DEFAULT_CURRICULUM_LESSONS["mod-advcss"]?.lessons || [] },
+      { id: "mod-bootstrap", title: "Bootstrap 5 & UI Frameworks", name: "Bootstrap 5 & UI Frameworks", lessons: DEFAULT_CURRICULUM_LESSONS["mod-bootstrap"]?.lessons || [] },
+      { id: "mod-jsess", title: "JavaScript Essentials & Control Flow", name: "JavaScript Essentials & Control Flow", lessons: DEFAULT_CURRICULUM_LESSONS["mod-jsess"]?.lessons || [] },
+      { id: "mod-jsfunc", title: "JavaScript Functions, Arrays & Objects", name: "JavaScript Functions, Arrays & Objects", lessons: DEFAULT_CURRICULUM_LESSONS["mod-jsfunc"]?.lessons || [] },
+      { id: "mod-dom", title: "DOM Manipulation & Events", name: "DOM Manipulation & Events", lessons: DEFAULT_CURRICULUM_LESSONS["mod-dom"]?.lessons || [] },
+      { id: "mod-es6async", title: "Modern ES6+ & Asynchronous JavaScript", name: "Modern ES6+ & Asynchronous JavaScript", lessons: DEFAULT_CURRICULUM_LESSONS["mod-es6async"]?.lessons || [] }
+    ]
+  },
+  {
+    id: "top-stg-2",
+    stageNumber: 2,
+    title: "Stage 2: Backend + DSA",
+    name: "Stage 2: Backend + DSA",
+    subtopics: [
+      { id: "subtop-1787202208426", title: "Python Fundamentals & Logic Building", name: "Python Fundamentals & Logic Building", lessons: DEFAULT_CURRICULUM_LESSONS["subtop-1787202208426"]?.lessons || [] },
+      { id: "subtop-1787203318093", title: "Python Data Structures: Lists, Tuples, Dictionaries, Sets", name: "Python Data Structures: Lists, Tuples, Dictionaries, Sets", lessons: DEFAULT_CURRICULUM_LESSONS["subtop-1787203318093"]?.lessons || [] },
+      { id: "subtop-1787203469178", title: "Advanced Python & Object-Oriented Programming (OOP)", name: "Advanced Python & Object-Oriented Programming (OOP)", lessons: DEFAULT_CURRICULUM_LESSONS["subtop-1787203469178"]?.lessons || [] },
+      { id: "subtop-1787203490227", title: "Relational Databases & MySQL Essentials", name: "Relational Databases & MySQL Essentials", lessons: DEFAULT_CURRICULUM_LESSONS["subtop-1787203490227"]?.lessons || [] },
+      { id: "subtop-1787203515689", title: "Advanced SQL: Joins, Aggregations, Indexing & Optimization", name: "Advanced SQL: Joins, Aggregations, Indexing & Optimization", lessons: DEFAULT_CURRICULUM_LESSONS["subtop-1787203515689"]?.lessons || [] },
+      { id: "subtop-1787203534393", title: "Django Web Framework: Architecture, Routing & Views", name: "Django Web Framework: Architecture, Routing & Views", lessons: DEFAULT_CURRICULUM_LESSONS["subtop-1787203534393"]?.lessons || [] },
+      { id: "subtop-1787203553997", title: "Django Templates, Forms, & Static Asset Handling", name: "Django Templates, Forms, & Static Asset Handling", lessons: DEFAULT_CURRICULUM_LESSONS["subtop-1787203553997"]?.lessons || [] },
+      { id: "subtop-1787203571606", title: "Django ORM & Model Relationships", name: "Django ORM & Model Relationships", lessons: DEFAULT_CURRICULUM_LESSONS["subtop-1787203571606"]?.lessons || [] },
+      { id: "subtop-1787203589865", title: "Django Authentication, Middleware & Security", name: "Django Authentication, Middleware & Security", lessons: DEFAULT_CURRICULUM_LESSONS["subtop-1787203589865"]?.lessons || [] },
+      { id: "subtop-1787203608548", title: "Django REST Framework (DRF): Serializers & API Views", name: "Django REST Framework (DRF): Serializers & API Views", lessons: DEFAULT_CURRICULUM_LESSONS["subtop-1787203608548"]?.lessons || [] },
+      { id: "subtop-1787203627297", title: "Advanced DRF: ViewSets, Routers, JWT Auth & Permissions", name: "Advanced DRF: ViewSets, Routers, JWT Auth & Permissions", lessons: DEFAULT_CURRICULUM_LESSONS["subtop-1787203627297"]?.lessons || [] },
+      { id: "subtop-1787203652445", title: "Caching with Redis & Cloud Storage with AWS S3", name: "Caching with Redis & Cloud Storage with AWS S3", lessons: DEFAULT_CURRICULUM_LESSONS["subtop-1787203652445"]?.lessons || [] },
+      { id: "subtop-1787203669226", title: "DSA: Arrays, Strings, Sorting & Searching", name: "DSA: Arrays, Strings, Sorting & Searching", lessons: DEFAULT_CURRICULUM_LESSONS["subtop-1787203669226"]?.lessons || [] },
+      { id: "subtop-1787203763954", title: "DSA: Stacks, Queues, Linked Lists & Trees", name: "DSA: Stacks, Queues, Linked Lists & Trees", lessons: DEFAULT_CURRICULUM_LESSONS["subtop-1787203763954"]?.lessons || [] }
+    ]
+  },
+  {
+    id: "top-stg-3",
+    stageNumber: 3,
+    title: "Stage 3: AI, Integration & Deployment",
+    name: "Stage 3: AI, Integration & Deployment",
+    subtopics: [
+      { id: "mod-stg3-m1", title: "Generative AI Integration: OpenAI, Claude & Gemini APIs", name: "Generative AI Integration: OpenAI, Claude & Gemini APIs", lessons: DEFAULT_CURRICULUM_LESSONS["mod-stg3-m1"]?.lessons || [] },
+      { id: "mod-stg3-m2", title: "Vector Databases, Embeddings & RAG Architecture", name: "Vector Databases, Embeddings & RAG Architecture", lessons: DEFAULT_CURRICULUM_LESSONS["mod-stg3-m2"]?.lessons || [] },
+      { id: "mod-stg3-m3", title: "Docker, CI/CD Pipelines & Cloud Deployment", name: "Docker, CI/CD Pipelines & Cloud Deployment", lessons: DEFAULT_CURRICULUM_LESSONS["mod-stg3-m3"]?.lessons || [] }
+    ]
+  },
+  {
+    id: "top-stg-4",
+    stageNumber: 4,
+    title: "Stage 4: Career Launchpad",
+    name: "Stage 4: Career Launchpad",
+    subtopics: [
+      { id: "mod-stg4-m1", title: "Full-Stack System Design & Microservices Architecture", name: "Full-Stack System Design & Microservices Architecture", lessons: DEFAULT_CURRICULUM_LESSONS["mod-stg4-m1"]?.lessons || [] },
+      { id: "mod-stg4-m2", title: "Capstone Project Development & Mentoring - 1", name: "Capstone Project Development & Mentoring - 1", lessons: DEFAULT_CURRICULUM_LESSONS["mod-stg4-m2"]?.lessons || [] },
+      { id: "mod-stg4-m3", title: "Capstone Project Development & Mentoring - 2", name: "Capstone Project Development & Mentoring - 2", lessons: DEFAULT_CURRICULUM_LESSONS["mod-stg4-m3"]?.lessons || [] },
+      { id: "mod-stg4-m4", title: "Resume Building, LinkedIn & GitHub Portfolio", name: "Resume Building, LinkedIn & GitHub Portfolio", lessons: DEFAULT_CURRICULUM_LESSONS["mod-stg4-m4"]?.lessons || [] },
+      { id: "mod-stg4-m5", title: "Mock Technical Interviews & Valedictory", name: "Mock Technical Interviews & Valedictory", lessons: DEFAULT_CURRICULUM_LESSONS["mod-stg4-m5"]?.lessons || [] }
+    ]
+  }
+];
+
+export const DEFAULT_STAGES = DEFAULT_CURRICULUM_STAGES;
+
+export const normalizeStagesList = (rawStages) => {
+  if (!rawStages || !Array.isArray(rawStages) || rawStages.length === 0) {
+    return DEFAULT_CURRICULUM_STAGES;
+  }
+
+  // Check each default stage (1..4)
+  const result = DEFAULT_CURRICULUM_STAGES.map((defStage, idx) => {
+    const stageNum = idx + 1;
+    const existing = rawStages.find(s => 
+      isMatchingStage(s.id, defStage.id) || 
+      isMatchingStage(s.title, defStage.title) ||
+      getStageNumber(s.id) === stageNum ||
+      getStageNumber(s.title) === stageNum ||
+      getStageNumber(s.name) === stageNum
+    );
+
+    if (existing) {
+      const existingSubtopics = (Array.isArray(existing.subtopics) && existing.subtopics.length > 0)
+        ? existing.subtopics
+        : (Array.isArray(existing.modules) && existing.modules.length > 0
+            ? existing.modules
+            : defStage.subtopics);
+      return {
+        ...defStage,
+        ...existing,
+        id: existing.id || defStage.id,
+        title: existing.title || defStage.title,
+        subtopics: existingSubtopics
+      };
+    }
+    return defStage;
+  });
+
+  // Preserve any extra custom stages (e.g. stage 5+)
+  rawStages.forEach(customStg => {
+    const isAlreadyPresent = result.some(r => 
+      isMatchingStage(r.id, customStg.id) || 
+      isMatchingStage(r.title, customStg.title) ||
+      (getStageNumber(customStg.id) && getStageNumber(customStg.id) === getStageNumber(r.id))
+    );
+    if (!isAlreadyPresent) {
+      result.push(customStg);
+    }
+  });
+
+  return result;
+};

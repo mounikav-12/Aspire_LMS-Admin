@@ -37,14 +37,37 @@ import {
   X
 } from 'lucide-react';
 
-import { DEFAULT_CURRICULUM_LESSONS } from '../../data/curriculumData';
+import {
+  DEFAULT_CURRICULUM_LESSONS,
+  DEFAULT_CURRICULUM_STAGES,
+  DEFAULT_STAGES,
+  normalizeStagesList,
+  getStageNumber
+} from '../../data/curriculumData';
 
-export { DEFAULT_CURRICULUM_LESSONS };
+export {
+  DEFAULT_CURRICULUM_LESSONS,
+  DEFAULT_CURRICULUM_STAGES,
+  DEFAULT_STAGES,
+  normalizeStagesList,
+  getStageNumber
+};
 
 export const getSubtopicsForStage = (stage) => {
   if (!stage) return [];
   if (Array.isArray(stage.subtopics) && stage.subtopics.length > 0) return stage.subtopics;
   if (Array.isArray(stage.modules) && stage.modules.length > 0) return stage.modules;
+  
+  // Fallback to matching default stage in DEFAULT_CURRICULUM_STAGES
+  const stgNum = getStageNumber(stage.id) || getStageNumber(stage.title) || getStageNumber(stage.name);
+  const matchedDefault = DEFAULT_CURRICULUM_STAGES.find(s => 
+    isMatchingStage(s.id, stage.id) || 
+    isMatchingStage(s.title, stage.title) || 
+    (stgNum && (getStageNumber(s.id) === stgNum || getStageNumber(s.title) === stgNum))
+  );
+  if (matchedDefault && Array.isArray(matchedDefault.subtopics)) {
+    return matchedDefault.subtopics;
+  }
   return [];
 };
 
@@ -219,8 +242,6 @@ export const getModuleTopicsForSession = (sess, stagesList) => {
 
   return Array.isArray(sess.topics) ? sess.topics : [];
 };
-
-export const DEFAULT_STAGES = [];
 
 export function LiveSessionListPage() {
   const {

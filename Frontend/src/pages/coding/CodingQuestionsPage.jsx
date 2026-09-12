@@ -5,7 +5,7 @@ import { Button } from '../../components/common/Button';
 import { Input, Select } from '../../components/common/Input';
 import { Modal } from '../../components/common/Modal';
 import { ConfirmDialog } from '../../components/common/ConfirmDialog';
-import { DEFAULT_STAGES, getSubtopicsForStage, getInnerModulesForSubtopic } from '../sessions/LiveSessionListPage';
+import { DEFAULT_STAGES, getSubtopicsForStage, getInnerModulesForSubtopic, normalizeStagesList } from '../sessions/LiveSessionListPage';
 import { isMatchingStage, getStageNumber, SUBTOPIC_MODULE_MAP } from '../milestones/MilestonesRoadmapPage';
 import {
   Code2,
@@ -57,27 +57,21 @@ export function CodingQuestionsPage() {
   const cleanId = (id) => String(id || '').replace(/-(w|s)$/i, '').trim().toLowerCase();
   const cleanStr = (s) => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '').trim();
 
-  // Resolve stages with subtopics properly
+  // Resolve stages with subtopics properly - always guaranteed 4 stages
   const activeStagesList = React.useMemo(() => {
     const courseMilestones = activeCourseId && activeCourseId !== 'ALL' ? milestonesByBatch?.[activeCourseId]?.stages : null;
-    if (Array.isArray(courseMilestones) && courseMilestones.length > 0 && courseMilestones.some(s => (s.subtopics && s.subtopics.length > 0) || (s.modules && s.modules.length > 0))) {
-      return courseMilestones;
+    if (Array.isArray(courseMilestones) && courseMilestones.length > 0) {
+      return normalizeStagesList(courseMilestones);
     }
     const batchMilestones = milestonesByBatch?.[activeBatchFilter]?.stages;
     if (Array.isArray(batchMilestones) && batchMilestones.length > 0) {
-      return batchMilestones;
+      return normalizeStagesList(batchMilestones);
     }
     if (Array.isArray(milestones?.stages) && milestones.stages.length > 0) {
-      return milestones.stages;
+      return normalizeStagesList(milestones.stages);
     }
     if (activeCourseObj?.topics && activeCourseObj.topics.length > 0) {
-      return activeCourseObj.topics.map((top, idx) => {
-        const matchingMilestoneStage = (milestones?.stages || []).find(ms => isMatchingStage(ms.id, top.id) || idx === (ms.stageIndex || idx));
-        return {
-          ...top,
-          subtopics: (top.subtopics && top.subtopics.length > 0) ? top.subtopics : (matchingMilestoneStage?.subtopics || [])
-        };
-      });
+      return normalizeStagesList(activeCourseObj.topics);
     }
     return DEFAULT_STAGES;
   }, [activeCourseId, activeCourseObj, milestonesByBatch, activeBatchFilter, milestones]);
@@ -150,24 +144,18 @@ export function CodingQuestionsPage() {
   const modalSelectedCourse = courses.find((c) => c.id === formData.courseId) || courses[0];
   const modalStagesList = React.useMemo(() => {
     const courseMilestones = formData.courseId && formData.courseId !== 'ALL' ? milestonesByBatch?.[formData.courseId]?.stages : null;
-    if (Array.isArray(courseMilestones) && courseMilestones.length > 0 && courseMilestones.some(s => (s.subtopics && s.subtopics.length > 0) || (s.modules && s.modules.length > 0))) {
-      return courseMilestones;
+    if (Array.isArray(courseMilestones) && courseMilestones.length > 0) {
+      return normalizeStagesList(courseMilestones);
     }
     const batchMilestones = milestonesByBatch?.[activeBatchFilter]?.stages;
     if (Array.isArray(batchMilestones) && batchMilestones.length > 0) {
-      return batchMilestones;
+      return normalizeStagesList(batchMilestones);
     }
     if (Array.isArray(milestones?.stages) && milestones.stages.length > 0) {
-      return milestones.stages;
+      return normalizeStagesList(milestones.stages);
     }
     if (modalSelectedCourse?.topics && modalSelectedCourse.topics.length > 0) {
-      return modalSelectedCourse.topics.map((top, idx) => {
-        const matchingMilestoneStage = (milestones?.stages || []).find(ms => isMatchingStage(ms.id, top.id) || idx === (ms.stageIndex || idx));
-        return {
-          ...top,
-          subtopics: (top.subtopics && top.subtopics.length > 0) ? top.subtopics : (matchingMilestoneStage?.subtopics || [])
-        };
-      });
+      return normalizeStagesList(modalSelectedCourse.topics);
     }
     return DEFAULT_STAGES;
   }, [formData.courseId, modalSelectedCourse, milestonesByBatch, activeBatchFilter, milestones]);
@@ -399,11 +387,13 @@ export function CodingQuestionsPage() {
 
   const handleOpenAddModal = () => {
     const activeCourse = courses.find((c) => c.id === (selectedCourseId || courses[0]?.id)) || courses[0];
-    const nextStages = (milestonesByBatch?.[activeCourse?.id]?.stages?.length > 0)
-      ? milestonesByBatch[activeCourse.id].stages
-      : (milestonesByBatch?.[activeBatchFilter]?.stages?.length > 0)
-      ? milestonesByBatch[activeBatchFilter].stages
-      : milestones?.stages || DEFAULT_STAGES;
+    const nextStages = normalizeStagesList(
+      (milestonesByBatch?.[activeCourse?.id]?.stages?.length > 0)
+        ? milestonesByBatch[activeCourse.id].stages
+        : (milestonesByBatch?.[activeBatchFilter]?.stages?.length > 0)
+        ? milestonesByBatch[activeBatchFilter].stages
+        : milestones?.stages || DEFAULT_STAGES
+    );
     const activeStage = nextStages[0];
     const activeSubs = getSubtopicsForStage(activeStage);
     const activeSub = activeSubs[0];
@@ -450,11 +440,13 @@ export function CodingQuestionsPage() {
     const hierarchy = resolveHierarchy(cq);
     const qCourseId = cq.courseId || cq.course_id || courses[0]?.id || '';
     const activeCourse = courses.find((c) => c.id === qCourseId) || courses[0];
-    const nextStages = (milestonesByBatch?.[qCourseId]?.stages?.length > 0)
-      ? milestonesByBatch[qCourseId].stages
-      : (milestonesByBatch?.[activeBatchFilter]?.stages?.length > 0)
-      ? milestonesByBatch[activeBatchFilter].stages
-      : milestones?.stages || DEFAULT_STAGES;
+    const nextStages = normalizeStagesList(
+      (milestonesByBatch?.[qCourseId]?.stages?.length > 0)
+        ? milestonesByBatch[qCourseId].stages
+        : (milestonesByBatch?.[activeBatchFilter]?.stages?.length > 0)
+        ? milestonesByBatch[activeBatchFilter].stages
+        : milestones?.stages || DEFAULT_STAGES
+    );
     const qStageId = cq.stageId || cq.stage_id || hierarchy.stageId || nextStages[0]?.id || '';
     const stageObj = nextStages.find(s => s.id === qStageId || isMatchingStage(s.id, qStageId) || (hierarchy.stageNum && (getStageNumber(s.id) || getStageNumber(s.title)) === hierarchy.stageNum)) || nextStages[0];
     const stageSubs = getSubtopicsForStage(stageObj);
@@ -1643,11 +1635,13 @@ export function CodingQuestionsPage() {
                       onChange={(e) => {
                         const newCourseId = e.target.value;
                         const selectedC = courses.find((c) => c.id === newCourseId);
-                        const nextStages = (milestonesByBatch?.[newCourseId]?.stages?.length > 0)
-                          ? milestonesByBatch[newCourseId].stages
-                          : (milestonesByBatch?.[activeBatchFilter]?.stages?.length > 0)
-                          ? milestonesByBatch[activeBatchFilter].stages
-                          : milestones?.stages || DEFAULT_STAGES;
+                        const nextStages = normalizeStagesList(
+                          (milestonesByBatch?.[newCourseId]?.stages?.length > 0)
+                            ? milestonesByBatch[newCourseId].stages
+                            : (milestonesByBatch?.[activeBatchFilter]?.stages?.length > 0)
+                            ? milestonesByBatch[activeBatchFilter].stages
+                            : milestones?.stages || DEFAULT_STAGES
+                        );
                         const firstStage = nextStages[0];
                         const firstSubs = getSubtopicsForStage(firstStage);
                         const firstSub = firstSubs[0];

@@ -9,7 +9,7 @@ import { ConfirmDialog } from '../../components/common/ConfirmDialog';
 import { Badge } from '../../components/common/Badge';
 import { EmptyState } from '../../components/common/EmptyState';
 import { BatchFilterSelector } from '../../components/common/BatchFilterSelector';
-import { DEFAULT_STAGES, getSubtopicsForStage, getInnerModulesForSubtopic } from '../sessions/LiveSessionListPage';
+import { DEFAULT_STAGES, getSubtopicsForStage, getInnerModulesForSubtopic, normalizeStagesList } from '../sessions/LiveSessionListPage';
 import { isMatchingStage, SUBTOPIC_MODULE_MAP } from '../milestones/MilestonesRoadmapPage';
 import {
   FileCheck2,
@@ -111,24 +111,18 @@ export function AssessmentListPage() {
 
   const activeStagesList = React.useMemo(() => {
     const courseMilestones = activeCourseId && activeCourseId !== 'ALL' ? milestonesByBatch?.[activeCourseId]?.stages : null;
-    if (Array.isArray(courseMilestones) && courseMilestones.length > 0 && courseMilestones.some(s => (s.subtopics && s.subtopics.length > 0) || (s.modules && s.modules.length > 0))) {
-      return courseMilestones;
+    if (Array.isArray(courseMilestones) && courseMilestones.length > 0) {
+      return normalizeStagesList(courseMilestones);
     }
     const batchMilestones = milestonesByBatch?.[activeBatchFilter]?.stages;
     if (Array.isArray(batchMilestones) && batchMilestones.length > 0) {
-      return batchMilestones;
+      return normalizeStagesList(batchMilestones);
     }
     if (Array.isArray(milestones?.stages) && milestones.stages.length > 0) {
-      return milestones.stages;
+      return normalizeStagesList(milestones.stages);
     }
     if (activeCourseObj?.topics && activeCourseObj.topics.length > 0) {
-      return activeCourseObj.topics.map((top, idx) => {
-        const matchingMilestoneStage = (milestones?.stages || []).find(ms => isMatchingStage(ms.id, top.id) || idx === (ms.stageIndex || idx));
-        return {
-          ...top,
-          subtopics: (top.subtopics && top.subtopics.length > 0) ? top.subtopics : (matchingMilestoneStage?.subtopics || [])
-        };
-      });
+      return normalizeStagesList(activeCourseObj.topics);
     }
     return DEFAULT_STAGES;
   }, [activeCourseId, activeCourseObj, milestonesByBatch, activeBatchFilter, milestones]);
@@ -851,14 +845,15 @@ export function AssessmentListPage() {
   };
 
   const selectedCourseObj = courses.find((c) => c.id === formData.courseId) || courses[0];
-  const stagesList =
+  const stagesList = normalizeStagesList(
     formData.courseId && formData.courseId !== 'ALL' && milestonesByBatch?.[formData.courseId]?.stages && milestonesByBatch[formData.courseId].stages.length > 0
       ? milestonesByBatch[formData.courseId].stages
       : selectedCourseObj?.topics && selectedCourseObj.topics.length > 0
       ? selectedCourseObj.topics
       : milestones?.stages && milestones.stages.length > 0
       ? milestones.stages
-      : DEFAULT_STAGES;
+      : DEFAULT_STAGES
+  );
 
   const handleOpenAddModal = () => {
     const isDaily = activeMainTab !== 'QUIZZES';
@@ -1793,14 +1788,15 @@ export function AssessmentListPage() {
                       onChange={(e) => {
                         const newCourseId = e.target.value;
                         const selectedC = courses.find((c) => c.id === newCourseId);
-                        const newStages =
+                        const newStages = normalizeStagesList(
                           newCourseId && newCourseId !== 'ALL' && milestonesByBatch?.[newCourseId]?.stages && milestonesByBatch[newCourseId].stages.length > 0
                             ? milestonesByBatch[newCourseId].stages
                             : selectedC?.topics && selectedC.topics.length > 0
                             ? selectedC.topics
                             : milestones?.stages && milestones.stages.length > 0
                             ? milestones.stages
-                            : DEFAULT_STAGES;
+                            : DEFAULT_STAGES
+                        );
                         const firstStage = newStages[0];
                         const firstSubs = getSubtopicsForStage(firstStage);
                         const firstSub = firstSubs[0];
