@@ -9,223 +9,263 @@
       "totalQuestions": 20,
       "questions": [
         {
+          "mcqType": "coding",
           "question": "What is the return value of `document.getElementById('nonExistentId')` when no matching element exists in the DOM?",
+          "codeSnippet": "document.getElementById('nonExistentId')",
           "options": [
             "null",
             "Throws a `NotFoundError`",
             "undefined",
             "Empty NodeList `[]`"
           ],
-          "answer": "A",
+          "correctIndex": 0,
           "explanation": "`document.getElementById()` and `document.querySelector()` return `null` if no element matching the ID/selector exists in the document."
         },
         {
+          "mcqType": "coding",
           "question": "What is the key difference in behavior between `document.querySelectorAll('.card')` and `document.getElementsByClassName('card')`?",
+          "codeSnippet": "document.querySelectorAll('.card')",
           "options": [
             "`querySelectorAll` is synchronous, while `getElementsByClassName` is asynchronous",
             "`querySelectorAll` mutates the DOM, while `getElementsByClassName` does not",
             "`getElementsByClassName` supports CSS pseudo-selectors, while `querySelectorAll` does not",
             "`querySelectorAll` returns a static (non-live) `NodeList`, while `getElementsByClassName` returns a live `HTMLCollection` that automatically updates when DOM elements change"
           ],
-          "answer": "D",
+          "correctIndex": 3,
           "explanation": "A live `HTMLCollection` reflects DOM mutations immediately in memory, whereas a static `NodeList` returned by `querySelectorAll()` is a snapshot of elements at the moment of query execution."
         },
         {
+          "mcqType": "coding",
           "question": "Consider the code: `element.innerHTML = '<b>User</b> &amp; Admin';`. What will `element.textContent` evaluate to?",
+          "codeSnippet": "element.innerHTML = '<b>User</b> &amp; Admin';",
           "options": [
             "\"<b>User</b> & Admin\"",
             "\"<b>User</b> &amp; Admin\"",
             "\"User & Admin\"",
             "\"User &amp; Admin\""
           ],
-          "answer": "C",
+          "correctIndex": 2,
           "explanation": "`textContent` extracts the raw text content of all descendants without HTML tags, decoding HTML entities like `&amp;` into literal `&` characters."
         },
         {
+          "mcqType": "coding",
           "question": "Which `classList` method toggles a CSS class: adding it if absent, and removing it if already present?",
+          "codeSnippet": "",
           "options": [
             "element.classList.switch('active')",
             "element.classList.flip('active')",
             "element.classList.toggle('active')",
             "element.classList.change('active')"
           ],
-          "answer": "C",
+          "correctIndex": 2,
           "explanation": "`.classList.toggle(className)` adds the class if it does not exist on the element, or removes it if it does exist, returning a boolean indicating its new presence."
         },
         {
+          "mcqType": "coding",
           "question": "How do you correctly set a CSS custom property (variable) on an element using JavaScript?",
+          "codeSnippet": "",
           "options": [
             "element.style.primaryColor = '#3b82f6';",
             "element.style['--primary-color'] = '#3b82f6';",
             "element.style.setProperty('--primary-color', '#3b82f6');",
             "element.setAttribute('css-var', '--primary-color: #3b82f6');"
           ],
-          "answer": "C",
+          "correctIndex": 2,
           "explanation": "CSS custom properties (variables) must be set using the standard `style.setProperty(propertyName, value)` method because kebab-case `--var` syntax is not accessible via direct camelCase property assignment."
         },
         {
+          "mcqType": "coding",
           "question": "Given `<button id=\"btn\" data-user-role=\"admin\" data-action-id=\"105\"></button>`, how do you access the `data-user-role` attribute via JavaScript dataset?",
+          "codeSnippet": "<button id=\"btn\" data-user-role=\"admin\" data-action-id=\"105\"></button>",
           "options": [
             "btn.dataset.userRole",
             "btn.dataset['data-user-role']",
             "btn.data.userRole",
             "btn.dataset.user_role"
           ],
-          "answer": "A",
+          "correctIndex": 0,
           "explanation": "The HTML `data-*` attributes are mapped to JavaScript's `dataset` object by converting hyphenated attribute names into camelCase (`data-user-role` $\\rightarrow$ `dataset.userRole`)."
         },
         {
+          "mcqType": "theoretical",
           "question": "What is the difference between `element.childNodes` and `element.children`?",
+          "codeSnippet": "",
           "options": [
             "`childNodes` only works on `<div>` tags",
             "`children` includes text nodes, while `childNodes` excludes them",
             "There is no difference; both return identical HTMLCollections",
             "`childNodes` includes all child nodes (Element nodes, Text nodes, and Comment nodes), while `children` includes ONLY Element nodes (`Node.ELEMENT_NODE`)"
           ],
-          "answer": "D",
+          "correctIndex": 3,
           "explanation": "`element.childNodes` returns a NodeList containing whitespace text nodes, comments, and elements. `element.children` returns an HTMLCollection containing strictly HTML element tags."
         },
         {
+          "mcqType": "coding",
           "question": "Where does `element.insertAdjacentHTML('beforeend', '<p>New</p>')` insert the new HTML markup?",
+          "codeSnippet": "element.insertAdjacentHTML('beforeend', '<p>New</p>')",
           "options": [
             "Inside the element, as its very last child node",
             "After the element itself as a following sibling",
             "Inside the element, as its very first child node",
             "Before the element itself as a preceding sibling"
           ],
-          "answer": "A",
+          "correctIndex": 0,
           "explanation": "The positions for `insertAdjacentHTML` are: `beforebegin` (before element), `afterbegin` (inside, first child), `beforeend` (inside, last child), and `afterend` (after element)."
         },
         {
+          "mcqType": "coding",
           "question": "Why is creating elements using `document.createDocumentFragment()` considered best practice when adding 1,000 items to the DOM?",
+          "codeSnippet": "document.createDocumentFragment()",
           "options": [
             "It automatically encrypts text nodes to prevent XSS attacks",
             "It renders the items asynchronously on a Web Worker thread",
             "It creates a lightweight in-memory container that batches all DOM nodes, triggering only a single Reflow and Repaint when appended to the document",
             "It compresses the HTML tags into binary code before appending"
           ],
-          "answer": "C",
+          "correctIndex": 2,
           "explanation": "Appending elements one-by-one triggers repeated browser reflows and repaints. Appending all elements to a `DocumentFragment` first and then inserting the fragment into the DOM incurs only one reflow."
         },
         {
+          "mcqType": "coding",
           "question": "What does `element.cloneNode(true)` do compared to `element.cloneNode(false)`?",
+          "codeSnippet": "element.cloneNode(true)",
           "options": [
             "`cloneNode(true)` clones event listeners, while `cloneNode(false)` does not",
             "`cloneNode(true)` performs a deep clone copying the element, its attributes, and all child descendant nodes, while `cloneNode(false)` clones only the parent element shell",
             "`cloneNode(true)` creates an exact shallow copy with shared child references",
             "`cloneNode(false)` deletes the original element from the DOM"
           ],
-          "answer": "B",
+          "correctIndex": 1,
           "explanation": "The boolean parameter controls recursion: `true` clones the entire subtree (all descendants and text), while `false` (or omitted) clones only the single element and its attributes (without attached event listeners)."
         },
         {
+          "mcqType": "coding",
           "question": "What information is returned by `element.getBoundingClientRect()`?",
+          "codeSnippet": "element.getBoundingClientRect()",
           "options": [
             "The boundary dimensions of the user's physical monitor display",
             "The total number of CSS classes attached to the element",
             "The exact GPS coordinates of the client computer",
             "A `DOMRect` object with the element's `width`, `height`, and floating-point pixel positions (`top`, `right`, `bottom`, `left`, `x`, `y`) relative to the viewport"
           ],
-          "answer": "D",
+          "correctIndex": 3,
           "explanation": "`getBoundingClientRect()` returns size and position coordinates relative to the top-left of the current browser viewport."
         },
         {
+          "mcqType": "coding",
           "question": "What is the difference between `node.remove()` and `parent.removeChild(node)`?",
+          "codeSnippet": "parent.removeChild(node)",
           "options": [
             "`node.remove()` only works in Node.js, while `removeChild` is for browsers",
             "`removeChild()` is deprecated and removed from modern browsers",
             "`node.remove()` deletes the element from memory permanently, while `removeChild` keeps it cached in localStorage",
             "`node.remove()` can be called directly on the element without referencing its parent, while `removeChild()` must be called on the explicit parent node"
           ],
-          "answer": "D",
+          "correctIndex": 3,
           "explanation": "Modern DOM Level 4 introduced `element.remove()` allowing an element to remove itself directly (`el.remove()`), superseding the verbose `el.parentNode.removeChild(el)`."
         },
         {
+          "mcqType": "coding",
           "question": "What does `element.closest('.card')` do?",
+          "codeSnippet": "element.closest('.card')",
           "options": [
             "It measures the pixel distance between `element` and the nearest `.card`",
             "It traverses upward through the element and its ancestors in the DOM tree, returning the first ancestor that matches the selector `.card` (or `null`)",
             "It queries all child elements inside `element` matching `.card`",
             "It finds the closest sibling element to the right"
           ],
-          "answer": "B",
+          "correctIndex": 1,
           "explanation": "`element.closest(selector)` searches up the ancestor chain starting from the element itself, returning the closest matching element or `null`."
         },
         {
+          "mcqType": "theoretical",
           "question": "Which of the following operations is notorious for triggering forced synchronous layout (layout thrashing / reflow) inside a loop?",
+          "codeSnippet": "",
           "options": [
             "Alternating between writing to DOM styles (`el.style.width = ...`) and reading geometry properties (`el.offsetWidth`) in every iteration",
             "Calling `console.log()` inside a loop",
             "Pushing items into a JavaScript array",
             "Using `const` instead of `let` in variable assignments"
           ],
-          "answer": "A",
+          "correctIndex": 0,
           "explanation": "Reading geometry (like `offsetWidth`, `clientHeight`) forces the browser to immediately recalculate layout if styles were mutated in the same frame, causing severe layout thrashing."
         },
         {
+          "mcqType": "coding",
           "question": "How do you smoothly scroll the webpage so that a specific element `#pricing` is centered in the viewport?",
+          "codeSnippet": "",
           "options": [
             "window.scroll({ element: '#pricing', transition: 500 });",
             "document.querySelector('#pricing').scrollToView('center');",
             "window.scrollToElement('#pricing', 'smooth');",
             "document.querySelector('#pricing').scrollIntoView({ behavior: 'smooth', block: 'center' });"
           ],
-          "answer": "D",
+          "correctIndex": 3,
           "explanation": "`element.scrollIntoView({ behavior: 'smooth', block: 'center' })` provides native smooth scrolling alignment to the vertical center of the viewport."
         },
         {
+          "mcqType": "coding",
           "question": "What is the most concise modern method to remove all child nodes from a container element `parent`?",
+          "codeSnippet": "",
           "options": [
             "parent.deleteAll();",
             "parent.replaceChildren();",
             "parent.childNodes.clear();",
             "parent.empty();"
           ],
-          "answer": "B",
+          "correctIndex": 1,
           "explanation": "`parent.replaceChildren()` (without arguments) empties all children from an element in a single operation, faster and cleaner than `parent.innerHTML = ''`."
         },
         {
+          "mcqType": "theoretical",
           "question": "Why is setting `element.innerHTML = userInput;` dangerous when `userInput` comes from untrusted user input?",
+          "codeSnippet": "",
           "options": [
             "It prevents search engines from indexing the website",
             "It crashes the V8 JavaScript compiler due to syntax overflow",
             "It creates a Cross-Site Scripting (XSS) vulnerability by allowing malicious `<img src=x onerror=\"...\">` scripts to execute in the victim's browser",
             "It deletes all cookies stored on the backend server"
           ],
-          "answer": "C",
+          "correctIndex": 2,
           "explanation": "Assigning unescaped user strings directly to `innerHTML` exposes the application to XSS attacks. Safe alternatives include `element.textContent` or sanitizing with DOMPurify."
         },
         {
+          "mcqType": "coding",
           "question": "What does `element.matches('button.primary:not([disabled])')` return?",
+          "codeSnippet": "element.matches('button.primary:not([disabled])')",
           "options": [
             "The index of the element in the DOM tree",
             "A boolean `true` if the element would be selected by the specified CSS selector, or `false` otherwise",
             "A new cloned DOM node matching the criteria",
             "An array of all matching child elements"
           ],
-          "answer": "B",
+          "correctIndex": 1,
           "explanation": "`element.matches(selector)` tests whether the element matches a CSS selector string, returning `true` or `false`."
         },
         {
+          "mcqType": "coding",
           "question": "How do you replace an existing DOM element `oldNode` with a `newNode` directly in modern DOM API?",
+          "codeSnippet": "",
           "options": [
             "oldNode.changeTo(newNode);",
             "oldNode.replaceWith(newNode);",
             "oldNode.swap(newNode);",
             "document.replace(oldNode, newNode);"
           ],
-          "answer": "B",
+          "correctIndex": 1,
           "explanation": "The `ChildNode.replaceWith()` method replaces an element in its parent's children list with one or more replacement nodes directly."
         },
         {
+          "mcqType": "coding",
           "question": "What is the result of running `element.setAttribute('disabled', 'false')` on an HTML button?",
+          "codeSnippet": "element.setAttribute('disabled', 'false')",
           "options": [
             "The button becomes disabled (because `disabled` is a boolean attribute whose presence alone disables the button, regardless of value string)",
             "The button is enabled because the value is `'false'`",
             "The browser throws a TypeError",
             "The attribute is removed from the DOM"
           ],
-          "answer": "A",
+          "correctIndex": 0,
           "explanation": "In HTML, boolean attributes (like `disabled`, `readonly`, `checked`) are active whenever the attribute exists; `setAttribute('disabled', 'false')` still adds the attribute, disabling the button. To enable it, use `removeAttribute('disabled')` or `btn.disabled = false`."
         }
       ]
@@ -236,223 +276,263 @@
       "totalQuestions": 20,
       "questions": [
         {
+          "mcqType": "coding",
           "question": "Why does the following attempt to remove an event listener fail? \n`btn.addEventListener('click', () => console.log('Hi')); btn.removeEventListener('click', () => console.log('Hi'));`",
+          "codeSnippet": "btn.addEventListener('click', () => console.log('Hi'));\nbtn.removeEventListener('click', () => console.log('Hi'));",
           "options": [
             "Event listeners cannot be removed once attached in modern JavaScript",
             "`removeEventListener` requires passing the string name of the event handler function",
             "The arrow function in `removeEventListener` creates a brand new function reference in memory, which does not match the reference registered in `addEventListener`",
             "`removeEventListener` only works for mouse hover events, not click events"
           ],
-          "answer": "C",
+          "correctIndex": 2,
           "explanation": "`removeEventListener()` requires the exact same function reference that was passed to `addEventListener()`. Passing a new inline anonymous function creates a different memory reference that fails to match."
         },
         {
+          "mcqType": "theoretical",
           "question": "What are the three sequential phases of DOM Event Propagation when a user clicks on an element?",
+          "codeSnippet": "",
           "options": [
             "1. Trigger Phase -> 2. Execution Phase -> 3. Termination Phase",
             "1. Bubbling Phase -> 2. Target Phase -> 3. Capturing Phase",
             "1. DOM Phase -> 2. CSSOM Phase -> 3. Render Phase",
             "1. Capturing Phase (Window down to target) -> 2. Target Phase -> 3. Bubbling Phase (Target up to Window)"
           ],
-          "answer": "D",
+          "correctIndex": 3,
           "explanation": "DOM events originate at `window` and travel downward through ancestors during Capturing, trigger at the target, and bubble back upward through ancestors during Bubbling."
         },
         {
+          "mcqType": "theoretical",
           "question": "How do you register an event listener to execute specifically during the Capturing Phase rather than the default Bubbling Phase?",
+          "codeSnippet": "",
           "options": [
             "Set `event.phase = 'capture'` inside the handler",
             "Pass `'capture'` as the event type name: `btn.addEventListener('capture:click', fn)`",
             "Pass `{ capture: true }` (or boolean `true`) as the third argument to `addEventListener`",
             "Wrap the handler function inside `requestAnimationFrame`"
           ],
-          "answer": "C",
+          "correctIndex": 2,
           "explanation": "By default, `addEventListener` listens in the bubbling phase (`capture: false`). Setting `{ capture: true }` (or `true`) intercepts the event on its way down during the capture phase."
         },
         {
+          "mcqType": "coding",
           "question": "What is the difference between `event.stopPropagation()` and `event.stopImmediatePropagation()`?",
+          "codeSnippet": "event.stopPropagation()",
           "options": [
             "There is no difference; both are identical aliases",
             "`stopPropagation()` prevents the event from traveling further up/down the DOM tree, while `stopImmediatePropagation()` also prevents other listeners attached to the SAME element from executing",
             "`stopImmediatePropagation()` prevents default browser actions like link navigation, while `stopPropagation` does not",
             "`stopPropagation()` deletes the event from browser history permanently"
           ],
-          "answer": "B",
+          "correctIndex": 1,
           "explanation": "If multiple listeners are registered on the same element, `stopPropagation()` allows sibling listeners on that element to finish, whereas `stopImmediatePropagation()` stops sibling listeners on that element immediately as well."
         },
         {
+          "mcqType": "coding",
           "question": "What is the primary architectural benefit of the 'Event Delegation' pattern (e.g., listening for item clicks on a parent `<ul>` container)?",
+          "codeSnippet": "",
           "options": [
             "It converts click events into touch events on mobile devices",
             "It bypasses all browser CORS restrictions on network requests",
             "It improves memory efficiency by using a single event listener and automatically handles events for dynamically added child elements without reattaching listeners",
             "It accelerates CSS animation frame rates to 120 FPS"
           ],
-          "answer": "C",
+          "correctIndex": 2,
           "explanation": "Event delegation leverages bubbling by placing a single listener on a common parent. It catches events from existing and future dynamically added children while saving memory."
         },
         {
+          "mcqType": "theoretical",
           "question": "In an event handler attached to a parent container, what is the difference between `event.target` and `event.currentTarget`?",
+          "codeSnippet": "",
           "options": [
             "`event.target` is the actual innermost element that was clicked, while `event.currentTarget` is the element to which the event listener was attached",
             "`event.target` is only defined in the capture phase, while `event.currentTarget` is in bubbling",
             "There is no difference; they always point to the exact same DOM node",
             "`event.currentTarget` is always the global `window` object"
           ],
-          "answer": "A",
+          "correctIndex": 0,
           "explanation": "When clicking a `<span>` inside a `<button>` with a listener on `<div class=\"container\">`: `e.target` is the `<span>`, and `e.currentTarget` (or `this` in regular functions) is the `<div>`."
         },
         {
+          "mcqType": "coding",
           "question": "How do you configure an event listener so that it automatically unregisters and removes itself after executing exactly once?",
+          "codeSnippet": "",
           "options": [
             "element.addEventListener('click:once', handler);",
             "element.addSingleListener('click', handler);",
             "element.addEventListener('click', handler, { single: true });",
             "element.addEventListener('click', handler, { once: true });"
           ],
-          "answer": "D",
+          "correctIndex": 3,
           "explanation": "The `{ once: true }` option invokes the listener once and then automatically removes it, eliminating manual `removeEventListener()` cleanup code."
         },
         {
+          "mcqType": "coding",
           "question": "Why should developers set `{ passive: true }` on touch and scroll event listeners (e.g., `window.addEventListener('scroll', fn, { passive: true })`)?",
+          "codeSnippet": "{ passive: true }",
           "options": [
             "It reduces the frequency of scroll events to 1 per second",
             "It informs the browser that the handler will never call `event.preventDefault()`, allowing the browser to scroll the page smoothly without waiting for JavaScript execution",
             "It disables mouse clicks while scrolling is active",
             "It pauses scrolling whenever CPU utilization exceeds 80%"
           ],
-          "answer": "B",
+          "correctIndex": 1,
           "explanation": "Without `{ passive: true }`, scrolling can stutter because the browser must wait for the JS thread to finish to check if `preventDefault()` is called. Passive listeners guarantee smooth scrolling performance."
         },
         {
+          "mcqType": "coding",
           "question": "How do you dispatch a custom event named `'cartUpdated'` carrying data `{ itemCount: 5 }` to other components in the application?",
+          "codeSnippet": "",
           "options": [
             "element.triggerEvent('cartUpdated', { itemCount: 5 });",
             "element.dispatchEvent(new CustomEvent('cartUpdated', { detail: { itemCount: 5 }, bubbles: true }));",
             "window.emit('cartUpdated', { detail: 5 });",
             "document.sendEvent(new Event('cartUpdated', { count: 5 }));"
           ],
-          "answer": "B",
+          "correctIndex": 1,
           "explanation": "Custom events are created with `new CustomEvent(name, { detail: data, bubbles: true })` and fired via `element.dispatchEvent(customEvent)`."
         },
         {
+          "mcqType": "theoretical",
           "question": "Which keyboard event property provides the human-readable character generated by the keypress (e.g., `'Enter'`, `'a'`, `'Escape'`) regardless of keyboard layout?",
+          "codeSnippet": "",
           "options": [
             "event.keyCode",
             "event.key",
             "event.which",
             "event.charNumber"
           ],
-          "answer": "B",
+          "correctIndex": 1,
           "explanation": "`event.key` is the modern standard property returning key characters (e.g., `'Enter'`, `'ArrowUp'`, `'Escape'`). Legacy `keyCode` and `which` are deprecated."
         },
         {
+          "mcqType": "theoretical",
           "question": "What is the difference between the mouse events `mouseenter` and `mouseover`?",
+          "codeSnippet": "",
           "options": [
             "`mouseenter` is triggered only on mouse click, while `mouseover` is on hover",
             "There is no difference; both bubble identically",
             "`mouseover` only works for touchscreens, while `mouseenter` is for mouse only",
             "`mouseenter` does NOT bubble and only fires when entering the element itself, while `mouseover` bubbles up the DOM tree and fires when entering any child element"
           ],
-          "answer": "D",
+          "correctIndex": 3,
           "explanation": "`mouseenter` / `mouseleave` do not bubble (preventing jittery firing when moving across child boundaries), whereas `mouseover` / `mouseout` bubble continuously."
         },
         {
+          "mcqType": "theoretical",
           "question": "What is the key difference between the `DOMContentLoaded` event and the `window.onload` (load) event?",
+          "codeSnippet": "",
           "options": [
             "`DOMContentLoaded` is only supported in Internet Explorer",
             "`window.onload` fires before `DOMContentLoaded`",
             "`window.onload` only fires when the user clicks on the page",
             "`DOMContentLoaded` fires as soon as the HTML document is fully parsed and DOM tree is built, while `window.onload` waits for all external resources (images, stylesheets, frames) to finish loading"
           ],
-          "answer": "D",
+          "correctIndex": 3,
           "explanation": "`DOMContentLoaded` triggers early when HTML parsing is complete (ideal for initializing UI scripts), whereas `window.load` fires later after all external images, fonts, and sub-resources finish downloading."
         },
         {
+          "mcqType": "theoretical",
           "question": "How can you cleanly cancel multiple event listeners simultaneously using modern `AbortController`?",
+          "codeSnippet": "",
           "options": [
             "Call `window.clearAllListeners()`",
             "Pass `{ signal: controller.signal }` to all `addEventListener` calls, then invoke `controller.abort()` when teardown is required",
             "Delete the parent DOM node and recreate it",
             "Set `document.events.enabled = false`"
           ],
-          "answer": "B",
+          "correctIndex": 1,
           "explanation": "Passing an `AbortSignal` (`{ signal: controller.signal }`) allows canceling single or grouped event listeners instantly by calling `controller.abort()`."
         },
         {
+          "mcqType": "coding",
           "question": "What does `event.preventDefault()` do when called inside an anchor tag (`<a>`) click event listener?",
+          "codeSnippet": "event.preventDefault()",
           "options": [
             "It prevents the browser from navigating to the URL specified in the anchor's `href` attribute",
             "It prevents other click listeners from executing on the same anchor",
             "It deletes the `href` attribute from the anchor element in the DOM",
             "It closes the current browser tab immediately"
           ],
-          "answer": "A",
+          "correctIndex": 0,
           "explanation": "`event.preventDefault()` stops the default browser action associated with that event (e.g., preventing page navigation on links, form submission refreshes, or context menu popups)."
         },
         {
+          "mcqType": "coding",
           "question": "What is the value of `this` inside an event listener callback written as an Arrow Function: `btn.addEventListener('click', (e) => { console.log(this); });`?",
+          "codeSnippet": "inside an event listener callback written as an Arrow Function:",
           "options": [
             "The outer lexical scope (usually the global `window` object or enclosing class instance)",
             "The `<button>` element that was clicked",
             "`null`",
             "The `MouseEvent` object itself"
           ],
-          "answer": "A",
+          "correctIndex": 0,
           "explanation": "Because arrow functions have lexical `this`, `this` does NOT point to the event target button (`e.currentTarget`), but inherits `this` from where the listener was defined."
         },
         {
+          "mcqType": "coding",
           "question": "What is the difference between `input` and `change` events on an `<input type=\"text\">` element?",
+          "codeSnippet": "<input type=\"text\">",
           "options": [
             "`input` only works on numbers, while `change` is for text",
             "`change` fires on every keystroke, while `input` fires only when pressing Enter",
             "`input` fires synchronously on every keystroke or character insertion, while `change` fires only after the input loses focus (`blur`) and its value has changed",
             "There is no difference; both fire synchronously on every character change"
           ],
-          "answer": "C",
+          "correctIndex": 2,
           "explanation": "The `input` event updates in real time on every character typed or pasted; `change` commits only when the user commits the change by blurring (clicking away) or pressing Enter."
         },
         {
+          "mcqType": "coding",
           "question": "Which event must have `event.preventDefault()` called inside its handler to allow an element to act as a valid Drop Target for Drag-and-Drop operations?",
+          "codeSnippet": "event.preventDefault()",
           "options": [
             "dragstart",
             "dragend",
             "dragleave",
             "dragover"
           ],
-          "answer": "D",
+          "correctIndex": 3,
           "explanation": "By default, browsers disallow dropping elements onto other elements. Calling `event.preventDefault()` inside the `dragover` event listener marks that element as a valid drop target."
         },
         {
+          "mcqType": "theoretical",
           "question": "Which pair of focus events bubble up the DOM tree and can therefore be used with Event Delegation?",
+          "codeSnippet": "",
           "options": [
             "focus and blur",
             "focusstart and focusend",
             "focusin and focusout",
             "active and inactive"
           ],
-          "answer": "C",
+          "correctIndex": 2,
           "explanation": "Standard `focus` and `blur` events do NOT bubble. Their counterpart events `focusin` and `focusout` do bubble, enabling form-wide focus delegation on parent containers."
         },
         {
+          "mcqType": "theoretical",
           "question": "How do you detect if the user held down the 'Shift' key while clicking a button?",
+          "codeSnippet": "",
           "options": [
             "Check if `event.shiftKey === true` inside the click handler",
             "Listen for a separate `keydown` event simultaneously",
             "Check `event.key === 'Shift'` in the click handler",
             "Check `document.isShiftPressed()`"
           ],
-          "answer": "A",
+          "correctIndex": 0,
           "explanation": "Mouse events expose boolean modifier flags: `event.shiftKey`, `event.ctrlKey`, `event.altKey`, and `event.metaKey` (Command on Mac / Windows key)."
         },
         {
+          "mcqType": "theoretical",
           "question": "What will happen if an event handler attached to an element throws an uncaught runtime error?",
+          "codeSnippet": "",
           "options": [
             "The error is logged to the console, but the event continues bubbling up the DOM tree to subsequent ancestor handlers",
             "The browser immediately terminates all JavaScript execution on the page",
             "The event propagation is automatically cancelled and halted",
             "The browser reloads the webpage automatically"
           ],
-          "answer": "A",
+          "correctIndex": 0,
           "explanation": "An uncaught exception in an event listener halts execution of that specific handler, but does not abort the browser's event propagation pipeline to remaining listeners."
         }
       ]
@@ -463,223 +543,263 @@
       "totalQuestions": 20,
       "questions": [
         {
+          "mcqType": "coding",
           "question": "What is the standard JavaScript technique to prevent a web form from causing a full page refresh upon submission?",
+          "codeSnippet": "",
           "options": [
             "form.addEventListener('submit', (e) => { e.preventDefault(); });",
             "form.addEventListener('submit', (e) => { e.stopPageReload(); });",
             "form.addEventListener('submit', () => { return false; });",
             "form.setAttribute('refresh', 'false');"
           ],
-          "answer": "A",
+          "correctIndex": 0,
           "explanation": "Forms naturally submit via HTTP GET/POST and reload the page. Calling `e.preventDefault()` inside the `'submit'` event handler intercepts submission for AJAX/Fetch handling."
         },
         {
+          "mcqType": "coding",
           "question": "How can you extract all named inputs from a `<form id=\"myForm\">` into a plain JavaScript key-value object in a single line?",
+          "codeSnippet": "<form id=\"myForm\">",
           "options": [
             "const data = JSON.parse(myForm.values);",
             "const data = Array.from(myForm.inputs);",
             "const data = myForm.toJSON();",
             "const data = Object.fromEntries(new FormData(myForm));"
           ],
-          "answer": "D",
+          "correctIndex": 3,
           "explanation": "`new FormData(form)` extracts all input names and values, and `Object.fromEntries()` transforms the iterable FormData entries into a clean `{ username: 'Alice', email: '...' }` object."
         },
         {
+          "mcqType": "coding",
           "question": "What does the Constraint Validation method `input.checkValidity()` return?",
+          "codeSnippet": "input.checkValidity()",
           "options": [
             "The sanitized value of the input field",
             "An array of failed validation rules",
             "A boolean `true` if the input satisfies all its HTML5 validation constraints (e.g., `required`, `pattern`, `minlength`), or `false` otherwise",
             "A string containing the validation error message"
           ],
-          "answer": "C",
+          "correctIndex": 2,
           "explanation": "`checkValidity()` evaluates validity constraints, returning `true` or `false` and firing an `'invalid'` event on the element if validation fails."
         },
         {
+          "mcqType": "coding",
           "question": "What is the difference between `input.checkValidity()` and `input.reportValidity()`?",
+          "codeSnippet": "input.checkValidity()",
           "options": [
             "`checkValidity()` only works on password fields, while `reportValidity()` is for emails",
             "`reportValidity()` submits the form to the server automatically",
             "There is no difference; both are exact synonyms",
             "`reportValidity()` checks validity AND triggers the browser's native popup tooltip error message to the user, while `checkValidity()` only returns a boolean silently"
           ],
-          "answer": "D",
+          "correctIndex": 3,
           "explanation": "`reportValidity()` evaluates constraints, returns a boolean, and actively shows the browser's native validation popup balloon on the invalid field."
         },
         {
+          "mcqType": "coding",
           "question": "How do you set a custom validation error message on an `<input id=\"email\">` element that prevents form submission?",
+          "codeSnippet": "<input id=\"email\">",
           "options": [
             "emailInput.setAttribute('error-msg', 'Please enter an official corporate email address');",
             "emailInput.customError = 'Please enter an official corporate email address';",
             "emailInput.setCustomValidity('Please enter an official corporate email address');",
             "emailInput.validationMessage = 'Please enter an official corporate email address';"
           ],
-          "answer": "C",
+          "correctIndex": 2,
           "explanation": "`setCustomValidity(message)` sets a custom error string. Passing a non-empty string marks the field invalid; passing `''` (empty string) clears the custom error and marks it valid."
         },
         {
+          "mcqType": "theoretical",
           "question": "Which property on `input.validity` is `true` when an input with `required` is submitted with an empty value?",
+          "codeSnippet": "",
           "options": [
             "input.validity.badInput",
             "input.validity.typeMismatch",
             "input.validity.patternMismatch",
             "input.validity.valueMissing"
           ],
-          "answer": "D",
+          "correctIndex": 3,
           "explanation": "`ValidityState.valueMissing` is `true` if the element has the `required` attribute but contains no value upon validation check."
         },
         {
+          "mcqType": "coding",
           "question": "Which JavaScript regular expression test correctly validates that a username contains only 3 to 16 alphanumeric characters and underscores?",
+          "codeSnippet": "",
           "options": [
             "/^[a-z]{3-16}/.test(username)",
             "/^[a-zA-Z0-9_]{3,16}$/.test(username)",
             "/^[a-zA-Z0-9_]3,16$/.test(username)",
             "/^[a-zA-Z0-9_]*/.test(username)"
           ],
-          "answer": "B",
+          "correctIndex": 1,
           "explanation": "`^` anchors to start, `[a-zA-Z0-9_]` specifies allowed characters, `{3,16}` enforces 3 to 16 repetitions, and `$` anchors to string end."
         },
         {
+          "mcqType": "coding",
           "question": "How do you clone and instantiate the contents of an HTML `<template id=\"cardTpl\">` element in JavaScript?",
+          "codeSnippet": "<template id=\"cardTpl\">",
           "options": [
             "const clone = document.querySelector('#cardTpl').content.cloneNode(true);",
             "const clone = document.querySelector('#cardTpl').innerHTML.render();",
             "const clone = document.importNode('#cardTpl');",
             "const clone = document.querySelector('#cardTpl').clone();"
           ],
-          "answer": "A",
+          "correctIndex": 0,
           "explanation": "HTML `<template>` elements contain an inactive `DocumentFragment` in `.content`. Cloning `.content.cloneNode(true)` creates an active DOM instance ready for population."
         },
         {
+          "mcqType": "coding",
           "question": "How do you implement a Show/Hide password toggle functionality on `<input type=\"password\" id=\"pwd\">`?",
+          "codeSnippet": "<input type=\"password\" id=\"pwd\">",
           "options": [
             "pwd.style.visibility = pwd.style.visibility === 'hidden' ? 'visible' : 'hidden';",
             "pwd.setAttribute('secure', pwd.getAttribute('secure') === 'true' ? 'false' : 'true');",
             "pwd.type = pwd.type === 'password' ? 'text' : 'password';",
             "pwd.mask = !pwd.mask;"
           ],
-          "answer": "C",
+          "correctIndex": 2,
           "explanation": "Toggling the `type` property between `'password'` (masked with dots) and `'text'` (visible plain text) seamlessly toggles password visibility."
         },
         {
+          "mcqType": "coding",
           "question": "How can you collect all selected checkbox values with `name=\"hobby\"` into an array of strings?",
+          "codeSnippet": "",
           "options": [
             "const hobbies = document.getElementsByName('hobby').values();",
             "const hobbies = Array.from(document.querySelectorAll('input[name=\"hobby\"]:checked')).map(cb => cb.value);",
             "const hobbies = form.formData.getAllChecked('hobby');",
             "const hobbies = document.querySelectorAll('input[name=\"hobby\"]').checkedValues();"
           ],
-          "answer": "B",
+          "correctIndex": 1,
           "explanation": "`querySelectorAll('input[name=\"hobby\"]:checked')` selects only checked checkboxes; `Array.from(...).map(cb => cb.value)` extracts their values into an array."
         },
         {
+          "mcqType": "coding",
           "question": "How do you read a user-selected image file from `<input type=\"file\" id=\"avatar\">` and preview it in an `<img>` element using `FileReader`?",
+          "codeSnippet": "<input type=\"file\" id=\"avatar\">",
           "options": [
             "previewImg.src = FileReader.read(avatar.value);",
             "const reader = new FileReader(); reader.onload = (e) => { previewImg.src = e.target.result; }; reader.readAsDataURL(avatar.files[0]);",
             "previewImg.src = avatar.files[0].path;",
             "const reader = new FileReader(avatar.files[0]); previewImg.src = reader.toURL();"
           ],
-          "answer": "B",
+          "correctIndex": 1,
           "explanation": "`FileReader.readAsDataURL(file)` asynchronously converts the file into a base64 Data URL, which triggers the `onload` handler where `e.target.result` is assigned to `img.src`."
         },
         {
+          "mcqType": "coding",
           "question": "How do you dynamically populate a child 'City' dropdown (`<select id=\"citySelect\">`) based on a selected country code?",
+          "codeSnippet": "<select id=\"citySelect\">",
           "options": [
             "citySelect.options = cities[countryCode];",
             "citySelect.bindDataset(cities[countryCode]);",
             "citySelect.addItems(cities[countryCode]);",
             "citySelect.replaceChildren(...cities[countryCode].map(c => new Option(c.name, c.id)));"
           ],
-          "answer": "D",
+          "correctIndex": 3,
           "explanation": "Using `new Option(text, value)` creates standard `<option>` elements, and `citySelect.replaceChildren(...)` replaces existing options with the new city options in one clean call."
         },
         {
+          "mcqType": "coding",
           "question": "How do you implement a real-time character counter for a `<textarea maxlength=\"200\" id=\"bio\">`?",
+          "codeSnippet": "<textarea maxlength=\"200\" id=\"bio\">",
           "options": [
             "bio.addEventListener('input', () => { counter.textContent = `${bio.maxLength - bio.value.length} characters left`; });",
             "bio.onchange = () => { counter.textContent = 200 - bio.textLength; };",
             "bio.addEventListener('select', () => { counter.text = bio.maxLength; });",
             "bio.addEventListener('keydown', () => { counter.textContent = bio.value.length; });"
           ],
-          "answer": "A",
+          "correctIndex": 0,
           "explanation": "Listening to the `'input'` event ensures the counter updates on every keystroke, backspace, and clipboard paste in real time by evaluating `bio.maxLength - bio.value.length`."
         },
         {
+          "mcqType": "coding",
           "question": "What is the effect of calling `form.reset()` in JavaScript?",
+          "codeSnippet": "",
           "options": [
             "It deletes the entire `<form>` element and its inputs from the DOM tree",
             "It restores all form controls to their initial default values specified in HTML markup and clears user inputs",
             "It submits the form to the server with empty values",
             "It clears the browser's entire cookie and cache storage"
           ],
-          "answer": "B",
+          "correctIndex": 1,
           "explanation": "`form.reset()` restores all form inputs to their original default values (e.g., initial `value`, `checked`, or selected options) as declared in the initial HTML."
         },
         {
+          "mcqType": "theoretical",
           "question": "Why should a submit button be disabled (`submitBtn.disabled = true;`) immediately after form submission begins in an async web app?",
+          "codeSnippet": "",
           "options": [
             "To prevent accidental duplicate form submissions caused by rapid double-clicking while the network request is pending",
             "To prevent the browser from timing out the network connection",
             "To encrypt the user's password before sending to the backend",
             "Because HTTP POST requests disallow enabled buttons in request payloads"
           ],
-          "answer": "A",
+          "correctIndex": 0,
           "explanation": "Disabling the submit button upon submission prevents users from triggering multiple duplicate requests (e.g., double payment charges or duplicate database records) while waiting for server response."
         },
         {
+          "mcqType": "coding",
           "question": "How do you extract a dropped file from a Drag-and-Drop drop zone event in JavaScript?",
+          "codeSnippet": "",
           "options": [
             "const files = event.dataTransfer.files;",
             "const files = document.getDroppedFiles();",
             "const files = event.target.files;",
             "const files = event.dragFiles;"
           ],
-          "answer": "A",
+          "correctIndex": 0,
           "explanation": "During drag-and-drop events, dropped data and files are accessed via the `event.dataTransfer.files` `FileList` property."
         },
         {
+          "mcqType": "coding",
           "question": "What is the purpose of the 'novalidate' boolean attribute when applied to `<form novalidate>`?",
+          "codeSnippet": "",
           "options": [
             "It converts all input fields into read-only text elements",
             "It prevents the server from validating passwords on backend databases",
             "It disables browser built-in HTML5 validation balloon popups so developers can handle validation entirely via custom JavaScript UI",
             "It allows users to bypass HTTPS encryption"
           ],
-          "answer": "C",
+          "correctIndex": 2,
           "explanation": "Adding `novalidate` prevents native browser validation tooltip balloons from popping up, allowing custom JS validation error messages and styling to take over."
         },
         {
+          "mcqType": "coding",
           "question": "Which debounced search input technique ensures an API search query is sent only after the user stops typing for 300ms?",
+          "codeSnippet": "",
           "options": [
             "searchInput.addEventListener('change', () => fetchResults());",
             "searchInput.debounce(300, fetchResults);",
             "let timer; searchInput.addEventListener('input', (e) => { clearTimeout(timer); timer = setTimeout(() => fetchResults(e.target.value), 300); });",
             "searchInput.addEventListener('input', (e) => { setTimeout(() => fetchResults(e.target.value), 300); });"
           ],
-          "answer": "C",
+          "correctIndex": 2,
           "explanation": "Clearing the previous `timer` with `clearTimeout(timer)` on every input keystroke resets the countdown, ensuring `fetchResults` fires only after typing has paused for 300ms."
         },
         {
+          "mcqType": "coding",
           "question": "How do you dynamically create and display a temporary notification banner that automatically fades out and removes itself after 3 seconds?",
+          "codeSnippet": "",
           "options": [
             "const toast = new Toast('Notification'); toast.display(3000);",
             "const toast = document.createElement('div'); toast.className = 'toast'; document.body.appendChild(toast); setTimeout(() => toast.remove(), 3000);",
             "document.alert('Notification', { duration: 3000 });",
             "window.showBanner('Notification', 3000);"
           ],
-          "answer": "B",
+          "correctIndex": 1,
           "explanation": "Creating a DOM element, appending it to the container, and scheduling its removal via `setTimeout(() => toast.remove(), 3000)` creates a simple, clean auto-dismissing toast."
         },
         {
+          "mcqType": "theoretical",
           "question": "What is Progressive Enhancement in web form engineering?",
+          "codeSnippet": "",
           "options": [
             "Translating the form into multiple languages using AI ahead of time",
             "Gradually increasing the font size of form inputs as the user types",
             "Requiring users to complete a CAPTCHA on every single input field",
             "Ensuring the form works fundamentally with basic HTML POST submission if JavaScript fails or is disabled, and enhancing with AJAX/Fetch validation when JavaScript is available"
           ],
-          "answer": "D",
+          "correctIndex": 3,
           "explanation": "Progressive enhancement guarantees basic core functionality (standard HTML action/method POST) works for everyone, while layering advanced interactive features (AJAX, dynamic validation) on top."
         }
       ]
