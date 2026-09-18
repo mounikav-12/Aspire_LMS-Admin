@@ -28,6 +28,8 @@ import {
   Layers,
   Bookmark,
   ChevronDown,
+  ChevronUp,
+  ChevronRight,
   FileJson,
   ClipboardPaste,
   Upload,
@@ -35,8 +37,200 @@ import {
   AlertCircle
 } from 'lucide-react';
 
+// ─── Inline Markdown Tokenizer & Problem Statement Renderer ──────────────
+function renderInlineTokens(text) {
+  if (!text) return null;
+  const str = String(text);
+  // Match `code`, **bold**, or single-quoted HTML tags like '<tag>' / '<!DOCTYPE...>'
+  const regex = /(`[^`]+`|\*\*[^*]+\*\*|'<\/?\w+[^>]*>'|'<!DOCTYPE[^>]*>')/g;
+  let lastIdx = 0;
+  const nodes = [];
+  let match;
+
+  while ((match = regex.exec(str)) !== null) {
+    if (match.index > lastIdx) {
+      nodes.push(str.substring(lastIdx, match.index));
+    }
+    const raw = match[0];
+    if (raw.startsWith('`') && raw.endsWith('`')) {
+      nodes.push(
+        <code key={match.index} className="px-1.5 py-0.5 rounded bg-slate-100 text-pink-600 font-mono text-[11px] border border-slate-200/60 font-semibold">
+          {raw.slice(1, -1)}
+        </code>
+      );
+    } else if (raw.startsWith('**') && raw.endsWith('**')) {
+      nodes.push(
+        <strong key={match.index} className="font-bold text-slate-800">
+          {raw.slice(2, -2)}
+        </strong>
+      );
+    } else if (raw.startsWith("'") && raw.endsWith("'")) {
+      nodes.push(
+        <code key={match.index} className="px-1.5 py-0.5 rounded bg-slate-100 text-pink-600 font-mono text-[11px] border border-slate-200/60 font-semibold">
+          {raw.slice(1, -1)}
+        </code>
+      );
+    }
+    lastIdx = regex.lastIndex;
+  }
+  if (lastIdx < str.length) {
+    nodes.push(str.substring(lastIdx));
+  }
+  return nodes.length > 0 ? nodes : str;
+}
+
+function parseStepsText(stepsText) {
+  if (!stepsText) return [];
+  const stepBlocks = stepsText.split(/(?=\b\d+\.\s+)/).map((s) => s.trim()).filter(Boolean);
+
+  return stepBlocks.map((block, index) => {
+    const titleMatch = block.match(/^(\d+)\.\s*(?:\*\*(.*?)\*\*|(.*?):)/);
+    let stepNum = String(index + 1);
+    let stepTitle = '';
+    let rest = block;
+
+    if (titleMatch) {
+      stepNum = titleMatch[1];
+      stepTitle = (titleMatch[2] || titleMatch[3] || '').trim();
+      rest = block.substring(titleMatch[0].length).trim();
+    }
+
+    // Extract sub bullets starting with - or *
+    const subItems = rest
+      .split(/(?=\s*-\s+)/)
+      .map((s) => s.replace(/^\s*-\s+/, '').trim())
+      .filter(Boolean);
+
+    return {
+      num: stepNum,
+      title: stepTitle,
+      items: subItems.length > 0 ? subItems : [rest].filter(Boolean)
+    };
+  });
+}
+
+function ProblemStatementView({ content, isExpanded, onToggle }) {
+  if (!content) return null;
+  const raw = String(content);
+
+  // Detect structured instructions / steps
+  const hasInstructions = /###|\b\d+\.\s+\*\*/.test(raw);
+
+  let intro = '';
+  let sectionTitle = 'Step-by-Step Instructions';
+  let steps = [];
+
+  if (hasInstructions) {
+    const matchHeader = raw.match(/###\s*([^\n\r:]+):?/);
+    if (matchHeader) {
+      sectionTitle = matchHeader[1].trim();
+      const headerIdx = raw.indexOf(matchHeader[0]);
+      intro = raw.substring(0, headerIdx).trim();
+      const stepsText = raw.substring(headerIdx + matchHeader[0].length).trim();
+      steps = parseStepsText(stepsText);
+    } else {
+      const firstStepMatch = raw.match(/\b\d+\.\s+\*\*/);
+      if (firstStepMatch) {
+        intro = raw.substring(0, firstStepMatch.index).trim();
+        const stepsText = raw.substring(firstStepMatch.index).trim();
+        steps = parseStepsText(stepsText);
+      } else {
+        intro = raw.trim();
+      }
+    }
+  } else {
+    intro = raw.trim();
+  }
+
+  // If collapsed:
+  if (!isExpanded) {
+    return (
+      <div className="space-y-1.5">
+        <p className="text-xs text-slate-600 leading-relaxed line-clamp-2">
+          {renderInlineTokens(intro || raw)}
+        </p>
+        {(hasInstructions || raw.length > 160) && (
+          <button
+            type="button"
+            onClick={onToggle}
+            className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-600 hover:text-emerald-700 transition-colors cursor-pointer"
+          >
+            <span>{hasInstructions ? 'View full instructions & steps' : 'Read more'}</span>
+            <ChevronDown className="w-3.5 h-3.5" />
+          </button>
+        )}
+      </div>
+    );
+  }
+
+  // If expanded:
+  return (
+    <div className="space-y-3.5 text-xs text-slate-600 leading-relaxed animate-in fade-in duration-200">
+      {/* Intro Overview */}
+      {intro && (
+        <div className="text-slate-700 font-normal leading-relaxed">
+          {renderInlineTokens(intro)}
+        </div>
+      )}
+
+      {/* Structured Instructions */}
+      {steps.length > 0 && (
+        <div className="space-y-2.5 pt-2.5 border-t border-slate-200/80">
+          <div className="flex items-center gap-2 font-bold text-slate-800 text-[11px] uppercase tracking-wider">
+            <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
+            <span>{sectionTitle}</span>
+          </div>
+
+          <div className="space-y-2">
+            {steps.map((step, idx) => (
+              <div key={idx} className="bg-white/90 p-3 rounded-xl border border-slate-200/80 space-y-1.5 shadow-2xs">
+                <div className="flex items-center gap-2">
+                  <span className="w-4 h-4 rounded-full bg-emerald-100 text-emerald-700 font-extrabold text-[10px] flex items-center justify-center flex-shrink-0">
+                    {step.num || idx + 1}
+                  </span>
+                  <span className="font-bold text-slate-800 text-xs">
+                    {step.title || `Step ${idx + 1}`}
+                  </span>
+                </div>
+                {step.items.length > 0 && (
+                  <ul className="space-y-1 pl-6">
+                    {step.items.map((it, iIdx) => (
+                      <li key={iIdx} className="text-slate-600 text-[11px] leading-relaxed list-disc marker:text-emerald-500">
+                        {renderInlineTokens(it)}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Fallback if no steps parsed */}
+      {steps.length === 0 && (
+        <div className="space-y-2 whitespace-pre-line text-slate-700">
+          {renderInlineTokens(raw)}
+        </div>
+      )}
+
+      {/* Show Less Button */}
+      <div className="pt-1">
+        <button
+          type="button"
+          onClick={onToggle}
+          className="inline-flex items-center gap-1 text-xs font-semibold text-slate-500 hover:text-slate-800 transition-colors cursor-pointer"
+        >
+          <span>Show less</span>
+          <ChevronUp className="w-3.5 h-3.5" />
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export function CodingQuestionsPage() {
-  const { codingQuestions = [], courses = [], courseLessons = [], milestones, milestonesByBatch, addCodingQuestion, updateCodingQuestion, deleteCodingQuestion, activeBatchFilter, setActiveBatchFilter } = useLmsData();
+  const { codingQuestions = [], courses = [], courseLessons = [], milestones, milestonesByBatch, addCodingQuestion, updateCodingQuestion, deleteCodingQuestion, activeBatchFilter, setActiveBatchFilter, getCodingQuestionsForBatch } = useLmsData();
   const { addToast } = useToast();
 
   const [selectedCourseId, setSelectedCourseId] = useState(courses[0]?.id || '');
@@ -101,6 +295,19 @@ export function CodingQuestionsPage() {
   const [editingQuestion, setEditingQuestion] = useState(null);
   const [deletingQuestion, setDeletingQuestion] = useState(null);
   const [viewingSolution, setViewingSolution] = useState(null); // { question, tab: 'starter' | 'solution' }
+  const [expandedQuestionIds, setExpandedQuestionIds] = useState(new Set());
+
+  const toggleExpandQuestion = (id) => {
+    setExpandedQuestionIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  };
 
   // JSON Auto-Import State
   const [importMode, setImportMode] = useState('paste'); // 'paste' | 'file'
@@ -194,11 +401,20 @@ export function CodingQuestionsPage() {
     }
   }, [courses, formData.courseId, modalStagesList, courseLessons]);
 
+  // Sourcing all coding questions independent of global weekday/weekend batch filter
+  const allCodingQuestions = React.useMemo(() => {
+    if (typeof getCodingQuestionsForBatch === 'function') {
+      const all = getCodingQuestionsForBatch('ALL');
+      if (Array.isArray(all) && all.length > 0) return all;
+    }
+    return codingQuestions;
+  }, [getCodingQuestionsForBatch, codingQuestions]);
+
   // Calculate stats
-  const totalQuestionsCount = codingQuestions.length;
-  const easyCount = codingQuestions.filter((q) => q.difficulty === 'Easy').length;
-  const mediumCount = codingQuestions.filter((q) => q.difficulty === 'Medium').length;
-  const hardCount = codingQuestions.filter((q) => q.difficulty === 'Hard').length;
+  const totalQuestionsCount = allCodingQuestions.length;
+  const easyCount = allCodingQuestions.filter((q) => q.difficulty === 'Easy').length;
+  const mediumCount = allCodingQuestions.filter((q) => q.difficulty === 'Medium').length;
+  const hardCount = allCodingQuestions.filter((q) => q.difficulty === 'Hard').length;
 
   // Helper to resolve question stage/subtopic/module even if unlinked or legacy format
   const resolveHierarchy = React.useCallback((q) => {
@@ -349,7 +565,7 @@ export function CodingQuestionsPage() {
 
 
   // Filter list
-  const filteredQuestions = codingQuestions.filter((q) => {
+  const filteredQuestions = allCodingQuestions.filter((q) => {
     const qCourseId = q.courseId || q.course_id;
     const hierarchy = resolveHierarchy(q);
     const qStageId = hierarchy.stageId || q.stageId || q.stage_id;
@@ -1014,12 +1230,27 @@ export function CodingQuestionsPage() {
   const getDifficultyBadge = (diff) => {
     switch (diff) {
       case 'Hard':
-        return <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-100 text-rose-700 border border-rose-200">Hard</span>;
+        return (
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200/70">
+            <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
+            Hard
+          </span>
+        );
       case 'Medium':
-        return <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-700 border border-amber-200">Medium</span>;
+        return (
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200/70">
+            <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+            Medium
+          </span>
+        );
       case 'Easy':
       default:
-        return <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700 border border-emerald-200">Easy</span>;
+        return (
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200/70">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+            Easy
+          </span>
+        );
     }
   };
 
@@ -1040,30 +1271,6 @@ export function CodingQuestionsPage() {
         </div>
 
         <div className="flex items-center gap-3">
-          {/* Batch Selector Pills */}
-          <div className="flex items-center gap-1 p-1 bg-slate-100/80 rounded-xl border border-slate-200/80">
-            <button
-              onClick={() => setActiveBatchFilter && setActiveBatchFilter('Weekday Batch')}
-              className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                activeBatchFilter === 'Weekday Batch' || activeBatchFilter === 'ALL'
-                  ? 'bg-blue-600 text-white shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
-              }`}
-            >
-              Weekday (A26W)
-            </button>
-            <button
-              onClick={() => setActiveBatchFilter && setActiveBatchFilter('Weekend Batch')}
-              className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                activeBatchFilter === 'Weekend Batch'
-                  ? 'bg-purple-600 text-white shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
-              }`}
-            >
-              Weekend (A26S)
-            </button>
-          </div>
-
           <Button
             variant="primary"
             size="md"
@@ -1283,123 +1490,152 @@ export function CodingQuestionsPage() {
           const subMods = displaySub ? getInnerModulesForSubtopic(displaySub, courseLessons, displayStage?.id) : [];
           const displayMod = subMods.find(m => cleanId(m.id) === cleanId(hierarchy.moduleId) || cleanStr(m.title) === cleanStr(hierarchy.moduleId));
 
+          const stageTitle = displayStage?.title || cq.stageName || (activeStagesList.find(s => isMatchingStage(s.id, cq.stageId))?.title) || cq.stageId;
+          const subtopicTitle = displaySub?.title || cq.subtopicName || cq.subtopicId;
+          const moduleTitle = displayMod?.title || cq.moduleName || cq.topicName || cq.innerTopicId;
+          const isExpanded = expandedQuestionIds.has(cq.id);
+
           return (
             <div
               key={cq.id}
-              className="bg-white p-5 sm:p-6 rounded-3xl border border-slate-200/80 shadow-2xs hover:shadow-md transition-all space-y-4"
+              className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/90 shadow-2xs hover:shadow-md hover:border-slate-300 transition-all space-y-4"
             >
-              <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-                <div className="space-y-1.5">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <h3 className="font-extrabold text-slate-900 text-base sm:text-lg leading-snug">{cq.title}</h3>
-
-                    {getDifficultyBadge(cq.difficulty || 'Easy')}
-                    {cq.language && (
-                      <span className="px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-blue-50 text-blue-700 border border-blue-100/80">
-                        {cq.language}
+              {/* Top Row: Clean Hierarchy Breadcrumb & Action Toolbar */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
+                <div className="flex items-center gap-1.5 text-xs text-slate-500 font-medium overflow-x-auto no-scrollbar min-w-0">
+                  <span className="text-slate-600 font-semibold truncate flex-shrink-0">
+                    {cq.category || 'Algorithms & Data Structures'}
+                  </span>
+                  {stageTitle && (
+                    <>
+                      <ChevronRight className="w-3.5 h-3.5 text-slate-300 flex-shrink-0" />
+                      <span className="text-slate-600 truncate max-w-[200px]" title={stageTitle}>
+                        {stageTitle}
                       </span>
-                    )}
-                    {(cq.marks || cq.points) && (
-                      <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-100 text-slate-700 border border-slate-200/60">
-                        {cq.marks || cq.points} Marks
+                    </>
+                  )}
+                  {subtopicTitle && (
+                    <>
+                      <ChevronRight className="w-3.5 h-3.5 text-slate-300 flex-shrink-0" />
+                      <span className="text-slate-600 truncate max-w-[200px]" title={subtopicTitle}>
+                        {subtopicTitle}
                       </span>
-                    )}
-                  </div>
-
-                  <div className="text-xs text-slate-500 font-medium flex items-center gap-2 flex-wrap">
-                    <span>{cq.category || cq.topic || 'Algorithms & Data Structures'}</span>
-                    {(displayStage || cq.stageName || cq.stageId) && (
-                      <>
-                        <span>•</span>
-                        <span className="inline-flex items-center gap-1 text-blue-600 font-semibold">
-                          <Layers className="w-3 h-3 text-blue-500" />
-                          <span>{displayStage?.title || cq.stageName || (activeStagesList.find(s => isMatchingStage(s.id, cq.stageId))?.title) || cq.stageId}</span>
-                        </span>
-                      </>
-                    )}
-                    {(displaySub || cq.subtopicName || cq.subtopicId) && (
-                      <>
-                        <span>•</span>
-                        <span className="inline-flex items-center gap-1 text-emerald-600 font-semibold">
-                          <Bookmark className="w-3 h-3 text-emerald-500" />
-                          <span>{displaySub?.title || cq.subtopicName || cq.subtopicId}</span>
-                        </span>
-                      </>
-                    )}
-                    {(displayMod || cq.moduleName || cq.topicName || cq.innerTopicId) && (
-                      <>
-                        <span>•</span>
-                        <span className="inline-flex items-center gap-1 text-purple-600 font-semibold">
-                          <Sparkles className="w-3 h-3 text-purple-500" />
-                          <span>{displayMod?.title || cq.moduleName || cq.topicName || cq.innerTopicId}</span>
-                        </span>
-                      </>
-                    )}
-                    {(cq.timeLimitMinutes || cq.timeLimit || cq.duration) && (
-                      <>
-                        <span>•</span>
-                        <span className="flex items-center gap-1">
-                          <Clock className="w-3.5 h-3.5 text-slate-400" />
-                          <span>{cq.timeLimitMinutes || cq.timeLimit || cq.duration} Mins</span>
-                        </span>
-                      </>
-                    )}
-                  </div>
+                    </>
+                  )}
+                  {moduleTitle && (
+                    <>
+                      <ChevronRight className="w-3.5 h-3.5 text-slate-300 flex-shrink-0" />
+                      <span className="text-slate-600 truncate max-w-[220px]" title={moduleTitle}>
+                        {moduleTitle}
+                      </span>
+                    </>
+                  )}
                 </div>
 
                 {/* Action Buttons */}
-                <div className="flex items-center gap-2 flex-shrink-0">
+                <div className="flex items-center gap-2 flex-shrink-0 self-end sm:self-auto">
                   <button
                     onClick={() => setViewingSolution({ question: cq, tab: 'starter' })}
-                    className="px-3.5 py-2 rounded-xl border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-50 hover:border-slate-300 transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs"
+                    className="px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 hover:border-slate-300 text-xs font-semibold text-slate-700 transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs"
                   >
-                    <Eye className="w-3.5 h-3.5 text-slate-500" /> Code & Solution
+                    <Eye className="w-3.5 h-3.5 text-slate-500" />
+                    <span>Code & Solution</span>
                   </button>
-                  <button
-                    onClick={() => handleOpenEditModal(cq)}
-                    className="p-2 text-slate-400 hover:text-blue-600 rounded-xl hover:bg-blue-50 transition-colors cursor-pointer"
-                    title="Edit Question"
-                  >
-                    <Edit2 className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={() => setDeletingQuestion(cq)}
-                    className="p-2 text-slate-400 hover:text-rose-600 rounded-xl hover:bg-rose-50 transition-colors cursor-pointer"
-                    title="Delete Question"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
+                  <div className="flex items-center bg-slate-50 rounded-xl border border-slate-200/70 p-0.5">
+                    <button
+                      onClick={() => handleOpenEditModal(cq)}
+                      className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-white rounded-lg transition-all cursor-pointer"
+                      title="Edit Question"
+                    >
+                      <Edit2 className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      onClick={() => setDeletingQuestion(cq)}
+                      className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-white rounded-lg transition-all cursor-pointer"
+                      title="Delete Question"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
                 </div>
               </div>
 
-              {/* Problem Statement */}
+              {/* Title & Specifications */}
+              <div className="space-y-2">
+                <h3 className="font-bold text-slate-900 text-base sm:text-lg leading-snug tracking-tight">
+                  {cq.title}
+                </h3>
+
+                {/* Specs Badges Strip */}
+                <div className="flex items-center gap-2 flex-wrap">
+                  {getDifficultyBadge(cq.difficulty || 'Easy')}
+
+                  {cq.language && (
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200/60">
+                      <Code2 className="w-3 h-3 text-slate-500" />
+                      {cq.language}
+                    </span>
+                  )}
+
+                  {(cq.marks || cq.points) && (
+                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200/60">
+                      <Award className="w-3 h-3 text-slate-400" />
+                      {cq.marks || cq.points} Marks
+                    </span>
+                  )}
+
+                  {(cq.timeLimitMinutes || cq.timeLimit || cq.duration) && (
+                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200/60">
+                      <Clock className="w-3 h-3 text-slate-400" />
+                      {cq.timeLimitMinutes || cq.timeLimit || cq.duration} Mins
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              {/* Problem Statement Box */}
               {(cq.problemStatement || cq.description) && (
-                <div className="text-xs text-slate-600 leading-relaxed font-medium bg-slate-50/80 p-3.5 rounded-2xl border border-slate-100">
-                  {cq.problemStatement || cq.description}
+                <div className="bg-slate-50/70 p-3.5 sm:p-4 rounded-2xl border border-slate-200/60">
+                  <ProblemStatementView
+                    content={cq.problemStatement || cq.description}
+                    isExpanded={isExpanded}
+                    onToggle={() => toggleExpandQuestion(cq.id)}
+                  />
                 </div>
               )}
 
-              {/* Tags & Sample Test Preview */}
+              {/* Tags & Sample Test Preview Footer */}
               <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
-                {Array.isArray(cq.tags) && cq.tags.length > 0 && (
+                {Array.isArray(cq.tags) && cq.tags.length > 0 ? (
                   <div className="flex items-center gap-1.5 flex-wrap">
-                    <Tag className="w-3.5 h-3.5 text-slate-400" />
+                    <Tag className="w-3 h-3 text-slate-400" />
                     {cq.tags.map((tag) => (
-                      <span key={tag} className="px-2.5 py-0.5 bg-slate-100/80 text-slate-600 rounded-lg text-[11px] font-semibold border border-slate-200/50">
-                        #{tag}
+                      <span
+                        key={tag}
+                        className="px-2 py-0.5 bg-slate-100 text-slate-600 rounded-md text-[11px] font-medium hover:bg-slate-200/70 transition-colors"
+                      >
+                        {tag.startsWith('#') ? tag : `#${tag}`}
                       </span>
                     ))}
                   </div>
+                ) : (
+                  <div />
                 )}
 
                 {cq.sampleTestCases && cq.sampleTestCases.length > 0 && (
-                  <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-100">
-                    {cq.sampleTestCases.length} Sample Test Case(s) Included
-                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setViewingSolution({ question: cq, tab: 'starter' })}
+                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100/80 px-2.5 py-1 rounded-lg border border-emerald-200/60 transition-colors cursor-pointer"
+                    title="Click to view test cases"
+                  >
+                    <Terminal className="w-3.5 h-3.5 text-emerald-600" />
+                    <span>{cq.sampleTestCases.length} Test Case{cq.sampleTestCases.length > 1 ? 's' : ''} Included</span>
+                  </button>
                 )}
               </div>
-          </div>
-        );
+            </div>
+          );
         })}
 
         {filteredQuestions.length === 0 && (

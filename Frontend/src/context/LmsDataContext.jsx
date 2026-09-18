@@ -4213,14 +4213,17 @@ export function LmsDataProvider({ children }) {
       ? updatedFields.sampleTestCases
       : (updatedFields.testCases !== undefined ? updatedFields.testCases : updatedFields.test_cases);
 
-    setCodingQuestionsByBatch((prev) => ({
-      ...prev,
-      [bKey]: (prev[bKey] || []).map((cq) => (cq.id === id ? {
-        ...cq,
-        ...updatedFields,
-        ...(updateCases !== undefined ? { testCases: updateCases, sampleTestCases: updateCases } : {})
-      } : cq))
-    }));
+    setCodingQuestionsByBatch((prev) => {
+      const next = {};
+      Object.keys(prev).forEach((k) => {
+        next[k] = (prev[k] || []).map((cq) => (cq.id === id ? {
+          ...cq,
+          ...updatedFields,
+          ...(updateCases !== undefined ? { testCases: updateCases, sampleTestCases: updateCases } : {})
+        } : cq));
+      });
+      return next;
+    });
     logActivity(`Updated coding question ID ${id} (${bKey})`, 'coding');
     try {
       const dbFields = {};
@@ -4246,10 +4249,13 @@ export function LmsDataProvider({ children }) {
 
   const deleteCodingQuestion = async (id, targetBatch = activeBatchFilter) => {
     const bKey = resolveBatchKey(targetBatch);
-    setCodingQuestionsByBatch((prev) => ({
-      ...prev,
-      [bKey]: (prev[bKey] || []).filter((cq) => cq.id !== id)
-    }));
+    setCodingQuestionsByBatch((prev) => {
+      const next = {};
+      Object.keys(prev).forEach((k) => {
+        next[k] = (prev[k] || []).filter((cq) => cq.id !== id);
+      });
+      return next;
+    });
     logActivity(`Deleted coding question ID ${id} (${bKey})`, 'coding');
     try {
       const { error } = await supabase.from('coding_questions').delete().eq('id', id);
