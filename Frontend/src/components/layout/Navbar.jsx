@@ -318,7 +318,8 @@ export function Navbar({ isCollapsed, onToggleSidebar }) {
         {/* Right side: Notifications, Profile */}
         <div className="flex items-center gap-2.5 sm:gap-4">
 
-          {/* Notifications Icon */}
+          {/* Notifications Icon (Hidden for now) */}
+          {/*
           <div className="relative" ref={notifDropdownRef}>
             <button
               onClick={() => setIsNotifOpen(!isNotifOpen)}
@@ -351,11 +352,12 @@ export function Navbar({ isCollapsed, onToggleSidebar }) {
               </div>
             )}
           </div>
+          */}
 
           {/* Current User Profile Badge */}
           <button
             onClick={() => setIsProfileModalOpen(true)}
-            className="flex items-center gap-2 pl-2 border-l border-slate-200 hover:opacity-80 transition-opacity cursor-pointer group"
+            className="flex items-center gap-2 hover:opacity-80 transition-opacity cursor-pointer group"
             title="Click to edit profile & settings"
           >
             <img

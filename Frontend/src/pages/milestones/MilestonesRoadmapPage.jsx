@@ -485,77 +485,239 @@ export function MilestonesRoadmapPage() {
     return getScheduleInfo(item, parentSchedule);
   };
 
-  // Derive active milestones stages from current milestone state or selected course
-  const getActiveMilestoneStages = () => {
+  const activeCourseId = (() => {
+    if (selectedCourseId === 'ALL') {
+      const pythonCourse = courses.find(c => c.title && c.title.toLowerCase().includes('python'));
+      return pythonCourse ? pythonCourse.id : courses[0]?.id;
+    }
+    return selectedCourseId;
+  })();
+
+  // Helper to resolve lessons for a specific subtopic strictly without cross-stage bleeding
+  const resolveLessonsForSubtopic = (subId, subTitle, stageId) => {
     const cleanNorm = (str) => String(str || '').toLowerCase().replace(/[^a-z0-9]/g, '').trim();
     const stripSuffix = (str) => String(str || '').replace(/-(w|s)$/i, '').trim();
+    const subIdClean = stripSuffix(subId);
+    const subIdNorm = cleanNorm(subId);
+    const subTitleNorm = cleanNorm(subTitle);
+    const mappedModId = SUBTOPIC_MODULE_MAP[subIdClean] || subIdClean;
 
-    // Helper to resolve lessons for a specific subtopic strictly without cross-stage bleeding
-    const resolveLessonsForSubtopic = (subId, subTitle, stageId) => {
-      const subIdClean = stripSuffix(subId);
-      const subIdNorm = cleanNorm(subId);
-      const subTitleNorm = cleanNorm(subTitle);
-      const mappedModId = SUBTOPIC_MODULE_MAP[subIdClean] || subIdClean;
+    if (Array.isArray(courseLessons) && courseLessons.length > 0) {
+      const matchedLessons = courseLessons.filter(l => {
+        const lModClean = stripSuffix(l.module_id || l.subtopic_id);
+        const lModId = cleanNorm(l.module_id || l.subtopic_id);
+        const lStgId = l.stage_id;
+        const lSubName = cleanNorm(l.subtopic_name || l.subtopicName);
 
-      if (Array.isArray(courseLessons) && courseLessons.length > 0) {
-        const matchedLessons = courseLessons.filter(l => {
-          const lModClean = stripSuffix(l.module_id || l.subtopic_id);
-          const lModId = cleanNorm(l.module_id || l.subtopic_id);
-          const lStgId = l.stage_id;
-          const lSubName = cleanNorm(l.subtopic_name || l.subtopicName);
-
-          // Strict stage boundary check
-          if (stageId && lStgId && !isMatchingStage(lStgId, stageId)) {
-            return false;
-          }
-
-          // Strict module/subtopic ID match
-          if (
-            lModClean === subIdClean ||
-            lModClean === mappedModId ||
-            lModId === subIdNorm ||
-            (lSubName && (lSubName === subTitleNorm || lSubName.includes(subTitleNorm) || subTitleNorm.includes(lSubName)))
-          ) {
-            return true;
-          }
+        // Strict stage boundary check
+        if (stageId && lStgId && !isMatchingStage(lStgId, stageId)) {
           return false;
-        });
-
-        if (matchedLessons.length > 0) {
-          return matchedLessons;
         }
-      }
 
-      // Fallback: Query DEFAULT_CURRICULUM_LESSONS map
-      const curriculumMatch = Object.entries(DEFAULT_CURRICULUM_LESSONS).find(([key, val]) => {
-        const kClean = stripSuffix(key);
-        const kNorm = cleanNorm(key);
-        const valTitleNorm = cleanNorm(val.title);
-        return (
-          kClean === subIdClean ||
-          kClean === mappedModId ||
-          kNorm === subIdNorm ||
-          SUBTOPIC_MODULE_MAP[kClean] === subIdClean ||
-          SUBTOPIC_MODULE_MAP[subIdClean] === kClean ||
-          (valTitleNorm && (valTitleNorm === subTitleNorm || valTitleNorm.includes(subTitleNorm) || subTitleNorm.includes(valTitleNorm)))
-        );
+        // Strict module/subtopic ID match
+        if (
+          lModClean === subIdClean ||
+          lModClean === mappedModId ||
+          lModId === subIdNorm ||
+          (lSubName && (lSubName === subTitleNorm || lSubName.includes(subTitleNorm) || subTitleNorm.includes(lSubName)))
+        ) {
+          return true;
+        }
+        return false;
       });
 
-      if (curriculumMatch && Array.isArray(curriculumMatch[1].lessons) && curriculumMatch[1].lessons.length > 0) {
-        return curriculumMatch[1].lessons.map(l => ({
-          id: l.id,
-          module_id: subId,
-          stage_id: stageId,
-          title: l.title,
-          description: l.description || '',
-          duration: l.duration || '1.5 hrs',
-          durationHours: l.duration || '1.5 hrs'
-        }));
+      if (matchedLessons.length > 0) {
+        return matchedLessons;
       }
+    }
 
-      return [];
+    // Fallback: Query DEFAULT_CURRICULUM_LESSONS map
+    const curriculumMatch = Object.entries(DEFAULT_CURRICULUM_LESSONS).find(([key, val]) => {
+      const kClean = stripSuffix(key);
+      const kNorm = cleanNorm(key);
+      const valTitleNorm = cleanNorm(val.title);
+      return (
+        kClean === subIdClean ||
+        kClean === mappedModId ||
+        kNorm === subIdNorm ||
+        SUBTOPIC_MODULE_MAP[kClean] === subIdClean ||
+        SUBTOPIC_MODULE_MAP[subIdClean] === kClean ||
+        (valTitleNorm && (valTitleNorm === subTitleNorm || valTitleNorm.includes(subTitleNorm) || subTitleNorm.includes(valTitleNorm)))
+      );
+    });
+
+    if (curriculumMatch && Array.isArray(curriculumMatch[1].lessons) && curriculumMatch[1].lessons.length > 0) {
+      return curriculumMatch[1].lessons.map(l => ({
+        id: l.id,
+        module_id: subId,
+        stage_id: stageId,
+        title: l.title,
+        description: l.description || '',
+        duration: l.duration || '1.5 hrs',
+        durationHours: l.duration || '1.5 hrs'
+      }));
+    }
+
+    return [];
+  };
+
+  // Determine release status for a specific lesson batch-wise
+  const getLessonReleaseStatus = (lesson, batchCode = selectedBatch) => {
+    if (!lesson) return { isReleased: false, label: 'Not Released' };
+    const lessonId = lesson.id || lesson;
+    const batchLock = getItemLockForBatch(lessonId, batchCode);
+    const now = Date.now();
+
+    if (batchLock) {
+      if (batchLock.is_locked === false) {
+        return { isReleased: true, label: 'Released', lock: batchLock, date: batchLock.unlock_date, time: batchLock.unlock_time };
+      }
+      if (batchLock.unlock_datetime) {
+        const unlockTs = new Date(batchLock.unlock_datetime).getTime();
+        if (!isNaN(unlockTs)) {
+          const isPassed = now >= unlockTs;
+          return {
+            isReleased: isPassed,
+            label: isPassed ? 'Released' : 'Scheduled',
+            lock: batchLock,
+            date: batchLock.unlock_date,
+            time: batchLock.unlock_time,
+            unlockTs
+          };
+        }
+      }
+      if (batchLock.unlock_date) {
+        const unlockTs = parseUnlockTimestamp(batchLock.unlock_date, batchLock.unlock_time);
+        if (unlockTs !== null) {
+          const isPassed = now >= unlockTs;
+          return {
+            isReleased: isPassed,
+            label: isPassed ? 'Released' : 'Scheduled',
+            lock: batchLock,
+            date: batchLock.unlock_date,
+            time: batchLock.unlock_time,
+            unlockTs
+          };
+        }
+      }
+      return { isReleased: false, label: 'Locked', lock: batchLock };
+    }
+
+    if (lesson.unlockDateTime) {
+      const unlockTs = new Date(lesson.unlockDateTime).getTime();
+      if (!isNaN(unlockTs) && now >= unlockTs) {
+        return { isReleased: true, label: 'Released', date: lesson.unlockDate, time: lesson.unlockTime };
+      }
+    }
+    if (lesson.unlockDate) {
+      const unlockTs = parseUnlockTimestamp(lesson.unlockDate, lesson.unlockTime);
+      if (unlockTs !== null && now >= unlockTs) {
+        return { isReleased: true, label: 'Released', date: lesson.unlockDate, time: lesson.unlockTime };
+      }
+    }
+
+    if (lesson.isReleased === true || lesson.status === 'RELEASED') {
+      return { isReleased: true, label: 'Released' };
+    }
+
+    return { isReleased: false, label: 'Not Released' };
+  };
+
+  // Compute release progress for a module/subtopic batch-wise (e.g. 1/4 released)
+  const getSubtopicReleaseStats = (subtopic, stageId, batchCode = selectedBatch) => {
+    let lessons = Array.isArray(subtopic.modules) && subtopic.modules.length > 0 ? subtopic.modules : [];
+    if (lessons.length === 0) {
+      const subId = subtopic.id || subtopic._id;
+      const cleanSubTitle = String(subtopic.title || '').replace(/^Module\s*\d+\s*:\s*/i, '').trim();
+      lessons = resolveLessonsForSubtopic(subId, cleanSubTitle, stageId);
+    }
+
+    const totalLessons = lessons.length;
+    if (totalLessons === 0) {
+      return {
+        releasedCount: 0,
+        totalLessons: 0,
+        nextToRelease: null,
+        allReleased: false,
+        noneReleased: true,
+        displayBadge: ''
+      };
+    }
+
+    let releasedCount = 0;
+    let nextToRelease = null;
+
+    lessons.forEach((lesson, idx) => {
+      const relStatus = getLessonReleaseStatus(lesson, batchCode);
+      if (relStatus.isReleased) {
+        releasedCount += 1;
+      } else if (!nextToRelease) {
+        nextToRelease = {
+          ...lesson,
+          index: idx + 1,
+          orderNum: idx + 1
+        };
+      }
+    });
+
+    return {
+      releasedCount,
+      totalLessons,
+      nextToRelease,
+      allReleased: releasedCount === totalLessons && totalLessons > 0,
+      noneReleased: releasedCount === 0,
+      displayBadge: `${releasedCount}/${totalLessons} released`
     };
+  };
 
+  const handleQuickReleaseLesson = async (lesson, e, stageId = null, moduleId = null) => {
+    if (e) e.stopPropagation();
+    if (!lesson) return;
+    const targetBatch = selectedBatch || 'ALL';
+    let targetCourseId = activeCourseId;
+    if (!targetCourseId || targetCourseId === 'ALL') {
+      const pyCourse = (courses || []).find(c => c.id && c.title && c.title.toLowerCase().includes('python'));
+      targetCourseId = pyCourse ? pyCourse.id : (courses?.[0]?.id || 'crs-1786624019154-w');
+    }
+    const today = formatLocalDate(new Date());
+    await setLessonLock({
+      lesson_id: lesson.id,
+      batch_code: targetBatch,
+      course_id: targetCourseId,
+      stage_id: stageId || lesson.stage_id || activeSubtopic?.stageId || '',
+      module_id: moduleId || lesson.module_id || activeSubtopic?.id || '',
+      unlock_date: today,
+      unlock_time: '00:00',
+      is_locked: false
+    });
+    addToast(`✅ Released "${lesson.title}" for ${targetBatch === 'ALL' ? 'All Batches' : `Batch ${targetBatch}`}!`, 'success');
+  };
+
+  const handleQuickLockLesson = async (lesson, e, stageId = null, moduleId = null) => {
+    if (e) e.stopPropagation();
+    if (!lesson) return;
+    const targetBatch = selectedBatch || 'ALL';
+    let targetCourseId = activeCourseId;
+    if (!targetCourseId || targetCourseId === 'ALL') {
+      const pyCourse = (courses || []).find(c => c.id && c.title && c.title.toLowerCase().includes('python'));
+      targetCourseId = pyCourse ? pyCourse.id : (courses?.[0]?.id || 'crs-1786624019154-w');
+    }
+    await setLessonLock({
+      lesson_id: lesson.id,
+      batch_code: targetBatch,
+      course_id: targetCourseId,
+      stage_id: stageId || lesson.stage_id || activeSubtopic?.stageId || '',
+      module_id: moduleId || lesson.module_id || activeSubtopic?.id || '',
+      unlock_date: '',
+      unlock_time: '',
+      unlock_datetime: null,
+      is_locked: true
+    });
+    addToast(`🔒 Locked "${lesson.title}" for ${targetBatch === 'ALL' ? 'All Batches' : `Batch ${targetBatch}`}`, 'info');
+  };
+
+  // Derive active milestones stages from current milestone state or selected course
+  const getActiveMilestoneStages = () => {
     let baseStages = [];
 
     // 1. Primary: Use course-specific milestones if a course is selected
@@ -671,15 +833,6 @@ export function MilestonesRoadmapPage() {
   let totalSubtopicsCount = 0;
   let completedSubtopicsCount = 0;
   let totalLessonsCalculated = 0;
-
-  const activeCourseId = (() => {
-    if (selectedCourseId === 'ALL') {
-      const pythonCourse = courses.find(c => c.title && c.title.toLowerCase().includes('python'));
-      return pythonCourse ? pythonCourse.id : courses[0]?.id;
-    }
-    return selectedCourseId;
-  })();
-
   filteredStages.forEach((stage) => {
     (stage.subtopics || []).forEach((sub) => {
       totalSubtopicsCount += 1;
@@ -897,6 +1050,9 @@ export function MilestonesRoadmapPage() {
   };
 
   const { activeStage, activeSubtopic } = getActiveSubtopicAndStage();
+  const drawerReleaseStats = activeSubtopic
+    ? getSubtopicReleaseStats(activeSubtopic, activeStage?.id, selectedBatch)
+    : { releasedCount: 0, totalLessons: 0, nextToRelease: null, allReleased: false };
 
   // Helper for rendering icons dynamically
   const renderItemIcon = (iconName, iconBg, isLocked = false) => {
@@ -1599,6 +1755,7 @@ export function MilestonesRoadmapPage() {
                       visibleSubtopics.map((subtopic, subtopicIndex) => {
                         const subSched = getItemSchedule(subtopic, null);
                         const isSubtopicLocked = subSched.isLocked;
+                        const releaseStats = getSubtopicReleaseStats(subtopic, stage.id, selectedBatch);
 
                         const subItems = [];
                         (subtopic.modules || []).forEach((m) => {
@@ -1650,6 +1807,29 @@ export function MilestonesRoadmapPage() {
                                         {subtopic.title}
                                       </span>
 
+                                      {/* Batch-wise Lesson Release Progress Badge (ex: 1/4 released) */}
+                                      {releaseStats.totalLessons > 0 && (
+                                        <span
+                                          className={`inline-flex items-center gap-1 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full border transition-all shadow-2xs ${
+                                            releaseStats.allReleased
+                                              ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                                              : releaseStats.releasedCount > 0
+                                              ? 'bg-blue-50 text-blue-700 border-blue-200'
+                                              : 'bg-slate-100 text-slate-500 border-slate-200'
+                                          }`}
+                                          title={`Batch: ${selectedBatch || 'All'} • ${releaseStats.releasedCount} of ${releaseStats.totalLessons} lessons released${releaseStats.nextToRelease ? ` • Next to release: ${releaseStats.nextToRelease.title}` : ''}`}
+                                        >
+                                          {releaseStats.allReleased ? (
+                                            <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                                          ) : releaseStats.releasedCount > 0 ? (
+                                            <Layers className="w-3 h-3 text-blue-600" />
+                                          ) : (
+                                            <Lock className="w-3 h-3 text-slate-400" />
+                                          )}
+                                          <span>{releaseStats.releasedCount}/{releaseStats.totalLessons} released</span>
+                                        </span>
+                                      )}
+
                                       {isSubDone && (
                                         <span
                                           onClick={(e) => {
@@ -1665,27 +1845,52 @@ export function MilestonesRoadmapPage() {
                                         </span>
                                       )}
 
-                                      {/* Subtopic Scheduled Date Badge */}
-                                      <span className={`inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${
-                                        subSched.isLocked
-                                          ? 'text-amber-800 bg-amber-50 border-amber-200'
-                                          : 'text-emerald-800 bg-emerald-50 border-emerald-200'
-                                      }`}>
-                                        {subSched.isLocked ? <Clock className="w-3 h-3 text-amber-600" /> : <CheckCircle2 className="w-3 h-3 text-emerald-600" />}
-                                        <span>
-                                          {subSched.isLocked
-                                            ? `Unlocks ${subSched.shortFormatted}`
-                                            : subSched.hasSchedule
-                                            ? `Unlocked • Released ${subSched.dateFormatted}`
-                                            : 'Unlocked • Available'}
+                                      {/* Subtopic Scheduled Date Badge - only shown if locked or explicitly scheduled */}
+                                      {(subSched.isLocked || subSched.hasSchedule) && (
+                                        <span className={`inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${
+                                          subSched.isLocked
+                                            ? 'text-amber-800 bg-amber-50 border-amber-200'
+                                            : 'text-emerald-800 bg-emerald-50 border-emerald-200'
+                                        }`}>
+                                          {subSched.isLocked ? <Clock className="w-3 h-3 text-amber-600" /> : <CheckCircle2 className="w-3 h-3 text-emerald-600" />}
+                                          <span>
+                                            {subSched.isLocked
+                                              ? `Unlocks ${subSched.shortFormatted}`
+                                              : `Released ${subSched.dateFormatted}`}
+                                          </span>
                                         </span>
-                                      </span>
+                                      )}
                                     </div>
-                                    {subtopic.duration && (
-                                      <span className="text-[11px] font-medium text-slate-500 block mt-0.5">
-                                        {subtopic.duration}
-                                      </span>
-                                    )}
+                                    <div className="flex items-center gap-2 mt-0.5 text-[11px] font-medium text-slate-500 flex-wrap">
+                                      {subtopic.duration && (
+                                        <span>{subtopic.duration}</span>
+                                      )}
+                                      {releaseStats.nextToRelease && (
+                                        <span className="inline-flex items-center gap-1 text-purple-600 font-semibold">
+                                          <span>•</span>
+                                          <Sparkles className="w-3 h-3 text-purple-500" />
+                                          <span>Next: {releaseStats.nextToRelease.title}</span>
+                                          <button
+                                            type="button"
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              handleQuickReleaseLesson(releaseStats.nextToRelease, e, stage.id, subtopic.id);
+                                            }}
+                                            title={`Quick release "${releaseStats.nextToRelease.title}" for ${selectedBatch === 'ALL' || !selectedBatch ? 'All Batches' : `Batch ${selectedBatch}`}`}
+                                            className="ml-1.5 px-2 py-0.5 rounded-md bg-purple-100 hover:bg-purple-200 text-purple-800 text-[10px] font-black border border-purple-200 transition-all cursor-pointer inline-flex items-center gap-1 active:scale-95 shadow-2xs"
+                                          >
+                                            <Sparkles className="w-2.5 h-2.5 text-purple-600" />
+                                            <span>Release Next</span>
+                                          </button>
+                                        </span>
+                                      )}
+                                      {releaseStats.allReleased && (
+                                        <span className="inline-flex items-center gap-1 text-emerald-600 font-semibold">
+                                          <span>•</span>
+                                          <span>All lessons released</span>
+                                        </span>
+                                      )}
+                                    </div>
                                   </div>
                                 </div>
                                 <div className="flex items-center gap-2 flex-shrink-0">
@@ -1774,6 +1979,20 @@ export function MilestonesRoadmapPage() {
                         TOPIC CATALOG
                       </span>
 
+                      {/* Drawer Batch-wise Release Stats Badge */}
+                      {drawerReleaseStats.totalLessons > 0 && (
+                        <span className={`text-[10px] font-extrabold px-2.5 py-0.5 rounded-full border flex items-center gap-1.5 shadow-2xs ${
+                          drawerReleaseStats.allReleased
+                            ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                            : drawerReleaseStats.releasedCount > 0
+                            ? 'bg-blue-50 text-blue-700 border-blue-200'
+                            : 'bg-slate-100 text-slate-600 border-slate-200'
+                        }`}>
+                          <Layers className="w-3 h-3" />
+                          <span>{drawerReleaseStats.releasedCount}/{drawerReleaseStats.totalLessons} Released ({selectedBatch === 'ALL' || !selectedBatch ? 'All Batches' : `Batch ${selectedBatch}`})</span>
+                        </span>
+                      )}
+
                       {(() => {
                         let subItems = [];
                         (activeSubtopic.modules || []).forEach((mod) => {
@@ -1811,6 +2030,7 @@ export function MilestonesRoadmapPage() {
 
                       {(() => {
                         const sInfo = getItemSchedule(activeSubtopic, null);
+                        if (!sInfo.isLocked && !sInfo.hasSchedule) return null;
                         return (
                           <span
                             className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border flex items-center gap-1 ${
@@ -1827,7 +2047,7 @@ export function MilestonesRoadmapPage() {
                             ) : (
                               <>
                                 <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                                <span>{sInfo.hasSchedule ? `Released ${sInfo.dateFormatted}` : 'Available'}</span>
+                                <span>Released {sInfo.dateFormatted}</span>
                               </>
                             )}
                           </span>
@@ -1880,6 +2100,12 @@ export function MilestonesRoadmapPage() {
 
                       const curModId = stripSuffix(module.id);
                       const curModTitle = cleanNorm(module.title);
+
+                      const modRelStatus = getLessonReleaseStatus(module, selectedBatch);
+                      const isNextLesson = !modRelStatus.isReleased && drawerReleaseStats.nextToRelease && (
+                        drawerReleaseStats.nextToRelease.id === module.id ||
+                        cleanNorm(drawerReleaseStats.nextToRelease.title) === curModTitle
+                      );
 
                       // Match associated live session if scheduled
                       // Only consider sessions belonging to the currently selected course to avoid cross-course title matches
@@ -2094,36 +2320,65 @@ export function MilestonesRoadmapPage() {
                                     <span>{module.duration || module.durationHours || '1hr 30min'}</span>
                                   </span>
 
-                                  {/* Module Schedule Badge */}
-                                   <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-md border flex items-center gap-1 shrink-0 ${
-                                     modSched.isLocked
-                                       ? (isExpanded ? 'bg-amber-400/20 text-amber-200 border-amber-300/40' : 'bg-amber-100 text-amber-900 border-amber-300')
-                                       : modSched.hasSchedule
-                                       ? (isExpanded ? 'bg-emerald-400/20 text-emerald-200 border-emerald-300/40' : 'bg-emerald-100 text-emerald-900 border-emerald-300')
-                                       : subSched.hasSchedule
-                                       ? (isExpanded ? 'bg-emerald-400/20 text-emerald-200 border-emerald-300/40' : 'bg-emerald-100 text-emerald-900 border-emerald-300')
-                                       : (isExpanded ? 'bg-white/10 text-purple-200 border-white/20' : 'bg-slate-100 text-slate-700 border-slate-200')
-                                   }`}>
-                                     {modSched.isLocked ? (
-                                       <Clock className="w-3 h-3 text-amber-500" />
-                                     ) : (
-                                       <CheckCircle2 className={`w-3 h-3 ${modSched.hasSchedule || subSched.hasSchedule ? 'text-emerald-500' : 'text-slate-400'}`} />
-                                     )}
-                                     <span>
-                                       {modSched.isLocked
-                                         ? `Unlocks ${modSched.shortFormatted}`
-                                         : modSched.hasSchedule
-                                         ? `Unlocked • Released ${modSched.dateFormatted}`
-                                         : subSched.hasSchedule
-                                         ? `Unlocked • Released ${subSched.dateFormatted}`
-                                         : 'Unlocked • Available'}
+                                   {/* Batch-wise Lesson Release Status Badge */}
+                                   {modRelStatus.isReleased ? (
+                                     <span className={`text-[10px] font-extrabold px-2.5 py-0.5 rounded-md border flex items-center gap-1 shrink-0 ${
+                                       isExpanded ? 'bg-emerald-400/20 text-emerald-200 border-emerald-300/40' : 'bg-emerald-100 text-emerald-900 border-emerald-300 shadow-2xs'
+                                     }`}>
+                                       <CheckCircle2 className="w-3 h-3 text-emerald-500" />
+                                       <span>Released{modRelStatus.date ? ` • ${modRelStatus.date}` : ''}</span>
                                      </span>
-                                   </span>
+                                   ) : isNextLesson ? (
+                                     <span className={`text-[10px] font-black px-2.5 py-0.5 rounded-md border flex items-center gap-1 shrink-0 ${
+                                       isExpanded ? 'bg-amber-400/30 text-amber-200 border-amber-300/60 shadow-2xs' : 'bg-amber-100 text-amber-900 border-amber-300 shadow-2xs'
+                                     }`}>
+                                       <Sparkles className="w-3 h-3 text-amber-500 animate-pulse" />
+                                       <span>Next to Release</span>
+                                     </span>
+                                   ) : (
+                                     <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-md border flex items-center gap-1 shrink-0 ${
+                                       isExpanded ? 'bg-white/10 text-white/70 border-white/20' : 'bg-slate-100 text-slate-500 border-slate-200'
+                                     }`}>
+                                       <Lock className="w-3 h-3 text-slate-400" />
+                                       <span>{modRelStatus.label === 'Scheduled' && modRelStatus.date ? `Unlocks ${modRelStatus.date}` : 'Not Released'}</span>
+                                     </span>
+                                   )}
                                 </div>
                               </div>
                             </div>
 
                             <div className="flex items-center justify-between sm:justify-end gap-2.5 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-white/10">
+                              {/* Batch-wise Quick Release / Lock Action Button */}
+                              {modRelStatus.isReleased ? (
+                                <button
+                                  type="button"
+                                  onClick={(e) => handleQuickLockLesson(module, e, activeSubtopic.stageId, activeSubtopic.id)}
+                                  title={`Lock this lesson for ${selectedBatch === 'ALL' || !selectedBatch ? 'All Batches' : `Batch ${selectedBatch}`}`}
+                                  className={`px-2.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
+                                    isExpanded
+                                      ? 'bg-white/15 hover:bg-rose-500/80 text-white border border-white/20'
+                                      : 'bg-slate-100 hover:bg-rose-50 text-slate-600 hover:text-rose-700 border border-slate-200'
+                                  }`}
+                                >
+                                  <Lock className="w-3.5 h-3.5" />
+                                  <span className="hidden sm:inline">Lock</span>
+                                </button>
+                              ) : (
+                                <button
+                                  type="button"
+                                  onClick={(e) => handleQuickReleaseLesson(module, e, activeSubtopic.stageId, activeSubtopic.id)}
+                                  title={`Release this lesson immediately for ${selectedBatch === 'ALL' || !selectedBatch ? 'All Batches' : `Batch ${selectedBatch}`}`}
+                                  className={`px-3 py-1.5 rounded-xl text-xs font-black flex items-center gap-1.5 transition-all shadow-sm cursor-pointer whitespace-nowrap active:scale-95 ${
+                                    isExpanded
+                                      ? 'bg-emerald-400 hover:bg-emerald-300 text-slate-900 shadow-md font-extrabold'
+                                      : 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-500/30 font-extrabold'
+                                  }`}
+                                >
+                                  <Sparkles className="w-3.5 h-3.5" />
+                                  <span>Release Now</span>
+                                </button>
+                              )}
+
                               {/* Unified Single Join Live Class Button in Header */}
                               {hasLiveClass && (
                                 <button

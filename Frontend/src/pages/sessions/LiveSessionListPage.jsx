@@ -358,7 +358,7 @@ export function LiveSessionListPage() {
     programName: '',
     technology: '',
     sessionTitle: '',
-    date: new Date().toISOString().split('T')[0],
+    date: '',
     time: '',
     meetingLink: '',
     instructor: '',
@@ -452,7 +452,7 @@ export function LiveSessionListPage() {
       programName: '',
       technology: '',
       sessionTitle: '',
-      date: new Date().toISOString().split('T')[0],
+      date: '',
       time: '',
       meetingLink: '',
       instructor: '',
@@ -581,8 +581,13 @@ export function LiveSessionListPage() {
         overview: (t.description || t.agenda || t.overview || '').trim()
       }));
 
+    const cleanDate = (formData.date && String(formData.date).trim() && String(formData.date).trim() !== 'null' && String(formData.date).trim() !== 'undefined')
+      ? String(formData.date).trim()
+      : null;
+
     const sessionPayload = {
       ...formData,
+      date: cleanDate,
       courseId: selectedCourse?.id || formData.courseId,
       courseName: selectedCourse?.title || formData.courseName,
       stageId: currentStageObj?.id || formData.stageId,
@@ -622,12 +627,18 @@ export function LiveSessionListPage() {
       const matchesStage = selectedStageId === 'ALL' || s.stageId === selectedStageId || s.stage_id === selectedStageId;
       const matchesSubtopic = selectedSubtopicId === 'ALL' || s.subtopicId === selectedSubtopicId || s.subtopic_id === selectedSubtopicId;
       const matchesModule = selectedModuleId === 'ALL' || s.moduleId === selectedModuleId || s.module_id === selectedModuleId;
+      const sTitle = (s.sessionTitle || s.title || '').toLowerCase();
+      const sTech = (s.technology || '').toLowerCase();
+      const sInst = (s.instructor || '').toLowerCase();
+      const sSub = (s.subtopicName || '').toLowerCase();
+      const sMod = (s.moduleName || '').toLowerCase();
+      const q = searchTerm.toLowerCase();
       const matchesSearch =
-        s.sessionTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        s.technology.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        s.instructor.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (s.subtopicName && s.subtopicName.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (s.moduleName && s.moduleName.toLowerCase().includes(searchTerm.toLowerCase()));
+        sTitle.includes(q) ||
+        sTech.includes(q) ||
+        sInst.includes(q) ||
+        sSub.includes(q) ||
+        sMod.includes(q);
       const matchesStatus = statusFilter === 'ALL' || s.status === statusFilter;
       return matchesCourse && matchesStage && matchesSubtopic && matchesModule && matchesSearch && matchesStatus;
     })
@@ -912,7 +923,9 @@ export function LiveSessionListPage() {
                   <div className="grid grid-cols-2 gap-2">
                     <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700 bg-white px-2.5 py-1.5 rounded-lg border border-slate-200/80 shadow-2xs">
                       <Calendar className="w-3.5 h-3.5 text-purple-600 shrink-0" />
-                      <span className="truncate">{sess.date}</span>
+                      <span className={`truncate ${!sess.date ? 'text-slate-400 font-semibold italic' : ''}`}>
+                        {sess.date ? sess.date : 'Date not scheduled'}
+                      </span>
                     </div>
                     <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700 bg-white px-2.5 py-1.5 rounded-lg border border-slate-200/80 shadow-2xs">
                       <Clock className="w-3.5 h-3.5 text-sky-600 shrink-0" />
@@ -1410,13 +1423,23 @@ export function LiveSessionListPage() {
               onChange={(e) => setFormData({ ...formData, instructor: e.target.value })}
             />
 
-            <Input
-              label="Date"
-              type="date"
-              value={formData.date}
-              onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-              required
-            />
+            <div className="relative">
+              <Input
+                label="Date"
+                type="date"
+                value={formData.date || ''}
+                onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+              />
+              {formData.date && (
+                <button
+                  type="button"
+                  onClick={() => setFormData({ ...formData, date: '' })}
+                  className="text-[11px] text-purple-600 hover:text-purple-800 font-bold mt-1 inline-flex items-center gap-1 cursor-pointer"
+                >
+                  <X className="w-3 h-3" /> Clear Date (Set to None)
+                </button>
+              )}
+            </div>
 
             <Input
               label="Time Slot"

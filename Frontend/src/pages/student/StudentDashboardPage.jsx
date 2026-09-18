@@ -400,7 +400,7 @@ export function StudentDashboardPage() {
                   <div>
                     <h4 className="font-extrabold text-slate-900 text-sm">{session.sessionTitle}</h4>
                     <p className="text-xs text-slate-500 mt-0.5 font-medium">
-                      Schedule: {session.date} ({session.time})
+                      Schedule: {session.date ? `${session.date}${session.time ? ` (${session.time})` : ''}` : 'Date not scheduled'}
                     </p>
                     <a
                       href={session.meetingLink}

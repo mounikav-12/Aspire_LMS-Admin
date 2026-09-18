@@ -196,7 +196,7 @@ export function LmsDataProvider({ children }) {
   const [coursesByBatch, setCoursesByBatch] = useState(() => loadBatchDictState('aspire_lms_courses_by_batch', INITIAL_COURSES, 'aspire_lms_courses_version', 'v8_single_course'));
   const [assessmentsByBatch, setAssessmentsByBatch] = useState(() => loadBatchDictState('aspire_lms_assessments_by_batch', INITIAL_ASSESSMENTS, 'aspire_lms_assessments_version', 'v7_clean_questions_no_artifacts'));
   const [quizzesByBatch, setQuizzesByBatch] = useState(() => loadBatchDictState('aspire_lms_quizzes_by_batch', [], 'aspire_lms_quizzes_version', 'v1_quizzes'));
-  const [liveSessionsByBatch, setLiveSessionsByBatch] = useState(() => loadBatchDictState('aspire_lms_live_sessions_by_batch', INITIAL_LIVE_SESSIONS, 'aspire_lms_sessions_version', 'v6_cleared_mock_data'));
+  const [liveSessionsByBatch, setLiveSessionsByBatch] = useState(() => loadBatchDictState('aspire_lms_live_sessions_by_batch', INITIAL_LIVE_SESSIONS, 'aspire_lms_sessions_version', 'v7_null_default_date'));
   const [jobsByBatch, setJobsByBatch] = useState(() => loadBatchDictState('aspire_lms_jobs_by_batch', INITIAL_JOBS, 'aspire_lms_jobs_version', 'v8_cleared_jobs'));
   const [recordingsByBatch, setRecordingsByBatch] = useState(() => loadBatchDictState('aspire_lms_recordings_by_batch', INITIAL_RECORDINGS, 'aspire_lms_recordings_version', 'v6_cleared_mock_data'));
   const [placementResources, setPlacementResources] = useState(() => loadLocalState('aspire_lms_placement_resources', INITIAL_PLACEMENT_RESOURCES));
@@ -765,7 +765,7 @@ export function LmsDataProvider({ children }) {
         title: session.moduleName || session.module_name || session.sessionTitle || session.session_title || 'Live Module',
         meetingLink: session.meetingLink || session.meeting_link,
         instructor: session.instructor,
-        date: session.date,
+        date: session.date || null,
         time: session.time,
         duration: session.duration || '1hr 30min',
         topics: validTopics,
@@ -780,7 +780,7 @@ export function LmsDataProvider({ children }) {
         ...modMatch,
         meetingLink: session.meetingLink || session.meeting_link || modMatch.meetingLink,
         instructor: session.instructor || modMatch.instructor,
-        date: session.date || modMatch.date,
+        date: session.date !== undefined ? (session.date || null) : (modMatch.date || null),
         time: session.time || modMatch.time,
         duration: session.duration || modMatch.duration || '1hr 30min',
         topics: validTopics,
@@ -916,13 +916,19 @@ export function LmsDataProvider({ children }) {
               ? targetBatch.split(',').map(s => s.trim())
               : (targetBatch === 'All Batches' || targetBatch === 'ALL' ? ['ALL'] : [targetBatch])));
 
+    const cleanDate = (row.date && String(row.date).trim() && String(row.date).trim() !== 'null' && String(row.date).trim() !== 'undefined')
+      ? String(row.date).trim()
+      : ((meta.date && String(meta.date).trim() && String(meta.date).trim() !== 'null' && String(meta.date).trim() !== 'undefined')
+          ? String(meta.date).trim()
+          : null);
+
     return {
       id: row.id,
       programName: row.program_name || row.programName || meta.programName || 'Senior Engineering Cohort',
       technology: row.technology || meta.technology || 'General',
       sessionTitle: row.session_title || row.sessionTitle || row.title || meta.sessionTitle || 'Live Session',
       title: row.session_title || row.sessionTitle || row.title || meta.sessionTitle || 'Live Session',
-      date: row.date || meta.date || '',
+      date: cleanDate,
       time: row.time || meta.time || '',
       meetingLink: row.meeting_link || row.meetingLink || meta.meetingLink || '',
       status: row.status || meta.status || 'Upcoming',
@@ -950,6 +956,10 @@ export function LmsDataProvider({ children }) {
   };
 
   const toDbLiveSession = (session) => {
+    const cleanDate = (session.date && String(session.date).trim() && String(session.date).trim() !== 'null' && String(session.date).trim() !== 'undefined')
+      ? String(session.date).trim()
+      : null;
+
     const meta = {
       text: session.description || '',
       courseId: (session.courseId && session.courseId !== 'undefined') ? session.courseId : 'crs-1786624019154-w',
@@ -962,7 +972,8 @@ export function LmsDataProvider({ children }) {
       moduleName: (session.moduleName && session.moduleName !== 'undefined') ? session.moduleName : 'Git Architecture & Version Control Concepts',
       isLocked: !!session.isLocked,
       targetBatches: session.targetBatches || [],
-      topics: session.topics || []
+      topics: session.topics || [],
+      date: cleanDate
     };
 
     const targetBatchStr = session.targetBatch || (Array.isArray(session.targetBatches) ? session.targetBatches.join(', ') : 'Weekday Batch');
@@ -972,7 +983,7 @@ export function LmsDataProvider({ children }) {
       program_name: session.programName || 'Senior Engineering Cohort',
       technology: session.technology || 'General',
       session_title: session.sessionTitle || session.title || 'Live Session',
-      date: session.date || '',
+      date: cleanDate,
       time: session.time || '',
       meeting_link: session.meetingLink || '',
       status: session.status || 'Upcoming',
@@ -2764,7 +2775,7 @@ export function LmsDataProvider({ children }) {
               actionText: 'JOIN',
               url: newSession.meetingLink || 'https://meet.google.com/aspire-lms-live',
               btnStyle: 'bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30',
-              date: newSession.date || '',
+              date: newSession.date || null,
               time: newSession.time || '',
               instructor: newSession.instructor || '',
               technology: newSession.technology || ''
@@ -2792,7 +2803,7 @@ export function LmsDataProvider({ children }) {
                             ...mod,
                             meetingLink: newSession.meetingLink || mod.meetingLink,
                             instructor: newSession.instructor || mod.instructor,
-                            date: newSession.date || mod.date,
+                            date: newSession.date !== undefined ? (newSession.date || null) : (mod.date || null),
                             time: newSession.time || mod.time,
                             topics: validTopics,
                             items: [...liveItems, ...nonLive]
@@ -2833,7 +2844,7 @@ export function LmsDataProvider({ children }) {
               actionText: 'JOIN',
               url: updated.meetingLink || 'https://meet.google.com/aspire-lms-live',
               btnStyle: 'bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30',
-              date: updated.date || '',
+              date: updated.date || null,
               time: updated.time || '',
               instructor: updated.instructor || '',
               technology: updated.technology || ''
@@ -2862,7 +2873,7 @@ export function LmsDataProvider({ children }) {
                             ...mod,
                             meetingLink: updated.meetingLink || mod.meetingLink,
                             instructor: updated.instructor || mod.instructor,
-                            date: updated.date || mod.date,
+                            date: updated.date !== undefined ? (updated.date || null) : (mod.date || null),
                             time: updated.time || mod.time,
                             topics: validTopics,
                             items: [...updatedLiveItems, ...nonLive]
@@ -3504,13 +3515,17 @@ export function LmsDataProvider({ children }) {
     // --- LIVE SESSIONS ---
   const addLiveSession = async (sessionData, targetBatch = activeBatchFilter) => {
     const bKey = resolveBatchKey(targetBatch);
+    const cleanDate = (sessionData.date && String(sessionData.date).trim() && String(sessionData.date).trim() !== 'null' && String(sessionData.date).trim() !== 'undefined')
+      ? String(sessionData.date).trim()
+      : null;
     const newSession = {
       id: `session-${Date.now()}-${bKey === 'Weekday Batch' ? 'w' : 's'}`,
       targetBatch: sessionData.targetBatch || bKey,
       status: 'Upcoming',
       attendeesCount: 0,
       isLocked: false,
-      ...sessionData
+      ...sessionData,
+      date: cleanDate
     };
 
     setLiveSessionsByBatch((prev) => {
@@ -3559,7 +3574,15 @@ export function LmsDataProvider({ children }) {
     const wdList = liveSessionsByBatch['Weekday Batch'] || [];
     const weList = liveSessionsByBatch['Weekend Batch'] || [];
     const originalSession = wdList.find(s => s.id === id) || weList.find(s => s.id === id) || {};
-    const sessionToUse = { ...originalSession, ...updatedFields, id };
+
+    let resolvedDate = originalSession.date || null;
+    if (updatedFields.date !== undefined) {
+      resolvedDate = (updatedFields.date && String(updatedFields.date).trim() && String(updatedFields.date).trim() !== 'null' && String(updatedFields.date).trim() !== 'undefined')
+        ? String(updatedFields.date).trim()
+        : null;
+    }
+
+    const sessionToUse = { ...originalSession, ...updatedFields, id, date: resolvedDate };
 
     setLiveSessionsByBatch((prev) => {
       const next = {

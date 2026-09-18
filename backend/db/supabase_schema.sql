@@ -110,7 +110,7 @@ CREATE TABLE IF NOT EXISTS public.live_sessions (
   program_name VARCHAR(255) NOT NULL,
   technology VARCHAR(255) NOT NULL,
   session_title VARCHAR(255) NOT NULL,
-  date DATE NOT NULL,
+  date DATE,
   time VARCHAR(100) NOT NULL,
   meeting_link TEXT NOT NULL,
   status VARCHAR(50) DEFAULT 'Upcoming',

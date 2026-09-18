@@ -358,12 +358,16 @@ const formatDbLiveSession = (payload, existingId) => {
 
   const targetBatchStr = payload.targetBatch || payload.target_batch || (Array.isArray(payload.targetBatches) ? payload.targetBatches.join(', ') : 'Weekday Batch');
 
+  const rawDate = payload.date !== undefined ? payload.date : (meta.date !== undefined ? meta.date : null);
+  const cleanDate = (rawDate && typeof rawDate === 'string' && rawDate.trim() && rawDate.trim() !== 'null' && rawDate.trim() !== 'undefined') ? rawDate.trim() : null;
+  meta.date = cleanDate;
+
   return {
     id,
     program_name: payload.programName || payload.program_name || 'Senior Engineering Cohort',
     technology: payload.technology || 'General',
     session_title: payload.sessionTitle || payload.session_title || payload.title || 'Live Session',
-    date: payload.date || '',
+    date: cleanDate,
     time: payload.time || '',
     meeting_link: payload.meetingLink || payload.meeting_link || '',
     status: payload.status || 'Upcoming',
@@ -381,6 +385,18 @@ app.get('/api/live-sessions', async (req, res) => {
     const { data, error } = await supabase.from('live_sessions').select('*').order('created_at', { ascending: true });
     if (error) throw error;
     res.json({ success: true, data: data || [] });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+app.get('/api/live-sessions/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { data, error } = await supabase.from('live_sessions').select('*').eq('id', id).single();
+    if (error) throw error;
+    if (!data) return res.status(404).json({ success: false, message: 'Session not found' });
+    res.json({ success: true, data });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
