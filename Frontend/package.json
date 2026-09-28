@@ -11,10 +11,8 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.49.1",
-    "@tailwindcss/oxide-win32-x64-msvc": "^4.3.3",
     "@tailwindcss/vite": "^4.0.6",
     "@vitejs/plugin-react": "^4.3.4",
-    "lightningcss-win32-x64-msvc": "^1.33.0",
     "lucide-react": "^0.475.0",
     "pdfjs-dist": "^6.3.289",
     "react": "^19.0.0",
