@@ -41,16 +41,6 @@ const getTodayDateString = () => {
   return `${year}-${month}-${day}`;
 };
 
-// Helper to get a past date formatted as YYYY-MM-DD
-const getPastDateString = (daysAgo) => {
-  const d = new Date();
-  d.setDate(d.getDate() - daysAgo);
-  const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
-};
-
 // Formatter for readable date headers
 const formatReadableDate = (dateStr) => {
   if (!dateStr) return '';
@@ -62,35 +52,8 @@ const formatReadableDate = (dateStr) => {
   return isToday ? `${formatted} (Today)` : formatted;
 };
 
-// Seed mock attendance for historical dates so past records can be viewed and verified as locked
-const generateInitialMockAttendance = () => {
-  const yesterday = getPastDateString(1);
-  const twoDaysAgo = getPastDateString(2);
-
-  return {
-    'A26W1': {
-      [yesterday]: {
-        'std-1789127160681': { status: 'present', remarks: 'Active on-time participation' },
-        'std-1789126477358': { status: 'late', remarks: 'Joined 10 mins late due to connectivity' }
-      },
-      [twoDaysAgo]: {
-        'std-1789127160681': { status: 'present', remarks: 'Full attendance' },
-        'std-1789126477358': { status: 'present', remarks: 'Full attendance' }
-      }
-    },
-    'A26S1': {
-      [yesterday]: {
-        'std-1789821629947': { status: 'present', remarks: 'Active participant & submitted assignment' }
-      },
-      [twoDaysAgo]: {
-        'std-1789821629947': { status: 'late', remarks: 'Traffic delay 15m' }
-      }
-    }
-  };
-};
-
-// Storage key for mock UI attendance
-const ATTENDANCE_STORAGE_KEY = 'aspire_lms_attendance_mock_v3';
+// Storage key for attendance records
+const ATTENDANCE_STORAGE_KEY = 'aspire_lms_attendance_records';
 
 export function AttendancePage() {
   const {
@@ -107,6 +70,13 @@ export function AttendancePage() {
   const { addToast } = useToast();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
+
+  // Clear legacy mock storage if present
+  useEffect(() => {
+    try {
+      localStorage.removeItem('aspire_lms_attendance_mock_v3');
+    } catch (e) {}
+  }, []);
 
   // Selected batch from URL query parameter
   const selectedBatch = searchParams.get('batch') || null;
@@ -131,14 +101,14 @@ export function AttendancePage() {
       const stored = localStorage.getItem(ATTENDANCE_STORAGE_KEY);
       if (stored) {
         const parsed = JSON.parse(stored);
-        if (parsed && typeof parsed === 'object' && Object.keys(parsed).length > 0) {
+        if (parsed && typeof parsed === 'object') {
           return parsed;
         }
       }
     } catch (e) {
       console.warn('Failed to load attendance from localStorage:', e);
     }
-    return generateInitialMockAttendance();
+    return {};
   });
 
   // Local draft state for the current batch and date before saving

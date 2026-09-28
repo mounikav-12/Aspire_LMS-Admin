@@ -1017,36 +1017,6 @@ app.post('/api/rewards/lock-all', async (req, res) => {
 // =========================================================
 // 7B. ATTENDANCE REALTIME DATABASE APIS
 // =========================================================
-const getPastDateStr = (daysAgo) => {
-  const d = new Date();
-  d.setDate(d.getDate() - daysAgo);
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  return `${y}-${m}-${day}`;
-};
-
-const DEFAULT_ATTENDANCE_SEED = {
-  'A26W1': {
-    [getPastDateStr(1)]: {
-      'std-1789127160681': { status: 'present', remarks: 'Active on-time participation' },
-      'std-1789126477358': { status: 'late', remarks: 'Joined 10 mins late due to connectivity' }
-    },
-    [getPastDateStr(2)]: {
-      'std-1789127160681': { status: 'present', remarks: 'Full attendance' },
-      'std-1789126477358': { status: 'present', remarks: 'Full attendance' }
-    }
-  },
-  'A26S1': {
-    [getPastDateStr(1)]: {
-      'std-1789821629947': { status: 'present', remarks: 'Active participant & submitted assignment' }
-    },
-    [getPastDateStr(2)]: {
-      'std-1789821629947': { status: 'late', remarks: 'Traffic delay 15m' }
-    }
-  }
-};
-
 let inMemoryAttendanceCache = null;
 
 // Helper: load attendance data from Supabase or fallback
@@ -1063,22 +1033,11 @@ const getDbAttendanceData = async () => {
       return { attendanceData: data.overview.attendanceData, updatedAt: data.updated_at };
     }
   } catch (err) {
-    console.warn('[Attendance] Supabase fetch error, using cache/seed:', err.message);
+    console.warn('[Attendance] Supabase fetch error, using cache:', err.message);
   }
 
   if (!inMemoryAttendanceCache) {
-    inMemoryAttendanceCache = JSON.parse(JSON.stringify(DEFAULT_ATTENDANCE_SEED));
-    // Auto-seed to Supabase milestones_data
-    try {
-      await supabase.from('milestones_data').upsert([{
-        id: 'attendance_data',
-        overview: { attendanceData: inMemoryAttendanceCache },
-        stages: [],
-        updated_at: new Date().toISOString()
-      }]);
-    } catch (seedErr) {
-      console.warn('[Attendance] Initial auto-seed note:', seedErr.message);
-    }
+    inMemoryAttendanceCache = {};
   }
 
   return { attendanceData: inMemoryAttendanceCache, updatedAt: new Date().toISOString() };
