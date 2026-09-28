@@ -54,6 +54,40 @@ const formatReadableDate = (dateStr) => {
   return isToday ? `${formatted} (Today)` : formatted;
 };
 
+// Robust batch code normalizer / matcher
+// Seamlessly matches variations like "s1", "S1", "batch s1", "A26S1", "w1", "A26W1", etc.
+export const isBatchMatch = (batchCode, assignedBatch) => {
+  if (!batchCode || !assignedBatch) return false;
+  const bClean = String(batchCode).trim().toLowerCase();
+  const aClean = String(assignedBatch).trim().toLowerCase();
+  if (bClean === aClean) return true;
+
+  const bAlpha = bClean.replace(/^batch[\s-_]*/i, '').replace(/[^a-z0-9]/g, '');
+  const aAlpha = aClean.replace(/^batch[\s-_]*/i, '').replace(/[^a-z0-9]/g, '');
+  if (bAlpha === aAlpha) return true;
+  if (bAlpha.endsWith(aAlpha) || aAlpha.endsWith(bAlpha)) return true;
+  if (aAlpha.length >= 2 && bAlpha.includes(aAlpha)) return true;
+  if (bAlpha.length >= 2 && aAlpha.includes(bAlpha)) return true;
+  return false;
+};
+
+// Helper to extract assigned batches array safely
+export const parseStaffBatches = (userOrBatch) => {
+  if (!userOrBatch) return [];
+  const raw = typeof userOrBatch === 'object' ? (userOrBatch.batch || userOrBatch.batches) : userOrBatch;
+  if (!raw || raw === 'None' || raw === 'none' || raw === 'Not Assigned') return [];
+  if (Array.isArray(raw)) {
+    return raw.filter((b) => b && b !== 'None' && b !== 'none' && b !== 'Not Assigned');
+  }
+  if (typeof raw === 'string') {
+    return raw
+      .split(',')
+      .map((b) => b.trim())
+      .filter((b) => b && b !== 'None' && b !== 'none' && b !== 'Not Assigned');
+  }
+  return [];
+};
+
 // Storage key for attendance records
 const ATTENDANCE_STORAGE_KEY = 'aspire_lms_attendance_records';
 
@@ -75,62 +109,116 @@ export function AttendancePage() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  // Match current user in live User Directory
-  const staffProfile = useMemo(() => {
-    if (!currentUser) return null;
-    return (
-      users.find(
-        (u) =>
-          u.id === currentUser.id ||
-          (currentUser.email && u.email?.toLowerCase() === currentUser.email?.toLowerCase())
-      ) || currentUser
-    );
-  }, [currentUser, users]);
-
-  // Determine if Super Admin (has global platform access across all batches)
-  const isSuperAdminUser =
-    isSuperAdmin ||
-    currentRole === ROLES.SUPER_ADMIN ||
+  // Check if current user is platform Super Admin
+  const isDirectSuperAdmin =
+    currentUser?.email?.toLowerCase() === 'aspireadmin@gmail.com' ||
     currentUser?.originalRole === ROLES.SUPER_ADMIN ||
-    currentUser?.email?.toLowerCase() === 'aspireadmin@gmail.com';
+    isSuperAdmin;
 
-  // Parse assigned batch(es) for staff user from User Directory
-  const assignedBatchRaw = staffProfile?.batch || currentUser?.batch || '';
-  const staffBatches = useMemo(() => {
-    if (!assignedBatchRaw) return [];
-    if (Array.isArray(assignedBatchRaw)) {
-      return assignedBatchRaw.filter((b) => b && b !== 'None' && b !== 'none' && b !== 'Not Assigned');
+  // Staff users list (excluding Super Admin) for staff filter dropdown
+  const staffDirectoryUsers = useMemo(() => {
+    return users.filter(
+      (u) =>
+        u.email?.toLowerCase() !== 'aspireadmin@gmail.com' &&
+        u.role !== ROLES.SUPER_ADMIN &&
+        u.id !== 'usr-1'
+    );
+  }, [users]);
+
+  // Selected staff filter: 'ALL' (for Admin view across all batches) or staff user ID / email
+  const [selectedStaffFilter, setSelectedStaffFilter] = useState(() => {
+    // If logged in as regular staff (e.g. Purnima), lock to their own email / ID
+    if (!isDirectSuperAdmin && currentUser) {
+      return currentUser.email || currentUser.id;
     }
-    if (typeof assignedBatchRaw === 'string') {
-      if (assignedBatchRaw === 'None' || assignedBatchRaw === 'none' || assignedBatchRaw === 'Not Assigned') return [];
-      return assignedBatchRaw
-        .split(',')
-        .map((b) => b.trim())
-        .filter((b) => b && b !== 'None' && b !== 'none' && b !== 'Not Assigned');
+    // If Super Admin has switched role in Navbar to Instructor, auto-select the instructor
+    if (isDirectSuperAdmin && currentRole === ROLES.INSTRUCTOR) {
+      const instructor = users.find(
+        (u) =>
+          u.role === ROLES.INSTRUCTOR &&
+          u.email?.toLowerCase() !== 'aspireadmin@gmail.com'
+      );
+      if (instructor) return instructor.email || instructor.id;
     }
-    return [];
-  }, [assignedBatchRaw]);
+    return 'ALL';
+  });
+
+  // Keep selectedStaffFilter synchronized when role switcher in Navbar changes
+  useEffect(() => {
+    if (isDirectSuperAdmin) {
+      if (currentRole === ROLES.INSTRUCTOR) {
+        const instructor = users.find(
+          (u) =>
+            u.role === ROLES.INSTRUCTOR &&
+            u.email?.toLowerCase() !== 'aspireadmin@gmail.com'
+        );
+        if (instructor) {
+          setSelectedStaffFilter(instructor.email || instructor.id);
+        }
+      } else if (currentRole === ROLES.SUPER_ADMIN && selectedStaffFilter !== 'ALL') {
+        // Allow keeping current filter or reset if requested
+      }
+    }
+  }, [currentRole, isDirectSuperAdmin, users]);
+
+  // Determine effective staff user being inspected
+  const effectiveStaffUser = useMemo(() => {
+    if (!isDirectSuperAdmin) {
+      // Logged in as staff user (e.g. Purnima): match in live directory or fallback to currentUser
+      return (
+        users.find(
+          (u) =>
+            u.id === currentUser?.id ||
+            (currentUser?.email && u.email?.toLowerCase() === currentUser.email?.toLowerCase())
+        ) || currentUser
+      );
+    }
+    // Admin viewing as a specific staff member
+    if (selectedStaffFilter && selectedStaffFilter !== 'ALL') {
+      return (
+        users.find(
+          (u) =>
+            u.id === selectedStaffFilter ||
+            u.email?.toLowerCase() === selectedStaffFilter?.toLowerCase()
+        ) || null
+      );
+    }
+    return null; // Admin viewing all batches
+  }, [isDirectSuperAdmin, currentUser, users, selectedStaffFilter]);
+
+  // Effective staff batches
+  const effectiveStaffBatches = useMemo(() => {
+    if (!effectiveStaffUser) return [];
+    return parseStaffBatches(effectiveStaffUser);
+  }, [effectiveStaffUser]);
+
+  // Global Admin mode is active ONLY if no specific staff user is selected
+  const isGlobalAdminMode = isDirectSuperAdmin && !effectiveStaffUser;
 
   // Effective visible batches:
-  // Super Admin sees all batches; Staff user sees ONLY their assigned batch(es) from User Directory
+  // Global admin sees all batches; Scoped staff user sees ONLY their assigned batch(es)
   const userVisibleBatches = useMemo(() => {
-    if (isSuperAdminUser) {
+    if (isGlobalAdminMode) {
       return availableBatches;
     }
-    const matched = availableBatches.filter((b) => staffBatches.includes(b));
+    const matched = availableBatches.filter((b) =>
+      effectiveStaffBatches.some((assigned) => isBatchMatch(b, assigned))
+    );
     if (matched.length > 0) return matched;
-    return staffBatches;
-  }, [isSuperAdminUser, availableBatches, staffBatches]);
+    return effectiveStaffBatches;
+  }, [isGlobalAdminMode, availableBatches, effectiveStaffBatches]);
 
-  // Check if staff has no batch assigned in User Directory
-  const hasNoAssignedBatch = !isSuperAdminUser && staffBatches.length === 0;
+  // Check if staff has no batch assigned
+  const hasNoAssignedBatch = !isGlobalAdminMode && effectiveStaffBatches.length === 0;
 
   // Selected batch from URL query parameter
   const selectedBatch = searchParams.get('batch') || null;
 
   // Authorization check for selected batch:
-  // Super Admin can access any batch; Staff user can only access their assigned batch
-  const isBatchAuthorized = !selectedBatch || isSuperAdminUser || userVisibleBatches.includes(selectedBatch);
+  const isBatchAuthorized =
+    !selectedBatch ||
+    isGlobalAdminMode ||
+    userVisibleBatches.some((b) => isBatchMatch(b, selectedBatch));
 
   // Clear legacy mock storage if present
   useEffect(() => {
@@ -192,8 +280,11 @@ export function AttendancePage() {
 
   // Navigation helpers for Batch selection
   const handleSelectBatch = (batchCode) => {
-    if (!isSuperAdminUser && !userVisibleBatches.includes(batchCode)) {
-      addToast(`Access restricted: Batch ${batchCode} is not assigned to your account.`, 'error');
+    if (!isGlobalAdminMode && !userVisibleBatches.some((b) => isBatchMatch(b, batchCode))) {
+      addToast(
+        `Access restricted: Batch ${batchCode} is not assigned to ${effectiveStaffUser?.name || 'your account'}.`,
+        'error'
+      );
       return;
     }
     setSearchParams({ batch: batchCode });
@@ -379,7 +470,7 @@ export function AttendancePage() {
       const dateRecords = attendanceData[bCode]?.[selectedDate] || {};
       const markedStudents = Object.values(dateRecords).filter((r) => r.status !== null);
       const isMarked = markedStudents.length > 0;
-      const presentCount = Object.values(dateRecords).filter((r) => r.status === 'present' || r.status === 'late').length;
+      const presentCount = Object.values(dateRecords).filter((r) => r.status === 'present').length;
       const absentCount = Object.values(dateRecords).filter((r) => r.status === 'absent').length;
 
       // Overall historical attendance rate for this batch
@@ -392,7 +483,7 @@ export function AttendancePage() {
         Object.values(dRecs).forEach((r) => {
           if (r.status) {
             totalEntries++;
-            if (r.status === 'present' || r.status === 'late') {
+            if (r.status === 'present') {
               totalPresent++;
             }
           }
@@ -436,22 +527,20 @@ export function AttendancePage() {
   const rosterCounts = useMemo(() => {
     let present = 0;
     let absent = 0;
-    let late = 0;
     let unmarked = 0;
 
     currentBatchStudents.forEach((s) => {
       const st = currentRosterState[s.id]?.status;
       if (st === 'present') present++;
       else if (st === 'absent') absent++;
-      else if (st === 'late') late++;
       else unmarked++;
     });
 
     const total = currentBatchStudents.length;
-    const markedTotal = present + absent + late;
-    const presenceRate = markedTotal > 0 ? Math.round(((present + late) / markedTotal) * 100) : 0;
+    const markedTotal = present + absent;
+    const presenceRate = markedTotal > 0 ? Math.round((present / markedTotal) * 100) : 0;
 
-    return { total, present, absent, late, unmarked, presenceRate };
+    return { total, present, absent, unmarked, presenceRate };
   }, [currentBatchStudents, currentRosterState]);
 
   // Filtered student list for View B
@@ -482,7 +571,7 @@ export function AttendancePage() {
       const record = dateObj[studentId];
       if (record && record.status) {
         total++;
-        if (record.status === 'present' || record.status === 'late') attended++;
+        if (record.status === 'present') attended++;
       }
     });
 
@@ -506,22 +595,34 @@ export function AttendancePage() {
                 Batch Access Restricted
               </h2>
               <p className="text-sm text-slate-600 mt-2 max-w-md mx-auto leading-relaxed">
-                Your staff profile is assigned to batch{' '}
-                <strong className="text-slate-900 font-bold">
-                  {staffBatches.length > 0 ? staffBatches.join(', ') : 'None'}
-                </strong>{' '}
-                in the User Directory. You do not have permission to view or mark attendance for batch{' '}
-                <strong className="text-rose-600 font-bold">{selectedBatch}</strong>.
+                {isDirectSuperAdmin && effectiveStaffUser ? (
+                  <>
+                    Staff profile for <strong className="text-slate-900 font-bold">{effectiveStaffUser.name}</strong> is assigned to cohort{' '}
+                    <strong className="text-slate-900 font-bold">
+                      {effectiveStaffBatches.length > 0 ? effectiveStaffBatches.join(', ') : 'None'}
+                    </strong>{' '}
+                    in the User Directory. Batch <strong className="text-rose-600 font-bold">{selectedBatch}</strong> is not assigned to this staff member.
+                  </>
+                ) : (
+                  <>
+                    Your staff profile is assigned to cohort{' '}
+                    <strong className="text-slate-900 font-bold">
+                      {effectiveStaffBatches.length > 0 ? effectiveStaffBatches.join(', ') : 'None'}
+                    </strong>{' '}
+                    in the User Directory. You do not have permission to view or mark attendance for batch{' '}
+                    <strong className="text-rose-600 font-bold">{selectedBatch}</strong>.
+                  </>
+                )}
               </p>
             </div>
             <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
-              {staffBatches.length > 0 ? (
+              {userVisibleBatches.length > 0 ? (
                 <Button
                   variant="primary"
-                  onClick={() => handleSelectBatch(staffBatches[0])}
+                  onClick={() => handleSelectBatch(userVisibleBatches[0])}
                   className="flex items-center gap-2 text-xs font-bold"
                 >
-                  <span>Go to My Assigned Batch ({staffBatches[0]})</span>
+                  <span>Go to Assigned Batch ({userVisibleBatches[0]})</span>
                   <ArrowRight className="w-4 h-4" />
                 </Button>
               ) : null}
@@ -566,10 +667,10 @@ export function AttendancePage() {
                 >
                   {isWeekend ? 'Weekend' : 'Weekday'}
                 </span>
-                {!isSuperAdminUser && (
+                {!isGlobalAdminMode && (
                   <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200/80 shadow-2xs">
                     <UserCheck className="w-3 h-3 text-blue-600" />
-                    <span>My Assigned Batch</span>
+                    <span>{isDirectSuperAdmin ? `Assigned to ${effectiveStaffUser?.name || 'Staff'}` : 'My Assigned Batch'}</span>
                   </span>
                 )}
                 {hasUnsavedChanges && !isPastDate && (
@@ -759,7 +860,7 @@ export function AttendancePage() {
         </div>
 
         {/* Live Attendance Counter Strip */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           <div className="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-2xs flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-black">
               <Users className="w-5 h-5" />
@@ -804,16 +905,6 @@ export function AttendancePage() {
             </div>
           </div>
 
-          <div className="bg-white p-3.5 rounded-2xl border border-amber-100 bg-amber-50/20 shadow-2xs flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center font-black">
-              <Clock className="w-5 h-5" />
-            </div>
-            <div>
-              <p className="text-[11px] font-bold text-amber-700 uppercase tracking-wider">Late</p>
-              <p className="text-lg font-black text-amber-800">{rosterCounts.late}</p>
-            </div>
-          </div>
-
           <div className="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-2xs flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center font-black">
               <AlertCircle className="w-5 h-5" />
@@ -847,7 +938,6 @@ export function AttendancePage() {
               { id: 'ALL', label: 'All' },
               { id: 'PRESENT', label: 'Present' },
               { id: 'ABSENT', label: 'Absent' },
-              { id: 'LATE', label: 'Late' },
               { id: 'UNMARKED', label: 'Unmarked' }
             ].map((tab) => (
               <button
@@ -925,8 +1015,6 @@ export function AttendancePage() {
                         ? 'bg-emerald-50/30'
                         : studentStatus === 'absent'
                         ? 'bg-rose-50/30'
-                        : studentStatus === 'late'
-                        ? 'bg-amber-50/30'
                         : 'hover:bg-slate-50/70'
                     }`}
                   >
@@ -967,11 +1055,6 @@ export function AttendancePage() {
                               <XCircle className="w-3.5 h-3.5 text-rose-600" />
                               <span>Absent</span>
                             </span>
-                          ) : studentStatus === 'late' ? (
-                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-amber-100 text-amber-800 border border-amber-200 text-xs font-bold">
-                              <Clock className="w-3.5 h-3.5 text-amber-600" />
-                              <span>Late</span>
-                            </span>
                           ) : (
                             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-slate-100 text-slate-500 border border-slate-200 text-xs font-semibold">
                               <AlertCircle className="w-3.5 h-3.5 text-slate-400" />
@@ -988,7 +1071,7 @@ export function AttendancePage() {
                           <button
                             type="button"
                             onClick={() => handleMarkStudent(student.id, 'present')}
-                            className={`flex-1 sm:flex-initial px-3.5 py-1.5 rounded-xl text-xs font-extrabold flex items-center justify-center gap-1.5 transition-all duration-200 cursor-pointer ${
+                            className={`flex-1 sm:flex-initial px-4 py-1.5 rounded-xl text-xs font-extrabold flex items-center justify-center gap-1.5 transition-all duration-200 cursor-pointer ${
                               studentStatus === 'present'
                                 ? 'bg-emerald-600 text-white shadow-sm shadow-emerald-600/30 ring-2 ring-emerald-500/20'
                                 : 'text-slate-600 hover:text-emerald-700 hover:bg-emerald-50/80'
@@ -1003,7 +1086,7 @@ export function AttendancePage() {
                           <button
                             type="button"
                             onClick={() => handleMarkStudent(student.id, 'absent')}
-                            className={`flex-1 sm:flex-initial px-3.5 py-1.5 rounded-xl text-xs font-extrabold flex items-center justify-center gap-1.5 transition-all duration-200 cursor-pointer ${
+                            className={`flex-1 sm:flex-initial px-4 py-1.5 rounded-xl text-xs font-extrabold flex items-center justify-center gap-1.5 transition-all duration-200 cursor-pointer ${
                               studentStatus === 'absent'
                                 ? 'bg-rose-600 text-white shadow-sm shadow-rose-600/30 ring-2 ring-rose-500/20'
                                 : 'text-slate-600 hover:text-rose-700 hover:bg-rose-50/80'
@@ -1012,21 +1095,6 @@ export function AttendancePage() {
                           >
                             <XCircle className="w-3.5 h-3.5" />
                             <span>Absent</span>
-                          </button>
-
-                          {/* Late Button */}
-                          <button
-                            type="button"
-                            onClick={() => handleMarkStudent(student.id, 'late')}
-                            className={`flex-1 sm:flex-initial px-3.5 py-1.5 rounded-xl text-xs font-extrabold flex items-center justify-center gap-1.5 transition-all duration-200 cursor-pointer ${
-                              studentStatus === 'late'
-                                ? 'bg-amber-500 text-white shadow-sm shadow-amber-500/30 ring-2 ring-amber-400/20'
-                                : 'text-slate-600 hover:text-amber-700 hover:bg-amber-50/80'
-                            }`}
-                            title="Mark Late"
-                          >
-                            <Clock className="w-3.5 h-3.5" />
-                            <span>Late</span>
                           </button>
                         </div>
                       )}
@@ -1041,7 +1109,7 @@ export function AttendancePage() {
                         placeholder={
                           isPastDate
                             ? currentRecord.remarks || 'No remarks recorded'
-                            : 'Optional remarks (e.g. late 15m)...'
+                            : 'Optional remarks / reason...'
                         }
                         value={currentRecord.remarks || ''}
                         onChange={(e) => handleUpdateRemarks(student.id, e.target.value)}
@@ -1163,27 +1231,27 @@ export function AttendancePage() {
                 </span>
               </div>
               <p className="text-xs md:text-sm text-slate-500 font-medium mt-0.5">
-                {isSuperAdminUser
+                {isGlobalAdminMode
                   ? 'Select an active cohort to mark daily student presence, log notes, and manage attendance records.'
-                  : 'Manage daily attendance records and student rosters for your assigned cohort.'}
+                  : `Managing daily attendance records and student rosters for ${effectiveStaffUser?.name || 'Staff'}'s assigned cohort.`}
               </p>
-              {!isSuperAdminUser && (
+              {!isGlobalAdminMode && (
                 <div className="flex flex-wrap items-center gap-2 mt-2">
                   <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200/80 shadow-2xs">
                     <UserCheck className="w-3.5 h-3.5 text-blue-600" />
                     <span>
-                      Assigned Staff Batch:{' '}
+                      Assigned Batch:{' '}
                       <strong className="text-blue-900 font-extrabold">
-                        {staffBatches.length > 0 ? staffBatches.join(', ') : 'None'}
+                        {effectiveStaffBatches.length > 0 ? effectiveStaffBatches.join(', ') : 'None'}
                       </strong>
                     </span>
                   </span>
                   <span className="text-xs text-slate-500 font-medium">
-                    (Showing attendance for your assigned batch only)
+                    (Showing attendance strictly for this assigned batch)
                   </span>
                 </div>
               )}
-              {isSuperAdminUser && (
+              {isGlobalAdminMode && (
                 <div className="flex items-center gap-2 mt-2">
                   <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold bg-slate-100 text-slate-700 border border-slate-200/80 shadow-2xs">
                     <Layers className="w-3.5 h-3.5 text-slate-600" />
@@ -1266,7 +1334,7 @@ export function AttendancePage() {
           </div>
           <div>
             <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">
-              {isSuperAdminUser ? 'Active Batches' : 'Assigned Batches'}
+              {isGlobalAdminMode ? 'Active Batches' : 'Assigned Batches'}
             </p>
             <p className="text-2xl font-black text-slate-900 mt-0.5">{totalBatchesCount}</p>
           </div>
@@ -1278,7 +1346,7 @@ export function AttendancePage() {
           </div>
           <div>
             <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">
-              {isSuperAdminUser ? 'Enrolled Students' : 'Assigned Students'}
+              {isGlobalAdminMode ? 'Enrolled Students' : 'Assigned Students'}
             </p>
             <p className="text-2xl font-black text-slate-900 mt-0.5">{totalEnrolledAcrossBatches}</p>
           </div>
@@ -1317,6 +1385,98 @@ export function AttendancePage() {
           </div>
         </div>
       </div>
+
+      {/* Staff Filter Selector for Super Admin */}
+      {isDirectSuperAdmin && (
+        <div className="bg-white rounded-2xl border border-slate-200/80 p-3.5 px-4 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
+              <Users className="w-4 h-4" />
+            </div>
+            <div>
+              <p className="text-xs font-bold text-slate-800 flex items-center gap-2">
+                <span>Filter Attendance by Staff Member</span>
+                {effectiveStaffUser && (
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-blue-100 text-blue-800">
+                    Active Preview
+                  </span>
+                )}
+              </p>
+              <p className="text-[11px] text-slate-400 font-medium">
+                Switch between global overview and individual instructor/staff assigned cohort views
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            <select
+              value={selectedStaffFilter}
+              onChange={(e) => setSelectedStaffFilter(e.target.value)}
+              className="w-full sm:w-auto bg-slate-50 hover:bg-white border border-slate-200 text-slate-800 text-xs font-bold rounded-xl px-3 py-2 focus:border-blue-600 focus:bg-white focus:outline-none transition-all cursor-pointer shadow-2xs"
+            >
+              <option value="ALL">All Batches (Super Admin View)</option>
+              {staffDirectoryUsers.map((u) => {
+                const uBatches = parseStaffBatches(u);
+                const batchLabel = uBatches.length > 0 ? uBatches.join(', ') : 'No Batch';
+                return (
+                  <option key={u.id || u.email} value={u.email || u.id}>
+                    {u.name} ({u.role} — Batch: {batchLabel})
+                  </option>
+                );
+              })}
+            </select>
+
+            {effectiveStaffUser && selectedStaffFilter !== 'ALL' && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setSelectedStaffFilter('ALL')}
+                className="text-xs font-bold shrink-0"
+              >
+                Clear Filter
+              </Button>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Staff Scoped Preview Banner */}
+      {!isGlobalAdminMode && effectiveStaffUser && (
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50/50 border border-blue-200/90 rounded-2xl p-4 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <img
+              src={effectiveStaffUser.avatar || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(effectiveStaffUser.name)}`}
+              alt={effectiveStaffUser.name}
+              className="w-10 h-10 rounded-xl object-cover border border-blue-200 bg-white shadow-2xs shrink-0"
+            />
+            <div>
+              <div className="flex items-center gap-2">
+                <p className="text-sm font-black text-slate-900">{effectiveStaffUser.name}</p>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800">
+                  {effectiveStaffUser.role}
+                </span>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                  Batch: {effectiveStaffBatches.length > 0 ? effectiveStaffBatches.join(', ') : 'None'}
+                </span>
+              </div>
+              <p className="text-xs text-slate-500 font-medium mt-0.5">
+                Attendance view is strictly scoped to this staff member's assigned cohort ({userVisibleBatches.join(', ') || 'No batches'}).
+              </p>
+            </div>
+          </div>
+
+          {isDirectSuperAdmin && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setSelectedStaffFilter('ALL')}
+              className="text-xs font-bold bg-white text-blue-700 hover:bg-blue-50 border-blue-200 shrink-0 self-end sm:self-auto"
+            >
+              Reset to All Batches
+            </Button>
+          )}
+        </div>
+      )}
 
       {/* Filter and Search Bar */}
       <div className="bg-white rounded-2xl border border-slate-200/80 p-3.5 shadow-2xs flex flex-col sm:flex-row items-center justify-between gap-3">
@@ -1359,9 +1519,9 @@ export function AttendancePage() {
             <ShieldAlert className="w-8 h-8" />
           </div>
           <div>
-            <h2 className="text-xl font-black text-slate-900">No Batch Assigned to Your Staff Account</h2>
+            <h2 className="text-xl font-black text-slate-900">No Batch Assigned to Staff Account</h2>
             <p className="text-sm text-slate-600 mt-2 max-w-lg mx-auto leading-relaxed">
-              Hello <strong className="text-slate-900">{staffProfile?.name || currentUser?.name || 'Staff Member'}</strong> ({currentRole || 'Staff'}), you are not assigned to any batch in the User Directory. Attendance records and student rosters are organized by batch cohort.
+              Hello <strong className="text-slate-900">{effectiveStaffUser?.name || currentUser?.name || 'Staff Member'}</strong> ({effectiveStaffUser?.role || currentRole || 'Staff'}), you are not assigned to any batch in the User Directory. Attendance records and student rosters are organized by batch cohort.
             </p>
             <p className="text-xs text-slate-500 mt-2">
               Please contact an Administrator or Super Admin to assign your batch under the <strong>User Directory</strong>.
@@ -1439,10 +1599,10 @@ export function AttendancePage() {
                     >
                       {batch.category}
                     </span>
-                    {!isSuperAdminUser && (
+                    {!isGlobalAdminMode && (
                       <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
                         <UserCheck className="w-3 h-3 text-blue-600" />
-                        <span>Assigned to You</span>
+                        <span>{isDirectSuperAdmin ? `Assigned to ${effectiveStaffUser?.name || 'Staff'}` : 'Assigned to You'}</span>
                       </span>
                     )}
                   </div>

@@ -108,6 +108,50 @@ export function AuthProvider({ children }) {
     localStorage.setItem('aspire_lms_registered_users', JSON.stringify(sanitizedList));
   }, [registeredUsers]);
 
+  // Synchronize currentUser profile details (such as live assigned batch) from Supabase
+  useEffect(() => {
+    if (!currentUser?.email) return;
+    let isMounted = true;
+    const syncLiveProfile = async () => {
+      try {
+        const { data: dbProfile, error } = await supabase
+          .from('profiles')
+          .select('*')
+          .ilike('email', currentUser.email.trim())
+          .maybeSingle();
+
+        if (dbProfile && !error && isMounted) {
+          const freshBatch = dbProfile.batch || 'None';
+          const freshRole = dbProfile.role || currentUser.role;
+          const freshName = dbProfile.name || currentUser.name;
+
+          if (
+            currentUser.batch !== freshBatch ||
+            currentUser.name !== freshName ||
+            (currentUser.role !== freshRole && currentUser.originalRole !== ROLES.SUPER_ADMIN)
+          ) {
+            setCurrentUser((prev) => {
+              if (!prev) return null;
+              return sanitizeUser({
+                ...prev,
+                name: freshName,
+                batch: freshBatch,
+                role: prev.role === ROLES.SUPER_ADMIN ? prev.role : freshRole,
+                originalRole: dbProfile.original_role || freshRole
+              });
+            });
+          }
+        }
+      } catch (err) {
+        // Fallback gracefully
+      }
+    };
+    syncLiveProfile();
+    return () => {
+      isMounted = false;
+    };
+  }, [currentUser?.email]);
+
   const register = async ({ name, email, password, role, department }) => {
     if (!name || !email || !password || !role) {
       return { success: false, message: 'Please fill in all required fields.' };
