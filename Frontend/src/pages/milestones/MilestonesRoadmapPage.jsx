@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   BookOpen,
   Award,
@@ -38,7 +38,7 @@ import { useToast } from '../../context/ToastContext';
 import { useLmsData } from '../../context/LmsDataContext';
 import { BatchFilterSelector } from '../../components/common/BatchFilterSelector';
 import { Button } from '../../components/common/Button';
-import { DEFAULT_CURRICULUM_LESSONS, normalizeStagesList } from '../../data/curriculumData';
+import { DEFAULT_CURRICULUM_LESSONS } from '../../data/curriculumData';
 
 export const formatLocalDate = (d) => {
   if (!d || isNaN(new Date(d).getTime())) return '';
@@ -401,11 +401,28 @@ export function MilestonesRoadmapPage() {
     });
   };
 
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const queryCourseId = searchParams.get('courseId') || courses[0]?.id || '';
 
   const [selectedCourseId, setSelectedCourseId] = useState(() => searchParams.get('courseId') || courses[0]?.id || '');
   const [selectedStudentAccessId, setSelectedStudentAccessId] = useState('ALL');
+
+  // Synchronize selectedCourseId with URL search parameters and available courses
+  useEffect(() => {
+    const paramId = searchParams.get('courseId');
+    if (paramId && paramId !== selectedCourseId) {
+      setSelectedCourseId(paramId);
+    } else if (!selectedCourseId && courses.length > 0) {
+      setSelectedCourseId(courses[0].id);
+    }
+  }, [searchParams, courses]);
+
+  // Clean up drawer, active module, and accordion state when switching courses
+  useEffect(() => {
+    setSelectedSubtopicState(null);
+    setExpandedModule(null);
+    setExpandedStages({});
+  }, [selectedCourseId]);
 
   // --- Batch-Specific Lock Lookup from Supabase milestoneLocks ---
   const getItemLockForBatch = (itemId, batchCode = selectedBatch) => {
@@ -485,16 +502,24 @@ export function MilestonesRoadmapPage() {
     return getScheduleInfo(item, parentSchedule);
   };
 
+  const isPythonFullStackCourse = (course) => {
+    if (!course) return false;
+    const t = (course.title || '').toLowerCase();
+    const id = (course.id || '').toLowerCase();
+    return t.includes('python full') || id.includes('1786624019154') || id === 'ml-python-full-stack' || id === 'ml-python-weekend';
+  };
+
   const activeCourseId = (() => {
     if (selectedCourseId === 'ALL') {
-      const pythonCourse = courses.find(c => c.title && c.title.toLowerCase().includes('python'));
+      const pythonCourse = courses.find(c => isPythonFullStackCourse(c));
       return pythonCourse ? pythonCourse.id : courses[0]?.id;
     }
-    return selectedCourseId;
+    return selectedCourseId || courses[0]?.id || '';
   })();
 
-  // Helper to resolve lessons for a specific subtopic strictly without cross-stage bleeding
-  const resolveLessonsForSubtopic = (subId, subTitle, stageId) => {
+  // Helper to resolve lessons for a specific subtopic strictly without cross-course or cross-stage bleeding
+  const resolveLessonsForSubtopic = (subId, subTitle, stageId, targetCourseId = activeCourseId) => {
+    if (!targetCourseId) return [];
     const cleanNorm = (str) => String(str || '').toLowerCase().replace(/[^a-z0-9]/g, '').trim();
     const stripSuffix = (str) => String(str || '').replace(/-(w|s)$/i, '').trim();
     const subIdClean = stripSuffix(subId);
@@ -504,22 +529,27 @@ export function MilestonesRoadmapPage() {
 
     if (Array.isArray(courseLessons) && courseLessons.length > 0) {
       const matchedLessons = courseLessons.filter(l => {
+        // STRICT COURSE ISOLATION: lesson MUST belong to targetCourseId
+        if (l.course_id && l.course_id !== targetCourseId) {
+          return false;
+        }
+
+        // Strict stage boundary check
+        if (stageId && l.stage_id && !isMatchingStage(l.stage_id, stageId)) {
+          return false;
+        }
+
+        // Strict module/subtopic ID match
         const lModClean = stripSuffix(l.module_id || l.subtopic_id);
         const lModId = cleanNorm(l.module_id || l.subtopic_id);
         const lStgId = l.stage_id;
         const lSubName = cleanNorm(l.subtopic_name || l.subtopicName);
 
-        // Strict stage boundary check
-        if (stageId && lStgId && !isMatchingStage(lStgId, stageId)) {
-          return false;
-        }
-
-        // Strict module/subtopic ID match
         if (
           lModClean === subIdClean ||
           lModClean === mappedModId ||
           lModId === subIdNorm ||
-          (lSubName && (lSubName === subTitleNorm || lSubName.includes(subTitleNorm) || subTitleNorm.includes(lSubName)))
+          (lSubName && subTitleNorm && (lSubName === subTitleNorm || lSubName.includes(subTitleNorm) || subTitleNorm.includes(lSubName)))
         ) {
           return true;
         }
@@ -531,31 +561,35 @@ export function MilestonesRoadmapPage() {
       }
     }
 
-    // Fallback: Query DEFAULT_CURRICULUM_LESSONS map
-    const curriculumMatch = Object.entries(DEFAULT_CURRICULUM_LESSONS).find(([key, val]) => {
-      const kClean = stripSuffix(key);
-      const kNorm = cleanNorm(key);
-      const valTitleNorm = cleanNorm(val.title);
-      return (
-        kClean === subIdClean ||
-        kClean === mappedModId ||
-        kNorm === subIdNorm ||
-        SUBTOPIC_MODULE_MAP[kClean] === subIdClean ||
-        SUBTOPIC_MODULE_MAP[subIdClean] === kClean ||
-        (valTitleNorm && (valTitleNorm === subTitleNorm || valTitleNorm.includes(subTitleNorm) || subTitleNorm.includes(valTitleNorm)))
-      );
-    });
+    // Fallback: ONLY query DEFAULT_CURRICULUM_LESSONS if the target course is Python Full Stack!
+    const crs = courses.find(c => c.id === targetCourseId);
+    if (isPythonFullStackCourse(crs)) {
+      const curriculumMatch = Object.entries(DEFAULT_CURRICULUM_LESSONS).find(([key, val]) => {
+        const kClean = stripSuffix(key);
+        const kNorm = cleanNorm(key);
+        const valTitleNorm = cleanNorm(val.title);
+        return (
+          kClean === subIdClean ||
+          kClean === mappedModId ||
+          kNorm === subIdNorm ||
+          SUBTOPIC_MODULE_MAP[kClean] === subIdClean ||
+          SUBTOPIC_MODULE_MAP[subIdClean] === kClean ||
+          (valTitleNorm && subTitleNorm && (valTitleNorm === subTitleNorm || valTitleNorm.includes(subTitleNorm) || subTitleNorm.includes(valTitleNorm)))
+        );
+      });
 
-    if (curriculumMatch && Array.isArray(curriculumMatch[1].lessons) && curriculumMatch[1].lessons.length > 0) {
-      return curriculumMatch[1].lessons.map(l => ({
-        id: l.id,
-        module_id: subId,
-        stage_id: stageId,
-        title: l.title,
-        description: l.description || '',
-        duration: l.duration || '1.5 hrs',
-        durationHours: l.duration || '1.5 hrs'
-      }));
+      if (curriculumMatch && Array.isArray(curriculumMatch[1].lessons) && curriculumMatch[1].lessons.length > 0) {
+        return curriculumMatch[1].lessons.map(l => ({
+          id: l.id,
+          module_id: subId,
+          stage_id: stageId,
+          course_id: targetCourseId,
+          title: l.title,
+          description: l.description || '',
+          duration: l.duration || '1.5 hrs',
+          durationHours: l.duration || '1.5 hrs'
+        }));
+      }
     }
 
     return [];
@@ -716,61 +750,66 @@ export function MilestonesRoadmapPage() {
     addToast(`🔒 Locked "${lesson.title}" for ${targetBatch === 'ALL' ? 'All Batches' : `Batch ${targetBatch}`}`, 'info');
   };
 
-  // Derive active milestones stages from current milestone state or selected course
+  // Derive active milestones stages strictly scoped to selected course
   const getActiveMilestoneStages = () => {
     let baseStages = [];
 
-    // 1. Primary: Use course-specific milestones if a course is selected
-    if (selectedCourseId && selectedCourseId !== 'ALL') {
-      const courseMilestones = milestonesByBatch?.[selectedCourseId];
+    const effectiveCourseId = activeCourseId;
+    const targetCourse = courses.find(c => c.id === effectiveCourseId || c.title?.toLowerCase() === effectiveCourseId?.toLowerCase());
+
+    // 1. Primary: Use course-specific milestones if configured
+    if (effectiveCourseId && effectiveCourseId !== 'ALL') {
+      const courseMilestones = milestonesByBatch?.[effectiveCourseId];
       if (Array.isArray(courseMilestones?.stages) && courseMilestones.stages.length > 0) {
         baseStages = courseMilestones.stages;
-      } else {
-        const targetCourse = courses.find(c => c.id === selectedCourseId || c.title?.toLowerCase() === selectedCourseId.toLowerCase());
-        if (targetCourse && Array.isArray(targetCourse.topics) && targetCourse.topics.length > 0) {
-          baseStages = targetCourse.topics.map((t, idx) => ({
-            id: t.id || `stg-${idx}`,
-            stageNumber: `STAGE 0${idx + 1}`,
-            phaseTag: `${targetCourse.title} • Stage ${idx + 1}`,
-            title: t.title,
-            unlockDate: t.unlockDate || (idx === 0 ? formatLocalDate(new Date()) : null),
-            unlockTime: t.unlockTime || '09:00',
-            unlockDateTime: t.unlockDateTime || null,
-            liveClasses: t.liveClasses || t.live_classes || 0,
-            practice: t.practice || 0,
-            assessments: t.assessments || 0,
-            subtopics: t.subtopics || []
-          }));
-        }
+      } else if (targetCourse && Array.isArray(targetCourse.topics) && targetCourse.topics.length > 0) {
+        baseStages = targetCourse.topics.map((t, idx) => ({
+          id: t.id || `stg-${idx}`,
+          stageNumber: t.stageNumber || `STAGE ${String(idx + 1).padStart(2, '0')}`,
+          phaseTag: t.phaseTag || `${targetCourse.title} • Stage ${idx + 1}`,
+          title: t.title,
+          unlockDate: t.unlockDate || (idx === 0 ? formatLocalDate(new Date()) : null),
+          unlockTime: t.unlockTime || '09:00',
+          unlockDateTime: t.unlockDateTime || null,
+          liveClasses: t.liveClasses || t.live_classes || 0,
+          practice: t.practice || 0,
+          assessments: t.assessments || 0,
+          subtopics: Array.isArray(t.subtopics) ? t.subtopics : (Array.isArray(t.modules) ? t.modules : [])
+        }));
       }
     }
 
-    // 2. Secondary fallback: Use batch milestones stages
-    if ((!baseStages || baseStages.length === 0) && Array.isArray(currentMilestones?.stages) && currentMilestones.stages.length > 0) {
-      baseStages = currentMilestones.stages;
+    // 2. Secondary fallback: ONLY use batch milestones stages if target course is Python Full Stack
+    if ((!baseStages || baseStages.length === 0) && isPythonFullStackCourse(targetCourse)) {
+      if (Array.isArray(currentMilestones?.stages) && currentMilestones.stages.length > 0) {
+        baseStages = currentMilestones.stages;
+      }
     }
 
+    // Strict requirement: If course has no stages configured, return empty array immediately (0 stages)
     if (!baseStages || baseStages.length === 0) return [];
 
-    // All stages from the database are normalized to ensure full curriculum completeness
-    const cleanStages = normalizeStagesList(baseStages).filter(s => !!s).sort((a, b) => {
-      const aNum = parseInt(String(a.stageNumber || '').replace(/\D/g, ''), 10) || 0;
-      const bNum = parseInt(String(b.stageNumber || '').replace(/\D/g, ''), 10) || 0;
+    // Sort stages strictly without injecting any default curriculum stages into other courses
+    const cleanStages = [...baseStages].filter(s => !!s).sort((a, b) => {
+      const aNum = parseInt(String(a.stageNumber || a.title || '').replace(/\D/g, ''), 10) || 0;
+      const bNum = parseInt(String(b.stageNumber || b.title || '').replace(/\D/g, ''), 10) || 0;
       return aNum - bNum;
     });
 
     return cleanStages.map((stage, idx) => {
       const stageId = stage.id || `stg-${idx}`;
+      const rawSubtopics = Array.isArray(stage.subtopics) ? stage.subtopics : (Array.isArray(stage.modules) ? stage.modules : []);
+
       return {
         ...stage,
         id: stageId,
-        subtopics: (stage.subtopics || []).map((sub, sIdx) => {
+        subtopics: rawSubtopics.map((sub, sIdx) => {
           const subId = sub.id || sub._id || sub.subtopic_id || `sub-${idx}-${sIdx}`;
           const cleanSubTitle = String(sub.title || '').replace(/^Module\s*\d+\s*:\s*/i, '').trim();
           let modules = Array.isArray(sub.modules) && sub.modules.length > 0 ? sub.modules : [];
 
           if (modules.length === 0) {
-            const lessons = resolveLessonsForSubtopic(subId, cleanSubTitle, stageId);
+            const lessons = resolveLessonsForSubtopic(subId, cleanSubTitle, stageId, effectiveCourseId);
             if (lessons.length > 0) {
               modules = lessons.map(lesson => {
                 const lLock = getItemLockForBatch(lesson.id, selectedBatch);
@@ -858,8 +897,7 @@ export function MilestonesRoadmapPage() {
       const countForThisSubtopic = Math.max(
         matchingCourseLessons.length,
         sub.modules?.length || 0,
-        subItems.length,
-        1
+        subItems.length
       );
       totalLessonsCalculated += countForThisSubtopic;
 
@@ -884,7 +922,7 @@ export function MilestonesRoadmapPage() {
     totalSubtopicsCount
   );
 
-  const totalTopicsCount = totalItemsCount > 0 ? totalItemsCount : (totalSubtopicsCount || 31);
+  const totalTopicsCount = totalItemsCount > 0 ? totalItemsCount : totalSubtopicsCount;
   const completedTopicsCount = totalItemsCount > 0 ? completedItemsCount : completedSubtopicsCount;
 
   const completionPercentage = totalTopicsCount > 0
@@ -1007,10 +1045,10 @@ export function MilestonesRoadmapPage() {
 
     if (!sub) return { activeStage: stage, activeSubtopic: null };
 
-    // Robust module resolution: If sub.modules is empty, retrieve lessons from courseLessons or DEFAULT_CURRICULUM_LESSONS
+    // Robust module resolution: If sub.modules is empty, retrieve lessons strictly for activeCourseId
     let subModules = Array.isArray(sub.modules) && sub.modules.length > 0 ? sub.modules : [];
     if (subModules.length === 0) {
-      const resolved = resolveLessonsForSubtopic(sub.id, sub.title, stage.id);
+      const resolved = resolveLessonsForSubtopic(sub.id, sub.title, stage.id, activeCourseId);
       if (resolved.length > 0) {
         subModules = resolved.map(l => {
           const lLock = getItemLockForBatch(l.id, selectedBatch);
@@ -1246,11 +1284,12 @@ export function MilestonesRoadmapPage() {
       unlockDateTime: uDateTime
     };
 
+    const targetScope = (selectedCourseId && selectedCourseId !== 'ALL') ? selectedCourseId : selectedBatch;
     if (editingStage) {
-      updateStage(editingStage.id, payload, selectedBatch);
+      updateStage(editingStage.id, payload, targetScope);
       addToast('Milestone stage updated successfully', 'success');
     } else {
-      addStage(payload, selectedBatch);
+      addStage(payload, targetScope);
       addToast('New milestone stage created', 'success');
     }
     setIsStageModalOpen(false);
@@ -1258,7 +1297,8 @@ export function MilestonesRoadmapPage() {
 
   const handleDeleteStage = (stageId, title) => {
     if (window.confirm(`Are you sure you want to delete "${title}"?`)) {
-      deleteStage(stageId, selectedBatch);
+      const targetScope = (selectedCourseId && selectedCourseId !== 'ALL') ? selectedCourseId : selectedBatch;
+      deleteStage(stageId, targetScope);
       if (selectedSubtopicState?.stageId === stageId) {
         setSelectedSubtopicState(null);
       }
@@ -1308,11 +1348,12 @@ export function MilestonesRoadmapPage() {
       unlockDateTime: uDateTime
     };
 
+    const targetScope = (selectedCourseId && selectedCourseId !== 'ALL') ? selectedCourseId : selectedBatch;
     if (editingSubtopic) {
-      updateSubtopic(targetStageIdForSubtopic, editingSubtopic.id, payload, selectedBatch);
+      updateSubtopic(targetStageIdForSubtopic, editingSubtopic.id, payload, targetScope);
       addToast('Subtopic updated', 'success');
     } else {
-      addSubtopic(targetStageIdForSubtopic, payload, selectedBatch);
+      addSubtopic(targetStageIdForSubtopic, payload, targetScope);
       addToast('Subtopic added to stage', 'success');
     }
     setIsSubtopicModalOpen(false);
@@ -1320,7 +1361,8 @@ export function MilestonesRoadmapPage() {
 
   const handleDeleteSubtopic = (stageId, subtopicId, title) => {
     if (window.confirm(`Delete subtopic "${title}"?`)) {
-      deleteSubtopic(stageId, subtopicId, selectedBatch);
+      const targetScope = (selectedCourseId && selectedCourseId !== 'ALL') ? selectedCourseId : selectedBatch;
+      deleteSubtopic(stageId, subtopicId, targetScope);
       if (selectedSubtopicState?.subtopicId === subtopicId) {
         setSelectedSubtopicState(null);
       }
@@ -1367,11 +1409,12 @@ export function MilestonesRoadmapPage() {
       unlockDateTime: uDateTime
     };
 
+    const targetScope = (selectedCourseId && selectedCourseId !== 'ALL') ? selectedCourseId : selectedBatch;
     if (editingModule) {
-      updateModule(activeSubtopic.stageId, activeSubtopic.id, editingModule.id, payload, selectedBatch);
+      updateModule(activeSubtopic.stageId, activeSubtopic.id, editingModule.id, payload, targetScope);
       addToast('Module updated', 'success');
     } else {
-      addModule(activeSubtopic.stageId, activeSubtopic.id, payload, selectedBatch);
+      addModule(activeSubtopic.stageId, activeSubtopic.id, payload, targetScope);
       addToast('New module added to learning path', 'success');
     }
     setIsModuleModalOpen(false);
@@ -1380,7 +1423,8 @@ export function MilestonesRoadmapPage() {
   const handleDeleteModule = (moduleId, title) => {
     if (!activeSubtopic) return;
     if (window.confirm(`Delete module "${title}" and all its resources?`)) {
-      deleteModule(activeSubtopic.stageId, activeSubtopic.id, moduleId, selectedBatch);
+      const targetScope = (selectedCourseId && selectedCourseId !== 'ALL') ? selectedCourseId : selectedBatch;
+      deleteModule(activeSubtopic.stageId, activeSubtopic.id, moduleId, targetScope);
       addToast('Module deleted', 'info');
     }
   };
@@ -1449,6 +1493,7 @@ export function MilestonesRoadmapPage() {
     const curMod = activeSubtopic.modules?.find(m => m.id === targetModuleIdForItem);
     const modTitle = curMod?.title || '';
 
+    const targetScope = (selectedCourseId && selectedCourseId !== 'ALL') ? selectedCourseId : selectedBatch;
     if (editingItem) {
       updateLearningItem(
         activeSubtopic.stageId,
@@ -1456,7 +1501,7 @@ export function MilestonesRoadmapPage() {
         targetModuleIdForItem,
         editingItem.id,
         { ...payload, prevTitle: editingItem.title, topicIndex: editingItem.topicIndex, moduleTitle: modTitle },
-        selectedBatch
+        targetScope
       );
       addToast('Topic & agenda updated', 'success');
     } else {
@@ -1465,7 +1510,7 @@ export function MilestonesRoadmapPage() {
         activeSubtopic.id,
         targetModuleIdForItem,
         { ...payload, moduleTitle: modTitle },
-        selectedBatch
+        targetScope
       );
       addToast('Topic & agenda added to module', 'success');
     }
@@ -1476,7 +1521,8 @@ export function MilestonesRoadmapPage() {
     if (!activeSubtopic) return;
     if (window.confirm(`Delete resource item "${title}"?`)) {
       const curMod = activeSubtopic.modules?.find(m => m.id === moduleId);
-      deleteLearningItem(activeSubtopic.stageId, activeSubtopic.id, moduleId, itemId, selectedBatch, {
+      const targetScope = (selectedCourseId && selectedCourseId !== 'ALL') ? selectedCourseId : selectedBatch;
+      deleteLearningItem(activeSubtopic.stageId, activeSubtopic.id, moduleId, itemId, targetScope, {
         title,
         topicIndex,
         moduleTitle: curMod?.title || ''
@@ -1551,7 +1597,11 @@ export function MilestonesRoadmapPage() {
               <div className="relative">
                 <select
                   value={selectedCourseId || courses[0]?.id || ''}
-                  onChange={(e) => setSelectedCourseId(e.target.value)}
+                  onChange={(e) => {
+                    const newCourseId = e.target.value;
+                    setSelectedCourseId(newCourseId);
+                    setSearchParams({ courseId: newCourseId });
+                  }}
                   className="px-3.5 py-2 pr-8 rounded-xl text-xs font-bold text-slate-800 bg-slate-50 border border-slate-200 hover:border-purple-300 focus:outline-none focus:border-purple-600 focus:bg-white transition-all shadow-2xs cursor-pointer appearance-none min-w-[200px]"
                 >
                   {courses.map((c) => (
@@ -1621,17 +1671,18 @@ export function MilestonesRoadmapPage() {
             <div className="w-16 h-16 bg-purple-50 text-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-purple-100">
               <Layers className="w-8 h-8" />
             </div>
-            <h3 className="text-base font-extrabold text-slate-800 mb-1">No milestones available</h3>
+            <h3 className="text-base font-extrabold text-slate-800 mb-1">No milestones available for this course</h3>
             <p className="text-xs text-slate-500 max-w-md mx-auto mb-6">
-              Schedule live sessions or add milestones to populate the curriculum roadmap for this batch.
+              No stages, modules, or sub-modules have been configured for this course yet.
             </p>
             <Button
               onClick={() => {
                 setEditingStage(null);
+                const curCourseTitle = courses.find(c => c.id === selectedCourseId)?.title || 'Course';
                 setStageFormData({
                   title: '',
                   stageNumber: 'STAGE 01',
-                  phaseTag: 'Senior Engineering Cohort • Stage 1',
+                  phaseTag: `${curCourseTitle} • Stage 1`,
                   unlockDate: formatLocalDate(new Date()),
                   unlockTime: '09:00'
                 });

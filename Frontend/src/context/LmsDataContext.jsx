@@ -829,14 +829,14 @@ export function LmsDataProvider({ children }) {
     const bKey = (batchName && batchName !== 'ALL') ? batchName : (activeBatchFilter && activeBatchFilter !== 'ALL' ? activeBatchFilter : 'Weekday Batch');
     if (milestonesByBatch[bKey]) return milestonesByBatch[bKey];
 
-    // Check if any course-specific milestone record targets this batch or ALL batches
-    const matchingCourseMilestone = Object.values(milestonesByBatch).find(m => {
-      const tb = String(m?.targetBatch || m?.overview?.targetBatch || 'ALL').toUpperCase();
-      return tb === 'ALL' || tb.includes('ALL') || tb === bKey.toUpperCase() ||
-             (bKey.startsWith('A26S') && tb.includes('WEEKEND')) ||
-             (bKey.startsWith('A26W') && tb.includes('WEEKDAY'));
-    });
-    if (matchingCourseMilestone) return matchingCourseMilestone;
+    // Check if any batch-specific milestone record targets this exact batch code
+    if (bKey.startsWith('A26S') || bKey.startsWith('A26W')) {
+      const matchingBatchMilestone = Object.values(milestonesByBatch).find(m => {
+        const tb = String(m?.targetBatch || m?.overview?.targetBatch || '').toUpperCase();
+        return tb === bKey.toUpperCase();
+      });
+      if (matchingBatchMilestone) return matchingBatchMilestone;
+    }
 
     // Map batch codes to their category: A26S* = Weekend, A26W* = Weekday
     const isWeekend = bKey.startsWith('A26S') || bKey === 'Weekend Batch';
@@ -4569,9 +4569,12 @@ export function LmsDataProvider({ children }) {
       if (!targetBatch || targetBatch === 'ALL') {
         applyToBatch('Weekday Batch');
         applyToBatch('Weekend Batch');
-      } else {
+      } else if (targetBatch === 'Weekday Batch' || targetBatch === 'Weekend Batch' || targetBatch.startsWith('A26S') || targetBatch.startsWith('A26W')) {
         const bKey = resolveBatchKey(targetBatch);
         applyToBatch(bKey);
+      } else {
+        // Direct course ID or custom batch key
+        applyToBatch(targetBatch);
       }
 
       isMilestonesHydratedRef.current = true;

@@ -452,16 +452,24 @@ export function CourseDetailPage() {
               Explore stage roadmap, live classes, practice tasks, and curriculum modules for this course.
             </p>
           </div>
-          <Button variant="primary" size="md" icon={Plus} onClick={handleOpenAddModal}>
-            Add Stage
-          </Button>
+          <div className="flex items-center gap-2">
+            <Link
+              to={`/milestones?courseId=${course?.id}`}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold border border-purple-200 text-purple-700 bg-purple-50 hover:bg-purple-100 transition-colors shadow-2xs"
+            >
+              <BookOpen className="w-4 h-4" />
+              Milestones Roadmap
+            </Link>
+            <Button variant="primary" size="md" icon={Plus} onClick={handleOpenAddModal}>
+              Add Stage
+            </Button>
+          </div>
         </div>
 
         {topicsToRender && topicsToRender.length > 0 ? (
           <div className="grid grid-cols-1 gap-4">
             {topicsToRender.map((topic, index) => {
               const isExpanded = expandedTopicIds.includes(topic.id);
-              const matchingStage = milestones?.stages?.[index];
 
               return (
                 <div
@@ -528,7 +536,7 @@ export function CourseDetailPage() {
                       <div className="mt-5 pt-4 border-t border-slate-100 bg-slate-50/60 p-5 rounded-2xl space-y-4 animate-in fade-in slide-in-from-top-2 duration-200">
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                           <h4 className="text-xs font-black uppercase tracking-wider text-slate-600 flex items-center gap-2">
-                            <Layers className="w-4 h-4 text-blue-600" /> {matchingStage?.title || `Stage ${index + 1}`} Modules & Subtopics
+                            <Layers className="w-4 h-4 text-blue-600" /> {topic.title || `Stage ${index + 1}`} Modules & Subtopics
                           </h4>
                           <div className="flex items-center gap-3">
                             <span className="text-[11px] font-bold text-slate-500 bg-slate-200/60 px-2.5 py-1 rounded-lg">
