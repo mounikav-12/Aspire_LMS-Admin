@@ -1019,8 +1019,39 @@ app.post('/api/rewards/lock-all', async (req, res) => {
 // =========================================================
 let inMemoryAttendanceCache = null;
 
-// Helper: load attendance data from Supabase or fallback
+// Helper: load attendance data from Supabase attendance_records table or milestones_data fallback
 const getDbAttendanceData = async () => {
+  // 1. Attempt to load from normalized attendance_records table
+  try {
+    const { data: records, error: recErr } = await supabase
+      .from('attendance_records')
+      .select('id, batch_code, date, student_id, status, remarks, updated_at');
+
+    if (!recErr && Array.isArray(records) && records.length > 0) {
+      const reconstructed = {};
+      let latestUpdated = null;
+
+      records.forEach((r) => {
+        if (!r.batch_code || !r.date || !r.student_id) return;
+        if (!reconstructed[r.batch_code]) reconstructed[r.batch_code] = {};
+        if (!reconstructed[r.batch_code][r.date]) reconstructed[r.batch_code][r.date] = {};
+        reconstructed[r.batch_code][r.date][r.student_id] = {
+          status: r.status,
+          remarks: r.remarks || ''
+        };
+        if (!latestUpdated || (r.updated_at && r.updated_at > latestUpdated)) {
+          latestUpdated = r.updated_at;
+        }
+      });
+
+      inMemoryAttendanceCache = reconstructed;
+      return { attendanceData: reconstructed, updatedAt: latestUpdated || new Date().toISOString() };
+    }
+  } catch (err) {
+    console.warn('[Attendance] attendance_records query notice:', err.message);
+  }
+
+  // 2. Fallback to milestones_data attendance_data JSON row
   try {
     const { data, error } = await supabase
       .from('milestones_data')
@@ -1033,7 +1064,7 @@ const getDbAttendanceData = async () => {
       return { attendanceData: data.overview.attendanceData, updatedAt: data.updated_at };
     }
   } catch (err) {
-    console.warn('[Attendance] Supabase fetch error, using cache:', err.message);
+    console.warn('[Attendance] Supabase milestones_data fallback error:', err.message);
   }
 
   if (!inMemoryAttendanceCache) {
@@ -1043,12 +1074,41 @@ const getDbAttendanceData = async () => {
   return { attendanceData: inMemoryAttendanceCache, updatedAt: new Date().toISOString() };
 };
 
-// Helper: persist attendance data to Supabase and cache
-const saveDbAttendanceData = async (newAttendanceData) => {
+// Helper: persist attendance data to both attendance_records table and milestones_data
+const saveDbAttendanceData = async (newAttendanceData, specificBatch = null, specificDate = null, specificRoster = null) => {
   inMemoryAttendanceCache = newAttendanceData;
   const now = new Date().toISOString();
-
   let dbSuccess = false;
+
+  // 1. If specific batch, date, and roster are provided, persist row-by-row into attendance_records
+  if (specificBatch && specificDate && specificRoster && typeof specificRoster === 'object') {
+    try {
+      const rows = Object.entries(specificRoster)
+        .filter(([studentId, data]) => data && data.status)
+        .map(([studentId, data]) => ({
+          id: `att_${specificBatch}_${specificDate}_${studentId}`,
+          batch_code: specificBatch,
+          date: specificDate,
+          student_id: studentId,
+          status: data.status,
+          remarks: data.remarks || '',
+          updated_at: now
+        }));
+
+      if (rows.length > 0) {
+        const { error: upsertErr } = await supabase.from('attendance_records').upsert(rows);
+        if (!upsertErr) {
+          dbSuccess = true;
+        } else {
+          console.warn('[Attendance] attendance_records upsert note:', upsertErr.message);
+        }
+      }
+    } catch (e) {
+      console.warn('[Attendance] attendance_records row save note:', e.message);
+    }
+  }
+
+  // 2. Persist to milestones_data JSON store for instant atomic retrieval & backward compatibility
   try {
     const { error } = await supabase.from('milestones_data').upsert([{
       id: 'attendance_data',
@@ -1060,7 +1120,7 @@ const saveDbAttendanceData = async (newAttendanceData) => {
     if (!error) {
       dbSuccess = true;
     } else {
-      console.warn('[Attendance] Supabase upsert error:', error.message);
+      console.warn('[Attendance] Supabase milestones_data upsert error:', error.message);
     }
   } catch (e) {
     console.warn('[Attendance] Database save error:', e.message);
@@ -1143,7 +1203,12 @@ const handleAttendanceSave = async (req, res) => {
       });
     }
 
-    const { updatedAt, dbSuccess } = await saveDbAttendanceData(updatedData);
+    const { updatedAt, dbSuccess } = await saveDbAttendanceData(
+      updatedData,
+      batchCode || null,
+      date || null,
+      batchCode && date ? (roster || {}) : null
+    );
 
     res.json({
       success: true,
@@ -1189,7 +1254,12 @@ app.post('/api/attendance/bulk-mark', async (req, res) => {
       };
     });
 
-    const { updatedAt, dbSuccess } = await saveDbAttendanceData(updatedData);
+    const { updatedAt, dbSuccess } = await saveDbAttendanceData(
+      updatedData,
+      batchCode,
+      date,
+      updatedData[batchCode][date]
+    );
 
     res.json({
       success: true,
@@ -1217,6 +1287,13 @@ app.post('/api/attendance/reset', async (req, res) => {
       updatedData[batchCode][date] = {};
     }
 
+    // Delete individual student rows from attendance_records table
+    try {
+      await supabase.from('attendance_records').delete().eq('batch_code', batchCode).eq('date', date);
+    } catch (e) {
+      console.warn('[Attendance] attendance_records reset note:', e.message);
+    }
+
     const { updatedAt, dbSuccess } = await saveDbAttendanceData(updatedData);
 
     res.json({
@@ -1240,6 +1317,13 @@ app.delete('/api/attendance/:batch/:date', async (req, res) => {
 
     if (updatedData[batch] && updatedData[batch][date]) {
       delete updatedData[batch][date];
+    }
+
+    // Delete individual rows from attendance_records table
+    try {
+      await supabase.from('attendance_records').delete().eq('batch_code', batch).eq('date', date);
+    } catch (e) {
+      console.warn('[Attendance] attendance_records delete note:', e.message);
     }
 
     const { updatedAt, dbSuccess } = await saveDbAttendanceData(updatedData);

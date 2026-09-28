@@ -1612,6 +1612,27 @@ export function LmsDataProvider({ children }) {
           updated_at: new Date().toISOString()
         }]);
         if (sbErr) throw sbErr;
+
+        // Also attempt row-by-row upsert into attendance_records table
+        try {
+          const rows = Object.entries(roster || {})
+            .filter(([studentId, data]) => data && data.status)
+            .map(([studentId, data]) => ({
+              id: `att_${batchCode}_${date}_${studentId}`,
+              batch_code: batchCode,
+              date: date,
+              student_id: studentId,
+              status: data.status,
+              remarks: data.remarks || '',
+              updated_at: new Date().toISOString()
+            }));
+          if (rows.length > 0) {
+            await supabase.from('attendance_records').upsert(rows);
+          }
+        } catch (rowErr) {
+          console.warn('[Attendance] fallback attendance_records note:', rowErr.message);
+        }
+
         setAttendanceData(updatedAll);
         setAttendanceLastSynced(new Date().toISOString());
         return { success: true, fallback: true };
@@ -2661,6 +2682,49 @@ export function LmsDataProvider({ children }) {
             const incoming = row.overview?.attendanceData || {};
             setAttendanceData(incoming);
             setAttendanceLastSynced(row.updated_at || new Date().toISOString());
+          }
+        }
+      });
+
+      // Attendance Records (Row-level attendance table) — real-time subscription
+      makeChannel('attendance_records', (payload) => {
+        if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
+          const r = payload.new;
+          if (r && r.batch_code && r.date && r.student_id) {
+            setAttendanceData((prev) => {
+              const batchDates = prev[r.batch_code] || {};
+              const dateRoster = batchDates[r.date] || {};
+              return {
+                ...prev,
+                [r.batch_code]: {
+                  ...batchDates,
+                  [r.date]: {
+                    ...dateRoster,
+                    [r.student_id]: {
+                      status: r.status,
+                      remarks: r.remarks || ''
+                    }
+                  }
+                }
+              };
+            });
+            setAttendanceLastSynced(r.updated_at || new Date().toISOString());
+          }
+        } else if (payload.eventType === 'DELETE') {
+          const old = payload.old;
+          if (old && old.batch_code && old.date && old.student_id) {
+            setAttendanceData((prev) => {
+              const batchDates = { ...(prev[old.batch_code] || {}) };
+              if (batchDates[old.date]) {
+                const dateRoster = { ...batchDates[old.date] };
+                delete dateRoster[old.student_id];
+                batchDates[old.date] = dateRoster;
+              }
+              return {
+                ...prev,
+                [old.batch_code]: batchDates
+              };
+            });
           }
         }
       });
