@@ -23,7 +23,8 @@ import {
   Film,
   Award,
   Gift,
-  FileText
+  FileText,
+  CalendarCheck
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useLmsData } from '../../context/LmsDataContext';
@@ -33,6 +34,7 @@ import { ProfileSettingsModal } from '../common/ProfileSettingsModal';
 const ALL_NAV_ITEMS = [
   { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard, permissionId: 'view_dashboard' },
   { label: 'Batches', path: '/batches', icon: Layers, permissionId: 'manage_batches' },
+  { label: 'Attendance', path: '/attendance', icon: CalendarCheck, permissionId: 'manage_attendance' },
   { label: 'Milestones', path: '/milestones', icon: Flag, permissionId: 'manage_milestones' },
   { label: 'Students', path: '/students', icon: GraduationCap, permissionId: 'manage_students' },
   { label: 'User Directory', path: '/users', icon: Users, permissionId: 'manage_users' },
@@ -62,7 +64,13 @@ export function Sidebar({ isCollapsed, onToggle, isMobileOpen, onCloseMobile }) 
     }
 
     const assignedPerms = rolePermissions[currentRole] || INITIAL_ROLE_PERMISSIONS[currentRole] || [];
-    return ALL_NAV_ITEMS.filter((item) => assignedPerms.includes(item.permissionId));
+    return ALL_NAV_ITEMS.filter((item) => {
+      // Attendance is always accessible to all authenticated admin/staff roles
+      if (item.permissionId === 'manage_attendance') {
+        return true;
+      }
+      return assignedPerms.includes(item.permissionId);
+    });
   };
 
   const navItems = getNavItems();

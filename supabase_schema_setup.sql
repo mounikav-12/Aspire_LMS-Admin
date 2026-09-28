@@ -255,13 +255,30 @@ CREATE TABLE IF NOT EXISTS public.recordings (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- 16. ATTENDANCE RECORDS TABLE
+CREATE TABLE IF NOT EXISTS public.attendance_records (
+  id TEXT PRIMARY KEY,
+  batch_code TEXT NOT NULL,
+  date TEXT NOT NULL,
+  student_id TEXT NOT NULL,
+  student_name TEXT,
+  status TEXT NOT NULL DEFAULT 'present',
+  remarks TEXT DEFAULT '',
+  marked_by TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_attendance_records_batch_date ON public.attendance_records(batch_code, date);
+CREATE INDEX IF NOT EXISTS idx_attendance_records_student ON public.attendance_records(student_id);
+
 -- ====================================================================
 -- ENABLE REALTIME PUBLICATION FOR TABLES
 -- ====================================================================
 DO $$
 BEGIN
   IF EXISTS (SELECT 1 FROM pg_publication WHERE pubname = 'supabase_realtime') THEN
-    ALTER PUBLICATION supabase_realtime ADD TABLE public.projects, public.courses, public.jobs, public.live_sessions, public.placement_resources, public.milestones_data, public.coding_questions, public.batches, public.students, public.assessments, public.recordings, public.quizzes;
+    ALTER PUBLICATION supabase_realtime ADD TABLE public.projects, public.courses, public.jobs, public.live_sessions, public.placement_resources, public.milestones_data, public.coding_questions, public.batches, public.students, public.assessments, public.recordings, public.quizzes, public.attendance_records;
   END IF;
 EXCEPTION WHEN OTHERS THEN
   NULL;
@@ -285,10 +302,14 @@ ALTER TABLE public.students ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.assessments ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.quizzes ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.recordings ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.attendance_records ENABLE ROW LEVEL SECURITY;
 
 -- CREATE POLICIES TO ALLOW APP DATA ACCESS
 DO $$
 BEGIN
+  DROP POLICY IF EXISTS "Allow full app access on attendance_records" ON public.attendance_records;
+  CREATE POLICY "Allow full app access on attendance_records" ON public.attendance_records FOR ALL USING (true) WITH CHECK (true);
+
   DROP POLICY IF EXISTS "Allow full app access on projects" ON public.projects;
   CREATE POLICY "Allow full app access on projects" ON public.projects FOR ALL USING (true) WITH CHECK (true);
 

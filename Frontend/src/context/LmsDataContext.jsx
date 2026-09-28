@@ -1516,6 +1516,165 @@ export function LmsDataProvider({ children }) {
   const [activities, setActivities] = useState(MOCK_ACTIVITIES);
   const [isSupabaseConnected, setIsSupabaseConnected] = useState(false);
 
+  // Attendance Records State (Database-driven & connected to backend API)
+  const [attendanceData, setAttendanceData] = useState({});
+  const [isLoadingAttendance, setIsLoadingAttendance] = useState(false);
+  const [isSavingAttendance, setIsSavingAttendance] = useState(false);
+  const [attendanceLastSynced, setAttendanceLastSynced] = useState(null);
+
+  const fetchAttendanceData = async () => {
+    setIsLoadingAttendance(true);
+    try {
+      const res = await fetch('/api/attendance');
+      if (res.ok) {
+        const json = await res.json();
+        if (json.success && json.attendanceData) {
+          setAttendanceData(json.attendanceData);
+          setAttendanceLastSynced(json.updatedAt || new Date().toISOString());
+          return json.attendanceData;
+        }
+      }
+    } catch (err) {
+      console.warn('[Attendance] Backend fetch fallback, attempting Supabase direct:', err);
+      try {
+        const { data, error } = await supabase
+          .from('milestones_data')
+          .select('*')
+          .eq('id', 'attendance_data')
+          .single();
+        if (!error && data?.overview?.attendanceData) {
+          setAttendanceData(data.overview.attendanceData);
+          setAttendanceLastSynced(data.updated_at || new Date().toISOString());
+          return data.overview.attendanceData;
+        }
+      } catch (sbErr) {
+        console.warn('[Attendance] Supabase direct fallback error:', sbErr);
+      }
+    } finally {
+      setIsLoadingAttendance(false);
+    }
+  };
+
+  const saveAttendanceData = async (batchCode, date, roster) => {
+    setIsSavingAttendance(true);
+    try {
+      // 1. Optimistic update in local state
+      setAttendanceData((prev) => {
+        const batchDates = prev[batchCode] || {};
+        return {
+          ...prev,
+          [batchCode]: {
+            ...batchDates,
+            [date]: roster
+          }
+        };
+      });
+
+      // 2. Persist to backend API
+      const res = await fetch('/api/attendance', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ batchCode, date, roster })
+      });
+
+      if (!res.ok) {
+        const errJson = await res.json().catch(() => ({}));
+        throw new Error(errJson.message || 'Failed to save attendance');
+      }
+
+      const json = await res.json();
+      if (json.attendanceData) {
+        setAttendanceData(json.attendanceData);
+      }
+      setAttendanceLastSynced(json.updatedAt || new Date().toISOString());
+      return { success: true, message: json.message };
+    } catch (err) {
+      console.warn('[Attendance] Backend save error, falling back to direct Supabase:', err);
+      try {
+        const currentBatchDates = (attendanceData && attendanceData[batchCode]) || {};
+        const updatedAll = {
+          ...(attendanceData || {}),
+          [batchCode]: {
+            ...currentBatchDates,
+            [date]: roster
+          }
+        };
+        const { error: sbErr } = await supabase.from('milestones_data').upsert([{
+          id: 'attendance_data',
+          overview: { attendanceData: updatedAll },
+          stages: [],
+          updated_at: new Date().toISOString()
+        }]);
+        if (sbErr) throw sbErr;
+        setAttendanceLastSynced(new Date().toISOString());
+        return { success: true, fallback: true };
+      } catch (sbErr) {
+        console.error('[Attendance] Direct Supabase save also failed:', sbErr);
+        throw err;
+      }
+    } finally {
+      setIsSavingAttendance(false);
+    }
+  };
+
+  const bulkMarkAttendance = async (batchCode, date, status, studentIds) => {
+    setIsSavingAttendance(true);
+    try {
+      const res = await fetch('/api/attendance/bulk-mark', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ batchCode, date, status, studentIds })
+      });
+
+      if (res.ok) {
+        const json = await res.json();
+        if (json.roster) {
+          setAttendanceData((prev) => ({
+            ...prev,
+            [batchCode]: {
+              ...(prev[batchCode] || {}),
+              [date]: json.roster
+            }
+          }));
+        }
+        setAttendanceLastSynced(json.updatedAt || new Date().toISOString());
+        return json;
+      }
+    } catch (err) {
+      console.warn('[Attendance] bulk-mark API failed:', err);
+    } finally {
+      setIsSavingAttendance(false);
+    }
+  };
+
+  const resetAttendanceSession = async (batchCode, date) => {
+    setIsSavingAttendance(true);
+    try {
+      const res = await fetch('/api/attendance/reset', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ batchCode, date })
+      });
+
+      if (res.ok) {
+        const json = await res.json();
+        setAttendanceData((prev) => ({
+          ...prev,
+          [batchCode]: {
+            ...(prev[batchCode] || {}),
+            [date]: {}
+          }
+        }));
+        setAttendanceLastSynced(json.updatedAt || new Date().toISOString());
+        return json;
+      }
+    } catch (err) {
+      console.warn('[Attendance] reset API failed:', err);
+    } finally {
+      setIsSavingAttendance(false);
+    }
+  };
+
   // Student Milestone Topics/Items Completion State (Database Driven)
   const [completedMilestoneItemIds, setCompletedMilestoneItemIds] = useState([]);
 
@@ -1770,6 +1929,10 @@ export function LmsDataProvider({ children }) {
                 }
               }
             });
+            // Guarantee manage_attendance is enabled by default for all core roles
+            if (!allPerms.includes('manage_attendance')) {
+              allPerms.push('manage_attendance');
+            }
             mappedPerms[r] = Array.from(new Set(allPerms));
           }
         });
@@ -2087,8 +2250,17 @@ export function LmsDataProvider({ children }) {
           lastSyncedCompletedRef.current = JSON.stringify([...compRow.overview.itemIds].sort());
           setCompletedMilestoneItemIds(compRow.overview.itemIds);
         }
+
+        const attRow = milesData.find(m => m.id === 'attendance_data');
+        if (attRow && attRow.overview && attRow.overview.attendanceData) {
+          setAttendanceData(attRow.overview.attendanceData);
+          setAttendanceLastSynced(attRow.updated_at || new Date().toISOString());
+        } else {
+          fetchAttendanceData();
+        }
       } else {
         isMilestonesHydratedRef.current = true;
+        fetchAttendanceData();
       }
 
       // 9. Fetch Projects Catalog
@@ -2471,6 +2643,9 @@ export function LmsDataProvider({ children }) {
             setCompletedMilestoneItemIds(incomingIds);
           } else if (row.id === 'badges_data' && Array.isArray(row.overview?.badges)) {
             setBadges(row.overview.badges);
+          } else if (row.id === 'attendance_data' && row.overview?.attendanceData) {
+            setAttendanceData(row.overview.attendanceData);
+            setAttendanceLastSynced(row.updated_at || new Date().toISOString());
           }
         }
       });
@@ -5749,7 +5924,16 @@ export function LmsDataProvider({ children }) {
         getItemLockStatus,
         getLocksForCourse,
         refreshData: fetchSupabaseData,
-        fetchSupabaseData
+        fetchSupabaseData,
+        attendanceData,
+        setAttendanceData,
+        isLoadingAttendance,
+        isSavingAttendance,
+        attendanceLastSynced,
+        saveAttendanceData,
+        fetchAttendanceData,
+        bulkMarkAttendance,
+        resetAttendanceSession
       }}
     >
       {children}
@@ -5765,6 +5949,15 @@ const defaultLmsDataContext = {
   recordings: [],
   refreshData: async () => {},
   fetchSupabaseData: async () => {},
+  attendanceData: {},
+  setAttendanceData: () => {},
+  isLoadingAttendance: false,
+  isSavingAttendance: false,
+  attendanceLastSynced: null,
+  saveAttendanceData: async () => {},
+  fetchAttendanceData: async () => {},
+  bulkMarkAttendance: async () => {},
+  resetAttendanceSession: async () => {},
   completedMilestoneItemIds: [],
   toggleItemCompletion: () => {},
   markItemCompleted: () => {},

@@ -13,6 +13,7 @@ export const PERMISSION_LIST = [
 
   // Batch & Student Operations
   { id: 'manage_batches', name: 'Batch Management & Schedule Tracking', category: 'Batch & Student Ops' },
+  { id: 'manage_attendance', name: 'Attendance & Tracking', category: 'Batch & Student Ops' },
   { id: 'manage_milestones', name: 'Curriculum Milestones & Roadmap', category: 'Batch & Student Ops' },
   { id: 'manage_students', name: 'Student Directory & Progress Tracking', category: 'Batch & Student Ops' },
 
@@ -39,6 +40,7 @@ export const INITIAL_ROLE_PERMISSIONS = {
   [ROLES.ADMIN]: [
     'view_dashboard',
     'manage_batches',
+    'manage_attendance',
     'manage_milestones',
     'manage_students',
     'manage_users',
@@ -59,6 +61,7 @@ export const INITIAL_ROLE_PERMISSIONS = {
   [ROLES.MANAGER]: [
     'view_dashboard',
     'manage_batches',
+    'manage_attendance',
     'manage_milestones',
     'manage_students',
     'create_course',
@@ -74,6 +77,7 @@ export const INITIAL_ROLE_PERMISSIONS = {
   [ROLES.INSTRUCTOR]: [
     'view_dashboard',
     'manage_batches',
+    'manage_attendance',
     'manage_milestones',
     'manage_students',
     'create_course',

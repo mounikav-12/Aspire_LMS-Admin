@@ -30,6 +30,7 @@ const StudentDashboardPage = lazy(() => import('../pages/student/StudentDashboar
 const StudentManagementPage = lazy(() => import('../pages/student/StudentManagementPage').then(m => ({ default: m.StudentManagementPage })));
 const MilestonesRoadmapPage = lazy(() => import('../pages/milestones/MilestonesRoadmapPage').then(m => ({ default: m.MilestonesRoadmapPage })));
 const BatchManagementPage = lazy(() => import('../pages/batches/BatchManagementPage').then(m => ({ default: m.BatchManagementPage })));
+const AttendancePage = lazy(() => import('../pages/attendance/AttendancePage').then(m => ({ default: m.AttendancePage })));
 const BadgesPage = lazy(() => import('../pages/badges/BadgesPage').then(m => ({ default: m.BadgesPage })));
 
 function PageLoader() {
@@ -101,6 +102,7 @@ export function AppRoutes() {
           >
             <Route path="/dashboard" element={<SuperAdminDashboard />} />
             <Route path="/batches" element={<BatchManagementPage />} />
+            <Route path="/attendance" element={<AttendancePage />} />
             <Route path="/milestones" element={<MilestonesRoadmapPage />} />
             <Route path="/students" element={<StudentManagementPage />} />
             <Route path="/users" element={<UserManagementPage />} />

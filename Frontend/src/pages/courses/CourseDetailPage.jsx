@@ -398,8 +398,14 @@ export function CourseDetailPage() {
             </div>
           </div>
 
-          <div className="w-full lg:w-72 h-44 rounded-2xl overflow-hidden shadow-lg border border-slate-200 flex-shrink-0 bg-slate-900">
-            <img src={course.thumbnail} alt={course.title} className="w-full h-full object-contain" />
+          <div className="relative w-full lg:w-80 aspect-[16/9] rounded-2xl overflow-hidden shadow-lg border border-slate-200 flex-shrink-0 bg-slate-950">
+            {course.thumbnail && (
+              <div
+                className="absolute inset-0 bg-cover bg-center blur-md scale-110 opacity-30 pointer-events-none"
+                style={{ backgroundImage: `url(${course.thumbnail})` }}
+              />
+            )}
+            <img src={course.thumbnail} alt={course.title} className="relative z-10 w-full h-full object-cover" />
           </div>
         </div>
       </div>

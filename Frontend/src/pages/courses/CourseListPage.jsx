@@ -189,15 +189,27 @@ function CourseCardItem({ course, onViewBatches, onEdit, onDelete, milestones })
     >
       {/* Top Section */}
       <div>
-        {/* Fixed Height Thumbnail Header */}
-        <div className="relative h-44 w-full overflow-hidden bg-slate-900">
+        {/* Responsive 16:9 Thumbnail Header - Full width fit without cutting */}
+        <div className="relative w-full aspect-[16/9] overflow-hidden bg-slate-950">
+          {/* Ambient blurred backdrop for seamless edge-to-edge aesthetics */}
+          {course.thumbnail && (
+            <div
+              className="absolute inset-0 bg-cover bg-center blur-md scale-110 opacity-30 pointer-events-none"
+              style={{ backgroundImage: `url(${course.thumbnail})` }}
+            />
+          )}
           <img
             src={course.thumbnail}
             alt={course.title}
-            className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500 opacity-90 group-hover:opacity-100"
+            className="relative z-10 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            loading="lazy"
           />
+
+          {/* Subtle gradient scrim at top for contrast behind badges without obscuring image */}
+          <div className="absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-black/40 via-black/10 to-transparent z-10 pointer-events-none" />
+
           {/* Category Pill Top Left */}
-          <div className="absolute top-3 left-3 flex flex-col gap-1 items-start">
+          <div className="absolute top-3 left-3 flex flex-col gap-1 items-start z-20">
             <span className="bg-slate-950/80 text-white text-[11px] font-bold px-3 py-1 rounded-lg backdrop-blur-md border border-white/10 shadow-sm">
               {course.category}
             </span>
@@ -205,7 +217,7 @@ function CourseCardItem({ course, onViewBatches, onEdit, onDelete, milestones })
 
           {/* Actions Top Right */}
           <div
-            className="absolute top-3 right-3 flex items-center gap-1 bg-white/95 backdrop-blur-md p-1 rounded-xl shadow-md border border-slate-200/60 z-10"
+            className="absolute top-3 right-3 flex items-center gap-1 bg-white/95 backdrop-blur-md p-1 rounded-xl shadow-md border border-slate-200/60 z-20"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Eye Symbol Button (View & Select Batches Popup) */}

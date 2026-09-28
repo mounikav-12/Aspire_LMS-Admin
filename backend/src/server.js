@@ -89,6 +89,10 @@ app.get('/api/db-status', async (req, res) => {
     const { data: courses } = await supabase.from('courses').select('id, title');
     const { data: jobs } = await supabase.from('jobs').select('id, company, job_title, salary');
     const { data: liveSessions } = await supabase.from('live_sessions').select('id, session_title');
+    const { data: attRow } = await supabase.from('milestones_data').select('*').eq('id', 'attendance_data').single();
+    const attSessions = attRow?.overview?.attendanceData
+      ? Object.values(attRow.overview.attendanceData).reduce((acc, b) => acc + Object.keys(b || {}).length, 0)
+      : 0;
 
     res.json({
       success: true,
@@ -97,7 +101,8 @@ app.get('/api/db-status', async (req, res) => {
         profiles: profiles?.length || 0,
         courses: courses?.length || 0,
         jobs: jobs?.length || 0,
-        liveSessions: liveSessions?.length || 0
+        liveSessions: liveSessions?.length || 0,
+        attendanceSessions: attSessions
       },
       data: { profiles: profiles || [], courses: courses || [], jobs: jobs || [], liveSessions: liveSessions || [] }
     });
@@ -1010,6 +1015,288 @@ app.post('/api/rewards/lock-all', async (req, res) => {
 });
 
 // =========================================================
+// 7B. ATTENDANCE REALTIME DATABASE APIS
+// =========================================================
+const getPastDateStr = (daysAgo) => {
+  const d = new Date();
+  d.setDate(d.getDate() - daysAgo);
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+};
+
+const DEFAULT_ATTENDANCE_SEED = {
+  'A26W1': {
+    [getPastDateStr(1)]: {
+      'std-1789127160681': { status: 'present', remarks: 'Active on-time participation' },
+      'std-1789126477358': { status: 'late', remarks: 'Joined 10 mins late due to connectivity' }
+    },
+    [getPastDateStr(2)]: {
+      'std-1789127160681': { status: 'present', remarks: 'Full attendance' },
+      'std-1789126477358': { status: 'present', remarks: 'Full attendance' }
+    }
+  },
+  'A26S1': {
+    [getPastDateStr(1)]: {
+      'std-1789821629947': { status: 'present', remarks: 'Active participant & submitted assignment' }
+    },
+    [getPastDateStr(2)]: {
+      'std-1789821629947': { status: 'late', remarks: 'Traffic delay 15m' }
+    }
+  }
+};
+
+let inMemoryAttendanceCache = null;
+
+// Helper: load attendance data from Supabase or fallback
+const getDbAttendanceData = async () => {
+  try {
+    const { data, error } = await supabase
+      .from('milestones_data')
+      .select('*')
+      .eq('id', 'attendance_data')
+      .single();
+
+    if (!error && data && data.overview && data.overview.attendanceData) {
+      inMemoryAttendanceCache = data.overview.attendanceData;
+      return { attendanceData: data.overview.attendanceData, updatedAt: data.updated_at };
+    }
+  } catch (err) {
+    console.warn('[Attendance] Supabase fetch error, using cache/seed:', err.message);
+  }
+
+  if (!inMemoryAttendanceCache) {
+    inMemoryAttendanceCache = JSON.parse(JSON.stringify(DEFAULT_ATTENDANCE_SEED));
+    // Auto-seed to Supabase milestones_data
+    try {
+      await supabase.from('milestones_data').upsert([{
+        id: 'attendance_data',
+        overview: { attendanceData: inMemoryAttendanceCache },
+        stages: [],
+        updated_at: new Date().toISOString()
+      }]);
+    } catch (seedErr) {
+      console.warn('[Attendance] Initial auto-seed note:', seedErr.message);
+    }
+  }
+
+  return { attendanceData: inMemoryAttendanceCache, updatedAt: new Date().toISOString() };
+};
+
+// Helper: persist attendance data to Supabase and cache
+const saveDbAttendanceData = async (newAttendanceData) => {
+  inMemoryAttendanceCache = newAttendanceData;
+  const now = new Date().toISOString();
+
+  let dbSuccess = false;
+  try {
+    const { error } = await supabase.from('milestones_data').upsert([{
+      id: 'attendance_data',
+      overview: { attendanceData: newAttendanceData },
+      stages: [],
+      updated_at: now
+    }]);
+
+    if (!error) {
+      dbSuccess = true;
+    } else {
+      console.warn('[Attendance] Supabase upsert error:', error.message);
+    }
+  } catch (e) {
+    console.warn('[Attendance] Database save error:', e.message);
+  }
+
+  return { success: true, dbSuccess, updatedAt: now };
+};
+
+// GET /api/attendance - fetch all attendance, or filtered by query ?batch=...&date=...
+app.get('/api/attendance', async (req, res) => {
+  try {
+    const { batch, date } = req.query;
+    const { attendanceData, updatedAt } = await getDbAttendanceData();
+
+    if (batch && date) {
+      const roster = attendanceData[batch]?.[date] || {};
+      return res.json({ success: true, batch, date, roster, updatedAt });
+    }
+
+    if (batch) {
+      const batchRecords = attendanceData[batch] || {};
+      return res.json({ success: true, batch, records: batchRecords, updatedAt });
+    }
+
+    res.json({
+      success: true,
+      attendanceData,
+      updatedAt,
+      batchesTracked: Object.keys(attendanceData).length
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// GET /api/attendance/:batch - fetch attendance sessions for a specific batch
+app.get('/api/attendance/:batch', async (req, res) => {
+  try {
+    const { batch } = req.params;
+    const { attendanceData, updatedAt } = await getDbAttendanceData();
+    const batchRecords = attendanceData[batch] || {};
+    res.json({ success: true, batch, records: batchRecords, updatedAt });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// GET /api/attendance/:batch/:date - fetch attendance roster for a specific batch & date
+app.get('/api/attendance/:batch/:date', async (req, res) => {
+  try {
+    const { batch, date } = req.params;
+    const { attendanceData, updatedAt } = await getDbAttendanceData();
+    const roster = attendanceData[batch]?.[date] || {};
+    res.json({ success: true, batch, date, roster, updatedAt });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// POST & PUT /api/attendance - save or update attendance records
+const handleAttendanceSave = async (req, res) => {
+  try {
+    const { batchCode, date, roster, attendanceData: fullPayload } = req.body;
+    const { attendanceData: existingData } = await getDbAttendanceData();
+    const updatedData = { ...existingData };
+
+    if (fullPayload && typeof fullPayload === 'object') {
+      Object.keys(fullPayload).forEach((b) => {
+        updatedData[b] = { ...(updatedData[b] || {}), ...(fullPayload[b] || {}) };
+      });
+    } else if (batchCode && date) {
+      if (!updatedData[batchCode]) {
+        updatedData[batchCode] = {};
+      }
+      updatedData[batchCode][date] = roster || {};
+    } else {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid payload. Provide either { batchCode, date, roster } or { attendanceData }.'
+      });
+    }
+
+    const { updatedAt, dbSuccess } = await saveDbAttendanceData(updatedData);
+
+    res.json({
+      success: true,
+      message: batchCode && date
+        ? `Attendance for ${batchCode} on ${date} saved successfully.`
+        : 'Attendance records updated successfully.',
+      updatedAt,
+      dbSuccess,
+      attendanceData: updatedData
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+app.post('/api/attendance', handleAttendanceSave);
+app.put('/api/attendance', handleAttendanceSave);
+
+// POST /api/attendance/bulk-mark - bulk mark students in a batch for a date
+app.post('/api/attendance/bulk-mark', async (req, res) => {
+  try {
+    const { batchCode, date, status, studentIds } = req.body;
+    if (!batchCode || !date || !status) {
+      return res.status(400).json({ success: false, message: 'batchCode, date, and status are required.' });
+    }
+
+    const { attendanceData } = await getDbAttendanceData();
+    const updatedData = { ...attendanceData };
+    if (!updatedData[batchCode]) updatedData[batchCode] = {};
+    if (!updatedData[batchCode][date]) updatedData[batchCode][date] = {};
+
+    let targetIds = studentIds;
+    if (!targetIds || !Array.isArray(targetIds) || targetIds.length === 0) {
+      const { data: dbStudents } = await supabase.from('students').select('id').eq('batch', batchCode);
+      targetIds = dbStudents ? dbStudents.map(s => s.id) : [];
+    }
+
+    targetIds.forEach((id) => {
+      const existing = updatedData[batchCode][date][id] || {};
+      updatedData[batchCode][date][id] = {
+        ...existing,
+        status: status.toLowerCase()
+      };
+    });
+
+    const { updatedAt, dbSuccess } = await saveDbAttendanceData(updatedData);
+
+    res.json({
+      success: true,
+      message: `Marked ${targetIds.length} students as ${status.toUpperCase()} for ${batchCode} on ${date}.`,
+      roster: updatedData[batchCode][date],
+      updatedAt,
+      dbSuccess
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// POST /api/attendance/reset - clear attendance marks for a batch and date
+app.post('/api/attendance/reset', async (req, res) => {
+  try {
+    const { batchCode, date } = req.body;
+    if (!batchCode || !date) {
+      return res.status(400).json({ success: false, message: 'batchCode and date are required.' });
+    }
+
+    const { attendanceData } = await getDbAttendanceData();
+    const updatedData = { ...attendanceData };
+    if (updatedData[batchCode]) {
+      updatedData[batchCode][date] = {};
+    }
+
+    const { updatedAt, dbSuccess } = await saveDbAttendanceData(updatedData);
+
+    res.json({
+      success: true,
+      message: `Cleared attendance marks for ${batchCode} on ${date}.`,
+      roster: {},
+      updatedAt,
+      dbSuccess
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// DELETE /api/attendance/:batch/:date - delete session attendance records
+app.delete('/api/attendance/:batch/:date', async (req, res) => {
+  try {
+    const { batch, date } = req.params;
+    const { attendanceData } = await getDbAttendanceData();
+    const updatedData = { ...attendanceData };
+
+    if (updatedData[batch] && updatedData[batch][date]) {
+      delete updatedData[batch][date];
+    }
+
+    const { updatedAt, dbSuccess } = await saveDbAttendanceData(updatedData);
+
+    res.json({
+      success: true,
+      message: `Attendance session ${date} for ${batch} deleted.`,
+      updatedAt,
+      dbSuccess
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// =========================================================
 // 8. STUDENT LMS FEED API BROADCAST
 // =========================================================
 app.get('/api/v1/student-feed', async (req, res) => {
@@ -1022,12 +1309,14 @@ app.get('/api/v1/student-feed', async (req, res) => {
     const { data: lessons } = await supabase.from('course_lessons').select('*');
     const { data: locks } = await supabase.from('milestone_locks').select('*');
     const { data: rewardsData } = await supabase.from('rewards').select('*');
+    const { attendanceData } = await getDbAttendanceData();
 
     res.json({
       status: 'Connected & Syncing',
       endpoint: '/api/v1/student-feed',
       lastSynced: new Date().toISOString(),
       feedPayload: {
+        attendance: attendanceData || {},
         milestones: milestonesData || [],
         courseLessons: lessons || [],
         milestoneLocks: locks || [],
