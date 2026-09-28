@@ -208,6 +208,7 @@ export function AuthProvider({ children }) {
           role: sbAuthData.user.user_metadata?.role || ROLES.INSTRUCTOR,
           originalRole: sbAuthData.user.user_metadata?.role || ROLES.INSTRUCTOR,
           department: sbAuthData.user.user_metadata?.department || 'General Staff',
+          batch: sbAuthData.user.user_metadata?.batch || 'None',
           avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(emailClean)}`
         };
         const cleanUser = sanitizeUser(sbUser);
@@ -239,6 +240,7 @@ export function AuthProvider({ children }) {
             status: dbProfile.status || 'Active',
             joinedDate: dbProfile.joined_date || null,
             phone: dbProfile.phone || '+91 98765-43210',
+            batch: dbProfile.batch || 'None',
             avatar: dbProfile.avatar || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(dbProfile.name || 'User')}&backgroundColor=2563eb&textColor=ffffff&bold=true`
           };
           const cleanUser = sanitizeUser(matchedUser);
@@ -359,7 +361,8 @@ export function AuthProvider({ children }) {
           email: updated.email,
           phone: updated.phone,
           department: updated.department,
-          avatar: updated.avatar
+          avatar: updated.avatar,
+          batch: updated.batch !== undefined ? updated.batch : 'None'
         };
 
         if (updatedFields.password) {

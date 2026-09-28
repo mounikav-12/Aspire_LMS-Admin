@@ -389,13 +389,17 @@ export function LmsDataProvider({ children }) {
           const newEmail = currentUser.email || target.email;
           const newDept = currentUser.department || target.department;
           const newPhone = currentUser.phone || target.phone;
+          const newBatch = (target.batch && target.batch !== 'None' && target.batch !== 'none' && target.batch !== 'Not Assigned')
+            ? target.batch
+            : (currentUser.batch || target.batch || 'None');
 
           if (
             target.avatar !== newAvatar ||
             target.name !== newName ||
             target.email !== newEmail ||
             target.department !== newDept ||
-            target.phone !== newPhone
+            target.phone !== newPhone ||
+            target.batch !== newBatch
           ) {
             updatedUsers[existingIdx] = {
               ...target,
@@ -403,7 +407,8 @@ export function LmsDataProvider({ children }) {
               name: newName,
               email: newEmail,
               department: newDept,
-              phone: newPhone
+              phone: newPhone,
+              batch: newBatch
             };
             hasChanges = true;
           }
@@ -419,6 +424,7 @@ export function LmsDataProvider({ children }) {
             status: 'Active',
             joinedDate: currentUser.joinedDate || new Date().toISOString().split('T')[0],
             phone: currentUser.phone || '+91 98765-43210',
+            batch: currentUser.batch || 'None',
             avatar: (currentUser.avatar && !currentUser.avatar.includes('unsplash.com')) ? currentUser.avatar : defaultAvatar
           });
           hasChanges = true;
@@ -453,6 +459,7 @@ export function LmsDataProvider({ children }) {
               status: 'Active',
               joinedDate: regUser.joinedDate || new Date().toISOString().split('T')[0],
               phone: regUser.phone || '+91 98765-43210',
+              batch: regUser.batch || 'None',
               avatar: cleanRegAvatar
             });
             hasChanges = true;
@@ -1917,6 +1924,11 @@ export function LmsDataProvider({ children }) {
           const rawAvatar = (isCurrent && currentUser?.avatar) ? currentUser.avatar : u.avatar;
           const userAvatar = (rawAvatar && !rawAvatar.includes('unsplash.com')) ? rawAvatar : defaultAvatar;
 
+          const userBatchStr = u.batch || 'None';
+          const parsedBatches = userBatchStr === 'None' || !userBatchStr.trim()
+            ? []
+            : userBatchStr.split(',').map((s) => s.trim()).filter(Boolean);
+
           return {
             id: u.id,
             name: u.id === 'usr-1' ? 'Super Admin' : (u.name || ''),
@@ -1927,6 +1939,8 @@ export function LmsDataProvider({ children }) {
             status: u.status || 'Active',
             joinedDate: u.joined_date || u.joinedDate || '',
             phone: u.phone || '+91 98765-43210',
+            batch: userBatchStr,
+            batches: Array.isArray(u.batches) ? u.batches : parsedBatches,
             avatar: userAvatar
           };
         }));
@@ -3328,6 +3342,13 @@ export function LmsDataProvider({ children }) {
     const defaultInitAvatar = `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(nameSeed)}&backgroundColor=2563eb&textColor=ffffff&bold=true`;
     const cleanAvatar = (userData.avatar && !userData.avatar.includes('unsplash.com')) ? userData.avatar : defaultInitAvatar;
 
+    const resolvedBatches = Array.isArray(userData.batches)
+      ? userData.batches.filter((b) => b && b !== 'None' && b !== 'none')
+      : (userData.batch && userData.batch !== 'None'
+          ? userData.batch.split(',').map((s) => s.trim()).filter(Boolean)
+          : []);
+    const resolvedBatchStr = resolvedBatches.length > 0 ? resolvedBatches.join(', ') : 'None';
+
     const newUser = {
       id: `usr-${Date.now()}`,
       joinedDate: new Date().toISOString().split('T')[0],
@@ -3335,6 +3356,8 @@ export function LmsDataProvider({ children }) {
       role: userData.role || ROLES.INSTRUCTOR,
       originalRole: userData.role || ROLES.INSTRUCTOR,
       phone: userData.phone || '+91 98765-43210',
+      batch: resolvedBatchStr,
+      batches: resolvedBatches,
       ...userData,
       avatar: cleanAvatar
     };
@@ -3352,6 +3375,7 @@ export function LmsDataProvider({ children }) {
       status: 'Active',
       joined_date: newUser.joinedDate,
       phone: newUser.phone,
+      batch: newUser.batch || 'None',
       avatar: newUser.avatar
     };
 
@@ -3364,8 +3388,20 @@ export function LmsDataProvider({ children }) {
   };
 
   const updateUser = async (id, updatedFields) => {
+    let normalized = { ...updatedFields };
+    if (updatedFields.batches !== undefined && Array.isArray(updatedFields.batches)) {
+      const cleanBatches = updatedFields.batches.filter((b) => b && b !== 'None' && b !== 'none');
+      normalized.batch = cleanBatches.length > 0 ? cleanBatches.join(', ') : 'None';
+      normalized.batches = cleanBatches;
+    } else if (updatedFields.batch !== undefined && typeof updatedFields.batch === 'string') {
+      normalized.batches =
+        updatedFields.batch === 'None' || !updatedFields.batch.trim()
+          ? []
+          : updatedFields.batch.split(',').map((s) => s.trim()).filter((b) => b && b !== 'None' && b !== 'none');
+    }
+
     setUsers((prev) =>
-      prev.map((u) => (u.id === id ? { ...u, ...updatedFields } : u))
+      prev.map((u) => (u.id === id ? { ...u, ...normalized } : u))
     );
     logActivity(`Updated staff details for user ID ${id}`, 'user');
 
@@ -3374,19 +3410,20 @@ export function LmsDataProvider({ children }) {
       updateUserProfile &&
       (id === currentUser.id || (currentUser.email && updatedFields.email === currentUser.email))
     ) {
-      updateUserProfile(updatedFields);
+      updateUserProfile(normalized);
     }
 
     const dbFields = {};
-    if (updatedFields.name !== undefined) dbFields.name = updatedFields.name;
-    if (updatedFields.email !== undefined) dbFields.email = updatedFields.email;
-    if (updatedFields.role !== undefined) {
-      dbFields.role = updatedFields.role;
-      dbFields.original_role = updatedFields.role;
+    if (normalized.name !== undefined) dbFields.name = normalized.name;
+    if (normalized.email !== undefined) dbFields.email = normalized.email;
+    if (normalized.role !== undefined) {
+      dbFields.role = normalized.role;
+      dbFields.original_role = normalized.role;
     }
-    if (updatedFields.department !== undefined) dbFields.department = updatedFields.department;
-    if (updatedFields.phone !== undefined) dbFields.phone = updatedFields.phone;
-    if (updatedFields.avatar !== undefined) dbFields.avatar = updatedFields.avatar;
+    if (normalized.department !== undefined) dbFields.department = normalized.department;
+    if (normalized.phone !== undefined) dbFields.phone = normalized.phone;
+    if (normalized.avatar !== undefined) dbFields.avatar = normalized.avatar;
+    if (normalized.batch !== undefined) dbFields.batch = normalized.batch;
 
     try {
       const { error } = await supabase.from('profiles').update(dbFields).eq('id', id);

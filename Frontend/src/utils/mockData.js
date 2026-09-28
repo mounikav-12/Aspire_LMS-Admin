@@ -105,6 +105,8 @@ export const INITIAL_USERS = [
     department: 'Executive Leadership',
     status: 'Active',
     joinedDate: '2025-01-15',
+    batch: 'None',
+    batches: [],
     avatar: 'https://api.dicebear.com/7.x/initials/svg?seed=Super%20Admin&backgroundColor=2563eb&textColor=ffffff&bold=true'
   }
 ];

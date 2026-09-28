@@ -2,6 +2,8 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useLmsData } from '../../context/LmsDataContext';
 import { useToast } from '../../context/ToastContext';
+import { useAuth } from '../../context/AuthContext';
+import { ROLES } from '../../utils/mockData';
 import {
   CalendarCheck,
   Calendar,
@@ -56,7 +58,9 @@ const formatReadableDate = (dateStr) => {
 const ATTENDANCE_STORAGE_KEY = 'aspire_lms_attendance_records';
 
 export function AttendancePage() {
+  const { currentUser, isSuperAdmin, currentRole } = useAuth();
   const {
+    users = [],
     availableBatches = [],
     students = [],
     attendanceData = {},
@@ -71,15 +75,69 @@ export function AttendancePage() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
 
+  // Match current user in live User Directory
+  const staffProfile = useMemo(() => {
+    if (!currentUser) return null;
+    return (
+      users.find(
+        (u) =>
+          u.id === currentUser.id ||
+          (currentUser.email && u.email?.toLowerCase() === currentUser.email?.toLowerCase())
+      ) || currentUser
+    );
+  }, [currentUser, users]);
+
+  // Determine if Super Admin (has global platform access across all batches)
+  const isSuperAdminUser =
+    isSuperAdmin ||
+    currentRole === ROLES.SUPER_ADMIN ||
+    currentUser?.originalRole === ROLES.SUPER_ADMIN ||
+    currentUser?.email?.toLowerCase() === 'aspireadmin@gmail.com';
+
+  // Parse assigned batch(es) for staff user from User Directory
+  const assignedBatchRaw = staffProfile?.batch || currentUser?.batch || '';
+  const staffBatches = useMemo(() => {
+    if (!assignedBatchRaw) return [];
+    if (Array.isArray(assignedBatchRaw)) {
+      return assignedBatchRaw.filter((b) => b && b !== 'None' && b !== 'none' && b !== 'Not Assigned');
+    }
+    if (typeof assignedBatchRaw === 'string') {
+      if (assignedBatchRaw === 'None' || assignedBatchRaw === 'none' || assignedBatchRaw === 'Not Assigned') return [];
+      return assignedBatchRaw
+        .split(',')
+        .map((b) => b.trim())
+        .filter((b) => b && b !== 'None' && b !== 'none' && b !== 'Not Assigned');
+    }
+    return [];
+  }, [assignedBatchRaw]);
+
+  // Effective visible batches:
+  // Super Admin sees all batches; Staff user sees ONLY their assigned batch(es) from User Directory
+  const userVisibleBatches = useMemo(() => {
+    if (isSuperAdminUser) {
+      return availableBatches;
+    }
+    const matched = availableBatches.filter((b) => staffBatches.includes(b));
+    if (matched.length > 0) return matched;
+    return staffBatches;
+  }, [isSuperAdminUser, availableBatches, staffBatches]);
+
+  // Check if staff has no batch assigned in User Directory
+  const hasNoAssignedBatch = !isSuperAdminUser && staffBatches.length === 0;
+
+  // Selected batch from URL query parameter
+  const selectedBatch = searchParams.get('batch') || null;
+
+  // Authorization check for selected batch:
+  // Super Admin can access any batch; Staff user can only access their assigned batch
+  const isBatchAuthorized = !selectedBatch || isSuperAdminUser || userVisibleBatches.includes(selectedBatch);
+
   // Clear legacy mock storage if present
   useEffect(() => {
     try {
       localStorage.removeItem('aspire_lms_attendance_mock_v3');
     } catch (e) {}
   }, []);
-
-  // Selected batch from URL query parameter
-  const selectedBatch = searchParams.get('batch') || null;
 
   // Active date for attendance (defaults to today)
   const [selectedDate, setSelectedDate] = useState(getTodayDateString());
@@ -113,6 +171,7 @@ export function AttendancePage() {
   // synchronize the roster state (unless user has active unsaved local edits)
   useEffect(() => {
     if (!selectedBatch) return;
+    if (!isBatchAuthorized) return;
     if (hasUnsavedChanges) return;
 
     const existingBatchDateData = attendanceData[selectedBatch]?.[selectedDate] || {};
@@ -129,10 +188,14 @@ export function AttendancePage() {
     });
 
     setCurrentRosterState(initialRoster);
-  }, [selectedBatch, selectedDate, students, attendanceData, hasUnsavedChanges]);
+  }, [selectedBatch, selectedDate, students, attendanceData, hasUnsavedChanges, isBatchAuthorized]);
 
   // Navigation helpers for Batch selection
   const handleSelectBatch = (batchCode) => {
+    if (!isSuperAdminUser && !userVisibleBatches.includes(batchCode)) {
+      addToast(`Access restricted: Batch ${batchCode} is not assigned to your account.`, 'error');
+      return;
+    }
     setSearchParams({ batch: batchCode });
     setStudentSearchTerm('');
     setStudentStatusFilter('ALL');
@@ -304,9 +367,9 @@ export function AttendancePage() {
     addToast(`Exported Attendance_${selectedBatch}_${selectedDate}.csv`, 'success');
   };
 
-  // Metrics for all batches (View A)
+  // Metrics for all batches (View A) - strictly scoped to userVisibleBatches
   const batchMetrics = useMemo(() => {
-    const list = availableBatches || [];
+    const list = userVisibleBatches || [];
     return list.map((bCode) => {
       const batchStudents = students.filter((s) => s.batch === bCode);
       const isWeekend = bCode.startsWith('A26S') || bCode.startsWith('A26WE');
@@ -350,7 +413,7 @@ export function AttendancePage() {
         totalSessionsLogged: allDates.length
       };
     });
-  }, [availableBatches, students, attendanceData, selectedDate]);
+  }, [userVisibleBatches, students, attendanceData, selectedDate]);
 
   // Filtered batches for View A
   const filteredBatches = useMemo(() => {
@@ -430,6 +493,51 @@ export function AttendancePage() {
   // VIEW B: SELECTED BATCH STUDENT ATTENDANCE ROSTER
   // =========================================================================
   if (selectedBatch) {
+    // Access guard: if staff user attempts to view a batch not assigned to them
+    if (!isBatchAuthorized) {
+      return (
+        <div className="p-4 md:p-6 max-w-2xl mx-auto my-12 animate-in fade-in duration-200">
+          <div className="bg-white rounded-3xl border border-amber-200/90 p-8 md:p-10 shadow-lg text-center space-y-5">
+            <div className="w-16 h-16 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center mx-auto border border-amber-200/60 shadow-inner">
+              <ShieldAlert className="w-9 h-9" />
+            </div>
+            <div>
+              <h2 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight">
+                Batch Access Restricted
+              </h2>
+              <p className="text-sm text-slate-600 mt-2 max-w-md mx-auto leading-relaxed">
+                Your staff profile is assigned to batch{' '}
+                <strong className="text-slate-900 font-bold">
+                  {staffBatches.length > 0 ? staffBatches.join(', ') : 'None'}
+                </strong>{' '}
+                in the User Directory. You do not have permission to view or mark attendance for batch{' '}
+                <strong className="text-rose-600 font-bold">{selectedBatch}</strong>.
+              </p>
+            </div>
+            <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+              {staffBatches.length > 0 ? (
+                <Button
+                  variant="primary"
+                  onClick={() => handleSelectBatch(staffBatches[0])}
+                  className="flex items-center gap-2 text-xs font-bold"
+                >
+                  <span>Go to My Assigned Batch ({staffBatches[0]})</span>
+                  <ArrowRight className="w-4 h-4" />
+                </Button>
+              ) : null}
+              <Button
+                variant="outline"
+                onClick={handleBackToBatches}
+                className="text-xs font-bold"
+              >
+                Return to Batches
+              </Button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
     const isWeekend = selectedBatch.startsWith('A26S') || selectedBatch.startsWith('A26WE');
 
     return (
@@ -458,6 +566,12 @@ export function AttendancePage() {
                 >
                   {isWeekend ? 'Weekend' : 'Weekday'}
                 </span>
+                {!isSuperAdminUser && (
+                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200/80 shadow-2xs">
+                    <UserCheck className="w-3 h-3 text-blue-600" />
+                    <span>My Assigned Batch</span>
+                  </span>
+                )}
                 {hasUnsavedChanges && !isPastDate && (
                   <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800 animate-pulse">
                     ● Unsaved Changes
@@ -568,7 +682,7 @@ export function AttendancePage() {
                 maxDate={todayDateString}
                 batchCode={selectedBatch}
                 attendanceData={attendanceData}
-                availableBatches={availableBatches}
+                availableBatches={userVisibleBatches}
               />
 
               <button
@@ -1022,8 +1136,8 @@ export function AttendancePage() {
   // =========================================================================
   // VIEW A: ALL BATCH CARDS OVERVIEW
   // =========================================================================
-  const totalEnrolledAcrossBatches = students.length;
-  const totalBatchesCount = availableBatches.length;
+  const totalEnrolledAcrossBatches = students.filter((s) => userVisibleBatches.includes(s.batch)).length;
+  const totalBatchesCount = userVisibleBatches.length;
   const markedTodayCount = batchMetrics.filter((b) => b.isMarked).length;
 
   return (
@@ -1049,8 +1163,34 @@ export function AttendancePage() {
                 </span>
               </div>
               <p className="text-xs md:text-sm text-slate-500 font-medium mt-0.5">
-                Select an active cohort to mark daily student presence, log notes, and manage attendance records.
+                {isSuperAdminUser
+                  ? 'Select an active cohort to mark daily student presence, log notes, and manage attendance records.'
+                  : 'Manage daily attendance records and student rosters for your assigned cohort.'}
               </p>
+              {!isSuperAdminUser && (
+                <div className="flex flex-wrap items-center gap-2 mt-2">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200/80 shadow-2xs">
+                    <UserCheck className="w-3.5 h-3.5 text-blue-600" />
+                    <span>
+                      Assigned Staff Batch:{' '}
+                      <strong className="text-blue-900 font-extrabold">
+                        {staffBatches.length > 0 ? staffBatches.join(', ') : 'None'}
+                      </strong>
+                    </span>
+                  </span>
+                  <span className="text-xs text-slate-500 font-medium">
+                    (Showing attendance for your assigned batch only)
+                  </span>
+                </div>
+              )}
+              {isSuperAdminUser && (
+                <div className="flex items-center gap-2 mt-2">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold bg-slate-100 text-slate-700 border border-slate-200/80 shadow-2xs">
+                    <Layers className="w-3.5 h-3.5 text-slate-600" />
+                    <span>Super Admin Mode: <strong>All Batches ({availableBatches.length})</strong></span>
+                  </span>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -1086,7 +1226,7 @@ export function AttendancePage() {
               maxDate={todayDateString}
               batchCode={null}
               attendanceData={attendanceData}
-              availableBatches={availableBatches}
+              availableBatches={userVisibleBatches}
             />
 
             <button
@@ -1125,7 +1265,9 @@ export function AttendancePage() {
             <Layers className="w-6 h-6" />
           </div>
           <div>
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Active Batches</p>
+            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+              {isSuperAdminUser ? 'Active Batches' : 'Assigned Batches'}
+            </p>
             <p className="text-2xl font-black text-slate-900 mt-0.5">{totalBatchesCount}</p>
           </div>
         </div>
@@ -1135,7 +1277,9 @@ export function AttendancePage() {
             <Users className="w-6 h-6" />
           </div>
           <div>
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Enrolled Students</p>
+            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+              {isSuperAdminUser ? 'Enrolled Students' : 'Assigned Students'}
+            </p>
             <p className="text-2xl font-black text-slate-900 mt-0.5">{totalEnrolledAcrossBatches}</p>
           </div>
         </div>
@@ -1209,7 +1353,28 @@ export function AttendancePage() {
       </div>
 
       {/* Batch Cards Grid */}
-      {filteredBatches.length === 0 ? (
+      {hasNoAssignedBatch ? (
+        <div className="bg-white rounded-3xl border border-amber-200/80 p-10 md:p-12 text-center shadow-2xs max-w-2xl mx-auto space-y-4">
+          <div className="w-16 h-16 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center mx-auto border border-amber-200/60 shadow-inner">
+            <ShieldAlert className="w-8 h-8" />
+          </div>
+          <div>
+            <h2 className="text-xl font-black text-slate-900">No Batch Assigned to Your Staff Account</h2>
+            <p className="text-sm text-slate-600 mt-2 max-w-lg mx-auto leading-relaxed">
+              Hello <strong className="text-slate-900">{staffProfile?.name || currentUser?.name || 'Staff Member'}</strong> ({currentRole || 'Staff'}), you are not assigned to any batch in the User Directory. Attendance records and student rosters are organized by batch cohort.
+            </p>
+            <p className="text-xs text-slate-500 mt-2">
+              Please contact an Administrator or Super Admin to assign your batch under the <strong>User Directory</strong>.
+            </p>
+          </div>
+          <div className="pt-2">
+            <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-bold bg-amber-50 text-amber-800 border border-amber-200">
+              <span>Assigned Batch Status:</span>
+              <span className="text-rose-600 font-extrabold uppercase">None Assigned</span>
+            </span>
+          </div>
+        </div>
+      ) : filteredBatches.length === 0 ? (
         <div className="bg-white rounded-2xl border border-slate-200/80 p-12 text-center shadow-2xs">
           <EmptyState
             icon={Layers}
@@ -1264,15 +1429,23 @@ export function AttendancePage() {
                     </div>
                   </div>
 
-                  <span
-                    className={`px-2.5 py-1 rounded-xl text-[11px] font-extrabold uppercase tracking-wide ${
-                      batch.isWeekend
-                        ? 'bg-purple-50 text-purple-700 border border-purple-200/80'
-                        : 'bg-blue-50 text-blue-700 border border-blue-200/80'
-                    }`}
-                  >
-                    {batch.category}
-                  </span>
+                  <div className="flex flex-col items-end gap-1">
+                    <span
+                      className={`px-2.5 py-1 rounded-xl text-[11px] font-extrabold uppercase tracking-wide ${
+                        batch.isWeekend
+                          ? 'bg-purple-50 text-purple-700 border border-purple-200/80'
+                          : 'bg-blue-50 text-blue-700 border border-blue-200/80'
+                      }`}
+                    >
+                      {batch.category}
+                    </span>
+                    {!isSuperAdminUser && (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
+                        <UserCheck className="w-3 h-3 text-blue-600" />
+                        <span>Assigned to You</span>
+                      </span>
+                    )}
+                  </div>
                 </div>
 
                 {/* Key Metrics Roster */}

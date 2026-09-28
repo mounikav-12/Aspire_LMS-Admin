@@ -140,9 +140,12 @@ CREATE TABLE IF NOT EXISTS public.profiles (
   joined_date TEXT,
   phone TEXT,
   avatar TEXT,
+  batch TEXT DEFAULT 'None',
   passwords TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS batch TEXT DEFAULT 'None';
 
 -- 10. ROLE PERMISSIONS TABLE
 CREATE TABLE IF NOT EXISTS public.role_permissions (

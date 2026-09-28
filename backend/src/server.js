@@ -1019,6 +1019,53 @@ app.post('/api/rewards/lock-all', async (req, res) => {
 // =========================================================
 let inMemoryAttendanceCache = null;
 
+// Helper: backfill rows from milestones_data into attendance_records table if it is ready
+const syncAttendanceDataToRecordsTable = async () => {
+  try {
+    const { data, error } = await supabase
+      .from('milestones_data')
+      .select('*')
+      .eq('id', 'attendance_data')
+      .single();
+
+    if (error || !data?.overview?.attendanceData) return false;
+
+    const fullData = data.overview.attendanceData;
+    const rows = [];
+    const now = new Date().toISOString();
+
+    Object.entries(fullData).forEach(([batchCode, dateMap]) => {
+      if (typeof dateMap !== 'object' || !dateMap) return;
+      Object.entries(dateMap).forEach(([dateStr, roster]) => {
+        if (typeof roster !== 'object' || !roster) return;
+        Object.entries(roster).forEach(([studentId, stData]) => {
+          if (!stData || !stData.status) return;
+          rows.push({
+            id: `att_${batchCode}_${dateStr}_${studentId}`,
+            batch_code: batchCode,
+            date: dateStr,
+            student_id: studentId,
+            status: stData.status,
+            remarks: stData.remarks || '',
+            updated_at: now
+          });
+        });
+      });
+    });
+
+    if (rows.length > 0) {
+      const { error: upsertErr } = await supabase.from('attendance_records').upsert(rows);
+      if (!upsertErr) {
+        console.log(`[Attendance] Auto-synced ${rows.length} records into attendance_records table`);
+        return true;
+      }
+    }
+  } catch (err) {
+    // silently ignore if attendance_records table does not yet have right schema
+  }
+  return false;
+};
+
 // Helper: load attendance data from Supabase attendance_records table or milestones_data fallback
 const getDbAttendanceData = async () => {
   // 1. Attempt to load from normalized attendance_records table
@@ -1046,6 +1093,9 @@ const getDbAttendanceData = async () => {
 
       inMemoryAttendanceCache = reconstructed;
       return { attendanceData: reconstructed, updatedAt: latestUpdated || new Date().toISOString() };
+    } else if (!recErr && Array.isArray(records) && records.length === 0) {
+      // Table exists but is empty: attempt auto-sync from milestones_data
+      await syncAttendanceDataToRecordsTable();
     }
   } catch (err) {
     console.warn('[Attendance] attendance_records query notice:', err.message);
@@ -1080,32 +1130,54 @@ const saveDbAttendanceData = async (newAttendanceData, specificBatch = null, spe
   const now = new Date().toISOString();
   let dbSuccess = false;
 
-  // 1. If specific batch, date, and roster are provided, persist row-by-row into attendance_records
-  if (specificBatch && specificDate && specificRoster && typeof specificRoster === 'object') {
-    try {
-      const rows = Object.entries(specificRoster)
+  // 1. Persist row-by-row into attendance_records table
+  try {
+    const rows = [];
+    if (specificBatch && specificDate && specificRoster && typeof specificRoster === 'object') {
+      Object.entries(specificRoster)
         .filter(([studentId, data]) => data && data.status)
-        .map(([studentId, data]) => ({
-          id: `att_${specificBatch}_${specificDate}_${studentId}`,
-          batch_code: specificBatch,
-          date: specificDate,
-          student_id: studentId,
-          status: data.status,
-          remarks: data.remarks || '',
-          updated_at: now
-        }));
-
-      if (rows.length > 0) {
-        const { error: upsertErr } = await supabase.from('attendance_records').upsert(rows);
-        if (!upsertErr) {
-          dbSuccess = true;
-        } else {
-          console.warn('[Attendance] attendance_records upsert note:', upsertErr.message);
-        }
-      }
-    } catch (e) {
-      console.warn('[Attendance] attendance_records row save note:', e.message);
+        .forEach(([studentId, data]) => {
+          rows.push({
+            id: `att_${specificBatch}_${specificDate}_${studentId}`,
+            batch_code: specificBatch,
+            date: specificDate,
+            student_id: studentId,
+            status: data.status,
+            remarks: data.remarks || '',
+            updated_at: now
+          });
+        });
+    } else if (newAttendanceData && typeof newAttendanceData === 'object') {
+      Object.entries(newAttendanceData).forEach(([batchCode, dateMap]) => {
+        if (typeof dateMap !== 'object' || !dateMap) return;
+        Object.entries(dateMap).forEach(([dateStr, roster]) => {
+          if (typeof roster !== 'object' || !roster) return;
+          Object.entries(roster).forEach(([studentId, data]) => {
+            if (!data || !data.status) return;
+            rows.push({
+              id: `att_${batchCode}_${dateStr}_${studentId}`,
+              batch_code: batchCode,
+              date: dateStr,
+              student_id: studentId,
+              status: data.status,
+              remarks: data.remarks || '',
+              updated_at: now
+            });
+          });
+        });
+      });
     }
+
+    if (rows.length > 0) {
+      const { error: upsertErr } = await supabase.from('attendance_records').upsert(rows);
+      if (!upsertErr) {
+        dbSuccess = true;
+      } else {
+        console.warn('[Attendance] attendance_records upsert note:', upsertErr.message);
+      }
+    }
+  } catch (e) {
+    console.warn('[Attendance] attendance_records row save note:', e.message);
   }
 
   // 2. Persist to milestones_data JSON store for instant atomic retrieval & backward compatibility
@@ -1129,10 +1201,21 @@ const saveDbAttendanceData = async (newAttendanceData, specificBatch = null, spe
   return { success: true, dbSuccess, updatedAt: now };
 };
 
-// GET /api/attendance - fetch all attendance, or filtered by query ?batch=...&date=...
+// POST /api/attendance/sync - manual or automatic sync between milestones_data and attendance_records
+app.post('/api/attendance/sync', async (req, res) => {
+  try {
+    const synced = await syncAttendanceDataToRecordsTable();
+    const { attendanceData, updatedAt } = await getDbAttendanceData();
+    res.json({ success: true, synced, attendanceData, updatedAt });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// GET /api/attendance - fetch all attendance, or filtered by query ?batch=...&date=... or ?batches=A26S1,A26S2
 app.get('/api/attendance', async (req, res) => {
   try {
-    const { batch, date } = req.query;
+    const { batch, batches, date } = req.query;
     const { attendanceData, updatedAt } = await getDbAttendanceData();
 
     if (batch && date) {
@@ -1143,6 +1226,22 @@ app.get('/api/attendance', async (req, res) => {
     if (batch) {
       const batchRecords = attendanceData[batch] || {};
       return res.json({ success: true, batch, records: batchRecords, updatedAt });
+    }
+
+    if (batches) {
+      const allowed = batches.split(',').map((b) => b.trim()).filter(Boolean);
+      const filtered = {};
+      allowed.forEach((b) => {
+        if (attendanceData[b]) {
+          filtered[b] = attendanceData[b];
+        }
+      });
+      return res.json({
+        success: true,
+        attendanceData: filtered,
+        updatedAt,
+        batchesTracked: Object.keys(filtered).length
+      });
     }
 
     res.json({
