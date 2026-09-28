@@ -59,7 +59,7 @@ export function AttendancePage() {
   const {
     availableBatches = [],
     students = [],
-    attendanceData: contextAttendanceData = {},
+    attendanceData = {},
     saveAttendanceData,
     isLoadingAttendance,
     isSavingAttendance: isContextSaving,
@@ -92,39 +92,10 @@ export function AttendancePage() {
   const [studentSearchTerm, setStudentSearchTerm] = useState('');
   const [studentStatusFilter, setStudentStatusFilter] = useState('ALL');
 
-  // Attendance Records State: { [batchCode]: { [dateStr]: { [studentId]: { status: 'present'|'absent'|'late', remarks: '' } } } }
-  const [attendanceData, setAttendanceData] = useState(() => {
-    if (contextAttendanceData && Object.keys(contextAttendanceData).length > 0) {
-      return contextAttendanceData;
-    }
-    try {
-      const stored = localStorage.getItem(ATTENDANCE_STORAGE_KEY);
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        if (parsed && typeof parsed === 'object') {
-          return parsed;
-        }
-      }
-    } catch (e) {
-      console.warn('Failed to load attendance from localStorage:', e);
-    }
-    return {};
-  });
-
   // Local draft state for the current batch and date before saving
   const [currentRosterState, setCurrentRosterState] = useState({});
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-
-  // Sync with context attendanceData whenever it is populated or updated from the backend
-  useEffect(() => {
-    if (contextAttendanceData && Object.keys(contextAttendanceData).length > 0) {
-      setAttendanceData(contextAttendanceData);
-      try {
-        localStorage.setItem(ATTENDANCE_STORAGE_KEY, JSON.stringify(contextAttendanceData));
-      } catch (e) {}
-    }
-  }, [contextAttendanceData]);
 
   // Initial fetch from backend API on mount
   useEffect(() => {
@@ -133,18 +104,16 @@ export function AttendancePage() {
     }
   }, []);
 
-  // Sync with localStorage whenever attendanceData changes
+  // When selectedBatch or selectedDate changes, reset unsaved draft flag
   useEffect(() => {
-    try {
-      localStorage.setItem(ATTENDANCE_STORAGE_KEY, JSON.stringify(attendanceData));
-    } catch (e) {
-      console.warn('Failed to save attendance to localStorage:', e);
-    }
-  }, [attendanceData]);
+    setHasUnsavedChanges(false);
+  }, [selectedBatch, selectedDate]);
 
-  // When selectedBatch or selectedDate changes, load existing records for that batch & date
+  // When selectedBatch, selectedDate, students, or realtime attendanceData updates,
+  // synchronize the roster state (unless user has active unsaved local edits)
   useEffect(() => {
     if (!selectedBatch) return;
+    if (hasUnsavedChanges) return;
 
     const existingBatchDateData = attendanceData[selectedBatch]?.[selectedDate] || {};
     const batchStudents = students.filter((s) => s.batch === selectedBatch);
@@ -160,8 +129,7 @@ export function AttendancePage() {
     });
 
     setCurrentRosterState(initialRoster);
-    setHasUnsavedChanges(false);
-  }, [selectedBatch, selectedDate, students, attendanceData]);
+  }, [selectedBatch, selectedDate, students, attendanceData, hasUnsavedChanges]);
 
   // Navigation helpers for Batch selection
   const handleSelectBatch = (batchCode) => {
@@ -292,21 +260,6 @@ export function AttendancePage() {
           throw new Error(errData.message || 'Failed to save attendance to backend');
         }
       }
-
-      setAttendanceData((prev) => {
-        const batchDates = prev[selectedBatch] || {};
-        const nextState = {
-          ...prev,
-          [selectedBatch]: {
-            ...batchDates,
-            [selectedDate]: currentRosterState
-          }
-        };
-        try {
-          localStorage.setItem(ATTENDANCE_STORAGE_KEY, JSON.stringify(nextState));
-        } catch (e) {}
-        return nextState;
-      });
 
       setHasUnsavedChanges(false);
       addToast(`Attendance for ${selectedBatch} (${selectedDate}) saved to database!`, 'success');
@@ -516,6 +469,13 @@ export function AttendancePage() {
                     Locked (Read-Only)
                   </span>
                 )}
+                <span
+                  className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200/80 shadow-2xs"
+                  title={attendanceLastSynced ? `Last database sync: ${new Date(attendanceLastSynced).toLocaleTimeString()}` : 'Connected to Supabase realtime broadcast'}
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  <span>Live Realtime</span>
+                </span>
               </div>
               <p className="text-xs md:text-sm text-slate-500 mt-0.5 font-medium">
                 {isPastDate
@@ -1076,9 +1036,18 @@ export function AttendancePage() {
               <CalendarCheck className="w-5 h-5" />
             </div>
             <div>
-              <h1 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight">
-                Attendance Management
-              </h1>
+              <div className="flex items-center gap-2.5">
+                <h1 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight">
+                  Attendance Management
+                </h1>
+                <span
+                  className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200/80 shadow-2xs"
+                  title={attendanceLastSynced ? `Last database sync: ${new Date(attendanceLastSynced).toLocaleTimeString()}` : 'Connected to Supabase realtime broadcast'}
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  <span>Realtime Sync Active</span>
+                </span>
+              </div>
               <p className="text-xs md:text-sm text-slate-500 font-medium mt-0.5">
                 Select an active cohort to mark daily student presence, log notes, and manage attendance records.
               </p>

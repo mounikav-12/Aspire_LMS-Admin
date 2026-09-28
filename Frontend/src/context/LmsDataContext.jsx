@@ -1591,9 +1591,15 @@ export function LmsDataProvider({ children }) {
     } catch (err) {
       console.warn('[Attendance] Backend save error, falling back to direct Supabase:', err);
       try {
-        const currentBatchDates = (attendanceData && attendanceData[batchCode]) || {};
+        const { data: latestRow } = await supabase
+          .from('milestones_data')
+          .select('*')
+          .eq('id', 'attendance_data')
+          .single();
+        const baseAll = latestRow?.overview?.attendanceData || attendanceData || {};
+        const currentBatchDates = baseAll[batchCode] || {};
         const updatedAll = {
-          ...(attendanceData || {}),
+          ...baseAll,
           [batchCode]: {
             ...currentBatchDates,
             [date]: roster
@@ -1606,6 +1612,7 @@ export function LmsDataProvider({ children }) {
           updated_at: new Date().toISOString()
         }]);
         if (sbErr) throw sbErr;
+        setAttendanceData(updatedAll);
         setAttendanceLastSynced(new Date().toISOString());
         return { success: true, fallback: true };
       } catch (sbErr) {
@@ -2591,6 +2598,13 @@ export function LmsDataProvider({ children }) {
       });
       // Milestones Realtime Channel
       makeChannel('milestones_data', (payload) => {
+        if (payload?.eventType === 'DELETE') {
+          if (payload.old?.id === 'attendance_data') {
+            setAttendanceData({});
+            setAttendanceLastSynced(new Date().toISOString());
+          }
+          return;
+        }
         if (payload?.new) {
           const row = payload.new;
           if (row.id === 'batch_data' && row.overview?.batchData) {
@@ -2643,8 +2657,9 @@ export function LmsDataProvider({ children }) {
             setCompletedMilestoneItemIds(incomingIds);
           } else if (row.id === 'badges_data' && Array.isArray(row.overview?.badges)) {
             setBadges(row.overview.badges);
-          } else if (row.id === 'attendance_data' && row.overview?.attendanceData) {
-            setAttendanceData(row.overview.attendanceData);
+          } else if (row.id === 'attendance_data') {
+            const incoming = row.overview?.attendanceData || {};
+            setAttendanceData(incoming);
             setAttendanceLastSynced(row.updated_at || new Date().toISOString());
           }
         }
