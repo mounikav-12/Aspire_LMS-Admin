@@ -185,7 +185,7 @@ function CourseCardItem({ course, onViewBatches, onEdit, onDelete, milestones })
   return (
     <div
       onClick={() => navigate(`/courses/${course.id}`)}
-      className="group bg-white rounded-3xl border border-slate-200/80 shadow-2xs hover:shadow-xl hover:border-blue-300 transition-all duration-300 hover:-translate-y-1 overflow-hidden flex flex-col justify-between h-full cursor-pointer"
+      className="group bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-2xs hover:shadow-xl hover:border-blue-300 dark:hover:border-blue-600 transition-all duration-300 hover:-translate-y-1 overflow-hidden flex flex-col justify-between h-full cursor-pointer"
     >
       {/* Top Section */}
       <div>
@@ -217,7 +217,7 @@ function CourseCardItem({ course, onViewBatches, onEdit, onDelete, milestones })
 
           {/* Actions Top Right */}
           <div
-            className="absolute top-3 right-3 flex items-center gap-1 bg-white/95 backdrop-blur-md p-1 rounded-xl shadow-md border border-slate-200/60 z-20"
+            className="absolute top-3 right-3 flex items-center gap-1 bg-white/95 dark:bg-slate-900/90 backdrop-blur-md p-1 rounded-xl shadow-md border border-slate-200/60 dark:border-slate-700/60 z-20"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Eye Symbol Button (View & Select Batches Popup) */}
@@ -227,7 +227,7 @@ function CourseCardItem({ course, onViewBatches, onEdit, onDelete, milestones })
                 e.stopPropagation();
                 onViewBatches(course);
               }}
-              className="p-1.5 text-slate-500 hover:text-blue-600 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
+              className="p-1.5 text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
               title="View & Select Course Batches"
             >
               <Eye className="w-3.5 h-3.5" />
@@ -238,7 +238,7 @@ function CourseCardItem({ course, onViewBatches, onEdit, onDelete, milestones })
                 e.stopPropagation();
                 onEdit(course);
               }}
-              className="p-1.5 text-slate-500 hover:text-blue-600 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
+              className="p-1.5 text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
               title="Edit Course"
             >
               <Edit2 className="w-3.5 h-3.5" />
@@ -249,7 +249,7 @@ function CourseCardItem({ course, onViewBatches, onEdit, onDelete, milestones })
                 e.stopPropagation();
                 onDelete(course);
               }}
-              className="p-1.5 text-slate-500 hover:text-rose-600 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
+              className="p-1.5 text-slate-500 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
               title="Delete Course"
             >
               <Trash2 className="w-3.5 h-3.5" />
@@ -261,13 +261,13 @@ function CourseCardItem({ course, onViewBatches, onEdit, onDelete, milestones })
         <div className="p-5 space-y-3">
 
           {/* Metrics Bar */}
-          <div className="flex items-center justify-between text-xs text-slate-500 pt-1">
-            <span className="flex items-center gap-1.5 font-semibold text-slate-600">
-              <Users className="w-4 h-4 text-blue-600 flex-shrink-0" />
+          <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 pt-1">
+            <span className="flex items-center gap-1.5 font-semibold text-slate-600 dark:text-slate-300">
+              <Users className="w-4 h-4 text-blue-600 dark:text-blue-400 flex-shrink-0" />
               <span>{course.enrolledCount} Students Enrolled</span>
             </span>
 
-            <span className="flex items-center gap-1 font-bold text-amber-600 bg-amber-50 px-2.5 py-0.5 rounded-lg border border-amber-200/60">
+            <span className="flex items-center gap-1 font-bold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/50 px-2.5 py-0.5 rounded-lg border border-amber-200/60 dark:border-amber-800/60">
               <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
               <span>{course.rating}</span>
             </span>
@@ -275,19 +275,19 @@ function CourseCardItem({ course, onViewBatches, onEdit, onDelete, milestones })
 
           {/* Fixed Min-Height Title */}
           <div className="min-h-[2.75rem] flex items-center">
-            <h3 className="font-bold text-slate-900 text-base group-hover:text-blue-600 transition-colors line-clamp-2 leading-snug">
+            <h3 className="font-bold text-slate-900 dark:text-white text-base group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors line-clamp-2 leading-snug">
               {course.title}
             </h3>
           </div>
 
           {/* Description */}
-          <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed min-h-[2.25rem]">
+          <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed min-h-[2.25rem]">
             {course.description}
           </p>
 
           {/* Topic Modules Count Pill */}
-          <div className="pt-2 flex items-center gap-2 text-xs font-bold text-slate-800">
-            <div className="p-1.5 rounded-lg bg-blue-50 text-blue-600">
+          <div className="pt-2 flex items-center gap-2 text-xs font-bold text-slate-800 dark:text-slate-200">
+            <div className="p-1.5 rounded-lg bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400">
               <Layers className="w-4 h-4" />
             </div>
             <span>{topicCount} Topic Modules</span>
@@ -296,8 +296,8 @@ function CourseCardItem({ course, onViewBatches, onEdit, onDelete, milestones })
       </div>
 
       {/* Bottom Footer Section */}
-      <div className="px-5 py-3.5 bg-slate-50/80 border-t border-slate-100 flex items-center justify-between text-xs">
-        <span className="text-slate-500 font-medium truncate max-w-[40%]">By {course.instructor}</span>
+      <div className="px-5 py-3.5 bg-slate-50/80 dark:bg-slate-800/60 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs">
+        <span className="text-slate-500 dark:text-slate-400 font-medium truncate max-w-[40%]">By {course.instructor}</span>
         <div className="flex items-center gap-2">
           <button
             type="button"
@@ -305,12 +305,12 @@ function CourseCardItem({ course, onViewBatches, onEdit, onDelete, milestones })
               e.stopPropagation();
               navigate(`/milestones?courseId=${course.id}`);
             }}
-            className="inline-flex items-center gap-1 font-extrabold text-[11px] text-purple-700 bg-purple-100/70 hover:bg-purple-200/80 px-2.5 py-1 rounded-lg border border-purple-200 transition-all cursor-pointer"
+            className="inline-flex items-center gap-1 font-extrabold text-[11px] text-purple-700 dark:text-purple-300 bg-purple-100/70 dark:bg-purple-950/70 hover:bg-purple-200/80 dark:hover:bg-purple-900/60 px-2.5 py-1 rounded-lg border border-purple-200 dark:border-purple-800/60 transition-all cursor-pointer"
           >
-            <BookOpen className="w-3.5 h-3.5 text-purple-600" />
+            <BookOpen className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
             <span>Milestones Roadmap</span>
           </button>
-          <span className="inline-flex items-center gap-1 font-bold text-blue-600 group-hover:text-blue-800 transition-all group-hover:translate-x-1">
+          <span className="inline-flex items-center gap-1 font-bold text-blue-600 dark:text-blue-400 group-hover:text-blue-800 dark:group-hover:text-blue-300 transition-all group-hover:translate-x-1">
             Explore Topics <ChevronRight className="w-4 h-4" />
           </span>
         </div>

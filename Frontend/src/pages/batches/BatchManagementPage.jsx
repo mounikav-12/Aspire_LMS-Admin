@@ -111,10 +111,10 @@ export function BatchManagementPage() {
       {/* Page Title & Actions */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl md:text-2xl font-bold tracking-normal text-slate-900 flex items-center gap-2.5">
-            <Layers className="w-6 h-6 text-blue-600" /> Batch Management
+          <h1 className="text-xl md:text-2xl font-bold tracking-normal text-slate-900 dark:text-white flex items-center gap-2.5">
+            <Layers className="w-6 h-6 text-blue-600 dark:text-blue-400" /> Batch Management
           </h1>
-          <p className="text-xs text-slate-500 font-medium mt-1">
+          <p className="text-xs text-slate-500 dark:text-slate-400 font-medium mt-1">
             Overview of all active Weekday and Weekend training batches, student enrollments, and track schedules.
           </p>
         </div>
@@ -126,51 +126,51 @@ export function BatchManagementPage() {
 
       {/* Overview Stat Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-2xs flex items-center justify-between">
+        <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-2xs flex items-center justify-between">
           <div>
-            <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Batches</p>
-            <h3 className="text-2xl font-black text-slate-900 mt-1">{allBatches.length}</h3>
-            <p className="text-[11px] text-slate-400 font-medium mt-0.5">Active LMS cohorts</p>
+            <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Total Batches</p>
+            <h3 className="text-2xl font-black text-slate-900 dark:text-white mt-1">{allBatches.length}</h3>
+            <p className="text-[11px] text-slate-400 dark:text-slate-500 font-medium mt-0.5">Active LMS cohorts</p>
           </div>
-          <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
+          <div className="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 border border-transparent dark:border-blue-800/50 flex items-center justify-center font-bold">
             <Layers className="w-6 h-6" />
           </div>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-2xs flex items-center justify-between">
+        <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-2xs flex items-center justify-between">
           <div>
-            <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Weekday Batches</p>
-            <h3 className="text-2xl font-black text-slate-900 mt-1">{weekdayBatches.length}</h3>
-            <p className="text-[11px] text-slate-400 font-medium mt-0.5">Mon to Fri track</p>
+            <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Weekday Batches</p>
+            <h3 className="text-2xl font-black text-slate-900 dark:text-white mt-1">{weekdayBatches.length}</h3>
+            <p className="text-[11px] text-slate-400 dark:text-slate-500 font-medium mt-0.5">Mon to Fri track</p>
           </div>
-          <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
-            <Clock className="w-6 h-6 text-blue-600" />
+          <div className="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 border border-transparent dark:border-blue-800/50 flex items-center justify-center font-bold">
+            <Clock className="w-6 h-6" />
           </div>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-2xs flex items-center justify-between">
+        <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-2xs flex items-center justify-between">
           <div>
-            <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Weekend Batches</p>
-            <h3 className="text-2xl font-black text-slate-900 mt-1">{weekendBatches.length}</h3>
-            <p className="text-[11px] text-slate-400 font-medium mt-0.5">Sat & Sun track</p>
+            <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Weekend Batches</p>
+            <h3 className="text-2xl font-black text-slate-900 dark:text-white mt-1">{weekendBatches.length}</h3>
+            <p className="text-[11px] text-slate-400 dark:text-slate-500 font-medium mt-0.5">Sat & Sun track</p>
           </div>
-          <div className="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold">
-            <Calendar className="w-6 h-6 text-indigo-600" />
+          <div className="w-12 h-12 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 border border-transparent dark:border-indigo-800/50 flex items-center justify-center font-bold">
+            <Calendar className="w-6 h-6" />
           </div>
         </div>
       </div>
 
       {/* Filter Tabs and Search */}
-      <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-2xs flex flex-col md:flex-row items-center justify-between gap-4">
+      <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-2xs flex flex-col md:flex-row items-center justify-between gap-4">
         {/* Category Tabs */}
-        <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl w-full md:w-auto">
+        <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl w-full md:w-auto">
           <button
             type="button"
             onClick={() => setActiveTab('ALL')}
             className={`px-4 py-2 rounded-lg text-xs font-extrabold transition-all cursor-pointer ${
               activeTab === 'ALL'
-                ? 'bg-white text-slate-900 shadow-2xs'
-                : 'text-slate-500 hover:text-slate-900'
+                ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-2xs'
+                : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
             All Batches ({allBatches.length})
@@ -181,7 +181,7 @@ export function BatchManagementPage() {
             className={`px-4 py-2 rounded-lg text-xs font-extrabold transition-all cursor-pointer flex items-center gap-1.5 ${
               activeTab === 'WEEKDAY'
                 ? 'bg-blue-600 text-white shadow-2xs'
-                : 'text-slate-500 hover:text-blue-600'
+                : 'text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400'
             }`}
           >
             <Clock className="w-3.5 h-3.5" />
@@ -193,7 +193,7 @@ export function BatchManagementPage() {
             className={`px-4 py-2 rounded-lg text-xs font-extrabold transition-all cursor-pointer flex items-center gap-1.5 ${
               activeTab === 'WEEKEND'
                 ? 'bg-indigo-600 text-white shadow-2xs'
-                : 'text-slate-500 hover:text-indigo-600'
+                : 'text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400'
             }`}
           >
             <Calendar className="w-3.5 h-3.5" />
@@ -209,7 +209,7 @@ export function BatchManagementPage() {
             placeholder="Search batch code..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-9 pr-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+            className="w-full pl-9 pr-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:bg-white dark:focus:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
           />
         </div>
       </div>
@@ -219,15 +219,15 @@ export function BatchManagementPage() {
         {/* WEEKDAY BATCHES SECTION */}
         {(activeTab === 'ALL' || activeTab === 'WEEKDAY') && (
           <div className="space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-200 pb-2.5">
-              <h2 className="text-base font-extrabold text-slate-900 flex items-center gap-2">
+            <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-2.5">
+              <h2 className="text-base font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
                 <span className="w-2.5 h-2.5 rounded-full bg-blue-600"></span>
                 <span>Weekday Batches</span>
-                <span className="text-xs font-bold text-slate-500 bg-blue-50 px-2 py-0.5 rounded-md border border-blue-200/60">
+                <span className="text-xs font-bold text-slate-500 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/60 px-2 py-0.5 rounded-md border border-blue-200/60 dark:border-blue-800/60">
                   Mon – Fri Schedule
                 </span>
               </h2>
-              <span className="text-xs font-bold text-slate-400">
+              <span className="text-xs font-bold text-slate-400 dark:text-slate-500">
                 {filteredWeekday.length} Active Batches
               </span>
             </div>
@@ -242,47 +242,47 @@ export function BatchManagementPage() {
                   return (
                     <div
                       key={bCode}
-                      className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-2xs hover:shadow-md hover:border-blue-300 transition-all flex flex-col justify-between"
+                      className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-5 shadow-2xs hover:shadow-md hover:border-blue-300 dark:hover:border-blue-600 transition-all flex flex-col justify-between"
                     >
                       <div className="space-y-3">
                         {/* Header Badge */}
                         <div className="flex items-center justify-between">
-                          <span className="px-3 py-1 bg-blue-50 text-blue-700 text-xs font-black rounded-lg border border-blue-200/70 flex items-center gap-1.5">
+                          <span className="px-3 py-1 bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 text-xs font-black rounded-lg border border-blue-200/70 dark:border-blue-800/60 flex items-center gap-1.5">
                             <Layers className="w-3.5 h-3.5" />
                             {bCode}
                           </span>
-                          <span className="text-[11px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md">
+                          <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-md">
                             Weekday Track
                           </span>
                         </div>
 
                         <div>
-                          <h3 className="text-base font-black text-slate-900">
+                          <h3 className="text-base font-black text-slate-900 dark:text-white">
                             Batch {bCode}
                           </h3>
-                          <p className="text-xs text-slate-500 font-medium mt-0.5 flex items-center gap-1">
-                            <Clock className="w-3.5 h-3.5 text-blue-600" /> {scheduleLabel}
+                          <p className="text-xs text-slate-500 dark:text-slate-400 font-medium mt-0.5 flex items-center gap-1">
+                            <Clock className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" /> {scheduleLabel}
                           </p>
                         </div>
 
                         {/* Stats Metrics */}
-                        <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-100">
-                          <div className="bg-slate-50/70 p-2.5 rounded-xl border border-slate-100">
-                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                        <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+                          <div className="bg-slate-50/70 dark:bg-slate-800/60 p-2.5 rounded-xl border border-slate-100 dark:border-slate-700/60">
+                            <span className="text-[10px] font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider block">
                               Enrolled Students
                             </span>
-                            <span className="text-sm font-black text-slate-800 flex items-center gap-1 mt-0.5">
-                              <Users className="w-3.5 h-3.5 text-blue-600" />
+                            <span className="text-sm font-black text-slate-800 dark:text-slate-100 flex items-center gap-1 mt-0.5">
+                              <Users className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
                               {metrics.studentCount}
                             </span>
                           </div>
 
-                          <div className="bg-slate-50/70 p-2.5 rounded-xl border border-slate-100">
-                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                          <div className="bg-slate-50/70 dark:bg-slate-800/60 p-2.5 rounded-xl border border-slate-100 dark:border-slate-700/60">
+                            <span className="text-[10px] font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider block">
                               Linked Courses
                             </span>
-                            <span className="text-sm font-black text-slate-800 flex items-center gap-1 mt-0.5">
-                              <BookOpen className="w-3.5 h-3.5 text-blue-600" />
+                            <span className="text-sm font-black text-slate-800 dark:text-slate-100 flex items-center gap-1 mt-0.5">
+                              <BookOpen className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
                               {metrics.courseCount}
                             </span>
                           </div>
@@ -290,18 +290,18 @@ export function BatchManagementPage() {
                       </div>
 
                       {/* Action Links */}
-                      <div className="pt-4 mt-3 border-t border-slate-100 flex items-center justify-between">
+                      <div className="pt-4 mt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
                         <button
                           type="button"
                           onClick={() => handleSelectBatchAndNavigate(bCode, '/students')}
-                          className="text-xs font-bold text-slate-600 hover:text-blue-600 transition-colors flex items-center gap-1 cursor-pointer"
+                          className="text-xs font-bold text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex items-center gap-1 cursor-pointer"
                         >
                           <Users className="w-3.5 h-3.5" /> View Students
                         </button>
                         <button
                           type="button"
                           onClick={() => handleSelectBatchAndNavigate(bCode, '/courses')}
-                          className="text-xs font-black text-blue-600 hover:text-blue-800 transition-colors flex items-center gap-1 cursor-pointer"
+                          className="text-xs font-black text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors flex items-center gap-1 cursor-pointer"
                         >
                           View Courses <ArrowRight className="w-3.5 h-3.5" />
                         </button>
@@ -311,7 +311,7 @@ export function BatchManagementPage() {
                 })}
               </div>
             ) : (
-              <div className="p-8 text-center bg-slate-50 rounded-2xl border border-slate-200/70 text-slate-500 text-xs font-bold">
+              <div className="p-8 text-center bg-slate-50 dark:bg-slate-900 rounded-2xl border border-slate-200/70 dark:border-slate-800 text-slate-500 dark:text-slate-400 text-xs font-bold">
                 No Weekday batches found matching search.
               </div>
             )}
@@ -321,15 +321,15 @@ export function BatchManagementPage() {
         {/* WEEKEND BATCHES SECTION */}
         {(activeTab === 'ALL' || activeTab === 'WEEKEND') && (
           <div className="space-y-4 pt-2">
-            <div className="flex items-center justify-between border-b border-slate-200 pb-2.5">
-              <h2 className="text-base font-extrabold text-slate-900 flex items-center gap-2">
+            <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-2.5">
+              <h2 className="text-base font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
                 <span className="w-2.5 h-2.5 rounded-full bg-indigo-600"></span>
                 <span>Weekend Batches</span>
-                <span className="text-xs font-bold text-slate-500 bg-indigo-50 px-2 py-0.5 rounded-md border border-indigo-200/60">
+                <span className="text-xs font-bold text-slate-500 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/60 px-2 py-0.5 rounded-md border border-indigo-200/60 dark:border-indigo-800/60">
                   Sat – Sun Schedule
                 </span>
               </h2>
-              <span className="text-xs font-bold text-slate-400">
+              <span className="text-xs font-bold text-slate-400 dark:text-slate-500">
                 {filteredWeekend.length} Active Batches
               </span>
             </div>
@@ -344,47 +344,47 @@ export function BatchManagementPage() {
                   return (
                     <div
                       key={bCode}
-                      className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-2xs hover:shadow-md hover:border-indigo-300 transition-all flex flex-col justify-between"
+                      className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-5 shadow-2xs hover:shadow-md hover:border-indigo-300 dark:hover:border-indigo-600 transition-all flex flex-col justify-between"
                     >
                       <div className="space-y-3">
                         {/* Header Badge */}
                         <div className="flex items-center justify-between">
-                          <span className="px-3 py-1 bg-indigo-50 text-indigo-700 text-xs font-black rounded-lg border border-indigo-200/70 flex items-center gap-1.5">
+                          <span className="px-3 py-1 bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 text-xs font-black rounded-lg border border-indigo-200/70 dark:border-indigo-800/60 flex items-center gap-1.5">
                             <Layers className="w-3.5 h-3.5" />
                             {bCode}
                           </span>
-                          <span className="text-[11px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md">
+                          <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-md">
                             Weekend Track
                           </span>
                         </div>
 
                         <div>
-                          <h3 className="text-base font-black text-slate-900">
+                          <h3 className="text-base font-black text-slate-900 dark:text-white">
                             Batch {bCode}
                           </h3>
-                          <p className="text-xs text-slate-500 font-medium mt-0.5 flex items-center gap-1">
-                            <Calendar className="w-3.5 h-3.5 text-indigo-600" /> {scheduleLabel}
+                          <p className="text-xs text-slate-500 dark:text-slate-400 font-medium mt-0.5 flex items-center gap-1">
+                            <Calendar className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" /> {scheduleLabel}
                           </p>
                         </div>
 
                         {/* Stats Metrics */}
-                        <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-100">
-                          <div className="bg-slate-50/70 p-2.5 rounded-xl border border-slate-100">
-                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                        <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+                          <div className="bg-slate-50/70 dark:bg-slate-800/60 p-2.5 rounded-xl border border-slate-100 dark:border-slate-700/60">
+                            <span className="text-[10px] font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider block">
                               Enrolled Students
                             </span>
-                            <span className="text-sm font-black text-slate-800 flex items-center gap-1 mt-0.5">
-                              <Users className="w-3.5 h-3.5 text-indigo-600" />
+                            <span className="text-sm font-black text-slate-800 dark:text-slate-100 flex items-center gap-1 mt-0.5">
+                              <Users className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
                               {metrics.studentCount}
                             </span>
                           </div>
 
-                          <div className="bg-slate-50/70 p-2.5 rounded-xl border border-slate-100">
-                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                          <div className="bg-slate-50/70 dark:bg-slate-800/60 p-2.5 rounded-xl border border-slate-100 dark:border-slate-700/60">
+                            <span className="text-[10px] font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider block">
                               Linked Courses
                             </span>
-                            <span className="text-sm font-black text-slate-800 flex items-center gap-1 mt-0.5">
-                              <BookOpen className="w-3.5 h-3.5 text-indigo-600" />
+                            <span className="text-sm font-black text-slate-800 dark:text-slate-100 flex items-center gap-1 mt-0.5">
+                              <BookOpen className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
                               {metrics.courseCount}
                             </span>
                           </div>
@@ -392,18 +392,18 @@ export function BatchManagementPage() {
                       </div>
 
                       {/* Action Links */}
-                      <div className="pt-4 mt-3 border-t border-slate-100 flex items-center justify-between">
+                      <div className="pt-4 mt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
                         <button
                           type="button"
                           onClick={() => handleSelectBatchAndNavigate(bCode, '/students')}
-                          className="text-xs font-bold text-slate-600 hover:text-indigo-600 transition-colors flex items-center gap-1 cursor-pointer"
+                          className="text-xs font-bold text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors flex items-center gap-1 cursor-pointer"
                         >
                           <Users className="w-3.5 h-3.5" /> View Students
                         </button>
                         <button
                           type="button"
                           onClick={() => handleSelectBatchAndNavigate(bCode, '/courses')}
-                          className="text-xs font-black text-indigo-600 hover:text-indigo-800 transition-colors flex items-center gap-1 cursor-pointer"
+                          className="text-xs font-black text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 transition-colors flex items-center gap-1 cursor-pointer"
                         >
                           View Courses <ArrowRight className="w-3.5 h-3.5" />
                         </button>
@@ -413,7 +413,7 @@ export function BatchManagementPage() {
                 })}
               </div>
             ) : (
-              <div className="p-8 text-center bg-slate-50 rounded-2xl border border-slate-200/70 text-slate-500 text-xs font-bold">
+              <div className="p-8 text-center bg-slate-50 dark:bg-slate-900 rounded-2xl border border-slate-200/70 dark:border-slate-800 text-slate-500 dark:text-slate-400 text-xs font-bold">
                 No Weekend batches found matching search.
               </div>
             )}

@@ -53,11 +53,34 @@ export {
   getStageNumber
 };
 
-export const getSubtopicsForStage = (stage) => {
+export const isPythonCourse = (course) => {
+  if (!course) return false;
+  const t = (course.title || '').toLowerCase();
+  const id = (course.id || '').toLowerCase();
+  return t.includes('python full') || id.includes('1786624019154') || id === 'ml-python-full-stack' || id === 'ml-python-weekend';
+};
+
+export const getSubtopicsForStage = (stage, isPython = null) => {
   if (!stage) return [];
   const rawSubs = (Array.isArray(stage.subtopics) && stage.subtopics.length > 0)
     ? stage.subtopics
     : (Array.isArray(stage.modules) && stage.modules.length > 0 ? stage.modules : []);
+
+  // Determine if this stage belongs to Python Full Stack course
+  const isPythonStage = isPython !== null
+    ? isPython
+    : (
+        String(stage.id || '').startsWith('top-stg-') ||
+        String(stage.title || '').toLowerCase().includes('frontend & programming') ||
+        String(stage.title || '').toLowerCase().includes('backend & database') ||
+        String(stage.title || '').toLowerCase().includes('cloud, devops & full stack') ||
+        String(stage.title || '').toLowerCase().includes('backend + dsa')
+      );
+
+  // If not Python Full Stack, return rawSubs directly without merging Python default stages
+  if (!isPythonStage) {
+    return rawSubs;
+  }
 
   const cleanId = (id) => String(id || '').replace(/-(w|s)$/i, '').trim().toLowerCase();
   const cleanStr = (s) => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '').trim();
@@ -118,15 +141,24 @@ export const getSubtopicsForStage = (stage) => {
   return mergedSubs;
 };
 
-export const getInnerModulesForSubtopic = (subtopic, courseLessons = [], stageId = '') => {
+export const getInnerModulesForSubtopic = (subtopic, courseLessons = [], stageId = '', isPython = null, courseId = '') => {
   if (!subtopic) return [];
   
   const cleanId = (id) => String(id || '').replace(/-(w|s)$/i, '').trim();
   const cleanNorm = (str) => String(str || '').toLowerCase().replace(/[^a-z0-9]/g, '').trim();
+  const stripSuffix = (str) => String(str || '').replace(/-(w|s)$/i, '').trim();
   const subIdClean = cleanId(subtopic.id);
   const subIdNorm = cleanNorm(subtopic.id);
   const subTitleNorm = cleanNorm(subtopic.title || subtopic.name);
   const mappedModId = SUBTOPIC_MODULE_MAP[subIdClean] || subIdClean;
+
+  const isPythonStage = isPython !== null
+    ? isPython
+    : (
+        String(stageId || '').startsWith('top-stg-') ||
+        String(subtopic.id || '').startsWith('mod-') ||
+        String(subtopic.id || '').startsWith('subtop-1787')
+      );
 
   // 1. If lessons/modules are already inline in the subtopic, unroll & use them
   let inlineMods = [];
@@ -187,6 +219,9 @@ export const getInnerModulesForSubtopic = (subtopic, courseLessons = [], stageId
   // 2. Query courseLessons list from context/database
   if (Array.isArray(courseLessons) && courseLessons.length > 0) {
     const matchedLessons = courseLessons.filter(l => {
+      if (courseId && l.course_id && l.course_id !== courseId && stripSuffix(l.course_id) !== stripSuffix(courseId)) {
+        return false;
+      }
       const lModClean = cleanId(l.module_id || l.subtopic_id);
       const lModId = cleanNorm(l.module_id || l.subtopic_id);
       const lStgId = l.stage_id;
@@ -222,31 +257,33 @@ export const getInnerModulesForSubtopic = (subtopic, courseLessons = [], stageId
     }
   }
 
-  // 3. Fallback: Query DEFAULT_CURRICULUM_LESSONS map (31 subtopics with all standard lessons)
-  const curriculumMatch = Object.entries(DEFAULT_CURRICULUM_LESSONS).find(([key, val]) => {
-    const kClean = cleanId(key);
-    const kNorm = cleanNorm(key);
-    const valTitleNorm = cleanNorm(val.title);
-    return (
-      kClean === subIdClean ||
-      kClean === mappedModId ||
-      kNorm === subIdNorm ||
-      SUBTOPIC_MODULE_MAP[kClean] === subIdClean ||
-      SUBTOPIC_MODULE_MAP[subIdClean] === kClean ||
-      (valTitleNorm && (valTitleNorm === subTitleNorm || valTitleNorm.includes(subTitleNorm) || subTitleNorm.includes(valTitleNorm)))
-    );
-  });
+  // 3. Fallback: Query DEFAULT_CURRICULUM_LESSONS map (ONLY for Python Full Stack)
+  if (isPythonStage) {
+    const curriculumMatch = Object.entries(DEFAULT_CURRICULUM_LESSONS).find(([key, val]) => {
+      const kClean = cleanId(key);
+      const kNorm = cleanNorm(key);
+      const valTitleNorm = cleanNorm(val.title);
+      return (
+        kClean === subIdClean ||
+        kClean === mappedModId ||
+        kNorm === subIdNorm ||
+        SUBTOPIC_MODULE_MAP[kClean] === subIdClean ||
+        SUBTOPIC_MODULE_MAP[subIdClean] === kClean ||
+        (valTitleNorm && (valTitleNorm === subTitleNorm || valTitleNorm.includes(subTitleNorm) || subTitleNorm.includes(valTitleNorm)))
+      );
+    });
 
-  if (curriculumMatch && Array.isArray(curriculumMatch[1].lessons) && curriculumMatch[1].lessons.length > 0) {
-    return curriculumMatch[1].lessons.map(l => ({
-      id: l.id,
-      title: l.title,
-      duration: l.duration || '1.5 hrs',
-      durationHours: l.duration || '1.5 hrs',
-      description: l.description || '',
-      topics: [],
-      items: []
-    }));
+    if (curriculumMatch && Array.isArray(curriculumMatch[1].lessons) && curriculumMatch[1].lessons.length > 0) {
+      return curriculumMatch[1].lessons.map(l => ({
+        id: l.id,
+        title: l.title,
+        duration: l.duration || '1.5 hrs',
+        durationHours: l.duration || '1.5 hrs',
+        description: l.description || '',
+        topics: [],
+        items: []
+      }));
+    }
   }
 
   // 4. Last resort fallback
@@ -374,14 +411,22 @@ export function LiveSessionListPage() {
   });
 
   const selectedCourseObj = courses.find((c) => c.id === formData.courseId) || courses[0];
-  const stagesList =
-    formData.courseId && formData.courseId !== 'ALL' && milestonesByBatch?.[formData.courseId]?.stages && milestonesByBatch[formData.courseId].stages.length > 0
-      ? milestonesByBatch[formData.courseId].stages
-      : selectedCourseObj?.topics && selectedCourseObj.topics.length > 0
-      ? selectedCourseObj.topics
-      : milestones?.stages && milestones.stages.length > 0
-      ? milestones.stages
-      : DEFAULT_STAGES;
+  const isSelectedCoursePython = isPythonCourse(selectedCourseObj);
+  const stagesList = React.useMemo(() => {
+    let list = [];
+    if (formData.courseId && formData.courseId !== 'ALL' && milestonesByBatch?.[formData.courseId]?.stages && milestonesByBatch[formData.courseId].stages.length > 0) {
+      list = isSelectedCoursePython ? normalizeStagesList(milestonesByBatch[formData.courseId].stages) : milestonesByBatch[formData.courseId].stages;
+    } else if (selectedCourseObj?.topics && selectedCourseObj.topics.length > 0) {
+      list = isSelectedCoursePython ? normalizeStagesList(selectedCourseObj.topics) : selectedCourseObj.topics;
+    } else if (isSelectedCoursePython) {
+      list = (milestones?.stages && milestones.stages.length > 0) ? normalizeStagesList(milestones.stages) : DEFAULT_STAGES;
+    }
+    return [...list].sort((a, b) => {
+      const aNum = parseInt(String(a.stageNumber || a.title || '').replace(/\D/g, ''), 10) || 0;
+      const bNum = parseInt(String(b.stageNumber || b.title || '').replace(/\D/g, ''), 10) || 0;
+      return aNum - bNum;
+    });
+  }, [formData.courseId, selectedCourseObj, isSelectedCoursePython, milestonesByBatch, milestones]);
 
   const allWeekdayBatchesList = (
     availableBatches && availableBatches.length > 0
@@ -448,6 +493,7 @@ export function LiveSessionListPage() {
 
   const handleOpenAddModal = () => {
     setEditingSession(null);
+    const defaultCourse = courses.find((c) => c.id === (selectedCourseId || courses[0]?.id)) || courses[0];
     setFormData({
       programName: '',
       technology: '',
@@ -457,8 +503,8 @@ export function LiveSessionListPage() {
       meetingLink: '',
       instructor: '',
       description: '',
-      courseId: '',
-      courseName: '',
+      courseId: defaultCourse?.id || '',
+      courseName: defaultCourse?.title || '',
       stageId: '',
       stageName: '',
       subtopicId: '',
@@ -499,10 +545,22 @@ export function LiveSessionListPage() {
     const stripSuffix = (str) => String(str || '').replace(/-(w|s)$/i, '').trim();
     const cleanNorm = (str) => String(str || '').toLowerCase().replace(/[^a-z0-9]/g, '').trim();
 
-    const targetStage = stagesList.find((s) => s.id === sess.stageId || stripSuffix(s.id) === stripSuffix(sess.stageId) || cleanNorm(s.title) === cleanNorm(sess.stageName)) || stagesList[0];
-    const stageSubs = getSubtopicsForStage(targetStage);
+    const sessCourseId = sess.courseId || sess.course_id || selectedCourseId || courses[0]?.id;
+    const sessCourseObj = courses.find((c) => c.id === sessCourseId) || courses[0];
+    const isSessCoursePython = isPythonCourse(sessCourseObj);
+    const courseStages =
+      sessCourseId && milestonesByBatch?.[sessCourseId]?.stages && milestonesByBatch[sessCourseId].stages.length > 0
+        ? (isSessCoursePython ? normalizeStagesList(milestonesByBatch[sessCourseId].stages) : milestonesByBatch[sessCourseId].stages)
+        : sessCourseObj?.topics && sessCourseObj.topics.length > 0
+        ? (isSessCoursePython ? normalizeStagesList(sessCourseObj.topics) : sessCourseObj.topics)
+        : isSessCoursePython
+        ? (milestones?.stages && milestones.stages.length > 0 ? normalizeStagesList(milestones.stages) : DEFAULT_STAGES)
+        : [];
+
+    const targetStage = courseStages.find((s) => s.id === sess.stageId || stripSuffix(s.id) === stripSuffix(sess.stageId) || cleanNorm(s.title) === cleanNorm(sess.stageName)) || courseStages[0];
+    const stageSubs = getSubtopicsForStage(targetStage, isSessCoursePython);
     const targetSub = stageSubs.find((st) => st.id === sess.subtopicId || stripSuffix(st.id) === stripSuffix(sess.subtopicId) || cleanNorm(st.title) === cleanNorm(sess.subtopicName)) || stageSubs[0];
-    const subLessons = getInnerModulesForSubtopic(targetSub, courseLessons, targetStage?.id);
+    const subLessons = getInnerModulesForSubtopic(targetSub, courseLessons, targetStage?.id, isSessCoursePython, sessCourseId);
     const targetMod = subLessons.find((m) => m.id === sess.moduleId || stripSuffix(m.id) === stripSuffix(sess.moduleId) || cleanNorm(m.title) === cleanNorm(sess.moduleName || sess.sessionTitle)) || subLessons[0];
 
     // Preload topics from targetMod.topics (authoritative dynamic topics from Milestones), sess.topics, or targetMod.items
@@ -562,10 +620,11 @@ export function LiveSessionListPage() {
     }
 
     const selectedCourse = courses.find((c) => c.id === formData.courseId) || courses[0];
+    const isSaveCoursePython = isPythonCourse(selectedCourse);
     const currentStageObj = stagesList.find((s) => s.id === formData.stageId || s.title === formData.stageName) || stagesList[0];
-    const stageSubs = getSubtopicsForStage(currentStageObj);
+    const stageSubs = getSubtopicsForStage(currentStageObj, isSaveCoursePython);
     const currentSubObj = stageSubs.find((st) => st.id === formData.subtopicId || st.title === formData.subtopicName) || stageSubs[0];
-    const subLessons = getInnerModulesForSubtopic(currentSubObj, courseLessons, currentStageObj?.id);
+    const subLessons = getInnerModulesForSubtopic(currentSubObj, courseLessons, currentStageObj?.id, isSaveCoursePython, formData.courseId);
     const currentModObj = subLessons.find((m) => m.id === formData.moduleId || m.title === formData.moduleName) || subLessons[0];
 
     const allBatches = [...selectedWeekdayBatches, ...selectedWeekendBatches];
@@ -620,13 +679,140 @@ export function LiveSessionListPage() {
     }
   };
 
+  const activeCourseId = selectedCourseId || courses[0]?.id || '';
+  const activeCourseObj = courses.find((c) => c.id === activeCourseId) || courses[0];
+  const isPython = isPythonCourse(activeCourseObj);
+
+  const cleanId = (id) => String(id || '').replace(/-(w|s)$/i, '').trim().toLowerCase();
+  const cleanStr = (s) => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '').trim();
+  const cleanNorm = (str) => String(str || '').toLowerCase().replace(/[^a-z0-9]/g, '').trim();
+  const stripSuffix = (str) => String(str || '').replace(/-(w|s)$/i, '').trim();
+
+  const activeStagesList = React.useMemo(() => {
+    // 1. Course-specific milestones in milestonesByBatch
+    const courseMilestones = activeCourseId && activeCourseId !== 'ALL' ? milestonesByBatch?.[activeCourseId]?.stages : null;
+    if (Array.isArray(courseMilestones) && courseMilestones.length > 0) {
+      const list = isPython ? normalizeStagesList(courseMilestones) : courseMilestones;
+      return [...list].sort((a, b) => {
+        const aNum = parseInt(String(a.stageNumber || a.title || '').replace(/\D/g, ''), 10) || 0;
+        const bNum = parseInt(String(b.stageNumber || b.title || '').replace(/\D/g, ''), 10) || 0;
+        return aNum - bNum;
+      });
+    }
+
+    // 2. Topics from activeCourseObj (from course_topics table via LmsDataContext)
+    if (activeCourseObj?.topics && Array.isArray(activeCourseObj.topics) && activeCourseObj.topics.length > 0) {
+      const list = isPython ? normalizeStagesList(activeCourseObj.topics) : activeCourseObj.topics;
+      return [...list].sort((a, b) => {
+        const aNum = parseInt(String(a.stageNumber || a.title || '').replace(/\D/g, ''), 10) || 0;
+        const bNum = parseInt(String(b.stageNumber || b.title || '').replace(/\D/g, ''), 10) || 0;
+        return aNum - bNum;
+      });
+    }
+
+    // 3. Fallback ONLY for Python Full Stack
+    if (isPython) {
+      const batchMilestones = milestonesByBatch?.[activeBatchFilter]?.stages;
+      if (Array.isArray(batchMilestones) && batchMilestones.length > 0) {
+        return normalizeStagesList(batchMilestones);
+      }
+      if (Array.isArray(milestones?.stages) && milestones.stages.length > 0) {
+        return normalizeStagesList(milestones.stages);
+      }
+      return DEFAULT_STAGES;
+    }
+
+    // Strict: for other courses with no stages, return empty array
+    return [];
+  }, [activeCourseId, activeCourseObj, isPython, milestonesByBatch, activeBatchFilter, milestones]);
+
+  const selectedStageObj = selectedStageId !== 'ALL'
+    ? (activeStagesList.find(s => s.id === selectedStageId || stripSuffix(s.id) === stripSuffix(selectedStageId) || cleanNorm(s.title) === cleanNorm(selectedStageId) || isMatchingStage(s.id, selectedStageId)) || null)
+    : null;
+  const subtopicsForStage = selectedStageObj ? getSubtopicsForStage(selectedStageObj, isPython) : [];
+
+  const selectedSubtopicObj = selectedSubtopicId !== 'ALL'
+    ? (subtopicsForStage.find(sub =>
+        sub.id === selectedSubtopicId ||
+        stripSuffix(sub.id) === stripSuffix(selectedSubtopicId) ||
+        cleanId(sub.id) === cleanId(selectedSubtopicId) ||
+        SUBTOPIC_MODULE_MAP[cleanId(sub.id)] === cleanId(selectedSubtopicId) ||
+        cleanStr(sub.title) === cleanStr(selectedSubtopicId)
+      ) || null)
+    : null;
+  const modulesForSubtopic = selectedSubtopicObj ? getInnerModulesForSubtopic(selectedSubtopicObj, courseLessons, selectedStageId, isPython, activeCourseId) : [];
+
   const filteredSessions = [...liveSessions]
     .filter((s) => {
-      const activeCourseId = selectedCourseId || courses[0]?.id || '';
-      const matchesCourse = !activeCourseId || s.courseId === activeCourseId || s.course_id === activeCourseId;
-      const matchesStage = selectedStageId === 'ALL' || s.stageId === selectedStageId || s.stage_id === selectedStageId;
-      const matchesSubtopic = selectedSubtopicId === 'ALL' || s.subtopicId === selectedSubtopicId || s.subtopic_id === selectedSubtopicId;
-      const matchesModule = selectedModuleId === 'ALL' || s.moduleId === selectedModuleId || s.module_id === selectedModuleId;
+      const sCourseId = s.courseId || s.course_id || '';
+      const matchesCourse = !activeCourseId || activeCourseId === 'ALL' ||
+        sCourseId === activeCourseId ||
+        stripSuffix(sCourseId) === stripSuffix(activeCourseId) ||
+        (s.courseName && activeCourseObj?.title && cleanNorm(s.courseName) === cleanNorm(activeCourseObj.title));
+
+      if (!matchesCourse) return false;
+
+      const sStageId = s.stageId || s.stage_id || '';
+      const sStageName = s.stageName || s.stage_name || '';
+      let matchesStage = selectedStageId === 'ALL';
+      if (!matchesStage) {
+        if (sStageId && (sStageId === selectedStageId || stripSuffix(sStageId) === stripSuffix(selectedStageId))) {
+          matchesStage = true;
+        } else if (selectedStageObj) {
+          const stgTitleNorm = cleanNorm(selectedStageObj.title || selectedStageObj.name);
+          const sStageNorm = cleanNorm(sStageName);
+          if (sStageNorm && stgTitleNorm && (sStageNorm === stgTitleNorm || sStageNorm.includes(stgTitleNorm) || stgTitleNorm.includes(sStageNorm))) {
+            matchesStage = true;
+          } else if (isMatchingStage(sStageId, selectedStageId)) {
+            matchesStage = true;
+          }
+        } else if (isMatchingStage(sStageId, selectedStageId)) {
+          matchesStage = true;
+        }
+      }
+
+      if (!matchesStage) return false;
+
+      const sSubId = s.subtopicId || s.subtopic_id || '';
+      const sSubName = s.subtopicName || s.subtopic_name || '';
+      let matchesSubtopic = selectedSubtopicId === 'ALL';
+      if (!matchesSubtopic) {
+        if (sSubId && (sSubId === selectedSubtopicId || stripSuffix(sSubId) === stripSuffix(selectedSubtopicId))) {
+          matchesSubtopic = true;
+        } else if (selectedSubtopicObj) {
+          const subTitleNorm = cleanNorm(selectedSubtopicObj.title || selectedSubtopicObj.name);
+          const sSubNorm = cleanNorm(sSubName);
+          if (sSubNorm && subTitleNorm && (sSubNorm === subTitleNorm || sSubNorm.includes(subTitleNorm) || subTitleNorm.includes(sSubNorm))) {
+            matchesSubtopic = true;
+          } else if (
+            cleanId(sSubId) === cleanId(selectedSubtopicId) ||
+            SUBTOPIC_MODULE_MAP[cleanId(sSubId)] === cleanId(selectedSubtopicId) ||
+            SUBTOPIC_MODULE_MAP[cleanId(selectedSubtopicId)] === cleanId(sSubId)
+          ) {
+            matchesSubtopic = true;
+          }
+        }
+      }
+
+      if (!matchesSubtopic) return false;
+
+      const sModId = s.moduleId || s.module_id || '';
+      const sModName = s.moduleName || s.module_name || '';
+      let matchesModule = selectedModuleId === 'ALL';
+      if (!matchesModule) {
+        if (sModId && (sModId === selectedModuleId || stripSuffix(sModId) === stripSuffix(selectedModuleId))) {
+          matchesModule = true;
+        } else {
+          const mClean = cleanId(selectedModuleId);
+          const mNorm = cleanNorm(selectedModuleId);
+          if (cleanId(sModId) === mClean || cleanNorm(sModName) === mNorm) {
+            matchesModule = true;
+          }
+        }
+      }
+
+      if (!matchesModule) return false;
+
       const sTitle = (s.sessionTitle || s.title || '').toLowerCase();
       const sTech = (s.technology || '').toLowerCase();
       const sInst = (s.instructor || '').toLowerCase();
@@ -640,7 +826,7 @@ export function LiveSessionListPage() {
         sSub.includes(q) ||
         sMod.includes(q);
       const matchesStatus = statusFilter === 'ALL' || s.status === statusFilter;
-      return matchesCourse && matchesStage && matchesSubtopic && matchesModule && matchesSearch && matchesStatus;
+      return matchesSearch && matchesStatus;
     })
     .sort((a, b) => {
       const timeA = a.createdAt ? new Date(a.createdAt).getTime() : (a.created_at ? new Date(a.created_at).getTime() : 0);
@@ -649,51 +835,14 @@ export function LiveSessionListPage() {
       return 0;
     });
 
-  const activeCourseId = selectedCourseId || courses[0]?.id || '';
-  const activeCourseObj = courses.find((c) => c.id === activeCourseId) || courses[0];
-
-  const cleanId = (id) => String(id || '').replace(/-(w|s)$/i, '').trim().toLowerCase();
-  const cleanStr = (s) => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '').trim();
-
-  const activeStagesList = React.useMemo(() => {
-    const courseMilestones = activeCourseId && activeCourseId !== 'ALL' ? milestonesByBatch?.[activeCourseId]?.stages : null;
-    if (Array.isArray(courseMilestones) && courseMilestones.length > 0) {
-      return normalizeStagesList(courseMilestones);
-    }
-    const batchMilestones = milestonesByBatch?.[activeBatchFilter]?.stages;
-    if (Array.isArray(batchMilestones) && batchMilestones.length > 0) {
-      return normalizeStagesList(batchMilestones);
-    }
-    if (Array.isArray(milestones?.stages) && milestones.stages.length > 0) {
-      return normalizeStagesList(milestones.stages);
-    }
-    if (activeCourseObj?.topics && activeCourseObj.topics.length > 0) {
-      return normalizeStagesList(activeCourseObj.topics);
-    }
-    return DEFAULT_STAGES;
-  }, [activeCourseId, activeCourseObj, milestonesByBatch, activeBatchFilter, milestones]);
-
-  const selectedStageObj = selectedStageId !== 'ALL' ? (activeStagesList.find(s => s.id === selectedStageId || isMatchingStage(s.id, selectedStageId)) || null) : null;
-  const subtopicsForStage = selectedStageObj ? getSubtopicsForStage(selectedStageObj) : [];
-
-  const selectedSubtopicObj = selectedSubtopicId !== 'ALL'
-    ? (subtopicsForStage.find(sub =>
-        sub.id === selectedSubtopicId ||
-        cleanId(sub.id) === cleanId(selectedSubtopicId) ||
-        SUBTOPIC_MODULE_MAP[cleanId(sub.id)] === cleanId(selectedSubtopicId) ||
-        cleanStr(sub.title) === cleanStr(selectedSubtopicId)
-      ) || null)
-    : null;
-  const modulesForSubtopic = selectedSubtopicObj ? getInnerModulesForSubtopic(selectedSubtopicObj, courseLessons, selectedStageId) : [];
-
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
       {/* Header */}
       <div className="flex flex-col gap-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2.5">
-              <Video className="w-7 h-7 text-purple-600" /> Live Sessions & Meeting Rooms
+            <h1 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-2.5">
+              <Video className="w-7 h-7 text-purple-600 dark:text-purple-400" /> Live Sessions & Meeting Rooms
             </h1>
           </div>
           <div className="flex flex-wrap items-center gap-3">
@@ -704,11 +853,11 @@ export function LiveSessionListPage() {
         </div>
 
         {/* Filters Container */}
-        <div className="flex flex-wrap items-center gap-4 pt-2.5 border-t border-slate-100/60">
+        <div className="flex flex-wrap items-center gap-4 pt-2.5 border-t border-slate-100/60 dark:border-slate-800">
           {/* Course Filter */}
           <div className="flex items-center gap-2">
-            <label className="text-xs font-bold text-slate-600 flex items-center gap-1.5 flex-shrink-0">
-              <BookOpen className="w-3.5 h-3.5 text-purple-600" />
+            <label className="text-xs font-bold text-slate-600 dark:text-slate-400 flex items-center gap-1.5 flex-shrink-0">
+              <BookOpen className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
               <span>Course:</span>
             </label>
             <div className="relative">
@@ -720,10 +869,10 @@ export function LiveSessionListPage() {
                   setSelectedSubtopicId('ALL');
                   setSelectedModuleId('ALL');
                 }}
-                className="px-3.5 py-2 pr-8 rounded-xl text-xs font-bold text-slate-800 bg-slate-50 border border-slate-200 hover:border-purple-300 focus:outline-none focus:border-purple-600 focus:bg-white transition-all shadow-2xs cursor-pointer appearance-none max-w-[240px] truncate"
+                className="px-3.5 py-2 pr-8 rounded-xl text-xs font-bold text-slate-800 dark:text-slate-100 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 hover:border-purple-300 dark:hover:border-purple-500 focus:outline-none focus:border-purple-600 focus:bg-white dark:focus:bg-slate-900 transition-all shadow-2xs cursor-pointer appearance-none max-w-[240px] truncate"
               >
                 {courses.map((c) => (
-                  <option key={c.id} value={c.id}>
+                  <option key={c.id} value={c.id} className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100">
                     {c.title}
                   </option>
                 ))}
@@ -734,8 +883,8 @@ export function LiveSessionListPage() {
 
           {/* Milestone Stage Filter */}
           <div className="flex items-center gap-2">
-            <label className="text-xs font-bold text-slate-600 flex items-center gap-1.5 flex-shrink-0">
-              <Layers className="w-3.5 h-3.5 text-blue-600" />
+            <label className="text-xs font-bold text-slate-600 dark:text-slate-400 flex items-center gap-1.5 flex-shrink-0">
+              <Layers className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
               <span>Stage:</span>
             </label>
             <div className="relative">
@@ -746,11 +895,11 @@ export function LiveSessionListPage() {
                   setSelectedSubtopicId('ALL');
                   setSelectedModuleId('ALL');
                 }}
-                className="px-3.5 py-2 pr-8 rounded-xl text-xs font-bold text-slate-800 bg-slate-50 border border-slate-200 hover:border-blue-300 focus:outline-none focus:border-blue-600 focus:bg-white transition-all shadow-2xs cursor-pointer appearance-none max-w-[200px] truncate"
+                className="px-3.5 py-2 pr-8 rounded-xl text-xs font-bold text-slate-800 dark:text-slate-100 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 hover:border-blue-300 dark:hover:border-blue-500 focus:outline-none focus:border-blue-600 focus:bg-white dark:focus:bg-slate-900 transition-all shadow-2xs cursor-pointer appearance-none max-w-[200px] truncate"
               >
-                <option value="ALL">All Stages</option>
+                <option value="ALL" className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100">All Stages</option>
                 {activeStagesList.map((stg) => (
-                  <option key={stg.id} value={stg.id}>
+                  <option key={stg.id} value={stg.id} className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100">
                     {stg.title}
                   </option>
                 ))}
@@ -761,8 +910,8 @@ export function LiveSessionListPage() {
 
           {/* Milestone Module Filter */}
           <div className="flex items-center gap-2">
-            <label className="text-xs font-bold text-slate-600 flex items-center gap-1.5 flex-shrink-0">
-              <Bookmark className="w-3.5 h-3.5 text-emerald-600" />
+            <label className="text-xs font-bold text-slate-600 dark:text-slate-400 flex items-center gap-1.5 flex-shrink-0">
+              <Bookmark className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
               <span>Milestone Module:</span>
             </label>
             <div className="relative">
@@ -773,12 +922,12 @@ export function LiveSessionListPage() {
                   setSelectedModuleId('ALL');
                 }}
                 disabled={selectedStageId === 'ALL'}
-                className="px-3.5 py-2 pr-8 rounded-xl text-xs font-bold text-slate-800 bg-slate-50 border border-slate-200 hover:border-emerald-300 focus:outline-none focus:border-emerald-600 focus:bg-white transition-all shadow-2xs cursor-pointer appearance-none max-w-[200px] truncate disabled:opacity-60 disabled:cursor-not-allowed"
+                className="px-3.5 py-2 pr-8 rounded-xl text-xs font-bold text-slate-800 dark:text-slate-100 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 hover:border-emerald-300 dark:hover:border-emerald-500 focus:outline-none focus:border-emerald-600 focus:bg-white dark:focus:bg-slate-900 transition-all shadow-2xs cursor-pointer appearance-none max-w-[200px] truncate disabled:opacity-60 disabled:cursor-not-allowed"
               >
-                <option value="ALL">All Milestone Modules</option>
+                <option value="ALL" className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100">All Milestone Modules</option>
                 {selectedStageId !== 'ALL' &&
                   subtopicsForStage.map((sub) => (
-                    <option key={sub.id} value={sub.id}>
+                    <option key={sub.id} value={sub.id} className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100">
                       {sub.title}
                     </option>
                   ))}
@@ -789,8 +938,8 @@ export function LiveSessionListPage() {
 
           {/* Specific Module Filter */}
           <div className="flex items-center gap-2">
-            <label className="text-xs font-bold text-slate-600 flex items-center gap-1.5 flex-shrink-0">
-              <Sparkles className="w-3.5 h-3.5 text-purple-600" />
+            <label className="text-xs font-bold text-slate-600 dark:text-slate-400 flex items-center gap-1.5 flex-shrink-0">
+              <Sparkles className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
               <span>Specific Module:</span>
             </label>
             <div className="relative">
@@ -798,12 +947,12 @@ export function LiveSessionListPage() {
                 value={selectedModuleId}
                 onChange={(e) => setSelectedModuleId(e.target.value)}
                 disabled={selectedSubtopicId === 'ALL'}
-                className="px-3.5 py-2 pr-8 rounded-xl text-xs font-bold text-slate-800 bg-slate-50 border border-slate-200 hover:border-purple-300 focus:outline-none focus:border-purple-600 focus:bg-white transition-all shadow-2xs cursor-pointer appearance-none max-w-[200px] truncate disabled:opacity-60 disabled:cursor-not-allowed"
+                className="px-3.5 py-2 pr-8 rounded-xl text-xs font-bold text-slate-800 dark:text-slate-100 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 hover:border-purple-300 dark:hover:border-purple-500 focus:outline-none focus:border-purple-600 focus:bg-white dark:focus:bg-slate-900 transition-all shadow-2xs cursor-pointer appearance-none max-w-[200px] truncate disabled:opacity-60 disabled:cursor-not-allowed"
               >
-                <option value="ALL">All Specific Modules</option>
+                <option value="ALL" className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100">All Specific Modules</option>
                 {selectedSubtopicId !== 'ALL' &&
                   modulesForSubtopic.map((mod) => (
-                    <option key={mod.id} value={mod.id}>
+                    <option key={mod.id} value={mod.id} className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100">
                       {mod.title}
                     </option>
                   ))}
@@ -815,15 +964,15 @@ export function LiveSessionListPage() {
       </div>
 
       {/* Toolbar */}
-      <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-2xs flex flex-col md:flex-row items-center gap-4">
+      <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-2xs flex flex-col md:flex-row items-center gap-4">
         <div className="relative flex-1 w-full">
-          <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+          <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500" />
           <input
             type="text"
             placeholder="Search live sessions by title, tech stack, instructor, milestone..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 bg-slate-50/70 border border-slate-200 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-purple-500/10 focus:border-purple-500 transition-all"
+            className="w-full pl-10 pr-4 py-2 bg-slate-50/70 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-4 focus:ring-purple-500/10 focus:border-purple-500 transition-all"
           />
         </div>
 
@@ -847,23 +996,23 @@ export function LiveSessionListPage() {
           {filteredSessions.map((sess) => (
             <div
               key={sess.id}
-              className="group bg-white rounded-2xl border border-slate-200/90 shadow-2xs hover:shadow-lg hover:shadow-purple-500/10 hover:border-purple-300 transition-all duration-200 hover:-translate-y-1 p-5 flex flex-col justify-between"
+              className="group bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-2xs hover:shadow-lg hover:shadow-purple-500/10 hover:border-purple-300 dark:hover:border-purple-600 transition-all duration-200 hover:-translate-y-1 p-5 flex flex-col justify-between"
             >
               <div className="space-y-3.5">
                 {/* 1. Header Badges & Actions */}
                 <div className="flex items-center justify-between gap-2">
-                  <span className="text-[11px] font-bold text-purple-700 bg-purple-50 border border-purple-200/80 px-2.5 py-1 rounded-full flex items-center gap-1 shrink-0 truncate max-w-[180px]">
-                    <Layers className="w-3 h-3 text-purple-600 shrink-0" />
+                  <span className="text-[11px] font-bold text-purple-700 dark:text-purple-300 bg-purple-50 dark:bg-purple-950/60 border border-purple-200/80 dark:border-purple-800/60 px-2.5 py-1 rounded-full flex items-center gap-1 shrink-0 truncate max-w-[170px]">
+                    <Layers className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400 shrink-0" />
                     <span className="truncate">{sess.subtopicName || sess.moduleName || sess.technology || 'Live Class'}</span>
                   </span>
 
                   <div className="flex items-center gap-1.5 shrink-0">
                     {sess.isLocked ? (
-                      <Badge variant="amber" className="px-2 py-0.5 bg-amber-50 text-amber-700 border-amber-200 text-[10px] font-bold">
+                      <Badge variant="amber" className="px-2 py-0.5 bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800/60 text-[10px] font-bold">
                         <Lock className="w-3 h-3 mr-1 inline" /> Locked
                       </Badge>
                     ) : (
-                      <span className="text-[11px] font-black px-2.5 py-0.5 rounded-full border bg-sky-50 text-sky-700 border-sky-200 flex items-center gap-1">
+                      <span className="text-[11px] font-black px-2.5 py-0.5 rounded-full border bg-sky-50 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300 border-sky-200 dark:border-sky-800/60 flex items-center gap-1">
                         {sess.status === 'Live Soon' && (
                           <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-ping inline-block" />
                         )}
@@ -871,7 +1020,7 @@ export function LiveSessionListPage() {
                       </span>
                     )}
 
-                    <div className="flex items-center gap-0.5 bg-slate-100/70 p-1 rounded-xl border border-slate-200/60">
+                    <div className="flex items-center gap-0.5 bg-slate-100/70 dark:bg-slate-800/80 p-1 rounded-xl border border-slate-200/60 dark:border-slate-700/60">
                       <button
                         onClick={() => {
                           toggleLiveSessionLock(sess.id);
@@ -884,8 +1033,8 @@ export function LiveSessionListPage() {
                         }}
                         className={`p-1 rounded-lg transition-colors cursor-pointer ${
                           sess.isLocked
-                            ? 'text-amber-600 bg-amber-50 hover:bg-amber-100'
-                            : 'text-slate-400 hover:text-amber-600 hover:bg-white'
+                            ? 'text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/60 hover:bg-amber-100 dark:hover:bg-amber-900/60'
+                            : 'text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-white dark:hover:bg-slate-700'
                         }`}
                         title={sess.isLocked ? 'Unlock Session' : 'Lock Session'}
                       >
@@ -894,14 +1043,14 @@ export function LiveSessionListPage() {
 
                       <button
                         onClick={() => handleOpenEditModal(sess)}
-                        className="p-1 text-slate-400 hover:text-purple-600 rounded-lg hover:bg-white transition-colors cursor-pointer"
+                        className="p-1 text-slate-400 hover:text-purple-600 dark:hover:text-purple-400 rounded-lg hover:bg-white dark:hover:bg-slate-700 transition-colors cursor-pointer"
                         title="Edit Session & Topics"
                       >
                         <Edit2 className="w-3.5 h-3.5" />
                       </button>
                       <button
                         onClick={() => setDeletingSession(sess)}
-                        className="p-1 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-white transition-colors cursor-pointer"
+                        className="p-1 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 rounded-lg hover:bg-white dark:hover:bg-slate-700 transition-colors cursor-pointer"
                         title="Cancel Session"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -912,52 +1061,52 @@ export function LiveSessionListPage() {
 
                 {/* 2. Session Title */}
                 <div>
-                  <h3 className="font-black text-slate-900 text-sm sm:text-base group-hover:text-purple-600 transition-colors leading-snug">
+                  <h3 className="font-bold text-slate-900 dark:text-white text-base group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors leading-snug line-clamp-2 min-h-[2.5rem]">
                     {sess.sessionTitle}
                   </h3>
                 </div>
 
                 {/* 3. Structured Details Info Box */}
-                <div className="bg-slate-50/80 p-3 rounded-xl border border-slate-200/70 space-y-2">
+                <div className="bg-slate-50/80 dark:bg-slate-800/40 p-3.5 rounded-xl border border-slate-200/70 dark:border-slate-800 space-y-2.5">
                   {/* Date & Time Grid */}
                   <div className="grid grid-cols-2 gap-2">
-                    <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700 bg-white px-2.5 py-1.5 rounded-lg border border-slate-200/80 shadow-2xs">
-                      <Calendar className="w-3.5 h-3.5 text-purple-600 shrink-0" />
-                      <span className={`truncate ${!sess.date ? 'text-slate-400 font-semibold italic' : ''}`}>
+                    <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-900/90 px-2.5 py-1.5 rounded-lg border border-slate-200/80 dark:border-slate-800 shadow-2xs">
+                      <Calendar className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400 shrink-0" />
+                      <span className={`truncate ${!sess.date ? 'text-slate-400 dark:text-slate-500 font-medium italic' : ''}`}>
                         {sess.date ? sess.date : 'Date not scheduled'}
                       </span>
                     </div>
-                    <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700 bg-white px-2.5 py-1.5 rounded-lg border border-slate-200/80 shadow-2xs">
-                      <Clock className="w-3.5 h-3.5 text-sky-600 shrink-0" />
-                      <span className="truncate">{sess.time}</span>
+                    <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-900/90 px-2.5 py-1.5 rounded-lg border border-slate-200/80 dark:border-slate-800 shadow-2xs">
+                      <Clock className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400 shrink-0" />
+                      <span className="truncate">{sess.time || 'Time not set'}</span>
                     </div>
                   </div>
 
                   {/* Instructor */}
-                  <div className="flex items-center gap-2 text-xs font-bold text-slate-700 bg-white px-2.5 py-1.5 rounded-lg border border-slate-200/80 shadow-2xs">
-                    <UserCheck className="w-3.5 h-3.5 text-purple-600 shrink-0" />
+                  <div className="flex items-center gap-2 text-xs font-semibold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-900/90 px-2.5 py-1.5 rounded-lg border border-slate-200/80 dark:border-slate-800 shadow-2xs">
+                    <UserCheck className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400 shrink-0" />
                     <span className="truncate">
-                      Instructor: <strong className="text-purple-700 font-extrabold">{sess.instructor}</strong>
+                      Instructor: <strong className="text-purple-700 dark:text-purple-300 font-bold">{sess.instructor || 'Unassigned'}</strong>
                     </span>
                   </div>
 
                   {/* Curriculum Linkages */}
-                  <div className="space-y-1.5 pt-1 border-t border-slate-200/60">
+                  <div className="space-y-1.5 pt-1.5 border-t border-slate-200/60 dark:border-slate-800">
                     {sess.courseName && (
-                      <div className="flex items-center gap-1.5 text-[11px] text-purple-800 bg-purple-50/80 px-2.5 py-1 rounded-lg border border-purple-200/70 font-bold">
-                        <Bookmark className="w-3 h-3 text-purple-600 shrink-0" />
+                      <div className="flex items-center gap-1.5 text-[11px] text-purple-700 dark:text-purple-300 bg-purple-50/80 dark:bg-purple-950/40 px-2.5 py-1 rounded-lg border border-purple-200/60 dark:border-purple-800/40 font-semibold">
+                        <Bookmark className="w-3 h-3 text-purple-600 dark:text-purple-400 shrink-0" />
                         <span className="truncate">Course: {sess.courseName}</span>
                       </div>
                     )}
                     {(sess.subtopicName || sess.moduleName) && (
-                      <div className="flex items-center gap-1.5 text-[11px] text-indigo-800 bg-indigo-50/80 px-2.5 py-1 rounded-lg border border-indigo-200/70 font-bold">
-                        <Layers className="w-3 h-3 text-indigo-600 shrink-0" />
+                      <div className="flex items-center gap-1.5 text-[11px] text-indigo-700 dark:text-indigo-300 bg-indigo-50/80 dark:bg-indigo-950/40 px-2.5 py-1 rounded-lg border border-indigo-200/60 dark:border-indigo-800/40 font-semibold">
+                        <Layers className="w-3 h-3 text-indigo-600 dark:text-indigo-400 shrink-0" />
                         <span className="truncate">Milestone: {sess.subtopicName || sess.moduleName}</span>
                       </div>
                     )}
                     {sess.targetBatch && (
-                      <div className="flex items-center gap-1.5 text-[11px] text-blue-800 bg-blue-50/80 px-2.5 py-1 rounded-lg border border-blue-200/70 font-bold">
-                        <Calendar className="w-3 h-3 text-blue-600 shrink-0" />
+                      <div className="flex items-center gap-1.5 text-[11px] text-blue-700 dark:text-blue-300 bg-blue-50/80 dark:bg-blue-950/40 px-2.5 py-1 rounded-lg border border-blue-200/60 dark:border-blue-800/40 font-semibold">
+                        <Calendar className="w-3 h-3 text-blue-600 dark:text-blue-400 shrink-0" />
                         <span className="truncate">Batches: {sess.targetBatch}</span>
                       </div>
                     )}
@@ -970,22 +1119,22 @@ export function LiveSessionListPage() {
                   if (!Array.isArray(cardTopics) || cardTopics.length === 0) return null;
 
                   return (
-                    <div className="p-2.5 bg-purple-50/40 rounded-xl border border-purple-100/80 space-y-1">
-                      <span className="text-[10px] font-black text-purple-800 uppercase tracking-wider flex items-center gap-1">
-                        <BookOpen className="w-3 h-3 text-purple-600" />
+                    <div className="p-2.5 bg-purple-50/50 dark:bg-purple-950/30 rounded-xl border border-purple-100/90 dark:border-purple-900/40 space-y-1.5">
+                      <span className="text-[10px] font-bold text-purple-700 dark:text-purple-300 uppercase tracking-wider flex items-center gap-1.5">
+                        <BookOpen className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400 shrink-0" />
                         <span>{cardTopics.length} SYLLABUS TOPICS INCLUDED</span>
                       </span>
-                      <div className="flex flex-wrap gap-1 pt-0.5">
+                      <div className="flex flex-wrap gap-1.5 pt-0.5">
                         {cardTopics.slice(0, 3).map((top, tIdx) => (
                           <span
                             key={top.id || tIdx}
-                            className="text-[10px] font-semibold text-slate-700 bg-white px-2 py-0.5 rounded-md border border-purple-100 shadow-2xs truncate max-w-full"
+                            className="text-[10px] font-medium text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800/90 px-2 py-0.5 rounded-md border border-purple-100 dark:border-slate-700/80 shadow-2xs truncate max-w-full"
                           >
                             {tIdx + 1}. {top.title}
                           </span>
                         ))}
                         {cardTopics.length > 3 && (
-                          <span className="text-[10px] font-bold text-purple-600 px-1.5 py-0.5">
+                          <span className="text-[10px] font-bold text-purple-600 dark:text-purple-400 px-1.5 py-0.5">
                             +{cardTopics.length - 3} more
                           </span>
                         )}
@@ -996,11 +1145,11 @@ export function LiveSessionListPage() {
               </div>
 
               {/* 5. Open Meeting Room Action Button */}
-              <div className="mt-4 pt-3.5 border-t border-slate-100">
+              <div className="mt-4 pt-3.5 border-t border-slate-100 dark:border-slate-800">
                 {sess.isLocked ? (
                   <button
                     disabled
-                    className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-100 text-slate-400 font-bold rounded-xl text-xs border border-slate-200 cursor-not-allowed"
+                    className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-100 dark:bg-slate-800/60 text-slate-400 dark:text-slate-500 font-bold rounded-xl text-xs border border-slate-200 dark:border-slate-700 cursor-not-allowed"
                   >
                     <Lock className="w-3.5 h-3.5 text-amber-500" /> Meeting Room Locked
                   </button>
@@ -1009,7 +1158,7 @@ export function LiveSessionListPage() {
                     href={sess.meetingLink}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold rounded-xl text-xs shadow-sm shadow-purple-500/20 hover:shadow-md active:scale-[0.99] transition-all cursor-pointer"
+                    className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold rounded-xl text-xs shadow-md shadow-purple-500/20 hover:shadow-lg active:scale-[0.99] transition-all cursor-pointer"
                   >
                     <Tv2 className="w-3.5 h-3.5" /> Open Meeting Room <ExternalLink className="w-3 h-3 opacity-80" />
                   </a>
@@ -1021,7 +1170,11 @@ export function LiveSessionListPage() {
       ) : (
         <EmptyState
           title="No Live Sessions Found"
-          description="Schedule live webinars or broadcast meeting room links."
+          description={
+            selectedStageId !== 'ALL'
+              ? `No live sessions scheduled for ${selectedStageObj?.title || 'this stage'}.`
+              : "Schedule live webinars or broadcast meeting room links."
+          }
           actionLabel="Schedule Live Class"
           onAction={handleOpenAddModal}
         />
@@ -1051,39 +1204,44 @@ export function LiveSessionListPage() {
 
           {/* 2. CASCADING MILESTONE CURRICULUM LOCATION MAPPING (2x2 Grid) */}
           {(() => {
-            const currentStagesList = formData.courseId
-              ? normalizeStagesList(
-                  milestonesByBatch?.[formData.courseId]?.stages ||
-                  courses.find((c) => c.id === formData.courseId)?.topics ||
-                  []
-                )
-              : [];
+            const formCourseObj = courses.find((c) => c.id === formData.courseId);
+            const isFormCoursePython = isPythonCourse(formCourseObj);
+            const rawFormStages =
+              milestonesByBatch?.[formData.courseId]?.stages ||
+              formCourseObj?.topics ||
+              (isFormCoursePython ? (milestones?.stages || DEFAULT_STAGES) : []);
+            const baseFormStages = isFormCoursePython ? normalizeStagesList(rawFormStages) : rawFormStages;
+            const currentStagesList = [...baseFormStages].sort((a, b) => {
+              const aNum = parseInt(String(a.stageNumber || a.title || '').replace(/\D/g, ''), 10) || 0;
+              const bNum = parseInt(String(b.stageNumber || b.title || '').replace(/\D/g, ''), 10) || 0;
+              return aNum - bNum;
+            });
 
             const currentStageObj = formData.stageId
               ? currentStagesList.find((s) => s.id === formData.stageId || s.title === formData.stageName)
               : null;
 
-            const currentSubtopicsArr = currentStageObj ? getSubtopicsForStage(currentStageObj) : [];
+            const currentSubtopicsArr = currentStageObj ? getSubtopicsForStage(currentStageObj, isFormCoursePython) : [];
 
             const currentSubtopicObj = formData.subtopicId
               ? currentSubtopicsArr.find((st) => st.id === formData.subtopicId || st.title === formData.subtopicName)
               : null;
 
-            const currentInnerModules = currentSubtopicObj ? getInnerModulesForSubtopic(currentSubtopicObj, courseLessons, currentStageObj?.id) : [];
+            const currentInnerModules = currentSubtopicObj ? getInnerModulesForSubtopic(currentSubtopicObj, courseLessons, currentStageObj?.id, isFormCoursePython, formData.courseId) : [];
 
             const currentModObj = formData.moduleId
               ? currentInnerModules.find((m) => (m.id || m.title) === (formData.moduleId || formData.moduleName))
               : null;
 
             return (
-              <div className="bg-gradient-to-br from-slate-50 via-purple-50/20 to-blue-50/40 p-3.5 sm:p-4 rounded-2xl border border-slate-200/80 shadow-2xs space-y-3">
+              <div className="bg-gradient-to-br from-slate-50 via-purple-50/20 to-blue-50/40 dark:from-slate-950/80 dark:via-purple-950/20 dark:to-slate-900/60 p-3.5 sm:p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-2xs space-y-3">
                 {/* Header */}
-                <div className="flex items-center gap-2.5 pb-2.5 border-b border-purple-100/80">
+                <div className="flex items-center gap-2.5 pb-2.5 border-b border-purple-100/80 dark:border-slate-800">
                   <div className="w-7 h-7 rounded-lg bg-purple-600 text-white flex items-center justify-center shadow-xs flex-shrink-0">
                     <Layers className="w-3.5 h-3.5" />
                   </div>
                   <div>
-                    <h4 className="text-xs font-black text-slate-900 uppercase tracking-wider">
+                    <h4 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider">
                       Curriculum Location & Milestone Topic Mapping
                     </h4>
                   </div>
@@ -1092,7 +1250,7 @@ export function LiveSessionListPage() {
                 {/* 2x2 Structured Step Layout */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {/* Step 1: Course Track */}
-                  <div className="bg-white/95 p-2.5 sm:p-3 rounded-xl border border-purple-100/90 shadow-2xs">
+                  <div className="bg-white/95 dark:bg-slate-900/90 p-2.5 sm:p-3 rounded-xl border border-purple-100/90 dark:border-slate-800 shadow-2xs">
                     <Select
                       label="1. Course Track"
                       value={formData.courseId || ''}
@@ -1137,7 +1295,7 @@ export function LiveSessionListPage() {
                   </div>
 
                   {/* Step 2: Course Module / Stage */}
-                  <div className="bg-white/95 p-2.5 sm:p-3 rounded-xl border border-purple-100/90 shadow-2xs">
+                  <div className="bg-white/95 dark:bg-slate-900/90 p-2.5 sm:p-3 rounded-xl border border-purple-100/90 dark:border-slate-800 shadow-2xs">
                     {formData.courseId ? (
                       <Select
                         label="2. Milestone Stage"
@@ -1216,7 +1374,7 @@ export function LiveSessionListPage() {
                   </div>
 
                   {/* Step 3: Milestone Subtopic / Module Track */}
-                  <div className="bg-white/95 p-2.5 sm:p-3 rounded-xl border border-purple-100/90 shadow-2xs">
+                  <div className="bg-white/95 dark:bg-slate-900/90 p-2.5 sm:p-3 rounded-xl border border-purple-100/90 dark:border-slate-800 shadow-2xs">
                     {formData.stageId && formData.stageId !== '__NEW__' ? (
                       <Select
                         label="3. Milestone Subtopic / Module Track"
@@ -1289,7 +1447,7 @@ export function LiveSessionListPage() {
                   </div>
 
                   {/* Step 4: Specific Topic Module */}
-                  <div className="bg-white/95 p-2.5 sm:p-3 rounded-xl border border-purple-100/90 shadow-2xs">
+                  <div className="bg-white/95 dark:bg-slate-900/90 p-2.5 sm:p-3 rounded-xl border border-purple-100/90 dark:border-slate-800 shadow-2xs">
                     {formData.subtopicId && formData.subtopicId !== '__NEW__' ? (
                       <Select
                         label="4. Specific Topic Module"
@@ -1462,14 +1620,14 @@ export function LiveSessionListPage() {
           </div>
 
           {/* 6. DYNAMIC CLASS TOPICS & SESSION AGENDA / OVERVIEW MANAGER */}
-          <div className="p-4 rounded-2xl bg-gradient-to-br from-purple-50/50 via-indigo-50/30 to-purple-50/20 border border-purple-200/90 space-y-3.5 shadow-2xs">
+          <div className="p-4 rounded-2xl bg-gradient-to-br from-purple-50/50 via-indigo-50/30 to-purple-50/20 dark:from-slate-950/80 dark:via-purple-950/20 dark:to-slate-900/60 border border-purple-200/90 dark:border-slate-800 space-y-3.5 shadow-2xs">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <div className="w-7 h-7 rounded-lg bg-purple-600 text-white flex items-center justify-center shadow-xs shrink-0">
                   <BookOpen className="w-3.5 h-3.5" />
                 </div>
                 <div>
-                  <h4 className="text-xs font-black text-slate-900 uppercase tracking-wider">
+                  <h4 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider">
                     Class Topics & Syllabus Covered
                   </h4>
                 </div>
@@ -1488,11 +1646,11 @@ export function LiveSessionListPage() {
               {(formData.topics || []).map((topic, idx) => (
                 <div
                   key={topic.id || idx}
-                  className="p-3.5 bg-white rounded-xl border border-purple-100 shadow-2xs space-y-2.5"
+                  className="p-3.5 bg-white dark:bg-slate-900/90 rounded-xl border border-purple-100 dark:border-slate-800 shadow-2xs space-y-2.5"
                 >
                   <div className="flex items-center justify-between gap-2.5">
                     <div className="flex items-center gap-2.5 flex-1">
-                      <span className="w-6 h-6 rounded-lg bg-purple-100 text-purple-700 font-black text-xs flex items-center justify-center shrink-0 border border-purple-200">
+                      <span className="w-6 h-6 rounded-lg bg-purple-100 dark:bg-purple-950/80 text-purple-700 dark:text-purple-300 font-black text-xs flex items-center justify-center shrink-0 border border-purple-200 dark:border-purple-800/60">
                         {idx + 1}
                       </span>
                       <input
@@ -1500,7 +1658,7 @@ export function LiveSessionListPage() {
                         placeholder={`Topic ${idx + 1} Title (e.g. Overview & Core Concepts)`}
                         value={topic.title}
                         onChange={(e) => handleTopicChange(idx, 'title', e.target.value)}
-                        className="w-full px-3 py-2 text-xs font-bold text-slate-800 bg-slate-50/70 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:bg-white transition-all"
+                        className="w-full px-3 py-2 text-xs font-bold text-slate-800 dark:text-slate-100 bg-slate-50/70 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:bg-white dark:focus:bg-slate-900 transition-all placeholder-slate-400 dark:placeholder-slate-500"
                         required
                       />
                     </div>
@@ -1508,7 +1666,7 @@ export function LiveSessionListPage() {
                       <button
                         type="button"
                         onClick={() => handleRemoveTopicRow(idx)}
-                        className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
+                        className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-lg transition-colors cursor-pointer"
                         title="Remove Topic"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -1517,7 +1675,7 @@ export function LiveSessionListPage() {
                   </div>
 
                   <div>
-                    <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider block mb-1">
+                    <label className="text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wider block mb-1">
                       Session Agenda / Overview for Topic {idx + 1}
                     </label>
                     <textarea
@@ -1525,7 +1683,7 @@ export function LiveSessionListPage() {
                       placeholder={`Enter detailed session agenda for Topic ${idx + 1}...`}
                       value={topic.description || topic.agenda || topic.overview || ''}
                       onChange={(e) => handleTopicChange(idx, 'description', e.target.value)}
-                      className="w-full px-3 py-2 text-xs font-normal text-slate-700 bg-slate-50/50 border border-slate-200/80 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:bg-white resize-none transition-all leading-relaxed"
+                      className="w-full px-3 py-2 text-xs font-normal text-slate-700 dark:text-slate-200 bg-slate-50/50 dark:bg-slate-950/70 border border-slate-200/80 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:bg-white dark:focus:bg-slate-900 resize-none transition-all leading-relaxed placeholder-slate-400 dark:placeholder-slate-500"
                     />
                   </div>
                 </div>
@@ -1534,7 +1692,7 @@ export function LiveSessionListPage() {
           </div>
 
           {/* Action Buttons */}
-          <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
+          <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
             <Button
               type="button"
               variant="outline"

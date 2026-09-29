@@ -123,28 +123,28 @@ export function BatchMultiSelectDropdown({
     <div className={`grid grid-cols-1 sm:grid-cols-2 gap-4 items-start ${className}`}>
       {/* Dropdown 1: Category Selection (All Batches, Weekday, Weekend) */}
       <div className="space-y-1.5">
-        <label className="text-[11px] font-black text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
-          <Filter className="w-3.5 h-3.5 text-purple-600" />
+        <label className="text-[11px] font-black text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+          <Filter className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
           <span>Batch Category</span>
         </label>
         <div className="relative">
           <select
             value={category}
             onChange={(e) => setCategory(e.target.value)}
-            className="w-full px-3.5 py-2.5 pr-9 bg-slate-50 border border-slate-200 hover:border-purple-300 focus:border-purple-600 focus:bg-white rounded-2xl text-xs font-bold text-slate-800 focus:outline-none shadow-2xs cursor-pointer transition-all appearance-none"
+            className="w-full px-3.5 py-2.5 pr-9 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 hover:border-purple-300 dark:hover:border-purple-500 focus:border-purple-600 focus:bg-white dark:focus:bg-slate-900 rounded-2xl text-xs font-bold text-slate-800 dark:text-slate-100 focus:outline-none shadow-2xs cursor-pointer transition-all appearance-none"
           >
             <option value="ALL">All Batches (Weekday & Weekend)</option>
             <option value="WEEKDAY">Weekday Batches</option>
             <option value="WEEKEND">Weekend Batches</option>
           </select>
-          <ChevronDown className="w-4 h-4 text-slate-400 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <ChevronDown className="w-4 h-4 text-slate-400 dark:text-slate-500 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
         </div>
       </div>
 
       {/* Dropdown 2: Multi-Select Batch Numbers */}
       <div className="space-y-1.5 relative" ref={dropdownRef}>
-        <label className="text-[11px] font-black text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
-          <Layers className="w-3.5 h-3.5 text-purple-600" />
+        <label className="text-[11px] font-black text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+          <Layers className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
           <span>Select Batch Numbers</span>
         </label>
 
@@ -152,38 +152,38 @@ export function BatchMultiSelectDropdown({
         <button
           type="button"
           onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-          className={`w-full flex items-center justify-between px-3.5 py-2.5 bg-slate-50 border rounded-2xl text-xs font-bold text-slate-800 focus:outline-none transition-all shadow-2xs cursor-pointer ${
+          className={`w-full flex items-center justify-between px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border rounded-2xl text-xs font-bold text-slate-800 dark:text-slate-100 focus:outline-none transition-all shadow-2xs cursor-pointer ${
             isDropdownOpen
-              ? 'border-purple-600 bg-white ring-2 ring-purple-500/10'
-              : 'border-slate-200 hover:border-purple-300'
+              ? 'border-purple-600 bg-white dark:bg-slate-900 ring-2 ring-purple-500/10'
+              : 'border-slate-200 dark:border-slate-700 hover:border-purple-300 dark:hover:border-purple-500'
           }`}
         >
           <span className="truncate pr-2">{getSummaryText()}</span>
-          <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${isDropdownOpen ? 'rotate-180 text-purple-600' : ''}`} />
+          <ChevronDown className={`w-4 h-4 text-slate-400 dark:text-slate-500 transition-transform duration-200 ${isDropdownOpen ? 'rotate-180 text-purple-600 dark:text-purple-400' : ''}`} />
         </button>
 
         {/* Multi-Select Batch Numbers Dropdown List */}
         {isDropdownOpen && (
-          <div className="mt-2 bg-white rounded-2xl shadow-md border border-slate-200 p-2 max-h-48 overflow-y-auto space-y-1 animate-in fade-in duration-150">
+          <div className="mt-2 bg-white dark:bg-slate-900 rounded-2xl shadow-md border border-slate-200 dark:border-slate-800 p-2 max-h-48 overflow-y-auto space-y-1 animate-in fade-in duration-150">
             {/* Select All Option */}
             <div
               onClick={toggleSelectAllCategory}
-              className="flex items-center justify-between px-3 py-2 rounded-xl bg-purple-50/80 hover:bg-purple-100/80 text-purple-950 font-extrabold text-xs cursor-pointer transition-colors"
+              className="flex items-center justify-between px-3 py-2 rounded-xl bg-purple-50/80 dark:bg-purple-950/60 hover:bg-purple-100/80 dark:hover:bg-purple-900/60 text-purple-950 dark:text-purple-200 font-extrabold text-xs cursor-pointer transition-colors"
             >
               <div className="flex items-center gap-2.5">
                 {allSelectedInCategory ? (
-                  <CheckSquare className="w-4 h-4 text-purple-600 flex-shrink-0" />
+                  <CheckSquare className="w-4 h-4 text-purple-600 dark:text-purple-400 flex-shrink-0" />
                 ) : (
-                  <Square className="w-4 h-4 text-purple-400 flex-shrink-0" />
+                  <Square className="w-4 h-4 text-purple-400 dark:text-purple-500 flex-shrink-0" />
                 )}
                 <span>{allSelectedInCategory ? 'Deselect All' : 'Select All'}</span>
               </div>
-              <span className="text-[10px] uppercase font-black text-purple-600 bg-purple-100/90 px-2 py-0.5 rounded-md">
+              <span className="text-[10px] uppercase font-black text-purple-600 dark:text-purple-300 bg-purple-100/90 dark:bg-purple-900/90 px-2 py-0.5 rounded-md">
                 {category}
               </span>
             </div>
 
-            <div className="border-t border-slate-100 my-1" />
+            <div className="border-t border-slate-100 dark:border-slate-800 my-1" />
 
             {/* List of Batch Checkboxes */}
             {relevantBatches.map((bCode) => {
@@ -198,19 +198,19 @@ export function BatchMultiSelectDropdown({
                   onClick={() => toggleBatch(bCode)}
                   className={`flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer select-none ${
                     isChecked
-                      ? 'bg-purple-50/70 text-purple-950 font-extrabold'
-                      : 'text-slate-700 hover:bg-slate-50'
+                      ? 'bg-purple-50/70 dark:bg-purple-950/40 text-purple-950 dark:text-purple-200 font-extrabold'
+                      : 'text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'
                   }`}
                 >
                   <div className="flex items-center gap-2.5">
                     {isChecked ? (
-                      <CheckSquare className="w-4 h-4 text-purple-600 flex-shrink-0" />
+                      <CheckSquare className="w-4 h-4 text-purple-600 dark:text-purple-400 flex-shrink-0" />
                     ) : (
-                      <Square className="w-4 h-4 text-slate-300 flex-shrink-0" />
+                      <Square className="w-4 h-4 text-slate-300 dark:text-slate-600 flex-shrink-0" />
                     )}
                     <span>{bCode}</span>
                   </div>
-                  {isChecked && <Check className="w-3.5 h-3.5 text-purple-600" />}
+                  {isChecked && <Check className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />}
                 </div>
               );
             })}

@@ -13,8 +13,8 @@ export function Breadcrumbs({ items }) {
   });
 
   return (
-    <nav className="flex items-center gap-2 text-xs text-slate-500 mb-4">
-      <Link to="/dashboard" className="hover:text-blue-600 flex items-center gap-1 font-medium transition-colors">
+    <nav className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 mb-4">
+      <Link to="/dashboard" className="hover:text-blue-600 dark:hover:text-blue-400 flex items-center gap-1 font-medium transition-colors">
         <Home className="w-3.5 h-3.5" />
         <span>Dashboard</span>
       </Link>
@@ -24,11 +24,11 @@ export function Breadcrumbs({ items }) {
 
         return (
           <React.Fragment key={idx}>
-            <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
+            <ChevronRight className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500" />
             {idx === paths.length - 1 ? (
-              <span className="font-bold text-slate-800">{item.label}</span>
+              <span className="font-bold text-slate-800 dark:text-slate-200">{item.label}</span>
             ) : (
-              <Link to={targetUrl} className="hover:text-blue-600 font-semibold transition-colors">
+              <Link to={targetUrl} className="hover:text-blue-600 dark:hover:text-blue-400 font-semibold transition-colors">
                 {item.label}
               </Link>
             )}

@@ -132,7 +132,7 @@ export function SuperAdminDashboard() {
           <Link
             key={m.title}
             to={m.link}
-            className="group bg-white p-6 rounded-3xl border border-slate-200/80 shadow-2xs hover:shadow-2xl hover:shadow-blue-500/10 hover:border-blue-300 transition-all duration-300 hover:-translate-y-1.5 relative overflow-hidden flex flex-col justify-between"
+            className="group bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-2xs hover:shadow-2xl hover:shadow-blue-500/10 hover:border-blue-300 dark:hover:border-blue-600 transition-all duration-300 hover:-translate-y-1.5 relative overflow-hidden flex flex-col justify-between"
           >
             <div>
               <div className="flex items-center justify-between">
@@ -144,21 +144,21 @@ export function SuperAdminDashboard() {
                   <Badge variant={m.badgeColor} className="text-[10px]">
                     <TrendingUp className="w-3 h-3 mr-1" /> {m.change}
                   </Badge>
-                  <div className="w-8 h-8 rounded-full bg-slate-50 group-hover:bg-blue-50 flex items-center justify-center transition-colors">
-                    <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-blue-600 transition-colors" />
+                  <div className="w-8 h-8 rounded-full bg-slate-50 dark:bg-slate-800 group-hover:bg-blue-50 dark:group-hover:bg-slate-700 flex items-center justify-center transition-colors">
+                    <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors" />
                   </div>
                 </div>
               </div>
 
               <div className="mt-6">
-                <h3 className="text-2xl font-extrabold text-slate-900 tracking-normal group-hover:text-blue-600 transition-colors">{m.value}</h3>
-                <p className="text-xs font-semibold text-slate-400 mt-1 uppercase tracking-wider">{m.title}</p>
+                <h3 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-normal group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">{m.value}</h3>
+                <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 mt-1 uppercase tracking-wider">{m.title}</p>
               </div>
             </div>
 
-            <div className="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-400 font-medium">
+            <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs text-slate-400 dark:text-slate-500 font-medium">
               <span>System Track</span>
-              <span className="font-bold text-blue-600 group-hover:translate-x-1 transition-transform inline-flex items-center gap-1">
+              <span className="font-bold text-blue-600 dark:text-blue-400 group-hover:translate-x-1 transition-transform inline-flex items-center gap-1">
                 Manage Module →
               </span>
             </div>
@@ -169,26 +169,26 @@ export function SuperAdminDashboard() {
       {/* Two Column Section: Live Activities Log & Staff Controls */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Recent Platform Activities Feed */}
-        <div className="lg:col-span-2 bg-white rounded-3xl border border-slate-200/80 p-7 shadow-2xs">
-          <div className="flex items-center justify-between pb-5 border-b border-slate-100">
+        <div className="lg:col-span-2 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 p-7 shadow-2xs">
+          <div className="flex items-center justify-between pb-5 border-b border-slate-100 dark:border-slate-800">
             <div>
-              <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-                <Activity className="w-5 h-5 text-blue-600" /> Platform Audit & Content Log
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                <Activity className="w-5 h-5 text-blue-600 dark:text-blue-400" /> Platform Audit & Content Log
               </h3>
-              <p className="text-xs text-slate-500 font-medium mt-0.5">Real-time log of administrative updates</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium mt-0.5">Real-time log of administrative updates</p>
             </div>
             <Badge variant="blue" className="px-3 py-1">Live Feed Log</Badge>
           </div>
 
           <div className="mt-5 space-y-4">
             {activities.map((act) => (
-              <div key={act.id} className="p-3.5 flex items-start gap-4 hover:bg-blue-50/50 rounded-2xl transition-all border border-transparent hover:border-blue-100">
-                <div className="p-2.5 rounded-xl bg-blue-50 text-blue-600 mt-0.5 border border-blue-100/80 shadow-2xs">
+              <div key={act.id} className="p-3.5 flex items-start gap-4 hover:bg-blue-50/50 dark:hover:bg-slate-800/50 rounded-2xl transition-all border border-transparent hover:border-blue-100 dark:hover:border-slate-700">
+                <div className="p-2.5 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 mt-0.5 border border-blue-100/80 dark:border-blue-900/60 shadow-2xs">
                   <Clock className="w-4 h-4" />
                 </div>
                 <div className="flex-1">
-                  <p className="text-xs font-bold text-slate-800 leading-snug">{act.text}</p>
-                  <span className="text-[10px] text-slate-400 font-medium mt-1 inline-block">{act.time}</span>
+                  <p className="text-xs font-bold text-slate-800 dark:text-slate-200 leading-snug">{act.text}</p>
+                  <span className="text-[10px] text-slate-400 dark:text-slate-500 font-medium mt-1 inline-block">{act.time}</span>
                 </div>
               </div>
             ))}
@@ -197,15 +197,15 @@ export function SuperAdminDashboard() {
 
         {/* Staff Security & Shortcuts */}
         <div className="space-y-6">
-          <div className="bg-white rounded-3xl border border-slate-200/80 p-7 shadow-2xs">
-            <h3 className="text-base font-bold text-slate-900 mb-2">Staff Role Permissions</h3>
-            <p className="text-xs text-slate-500 font-medium mb-5 leading-relaxed">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 p-7 shadow-2xs">
+            <h3 className="text-base font-bold text-slate-900 dark:text-white mb-2">Staff Role Permissions</h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400 font-medium mb-5 leading-relaxed">
               Configure fine-grained access policies for Super Admin, Admin, Manager, and Instructor roles.
             </p>
 
             <Link
               to="/permissions"
-              className="w-full flex items-center justify-center gap-2 p-3.5 bg-blue-50/80 hover:bg-blue-100 text-blue-700 font-bold rounded-2xl text-xs border border-blue-200 transition-all shadow-2xs hover:shadow-md"
+              className="w-full flex items-center justify-center gap-2 p-3.5 bg-blue-50/80 dark:bg-blue-950/60 hover:bg-blue-100 dark:hover:bg-blue-900/60 text-blue-700 dark:text-blue-300 font-bold rounded-2xl text-xs border border-blue-200 dark:border-blue-800 transition-all shadow-2xs hover:shadow-md"
             >
               <ShieldAlert className="w-4 h-4" /> Staff Permission Matrix
             </Link>

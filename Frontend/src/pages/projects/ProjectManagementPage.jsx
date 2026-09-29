@@ -1291,28 +1291,28 @@ export function ProjectManagementPage() {
       >
         <form onSubmit={handleFormSubmit} className="space-y-4">
           {/* AUTO-IMPORT FROM JSON SECTION */}
-          <div className="p-3.5 bg-slate-50/90 rounded-2xl border border-slate-200/90 space-y-3">
+          <div className="p-3.5 bg-slate-50/90 dark:bg-slate-900/80 rounded-2xl border border-slate-200/90 dark:border-slate-800 space-y-3">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <div className="flex items-center gap-2">
-                <FileJson className="w-4 h-4 text-emerald-600" />
-                <span className="font-extrabold text-xs text-slate-800 uppercase tracking-wider">
+                <FileJson className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                <span className="font-extrabold text-xs text-slate-800 dark:text-slate-200 uppercase tracking-wider">
                   Auto-Import from JSON
                 </span>
-                <span className="text-[11px] text-slate-400 font-medium">(auto-fill project fields)</span>
+                <span className="text-[11px] text-slate-400 dark:text-slate-500 font-medium">(auto-fill project fields)</span>
               </div>
 
               {/* Mode Toggle Tabs: Paste JSON vs Upload File */}
-              <div className="inline-flex rounded-xl bg-slate-200/70 p-1 border border-slate-200 text-xs font-bold self-start sm:self-auto">
+              <div className="inline-flex rounded-xl bg-slate-200/70 dark:bg-slate-800/80 p-1 border border-slate-200 dark:border-slate-700 text-xs font-bold self-start sm:self-auto">
                 <button
                   type="button"
                   onClick={() => { setImportMode('paste'); setJsonError(''); }}
                   className={`flex items-center gap-1.5 px-3 py-1 rounded-lg transition-all cursor-pointer ${
                     importMode === 'paste'
-                      ? 'bg-white text-emerald-700 shadow-xs font-extrabold'
-                      : 'text-slate-600 hover:text-slate-900'
+                      ? 'bg-white dark:bg-slate-900 text-emerald-700 dark:text-emerald-300 shadow-xs font-extrabold'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
                   }`}
                 >
-                  <ClipboardPaste className="w-3.5 h-3.5 text-emerald-600" />
+                  <ClipboardPaste className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                   Paste JSON
                 </button>
                 <button
@@ -1320,11 +1320,11 @@ export function ProjectManagementPage() {
                   onClick={() => { setImportMode('file'); setJsonError(''); }}
                   className={`flex items-center gap-1.5 px-3 py-1 rounded-lg transition-all cursor-pointer ${
                     importMode === 'file'
-                      ? 'bg-white text-emerald-700 shadow-xs font-extrabold'
-                      : 'text-slate-600 hover:text-slate-900'
+                      ? 'bg-white dark:bg-slate-900 text-emerald-700 dark:text-emerald-300 shadow-xs font-extrabold'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
                   }`}
                 >
-                  <Upload className="w-3.5 h-3.5 text-slate-500" />
+                  <Upload className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
                   Upload .JSON
                 </button>
               </div>
@@ -1334,14 +1334,14 @@ export function ProjectManagementPage() {
             {importMode === 'paste' && (
               <div className="space-y-2.5">
                 <div className="flex items-center justify-between gap-2">
-                  <span className="text-xs font-bold text-slate-600">
+                  <span className="text-xs font-bold text-slate-600 dark:text-slate-400">
                     Paste project JSON:
                   </span>
                   <div className="flex items-center gap-2">
                     <button
                       type="button"
                       onClick={handleLoadSampleProjectJson}
-                      className="text-[11px] font-bold text-emerald-600 hover:text-emerald-800 hover:underline cursor-pointer"
+                      className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 hover:text-emerald-800 dark:hover:text-emerald-300 hover:underline cursor-pointer"
                     >
                       Insert Sample JSON
                     </button>
@@ -1362,11 +1362,11 @@ export function ProjectManagementPage() {
                   value={pastedJson}
                   onChange={(e) => setPastedJson(e.target.value)}
                   placeholder={`{\n  "title": "Full-Stack Task Board",\n  "type": "Major",\n  "difficulty": "Intermediate",\n  "techStack": ["React", "Node.js", "PostgreSQL"],\n  "requirements": ["Auth with JWT", "Drag-and-drop tasks"]\n}`}
-                  className="w-full px-3.5 py-2 bg-white text-slate-800 font-mono text-xs border border-slate-300 rounded-xl focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 transition-all shadow-inner resize-y"
+                  className="w-full px-3.5 py-2 bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-200 font-mono text-xs border border-slate-300 dark:border-slate-700 rounded-xl focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900/40 transition-all shadow-inner resize-y"
                 />
 
                 <div className="flex items-center justify-between gap-2 flex-wrap">
-                  <span className="text-[11px] text-slate-500">
+                  <span className="text-[11px] text-slate-500 dark:text-slate-400">
                     💡 Click <strong>Parse &amp; Fill Project</strong> to populate title, tech stack, requirements, steps, and rubric.
                   </span>
                   <Button
@@ -1390,8 +1390,8 @@ export function ProjectManagementPage() {
                 htmlFor="project-json-upload"
                 className={`flex flex-col items-center justify-center gap-2 w-full border-2 border-dashed rounded-xl p-4 cursor-pointer transition-all ${
                   jsonDragOver
-                    ? 'border-emerald-500 bg-emerald-50'
-                    : 'border-slate-300 bg-white hover:border-emerald-400 hover:bg-emerald-50/30'
+                    ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-950/30'
+                    : 'border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 hover:border-emerald-400 hover:bg-emerald-50/30 dark:hover:bg-emerald-950/20'
                 }`}
                 onDragOver={(e) => { e.preventDefault(); setJsonDragOver(true); }}
                 onDragLeave={() => setJsonDragOver(false)}
@@ -1414,14 +1414,14 @@ export function ProjectManagementPage() {
                   }}
                 />
                 {jsonParsing ? (
-                  <div className="flex items-center gap-2 py-1 text-emerald-700 text-xs font-bold">
+                  <div className="flex items-center gap-2 py-1 text-emerald-700 dark:text-emerald-300 text-xs font-bold">
                     <div className="w-4 h-4 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
                     <span>Reading &amp; parsing JSON file…</span>
                   </div>
                 ) : (
-                  <div className="flex items-center gap-2 text-slate-600 py-1 text-xs font-semibold">
-                    <Upload className="w-4 h-4 text-emerald-600" />
-                    <span>Drop your <strong className="text-emerald-700 font-bold">.json</strong> file here or <span className="text-emerald-600 underline">click to browse</span></span>
+                  <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400 py-1 text-xs font-semibold">
+                    <Upload className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                    <span>Drop your <strong className="text-emerald-700 dark:text-emerald-300 font-bold">.json</strong> file here or <span className="text-emerald-600 dark:text-emerald-400 underline">click to browse</span></span>
                   </div>
                 )}
               </label>
@@ -1429,13 +1429,13 @@ export function ProjectManagementPage() {
 
             {/* Status & Error feedback */}
             {jsonError && (
-              <div className="flex items-start gap-2 px-3 py-2 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-700 font-medium">
+              <div className="flex items-start gap-2 px-3 py-2 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/60 rounded-xl text-xs text-rose-700 dark:text-rose-300 font-medium">
                 <AlertCircle className="w-4 h-4 text-rose-500 flex-shrink-0 mt-0.5" />
                 <span>{jsonError}</span>
               </div>
             )}
             {jsonExtractedCount > 0 && !jsonError && (
-              <div className="flex items-center gap-2 px-3 py-2 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-700 font-bold">
+              <div className="flex items-center gap-2 px-3 py-2 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 rounded-xl text-xs text-emerald-700 dark:text-emerald-300 font-bold">
                 <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
                 <span>Project details filled successfully! You can review or edit any fields below.</span>
               </div>
@@ -1478,8 +1478,8 @@ export function ProjectManagementPage() {
           </div>
 
           {/* Row 2: Target Batch Assignment */}
-          <div className="p-3 bg-slate-50/80 rounded-2xl border border-slate-200/80">
-            <label className="block text-[11px] font-black text-slate-700 uppercase tracking-wider mb-2">
+          <div className="p-3 bg-slate-50/80 dark:bg-slate-900/80 rounded-2xl border border-slate-200/80 dark:border-slate-800">
+            <label className="block text-[11px] font-black text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
               Target Batch Assignment
             </label>
             <BatchMultiSelectDropdown
@@ -1545,17 +1545,17 @@ export function ProjectManagementPage() {
             };
 
             return (
-              <div className="bg-gradient-to-br from-slate-50 via-emerald-50/20 to-purple-50/40 p-3.5 sm:p-4 rounded-2xl border border-slate-200/80 shadow-2xs space-y-3">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2.5 border-b border-emerald-100/80">
+              <div className="bg-gradient-to-br from-slate-50 via-emerald-50/20 to-purple-50/40 dark:from-slate-950/80 dark:via-emerald-950/20 dark:to-slate-900/60 p-3.5 sm:p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-2xs space-y-3">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2.5 border-b border-emerald-100/80 dark:border-slate-800">
                   <div className="flex items-center gap-2.5">
                     <div className="w-7 h-7 rounded-lg bg-emerald-600 text-white flex items-center justify-center shadow-xs flex-shrink-0">
                       <Layers className="w-3.5 h-3.5" />
                     </div>
                     <div>
-                      <h4 className="text-xs font-black text-slate-900 uppercase tracking-wider">
+                      <h4 className="text-xs font-black text-slate-900 dark:text-slate-100 uppercase tracking-wider">
                         Curriculum Location & Milestone Topic Mapping
                       </h4>
-                      <p className="text-[11px] text-slate-500 font-medium">
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
                         Projects automatically sync to this Milestone topic in real-time
                       </p>
                     </div>
@@ -1564,10 +1564,10 @@ export function ProjectManagementPage() {
                   <button
                     type="button"
                     onClick={handleAutoFillFromMilestone}
-                    className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold text-emerald-700 bg-emerald-100/80 hover:bg-emerald-200 border border-emerald-300 rounded-lg transition-colors shadow-2xs self-start sm:self-auto cursor-pointer"
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-100/80 dark:bg-emerald-950/80 hover:bg-emerald-200 dark:hover:bg-emerald-900 border border-emerald-300 dark:border-emerald-800 rounded-lg transition-colors shadow-2xs self-start sm:self-auto cursor-pointer"
                     title="Auto-populate Project Title from selected Milestone content"
                   >
-                    <Sparkles className="w-3.5 h-3.5 text-emerald-600 animate-pulse" />
+                    <Sparkles className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 animate-pulse" />
                     <span>Auto-Fill from Milestone</span>
                   </button>
                 </div>
@@ -1575,7 +1575,7 @@ export function ProjectManagementPage() {
                 {/* 2x2 Structured Step Layout */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {/* Step 1: Course Track */}
-                  <div className="bg-white/95 p-2.5 sm:p-3 rounded-xl border border-emerald-100/90 shadow-2xs">
+                  <div className="bg-white/95 dark:bg-slate-900/90 p-2.5 sm:p-3 rounded-xl border border-emerald-100/90 dark:border-slate-800 shadow-2xs">
                     <Select
                       label="1. Course Track"
                       value={formData.courseId}
@@ -1613,7 +1613,7 @@ export function ProjectManagementPage() {
                   </div>
 
                   {/* Step 2: Course Module / Stage */}
-                  <div className="bg-white/95 p-2.5 sm:p-3 rounded-xl border border-emerald-100/90 shadow-2xs">
+                  <div className="bg-white/95 dark:bg-slate-900/90 p-2.5 sm:p-3 rounded-xl border border-emerald-100/90 dark:border-slate-800 shadow-2xs">
                     <Select
                       label="2. Milestone Stage"
                       value={formData.stageId || currentStageObj?.id || ''}
@@ -1642,7 +1642,7 @@ export function ProjectManagementPage() {
                   </div>
 
                   {/* Step 3: Milestone Subtopic / Module Track */}
-                  <div className="bg-white/95 p-2.5 sm:p-3 rounded-xl border border-emerald-100/90 shadow-2xs">
+                  <div className="bg-white/95 dark:bg-slate-900/90 p-2.5 sm:p-3 rounded-xl border border-emerald-100/90 dark:border-slate-800 shadow-2xs">
                     <Select
                       label="3. Milestone Subtopic / Module Track"
                       value={formData.subtopicId || currentSubtopicObj?.id || ''}
@@ -1667,7 +1667,7 @@ export function ProjectManagementPage() {
                   </div>
 
                   {/* Step 4: Specific Topic Module */}
-                  <div className="bg-white/95 p-2.5 sm:p-3 rounded-xl border border-emerald-100/90 shadow-2xs">
+                  <div className="bg-white/95 dark:bg-slate-900/90 p-2.5 sm:p-3 rounded-xl border border-emerald-100/90 dark:border-slate-800 shadow-2xs">
                     <Select
                       label="4. Specific Topic Module"
                       value={formData.innerTopicId || currentModObj?.id || ''}
@@ -1689,16 +1689,16 @@ export function ProjectManagementPage() {
                 </div>
 
                 {/* Milestone Module Content Preview & Existing Attached Items */}
-                <div className="bg-white/90 rounded-xl p-3 border border-emerald-100/80 shadow-2xs space-y-2">
+                <div className="bg-white/90 dark:bg-slate-900/90 rounded-xl p-3 border border-emerald-100/80 dark:border-slate-800 shadow-2xs space-y-2">
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700">
-                      <BookOpen className="w-3.5 h-3.5 text-emerald-600" />
+                    <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700 dark:text-slate-300">
+                      <BookOpen className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                       <span>Milestone Module Contents:</span>
-                      <span className="text-emerald-700 font-semibold truncate max-w-[280px] sm:max-w-md">
+                      <span className="text-emerald-700 dark:text-emerald-400 font-semibold truncate max-w-[280px] sm:max-w-md">
                         {currentModObj?.title || 'Selected Topic Unit'}
                       </span>
                     </div>
-                    <span className="text-[10px] font-semibold text-slate-400">
+                    <span className="text-[10px] font-semibold text-slate-400 dark:text-slate-500">
                       {existingItems.length} curriculum item{existingItems.length === 1 ? '' : 's'}
                     </span>
                   </div>
@@ -1709,24 +1709,24 @@ export function ProjectManagementPage() {
                       {existingItems.map((it, idx) => (
                         <div
                           key={it.id || idx}
-                          className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-100 border border-slate-200 text-[10px] font-semibold text-slate-700"
+                          className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-[10px] font-semibold text-slate-700 dark:text-slate-300"
                         >
                           {it.type === 'LIVE CLASS' ? (
                             <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
                           ) : it.type === 'PROJECT' ? (
-                            <Building2 className="w-2.5 h-2.5 text-emerald-600" />
+                            <Building2 className="w-2.5 h-2.5 text-emerald-600 dark:text-emerald-400" />
                           ) : it.type === 'ASSESSMENT' ? (
-                            <FileCheck className="w-2.5 h-2.5 text-blue-600" />
+                            <FileCheck className="w-2.5 h-2.5 text-blue-600 dark:text-blue-400" />
                           ) : (
-                            <Code className="w-2.5 h-2.5 text-emerald-600" />
+                            <Code className="w-2.5 h-2.5 text-emerald-600 dark:text-emerald-400" />
                           )}
-                          <span className="font-bold text-[9px] uppercase text-slate-500">{it.type || 'ITEM'}:</span>
+                          <span className="font-bold text-[9px] uppercase text-slate-500 dark:text-slate-400">{it.type || 'ITEM'}:</span>
                           <span className="truncate max-w-[150px]">{it.title}</span>
                         </div>
                       ))}
                     </div>
                   ) : (
-                    <p className="text-[11px] text-slate-400 italic">
+                    <p className="text-[11px] text-slate-400 dark:text-slate-500 italic">
                       No sessions, assessments, or projects currently mapped to this module yet.
                     </p>
                   )}
@@ -1769,7 +1769,7 @@ export function ProjectManagementPage() {
           {/* Row 3: Short Description & Trainer Pro Tip (matching rows=2 textareas) */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="flex flex-col gap-1.5">
-              <label className="text-[11px] font-extrabold text-slate-700 uppercase tracking-wider h-5 flex items-center">
+              <label className="text-[11px] font-extrabold text-slate-700 dark:text-slate-300 uppercase tracking-wider h-5 flex items-center">
                 Short Description
               </label>
               <textarea
@@ -1777,13 +1777,13 @@ export function ProjectManagementPage() {
                 placeholder="Build a Python script that analyzes, cleans, and generates insights from raw CSV data."
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                className="w-full px-3.5 py-2 bg-slate-50/60 hover:bg-white border border-slate-200 rounded-xl text-xs text-slate-800 focus:bg-white focus:outline-none focus:border-blue-500 transition-all resize-none"
+                className="w-full px-3.5 py-2 bg-slate-50/60 hover:bg-white dark:bg-slate-950 dark:hover:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-800 dark:text-slate-200 focus:bg-white dark:focus:bg-slate-950 focus:outline-none focus:border-blue-500 transition-all resize-none"
                 required
               />
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label className="text-[11px] font-extrabold text-slate-700 uppercase tracking-wider h-5 flex items-center">
+              <label className="text-[11px] font-extrabold text-slate-700 dark:text-slate-300 uppercase tracking-wider h-5 flex items-center">
                 Trainer Pro Tip
               </label>
               <textarea
@@ -1791,7 +1791,7 @@ export function ProjectManagementPage() {
                 placeholder="e.g. Test code thoroughly before submitting drive link."
                 value={formData.mentorTip}
                 onChange={(e) => setFormData({ ...formData, mentorTip: e.target.value })}
-                className="w-full px-3.5 py-2 bg-slate-50/60 hover:bg-white border border-slate-200 rounded-xl text-xs text-slate-800 focus:bg-white focus:outline-none focus:border-blue-500 transition-all resize-none"
+                className="w-full px-3.5 py-2 bg-slate-50/60 hover:bg-white dark:bg-slate-950 dark:hover:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-800 dark:text-slate-200 focus:bg-white dark:focus:bg-slate-950 focus:outline-none focus:border-blue-500 transition-all resize-none"
               />
             </div>
           </div>
@@ -1799,7 +1799,7 @@ export function ProjectManagementPage() {
           {/* Row 4: Full Overview Brief & Key Functional Requirements */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="flex flex-col gap-1.5">
-              <label className="text-[11px] font-extrabold text-slate-700 uppercase tracking-wider h-5 flex items-center">
+              <label className="text-[11px] font-extrabold text-slate-700 dark:text-slate-300 uppercase tracking-wider h-5 flex items-center">
                 Full Project Overview Brief
               </label>
               <textarea
@@ -1807,12 +1807,12 @@ export function ProjectManagementPage() {
                 placeholder="Develop a production-ready solution adhering to industry coding standards, modular component organization, and clean user experience."
                 value={formData.overview}
                 onChange={(e) => setFormData({ ...formData, overview: e.target.value })}
-                className="w-full px-3.5 py-2 bg-slate-50/60 hover:bg-white border border-slate-200 rounded-xl text-xs text-slate-800 focus:bg-white focus:outline-none focus:border-blue-500 transition-all resize-none"
+                className="w-full px-3.5 py-2 bg-slate-50/60 hover:bg-white dark:bg-slate-950 dark:hover:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-800 dark:text-slate-200 focus:bg-white dark:focus:bg-slate-950 focus:outline-none focus:border-blue-500 transition-all resize-none"
               />
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label className="text-[11px] font-extrabold text-slate-700 uppercase tracking-wider h-5 flex items-center">
+              <label className="text-[11px] font-extrabold text-slate-700 dark:text-slate-300 uppercase tracking-wider h-5 flex items-center">
                 Key Functional Requirements
               </label>
               <textarea
@@ -1820,7 +1820,7 @@ export function ProjectManagementPage() {
                 placeholder="Title: Description per line (e.g. Responsive UI: Ensure seamless layout...)"
                 value={formData.requirements}
                 onChange={(e) => setFormData({ ...formData, requirements: e.target.value })}
-                className="w-full px-3.5 py-2 bg-slate-50/60 hover:bg-white border border-slate-200 rounded-xl text-xs text-slate-800 font-mono focus:bg-white focus:outline-none focus:border-blue-500 transition-all resize-none"
+                className="w-full px-3.5 py-2 bg-slate-50/60 hover:bg-white dark:bg-slate-950 dark:hover:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-800 dark:text-slate-200 font-mono focus:bg-white dark:focus:bg-slate-950 focus:outline-none focus:border-blue-500 transition-all resize-none"
               />
             </div>
           </div>
@@ -1828,7 +1828,7 @@ export function ProjectManagementPage() {
           {/* Row 5: Recommended Implementation Steps & Evaluation Rubric Criteria */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="flex flex-col gap-1.5">
-              <label className="text-[11px] font-extrabold text-slate-700 uppercase tracking-wider h-5 flex items-center">
+              <label className="text-[11px] font-extrabold text-slate-700 dark:text-slate-300 uppercase tracking-wider h-5 flex items-center">
                 Recommended Implementation Steps
               </label>
               <textarea
@@ -1836,12 +1836,12 @@ export function ProjectManagementPage() {
                 placeholder="One per line (e.g. 1. Setup repository&#10;2. Build core logic&#10;3. Submit link)"
                 value={formData.steps}
                 onChange={(e) => setFormData({ ...formData, steps: e.target.value })}
-                className="w-full px-3.5 py-2 bg-slate-50/60 hover:bg-white border border-slate-200 rounded-xl text-xs text-slate-800 font-mono focus:bg-white focus:outline-none focus:border-blue-500 transition-all resize-none"
+                className="w-full px-3.5 py-2 bg-slate-50/60 hover:bg-white dark:bg-slate-950 dark:hover:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-800 dark:text-slate-200 font-mono focus:bg-white dark:focus:bg-slate-950 focus:outline-none focus:border-blue-500 transition-all resize-none"
               />
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label className="text-[11px] font-extrabold text-slate-700 uppercase tracking-wider h-5 flex items-center">
+              <label className="text-[11px] font-extrabold text-slate-700 dark:text-slate-300 uppercase tracking-wider h-5 flex items-center">
                 Evaluation Rubric & Weights
               </label>
               <textarea
@@ -1849,12 +1849,12 @@ export function ProjectManagementPage() {
                 placeholder="Label: Weight per line (e.g. UI/UX: 35%&#10;Logic: 35%&#10;Clean Code: 30%)"
                 value={formData.rubric}
                 onChange={(e) => setFormData({ ...formData, rubric: e.target.value })}
-                className="w-full px-3.5 py-2 bg-slate-50/60 hover:bg-white border border-slate-200 rounded-xl text-xs text-slate-800 font-mono focus:bg-white focus:outline-none focus:border-blue-500 transition-all resize-none"
+                className="w-full px-3.5 py-2 bg-slate-50/60 hover:bg-white dark:bg-slate-950 dark:hover:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-800 dark:text-slate-200 font-mono focus:bg-white dark:focus:bg-slate-950 focus:outline-none focus:border-blue-500 transition-all resize-none"
               />
             </div>
           </div>
 
-          <div className="flex justify-end gap-2.5 pt-3 border-t border-slate-100">
+          <div className="flex justify-end gap-2.5 pt-3 border-t border-slate-100 dark:border-slate-800">
             <Button
               variant="secondary"
               onClick={() => {

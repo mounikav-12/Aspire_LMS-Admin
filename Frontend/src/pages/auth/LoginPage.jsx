@@ -6,6 +6,7 @@ import { Button } from '../../components/common/Button';
 import { Input } from '../../components/common/Input';
 import { LogIn, Lock, Mail, ShieldCheck, UserPlus } from 'lucide-react';
 import { AINetworkCanvas } from '../../components/auth/AINetworkCanvas';
+import { ThemeToggle } from '../../components/common/ThemeToggle';
 
 export function LoginPage() {
   const navigate = useNavigate();
@@ -45,8 +46,11 @@ export function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 sm:p-6">
-      <div className="w-full max-w-4xl bg-white rounded-3xl border border-slate-200/80 shadow-xl overflow-hidden grid grid-cols-1 lg:grid-cols-12">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center p-4 sm:p-6 transition-colors duration-200 relative">
+      {/* Floating Theme Switcher */}
+      <ThemeToggle variant="floating" />
+
+      <div className="w-full max-w-4xl bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xl overflow-hidden grid grid-cols-1 lg:grid-cols-12">
         {/* Left Hero Brand Panel */}
         <div className="lg:col-span-5 animate-purple-gradient p-8 text-white flex flex-col justify-between relative overflow-hidden select-none">
           {/* 1 & 2. Background Layers: AI Network Animation Canvas */}
@@ -107,13 +111,13 @@ export function LoginPage() {
         </div>
 
         {/* Right Form Panel */}
-        <div className="lg:col-span-7 p-8 lg:p-10 flex flex-col justify-center">
+        <div className="lg:col-span-7 p-8 lg:p-10 flex flex-col justify-center bg-white dark:bg-slate-900">
           <div className="max-w-md w-full mx-auto space-y-6">
             <div>
-              <h3 className="text-2xl font-black text-slate-900 tracking-tight">
+              <h3 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">
                 Sign In to Aspire LMS
               </h3>
-              <p className="text-xs text-slate-500 font-medium mt-1">
+              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium mt-1">
                 Enter your account credentials to access your administrative dashboard
               </p>
             </div>
@@ -140,11 +144,11 @@ export function LoginPage() {
               />
 
               <div className="flex items-center justify-between text-xs pt-1">
-                <label className="flex items-center gap-2 text-slate-600 font-medium cursor-pointer">
-                  <input type="checkbox" defaultChecked className="rounded border-slate-300 text-blue-600 focus:ring-blue-500" />
+                <label className="flex items-center gap-2 text-slate-600 dark:text-slate-400 font-medium cursor-pointer">
+                  <input type="checkbox" defaultChecked className="rounded border-slate-300 dark:border-slate-700 text-blue-600 focus:ring-blue-500" />
                   Remember me
                 </label>
-                <Link to="/forgot-password" className="text-blue-600 font-bold hover:underline">
+                <Link to="/forgot-password" className="text-blue-600 dark:text-blue-400 font-bold hover:underline">
                   Forgot password?
                 </Link>
               </div>
@@ -161,10 +165,10 @@ export function LoginPage() {
               </Button>
             </form>
 
-            <div className="pt-4 border-t border-slate-100 text-center">
-              <p className="text-xs text-slate-500 font-medium">
+            <div className="pt-4 border-t border-slate-100 dark:border-slate-800 text-center">
+              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
                 Don't have an account?{' '}
-                <Link to="/register" className="text-blue-600 font-bold hover:underline inline-flex items-center gap-1">
+                <Link to="/register" className="text-blue-600 dark:text-blue-400 font-bold hover:underline inline-flex items-center gap-1">
                   <UserPlus className="w-3.5 h-3.5" /> Register here
                 </Link>
               </p>

@@ -7,6 +7,7 @@ import { Input, Select } from '../../components/common/Input';
 import { ROLES } from '../../utils/mockData';
 import { UserPlus, Lock, Mail, User, ShieldCheck, ArrowLeft, BookOpen, Video, BarChart3, FileText } from 'lucide-react';
 import { AINetworkCanvas } from '../../components/auth/AINetworkCanvas';
+import { ThemeToggle } from '../../components/common/ThemeToggle';
 
 export function RegisterPage() {
   const navigate = useNavigate();
@@ -78,23 +79,26 @@ export function RegisterPage() {
         addToast(`Account created successfully! You can now log in as ${res.user.role}.`, 'success');
         navigate('/login');
       } else {
-        addToast(res.message || 'Failed to register account.', 'error');
+        addToast(res.message || 'Registration failed. Please check your data and try again.', 'error');
       }
     } catch (err) {
       setIsLoading(false);
-      addToast('An error occurred during registration. Please try again.', 'error');
+      addToast('An error occurred during account registration.', 'error');
     }
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 sm:p-6">
-      <div className="w-full max-w-5xl bg-white rounded-3xl border border-slate-200/80 shadow-xl overflow-hidden grid grid-cols-1 lg:grid-cols-12">
-        {/* Left Hero Brand Panel (Preserved with AI animations) */}
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center p-4 sm:p-6 transition-colors duration-200 relative">
+      {/* Floating Theme Switcher */}
+      <ThemeToggle variant="floating" />
+
+      <div className="w-full max-w-4xl bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xl overflow-hidden grid grid-cols-1 lg:grid-cols-12">
+        {/* Left Hero Brand Panel */}
         <div className="lg:col-span-5 animate-purple-gradient p-8 text-white flex flex-col justify-between relative overflow-hidden select-none">
-          {/* 1 & 2. Background Layers: AI Network Animation Canvas */}
+          {/* AI Network Background Animation */}
           <AINetworkCanvas />
 
-          {/* 3. Glassmorphism 3D Floating Orbs */}
+          {/* Glassmorphism 3D Floating Orbs */}
           <div
             className="absolute -top-16 -left-16 w-64 h-64 rounded-full bg-gradient-to-tr from-purple-500/30 to-fuchsia-500/20 blur-3xl pointer-events-none animate-orb-1 z-0"
             aria-hidden="true"
@@ -105,7 +109,7 @@ export function RegisterPage() {
           />
 
           {/* Foreground Content with Staggered Entrance Animations */}
-          <div className="relative z-10 space-y-6">
+          <div className="relative z-10 space-y-5">
             {/* Logo & Header */}
             <div className="flex items-center gap-3 animate-entrance delay-100 opacity-0">
               <div className="relative rounded-xl animate-logo-glow">
@@ -180,43 +184,35 @@ export function RegisterPage() {
                     <h4 className="font-bold text-xs text-white leading-tight tracking-tight">Assessment Publishing</h4>
                   </div>
                   <p className="text-[10px] text-purple-100/80 leading-snug">
-                    Create quizzes, assignments, and evaluations with ease.
+                    Build quizzes, evaluate submissions, and distribute grades with ease.
                   </p>
                 </div>
               </div>
             </div>
-
-            {/* Security & Permissions Card (Glassmorphism & Soft Hover Effect) */}
-            <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/15 space-y-2 text-xs transition-all duration-300 ease-out hover:-translate-y-1 hover:bg-white/[0.14] hover:border-purple-300/40 hover:shadow-xl hover:shadow-purple-950/40 cursor-default animate-entrance delay-500 opacity-0 group">
-              <span className="font-bold text-purple-200 uppercase tracking-wider block text-[10px] group-hover:text-purple-100 transition-colors">Security & Permissions</span>
-              <p className="text-purple-100/90 leading-relaxed text-[11px]">
-                Registration grants standard operational access (Admin, Manager, Instructor). <strong className="text-white">Super Admin</strong> privileges are enterprise-managed.
-              </p>
-            </div>
           </div>
 
           {/* Footer Security Badge */}
-          <div className="relative z-10 pt-6 mt-6 border-t border-white/15 flex items-center gap-2 text-[11px] text-purple-200 font-semibold animate-entrance delay-500 opacity-0">
+          <div className="relative z-10 pt-4 mt-4 border-t border-white/15 flex items-center gap-2 text-[11px] text-purple-200 font-semibold animate-entrance delay-500 opacity-0">
             <ShieldCheck className="w-4 h-4 text-purple-300" />
             <span>Enterprise Role-Based Access Control</span>
           </div>
         </div>
 
-        {/* Right Form Panel (Restored to previous form layout) */}
-        <div className="lg:col-span-7 p-8 lg:p-10 flex flex-col justify-center">
+        {/* Right Form Panel */}
+        <div className="lg:col-span-7 p-8 lg:p-10 flex flex-col justify-center bg-white dark:bg-slate-900">
           <div className="max-w-md w-full mx-auto space-y-5">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-2xl font-black text-slate-900 tracking-tight">
+                <h3 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">
                   Create Your Account
                 </h3>
-                <p className="text-xs text-slate-500 font-medium mt-1">
+                <p className="text-xs text-slate-500 dark:text-slate-400 font-medium mt-1">
                   Fill in your details below to register your account
                 </p>
               </div>
               <Link
                 to="/login"
-                className="flex items-center gap-1.5 text-xs font-bold text-blue-600 hover:text-blue-700 transition-colors"
+                className="flex items-center gap-1.5 text-xs font-bold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
               >
                 <ArrowLeft className="w-3.5 h-3.5" /> Back to Login
               </Link>
@@ -293,10 +289,10 @@ export function RegisterPage() {
               </Button>
             </form>
 
-            <div className="text-center pt-2 border-t border-slate-100">
-              <p className="text-xs text-slate-500 font-medium">
+            <div className="text-center pt-2 border-t border-slate-100 dark:border-slate-800">
+              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
                 Already have an account?{' '}
-                <Link to="/login" className="text-blue-600 font-bold hover:underline">
+                <Link to="/login" className="text-blue-600 dark:text-blue-400 font-bold hover:underline">
                   Sign In here
                 </Link>
               </p>

@@ -30,6 +30,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useLmsData } from '../../context/LmsDataContext';
 import { ROLES, INITIAL_ROLE_PERMISSIONS } from '../../utils/mockData';
 import { ProfileSettingsModal } from '../common/ProfileSettingsModal';
+import { ThemeToggle } from '../common/ThemeToggle';
 
 const ALL_NAV_ITEMS = [
   { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard, permissionId: 'view_dashboard' },
@@ -86,7 +87,7 @@ export function Sidebar({ isCollapsed, onToggle, isMobileOpen, onCloseMobile }) 
       )}
 
       <aside
-        className={`fixed left-0 top-0 bottom-0 z-50 bg-white text-slate-700 flex flex-col border-r border-slate-200/80 shadow-lg md:shadow-2xs transition-all duration-300 ${
+        className={`fixed left-0 top-0 bottom-0 z-50 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 flex flex-col border-r border-slate-200/80 dark:border-slate-800 shadow-lg md:shadow-2xs transition-all duration-300 ${
           // Desktop sizing
           isCollapsed ? 'md:w-16' : 'md:w-[230px]'
         } ${
@@ -96,7 +97,7 @@ export function Sidebar({ isCollapsed, onToggle, isMobileOpen, onCloseMobile }) 
       >
         {/* Brand Logo Header */}
         <div
-          className={`h-14 flex items-center border-b border-slate-100 bg-slate-50/60 ${
+          className={`h-14 flex items-center border-b border-slate-100 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-900/60 ${
             isCollapsed ? 'md:justify-center px-2' : 'justify-between px-3.5'
           }`}
         >
@@ -116,8 +117,8 @@ export function Sidebar({ isCollapsed, onToggle, isMobileOpen, onCloseMobile }) 
 
             {(!isCollapsed || isMobileOpen) && (
               <div className="flex flex-col">
-                <span className="font-black text-sm text-slate-900 tracking-tight leading-none">
-                  ASPIRE <span className="text-blue-600 font-black">LMS</span>
+                <span className="font-black text-sm text-slate-900 dark:text-white tracking-tight leading-none">
+                  ASPIRE <span className="text-blue-600 dark:text-blue-400 font-black">LMS</span>
                 </span>
               </div>
             )}
@@ -127,7 +128,7 @@ export function Sidebar({ isCollapsed, onToggle, isMobileOpen, onCloseMobile }) 
           {!isCollapsed ? (
             <button
               onClick={onToggle}
-              className="p-1 text-slate-400 hover:text-blue-600 rounded-lg hover:bg-blue-50 transition-all hidden md:block cursor-pointer"
+              className="p-1 text-slate-400 dark:text-slate-500 hover:text-blue-600 dark:hover:text-blue-400 rounded-lg hover:bg-blue-50 dark:hover:bg-slate-800 transition-all hidden md:block cursor-pointer"
               title="Collapse Sidebar"
             >
               <ChevronLeft className="w-4 h-4" />
@@ -135,7 +136,7 @@ export function Sidebar({ isCollapsed, onToggle, isMobileOpen, onCloseMobile }) 
           ) : (
             <button
               onClick={onToggle}
-              className="p-1 text-slate-400 hover:text-blue-600 rounded-lg transition-colors hidden md:block cursor-pointer"
+              className="p-1 text-slate-400 dark:text-slate-500 hover:text-blue-600 dark:hover:text-blue-400 rounded-lg transition-colors hidden md:block cursor-pointer"
               title="Expand Sidebar"
             >
               <ChevronRight className="w-3.5 h-3.5" />
@@ -145,13 +146,11 @@ export function Sidebar({ isCollapsed, onToggle, isMobileOpen, onCloseMobile }) 
           {/* Mobile Close Button */}
           <button
             onClick={onCloseMobile}
-            className="p-1 text-slate-400 hover:text-slate-700 rounded-lg md:hidden"
+            className="p-1 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 rounded-lg md:hidden"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
-
-
 
         {/* Navigation List with Logo Blue Hover Colors */}
         <nav className="flex-1 py-3 px-2.5 space-y-1 overflow-y-auto">
@@ -167,7 +166,7 @@ export function Sidebar({ isCollapsed, onToggle, isMobileOpen, onCloseMobile }) 
                 } ${
                   isActive
                     ? 'bg-blue-600 text-white font-bold border-blue-600 shadow-md shadow-blue-500/25'
-                    : 'text-slate-700 border-transparent hover:bg-blue-50/90 hover:text-blue-600 hover:border-blue-200/70 font-semibold'
+                    : 'text-slate-700 dark:text-slate-300 border-transparent hover:bg-blue-50/90 dark:hover:bg-slate-800/90 hover:text-blue-600 dark:hover:text-blue-400 hover:border-blue-200/70 dark:hover:border-slate-700/60 font-semibold'
                 }`
               }
             >
@@ -177,14 +176,18 @@ export function Sidebar({ isCollapsed, onToggle, isMobileOpen, onCloseMobile }) 
           ))}
         </nav>
 
-        {/* User Footer: Only Logout */}
-        <div className="p-2.5 border-t border-slate-100 bg-slate-50/60">
+        {/* User Footer: Theme Switcher & Logout */}
+        <div className="p-2.5 border-t border-slate-100 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-900/60 space-y-2">
+          {/* Theme Switcher */}
+          <ThemeToggle variant="sidebar" isCollapsed={isCollapsed} />
+
+          {/* Logout */}
           <button
             onClick={logout}
             title="Logout"
-            className="w-full flex items-center justify-center gap-2 px-3 py-2 text-xs font-extrabold text-rose-600 hover:text-rose-700 bg-rose-50/80 hover:bg-rose-100 border border-rose-200/80 rounded-xl transition-all cursor-pointer shadow-2xs"
+            className="w-full flex items-center justify-center gap-2 px-3 py-2 text-xs font-extrabold text-rose-600 dark:text-rose-400 hover:text-rose-700 dark:hover:text-rose-300 bg-rose-50/80 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-900/40 border border-rose-200/80 dark:border-rose-900/60 rounded-xl transition-all cursor-pointer shadow-2xs"
           >
-            <LogOut className="w-4 h-4" />
+            <LogOut className="w-4 h-4 flex-shrink-0" />
             {(!isCollapsed || isMobileOpen) && <span>Logout</span>}
           </button>
         </div>

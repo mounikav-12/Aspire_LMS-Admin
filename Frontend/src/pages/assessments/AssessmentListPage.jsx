@@ -1491,9 +1491,9 @@ export function AssessmentListPage() {
       </div>
 
       {/* Primary Category Switcher & Search Bar */}
-      <div className="bg-white p-3.5 sm:p-4 rounded-3xl border border-slate-200/80 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 w-full min-w-0">
+      <div className="bg-white dark:bg-slate-900 p-3.5 sm:p-4 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 w-full min-w-0">
         {/* Category Switcher Tabs */}
-        <div className="bg-slate-100/90 p-1.5 rounded-2xl inline-flex items-center gap-1.5 shadow-2xs flex-shrink-0">
+        <div className="bg-slate-100/90 dark:bg-slate-800/80 p-1.5 rounded-2xl inline-flex items-center gap-1.5 shadow-2xs flex-shrink-0 border border-transparent dark:border-slate-700/60">
           <button
             type="button"
             onClick={() => {
@@ -1503,7 +1503,7 @@ export function AssessmentListPage() {
             className={`px-6 py-2.5 rounded-xl text-xs sm:text-sm transition-all cursor-pointer ${
               activeMainTab === 'ASSESSMENTS'
                 ? 'bg-purple-600 text-white shadow-md shadow-purple-500/25 font-black'
-                : 'text-slate-600 hover:text-purple-700 hover:bg-white/60 font-bold'
+                : 'text-slate-600 dark:text-slate-400 hover:text-purple-700 dark:hover:text-purple-300 hover:bg-white/60 dark:hover:bg-slate-700/60 font-bold'
             }`}
           >
             Daily Assessments
@@ -1517,7 +1517,7 @@ export function AssessmentListPage() {
             className={`px-6 py-2.5 rounded-xl text-xs sm:text-sm transition-all cursor-pointer ${
               activeMainTab === 'QUIZZES'
                 ? 'bg-purple-600 text-white shadow-md shadow-purple-500/25 font-black'
-                : 'text-slate-600 hover:text-purple-700 hover:bg-white/60 font-bold'
+                : 'text-slate-600 dark:text-slate-400 hover:text-purple-700 dark:hover:text-purple-300 hover:bg-white/60 dark:hover:bg-slate-700/60 font-bold'
             }`}
           >
             Weekly Assessments
@@ -1532,13 +1532,13 @@ export function AssessmentListPage() {
             placeholder={`Search ${activeMainTab === 'QUIZZES' ? 'weekly assessments' : 'daily assessments'}...`}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-9 py-2.5 bg-slate-50/90 border border-slate-200 rounded-xl text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-purple-500 focus:bg-white focus:ring-2 focus:ring-purple-100 transition-all shadow-2xs"
+            className="w-full pl-10 pr-9 py-2.5 bg-slate-50/90 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-xs sm:text-sm text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-purple-500 focus:bg-white dark:focus:bg-slate-950 focus:ring-2 focus:ring-purple-100 dark:focus:ring-purple-900/40 transition-all shadow-2xs"
           />
           {searchTerm && (
             <button
               type="button"
               onClick={() => setSearchTerm('')}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs font-bold p-0.5"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xs font-bold p-0.5"
             >
               ✕
             </button>
@@ -1560,7 +1560,7 @@ export function AssessmentListPage() {
             return (
               <div
                 key={asm.id}
-                className="group bg-white rounded-3xl border border-slate-200/80 shadow-2xs hover:shadow-xl hover:shadow-purple-500/10 hover:border-purple-300 transition-all duration-300 hover:-translate-y-1 p-6 flex flex-col justify-between h-full"
+                className="group bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-2xs hover:shadow-xl hover:shadow-purple-500/10 hover:border-purple-300 dark:hover:border-purple-700/60 transition-all duration-300 hover:-translate-y-1 p-6 flex flex-col justify-between h-full"
               >
                 <div className="space-y-4">
                   {/* Card Header: Badges on Left, Action Icons on Right */}
@@ -1568,44 +1568,44 @@ export function AssessmentListPage() {
                     <div className="flex items-center gap-2 flex-wrap min-w-0">
                       {/* Lock Badge */}
                       {lockStatus?.isLocked && (
-                        <span className="inline-flex items-center gap-1 bg-rose-50 text-rose-700 font-bold px-2.5 py-1 rounded-xl border border-rose-200/60 text-[10px]">
+                        <span className="inline-flex items-center gap-1 bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 font-bold px-2.5 py-1 rounded-xl border border-rose-200/60 dark:border-rose-800/60 text-[10px]">
                           <Lock className="w-3 h-3 text-rose-600 flex-shrink-0" />
                           <span>{lockStatus.label}</span>
                         </span>
                       )}
 
                       {/* Type Badge */}
-                      <span className="bg-purple-100/90 text-purple-700 font-extrabold text-[11px] px-3 py-1 rounded-xl tracking-wide uppercase border border-purple-200/60 flex-shrink-0">
+                      <span className="bg-purple-100/90 dark:bg-purple-950/70 text-purple-700 dark:text-purple-300 font-extrabold text-[11px] px-3 py-1 rounded-xl tracking-wide uppercase border border-purple-200/60 dark:border-purple-800/60 flex-shrink-0">
                         {typeBadgeLabel}
                       </span>
 
                       {/* Topic Tag */}
                       {(asm.subtopicName || asm.topicName || asm.moduleName) && (
-                        <span className="bg-slate-100 text-slate-700 font-bold text-[11px] px-3 py-1 rounded-xl border border-slate-200/70 truncate max-w-[200px]">
+                        <span className="bg-slate-100 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 font-bold text-[11px] px-3 py-1 rounded-xl border border-slate-200/70 dark:border-slate-700/60 truncate max-w-[200px]">
                           {asm.subtopicName || asm.topicName || asm.moduleName}
                         </span>
                       )}
 
                       {/* Course Tag */}
                       {asm.courseName && (
-                        <span className="bg-blue-50 text-blue-700 font-bold text-[11px] px-2.5 py-1 rounded-xl border border-blue-200/60 truncate max-w-[180px]">
+                        <span className="bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 font-bold text-[11px] px-2.5 py-1 rounded-xl border border-blue-200/60 dark:border-blue-800/60 truncate max-w-[180px]">
                           {asm.courseName}
                         </span>
                       )}
                     </div>
 
                     {/* Edit & Delete Action Buttons */}
-                    <div className="flex items-center gap-1 bg-slate-50 p-1 rounded-xl border border-slate-200/60 flex-shrink-0">
+                    <div className="flex items-center gap-1 bg-slate-50 dark:bg-slate-800/80 p-1 rounded-xl border border-slate-200/60 dark:border-slate-700/60 flex-shrink-0">
                       <button
                         onClick={() => handleOpenEditModal(asm)}
-                        className="p-1.5 text-slate-400 hover:text-purple-600 rounded-lg hover:bg-white transition-colors cursor-pointer"
+                        className="p-1.5 text-slate-400 hover:text-purple-600 dark:hover:text-purple-400 rounded-lg hover:bg-white dark:hover:bg-slate-700 transition-colors cursor-pointer"
                         title="Edit Evaluation"
                       >
                         <Edit2 className="w-3.5 h-3.5" />
                       </button>
                       <button
                         onClick={() => setDeletingAssessment(asm)}
-                        className="p-1.5 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-white transition-colors cursor-pointer"
+                        className="p-1.5 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 rounded-lg hover:bg-white dark:hover:bg-slate-700 transition-colors cursor-pointer"
                         title="Delete Evaluation"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -1615,21 +1615,21 @@ export function AssessmentListPage() {
 
                   {/* Title & Description */}
                   <div className="space-y-1.5 pt-1">
-                    <h3 className="font-extrabold text-slate-900 text-base group-hover:text-purple-600 transition-colors leading-snug">
+                    <h3 className="font-extrabold text-slate-900 dark:text-slate-100 text-base group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors leading-snug">
                       {asm.title}
                     </h3>
-                    <p className="text-xs text-slate-500 font-medium line-clamp-2 leading-relaxed">
+                    <p className="text-xs text-slate-500 dark:text-slate-400 font-medium line-clamp-2 leading-relaxed">
                       Test your understanding of {asm.subtopicName || asm.topicName || asm.title} concepts.
                     </p>
                   </div>
 
                   {/* Clean Horizontal Metric Strip */}
                   <div className="flex items-center gap-2 pt-1 flex-wrap">
-                    <span className="bg-slate-100/90 text-slate-700 font-bold text-xs px-3 py-1.5 rounded-xl border border-slate-200/60 flex items-center gap-1.5">
-                      <Clock className="w-3.5 h-3.5 text-purple-600" /> {asm.durationMinutes || 45} mins
+                    <span className="bg-slate-100/90 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 font-bold text-xs px-3 py-1.5 rounded-xl border border-slate-200/60 dark:border-slate-700/60 flex items-center gap-1.5">
+                      <Clock className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" /> {asm.durationMinutes || 45} mins
                     </span>
 
-                    <span className="bg-amber-50 text-amber-700 font-extrabold text-xs px-3 py-1.5 rounded-xl border border-amber-200/80 flex items-center gap-1.5">
+                    <span className="bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 font-extrabold text-xs px-3 py-1.5 rounded-xl border border-amber-200/80 dark:border-amber-800/60 flex items-center gap-1.5">
                       <Award className="w-3.5 h-3.5 text-amber-500" /> +{asm.totalMarks || 100} XP
                     </span>
 
@@ -1644,12 +1644,12 @@ export function AssessmentListPage() {
 
                       return (
                         <>
-                          <span className="bg-indigo-50 text-indigo-700 font-bold text-xs px-2.5 py-1.5 rounded-xl border border-indigo-100 flex items-center gap-1.5" title="Theoretical Questions">
-                            <BookOpen className="w-3.5 h-3.5 text-indigo-600" /> {cardTheoryCount} Theory
+                          <span className="bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 font-bold text-xs px-2.5 py-1.5 rounded-xl border border-indigo-100 dark:border-indigo-800/60 flex items-center gap-1.5" title="Theoretical Questions">
+                            <BookOpen className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" /> {cardTheoryCount} Theory
                           </span>
                           {cardCodingCount > 0 && (
-                            <span className="bg-emerald-50 text-emerald-700 font-bold text-xs px-2.5 py-1.5 rounded-xl border border-emerald-100 flex items-center gap-1.5" title="Coding Questions">
-                              <Code2 className="w-3.5 h-3.5 text-emerald-600" /> {cardCodingCount} Coding
+                            <span className="bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 font-bold text-xs px-2.5 py-1.5 rounded-xl border border-emerald-100 dark:border-emerald-800/60 flex items-center gap-1.5" title="Coding Questions">
+                              <Code2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" /> {cardCodingCount} Coding
                             </span>
                           )}
                         </>
@@ -1659,17 +1659,17 @@ export function AssessmentListPage() {
                 </div>
 
                 {/* Card Footer */}
-                <div className="mt-5 pt-4 border-t border-slate-100 flex items-center justify-between text-xs">
+                <div className="mt-5 pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs">
                   {(() => {
                     const statusVal = asm.status || asm.publishStatus || '';
                     const isPublished = statusVal === 'Published' || statusVal === 'Active' || statusVal === 'Live Published';
                     return (
                       <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full font-bold border text-[11px] ${
                         isPublished
-                          ? 'bg-emerald-50 text-emerald-700 border-emerald-200/70'
+                          ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border-emerald-200/70 dark:border-emerald-800/60'
                           : statusVal === 'Draft' || statusVal === 'Pending'
-                          ? 'bg-slate-100 text-slate-600 border-slate-200/70'
-                          : 'bg-emerald-50 text-emerald-700 border-emerald-200/70'
+                          ? 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200/70 dark:border-slate-700'
+                          : 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border-emerald-200/70 dark:border-emerald-800/60'
                       }`}>
                         <CheckCircle2 className="w-3 h-3" />
                         {statusVal || 'Published'}
@@ -1679,7 +1679,7 @@ export function AssessmentListPage() {
 
                   <button
                     onClick={() => handleOpenEditModal(asm)}
-                    className="inline-flex items-center gap-1 font-extrabold text-purple-600 hover:text-purple-800 transition-all group-hover:translate-x-1 cursor-pointer"
+                    className="inline-flex items-center gap-1 font-extrabold text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300 transition-all group-hover:translate-x-1 cursor-pointer"
                   >
                     <span>View {isQuizItem ? 'Quiz' : 'Assessment'} Details</span>
                     <ChevronRight className="w-3.5 h-3.5" />
@@ -1823,17 +1823,17 @@ export function AssessmentListPage() {
             };
 
             return (
-              <div className="bg-gradient-to-br from-slate-50 via-blue-50/20 to-purple-50/40 p-3.5 sm:p-4 rounded-2xl border border-slate-200/80 shadow-2xs space-y-3">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2.5 border-b border-blue-100/80">
+              <div className="bg-gradient-to-br from-slate-50 via-blue-50/20 to-purple-50/40 dark:from-slate-950/80 dark:via-purple-950/20 dark:to-slate-900/60 p-3.5 sm:p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-2xs space-y-3">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2.5 border-b border-blue-100/80 dark:border-slate-800">
                   <div className="flex items-center gap-2.5">
                     <div className="w-7 h-7 rounded-lg bg-blue-600 text-white flex items-center justify-center shadow-xs flex-shrink-0">
                       <Layers className="w-3.5 h-3.5" />
                     </div>
                     <div>
-                      <h4 className="text-xs font-black text-slate-900 uppercase tracking-wider">
+                      <h4 className="text-xs font-black text-slate-900 dark:text-slate-100 uppercase tracking-wider">
                         Curriculum Location & Milestone Topic Mapping
                       </h4>
-                      <p className="text-[11px] text-slate-500 font-medium">
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
                         Assessments automatically sync to this Milestone topic in real-time
                       </p>
                     </div>
@@ -1842,10 +1842,10 @@ export function AssessmentListPage() {
                   <button
                     type="button"
                     onClick={handleAutoFillFromMilestone}
-                    className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold text-blue-700 bg-blue-100/80 hover:bg-blue-200 border border-blue-300 rounded-lg transition-colors shadow-2xs self-start sm:self-auto cursor-pointer"
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold text-blue-700 dark:text-blue-300 bg-blue-100/80 dark:bg-blue-950/80 hover:bg-blue-200 dark:hover:bg-blue-900 border border-blue-300 dark:border-blue-800 rounded-lg transition-colors shadow-2xs self-start sm:self-auto cursor-pointer"
                     title="Auto-populate Assessment Title with Lesson Name"
                   >
-                    <Sparkles className="w-3.5 h-3.5 text-blue-600 animate-pulse" />
+                    <Sparkles className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 animate-pulse" />
                     <span>Auto-Fill from Milestone</span>
                   </button>
                 </div>
@@ -1853,7 +1853,7 @@ export function AssessmentListPage() {
                 {/* 2x2 Structured Step Layout */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {/* Step 1: Course Track */}
-                  <div className="bg-white/95 p-2.5 sm:p-3 rounded-xl border border-blue-100/90 shadow-2xs">
+                  <div className="bg-white/95 dark:bg-slate-900/90 p-2.5 sm:p-3 rounded-xl border border-blue-100/90 dark:border-slate-800 shadow-2xs">
                     <Select
                       label="1. Course Track"
                       value={formData.courseId}
@@ -1894,7 +1894,7 @@ export function AssessmentListPage() {
                   </div>
 
                   {/* Step 2: Course Module / Stage */}
-                  <div className="bg-white/95 p-2.5 sm:p-3 rounded-xl border border-blue-100/90 shadow-2xs">
+                  <div className="bg-white/95 dark:bg-slate-900/90 p-2.5 sm:p-3 rounded-xl border border-blue-100/90 dark:border-slate-800 shadow-2xs">
                     <Select
                       label="2. Milestone Stage"
                       value={formData.stageId || currentStageObj?.id || ''}
@@ -1926,7 +1926,7 @@ export function AssessmentListPage() {
                   </div>
 
                   {/* Step 3: Milestone Subtopic / Module Track */}
-                  <div className="bg-white/95 p-2.5 sm:p-3 rounded-xl border border-blue-100/90 shadow-2xs">
+                  <div className="bg-white/95 dark:bg-slate-900/90 p-2.5 sm:p-3 rounded-xl border border-blue-100/90 dark:border-slate-800 shadow-2xs">
                     <Select
                       label="3. Milestone Subtopic / Module Track"
                       value={formData.subtopicId || currentSubtopicObj?.id || ''}
@@ -1954,7 +1954,7 @@ export function AssessmentListPage() {
                   </div>
 
                   {/* Step 4: Specific Topic Module */}
-                  <div className="bg-white/95 p-2.5 sm:p-3 rounded-xl border border-blue-100/90 shadow-2xs">
+                  <div className="bg-white/95 dark:bg-slate-900/90 p-2.5 sm:p-3 rounded-xl border border-blue-100/90 dark:border-slate-800 shadow-2xs">
                     <Select
                       label="4. Specific Topic Module"
                       value={formData.innerTopicId || currentModObj?.id || ''}
@@ -1982,7 +1982,7 @@ export function AssessmentListPage() {
 
           {/* BATCH ALLOCATION DROPDOWNS: WEEKDAY & WEEKEND */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
-            <div className="bg-white/95 p-2.5 sm:p-3 rounded-xl border border-purple-100/90 shadow-2xs">
+            <div className="bg-white/95 dark:bg-slate-900/90 p-2.5 sm:p-3 rounded-xl border border-purple-100/90 dark:border-slate-800 shadow-2xs">
               <Select
                 label="Weekday Batches"
                 value={
@@ -2015,7 +2015,7 @@ export function AssessmentListPage() {
               />
             </div>
 
-            <div className="bg-white/95 p-2.5 sm:p-3 rounded-xl border border-purple-100/90 shadow-2xs">
+            <div className="bg-white/95 dark:bg-slate-900/90 p-2.5 sm:p-3 rounded-xl border border-purple-100/90 dark:border-slate-800 shadow-2xs">
               <Select
                 label="Weekend Batches"
                 value={
@@ -2073,26 +2073,26 @@ export function AssessmentListPage() {
           </div>
 
           {/* IMPORT QUESTIONS SECTION (PASTE JSON OR UPLOAD FILE) */}
-          <div className="space-y-3 pt-2 border-t border-slate-200">
+          <div className="space-y-3 pt-2 border-t border-slate-200 dark:border-slate-800">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <div className="flex items-center gap-2">
-                <FileJson className="w-4 h-4 text-violet-600" />
-                <h4 className="font-extrabold text-sm text-slate-900">Auto-Import Questions</h4>
-                <span className="text-[11px] text-slate-400 font-medium">(auto-fill questions below)</span>
+                <FileJson className="w-4 h-4 text-violet-600 dark:text-violet-400" />
+                <h4 className="font-extrabold text-sm text-slate-900 dark:text-slate-100">Auto-Import Questions</h4>
+                <span className="text-[11px] text-slate-400 dark:text-slate-500 font-medium">(auto-fill questions below)</span>
               </div>
 
               {/* Mode Toggle Tabs: Paste JSON vs Upload File */}
-              <div className="inline-flex rounded-xl bg-slate-100 p-1 border border-slate-200 text-xs font-bold self-start sm:self-auto">
+              <div className="inline-flex rounded-xl bg-slate-100 dark:bg-slate-800/80 p-1 border border-slate-200 dark:border-slate-700 text-xs font-bold self-start sm:self-auto">
                 <button
                   type="button"
                   onClick={() => { setImportMode('paste'); setPdfError(''); }}
                   className={`flex items-center gap-1.5 px-3 py-1 rounded-lg transition-all cursor-pointer ${
                     importMode === 'paste'
-                      ? 'bg-white text-violet-700 shadow-xs font-extrabold'
-                      : 'text-slate-600 hover:text-slate-900'
+                      ? 'bg-white dark:bg-slate-900 text-violet-700 dark:text-violet-300 shadow-xs font-extrabold'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
                   }`}
                 >
-                  <ClipboardPaste className="w-3.5 h-3.5 text-violet-600" />
+                  <ClipboardPaste className="w-3.5 h-3.5 text-violet-600 dark:text-violet-400" />
                   Paste JSON / Text
                 </button>
                 <button
@@ -2100,11 +2100,11 @@ export function AssessmentListPage() {
                   onClick={() => { setImportMode('file'); setPdfError(''); }}
                   className={`flex items-center gap-1.5 px-3 py-1 rounded-lg transition-all cursor-pointer ${
                     importMode === 'file'
-                      ? 'bg-white text-violet-700 shadow-xs font-extrabold'
-                      : 'text-slate-600 hover:text-slate-900'
+                      ? 'bg-white dark:bg-slate-900 text-violet-700 dark:text-violet-300 shadow-xs font-extrabold'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
                   }`}
                 >
-                  <Upload className="w-3.5 h-3.5 text-slate-500" />
+                  <Upload className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
                   Upload PDF / JSON
                 </button>
               </div>
@@ -2112,17 +2112,17 @@ export function AssessmentListPage() {
 
             {/* TAB 1: PASTE JSON / TEXT DIRECTLY */}
             {importMode === 'paste' && (
-              <div className="p-3.5 bg-slate-50/90 rounded-2xl border border-slate-200/90 space-y-3">
+              <div className="p-3.5 bg-slate-50/90 dark:bg-slate-900/80 rounded-2xl border border-slate-200/90 dark:border-slate-800 space-y-3">
                 <div className="flex items-center justify-between gap-2">
-                  <span className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
-                    <ClipboardPaste className="w-4 h-4 text-violet-600" />
+                  <span className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                    <ClipboardPaste className="w-4 h-4 text-violet-600 dark:text-violet-400" />
                     Paste your JSON questions directly below:
                   </span>
                   <div className="flex items-center gap-2">
                     <button
                       type="button"
                       onClick={handleLoadSampleJson}
-                      className="text-[11px] font-bold text-violet-600 hover:text-violet-800 hover:underline cursor-pointer"
+                      className="text-[11px] font-bold text-violet-600 dark:text-violet-400 hover:text-violet-800 dark:hover:text-violet-300 hover:underline cursor-pointer"
                     >
                       Insert Sample JSON
                     </button>
@@ -2143,11 +2143,11 @@ export function AssessmentListPage() {
                   value={pastedText}
                   onChange={(e) => setPastedText(e.target.value)}
                   placeholder={`Paste JSON array here, e.g.:\n[\n  {\n    "question": "What is Git?",\n    "options": ["Version control", "Database", "Browser", "Editor"],\n    "answer": "A",\n    "explanation": "Git is a distributed version control system."\n  }\n]\n(Also supports exam text: 1. Question → A) ... Answer: A → Explanation: ...)`}
-                  className="w-full px-3.5 py-2.5 bg-white text-slate-800 font-mono text-xs border border-slate-300 rounded-xl focus:outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-100 transition-all shadow-inner resize-y"
+                  className="w-full px-3.5 py-2.5 bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-200 font-mono text-xs border border-slate-300 dark:border-slate-700 rounded-xl focus:outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-100 dark:focus:ring-violet-900/40 transition-all shadow-inner resize-y"
                 />
 
                 <div className="flex items-center justify-between gap-2 flex-wrap pt-0.5">
-                  <span className="text-[11px] text-slate-500">
+                  <span className="text-[11px] text-slate-500 dark:text-slate-400">
                     💡 Paste your JSON array and click <strong>Parse &amp; Fill MCQs</strong> to instantly fill the questions below.
                   </span>
                   <Button
@@ -2164,7 +2164,7 @@ export function AssessmentListPage() {
                 </div>
 
                 {pdfExtractedCount > 0 && pdfFileName.includes('Pasted') && (
-                  <div className="flex items-center gap-2 p-2.5 bg-green-50 border border-green-200 rounded-xl text-green-700 text-xs font-bold">
+                  <div className="flex items-center gap-2 p-2.5 bg-green-50 dark:bg-green-950/40 border border-green-200 dark:border-green-800/60 rounded-xl text-green-700 dark:text-green-300 text-xs font-bold">
                     <CheckCircle2 className="w-4 h-4 text-green-600 flex-shrink-0" />
                     <span>{pdfExtractedCount} questions successfully extracted and loaded into builder below!</span>
                   </div>
@@ -2178,10 +2178,10 @@ export function AssessmentListPage() {
                 htmlFor="file-upload-input"
                 className={`flex flex-col items-center justify-center gap-2 w-full border-2 border-dashed rounded-2xl p-5 cursor-pointer transition-all ${
                   pdfDragOver
-                    ? 'border-violet-500 bg-violet-50'
+                    ? 'border-violet-500 bg-violet-50 dark:bg-violet-950/30'
                     : pdfExtractedCount > 0
-                    ? 'border-green-400 bg-green-50/60'
-                    : 'border-slate-300 bg-slate-50/60 hover:border-violet-400 hover:bg-violet-50/40'
+                    ? 'border-green-400 bg-green-50/60 dark:bg-green-950/30'
+                    : 'border-slate-300 dark:border-slate-700 bg-slate-50/60 dark:bg-slate-900/60 hover:border-violet-400 hover:bg-violet-50/40 dark:hover:bg-violet-950/20'
                 }`}
                 onDragOver={(e) => { e.preventDefault(); setPdfDragOver(true); }}
                 onDragLeave={() => setPdfDragOver(false)}
@@ -2207,14 +2207,14 @@ export function AssessmentListPage() {
                 {pdfParsing ? (
                   <div className="flex flex-col items-center gap-2 py-1">
                     <div className="w-7 h-7 border-2 border-violet-500 border-t-transparent rounded-full animate-spin" />
-                    <p className="text-sm font-semibold text-violet-700">Reading file &amp; extracting questions…</p>
+                    <p className="text-sm font-semibold text-violet-700 dark:text-violet-300">Reading file &amp; extracting questions…</p>
                   </div>
                 ) : pdfExtractedCount > 0 ? (
                   <div className="flex items-center gap-3">
                     <CheckCircle2 className="w-6 h-6 text-green-600 flex-shrink-0" />
                     <div>
-                      <p className="text-sm font-extrabold text-green-700">{pdfExtractedCount} questions extracted!</p>
-                      <p className="text-[11px] text-green-600">{pdfFileName} — questions added to builder below</p>
+                      <p className="text-sm font-extrabold text-green-700 dark:text-green-300">{pdfExtractedCount} questions extracted!</p>
+                      <p className="text-[11px] text-green-600 dark:text-green-400">{pdfFileName} — questions added to builder below</p>
                     </div>
                     <button
                       type="button"
@@ -2237,10 +2237,10 @@ export function AssessmentListPage() {
                       <FileText className="w-5 h-5 text-violet-600" />
                       <FileJson className="w-5 h-5 text-amber-600" />
                     </div>
-                    <p className="text-sm font-semibold text-slate-700">
-                      Drop your <span className="text-violet-700 font-extrabold">PDF</span> or <span className="text-amber-700 font-extrabold">JSON</span> file here or <span className="text-violet-600 underline">click to browse</span>
+                    <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                      Drop your <span className="text-violet-700 dark:text-violet-400 font-extrabold">PDF</span> or <span className="text-amber-700 dark:text-amber-400 font-extrabold">JSON</span> file here or <span className="text-violet-600 dark:text-violet-400 underline">click to browse</span>
                     </p>
-                    <p className="text-[11px] text-slate-500 max-w-lg">
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 max-w-lg">
                       Supports exam PDFs (<span className="font-mono">1. Q → A/B/C/D → Answer: A</span>) and JSON files (<span className="font-mono">{`[{"question", "options", "answer"}]`}</span>)
                     </p>
                   </div>
@@ -2250,21 +2250,21 @@ export function AssessmentListPage() {
 
             {/* Error message */}
             {pdfError && (
-              <div className="flex items-start gap-2 px-3.5 py-2.5 bg-rose-50 border border-rose-200 rounded-xl">
+              <div className="flex items-start gap-2 px-3.5 py-2.5 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/60 rounded-xl">
                 <AlertCircle className="w-4 h-4 text-rose-500 flex-shrink-0 mt-0.5" />
-                <p className="text-xs text-rose-700 font-medium">{pdfError}</p>
+                <p className="text-xs text-rose-700 dark:text-rose-300 font-medium">{pdfError}</p>
               </div>
             )}
           </div>
 
           {/* DYNAMIC MCQ QUESTION BUILDER SECTION */}
-          <div className="space-y-6 pt-2 border-t border-slate-200">
+          <div className="space-y-6 pt-2 border-t border-slate-200 dark:border-slate-800">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <div>
-                <h4 className="font-extrabold text-sm text-slate-900 flex items-center gap-2">
-                  <HelpCircle className="w-4 h-4 text-indigo-600" /> Evaluation Questions ({formData.mcqs.length})
+                <h4 className="font-extrabold text-sm text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                  <HelpCircle className="w-4 h-4 text-indigo-600 dark:text-indigo-400" /> Evaluation Questions ({formData.mcqs.length})
                 </h4>
-                <p className="text-[11px] text-slate-500 font-medium">Categorized into Theoretical and Coding sections below</p>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Categorized into Theoretical and Coding sections below</p>
               </div>
 
               <div className="flex flex-wrap items-center gap-2">
@@ -2274,7 +2274,7 @@ export function AssessmentListPage() {
                   size="sm"
                   icon={Sparkles}
                   onClick={() => handleAutoFillAllExplanations(false)}
-                  className="border-purple-200 text-purple-700 bg-purple-50 hover:bg-purple-100 font-semibold"
+                  className="border-purple-200 dark:border-purple-800 text-purple-700 dark:text-purple-300 bg-purple-50 dark:bg-purple-950/60 hover:bg-purple-100 dark:hover:bg-purple-900/60 font-semibold"
                   title="Auto-fill explanations for all questions"
                 >
                   Auto-Fill Explanations {currentModalMissingExplanationCount > 0 ? `(${currentModalMissingExplanationCount} missing)` : '✨'}
@@ -2285,7 +2285,7 @@ export function AssessmentListPage() {
                   size="sm"
                   icon={Plus}
                   onClick={() => handleAddMcq('theoretical')}
-                  className="border-indigo-200 text-indigo-700 bg-indigo-50/50 hover:bg-indigo-100 font-bold"
+                  className="border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 bg-indigo-50/50 dark:bg-indigo-950/50 hover:bg-indigo-100 dark:hover:bg-indigo-900/50 font-bold"
                 >
                   + Add Theoretical Question
                 </Button>
@@ -2295,7 +2295,7 @@ export function AssessmentListPage() {
                   size="sm"
                   icon={Code2}
                   onClick={() => handleAddMcq('coding')}
-                  className="border-emerald-200 text-emerald-700 bg-emerald-50/50 hover:bg-emerald-100 font-bold"
+                  className="border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 bg-emerald-50/50 dark:bg-emerald-950/50 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 font-bold"
                 >
                   + Add Coding Question
                 </Button>
@@ -2303,9 +2303,9 @@ export function AssessmentListPage() {
             </div>
 
             {currentModalMissingExplanationCount > 0 && (
-              <div className="flex items-center justify-between p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs shadow-xs">
+              <div className="flex items-center justify-between p-3 rounded-xl bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800 text-amber-900 dark:text-amber-200 text-xs shadow-xs">
                 <div className="flex items-center gap-2">
-                  <AlertCircle className="w-4 h-4 text-amber-600 flex-shrink-0" />
+                  <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-400 flex-shrink-0" />
                   <span>
                     <strong>{currentModalMissingExplanationCount}</strong> of <strong>{currentModalTotalQuestions}</strong> questions have no explanation. Students won't see solutions upon submitting.
                   </span>
@@ -2313,7 +2313,7 @@ export function AssessmentListPage() {
                 <button
                   type="button"
                   onClick={() => handleAutoFillAllExplanations(false)}
-                  className="px-2.5 py-1 text-xs font-bold text-amber-900 bg-amber-200 hover:bg-amber-300 rounded-lg transition-colors flex items-center gap-1 cursor-pointer flex-shrink-0"
+                  className="px-2.5 py-1 text-xs font-bold text-amber-900 dark:text-amber-200 bg-amber-200 dark:bg-amber-900 hover:bg-amber-300 dark:hover:bg-amber-800 rounded-lg transition-colors flex items-center gap-1 cursor-pointer flex-shrink-0"
                 >
                   <Sparkles className="w-3.5 h-3.5" /> Auto-Fill All
                 </button>
@@ -2321,20 +2321,20 @@ export function AssessmentListPage() {
             )}
 
             {/* SECTION 1: THEORETICAL QUESTIONS */}
-            <div className="space-y-4 p-4 sm:p-5 bg-gradient-to-br from-indigo-50/60 via-slate-50 to-blue-50/30 rounded-3xl border border-indigo-100/90 shadow-2xs">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-indigo-100">
+            <div className="space-y-4 p-4 sm:p-5 bg-gradient-to-br from-indigo-50/60 via-slate-50 to-blue-50/30 dark:from-slate-950/80 dark:via-slate-900/60 dark:to-indigo-950/30 rounded-3xl border border-indigo-100/90 dark:border-slate-800 shadow-2xs">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-indigo-100 dark:border-slate-800">
                 <div className="flex items-center gap-2.5">
                   <div className="w-7 h-7 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-xs flex-shrink-0">
                     <BookOpen className="w-4 h-4" />
                   </div>
                   <div>
-                    <h5 className="font-extrabold text-sm text-slate-900 flex items-center gap-2">
+                    <h5 className="font-extrabold text-sm text-slate-900 dark:text-slate-100 flex items-center gap-2">
                       Theoretical Questions
-                      <span className="px-2.5 py-0.5 rounded-full bg-indigo-100 text-indigo-800 text-xs font-black border border-indigo-200">
+                      <span className="px-2.5 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-950/80 text-indigo-800 dark:text-indigo-300 text-xs font-black border border-indigo-200 dark:border-indigo-800">
                         {currentModalTheoryCount}
                       </span>
                     </h5>
-                    <p className="text-[11px] text-slate-500 font-medium">Conceptual, architectural, definition, and best-practice questions</p>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Conceptual, architectural, definition, and best-practice questions</p>
                   </div>
                 </div>
                 <Button
@@ -2343,20 +2343,20 @@ export function AssessmentListPage() {
                   size="sm"
                   icon={Plus}
                   onClick={() => handleAddMcq('theoretical')}
-                  className="border-indigo-300 text-indigo-700 bg-white hover:bg-indigo-50 font-bold self-start sm:self-auto"
+                  className="border-indigo-300 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 bg-white dark:bg-slate-900 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 font-bold self-start sm:self-auto"
                 >
                   Add Theoretical Question
                 </Button>
               </div>
 
               {currentModalTheoryQuestions.length === 0 ? (
-                <div className="p-6 text-center bg-white/80 border border-dashed border-indigo-200 rounded-2xl">
+                <div className="p-6 text-center bg-white/80 dark:bg-slate-900/80 border border-dashed border-indigo-200 dark:border-indigo-800/60 rounded-2xl">
                   <BookOpen className="w-6 h-6 text-indigo-400 mx-auto mb-1.5 opacity-60" />
-                  <p className="text-xs text-slate-600 font-bold">No theoretical questions in this evaluation yet.</p>
+                  <p className="text-xs text-slate-600 dark:text-slate-400 font-bold">No theoretical questions in this evaluation yet.</p>
                   <button
                     type="button"
                     onClick={() => handleAddMcq('theoretical')}
-                    className="mt-2 text-xs font-bold text-indigo-600 hover:text-indigo-800 underline cursor-pointer"
+                    className="mt-2 text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 underline cursor-pointer"
                   >
                     + Click here to add a theoretical question
                   </button>
@@ -2366,13 +2366,13 @@ export function AssessmentListPage() {
                   {currentModalTheoryQuestions.map((mcq, tIdx) => {
                     const mIndex = mcq.originalIndex;
                     return (
-                      <div key={`theory-${mIndex}`} className="p-4 sm:p-4.5 bg-white rounded-2xl border border-slate-200/90 shadow-2xs space-y-3.5 relative group">
+                      <div key={`theory-${mIndex}`} className="p-4 sm:p-4.5 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-2xs space-y-3.5 relative group">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
-                            <span className="px-2.5 py-0.5 rounded-md bg-indigo-100 text-indigo-800 font-bold text-xs">
+                            <span className="px-2.5 py-0.5 rounded-md bg-indigo-100 dark:bg-indigo-950/80 text-indigo-800 dark:text-indigo-300 font-bold text-xs">
                               Theory Q#{tIdx + 1}
                             </span>
-                            <span className="px-2.5 py-0.5 rounded-md font-extrabold text-[11px] border bg-blue-50 text-blue-700 border-blue-200">
+                            <span className="px-2.5 py-0.5 rounded-md font-extrabold text-[11px] border bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800/60">
                               📖 Theoretical Question
                             </span>
                           </div>
@@ -2381,7 +2381,7 @@ export function AssessmentListPage() {
                             <button
                               type="button"
                               onClick={() => handleRemoveMcq(mIndex)}
-                              className="p-1.5 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-rose-50 transition-colors cursor-pointer"
+                              className="p-1.5 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer"
                               title="Remove Question"
                             >
                               <Trash2 className="w-4 h-4" />
@@ -2414,7 +2414,7 @@ export function AssessmentListPage() {
 
                         {/* 4 Options Grid */}
                         <div className="space-y-1.5 pt-1">
-                          <label className="text-[11px] font-extrabold text-slate-700 uppercase tracking-wider">
+                          <label className="text-[11px] font-extrabold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
                             Answer Choices (Options)
                           </label>
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
@@ -2444,14 +2444,14 @@ export function AssessmentListPage() {
                         {/* Question Explanation */}
                         <div className="space-y-1.5 pt-1">
                           <div className="flex items-center justify-between">
-                            <label className="text-[11px] font-extrabold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
-                              <BookOpen className="w-3.5 h-3.5 text-indigo-600" /> Question Explanation & Solution Note
+                            <label className="text-[11px] font-extrabold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                              <BookOpen className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" /> Question Explanation & Solution Note
                             </label>
                             <div className="flex items-center gap-2">
                               <button
                                 type="button"
                                 onClick={() => handleAutoFillSingleExplanation(mIndex)}
-                                className="px-2 py-0.5 text-[10px] font-bold text-indigo-600 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100 rounded border border-indigo-200 transition-colors flex items-center gap-1 cursor-pointer"
+                                className="px-2 py-0.5 text-[10px] font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 rounded border border-indigo-200 dark:border-indigo-800 transition-colors flex items-center gap-1 cursor-pointer"
                                 title="Generate or regenerate explanation for this question"
                               >
                                 <Sparkles className="w-3 h-3 text-indigo-500" /> Auto-Fill
@@ -2463,7 +2463,7 @@ export function AssessmentListPage() {
                             placeholder="Explain why this option is correct and provide key concept notes..."
                             value={typeof mcq.explanation === 'object' && mcq.explanation !== null ? JSON.stringify(mcq.explanation, null, 2) : (mcq.explanation || '')}
                             onChange={(e) => handleUpdateMcqExplanation(mIndex, e.target.value)}
-                            className="w-full px-3.5 py-2 text-xs border border-slate-200 rounded-xl focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all bg-white placeholder:text-slate-400 leading-relaxed"
+                            className="w-full px-3.5 py-2 text-xs border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-500 leading-relaxed"
                           />
                         </div>
                       </div>
@@ -2474,20 +2474,20 @@ export function AssessmentListPage() {
             </div>
 
             {/* SECTION 2: CODING QUESTIONS */}
-            <div className="space-y-4 p-4 sm:p-5 bg-gradient-to-br from-emerald-50/60 via-slate-50 to-teal-50/30 rounded-3xl border border-emerald-100/90 shadow-2xs">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-emerald-100">
+            <div className="space-y-4 p-4 sm:p-5 bg-gradient-to-br from-emerald-50/60 via-slate-50 to-teal-50/30 dark:from-slate-950/80 dark:via-slate-900/60 dark:to-emerald-950/30 rounded-3xl border border-emerald-100/90 dark:border-slate-800 shadow-2xs">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-emerald-100 dark:border-slate-800">
                 <div className="flex items-center gap-2.5">
                   <div className="w-7 h-7 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow-xs flex-shrink-0">
                     <Code2 className="w-4 h-4" />
                   </div>
                   <div>
-                    <h5 className="font-extrabold text-sm text-slate-900 flex items-center gap-2">
+                    <h5 className="font-extrabold text-sm text-slate-900 dark:text-slate-100 flex items-center gap-2">
                       Coding Questions
-                      <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-xs font-black border border-emerald-200">
+                      <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 text-xs font-black border border-emerald-200 dark:border-emerald-800">
                         {currentModalCodingMcqCount}
                       </span>
                     </h5>
-                    <p className="text-[11px] text-slate-500 font-medium">Practical programming, output prediction, syntax, and code-snippet questions</p>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Practical programming, output prediction, syntax, and code-snippet questions</p>
                   </div>
                 </div>
                 <Button
@@ -2496,20 +2496,20 @@ export function AssessmentListPage() {
                   size="sm"
                   icon={Code2}
                   onClick={() => handleAddMcq('coding')}
-                  className="border-emerald-300 text-emerald-700 bg-white hover:bg-emerald-50 font-bold self-start sm:self-auto"
+                  className="border-emerald-300 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 bg-white dark:bg-slate-900 hover:bg-emerald-50 dark:hover:bg-emerald-950/50 font-bold self-start sm:self-auto"
                 >
                   Add Coding Question
                 </Button>
               </div>
 
               {currentModalCodingQuestions.length === 0 ? (
-                <div className="p-6 text-center bg-white/80 border border-dashed border-emerald-200 rounded-2xl">
+                <div className="p-6 text-center bg-white/80 dark:bg-slate-900/80 border border-dashed border-emerald-200 dark:border-emerald-800/60 rounded-2xl">
                   <Code2 className="w-6 h-6 text-emerald-400 mx-auto mb-1.5 opacity-60" />
-                  <p className="text-xs text-slate-600 font-bold">No coding questions in this evaluation yet.</p>
+                  <p className="text-xs text-slate-600 dark:text-slate-400 font-bold">No coding questions in this evaluation yet.</p>
                   <button
                     type="button"
                     onClick={() => handleAddMcq('coding')}
-                    className="mt-2 text-xs font-bold text-emerald-600 hover:text-emerald-800 underline cursor-pointer"
+                    className="mt-2 text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:text-emerald-800 dark:hover:text-emerald-300 underline cursor-pointer"
                   >
                     + Click here to add a coding question
                   </button>
@@ -2519,13 +2519,13 @@ export function AssessmentListPage() {
                   {currentModalCodingQuestions.map((mcq, cIdx) => {
                     const mIndex = mcq.originalIndex;
                     return (
-                      <div key={`coding-${mIndex}`} className="p-4 sm:p-4.5 bg-white rounded-2xl border border-emerald-200/90 shadow-2xs space-y-3.5 relative group">
+                      <div key={`coding-${mIndex}`} className="p-4 sm:p-4.5 bg-white dark:bg-slate-900 rounded-2xl border border-emerald-200/90 dark:border-slate-800 shadow-2xs space-y-3.5 relative group">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
-                            <span className="px-2.5 py-0.5 rounded-md bg-emerald-100 text-emerald-800 font-bold text-xs">
+                            <span className="px-2.5 py-0.5 rounded-md bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 font-bold text-xs">
                               Coding Q#{cIdx + 1}
                             </span>
-                            <span className="px-2.5 py-0.5 rounded-md font-extrabold text-[11px] border bg-emerald-50 text-emerald-700 border-emerald-200">
+                            <span className="px-2.5 py-0.5 rounded-md font-extrabold text-[11px] border bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800/60">
                               💻 Coding Question
                             </span>
                           </div>
@@ -2534,7 +2534,7 @@ export function AssessmentListPage() {
                             <button
                               type="button"
                               onClick={() => handleRemoveMcq(mIndex)}
-                              className="p-1.5 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-rose-50 transition-colors cursor-pointer"
+                              className="p-1.5 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer"
                               title="Remove Question"
                             >
                               <Trash2 className="w-4 h-4" />
@@ -2567,21 +2567,21 @@ export function AssessmentListPage() {
 
                         {/* Code Snippet Box for Coding Questions */}
                         <div className="flex flex-col gap-1.5 pt-1">
-                          <label className="text-[11px] font-extrabold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
-                            <Code2 className="w-3.5 h-3.5 text-emerald-600" /> Code Snippet / Problem Code Box
+                          <label className="text-[11px] font-extrabold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                            <Code2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" /> Code Snippet / Problem Code Box
                           </label>
                           <textarea
                             rows={4}
                             placeholder={`# Write or paste your problem code snippet here\ndef calculate_total(a, b):\n    return a + b\n\nprint(calculate_total(10, 20))`}
                             value={mcq.codeSnippet || ''}
                             onChange={(e) => handleUpdateMcqCodeSnippet(mIndex, e.target.value)}
-                            className="w-full px-3.5 py-2.5 bg-slate-900 text-emerald-400 font-mono text-xs border border-slate-700 rounded-xl focus:outline-none focus:border-emerald-500 transition-all shadow-inner"
+                            className="w-full px-3.5 py-2.5 bg-slate-900 dark:bg-slate-950 text-emerald-400 font-mono text-xs border border-slate-700 dark:border-slate-800 rounded-xl focus:outline-none focus:border-emerald-500 transition-all shadow-inner"
                           />
                         </div>
 
                         {/* 4 Options Grid */}
                         <div className="space-y-1.5 pt-1">
-                          <label className="text-[11px] font-extrabold text-slate-700 uppercase tracking-wider">
+                          <label className="text-[11px] font-extrabold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
                             Answer Choices (Options)
                           </label>
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
@@ -2611,14 +2611,14 @@ export function AssessmentListPage() {
                         {/* Question Explanation */}
                         <div className="space-y-1.5 pt-1">
                           <div className="flex items-center justify-between">
-                            <label className="text-[11px] font-extrabold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
-                              <BookOpen className="w-3.5 h-3.5 text-indigo-600" /> Question Explanation & Solution Note
+                            <label className="text-[11px] font-extrabold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                              <BookOpen className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" /> Question Explanation & Solution Note
                             </label>
                             <div className="flex items-center gap-2">
                               <button
                                 type="button"
                                 onClick={() => handleAutoFillSingleExplanation(mIndex)}
-                                className="px-2 py-0.5 text-[10px] font-bold text-indigo-600 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100 rounded border border-indigo-200 transition-colors flex items-center gap-1 cursor-pointer"
+                                className="px-2 py-0.5 text-[10px] font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 rounded border border-indigo-200 dark:border-indigo-800 transition-colors flex items-center gap-1 cursor-pointer"
                                 title="Generate or regenerate explanation for this question"
                               >
                                 <Sparkles className="w-3 h-3 text-indigo-500" /> Auto-Fill
@@ -2630,7 +2630,7 @@ export function AssessmentListPage() {
                             placeholder="Explain why this option is correct and provide key concept notes..."
                             value={typeof mcq.explanation === 'object' && mcq.explanation !== null ? JSON.stringify(mcq.explanation, null, 2) : (mcq.explanation || '')}
                             onChange={(e) => handleUpdateMcqExplanation(mIndex, e.target.value)}
-                            className="w-full px-3.5 py-2 text-xs border border-slate-200 rounded-xl focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all bg-white placeholder:text-slate-400 leading-relaxed"
+                            className="w-full px-3.5 py-2 text-xs border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-500 leading-relaxed"
                           />
                         </div>
                       </div>
@@ -2641,7 +2641,7 @@ export function AssessmentListPage() {
             </div>
           </div>
 
-          <div className="flex justify-end gap-3 pt-4 border-t border-slate-100">
+          <div className="flex justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
             <Button
               variant="outline"
               onClick={() => {

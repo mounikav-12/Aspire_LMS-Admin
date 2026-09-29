@@ -21,6 +21,7 @@ import { useLmsData } from '../../context/LmsDataContext';
 import { useToast } from '../../context/ToastContext';
 import { ROLES } from '../../utils/mockData';
 import { ProfileSettingsModal } from '../common/ProfileSettingsModal';
+import { ThemeToggle } from '../common/ThemeToggle';
 
 export function Navbar({ isCollapsed, onToggleSidebar }) {
   const { currentRole, switchRole, currentUser, isSuperAdmin } = useAuth();
@@ -127,7 +128,7 @@ export function Navbar({ isCollapsed, onToggleSidebar }) {
   return (
     <>
       <header
-        className={`fixed top-0 right-0 left-0 z-30 h-14 bg-white/90 backdrop-blur-md border-b border-slate-200/80 transition-all duration-300 flex items-center justify-between px-4 sm:px-6 ${
+        className={`fixed top-0 right-0 left-0 z-30 h-14 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800 transition-all duration-300 flex items-center justify-between px-4 sm:px-6 ${
           isCollapsed ? 'md:left-16' : 'md:left-[230px]'
         }`}
       >
@@ -135,14 +136,14 @@ export function Navbar({ isCollapsed, onToggleSidebar }) {
         <div className="flex items-center gap-3 flex-1 max-w-md" ref={searchContainerRef}>
           <button
             onClick={onToggleSidebar}
-            className="p-1.5 text-slate-600 hover:text-blue-600 rounded-lg hover:bg-blue-50 md:hidden cursor-pointer flex-shrink-0"
+            className="p-1.5 text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 rounded-lg hover:bg-blue-50 dark:hover:bg-slate-800 md:hidden cursor-pointer flex-shrink-0 transition-colors"
             title="Toggle Menu"
           >
             <Menu className="w-5 h-5" />
           </button>
 
           <div className="relative w-full">
-            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500" />
             <input
               type="text"
               placeholder="Search courses, users, sessions, jobs..."
@@ -154,13 +155,13 @@ export function Navbar({ isCollapsed, onToggleSidebar }) {
                   setIsSearchFocused(false);
                 }
               }}
-              className="w-full pl-9 pr-8 py-1.5 bg-slate-100/80 hover:bg-slate-100 focus:bg-white border border-transparent focus:border-blue-500 rounded-xl text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all"
+              className="w-full pl-9 pr-8 py-1.5 bg-slate-100/80 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800/90 focus:bg-white dark:focus:bg-slate-800 border border-transparent dark:border-slate-700/60 focus:border-blue-500 rounded-xl text-sm text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900/40 transition-all"
             />
             {searchQuery && (
               <button
                 type="button"
                 onClick={() => setSearchQuery('')}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 p-0.5 text-slate-400 hover:text-slate-600 rounded-md hover:bg-slate-200/60 cursor-pointer"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 p-0.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-md hover:bg-slate-200/60 dark:hover:bg-slate-700 cursor-pointer"
               >
                 <X className="w-3.5 h-3.5" />
               </button>
@@ -168,25 +169,25 @@ export function Navbar({ isCollapsed, onToggleSidebar }) {
 
             {/* Global Search Results Overlay */}
             {isSearchFocused && searchQuery.trim().length > 0 && (
-              <div className="absolute left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl border border-slate-200/80 p-3 z-50 max-h-96 overflow-y-auto space-y-3 animate-in fade-in duration-150">
+              <div className="absolute left-0 right-0 mt-2 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200/80 dark:border-slate-800 p-3 z-50 max-h-96 overflow-y-auto space-y-3 animate-in fade-in duration-150">
                 {searchResults.total > 0 ? (
                   <>
                     {/* Courses */}
                     {searchResults.courses.length > 0 && (
                       <div>
-                        <p className="text-[10px] font-black uppercase text-blue-600 tracking-wider mb-1 px-2">Courses</p>
+                        <p className="text-[10px] font-black uppercase text-blue-600 dark:text-blue-400 tracking-wider mb-1 px-2">Courses</p>
                         <div className="space-y-0.5">
                           {searchResults.courses.map(c => (
                             <div
                               key={c.id}
                               onClick={() => handleSelectResult(`/courses/${c.id}`)}
-                              className="p-2 hover:bg-blue-50/80 rounded-xl cursor-pointer transition-colors flex items-center justify-between text-xs"
+                              className="p-2 hover:bg-blue-50/80 dark:hover:bg-blue-950/40 rounded-xl cursor-pointer transition-colors flex items-center justify-between text-xs"
                             >
                               <div className="flex items-center gap-2">
-                                <BookOpen className="w-3.5 h-3.5 text-blue-600 flex-shrink-0" />
-                                <span className="font-bold text-slate-800">{c.title}</span>
+                                <BookOpen className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 flex-shrink-0" />
+                                <span className="font-bold text-slate-800 dark:text-slate-200">{c.title}</span>
                               </div>
-                              <span className="text-[10px] font-medium text-slate-400">{c.category}</span>
+                              <span className="text-[10px] font-medium text-slate-400 dark:text-slate-500">{c.category}</span>
                             </div>
                           ))}
                         </div>
@@ -196,20 +197,20 @@ export function Navbar({ isCollapsed, onToggleSidebar }) {
                     {/* Staff & Users */}
                     {searchResults.users.length > 0 && (
                       <div>
-                        <p className="text-[10px] font-black uppercase text-purple-600 tracking-wider mb-1 px-2">Staff & Users</p>
+                        <p className="text-[10px] font-black uppercase text-purple-600 dark:text-purple-400 tracking-wider mb-1 px-2">Staff & Users</p>
                         <div className="space-y-0.5">
                           {searchResults.users.map(u => (
                             <div
                               key={u.id}
                               onClick={() => handleSelectResult('/users')}
-                              className="p-2 hover:bg-purple-50/80 rounded-xl cursor-pointer transition-colors flex items-center justify-between text-xs"
+                              className="p-2 hover:bg-purple-50/80 dark:hover:bg-purple-950/40 rounded-xl cursor-pointer transition-colors flex items-center justify-between text-xs"
                             >
                               <div className="flex items-center gap-2">
-                                <Users className="w-3.5 h-3.5 text-purple-600 flex-shrink-0" />
-                                <span className="font-bold text-slate-800">{u.name}</span>
-                                <span className="text-[10px] text-slate-400">({u.email})</span>
+                                <Users className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400 flex-shrink-0" />
+                                <span className="font-bold text-slate-800 dark:text-slate-200">{u.name}</span>
+                                <span className="text-[10px] text-slate-400 dark:text-slate-500">({u.email})</span>
                               </div>
-                              <span className="text-[10px] font-bold text-purple-700 bg-purple-100 px-2 py-0.5 rounded-md">{u.role}</span>
+                              <span className="text-[10px] font-bold text-purple-700 dark:text-purple-300 bg-purple-100 dark:bg-purple-950/80 px-2 py-0.5 rounded-md">{u.role}</span>
                             </div>
                           ))}
                         </div>
@@ -219,19 +220,19 @@ export function Navbar({ isCollapsed, onToggleSidebar }) {
                     {/* Live Sessions */}
                     {searchResults.liveSessions.length > 0 && (
                       <div>
-                        <p className="text-[10px] font-black uppercase text-emerald-600 tracking-wider mb-1 px-2">Live Sessions</p>
+                        <p className="text-[10px] font-black uppercase text-emerald-600 dark:text-emerald-400 tracking-wider mb-1 px-2">Live Sessions</p>
                         <div className="space-y-0.5">
                           {searchResults.liveSessions.map(s => (
                             <div
                               key={s.id}
                               onClick={() => handleSelectResult('/live-sessions')}
-                              className="p-2 hover:bg-emerald-50/80 rounded-xl cursor-pointer transition-colors flex items-center justify-between text-xs"
+                              className="p-2 hover:bg-emerald-50/80 dark:hover:bg-emerald-950/40 rounded-xl cursor-pointer transition-colors flex items-center justify-between text-xs"
                             >
                               <div className="flex items-center gap-2">
-                                <Video className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" />
-                                <span className="font-bold text-slate-800">{s.sessionTitle || s.title}</span>
+                                <Video className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
+                                <span className="font-bold text-slate-800 dark:text-slate-200">{s.sessionTitle || s.title}</span>
                               </div>
-                              <span className="text-[10px] font-semibold text-emerald-700">{s.date}</span>
+                              <span className="text-[10px] font-semibold text-emerald-700 dark:text-emerald-400">{s.date}</span>
                             </div>
                           ))}
                         </div>
@@ -241,19 +242,19 @@ export function Navbar({ isCollapsed, onToggleSidebar }) {
                     {/* Assessments */}
                     {searchResults.assessments.length > 0 && (
                       <div>
-                        <p className="text-[10px] font-black uppercase text-amber-600 tracking-wider mb-1 px-2">Assessments</p>
+                        <p className="text-[10px] font-black uppercase text-amber-600 dark:text-amber-400 tracking-wider mb-1 px-2">Assessments</p>
                         <div className="space-y-0.5">
                           {searchResults.assessments.map(a => (
                             <div
                               key={a.id}
                               onClick={() => handleSelectResult('/assessments')}
-                              className="p-2 hover:bg-amber-50/80 rounded-xl cursor-pointer transition-colors flex items-center justify-between text-xs"
+                              className="p-2 hover:bg-amber-50/80 dark:hover:bg-amber-950/40 rounded-xl cursor-pointer transition-colors flex items-center justify-between text-xs"
                             >
                               <div className="flex items-center gap-2">
-                                <FileCheck2 className="w-3.5 h-3.5 text-amber-600 flex-shrink-0" />
-                                <span className="font-bold text-slate-800">{a.title}</span>
+                                <FileCheck2 className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 flex-shrink-0" />
+                                <span className="font-bold text-slate-800 dark:text-slate-200">{a.title}</span>
                               </div>
-                              <span className="text-[10px] font-medium text-slate-400">{a.courseName}</span>
+                              <span className="text-[10px] font-medium text-slate-400 dark:text-slate-500">{a.courseName}</span>
                             </div>
                           ))}
                         </div>
@@ -263,20 +264,20 @@ export function Navbar({ isCollapsed, onToggleSidebar }) {
                     {/* Job Openings */}
                     {searchResults.jobs.length > 0 && (
                       <div>
-                        <p className="text-[10px] font-black uppercase text-indigo-600 tracking-wider mb-1 px-2">Job Openings</p>
+                        <p className="text-[10px] font-black uppercase text-indigo-600 dark:text-indigo-400 tracking-wider mb-1 px-2">Job Openings</p>
                         <div className="space-y-0.5">
                           {searchResults.jobs.map(j => (
                             <div
                               key={j.id}
                               onClick={() => handleSelectResult('/jobs')}
-                              className="p-2 hover:bg-indigo-50/80 rounded-xl cursor-pointer transition-colors flex items-center justify-between text-xs"
+                              className="p-2 hover:bg-indigo-50/80 dark:hover:bg-indigo-950/40 rounded-xl cursor-pointer transition-colors flex items-center justify-between text-xs"
                             >
                               <div className="flex items-center gap-2">
-                                <Briefcase className="w-3.5 h-3.5 text-indigo-600 flex-shrink-0" />
-                                <span className="font-bold text-slate-800">{j.jobTitle}</span>
-                                <span className="text-[10px] text-slate-500">at {j.company}</span>
+                                <Briefcase className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400 flex-shrink-0" />
+                                <span className="font-bold text-slate-800 dark:text-slate-200">{j.jobTitle}</span>
+                                <span className="text-[10px] text-slate-500 dark:text-slate-400">at {j.company}</span>
                               </div>
-                              <span className="text-[10px] font-medium text-slate-400">{j.location}</span>
+                              <span className="text-[10px] font-medium text-slate-400 dark:text-slate-500">{j.location}</span>
                             </div>
                           ))}
                         </div>
@@ -286,19 +287,19 @@ export function Navbar({ isCollapsed, onToggleSidebar }) {
                     {/* Coding Questions */}
                     {searchResults.codingQuestions.length > 0 && (
                       <div>
-                        <p className="text-[10px] font-black uppercase text-rose-600 tracking-wider mb-1 px-2">Coding Questions</p>
+                        <p className="text-[10px] font-black uppercase text-rose-600 dark:text-rose-400 tracking-wider mb-1 px-2">Coding Questions</p>
                         <div className="space-y-0.5">
                           {searchResults.codingQuestions.map(cq => (
                             <div
                               key={cq.id}
                               onClick={() => handleSelectResult('/coding-questions')}
-                              className="p-2 hover:bg-rose-50/80 rounded-xl cursor-pointer transition-colors flex items-center justify-between text-xs"
+                              className="p-2 hover:bg-rose-50/80 dark:hover:bg-rose-950/40 rounded-xl cursor-pointer transition-colors flex items-center justify-between text-xs"
                             >
                               <div className="flex items-center gap-2">
-                                <Code2 className="w-3.5 h-3.5 text-rose-600 flex-shrink-0" />
-                                <span className="font-bold text-slate-800">{cq.title}</span>
+                                <Code2 className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400 flex-shrink-0" />
+                                <span className="font-bold text-slate-800 dark:text-slate-200">{cq.title}</span>
                               </div>
-                              <span className="text-[10px] font-bold text-rose-700 bg-rose-100 px-2 py-0.5 rounded-md">{cq.difficulty}</span>
+                              <span className="text-[10px] font-bold text-rose-700 dark:text-rose-300 bg-rose-100 dark:bg-rose-950/80 px-2 py-0.5 rounded-md">{cq.difficulty}</span>
                             </div>
                           ))}
                         </div>
@@ -306,7 +307,7 @@ export function Navbar({ isCollapsed, onToggleSidebar }) {
                     )}
                   </>
                 ) : (
-                  <div className="p-4 text-center text-xs text-slate-400">
+                  <div className="p-4 text-center text-xs text-slate-400 dark:text-slate-500">
                     No matching results found for "{searchQuery}"
                   </div>
                 )}
@@ -315,49 +316,15 @@ export function Navbar({ isCollapsed, onToggleSidebar }) {
           </div>
         </div>
 
-        {/* Right side: Notifications, Profile */}
-        <div className="flex items-center gap-2.5 sm:gap-4">
-
-          {/* Notifications Icon (Hidden for now) */}
-          {/*
-          <div className="relative" ref={notifDropdownRef}>
-            <button
-              onClick={() => setIsNotifOpen(!isNotifOpen)}
-              className="p-1.5 text-slate-500 hover:text-slate-700 rounded-xl hover:bg-slate-100 relative transition-colors cursor-pointer"
-            >
-              <Bell className="w-4.5 h-4.5" />
-              <span className="absolute top-1 right-1 w-2 h-2 bg-blue-600 rounded-full ring-2 ring-white" />
-            </button>
-
-            {isNotifOpen && (
-              <div className="absolute right-0 mt-2 w-72 sm:w-80 bg-white rounded-2xl shadow-xl border border-slate-100 p-4 z-50">
-                <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-                  <h5 className="font-bold text-sm text-slate-800">Notifications</h5>
-                  <span className="text-[10px] bg-blue-100 text-blue-700 font-bold px-2 py-0.5 rounded-full">
-                    3 New
-                  </span>
-                </div>
-                <div className="py-2 space-y-3">
-                  <div className="text-xs">
-                    <p className="font-semibold text-slate-800">New Live Session Scheduled</p>
-                    <p className="text-slate-500 text-[11px]">React Server Components by David Chen</p>
-                    <span className="text-[10px] text-slate-400">10m ago</span>
-                  </div>
-                  <div className="text-xs border-t border-slate-50 pt-2">
-                    <p className="font-semibold text-slate-800">Assessment Submitted</p>
-                    <p className="text-slate-500 text-[11px]">Elena Rostova completed Docker Quiz</p>
-                    <span className="text-[10px] text-slate-400">1h ago</span>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-          */}
+        {/* Right side: Theme Toggle & Profile */}
+        <div className="flex items-center gap-2 sm:gap-3.5">
+          {/* Theme Toggle (Light / Dark / System) */}
+          <ThemeToggle variant="navbar" />
 
           {/* Current User Profile Badge */}
           <button
             onClick={() => setIsProfileModalOpen(true)}
-            className="flex items-center gap-2 hover:opacity-80 transition-opacity cursor-pointer group"
+            className="flex items-center gap-2 hover:opacity-85 transition-opacity cursor-pointer group"
             title="Click to edit profile & settings"
           >
             <img
@@ -366,10 +333,10 @@ export function Navbar({ isCollapsed, onToggleSidebar }) {
               className="w-7 h-7 rounded-full object-cover ring-2 ring-blue-500/20 group-hover:ring-blue-500"
             />
             <div className="hidden lg:flex flex-col text-left">
-              <span className="text-xs font-bold text-slate-800 leading-tight group-hover:text-blue-600 transition-colors">
+              <span className="text-xs font-bold text-slate-800 dark:text-slate-200 leading-tight group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                 {currentUser?.name}
               </span>
-              <span className="text-[10px] text-slate-500 font-medium">{currentUser?.department}</span>
+              <span className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">{currentUser?.department}</span>
             </div>
           </button>
         </div>
