@@ -6,7 +6,6 @@ import { DashboardLayout } from '../layouts/DashboardLayout';
 
 // Auth Pages
 const LoginPage = lazy(() => import('../pages/auth/LoginPage').then(m => ({ default: m.LoginPage })));
-const RegisterPage = lazy(() => import('../pages/auth/RegisterPage').then(m => ({ default: m.RegisterPage })));
 const ForgotPasswordPage = lazy(() => import('../pages/auth/ForgotPasswordPage').then(m => ({ default: m.ForgotPasswordPage })));
 
 // Admin / Dashboard Pages
@@ -67,7 +66,6 @@ export function AppRoutes() {
 
         {/* Public Auth Routes */}
         <Route path="/login" element={isAuthenticated ? <Navigate to={defaultRedirect} replace /> : <LoginPage />} />
-        <Route path="/register" element={isAuthenticated ? <Navigate to={defaultRedirect} replace /> : <RegisterPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
 
         {/* Protected Dashboard Layout Routes */}

@@ -4,7 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { Button } from '../../components/common/Button';
 import { Input } from '../../components/common/Input';
-import { LogIn, Lock, Mail, ShieldCheck, UserPlus } from 'lucide-react';
+import { LogIn, Lock, Mail, ShieldCheck } from 'lucide-react';
 import { AINetworkCanvas } from '../../components/auth/AINetworkCanvas';
 import { ThemeToggle } from '../../components/common/ThemeToggle';
 
@@ -164,15 +164,6 @@ export function LoginPage() {
                 {isLoading ? 'Signing in...' : 'Sign In'}
               </Button>
             </form>
-
-            <div className="pt-4 border-t border-slate-100 dark:border-slate-800 text-center">
-              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
-                Don't have an account?{' '}
-                <Link to="/register" className="text-blue-600 dark:text-blue-400 font-bold hover:underline inline-flex items-center gap-1">
-                  <UserPlus className="w-3.5 h-3.5" /> Register here
-                </Link>
-              </p>
-            </div>
           </div>
         </div>
       </div>
