@@ -2430,12 +2430,33 @@ export function LmsDataProvider({ children }) {
 
       // Load course lessons from Supabase
       try {
-        if (lessonsData) setCourseLessons(lessonsData);
+        if (lessonsData) {
+          const uniqueLessons = [];
+          const seenIds = new Set();
+          lessonsData.forEach(l => {
+            if (l && l.id && !seenIds.has(l.id)) {
+              seenIds.add(l.id);
+              uniqueLessons.push(l);
+            }
+          });
+          setCourseLessons(uniqueLessons);
+        }
       } catch (err) { console.warn('Course lessons load:', err); }
 
       // Load milestone locks from Supabase
       try {
-        if (locksData) setMilestoneLocks(locksData);
+        if (locksData) {
+          const uniqueLocks = [];
+          const seenLockKeys = new Set();
+          locksData.forEach(lk => {
+            const lkKey = lk ? (lk.id || `${lk.lesson_id}_${lk.batch_code}`) : null;
+            if (lkKey && !seenLockKeys.has(lkKey)) {
+              seenLockKeys.add(lkKey);
+              uniqueLocks.push(lk);
+            }
+          });
+          setMilestoneLocks(uniqueLocks);
+        }
       } catch (err) { console.warn('Milestone locks load:', err); }
 
       // 13. Fetch Badges Catalog
@@ -3298,10 +3319,18 @@ export function LmsDataProvider({ children }) {
     const lessonsChannel = supabase.channel('course-lessons-realtime')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'course_lessons' }, (payload) => {
         if (payload.eventType === 'INSERT') {
-          setCourseLessons(prev => [...prev, payload.new]);
+          if (!payload.new || !payload.new.id) return;
+          setCourseLessons(prev => {
+            if (prev.some(l => l.id === payload.new.id)) {
+              return prev.map(l => l.id === payload.new.id ? payload.new : l);
+            }
+            return [...prev, payload.new];
+          });
         } else if (payload.eventType === 'UPDATE') {
+          if (!payload.new || !payload.new.id) return;
           setCourseLessons(prev => prev.map(l => l.id === payload.new.id ? payload.new : l));
         } else if (payload.eventType === 'DELETE') {
+          if (!payload.old || !payload.old.id) return;
           setCourseLessons(prev => prev.filter(l => l.id !== payload.old.id));
         }
       })
@@ -3310,10 +3339,18 @@ export function LmsDataProvider({ children }) {
     const locksChannel = supabase.channel('milestone-locks-realtime')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'milestone_locks' }, (payload) => {
         if (payload.eventType === 'INSERT') {
-          setMilestoneLocks(prev => [...prev, payload.new]);
+          if (!payload.new || !payload.new.id) return;
+          setMilestoneLocks(prev => {
+            if (prev.some(l => l.id === payload.new.id)) {
+              return prev.map(l => l.id === payload.new.id ? payload.new : l);
+            }
+            return [...prev, payload.new];
+          });
         } else if (payload.eventType === 'UPDATE') {
+          if (!payload.new || !payload.new.id) return;
           setMilestoneLocks(prev => prev.map(l => l.id === payload.new.id ? payload.new : l));
         } else if (payload.eventType === 'DELETE') {
+          if (!payload.old || !payload.old.id) return;
           setMilestoneLocks(prev => prev.filter(l => l.id !== payload.old.id));
         }
       })
@@ -5598,7 +5635,12 @@ export function LmsDataProvider({ children }) {
       created_at: new Date().toISOString(),
       ...lessonData
     };
-    setCourseLessons(prev => [...prev, newLesson]);
+    setCourseLessons(prev => {
+      if (prev.some(l => l.id === newLesson.id)) {
+        return prev;
+      }
+      return [...prev, newLesson];
+    });
     try {
       const { error } = await supabase.from('course_lessons').insert([newLesson]);
       if (error) console.error('Supabase lesson insert error:', error.message);
@@ -5623,8 +5665,18 @@ export function LmsDataProvider({ children }) {
   };
 
   const getLessonsForModule = (courseId, stageId, moduleId) => {
+    const seen = new Set();
     return courseLessons
-      .filter(l => l.course_id === courseId && l.stage_id === stageId && l.module_id === moduleId)
+      .filter(l => {
+        if (!l || l.course_id !== courseId || l.stage_id !== stageId || l.module_id !== moduleId) {
+          return false;
+        }
+        if (l.id && seen.has(l.id)) {
+          return false;
+        }
+        if (l.id) seen.add(l.id);
+        return true;
+      })
       .sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
   };
 

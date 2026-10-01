@@ -133,6 +133,7 @@ export function CourseDetailPage() {
   const [activeLessonContext, setActiveLessonContext] = useState({ stageId: null, moduleId: null });
   const [editingLesson, setEditingLesson] = useState(null);
   const [lessonFormData, setLessonFormData] = useState({ title: '', description: '', durationHours: '' });
+  const [isSubmittingLesson, setIsSubmittingLesson] = useState(false);
 
   // Seed mock stages to database if course has no stages in Supabase yet
   React.useEffect(() => {
@@ -246,31 +247,40 @@ export function CourseDetailPage() {
 
   const handleSaveLesson = async (e) => {
     e.preventDefault();
+    if (isSubmittingLesson) return;
     if (!lessonFormData.title.trim()) {
       addToast('Please enter lesson title', 'error');
       return;
     }
 
-    const packedDesc = `${lessonFormData.durationHours || ''}||${lessonFormData.description.trim()}`;
-    if (editingLesson) {
-      await updateCourseLesson(editingLesson.id, {
-        title: lessonFormData.title.trim(),
-        description: packedDesc
-      });
-      addToast(`Updated lesson "${lessonFormData.title}"`, 'success');
-    } else {
-      await addCourseLesson({
-        course_id: courseId,
-        stage_id: activeLessonContext.stageId,
-        module_id: activeLessonContext.moduleId,
-        title: lessonFormData.title.trim(),
-        description: packedDesc
-      });
-      addToast(`Added lesson "${lessonFormData.title}"`, 'success');
-    }
+    setIsSubmittingLesson(true);
+    try {
+      const packedDesc = `${lessonFormData.durationHours || ''}||${lessonFormData.description.trim()}`;
+      if (editingLesson) {
+        await updateCourseLesson(editingLesson.id, {
+          title: lessonFormData.title.trim(),
+          description: packedDesc
+        });
+        addToast(`Updated lesson "${lessonFormData.title}"`, 'success');
+      } else {
+        await addCourseLesson({
+          course_id: courseId,
+          stage_id: activeLessonContext.stageId,
+          module_id: activeLessonContext.moduleId,
+          title: lessonFormData.title.trim(),
+          description: packedDesc
+        });
+        addToast(`Added lesson "${lessonFormData.title}"`, 'success');
+      }
 
-    setIsAddLessonModalOpen(false);
-    setEditingLesson(null);
+      setIsAddLessonModalOpen(false);
+      setEditingLesson(null);
+    } catch (err) {
+      console.error(err);
+      addToast('Failed to save lesson', 'error');
+    } finally {
+      setIsSubmittingLesson(false);
+    }
   };
 
   const handleDeleteLesson = async (lessonId, lessonTitle) => {
@@ -833,8 +843,10 @@ export function CourseDetailPage() {
       <Modal
         isOpen={isAddLessonModalOpen}
         onClose={() => {
-          setIsAddLessonModalOpen(false);
-          setEditingLesson(null);
+          if (!isSubmittingLesson) {
+            setIsAddLessonModalOpen(false);
+            setEditingLesson(null);
+          }
         }}
         title={editingLesson ? 'Edit Lesson / Sub-module' : 'Add New Lesson to Module'}
         subtitle="Define the lesson title and description for this sub-module"
@@ -872,15 +884,18 @@ export function CourseDetailPage() {
             <Button
               variant="outline"
               type="button"
+              disabled={isSubmittingLesson}
               onClick={() => {
-                setIsAddLessonModalOpen(false);
-                setEditingLesson(null);
+                if (!isSubmittingLesson) {
+                  setIsAddLessonModalOpen(false);
+                  setEditingLesson(null);
+                }
               }}
             >
               Cancel
             </Button>
-            <Button type="submit" variant="primary">
-              {editingLesson ? 'Save Lesson' : 'Add Lesson'}
+            <Button type="submit" variant="primary" disabled={isSubmittingLesson}>
+              {isSubmittingLesson ? 'Saving...' : (editingLesson ? 'Save Lesson' : 'Add Lesson')}
             </Button>
           </div>
         </form>
