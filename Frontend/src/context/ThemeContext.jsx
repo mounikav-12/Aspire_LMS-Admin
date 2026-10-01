@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useRef } from 'react';
 
 const ThemeContext = createContext({
   theme: 'system',
@@ -36,10 +36,13 @@ export function ThemeProvider({ children }) {
       : 'light';
   });
 
+  const isFirstRender = useRef(true);
+  const transitionTimerRef = useRef(null);
+
   useEffect(() => {
     const root = document.documentElement;
 
-    const applyTheme = (currentTheme) => {
+    const applyTheme = (currentTheme, withTransition = true) => {
       let isDarkTheme = false;
       if (currentTheme === 'dark') {
         isDarkTheme = true;
@@ -51,6 +54,13 @@ export function ThemeProvider({ children }) {
 
       setResolvedTheme(isDarkTheme ? 'dark' : 'light');
 
+      if (withTransition) {
+        if (transitionTimerRef.current) {
+          clearTimeout(transitionTimerRef.current);
+        }
+        root.classList.add('theme-transitioning');
+      }
+
       if (isDarkTheme) {
         root.classList.add('dark');
         root.setAttribute('data-theme', 'dark');
@@ -60,9 +70,20 @@ export function ThemeProvider({ children }) {
         root.setAttribute('data-theme', 'light');
         root.style.colorScheme = 'light';
       }
+
+      if (withTransition) {
+        transitionTimerRef.current = setTimeout(() => {
+          root.classList.remove('theme-transitioning');
+        }, 350);
+      }
     };
 
-    applyTheme(theme);
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      applyTheme(theme, false);
+    } else {
+      applyTheme(theme, true);
+    }
 
     try {
       localStorage.setItem('theme', theme);
@@ -75,12 +96,17 @@ export function ThemeProvider({ children }) {
       const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
       const handleSystemChange = () => {
         if (theme === 'system') {
-          applyTheme('system');
+          applyTheme('system', true);
         }
       };
 
       mediaQuery.addEventListener('change', handleSystemChange);
-      return () => mediaQuery.removeEventListener('change', handleSystemChange);
+      return () => {
+        mediaQuery.removeEventListener('change', handleSystemChange);
+        if (transitionTimerRef.current) {
+          clearTimeout(transitionTimerRef.current);
+        }
+      };
     }
   }, [theme]);
 

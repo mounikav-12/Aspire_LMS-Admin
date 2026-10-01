@@ -45,15 +45,16 @@ export function ThemeToggle({
             title={`Current: ${theme.toUpperCase()} (${isDark ? 'Dark' : 'Light'}). Click to toggle, right-click for options.`}
             className="flex items-center gap-2 px-3 py-2 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-slate-200/80 dark:border-slate-700/80 rounded-2xl shadow-lg hover:shadow-xl text-slate-700 dark:text-slate-200 transition-all duration-300 hover:scale-105 cursor-pointer group"
           >
-            <div className="relative w-5 h-5 flex items-center justify-center">
-              {isDark ? (
-                <Sun className="w-4.5 h-4.5 text-amber-400 group-hover:rotate-45 transition-transform duration-300" />
-              ) : (
-                <Moon className="w-4.5 h-4.5 text-blue-600 group-hover:-rotate-12 transition-transform duration-300" />
-              )}
+            <div className="relative w-4.5 h-4.5 flex items-center justify-center">
+              <Sun className={`w-4.5 h-4.5 text-amber-500 absolute transition-all duration-300 ease-in-out ${
+                isDark ? 'opacity-100 rotate-0 scale-100' : 'opacity-0 -rotate-90 scale-0 pointer-events-none'
+              }`} />
+              <Moon className={`w-4.5 h-4.5 text-blue-600 dark:text-blue-400 absolute transition-all duration-300 ease-in-out ${
+                isDark ? 'opacity-0 rotate-90 scale-0 pointer-events-none' : 'opacity-100 rotate-0 scale-100'
+              }`} />
             </div>
             <span className="text-xs font-bold capitalize hidden sm:inline">
-              {isDark ? 'Light Mode' : 'Dark Mode'}
+              {isDark ? 'Dark Mode' : 'Light Mode'}
             </span>
           </button>
 
@@ -104,43 +105,58 @@ export function ThemeToggle({
           title={`Switch to ${isDark ? 'Light' : 'Dark'} Mode`}
           className="w-full flex items-center justify-center p-2 text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-slate-800/80 rounded-xl transition-all cursor-pointer group"
         >
-          {isDark ? (
-            <Sun className="w-4.5 h-4.5 text-amber-400 group-hover:rotate-45 transition-transform duration-300" />
-          ) : (
-            <Moon className="w-4.5 h-4.5 text-slate-600 group-hover:-rotate-12 transition-transform duration-300" />
-          )}
+          <div className="relative w-4.5 h-4.5 flex items-center justify-center">
+            <Sun className={`w-4.5 h-4.5 text-amber-500 absolute transition-all duration-300 ease-in-out ${
+              isDark ? 'opacity-100 rotate-0 scale-100' : 'opacity-0 -rotate-90 scale-0 pointer-events-none'
+            }`} />
+            <Moon className={`w-4.5 h-4.5 text-slate-600 dark:text-blue-400 absolute transition-all duration-300 ease-in-out ${
+              isDark ? 'opacity-0 rotate-90 scale-0 pointer-events-none' : 'opacity-100 rotate-0 scale-100'
+            }`} />
+          </div>
         </button>
       );
     }
 
     return (
       <div className={`space-y-1 ${className}`} ref={dropdownRef}>
-        <div className="flex items-center justify-between px-3 py-2 bg-slate-100/70 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-700/60 rounded-xl">
+        <div
+          onClick={toggleTheme}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              toggleTheme();
+            }
+          }}
+          title={`Switch to ${isDark ? 'Light' : 'Dark'} Mode`}
+          className="flex items-center justify-between px-3 py-2 bg-slate-100/70 dark:bg-slate-800/50 hover:bg-slate-200/60 dark:hover:bg-slate-800/80 border border-slate-200/60 dark:border-slate-700/60 rounded-xl cursor-pointer transition-colors duration-300 select-none group"
+        >
           <div className="flex items-center gap-2">
-            {isDark ? (
-              <Sun className="w-4 h-4 text-amber-400" />
-            ) : (
-              <Moon className="w-4 h-4 text-blue-600" />
-            )}
-            <span className="text-xs font-bold text-slate-700 dark:text-slate-200">
+            <div className="relative w-4 h-4 flex items-center justify-center">
+              <Sun className={`w-4 h-4 text-amber-500 absolute transition-all duration-300 ease-in-out ${
+                isDark ? 'opacity-100 rotate-0 scale-100' : 'opacity-0 -rotate-90 scale-0 pointer-events-none'
+              }`} />
+              <Moon className={`w-4 h-4 text-blue-600 dark:text-blue-400 absolute transition-all duration-300 ease-in-out ${
+                isDark ? 'opacity-0 rotate-90 scale-0 pointer-events-none' : 'opacity-100 rotate-0 scale-100'
+              }`} />
+            </div>
+            <span className="text-xs font-bold text-slate-700 dark:text-slate-200 transition-colors duration-300">
               {isDark ? 'Dark Theme' : 'Light Theme'}
             </span>
           </div>
 
-          <button
-            type="button"
-            onClick={toggleTheme}
-            title={`Switch to ${isDark ? 'Light' : 'Dark'} Mode`}
-            className={`relative inline-flex h-5 w-9 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-              isDark ? 'bg-blue-600' : 'bg-slate-300 dark:bg-slate-600'
+          <div
+            className={`relative inline-flex h-5 w-9 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-300 ease-in-out ${
+              isDark ? 'bg-blue-600' : 'bg-slate-300'
             }`}
           >
             <span
-              className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out ${
+              className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-sm ring-0 transition-transform duration-300 ease-in-out ${
                 isDark ? 'translate-x-4' : 'translate-x-0'
               }`}
             />
-          </button>
+          </div>
         </div>
       </div>
     );
@@ -154,17 +170,18 @@ export function ThemeToggle({
           type="button"
           onClick={toggleTheme}
           title={`Currently ${isDark ? 'Dark Mode' : 'Light Mode'} (${theme} preference). Click to toggle theme.`}
-          className="p-1.5 sm:px-2.5 sm:py-1.5 text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 bg-slate-100/80 dark:bg-slate-800 hover:bg-slate-200/80 dark:hover:bg-slate-700/80 border border-slate-200/80 dark:border-slate-700/70 rounded-xl transition-all duration-200 flex items-center gap-1.5 cursor-pointer group shadow-2xs"
+          className="p-1.5 sm:px-2.5 sm:py-1.5 text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 bg-slate-100/80 dark:bg-slate-800 hover:bg-slate-200/80 dark:hover:bg-slate-700/80 border border-slate-200/80 dark:border-slate-700/70 rounded-xl transition-colors duration-300 flex items-center gap-2 cursor-pointer group shadow-2xs"
           aria-label="Toggle dark mode"
         >
-          <div className="relative w-4.5 h-4.5 flex items-center justify-center">
-            {isDark ? (
-              <Sun className="w-4 h-4 text-amber-400 group-hover:rotate-45 transition-transform duration-300" />
-            ) : (
-              <Moon className="w-4 h-4 text-blue-600 group-hover:-rotate-12 transition-transform duration-300" />
-            )}
+          <div className="relative w-4 h-4 flex items-center justify-center">
+            <Sun className={`w-4 h-4 text-amber-500 absolute transition-all duration-300 ease-in-out ${
+              isDark ? 'opacity-100 rotate-0 scale-100' : 'opacity-0 -rotate-90 scale-0 pointer-events-none'
+            }`} />
+            <Moon className={`w-4 h-4 text-blue-600 dark:text-blue-400 absolute transition-all duration-300 ease-in-out ${
+              isDark ? 'opacity-0 rotate-90 scale-0 pointer-events-none' : 'opacity-100 rotate-0 scale-100'
+            }`} />
           </div>
-          <span className="text-[11px] font-bold text-slate-700 dark:text-slate-200 hidden md:inline">
+          <span className="text-[11px] font-bold text-slate-700 dark:text-slate-200 hidden md:inline transition-colors duration-300">
             {isDark ? 'Dark' : 'Light'}
           </span>
           <ChevronDown
@@ -172,7 +189,7 @@ export function ThemeToggle({
               e.stopPropagation();
               setIsOpen(!isOpen);
             }}
-            className={`w-3 h-3 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-transform ${
+            className={`w-3 h-3 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-transform duration-200 ${
               isOpen ? 'rotate-180' : ''
             }`}
           />
