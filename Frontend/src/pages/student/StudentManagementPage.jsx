@@ -21,11 +21,9 @@ import {
   Layers,
   BookOpen,
   Filter,
-  Eye,
   Sparkles,
   Award,
   Zap,
-  ArrowRight,
   Plus
 } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -46,7 +44,6 @@ export function StudentManagementPage() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [editingStudent, setEditingStudent] = useState(null);
   const [deletingStudent, setDeletingStudent] = useState(null);
-  const [testingStudent, setTestingStudent] = useState(null);
   const [mobileError, setMobileError] = useState('');
   const [emailError, setEmailError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -255,14 +252,6 @@ export function StudentManagementPage() {
     }
   };
 
-  const handleTestStudentAccess = (student) => {
-    setTestingStudent(student);
-    if (setActiveBatchFilter && student?.batch) {
-      setActiveBatchFilter(student.batch);
-    }
-    addToast(`Testing active session as ${student.name} (${student.registrationId} - Batch ${student.batch})`, 'info');
-  };
-
   // Filter Logic
   const filteredStudents = students.filter((s) => {
     if (!s) return false;
@@ -310,44 +299,6 @@ export function StudentManagementPage() {
           </Button>
         </div>
       </div>
-
-
-
-      {/* Real-time Student Access Testing Modal / Drawer Banner if active */}
-      {testingStudent && (
-        <div className="p-4 bg-slate-900 text-white rounded-2xl shadow-lg border border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4 animate-in slide-in-from-top-4 duration-300">
-          <div className="flex items-center gap-2">
-            <span className="font-black text-base text-white">{testingStudent.name}</span>
-            <span className={`px-2 py-0.5 rounded-full text-xs font-mono font-bold ${
-              testingStudent.batch === 'Weekday Batch' ? 'bg-blue-500/30 text-blue-300 border border-blue-400/40' : 'bg-purple-500/30 text-purple-300 border border-purple-400/40'
-            }`}>
-              {testingStudent.registrationId}
-            </span>
-            <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-slate-800 text-slate-300">
-              {testingStudent.batch}
-            </span>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <Button
-              size="sm"
-              className="bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold flex items-center gap-1.5"
-              onClick={() => navigate('/milestones')}
-            >
-              <span>Test Milestones Access</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              className="border-slate-700 text-slate-300 hover:bg-slate-800 text-xs"
-              onClick={() => setTestingStudent(null)}
-            >
-              Close Simulator
-            </Button>
-          </div>
-        </div>
-      )}
 
       {/* Filter and Search Bar */}
       <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs flex flex-col md:flex-row items-center justify-between gap-4">
@@ -538,13 +489,6 @@ export function StudentManagementPage() {
                       {/* Actions */}
                       <td className="py-3.5 px-4 text-right">
                         <div className="flex items-center justify-end gap-1.5">
-                          <button
-                            onClick={() => handleTestStudentAccess(student)}
-                            title="Test Real-Time Access"
-                            className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors cursor-pointer border border-blue-200/60"
-                          >
-                            <Eye className="w-4 h-4" />
-                          </button>
                           <button
                             onClick={() => handleOpenEditModal(student)}
                             title="Edit Student"
