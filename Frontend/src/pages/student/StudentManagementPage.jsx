@@ -117,6 +117,9 @@ export function StudentManagementPage() {
     try {
       const res = await regenerateStudentPasskey(studentId);
       if (res?.success) {
+        if (revealedPinStudentId === studentId) {
+          setRevealedPinValue(res.newPin);
+        }
         addToast(`Generated new Access PIN for ${studentName}: ${res.newPin}`, 'success');
       } else {
         addToast(`Failed to regenerate PIN: ${res?.error || 'Unknown error'}`, 'error');
@@ -221,6 +224,14 @@ export function StudentManagementPage() {
       return;
     }
 
+    // If activePin is already present in state and decrypted, use it directly
+    if (student.activePin && student.activePin !== 'No PIN' && student.activePin !== '••••••' && student.activePin !== 'Error') {
+      setRevealedPinStudentId(student.id);
+      setRevealedPinValue(student.activePin);
+      setHasCopiedPin(false);
+      return;
+    }
+
     setIsPinLoading(true);
     setRevealedPinStudentId(student.id);
     setRevealedPinValue('');
@@ -242,44 +253,50 @@ export function StudentManagementPage() {
         }
       }
 
-      // If still missing or empty, auto-generate, encrypt, and save to Supabase
+      // If still missing or empty, auto-generate passkey, encrypt, and save to Supabase
       if (!rawEncryptedPin) {
-        const generatedPlain = generatePin();
-        const encrypted = await encryptPin(generatedPlain);
+        const generatedPlain = generatePasskey(6);
+        const encrypted = encryptPasskey(generatedPlain);
         await supabase
           .from('students')
-          .update({ access_pin: encrypted })
+          .update({ access_pin: encrypted, passkey_updated_at: new Date().toISOString() })
           .eq('id', student.id);
 
         if (updateStudent) {
-          updateStudent(student.id, { accessPin: encrypted, access_pin: encrypted });
+          updateStudent(student.id, { accessPin: encrypted, access_pin: encrypted, activePin: generatedPlain });
         }
         setRevealedPinValue(generatedPlain);
         return;
       }
 
       // Decrypt the PIN
-      const decrypted = await decryptPin(rawEncryptedPin);
+      let decrypted = decryptPasskey(rawEncryptedPin);
+      if (!decrypted) {
+        decrypted = await decryptPin(rawEncryptedPin);
+      }
+
       if (decrypted && decrypted !== '••••••' && decrypted !== 'Error') {
         setRevealedPinValue(decrypted);
+        if (updateStudent) {
+          updateStudent(student.id, { activePin: decrypted });
+        }
       } else {
-        // If decryption failed, auto-heal with a fresh 6-digit PIN
-        const freshPin = generatePin();
-        const freshEncrypted = await encryptPin(freshPin);
+        // Fallback: generate and set clean passkey
+        const freshPin = generatePasskey(6);
+        const freshEncrypted = encryptPasskey(freshPin);
         await supabase
           .from('students')
-          .update({ access_pin: freshEncrypted })
+          .update({ access_pin: freshEncrypted, passkey_updated_at: new Date().toISOString() })
           .eq('id', student.id);
 
         if (updateStudent) {
-          updateStudent(student.id, { accessPin: freshEncrypted, access_pin: freshEncrypted });
+          updateStudent(student.id, { accessPin: freshEncrypted, access_pin: freshEncrypted, activePin: freshPin });
         }
         setRevealedPinValue(freshPin);
       }
     } catch (err) {
       console.error('[PIN Decrypt] Error:', err);
-      // Fallback: generate and set clean PIN
-      const fallbackPin = generatePin();
+      const fallbackPin = generatePasskey(6);
       setRevealedPinValue(fallbackPin);
     } finally {
       setIsPinLoading(false);
@@ -569,7 +586,6 @@ export function StudentManagementPage() {
                 <tr className="border-b border-slate-200/80 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-800/60 text-[11px] uppercase tracking-wider text-slate-500 dark:text-slate-400 font-bold">
                   <th className="py-3.5 px-4">Student Profile</th>
                   <th className="py-3.5 px-4">Registration ID</th>
-                  <th className="py-3.5 px-4">Access PIN</th>
                   <th className="py-3.5 px-4">Mobile Number</th>
                   <th className="py-3.5 px-4">Batch Allocation</th>
                   <th className="py-3.5 px-4">Course Enrolments</th>
@@ -615,17 +631,6 @@ export function StudentManagementPage() {
                           <Award className="w-3.5 h-3.5" />
                           {student.registrationId}
                         </span>
-                      </td>
-
-                      {/* Access PIN Column */}
-                      <td className="py-3.5 px-4">
-                        <AccessPinCell
-                          pin={student.activePin || (revealedPinStudentId === student.id ? revealedPinValue : '••••••')}
-                          studentName={student.name}
-                          studentId={student.id}
-                          onRegenerate={handleRegeneratePasskey}
-                          isRegenerating={regeneratingId === student.id}
-                        />
                       </td>
 
                       {/* Mobile Number */}
@@ -707,7 +712,7 @@ export function StudentManagementPage() {
                             {/* Decrypted PIN Tooltip Popup */}
                             {revealedPinStudentId === student.id && revealedPinValue && (
                               <div className="absolute right-0 top-full mt-2 z-50 animate-in fade-in zoom-in-95 duration-200 text-left">
-                                <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white rounded-xl shadow-2xl shadow-slate-900/60 border border-slate-700/60 p-3 min-w-[200px]">
+                                <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white rounded-xl shadow-2xl shadow-slate-900/60 border border-slate-700/60 p-3 min-w-[220px]">
                                   <div className="flex items-center justify-between gap-3">
                                     <div className="flex items-center gap-2">
                                       <div className="flex items-center justify-center w-7 h-7 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 shadow-md shadow-purple-500/30 flex-shrink-0">
@@ -718,21 +723,35 @@ export function StudentManagementPage() {
                                         <p className="text-base font-black font-mono tracking-[0.25em] text-emerald-400 leading-none">{revealedPinValue}</p>
                                       </div>
                                     </div>
-                                    <button
-                                      type="button"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleCopyPin(revealedPinValue, student.name);
-                                      }}
-                                      title="Copy PIN"
-                                      className="p-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors cursor-pointer border border-slate-700/60 flex-shrink-0"
-                                    >
-                                      {hasCopiedPin ? (
-                                        <Check className="w-3.5 h-3.5 text-emerald-400" />
-                                      ) : (
-                                        <Copy className="w-3.5 h-3.5" />
-                                      )}
-                                    </button>
+                                    <div className="flex items-center gap-1">
+                                      <button
+                                        type="button"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          handleCopyPin(revealedPinValue, student.name);
+                                        }}
+                                        title="Copy PIN"
+                                        className="p-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors cursor-pointer border border-slate-700/60 flex-shrink-0"
+                                      >
+                                        {hasCopiedPin ? (
+                                          <Check className="w-3.5 h-3.5 text-emerald-400" />
+                                        ) : (
+                                          <Copy className="w-3.5 h-3.5" />
+                                        )}
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          handleRegeneratePasskey(student.id, student.name);
+                                        }}
+                                        disabled={regeneratingId === student.id}
+                                        title="Regenerate PIN"
+                                        className="p-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors cursor-pointer border border-slate-700/60 flex-shrink-0"
+                                      >
+                                        <RefreshCw className={`w-3.5 h-3.5 ${regeneratingId === student.id ? 'animate-spin text-blue-400' : ''}`} />
+                                      </button>
+                                    </div>
                                   </div>
                                   <div className="mt-2 pt-1.5 border-t border-slate-700/50 flex items-center justify-between text-[8px] text-slate-400 font-medium">
                                     <span className="flex items-center gap-1">
