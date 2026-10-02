@@ -5665,6 +5665,42 @@ export function LmsDataProvider({ children }) {
       return { success: false, error: err.message || 'Failed to delete student' };
     }
   };
+
+  // STEP 5: Regenerate PIN for Existing Student
+  const regenerateStudentPasskey = async (studentId) => {
+    if (!studentId) return { success: false, error: 'Student ID required' };
+    const plainPin = generatePasskey(6);
+    const encryptedPin = await encryptPasskey(plainPin);
+    const nowIso = new Date().toISOString();
+
+    setStudents((prev) =>
+      prev.map((s) =>
+        s.id === studentId
+          ? { ...s, accessPin: encryptedPin, access_pin: encryptedPin, activePin: plainPin, passkey_updated_at: nowIso }
+          : s
+      )
+    );
+
+    try {
+      const { error } = await supabase
+        .from('students')
+        .update({
+          access_pin: encryptedPin,
+          passkey_updated_at: nowIso
+        })
+        .eq('id', studentId);
+
+      if (error) {
+        console.error('[Aspire LMS] Supabase passkey regenerate error:', error.message);
+        return { success: false, error: error.message };
+      }
+
+      return { success: true, studentId, newPin: plainPin, plainPasskey: plainPin };
+    } catch (err) {
+      console.error('[Aspire LMS] Passkey regenerate exception:', err);
+      return { success: false, error: err.message || 'Failed to regenerate passkey' };
+    }
+  };
 // --- COURSE LESSONS (Sub-modules) ---
   const addCourseLesson = async (lessonData) => {
     const newLesson = {
@@ -6011,6 +6047,7 @@ export function LmsDataProvider({ children }) {
         createStudent: addStudent,
         updateStudent,
         deleteStudent,
+        regenerateStudentPasskey,
         decryptStudentPin: decryptPasskey,
         decryptPasskey,
         encryptPasskey,

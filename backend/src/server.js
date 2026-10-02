@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
 const { supabase } = require('./config/supabase');
+const { generatePasskey, encryptPasskey, decryptPasskey } = require('./utils/passkey-crypto');
 
 const app = express();
 const PORT = process.env.PORT || 5001;
@@ -1484,6 +1485,192 @@ app.get('/api/v1/student-feed', async (req, res) => {
     res.status(500).json({ success: false, message: err.message });
   }
 });
+
+// =========================================================
+// 9. ADMIN PASSKEY / ACCESS PIN MANAGEMENT APIS (STEPS 3, 4, 5, 6)
+// =========================================================
+
+// STEP 3: GET /admin/api/students-with-passkeys (also /api/students-with-passkeys)
+const getStudentsWithPasskeysHandler = async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from('students')
+      .select('id, name, email, mobile_number, registration_id, batch, enrolled_courses, avatar, status, joined_date, access_pin, passkey_updated_at')
+      .order('name');
+
+    if (error) {
+      return res.status(500).json({ error: 'DB query failed', message: error.message });
+    }
+
+    const students = (data || []).map(s => ({
+      id: s.id,
+      name: s.name,
+      email: s.email,
+      mobile: s.mobile_number,
+      mobile_number: s.mobile_number,
+      registrationId: s.registration_id,
+      registration_id: s.registration_id,
+      batch: s.batch,
+      enrolledCourses: s.enrolled_courses,
+      avatar: s.avatar,
+      status: s.status,
+      joinedDate: s.joined_date,
+      accessPin: s.access_pin ? decryptPasskey(s.access_pin) : null,
+      activePin: s.access_pin ? decryptPasskey(s.access_pin) : null,
+      pinStatus: s.access_pin ? 'Active' : 'Not Set',
+      lastUpdated: s.passkey_updated_at,
+      passkey_updated_at: s.passkey_updated_at
+    }));
+
+    return res.json({ success: true, students });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+};
+
+app.get('/admin/api/students-with-passkeys', getStudentsWithPasskeysHandler);
+app.get('/api/students-with-passkeys', getStudentsWithPasskeysHandler);
+
+// STEP 4: POST /admin/api/add-student (also /api/add-student)
+const addStudentHandler = async (req, res) => {
+  try {
+    const { name, email, mobile_number, mobileNumber, batch, registration_id, registrationId, enrolled_courses, enrolledCourses, avatar, status, joined_date, joinedDate, ...otherFields } = req.body;
+
+    const sName = name || 'Student';
+    const cleanMobile = mobile_number || mobileNumber || '';
+    const cleanReg = registration_id || registrationId || `A26W${Date.now().toString().slice(-4)}`;
+    const cleanBatch = batch || 'A26W1';
+    const cleanCourses = enrolled_courses || enrolledCourses || ['crs-1786624019154-w'];
+    const cleanStatus = status || 'Active';
+    const cleanJoined = joined_date || joinedDate || new Date().toISOString().split('T')[0];
+    const defaultAvatar = `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(sName.trim())}&backgroundColor=e0e7ff&textColor=3730a3&bold=true`;
+    const cleanAvatar = (!avatar || avatar.includes('unsplash.com')) ? defaultAvatar : avatar;
+
+    // 1. Generate PIN
+    const plainPin = generatePasskey(6);
+    // 2. Encrypt PIN
+    const encryptedPin = encryptPasskey(plainPin);
+    const nowIso = new Date().toISOString();
+
+    const newStudentRow = {
+      id: req.body.id || `std-${Date.now()}`,
+      name: sName,
+      email: email || '',
+      mobile_number: cleanMobile,
+      registration_id: cleanReg,
+      batch: cleanBatch,
+      enrolled_courses: cleanCourses,
+      avatar: cleanAvatar,
+      status: cleanStatus,
+      joined_date: cleanJoined,
+      access_pin: encryptedPin,
+      passkey_updated_at: nowIso,
+      ...otherFields
+    };
+
+    // 3. Insert student with encrypted PIN
+    const { data, error } = await supabase
+      .from('students')
+      .insert([newStudentRow])
+      .select()
+      .single();
+
+    if (error) {
+      return res.status(500).json({ error: error.message });
+    }
+
+    // 4. Return plaintext PIN to show to admin
+    return res.json({
+      success: true,
+      student: data,
+      generatedPin: plainPin,
+      plainPasskey: plainPin
+    });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+};
+
+app.post('/admin/api/add-student', addStudentHandler);
+app.post('/api/add-student', addStudentHandler);
+
+// STEP 5: POST /admin/api/regenerate-passkey (also /api/regenerate-passkey)
+const regeneratePasskeyHandler = async (req, res) => {
+  try {
+    const studentId = req.body.studentId || req.body.id;
+    if (!studentId) {
+      return res.status(400).json({ error: 'studentId is required' });
+    }
+
+    // 1. Generate new PIN
+    const plainPin = generatePasskey(6);
+    const encryptedPin = encryptPasskey(plainPin);
+    const nowIso = new Date().toISOString();
+
+    // 2. Update in database
+    const { data, error } = await supabase
+      .from('students')
+      .update({
+        access_pin: encryptedPin,
+        passkey_updated_at: nowIso,
+      })
+      .eq('id', studentId)
+      .select()
+      .single();
+
+    if (error) {
+      return res.status(500).json({ error: error.message });
+    }
+
+    // 3. Return new PIN
+    return res.json({
+      success: true,
+      studentId,
+      newPin: plainPin,
+      plainPasskey: plainPin,
+      accessPin: plainPin,
+      lastUpdated: nowIso
+    });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+};
+
+app.post('/admin/api/regenerate-passkey', regeneratePasskeyHandler);
+app.post('/api/regenerate-passkey', regeneratePasskeyHandler);
+
+// STEP 6: GET /admin/api/student-passkey (also /api/student-passkey)
+const getSingleStudentPasskeyHandler = async (req, res) => {
+  try {
+    const studentId = req.query.studentId || req.query.id;
+    if (!studentId) {
+      return res.status(400).json({ error: 'studentId is required' });
+    }
+
+    const { data, error } = await supabase
+      .from('students')
+      .select('id, name, access_pin, passkey_updated_at')
+      .eq('id', studentId)
+      .single();
+
+    if (error || !data) {
+      return res.status(404).json({ error: 'Not found' });
+    }
+
+    return res.json({
+      id: data.id,
+      name: data.name,
+      accessPin: data.access_pin ? decryptPasskey(data.access_pin) : null,
+      activePin: data.access_pin ? decryptPasskey(data.access_pin) : null,
+      lastUpdated: data.passkey_updated_at,
+    });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+};
+
+app.get('/admin/api/student-passkey', getSingleStudentPasskeyHandler);
+app.get('/api/student-passkey', getSingleStudentPasskeyHandler);
 
 if (process.env.NODE_ENV !== 'production') {
   app.listen(PORT, () => {

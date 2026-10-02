@@ -29,13 +29,16 @@ import {
   EyeOff,
   KeyRound,
   Copy,
-  Check
+  Check,
+  RefreshCw,
+  Share2,
+  ExternalLink
 } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '../../lib/supabaseClient';
 import { generatePasskey, encryptPasskey, decryptPasskey, encryptPin, decryptPin, generatePin } from '../../utils/passkey-crypto';
 
-export function AccessPinCell({ pin, studentName }) {
+export function AccessPinCell({ pin, studentName, studentId, onRegenerate, isRegenerating }) {
   const [copied, setCopied] = useState(false);
   const handleCopy = (e) => {
     e.stopPropagation();
@@ -49,17 +52,31 @@ export function AccessPinCell({ pin, studentName }) {
 
   return (
     <div className="flex items-center gap-1.5 font-mono">
-      <span className="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-xs font-bold text-slate-800 dark:text-slate-100 border border-slate-200/80 dark:border-slate-700 tracking-wider">
+      <span className="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-xs font-bold text-slate-800 dark:text-slate-100 border border-slate-200/80 dark:border-slate-700 tracking-wider shadow-2xs">
         {isAvailable ? pin : (pin || 'None')}
       </span>
       {isAvailable && (
         <button
           type="button"
           onClick={handleCopy}
-          className="text-xs text-purple-600 hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300 font-bold transition-colors cursor-pointer"
+          className="p-1 text-slate-400 hover:text-purple-600 dark:hover:text-purple-400 rounded-md hover:bg-purple-50 dark:hover:bg-purple-950/40 transition-colors cursor-pointer"
           title={`Copy PIN for ${studentName || 'student'}`}
         >
-          {copied ? '✓ Copied' : 'Copy'}
+          {copied ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
+        </button>
+      )}
+      {onRegenerate && (
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            onRegenerate(studentId, studentName);
+          }}
+          disabled={isRegenerating}
+          className="p-1 text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 rounded-md hover:bg-blue-50 dark:hover:bg-blue-950/40 transition-colors cursor-pointer"
+          title={`Regenerate PIN for ${studentName || 'student'}`}
+        >
+          <RefreshCw className={`w-3.5 h-3.5 ${isRegenerating ? 'animate-spin text-blue-600' : ''}`} />
         </button>
       )}
     </div>
@@ -67,7 +84,7 @@ export function AccessPinCell({ pin, studentName }) {
 }
 
 export function StudentManagementPage() {
-  const { students = [], addStudent, updateStudent, deleteStudent, decryptStudentPin, courses = [], activeBatchFilter, setActiveBatchFilter, availableBatches } = useLmsData();
+  const { students = [], addStudent, updateStudent, deleteStudent, regenerateStudentPasskey, decryptStudentPin, courses = [], activeBatchFilter, setActiveBatchFilter, availableBatches } = useLmsData();
   const { addToast } = useToast();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -89,6 +106,25 @@ export function StudentManagementPage() {
   const [revealedPinValue, setRevealedPinValue] = useState('');
   const [isPinLoading, setIsPinLoading] = useState(false);
   const [hasCopiedPin, setHasCopiedPin] = useState(false);
+  const [regeneratingId, setRegeneratingId] = useState(null);
+  const [newStudentSuccessData, setNewStudentSuccessData] = useState(null);
+  const [modalCopied, setModalCopied] = useState(false);
+
+  // STEP 5: Regenerate Passkey for Existing Student
+  const handleRegeneratePasskey = async (studentId, studentName) => {
+    if (!studentId) return;
+    setRegeneratingId(studentId);
+    try {
+      const res = await regenerateStudentPasskey(studentId);
+      if (res?.success) {
+        addToast(`Generated new Access PIN for ${studentName}: ${res.newPin}`, 'success');
+      } else {
+        addToast(`Failed to regenerate PIN: ${res?.error || 'Unknown error'}`, 'error');
+      }
+    } finally {
+      setRegeneratingId(null);
+    }
+  };
 
   React.useEffect(() => {
     if (urlBatch) {
@@ -371,8 +407,15 @@ export function StudentManagementPage() {
           addToast(`Failed to save student to database: ${res.error}`, 'error');
           return;
         }
-        addToast(`Added new student: "${formData.name}" [Reg ID: ${formData.registrationId}] • Passkey: ${res.plainPasskey || ''}`, 'success');
         setIsAddModalOpen(false);
+        setNewStudentSuccessData({
+          name: formData.name,
+          registrationId: formData.registrationId,
+          mobileNumber: formattedMobile,
+          batch: formData.batch,
+          plainPasskey: res.plainPasskey || ''
+        });
+        addToast(`Added new student: "${formData.name}" [Reg ID: ${formData.registrationId}] • Passkey: ${res.plainPasskey || ''}`, 'success');
       }
     } finally {
       setIsSubmitting(false);
@@ -576,7 +619,13 @@ export function StudentManagementPage() {
 
                       {/* Access PIN Column */}
                       <td className="py-3.5 px-4">
-                        <AccessPinCell pin={student.activePin || (revealedPinStudentId === student.id ? revealedPinValue : '••••••')} studentName={student.name} />
+                        <AccessPinCell
+                          pin={student.activePin || (revealedPinStudentId === student.id ? revealedPinValue : '••••••')}
+                          studentName={student.name}
+                          studentId={student.id}
+                          onRegenerate={handleRegeneratePasskey}
+                          isRegenerating={regeneratingId === student.id}
+                        />
                       </td>
 
                       {/* Mobile Number */}
@@ -856,6 +905,97 @@ export function StudentManagementPage() {
           </div>
         </form>
       </Modal>
+
+      {/* Student Added Successfully Modal (Step 4) */}
+      {newStudentSuccessData && (
+        <Modal
+          isOpen={!!newStudentSuccessData}
+          onClose={() => {
+            setNewStudentSuccessData(null);
+            setModalCopied(false);
+          }}
+          title="✅ Student Added Successfully!"
+        >
+          <div className="space-y-4">
+            <div className="bg-slate-50 dark:bg-slate-800/60 p-4 rounded-xl border border-slate-200/80 dark:border-slate-700/60 space-y-2.5 text-sm">
+              <div className="flex items-center justify-between">
+                <span className="text-slate-500 dark:text-slate-400 font-medium">Name:</span>
+                <span className="font-bold text-slate-900 dark:text-white">{newStudentSuccessData.name}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-slate-500 dark:text-slate-400 font-medium">Registration ID:</span>
+                <span className="font-mono font-bold text-blue-600 dark:text-blue-400">{newStudentSuccessData.registrationId}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-slate-500 dark:text-slate-400 font-medium">Mobile:</span>
+                <span className="font-mono text-slate-700 dark:text-slate-300">{newStudentSuccessData.mobileNumber || 'N/A'}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-slate-500 dark:text-slate-400 font-medium">Batch:</span>
+                <span className="font-bold text-purple-600 dark:text-purple-400">{newStudentSuccessData.batch || 'General'}</span>
+              </div>
+            </div>
+
+            {/* Highlighted Passkey Box */}
+            <div className="bg-gradient-to-br from-purple-50 via-indigo-50 to-purple-50 dark:from-purple-950/40 dark:via-indigo-950/40 dark:to-purple-950/40 p-4 rounded-xl border-2 border-purple-300/80 dark:border-purple-700/80 text-center space-y-2">
+              <p className="text-xs font-bold text-purple-700 dark:text-purple-300 uppercase tracking-widest">Single-Use Access PIN</p>
+              <p className="text-3xl font-black font-mono tracking-[0.25em] text-purple-900 dark:text-purple-100 py-1">
+                {newStudentSuccessData.plainPasskey}
+              </p>
+              <div className="flex items-center justify-center gap-2 pt-2 flex-wrap">
+                <Button
+                  size="sm"
+                  onClick={() => {
+                    navigator.clipboard.writeText(newStudentSuccessData.plainPasskey);
+                    setModalCopied(true);
+                    addToast('Copied Access PIN to clipboard', 'success');
+                    setTimeout(() => setModalCopied(false), 2000);
+                  }}
+                  className="bg-purple-600 hover:bg-purple-500 text-white font-bold flex items-center gap-1.5 cursor-pointer"
+                >
+                  {modalCopied ? <Check className="w-4 h-4 text-white" /> : <Copy className="w-4 h-4" />}
+                  <span>{modalCopied ? 'Copied' : 'Copy PIN'}</span>
+                </Button>
+
+                {newStudentSuccessData.mobileNumber && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      const cleanPhone = newStudentSuccessData.mobileNumber.replace(/\D/g, '');
+                      const message = encodeURIComponent(`Hello ${newStudentSuccessData.name}, welcome to Aspire LMS! Your Registration ID is ${newStudentSuccessData.registrationId} and your Access PIN is: ${newStudentSuccessData.plainPasskey}. Please log in at your student portal.`);
+                      window.open(`https://wa.me/${cleanPhone}?text=${message}`, '_blank');
+                    }}
+                    className="border-emerald-500/60 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 font-bold flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <Share2 className="w-4 h-4" />
+                    <span>Share via WhatsApp</span>
+                  </Button>
+                )}
+              </div>
+            </div>
+
+            <div className="p-3 bg-amber-50 dark:bg-amber-950/40 border border-amber-200/80 dark:border-amber-800/60 rounded-lg text-xs text-amber-800 dark:text-amber-300 flex items-start gap-2">
+              <span className="text-base leading-none">⚠️</span>
+              <p>
+                <strong>This PIN is single-use.</strong> After the student logs in, a new PIN will be generated automatically and synced to this admin dashboard.
+              </p>
+            </div>
+
+            <div className="flex justify-end pt-2">
+              <Button
+                onClick={() => {
+                  setNewStudentSuccessData(null);
+                  setModalCopied(false);
+                }}
+                className="bg-slate-900 hover:bg-slate-800 text-white font-bold"
+              >
+                Done
+              </Button>
+            </div>
+          </div>
+        </Modal>
+      )}
 
       {/* Confirm Delete Dialog */}
       <ConfirmDialog

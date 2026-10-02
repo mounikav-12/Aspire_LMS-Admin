@@ -4,7 +4,11 @@
 // Uses Web Crypto API (SubtleCrypto) for browser-native AES-GCM
 // =========================================================
 
-const PIN_ENCRYPTION_PASSPHRASE = 'AspireNextLMS2026@SecurePinKey!';
+const CANDIDATE_SECRETS = [
+  'aspire_lms_passkey_vault_secret_2026',
+  'some-secure-random-secret-key-12345',
+  'AspireNextLMS2026@SecurePinKey!'
+];
 
 function str2ab(str) {
   return new TextEncoder().encode(str);
@@ -25,9 +29,9 @@ function hex2ab(hex) {
   return bytes.buffer;
 }
 
-// Derive a 256-bit crypto key from passphrase via SHA-256
-async function getCryptoKey() {
-  const hash = await crypto.subtle.digest('SHA-256', str2ab(PIN_ENCRYPTION_PASSPHRASE));
+// Derive a 256-bit crypto key from secret via SHA-256
+async function getCryptoKey(secret = CANDIDATE_SECRETS[0]) {
+  const hash = await crypto.subtle.digest('SHA-256', str2ab(String(secret)));
   return crypto.subtle.importKey(
     'raw',
     hash,
@@ -38,31 +42,51 @@ async function getCryptoKey() {
 }
 
 /**
- * Generate a clean 6-character alphanumeric passkey (e.g. "k9X4mP")
- * Excludes confusing characters like 0, O, 1, I, l
+ * Generate a random 6-character PIN (at least 1 uppercase, 1 lowercase, 1 digit)
+ * Excludes ambiguous chars like 0, 1, I, O, l
  * @param {number} length - Number of characters (default 6)
  * @returns {string}
  */
 export function generatePasskey(length = 6) {
-  const chars = '23456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz';
-  const array = new Uint8Array(length);
-  crypto.getRandomValues(array);
-  let result = '';
-  for (let i = 0; i < length; i++) {
-    result += chars[array[i] % chars.length];
+  const UPPER    = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+  const LOWER    = 'abcdefghijkmnpqrstuvwxyz';
+  const DIGITS   = '23456789';
+  const ALL_CHARS = UPPER + LOWER + DIGITS;
+
+  const len = Math.max(6, length);
+  const uArr = new Uint32Array(len);
+  crypto.getRandomValues(uArr);
+
+  let result = [];
+  result.push(UPPER[uArr[0] % UPPER.length]);
+  result.push(LOWER[uArr[1] % LOWER.length]);
+  result.push(DIGITS[uArr[2] % DIGITS.length]);
+
+  for (let i = 3; i < len; i++) {
+    result.push(ALL_CHARS[uArr[i] % ALL_CHARS.length]);
   }
-  return result;
+
+  // Fisher-Yates shuffle
+  const shuffArr = new Uint32Array(len);
+  crypto.getRandomValues(shuffArr);
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = shuffArr[i] % (i + 1);
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+
+  return result.join('');
 }
 
 /**
  * Encrypt a passkey string using AES-256-GCM
- * @param {string} passkey - The plain text passkey (e.g. "k9X4mP")
+ * @param {string} passkey - The plain text passkey (e.g. "Hk4xRt")
+ * @param {string} [secret] - Optional specific secret
  * @returns {Promise<string>} - Formatted string: `${ivHex}:${tagHex}:${ciphertextHex}`
  */
-export async function encryptPasskey(passkey) {
+export async function encryptPasskey(passkey, secret) {
   if (!passkey) return '';
   try {
-    const key = await getCryptoKey();
+    const key = await getCryptoKey(secret);
     const iv = crypto.getRandomValues(new Uint8Array(12)); // 96-bit IV
     const encoded = str2ab(String(passkey));
 
@@ -89,12 +113,12 @@ export async function encryptPasskey(passkey) {
 }
 
 /**
- * Decrypt an encrypted passkey string using AES-256-GCM
- * Supports `${iv}:${tag}:${ciphertext}`, contiguous hex, and plain text
- * @param {string} encryptedStr - The encrypted passkey string
- * @returns {Promise<string>} - Decrypted plain text passkey (e.g. "k9X4mP")
+ * Decrypt an encrypted passkey string using AES-256-GCM with key rotation fallback
+ * @param {string} encryptedStr - The encrypted passkey string ("<iv>:<tag>:<cipher>")
+ * @param {string} [secret] - Optional specific secret
+ * @returns {Promise<string>} - Decrypted plain text passkey
  */
-export async function decryptPasskey(encryptedStr) {
+export async function decryptPasskey(encryptedStr, secret) {
   if (!encryptedStr || typeof encryptedStr !== 'string') return '';
   const trimmed = encryptedStr.trim();
 
@@ -103,50 +127,38 @@ export async function decryptPasskey(encryptedStr) {
     return trimmed;
   }
 
-  try {
-    const key = await getCryptoKey();
+  const secretsToTry = secret ? [secret] : CANDIDATE_SECRETS;
 
-    if (trimmed.includes(':')) {
-      const parts = trimmed.split(':');
-      if (parts.length === 3) {
-        const [ivHex, tagHex, ctHex] = parts;
-        const iv = new Uint8Array(hex2ab(ivHex));
-        const ct = new Uint8Array(hex2ab(ctHex));
-        const tag = new Uint8Array(hex2ab(tagHex));
+  if (trimmed.includes(':')) {
+    const parts = trimmed.split(':');
+    if (parts.length === 3) {
+      const [ivHex, tagHex, ctHex] = parts;
+      const iv = new Uint8Array(hex2ab(ivHex));
+      const ct = new Uint8Array(hex2ab(ctHex));
+      const tag = new Uint8Array(hex2ab(tagHex));
 
-        const combined = new Uint8Array(ct.length + tag.length);
-        combined.set(ct, 0);
-        combined.set(tag, ct.length);
+      const combined = new Uint8Array(ct.length + tag.length);
+      combined.set(ct, 0);
+      combined.set(tag, ct.length);
 
-        const decryptedBuf = await crypto.subtle.decrypt(
-          { name: 'AES-GCM', iv },
-          key,
-          combined.buffer
-        );
-
-        return new TextDecoder().decode(decryptedBuf);
+      for (const s of secretsToTry) {
+        try {
+          const key = await getCryptoKey(s);
+          const decryptedBuf = await crypto.subtle.decrypt(
+            { name: 'AES-GCM', iv },
+            key,
+            combined.buffer
+          );
+          const res = new TextDecoder().decode(decryptedBuf);
+          if (res) return res;
+        } catch {
+          // try next candidate secret
+        }
       }
     }
-
-    if (trimmed.length >= 28) {
-      const ivHex = trimmed.slice(0, 24);
-      const ctHex = trimmed.slice(24);
-      const iv = new Uint8Array(hex2ab(ivHex));
-      const ciphertext = hex2ab(ctHex);
-
-      const decrypted = await crypto.subtle.decrypt(
-        { name: 'AES-GCM', iv },
-        key,
-        ciphertext
-      );
-      return new TextDecoder().decode(decrypted);
-    }
-
-    return trimmed;
-  } catch (err) {
-    console.warn('[Passkey Crypto] Decrypt error:', err);
-    return trimmed;
   }
+
+  return trimmed;
 }
 
 // Aliases for compatibility
