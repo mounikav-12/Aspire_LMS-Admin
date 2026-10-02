@@ -33,7 +33,38 @@ import {
 } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '../../lib/supabaseClient';
-import { encryptPin, decryptPin, generatePin } from '../../utils/pinEncryption';
+import { generatePasskey, encryptPasskey, decryptPasskey, encryptPin, decryptPin, generatePin } from '../../utils/passkey-crypto';
+
+export function AccessPinCell({ pin, studentName }) {
+  const [copied, setCopied] = useState(false);
+  const handleCopy = (e) => {
+    e.stopPropagation();
+    if (!pin || pin === 'None' || pin === 'No PIN') return;
+    navigator.clipboard.writeText(pin);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const isAvailable = pin && pin !== 'No PIN' && pin !== 'None' && pin !== '••••••';
+
+  return (
+    <div className="flex items-center gap-1.5 font-mono">
+      <span className="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-xs font-bold text-slate-800 dark:text-slate-100 border border-slate-200/80 dark:border-slate-700 tracking-wider">
+        {isAvailable ? pin : (pin || 'None')}
+      </span>
+      {isAvailable && (
+        <button
+          type="button"
+          onClick={handleCopy}
+          className="text-xs text-purple-600 hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300 font-bold transition-colors cursor-pointer"
+          title={`Copy PIN for ${studentName || 'student'}`}
+        >
+          {copied ? '✓ Copied' : 'Copy'}
+        </button>
+      )}
+    </div>
+  );
+}
 
 export function StudentManagementPage() {
   const { students = [], addStudent, updateStudent, deleteStudent, decryptStudentPin, courses = [], activeBatchFilter, setActiveBatchFilter, availableBatches } = useLmsData();
@@ -340,7 +371,7 @@ export function StudentManagementPage() {
           addToast(`Failed to save student to database: ${res.error}`, 'error');
           return;
         }
-        addToast(`Added new student: "${formData.name}" [Reg ID: ${formData.registrationId}]`, 'success');
+        addToast(`Added new student: "${formData.name}" [Reg ID: ${formData.registrationId}] • Passkey: ${res.plainPasskey || ''}`, 'success');
         setIsAddModalOpen(false);
       }
     } finally {
@@ -495,6 +526,7 @@ export function StudentManagementPage() {
                 <tr className="border-b border-slate-200/80 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-800/60 text-[11px] uppercase tracking-wider text-slate-500 dark:text-slate-400 font-bold">
                   <th className="py-3.5 px-4">Student Profile</th>
                   <th className="py-3.5 px-4">Registration ID</th>
+                  <th className="py-3.5 px-4">Access PIN</th>
                   <th className="py-3.5 px-4">Mobile Number</th>
                   <th className="py-3.5 px-4">Batch Allocation</th>
                   <th className="py-3.5 px-4">Course Enrolments</th>
@@ -540,6 +572,11 @@ export function StudentManagementPage() {
                           <Award className="w-3.5 h-3.5" />
                           {student.registrationId}
                         </span>
+                      </td>
+
+                      {/* Access PIN Column */}
+                      <td className="py-3.5 px-4">
+                        <AccessPinCell pin={student.activePin || (revealedPinStudentId === student.id ? revealedPinValue : '••••••')} studentName={student.name} />
                       </td>
 
                       {/* Mobile Number */}

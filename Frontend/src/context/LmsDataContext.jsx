@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import { useAuth } from './AuthContext';
-import { encryptPin, decryptPin, generatePin } from '../utils/pinEncryption';
+import { generatePasskey, encryptPasskey, decryptPasskey, generatePin, encryptPin, decryptPin } from '../utils/passkey-crypto';
 import {
   INITIAL_COURSES,
   INITIAL_ASSESSMENTS,
@@ -2322,10 +2322,12 @@ export function LmsDataProvider({ children }) {
       
       if (!studentsErr && studentsData) {
         if (studentsData.length > 0) {
-          setStudents(studentsData.map(s => {
+          const mappedStudents = await Promise.all(studentsData.map(async (s) => {
             const sName = s.name || 'Student';
             const defaultAvatar = `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(sName.trim())}&backgroundColor=e0e7ff&textColor=3730a3&bold=true`;
             const avatarUrl = (s.avatar && !s.avatar.includes('unsplash.com')) ? s.avatar : defaultAvatar;
+            const rawPin = s.access_pin || s.accessPin || '';
+            const activePin = rawPin ? await decryptPasskey(rawPin) : 'No PIN';
             return {
               id: s.id,
               name: sName,
@@ -2339,10 +2341,13 @@ export function LmsDataProvider({ children }) {
               avatar: avatarUrl,
               status: s.status || 'Active',
               joinedDate: s.joined_date || s.joinedDate || '',
-              accessPin: s.access_pin || s.accessPin || '',
-              access_pin: s.access_pin || s.accessPin || ''
+              accessPin: rawPin,
+              access_pin: rawPin,
+              activePin: activePin,
+              passkey_updated_at: s.passkey_updated_at || s.passkeyUpdatedAt || ''
             };
           }));
+          setStudents(mappedStudents);
         } else {
           try {
             const saved = localStorage.getItem('aspire_lms_students_v10');
@@ -2594,54 +2599,68 @@ export function LmsDataProvider({ children }) {
         });
       });
 
-      makeChannel('students', (payload) => {
-        setStudents((prev) => {
-          const next = [...prev];
-          const s = payload.new;
-          if (payload.eventType === 'INSERT') {
-            if (!next.find(x => x.id === s.id)) {
-              const sName = s.name || 'Student';
-              const defaultAvatar = `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(sName.trim())}&backgroundColor=e0e7ff&textColor=3730a3&bold=true`;
-              const avatarUrl = (s.avatar && !s.avatar.includes('unsplash.com')) ? s.avatar : defaultAvatar;
-              next.unshift({
-                id: s.id,
-                name: sName,
-                email: s.email || '',
-                mobileNumber: s.mobile_number || s.mobileNumber || '',
-                registrationId: s.registration_id || s.registrationId || '',
-                batch: s.batch || 'A26W1',
-                enrolledCourses: Array.isArray(s.enrolled_courses) ? s.enrolled_courses : (typeof s.enrolled_courses === 'string' ? JSON.parse(s.enrolled_courses) : []),
-                avatar: avatarUrl,
-                status: s.status || 'Active',
-                joinedDate: s.joined_date || s.joinedDate || '',
-                accessPin: s.access_pin || ''
-              });
-            }
-          } else if (payload.eventType === 'UPDATE') {
-            const index = next.findIndex(x => x.id === s.id);
-            if (index !== -1) {
-              const sName = s.name || 'Student';
-              const defaultAvatar = `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(sName.trim())}&backgroundColor=e0e7ff&textColor=3730a3&bold=true`;
-              const avatarUrl = (s.avatar && !s.avatar.includes('unsplash.com')) ? s.avatar : defaultAvatar;
-              next[index] = {
-                id: s.id,
-                name: sName,
-                email: s.email || '',
-                mobileNumber: s.mobile_number || s.mobileNumber || '',
-                registrationId: s.registration_id || s.registrationId || '',
-                batch: s.batch || 'A26W1',
-                enrolledCourses: Array.isArray(s.enrolled_courses) ? s.enrolled_courses : (typeof s.enrolled_courses === 'string' ? JSON.parse(s.enrolled_courses) : []),
-                avatar: avatarUrl,
-                status: s.status || 'Active',
-                joinedDate: s.joined_date || s.joinedDate || '',
-                accessPin: s.access_pin || ''
-              };
-            }
-          } else if (payload.eventType === 'DELETE') {
-            return next.filter(x => x.id !== payload.old?.id);
-          }
-          return next;
-        });
+      makeChannel('students', async (payload) => {
+        const s = payload.new;
+        if (payload.eventType === 'INSERT') {
+          const sName = s.name || 'Student';
+          const defaultAvatar = `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(sName.trim())}&backgroundColor=e0e7ff&textColor=3730a3&bold=true`;
+          const avatarUrl = (s.avatar && !s.avatar.includes('unsplash.com')) ? s.avatar : defaultAvatar;
+          const rawPin = s.access_pin || s.accessPin || '';
+          const activePin = rawPin ? await decryptPasskey(rawPin) : 'No PIN';
+
+          setStudents((prev) => {
+            if (prev.find(x => x.id === s.id)) return prev;
+            return [{
+              id: s.id,
+              name: sName,
+              email: s.email || '',
+              mobileNumber: s.mobile_number || s.mobileNumber || '',
+              registrationId: s.registration_id || s.registrationId || '',
+              batch: s.batch || 'A26W1',
+              enrolledCourses: Array.isArray(s.enrolled_courses) ? s.enrolled_courses : (typeof s.enrolled_courses === 'string' ? JSON.parse(s.enrolled_courses) : []),
+              avatar: avatarUrl,
+              status: s.status || 'Active',
+              joinedDate: s.joined_date || s.joinedDate || '',
+              accessPin: rawPin,
+              access_pin: rawPin,
+              activePin: activePin,
+              passkey_updated_at: s.passkey_updated_at || s.passkeyUpdatedAt || ''
+            }, ...prev];
+          });
+        } else if (payload.eventType === 'UPDATE') {
+          const sName = s.name || 'Student';
+          const defaultAvatar = `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(sName.trim())}&backgroundColor=e0e7ff&textColor=3730a3&bold=true`;
+          const avatarUrl = (s.avatar && !s.avatar.includes('unsplash.com')) ? s.avatar : defaultAvatar;
+          const rawPin = s.access_pin || s.accessPin || '';
+          const activePin = rawPin ? await decryptPasskey(rawPin) : 'No PIN';
+
+          setStudents((prev) =>
+            prev.map((existing) => {
+              if (existing.id === s.id) {
+                return {
+                  ...existing,
+                  id: s.id,
+                  name: sName,
+                  email: s.email || '',
+                  mobileNumber: s.mobile_number || s.mobileNumber || '',
+                  registrationId: s.registration_id || s.registrationId || '',
+                  batch: s.batch || 'A26W1',
+                  enrolledCourses: Array.isArray(s.enrolled_courses) ? s.enrolled_courses : (typeof s.enrolled_courses === 'string' ? JSON.parse(s.enrolled_courses) : []),
+                  avatar: avatarUrl,
+                  status: s.status || 'Active',
+                  joinedDate: s.joined_date || s.joinedDate || '',
+                  accessPin: rawPin,
+                  access_pin: rawPin,
+                  activePin: activePin,
+                  passkey_updated_at: s.passkey_updated_at || s.passkeyUpdatedAt || ''
+                };
+              }
+              return existing;
+            })
+          );
+        } else if (payload.eventType === 'DELETE') {
+          setStudents((prev) => prev.filter(x => x.id !== payload.old?.id));
+        }
       });
 
       makeChannel('batches', (payload) => {
@@ -5523,30 +5542,31 @@ export function LmsDataProvider({ children }) {
     const cleanAvatar = (!studentData.avatar || studentData.avatar.includes('unsplash.com')) ? initAvatar : studentData.avatar;
     const cleanMobile = formatMobileWithCountryCode(studentData.mobileNumber || studentData.mobile_number);
 
-    // Auto-generate a 6-digit PIN and encrypt it
-    const plainPin = generatePin();
-    let encryptedPin = '';
-    try {
-      encryptedPin = await encryptPin(plainPin);
-    } catch (err) {
-      console.error('[Aspire LMS] PIN encryption error:', err);
-    }
+    // 1. Generate a clean 6-character alphanumeric passkey (e.g. "k9X4mP")
+    const initialPasskey = generatePasskey(6);
+    // 2. Encrypt it with AES-256-GCM
+    const encryptedPin = await encryptPasskey(initialPasskey);
+    const nowIso = new Date().toISOString();
 
     const newStudent = {
       id: `std-${Date.now()}`,
       status: 'Active',
-      joinedDate: new Date().toISOString().split('T')[0],
+      joinedDate: nowIso.split('T')[0],
       enrolledCourses: studentData.enrolledCourses || ['crs-1786624019154-w'],
       unlockedStages: ['stg-1'],
       ...studentData,
       mobileNumber: cleanMobile,
       avatar: cleanAvatar,
-      accessPin: encryptedPin
+      accessPin: encryptedPin,
+      access_pin: encryptedPin,
+      activePin: initialPasskey,
+      passkey_updated_at: nowIso
     };
     setStudents((prev) => [newStudent, ...prev]);
 
     try {
-      const { data, error } = await supabase.from('students').upsert([{
+      // 3. Insert student record into Supabase
+      const { data, error } = await supabase.from('students').insert([{
         id: newStudent.id,
         name: newStudent.name,
         email: newStudent.email,
@@ -5557,8 +5577,9 @@ export function LmsDataProvider({ children }) {
         avatar: newStudent.avatar,
         status: newStudent.status,
         joined_date: newStudent.joinedDate,
-        access_pin: encryptedPin
-      }]);
+        access_pin: encryptedPin,
+        passkey_updated_at: nowIso
+      }]).select().single();
 
       if (error) {
         console.error('[Aspire LMS] Supabase student insert error:', error.message, error);
@@ -5566,7 +5587,8 @@ export function LmsDataProvider({ children }) {
         return { success: false, error: error.message };
       }
 
-      return { success: true, student: newStudent };
+      // 4. Return the plaintext passkey so admin can copy/send it to the new student immediately
+      return { success: true, student: data || newStudent, plainPasskey: initialPasskey };
     } catch (err) {
       console.error('[Aspire LMS] Student insert exception:', err);
       setStudents((prev) => prev.filter((s) => s.id !== newStudent.id));
@@ -5986,9 +6008,13 @@ export function LmsDataProvider({ children }) {
         deleteUser,
         students,
         addStudent,
+        createStudent: addStudent,
         updateStudent,
         deleteStudent,
-        decryptStudentPin: decryptPin,
+        decryptStudentPin: decryptPasskey,
+        decryptPasskey,
+        encryptPasskey,
+        generatePasskey,
         rewards,
         rewardsStoreConfig,
         updateRewardsStoreConfig,
