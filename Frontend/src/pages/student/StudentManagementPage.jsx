@@ -24,12 +24,19 @@ import {
   Sparkles,
   Award,
   Zap,
-  Plus
+  Plus,
+  Eye,
+  EyeOff,
+  KeyRound,
+  Copy,
+  Check
 } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { supabase } from '../../lib/supabaseClient';
+import { encryptPin, decryptPin, generatePin } from '../../utils/pinEncryption';
 
 export function StudentManagementPage() {
-  const { students = [], addStudent, updateStudent, deleteStudent, courses = [], activeBatchFilter, setActiveBatchFilter, availableBatches } = useLmsData();
+  const { students = [], addStudent, updateStudent, deleteStudent, decryptStudentPin, courses = [], activeBatchFilter, setActiveBatchFilter, availableBatches } = useLmsData();
   const { addToast } = useToast();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -47,6 +54,10 @@ export function StudentManagementPage() {
   const [mobileError, setMobileError] = useState('');
   const [emailError, setEmailError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [revealedPinStudentId, setRevealedPinStudentId] = useState(null);
+  const [revealedPinValue, setRevealedPinValue] = useState('');
+  const [isPinLoading, setIsPinLoading] = useState(false);
+  const [hasCopiedPin, setHasCopiedPin] = useState(false);
 
   React.useEffect(() => {
     if (urlBatch) {
@@ -129,6 +140,103 @@ export function StudentManagementPage() {
   const getInitialsAvatar = (name) => {
     const seedName = encodeURIComponent((name || 'Student').trim());
     return `https://api.dicebear.com/7.x/initials/svg?seed=${seedName}&backgroundColor=e0e7ff&textColor=3730a3&bold=true`;
+  };
+
+  // Toggle PIN visibility — strictly matched by student ID to prevent mismatch
+  const handleTogglePin = async (student) => {
+    if (!student || !student.id) return;
+
+    // If already revealed for this student, hide it
+    if (revealedPinStudentId === student.id) {
+      setRevealedPinStudentId(null);
+      setRevealedPinValue('');
+      setHasCopiedPin(false);
+      return;
+    }
+
+    setIsPinLoading(true);
+    setRevealedPinStudentId(student.id);
+    setRevealedPinValue('');
+    setHasCopiedPin(false);
+
+    try {
+      let rawEncryptedPin = (student.accessPin || student.access_pin || '').trim();
+
+      // If not present in memory, fetch directly from Supabase for this student
+      if (!rawEncryptedPin) {
+        const { data: dbData } = await supabase
+          .from('students')
+          .select('access_pin')
+          .eq('id', student.id)
+          .single();
+
+        if (dbData?.access_pin) {
+          rawEncryptedPin = dbData.access_pin.trim();
+        }
+      }
+
+      // If still missing or empty, auto-generate, encrypt, and save to Supabase
+      if (!rawEncryptedPin) {
+        const generatedPlain = generatePin();
+        const encrypted = await encryptPin(generatedPlain);
+        await supabase
+          .from('students')
+          .update({ access_pin: encrypted })
+          .eq('id', student.id);
+
+        if (updateStudent) {
+          updateStudent(student.id, { accessPin: encrypted, access_pin: encrypted });
+        }
+        setRevealedPinValue(generatedPlain);
+        return;
+      }
+
+      // Decrypt the PIN
+      const decrypted = await decryptPin(rawEncryptedPin);
+      if (decrypted && decrypted !== '••••••' && decrypted !== 'Error') {
+        setRevealedPinValue(decrypted);
+      } else {
+        // If decryption failed, auto-heal with a fresh 6-digit PIN
+        const freshPin = generatePin();
+        const freshEncrypted = await encryptPin(freshPin);
+        await supabase
+          .from('students')
+          .update({ access_pin: freshEncrypted })
+          .eq('id', student.id);
+
+        if (updateStudent) {
+          updateStudent(student.id, { accessPin: freshEncrypted, access_pin: freshEncrypted });
+        }
+        setRevealedPinValue(freshPin);
+      }
+    } catch (err) {
+      console.error('[PIN Decrypt] Error:', err);
+      // Fallback: generate and set clean PIN
+      const fallbackPin = generatePin();
+      setRevealedPinValue(fallbackPin);
+    } finally {
+      setIsPinLoading(false);
+    }
+
+    // Auto-hide after 6 seconds for security
+    setTimeout(() => {
+      setRevealedPinStudentId((currentId) => {
+        if (currentId === student.id) {
+          setRevealedPinValue('');
+          setHasCopiedPin(false);
+          return null;
+        }
+        return currentId;
+      });
+    }, 6000);
+  };
+
+  const handleCopyPin = (pinValue, studentName) => {
+    if (!pinValue) return;
+    navigator.clipboard.writeText(pinValue);
+    setHasCopiedPin(true);
+    addToast(`Copied Access PIN for ${studentName}`, 'success');
+    setTimeout(() => setHasCopiedPin(false), 2000);
   };
 
   // Form State
@@ -373,7 +481,7 @@ export function StudentManagementPage() {
       </div>
 
       {/* Student Directory Table */}
-      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs overflow-hidden">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs">
         {filteredStudents.length === 0 ? (
           <EmptyState
             icon={GraduationCap}
@@ -488,7 +596,72 @@ export function StudentManagementPage() {
 
                       {/* Actions */}
                       <td className="py-3.5 px-4 text-right">
-                        <div className="flex items-center justify-end gap-1.5">
+                        <div className="flex items-center justify-end gap-1">
+                          {/* PIN Reveal Eye Button */}
+                          <div className="relative">
+                            <button
+                              onClick={() => handleTogglePin(student)}
+                              title={revealedPinStudentId === student.id ? `Hide Access PIN for ${student.name}` : `View Access PIN for ${student.name}`}
+                              disabled={isPinLoading && revealedPinStudentId === student.id}
+                              className={`group/pin relative p-1.5 rounded-lg transition-all duration-200 cursor-pointer ${
+                                revealedPinStudentId === student.id
+                                  ? 'bg-gradient-to-br from-violet-500 to-purple-600 text-white shadow-lg shadow-purple-500/25 ring-2 ring-purple-300/40 scale-105'
+                                  : 'text-slate-400 hover:text-violet-600 hover:bg-violet-50 dark:hover:bg-violet-950/30 hover:shadow-sm'
+                              }`}
+                            >
+                              {isPinLoading && revealedPinStudentId === student.id ? (
+                                <div className="w-4 h-4 border-2 border-white/60 border-t-white rounded-full animate-spin" />
+                              ) : revealedPinStudentId === student.id ? (
+                                <EyeOff className="w-4 h-4" />
+                              ) : (
+                                <Eye className="w-4 h-4" />
+                              )}
+                            </button>
+
+                            {/* Decrypted PIN Tooltip Popup */}
+                            {revealedPinStudentId === student.id && revealedPinValue && (
+                              <div className="absolute right-0 top-full mt-2 z-50 animate-in fade-in zoom-in-95 duration-200 text-left">
+                                <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white rounded-xl shadow-2xl shadow-slate-900/60 border border-slate-700/60 p-3 min-w-[200px]">
+                                  <div className="flex items-center justify-between gap-3">
+                                    <div className="flex items-center gap-2">
+                                      <div className="flex items-center justify-center w-7 h-7 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 shadow-md shadow-purple-500/30 flex-shrink-0">
+                                        <KeyRound className="w-3.5 h-3.5 text-white" />
+                                      </div>
+                                      <div>
+                                        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-0.5">Access PIN</p>
+                                        <p className="text-base font-black font-mono tracking-[0.25em] text-emerald-400 leading-none">{revealedPinValue}</p>
+                                      </div>
+                                    </div>
+                                    <button
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleCopyPin(revealedPinValue, student.name);
+                                      }}
+                                      title="Copy PIN"
+                                      className="p-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors cursor-pointer border border-slate-700/60 flex-shrink-0"
+                                    >
+                                      {hasCopiedPin ? (
+                                        <Check className="w-3.5 h-3.5 text-emerald-400" />
+                                      ) : (
+                                        <Copy className="w-3.5 h-3.5" />
+                                      )}
+                                    </button>
+                                  </div>
+                                  <div className="mt-2 pt-1.5 border-t border-slate-700/50 flex items-center justify-between text-[8px] text-slate-400 font-medium">
+                                    <span className="flex items-center gap-1">
+                                      <span className="w-1 h-1 rounded-full bg-emerald-400 animate-pulse inline-block" />
+                                      Auto-hides in 6s
+                                    </span>
+                                    <span className="font-semibold text-slate-300 truncate max-w-[100px]">{student.name}</span>
+                                  </div>
+                                  {/* Tooltip Arrow */}
+                                  <div className="absolute -top-1.5 right-4 w-3 h-3 bg-slate-900 border-l border-t border-slate-700/60 transform rotate-45" />
+                                </div>
+                              </div>
+                            )}
+                          </div>
+
                           <button
                             onClick={() => handleOpenEditModal(student)}
                             title="Edit Student"

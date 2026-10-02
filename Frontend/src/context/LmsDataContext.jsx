@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import { useAuth } from './AuthContext';
+import { encryptPin, decryptPin, generatePin } from '../utils/pinEncryption';
 import {
   INITIAL_COURSES,
   INITIAL_ASSESSMENTS,
@@ -189,7 +190,7 @@ export function LmsDataProvider({ children }) {
     return loaded.filter(u => u.id === 'usr-1' || !['usr-2', 'usr-3', 'usr-4'].includes(u.id));
   });
   const [students, setStudents] = useState(() => {
-    const loaded = loadLocalState('aspire_lms_students_v9', []);
+    const loaded = loadLocalState('aspire_lms_students_v10', []);
     return loaded;
   });
   const [rolePermissions, setRolePermissions] = useState(INITIAL_ROLE_PERMISSIONS);
@@ -472,7 +473,7 @@ export function LmsDataProvider({ children }) {
   }, [currentUser, registeredUsers]);
 
   useEffect(() => {
-    try { localStorage.setItem('aspire_lms_students_v9', JSON.stringify(students)); } catch (e) {}
+    try { localStorage.setItem('aspire_lms_students_v10', JSON.stringify(students)); } catch (e) {}
   }, [students]);
 
   useEffect(() => {
@@ -2337,12 +2338,14 @@ export function LmsDataProvider({ children }) {
                 : (typeof s.enrolled_courses === 'string' ? JSON.parse(s.enrolled_courses) : (s.enrolledCourses || [])),
               avatar: avatarUrl,
               status: s.status || 'Active',
-              joinedDate: s.joined_date || s.joinedDate || ''
+              joinedDate: s.joined_date || s.joinedDate || '',
+              accessPin: s.access_pin || s.accessPin || '',
+              access_pin: s.access_pin || s.accessPin || ''
             };
           }));
         } else {
           try {
-            const saved = localStorage.getItem('aspire_lms_students_v9');
+            const saved = localStorage.getItem('aspire_lms_students_v10');
             const localStudents = saved ? JSON.parse(saved) : [];
             if (Array.isArray(localStudents) && localStudents.length > 0) {
               const rowsToInsert = localStudents.map(s => ({
@@ -2610,7 +2613,8 @@ export function LmsDataProvider({ children }) {
                 enrolledCourses: Array.isArray(s.enrolled_courses) ? s.enrolled_courses : (typeof s.enrolled_courses === 'string' ? JSON.parse(s.enrolled_courses) : []),
                 avatar: avatarUrl,
                 status: s.status || 'Active',
-                joinedDate: s.joined_date || s.joinedDate || ''
+                joinedDate: s.joined_date || s.joinedDate || '',
+                accessPin: s.access_pin || ''
               });
             }
           } else if (payload.eventType === 'UPDATE') {
@@ -2629,7 +2633,8 @@ export function LmsDataProvider({ children }) {
                 enrolledCourses: Array.isArray(s.enrolled_courses) ? s.enrolled_courses : (typeof s.enrolled_courses === 'string' ? JSON.parse(s.enrolled_courses) : []),
                 avatar: avatarUrl,
                 status: s.status || 'Active',
-                joinedDate: s.joined_date || s.joinedDate || ''
+                joinedDate: s.joined_date || s.joinedDate || '',
+                accessPin: s.access_pin || ''
               };
             }
           } else if (payload.eventType === 'DELETE') {
@@ -5518,6 +5523,15 @@ export function LmsDataProvider({ children }) {
     const cleanAvatar = (!studentData.avatar || studentData.avatar.includes('unsplash.com')) ? initAvatar : studentData.avatar;
     const cleanMobile = formatMobileWithCountryCode(studentData.mobileNumber || studentData.mobile_number);
 
+    // Auto-generate a 6-digit PIN and encrypt it
+    const plainPin = generatePin();
+    let encryptedPin = '';
+    try {
+      encryptedPin = await encryptPin(plainPin);
+    } catch (err) {
+      console.error('[Aspire LMS] PIN encryption error:', err);
+    }
+
     const newStudent = {
       id: `std-${Date.now()}`,
       status: 'Active',
@@ -5526,7 +5540,8 @@ export function LmsDataProvider({ children }) {
       unlockedStages: ['stg-1'],
       ...studentData,
       mobileNumber: cleanMobile,
-      avatar: cleanAvatar
+      avatar: cleanAvatar,
+      accessPin: encryptedPin
     };
     setStudents((prev) => [newStudent, ...prev]);
 
@@ -5541,7 +5556,8 @@ export function LmsDataProvider({ children }) {
         enrolled_courses: newStudent.enrolledCourses,
         avatar: newStudent.avatar,
         status: newStudent.status,
-        joined_date: newStudent.joinedDate
+        joined_date: newStudent.joinedDate,
+        access_pin: encryptedPin
       }]);
 
       if (error) {
@@ -5972,6 +5988,7 @@ export function LmsDataProvider({ children }) {
         addStudent,
         updateStudent,
         deleteStudent,
+        decryptStudentPin: decryptPin,
         rewards,
         rewardsStoreConfig,
         updateRewardsStoreConfig,
