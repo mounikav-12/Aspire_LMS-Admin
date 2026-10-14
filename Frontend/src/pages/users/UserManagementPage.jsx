@@ -313,7 +313,7 @@ export function UserManagementPage() {
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
                           <img
-                            src={(u.avatar && !u.avatar.includes('unsplash.com')) ? u.avatar : getInitialAvatar(u.name)}
+                            src={(u.avatar && !u.avatar.includes('unsplash.com') && !u.avatar.includes('avataaars')) ? u.avatar : getInitialAvatar(u.name)}
                             alt={u.name}
                             className="w-10 h-10 rounded-full object-cover border border-slate-200 dark:border-slate-700 ring-2 ring-blue-500/10"
                           />

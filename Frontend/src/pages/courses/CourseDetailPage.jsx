@@ -31,10 +31,11 @@ import {
 } from 'lucide-react';
 export function CourseDetailPage() {
   const { courseId } = useParams();
-  const { courses, updateCourse, milestones, availableBatches, courseLessons, addCourseLesson, updateCourseLesson, deleteCourseLesson, getLessonsForModule, updateStageSubtopics } = useLmsData();
+  const { courses, allCourses, updateCourse, milestones, availableBatches, courseLessons, addCourseLesson, updateCourseLesson, deleteCourseLesson, getLessonsForModule, updateStageSubtopics } = useLmsData();
   const { addToast } = useToast();
 
-  const course = courses.find((c) => c.id === courseId);
+  const courseList = (allCourses && allCourses.length > 0) ? allCourses : (courses || []);
+  const course = courseList.find((c) => c.id === courseId);
 
   const milestoneStages = milestones?.stages || [];
 

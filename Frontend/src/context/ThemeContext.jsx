@@ -36,67 +36,78 @@ export function ThemeProvider({ children }) {
       : 'light';
   });
 
-  const isFirstRender = useRef(true);
   const transitionTimerRef = useRef(null);
 
-  useEffect(() => {
+  const applyThemeToDOM = (targetTheme, withTransition = true) => {
+    if (typeof window === 'undefined') return false;
     const root = document.documentElement;
 
-    const applyTheme = (currentTheme, withTransition = true) => {
-      let isDarkTheme = false;
-      if (currentTheme === 'dark') {
-        isDarkTheme = true;
-      } else if (currentTheme === 'light') {
-        isDarkTheme = false;
-      } else {
-        isDarkTheme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-      }
-
-      setResolvedTheme(isDarkTheme ? 'dark' : 'light');
-
-      if (withTransition) {
-        if (transitionTimerRef.current) {
-          clearTimeout(transitionTimerRef.current);
-        }
-        root.classList.add('theme-transitioning');
-      }
-
-      if (isDarkTheme) {
-        root.classList.add('dark');
-        root.setAttribute('data-theme', 'dark');
-        root.style.colorScheme = 'dark';
-      } else {
-        root.classList.remove('dark');
-        root.setAttribute('data-theme', 'light');
-        root.style.colorScheme = 'light';
-      }
-
-      if (withTransition) {
-        transitionTimerRef.current = setTimeout(() => {
-          root.classList.remove('theme-transitioning');
-        }, 350);
-      }
-    };
-
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
-      applyTheme(theme, false);
+    let isDarkTheme = false;
+    if (targetTheme === 'dark') {
+      isDarkTheme = true;
+    } else if (targetTheme === 'light') {
+      isDarkTheme = false;
     } else {
-      applyTheme(theme, true);
+      isDarkTheme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    }
+
+    if (withTransition) {
+      if (transitionTimerRef.current) {
+        clearTimeout(transitionTimerRef.current);
+      }
+      root.classList.add('theme-transitioning');
+    } else {
+      root.classList.remove('theme-transitioning');
+    }
+
+    if (isDarkTheme) {
+      root.classList.add('dark');
+      root.setAttribute('data-theme', 'dark');
+      root.style.colorScheme = 'dark';
+    } else {
+      root.classList.remove('dark');
+      root.setAttribute('data-theme', 'light');
+      root.style.colorScheme = 'light';
+    }
+
+    if (withTransition) {
+      transitionTimerRef.current = setTimeout(() => {
+        root.classList.remove('theme-transitioning');
+      }, 160);
     }
 
     try {
-      localStorage.setItem('theme', theme);
+      localStorage.setItem('theme', targetTheme);
     } catch {
       // Ignore storage write error
     }
+
+    return isDarkTheme;
+  };
+
+  const updateTheme = (newTheme) => {
+    const isDarkTheme = applyThemeToDOM(newTheme, true);
+    setTheme(newTheme);
+    setResolvedTheme(isDarkTheme ? 'dark' : 'light');
+  };
+
+  const toggleTheme = () => {
+    const nextTheme = resolvedTheme === 'dark' ? 'light' : 'dark';
+    updateTheme(nextTheme);
+  };
+
+  useEffect(() => {
+    // Initial mount: ensure DOM matches stored/detected theme immediately with NO transition delay
+    const initialIsDark = applyThemeToDOM(theme, false);
+    setResolvedTheme(initialIsDark ? 'dark' : 'light');
 
     // Listen to OS changes when theme is set to 'system'
     if (window.matchMedia) {
       const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
       const handleSystemChange = () => {
         if (theme === 'system') {
-          applyTheme('system', true);
+          const isDarkTheme = applyThemeToDOM('system', true);
+          setResolvedTheme(isDarkTheme ? 'dark' : 'light');
         }
       };
 
@@ -110,19 +121,10 @@ export function ThemeProvider({ children }) {
     }
   }, [theme]);
 
-  const toggleTheme = () => {
-    setTheme((prev) => {
-      if (prev === 'light') return 'dark';
-      if (prev === 'dark') return 'light';
-      // When in 'system' mode, switch to opposite of current resolved theme
-      return resolvedTheme === 'dark' ? 'light' : 'dark';
-    });
-  };
-
   const isDark = resolvedTheme === 'dark';
 
   return (
-    <ThemeContext.Provider value={{ theme, setTheme, resolvedTheme, toggleTheme, isDark }}>
+    <ThemeContext.Provider value={{ theme, setTheme: updateTheme, resolvedTheme, toggleTheme, isDark }}>
       {children}
     </ThemeContext.Provider>
   );

@@ -1786,33 +1786,8 @@ export function MilestonesRoadmapPage() {
                       </div>
                     </div>
 
-                    {/* Right Side: Admin CRUD Buttons & Dropdown Chevron */}
-                    <div className="flex flex-wrap items-center gap-2.5" onClick={(e) => e.stopPropagation()}>
-                      {/* Admin Mode CRUD Buttons for Stage */}
-                      <div className="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800/90 p-1.5 rounded-xl border border-slate-200 dark:border-slate-700/80 transition-all duration-300">
-                        <button
-                          onClick={() => handleOpenSubtopicModal(stage.id, null)}
-                          title="Add Subtopic to Stage"
-                          className="p-1.5 text-slate-500 dark:text-slate-400 hover:text-purple-600 dark:hover:text-purple-300 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-all cursor-pointer"
-                        >
-                          <Plus className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => handleOpenStageModal(stage)}
-                          title="Edit Stage Details"
-                          className="p-1.5 text-slate-500 dark:text-slate-400 hover:text-purple-600 dark:hover:text-purple-300 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-all cursor-pointer"
-                        >
-                          <Edit2 className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => handleDeleteStage(stage.id, stage.title)}
-                          title="Delete Stage"
-                          className="p-1.5 text-rose-400 hover:text-rose-600 dark:hover:text-rose-300 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-lg transition-all cursor-pointer"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-
+                    {/* Right Side: Dropdown Chevron */}
+                    <div className="flex items-center gap-2.5" onClick={(e) => e.stopPropagation()}>
                       {/* Interactive Chevron Toggle Button */}
                       <button
                         type="button"
@@ -1820,7 +1795,7 @@ export function MilestonesRoadmapPage() {
                           e.stopPropagation();
                           toggleStageAccordion(stage.id);
                         }}
-                        className="flex h-9 w-9 items-center justify-center rounded-full bg-purple-100 dark:bg-slate-800 text-purple-600 dark:text-purple-300 hover:bg-purple-200 dark:hover:bg-slate-700 border border-purple-200/60 dark:border-slate-700 transition-all cursor-pointer shadow-sm ml-1"
+                        className="flex h-9 w-9 items-center justify-center rounded-full bg-purple-100 dark:bg-slate-800 text-purple-600 dark:text-purple-300 hover:bg-purple-200 dark:hover:bg-slate-700 border border-purple-200/60 dark:border-slate-700 transition-all cursor-pointer shadow-sm"
                         title={expandedStages[stage.id] ? 'Collapse Modules' : 'Expand Modules'}
                       >
                         <ChevronDown
@@ -1986,36 +1961,6 @@ export function MilestonesRoadmapPage() {
                                   )}
                                 </div>
                               </button>
-
-                              <div className="flex items-center gap-1 bg-white dark:bg-slate-900 p-1.5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs flex-shrink-0">
-                                {/* Subtopic Schedule Date & Time Button */}
-                                <button
-                                  onClick={() => handleOpenScheduleModal('subtopic', subtopic, stage.id)}
-                                  title={subSched.hasSchedule ? `Scheduled: ${subSched.fullFormatted}` : 'Set Release Schedule'}
-                                  className={`p-1.5 rounded-lg cursor-pointer transition-all ${
-                                    subSched.hasSchedule
-                                      ? 'bg-purple-100 dark:bg-purple-950/70 text-purple-700 dark:text-purple-300 hover:bg-purple-200 dark:hover:bg-purple-900 border border-purple-300 dark:border-purple-800'
-                                      : 'text-slate-600 dark:text-slate-400 hover:text-purple-600 dark:hover:text-purple-300 hover:bg-purple-50 dark:hover:bg-slate-800'
-                                  }`}
-                                >
-                                  <Calendar className="w-3.5 h-3.5" />
-                                </button>
-
-                                <button
-                                  onClick={() => handleOpenSubtopicModal(stage.id, subtopic)}
-                                  title="Edit Subtopic"
-                                  className="p-1.5 text-slate-600 dark:text-slate-400 hover:text-purple-600 dark:hover:text-purple-300 hover:bg-purple-50 dark:hover:bg-slate-800 rounded-lg cursor-pointer"
-                                >
-                                  <Edit2 className="w-3.5 h-3.5" />
-                                </button>
-                                <button
-                                  onClick={() => handleDeleteSubtopic(stage.id, subtopic.id, subtopic.title)}
-                                  title="Delete Subtopic"
-                                  className="p-1.5 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-lg cursor-pointer"
-                                >
-                                  <Trash2 className="w-3.5 h-3.5" />
-                                </button>
-                              </div>
                             </div>
                           </div>
                         );
@@ -2023,12 +1968,6 @@ export function MilestonesRoadmapPage() {
                     ) : (
                       <div className="text-center py-6 text-slate-500 text-xs font-medium">
                         No modules added to this stage yet.
-                        <button
-                          onClick={() => handleOpenSubtopicModal(stage.id, null)}
-                          className="mt-3 block mx-auto border-2 border-dashed border-purple-200 hover:border-purple-400 px-4 py-2 rounded-xl text-xs font-bold text-purple-600 hover:bg-purple-50 transition-colors cursor-pointer"
-                        >
-                          + Add First Module
-                        </button>
                       </div>
                     )}
                   </div>
@@ -2151,7 +2090,7 @@ export function MilestonesRoadmapPage() {
                   </button>
                 </div>
 
-                {/* Section Header: LEARNING PATH & Add Module Button */}
+                {/* Section Header: LEARNING PATH */}
                 <div className="flex items-center justify-between text-xs font-bold tracking-wider uppercase text-slate-400 dark:text-slate-400">
                   <div className="flex items-center gap-2">
                     <span>LEARNING PATH</span>
@@ -2159,14 +2098,6 @@ export function MilestonesRoadmapPage() {
                       ({activeSubtopic.modules?.length || 0} modules)
                     </span>
                   </div>
-
-                    <button
-                      onClick={() => handleOpenModuleModal(null)}
-                      className="px-2.5 py-1 rounded-lg bg-purple-50 dark:bg-purple-950/60 hover:bg-purple-100 dark:hover:bg-purple-900 text-purple-700 dark:text-purple-300 font-bold text-[11px] flex items-center gap-1 border border-purple-200 dark:border-purple-800/60 transition-colors cursor-pointer"
-                    >
-                      <Plus className="w-3 h-3" />
-                      <span>Add Module</span>
-                    </button>
                 </div>
 
                 {/* Modules Accordion List */}
@@ -2541,43 +2472,6 @@ export function MilestonesRoadmapPage() {
                                 </button>
 
                                 <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleOpenItemModal(module.id, null);
-                                  }}
-                                  title="Add Resource Item"
-                                  className={`p-1.5 rounded-lg cursor-pointer transition-colors ${
-                                    isExpanded ? 'hover:bg-white/20 text-white' : 'text-slate-400 hover:text-purple-700 hover:bg-purple-50'
-                                  }`}
-                                >
-                                  <Plus className="w-3.5 h-3.5" />
-                                </button>
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleOpenModuleModal(module);
-                                  }}
-                                  title="Edit Module"
-                                  className={`p-1.5 rounded-lg cursor-pointer transition-colors ${
-                                    isExpanded ? 'hover:bg-white/20 text-white' : 'text-slate-400 hover:text-purple-700 hover:bg-purple-50'
-                                  }`}
-                                >
-                                  <Edit2 className="w-3.5 h-3.5" />
-                                </button>
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleDeleteModule(module.id, module.title);
-                                  }}
-                                  title="Delete Module"
-                                  className={`p-1.5 rounded-lg cursor-pointer transition-colors ${
-                                    isExpanded ? 'hover:bg-white/20 text-rose-200' : 'text-slate-400 hover:text-rose-600 hover:bg-rose-50'
-                                  }`}
-                                >
-                                  <Trash2 className="w-3.5 h-3.5" />
-                                </button>
-
-                                <button
                                   onClick={() => setExpandedModule(isExpanded ? null : module.id)}
                                   className="p-1.5 rounded-lg cursor-pointer transition-colors ml-1"
                                 >
@@ -2722,22 +2616,8 @@ export function MilestonesRoadmapPage() {
                                               </div>
                                             </div>
 
-                                            {/* Admin Edit & Delete Actions + Expand Indicator */}
+                                            {/* Expand Indicator */}
                                             <div className="flex items-center gap-1.5 shrink-0" onClick={(e) => e.stopPropagation()}>
-                                              <button
-                                                onClick={() => handleOpenItemModal(module.id, item)}
-                                                title="Edit Topic"
-                                                className="p-1.5 text-slate-400 hover:text-purple-600 hover:bg-purple-50 rounded-lg cursor-pointer transition-colors"
-                                              >
-                                                <Edit2 className="w-3.5 h-3.5" />
-                                              </button>
-                                              <button
-                                                onClick={() => handleDeleteItem(module.id, item.id, item.title, item.topicIndex)}
-                                                title="Delete Topic"
-                                                className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg cursor-pointer transition-colors"
-                                              >
-                                                <Trash2 className="w-3.5 h-3.5" />
-                                              </button>
                                               <button
                                                 type="button"
                                                 onClick={() => toggleTopicItemExpand(topicItemId)}
@@ -2879,23 +2759,6 @@ export function MilestonesRoadmapPage() {
                                               <span>{item.actionText}</span>
                                               <ExternalLink className="w-3 h-3" />
                                             </button>
-
-                                            <div className="flex items-center gap-0.5 border-l border-slate-200 pl-1">
-                                              <button
-                                                onClick={() => handleOpenItemModal(module.id, item)}
-                                                title="Edit Item"
-                                                className="p-1 text-slate-400 hover:text-purple-600 rounded cursor-pointer"
-                                              >
-                                                <Edit2 className="w-3 h-3" />
-                                              </button>
-                                              <button
-                                                onClick={() => handleDeleteItem(module.id, item.id, item.title)}
-                                                title="Delete Item"
-                                                className="p-1 text-slate-400 hover:text-rose-600 rounded cursor-pointer"
-                                              >
-                                                <Trash2 className="w-3 h-3" />
-                                              </button>
-                                            </div>
                                           </div>
                                         </div>
                                       );
@@ -2908,28 +2771,8 @@ export function MilestonesRoadmapPage() {
                                 <div className="text-center py-6 px-4 rounded-xl bg-slate-50/60 border border-dashed border-slate-200 space-y-2.5">
                                   <BookOpen className="w-5 h-5 mx-auto text-slate-300" />
                                   <p className="text-xs font-semibold text-slate-600">No class topics or learning resources added yet for this module.</p>
-                                  <p className="text-[11px] text-slate-400">Topics scheduled in Live Sessions or added here will appear in real-time.</p>
-                                  <div className="pt-1 flex items-center justify-center gap-2">
-                                    <button
-                                      type="button"
-                                      onClick={() => handleOpenItemModal(module.id, null)}
-                                      className="px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-lg text-xs inline-flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
-                                    >
-                                      <Plus className="w-3.5 h-3.5" />
-                                      <span>Add Topic / Resource</span>
-                                    </button>
-                                  </div>
+                                  <p className="text-[11px] text-slate-400">Topics scheduled in Live Sessions will appear in real-time.</p>
                                 </div>
-                              )}
-
-                              {(liveClassTopics.length > 0 || otherResources.length > 0 || (module.items && module.items.length > 0)) && (
-                                <button
-                                  onClick={() => handleOpenItemModal(module.id, null)}
-                                  className="w-full py-2 border border-dashed border-purple-200 text-purple-700 hover:bg-purple-50 rounded-xl text-xs font-bold flex items-center justify-center gap-1 transition-colors cursor-pointer"
-                                >
-                                  <Plus className="w-3.5 h-3.5" />
-                                  <span> Add Topic / Resource to {module.title}</span>
-                                </button>
                               )}
                             </div>
                           )}
@@ -2939,13 +2782,6 @@ export function MilestonesRoadmapPage() {
                   ) : (
                     <div className="text-center py-8 text-slate-400 text-xs bg-slate-50 rounded-2xl border border-dashed border-slate-200 space-y-3">
                       <p>No modules created for this subtopic yet.</p>
-                        <button
-                          onClick={() => handleOpenModuleModal(null)}
-                          className="px-4 py-2 bg-purple-600 text-white font-bold rounded-xl hover:bg-purple-700 inline-flex items-center gap-1.5 cursor-pointer shadow-sm"
-                        >
-                          <Plus className="w-4 h-4" />
-                          <span>Create First Module</span>
-                        </button>
                     </div>
                   )}
                 </div>

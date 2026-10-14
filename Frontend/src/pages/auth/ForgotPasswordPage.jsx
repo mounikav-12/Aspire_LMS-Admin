@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import { Input } from '../../components/common/Input';
 import { Button } from '../../components/common/Button';
 import { Mail, ArrowLeft, CheckCircle2 } from 'lucide-react';
-import { ThemeToggle } from '../../components/common/ThemeToggle';
 
 export function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
@@ -18,8 +17,6 @@ export function ForgotPasswordPage() {
 
   return (
     <div className="min-h-screen bg-slate-100 dark:bg-slate-950 bg-[radial-gradient(#cbd5e1_1px,transparent_1px)] dark:bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:16px_16px] flex items-center justify-center p-4 font-sans transition-colors duration-200 relative">
-      {/* Floating Theme Switcher */}
-      <ThemeToggle variant="floating" />
 
       <div className="w-full max-w-md bg-white dark:bg-slate-900 rounded-3xl shadow-2xl p-8 border border-slate-200/80 dark:border-slate-800">
         <Link

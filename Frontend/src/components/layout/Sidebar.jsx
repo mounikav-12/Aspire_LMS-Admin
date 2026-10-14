@@ -30,7 +30,6 @@ import { useAuth } from '../../context/AuthContext';
 import { useLmsData } from '../../context/LmsDataContext';
 import { ROLES, INITIAL_ROLE_PERMISSIONS } from '../../utils/mockData';
 import { ProfileSettingsModal } from '../common/ProfileSettingsModal';
-import { ThemeToggle } from '../common/ThemeToggle';
 
 const ALL_NAV_ITEMS = [
   { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard, permissionId: 'view_dashboard' },
@@ -176,11 +175,8 @@ export function Sidebar({ isCollapsed, onToggle, isMobileOpen, onCloseMobile }) 
           ))}
         </nav>
 
-        {/* User Footer: Theme Switcher & Logout */}
-        <div className="p-2.5 border-t border-slate-100 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-900/60 space-y-2">
-          {/* Theme Switcher */}
-          <ThemeToggle variant="sidebar" isCollapsed={isCollapsed} />
-
+        {/* User Footer: Logout */}
+        <div className="p-2.5 border-t border-slate-100 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-900/60">
           {/* Logout */}
           <button
             onClick={logout}

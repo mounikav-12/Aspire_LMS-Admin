@@ -66,6 +66,12 @@ export function AuthProvider({ children }) {
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
+        if (parsed.department === 'General Staff') {
+          parsed.department = parsed.role === ROLES.INSTRUCTOR ? 'Instructor' : (parsed.role || 'Instructor');
+        }
+        if (!parsed.avatar || parsed.avatar.includes('avataaars') || parsed.avatar.includes('unsplash.com')) {
+          parsed.avatar = `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(parsed.name || 'User')}&backgroundColor=2563eb&textColor=ffffff&bold=true`;
+        }
         return sanitizeUser({
           ...parsed,
           originalRole: parsed.originalRole || parsed.role
@@ -82,7 +88,15 @@ export function AuthProvider({ children }) {
     if (saved) {
       try {
         const list = JSON.parse(saved);
-        return list.map((u) => sanitizeUser(u));
+        return list.map((u) => {
+          if (u.department === 'General Staff') {
+            u.department = u.role === ROLES.INSTRUCTOR ? 'Instructor' : (u.role || 'Instructor');
+          }
+          if (!u.avatar || u.avatar.includes('avataaars') || u.avatar.includes('unsplash.com')) {
+            u.avatar = `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(u.name || 'User')}&backgroundColor=2563eb&textColor=ffffff&bold=true`;
+          }
+          return sanitizeUser(u);
+        });
       } catch (e) {
         return [];
       }
@@ -124,10 +138,18 @@ export function AuthProvider({ children }) {
           const freshBatch = dbProfile.batch || 'None';
           const freshRole = dbProfile.role || currentUser.role;
           const freshName = dbProfile.name || currentUser.name;
+          const freshDept = (!dbProfile.department || dbProfile.department === 'General Staff')
+            ? (freshRole === ROLES.INSTRUCTOR ? 'Instructor' : (freshRole || 'Instructor'))
+            : dbProfile.department;
+          const freshAvatar = (dbProfile.avatar && !dbProfile.avatar.includes('avataaars') && !dbProfile.avatar.includes('unsplash.com'))
+            ? dbProfile.avatar
+            : `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(freshName || 'User')}&backgroundColor=2563eb&textColor=ffffff&bold=true`;
 
           if (
             currentUser.batch !== freshBatch ||
             currentUser.name !== freshName ||
+            currentUser.department !== freshDept ||
+            currentUser.avatar !== freshAvatar ||
             (currentUser.role !== freshRole && currentUser.originalRole !== ROLES.SUPER_ADMIN)
           ) {
             setCurrentUser((prev) => {
@@ -136,10 +158,20 @@ export function AuthProvider({ children }) {
                 ...prev,
                 name: freshName,
                 batch: freshBatch,
+                department: freshDept,
+                avatar: freshAvatar,
                 role: prev.role === ROLES.SUPER_ADMIN ? prev.role : freshRole,
                 originalRole: dbProfile.original_role || freshRole
               });
             });
+          }
+
+          if (dbProfile.department === 'General Staff' && dbProfile.id) {
+            supabase.from('profiles').update({ department: freshRole || 'Instructor' }).eq('id', dbProfile.id).then(() => {});
+          }
+
+          if (dbProfile.avatar && (dbProfile.avatar.includes('avataaars') || dbProfile.avatar.includes('unsplash.com')) && dbProfile.id) {
+            supabase.from('profiles').update({ avatar: freshAvatar }).eq('id', dbProfile.id).then(() => {});
           }
         }
       } catch (err) {
@@ -182,7 +214,7 @@ export function AuthProvider({ children }) {
           data: {
             name: name.trim(),
             role: role,
-            department: department || 'General Staff'
+            department: department || (role === ROLES.INSTRUCTOR ? 'Instructor' : (role || 'Instructor'))
           }
         }
       });
@@ -203,11 +235,11 @@ export function AuthProvider({ children }) {
       passwordHash: pwdHash, // SHA-256 digest only
       role: role,
       originalRole: role,
-      department: department || 'General Staff',
+      department: department || (role === ROLES.INSTRUCTOR ? 'Instructor' : (role || 'Instructor')),
       status: 'Active',
       joinedDate: new Date().toISOString().split('T')[0],
       phone: '+91 98765-43210',
-      avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(name.trim())}`
+      avatar: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(name.trim() || 'User')}&backgroundColor=2563eb&textColor=ffffff&bold=true`
     };
 
     const updatedList = [...registeredUsers, newUser];
@@ -245,15 +277,33 @@ export function AuthProvider({ children }) {
         password: password
       });
       if (sbAuthData?.user && !sbAuthErr) {
+        let profileData = null;
+        try {
+          const { data: pRec } = await supabase
+            .from('profiles')
+            .select('*')
+            .ilike('email', emailClean)
+            .maybeSingle();
+          profileData = pRec;
+        } catch (e) {}
+
+        const displayName = profileData?.name || sbAuthData.user.user_metadata?.name || emailClean.split('@')[0];
+        const userRole = profileData?.role || sbAuthData.user.user_metadata?.role || ROLES.INSTRUCTOR;
+        const rawDept = profileData?.department || sbAuthData.user.user_metadata?.department;
+        const rawAvatar = profileData?.avatar || sbAuthData.user.user_metadata?.avatar;
+        const resolvedAvatar = (rawAvatar && !rawAvatar.includes('avataaars') && !rawAvatar.includes('unsplash.com'))
+          ? rawAvatar
+          : `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(displayName || 'User')}&backgroundColor=2563eb&textColor=ffffff&bold=true`;
+
         const sbUser = {
           id: sbAuthData.user.id,
-          name: sbAuthData.user.user_metadata?.name || emailClean.split('@')[0],
+          name: displayName,
           email: sbAuthData.user.email,
-          role: sbAuthData.user.user_metadata?.role || ROLES.INSTRUCTOR,
-          originalRole: sbAuthData.user.user_metadata?.role || ROLES.INSTRUCTOR,
-          department: sbAuthData.user.user_metadata?.department || 'General Staff',
-          batch: sbAuthData.user.user_metadata?.batch || 'None',
-          avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(emailClean)}`
+          role: userRole,
+          originalRole: profileData?.original_role || userRole,
+          department: (!rawDept || rawDept === 'General Staff') ? (userRole === ROLES.INSTRUCTOR ? 'Instructor' : userRole) : rawDept,
+          batch: profileData?.batch || sbAuthData.user.user_metadata?.batch || 'None',
+          avatar: resolvedAvatar
         };
         const cleanUser = sanitizeUser(sbUser);
         setCurrentUser(cleanUser);
@@ -274,18 +324,26 @@ export function AuthProvider({ children }) {
 
       if (dbProfile && !dbErr && dbProfile.passwords) {
         if (password === dbProfile.passwords) {
+          const userRole = dbProfile.role || ROLES.INSTRUCTOR;
+          const rawDept = dbProfile.department;
+          const displayName = dbProfile.name || emailClean.split('@')[0];
+          const rawAvatar = dbProfile.avatar;
+          const resolvedAvatar = (rawAvatar && !rawAvatar.includes('avataaars') && !rawAvatar.includes('unsplash.com'))
+            ? rawAvatar
+            : `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(displayName || 'User')}&backgroundColor=2563eb&textColor=ffffff&bold=true`;
+
           const matchedUser = {
             id: dbProfile.id,
-            name: dbProfile.name || emailClean.split('@')[0],
+            name: displayName,
             email: dbProfile.email,
-            role: dbProfile.role || ROLES.INSTRUCTOR,
-            originalRole: dbProfile.original_role || dbProfile.role || ROLES.INSTRUCTOR,
-            department: dbProfile.department || 'General Staff',
+            role: userRole,
+            originalRole: dbProfile.original_role || dbProfile.role || userRole,
+            department: (!rawDept || rawDept === 'General Staff') ? (userRole === ROLES.INSTRUCTOR ? 'Instructor' : userRole) : rawDept,
             status: dbProfile.status || 'Active',
             joinedDate: dbProfile.joined_date || null,
             phone: dbProfile.phone || '+91 98765-43210',
             batch: dbProfile.batch || 'None',
-            avatar: dbProfile.avatar || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(dbProfile.name || 'User')}&backgroundColor=2563eb&textColor=ffffff&bold=true`
+            avatar: resolvedAvatar
           };
           const cleanUser = sanitizeUser(matchedUser);
           setCurrentUser(cleanUser);
@@ -312,8 +370,20 @@ export function AuthProvider({ children }) {
         return { success: false, message: 'Invalid credentials. Password incorrect.' };
       }
 
+      const regRole = foundRegistered.role || ROLES.INSTRUCTOR;
+      const regDept = (!foundRegistered.department || foundRegistered.department === 'General Staff')
+        ? (regRole === ROLES.INSTRUCTOR ? 'Instructor' : regRole)
+        : foundRegistered.department;
+
+      const rawAvatar = foundRegistered.avatar;
+      const resolvedAvatar = (rawAvatar && !rawAvatar.includes('avataaars') && !rawAvatar.includes('unsplash.com'))
+        ? rawAvatar
+        : `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(foundRegistered.name || 'User')}&backgroundColor=2563eb&textColor=ffffff&bold=true`;
+
       const cleanUser = sanitizeUser({
         ...foundRegistered,
+        department: regDept,
+        avatar: resolvedAvatar,
         originalRole: foundRegistered.role
       });
 

@@ -328,7 +328,11 @@ export function Navbar({ isCollapsed, onToggleSidebar }) {
             title="Click to edit profile & settings"
           >
             <img
-              src={currentUser?.avatar}
+              src={
+                currentUser?.avatar && !currentUser.avatar.includes('unsplash.com') && !currentUser.avatar.includes('avataaars')
+                  ? currentUser.avatar
+                  : `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(currentUser?.name || 'User')}&backgroundColor=2563eb&textColor=ffffff&bold=true`
+              }
               alt={currentUser?.name}
               className="w-7 h-7 rounded-full object-cover ring-2 ring-blue-500/20 group-hover:ring-blue-500"
             />
@@ -336,7 +340,11 @@ export function Navbar({ isCollapsed, onToggleSidebar }) {
               <span className="text-xs font-bold text-slate-800 dark:text-slate-200 leading-tight group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                 {currentUser?.name}
               </span>
-              <span className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">{currentUser?.department}</span>
+              <span className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">
+                {(currentUser?.role === ROLES.INSTRUCTOR || currentUser?.role?.toLowerCase() === 'instructor' || currentUser?.department === 'General Staff' || currentUser?.department === 'Instructor')
+                  ? 'Instructor'
+                  : (currentUser?.department || currentUser?.role || 'Staff')}
+              </span>
             </div>
           </button>
         </div>

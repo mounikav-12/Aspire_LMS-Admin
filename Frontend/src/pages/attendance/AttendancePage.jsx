@@ -1445,7 +1445,11 @@ export function AttendancePage() {
         <div className="bg-gradient-to-r from-blue-50 to-indigo-50/50 border border-blue-200/90 rounded-2xl p-4 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <img
-              src={effectiveStaffUser.avatar || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(effectiveStaffUser.name)}`}
+              src={
+                effectiveStaffUser.avatar && !effectiveStaffUser.avatar.includes('unsplash.com') && !effectiveStaffUser.avatar.includes('avataaars')
+                  ? effectiveStaffUser.avatar
+                  : `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(effectiveStaffUser.name || 'User')}&backgroundColor=2563eb&textColor=ffffff&bold=true`
+              }
               alt={effectiveStaffUser.name}
               className="w-10 h-10 rounded-xl object-cover border border-blue-200 bg-white shadow-2xs shrink-0"
             />

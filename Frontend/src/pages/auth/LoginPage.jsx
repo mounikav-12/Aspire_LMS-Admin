@@ -6,7 +6,6 @@ import { Button } from '../../components/common/Button';
 import { Input } from '../../components/common/Input';
 import { LogIn, Lock, Mail, ShieldCheck } from 'lucide-react';
 import { AINetworkCanvas } from '../../components/auth/AINetworkCanvas';
-import { ThemeToggle } from '../../components/common/ThemeToggle';
 
 export function LoginPage() {
   const navigate = useNavigate();
@@ -47,8 +46,6 @@ export function LoginPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center p-4 sm:p-6 transition-colors duration-200 relative">
-      {/* Floating Theme Switcher */}
-      <ThemeToggle variant="floating" />
 
       <div className="w-full max-w-4xl bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xl overflow-hidden grid grid-cols-1 lg:grid-cols-12">
         {/* Left Hero Brand Panel */}

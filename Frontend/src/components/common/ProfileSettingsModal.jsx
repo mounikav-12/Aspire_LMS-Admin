@@ -47,12 +47,18 @@ export function ProfileSettingsModal({ isOpen, onClose }) {
 
   useEffect(() => {
     if (currentUser) {
+      const cleanAvatar = (currentUser.avatar && !currentUser.avatar.includes('unsplash.com') && !currentUser.avatar.includes('avataaars'))
+        ? currentUser.avatar
+        : `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(currentUser.name || 'User')}&backgroundColor=2563eb&textColor=ffffff&bold=true`;
+
       setFormData({
         name: currentUser.name || '',
         email: currentUser.email || '',
         phone: currentUser.phone || '+91 98765-43210',
-        department: currentUser.department || 'Curriculum Operations',
-        avatar: currentUser.avatar || '',
+        department: (currentUser.department && currentUser.department !== 'General Staff')
+          ? currentUser.department
+          : (currentUser.role === 'Instructor' || currentUser.role === ROLES.INSTRUCTOR ? 'Instructor' : 'Curriculum Operations'),
+        avatar: cleanAvatar,
         currentPassword: '',
         newPassword: '',
         confirmPassword: ''
@@ -144,12 +150,16 @@ export function ProfileSettingsModal({ isOpen, onClose }) {
     }
 
     try {
+      const resolvedAvatar = (formData.avatar && !formData.avatar.includes('unsplash.com') && !formData.avatar.includes('avataaars'))
+        ? formData.avatar
+        : `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(formData.name || 'User')}&backgroundColor=2563eb&textColor=ffffff&bold=true`;
+
       const updatePayload = {
         name: formData.name,
         email: formData.email,
         phone: formData.phone,
         department: formData.department,
-        avatar: formData.avatar
+        avatar: resolvedAvatar
       };
 
       if (formData.newPassword) {
@@ -190,11 +200,11 @@ export function ProfileSettingsModal({ isOpen, onClose }) {
           <div className="relative group cursor-pointer flex-shrink-0" onClick={() => fileInputRef.current?.click()}>
             <img
               src={
-                formData.avatar && !formData.avatar.includes('unsplash.com')
+                formData.avatar && !formData.avatar.includes('unsplash.com') && !formData.avatar.includes('avataaars')
                   ? formData.avatar
-                  : (currentUser?.avatar && !currentUser.avatar.includes('unsplash.com'))
+                  : (currentUser?.avatar && !currentUser.avatar.includes('unsplash.com') && !currentUser.avatar.includes('avataaars'))
                     ? currentUser.avatar
-                    : `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(formData.name || 'User')}&backgroundColor=2563eb&textColor=ffffff&bold=true`
+                    : `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(formData.name || currentUser?.name || 'User')}&backgroundColor=2563eb&textColor=ffffff&bold=true`
               }
               alt={formData.name}
               className="w-16 h-16 rounded-full object-cover border-2 border-white dark:border-slate-700 ring-2 ring-blue-500/20 shadow-md transition-opacity group-hover:opacity-75"

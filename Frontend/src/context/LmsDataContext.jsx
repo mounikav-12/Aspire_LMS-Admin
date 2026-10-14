@@ -194,7 +194,7 @@ export function LmsDataProvider({ children }) {
     return loaded;
   });
   const [rolePermissions, setRolePermissions] = useState(INITIAL_ROLE_PERMISSIONS);
-  const [coursesByBatch, setCoursesByBatch] = useState(() => loadBatchDictState('aspire_lms_courses_by_batch', INITIAL_COURSES, 'aspire_lms_courses_version', 'v8_single_course'));
+  const [coursesByBatch, setCoursesByBatch] = useState(() => loadBatchDictState('aspire_lms_courses_by_batch', INITIAL_COURSES, 'aspire_lms_courses_version', 'v9_multi_batch_courses'));
   const [assessmentsByBatch, setAssessmentsByBatch] = useState(() => loadBatchDictState('aspire_lms_assessments_by_batch', INITIAL_ASSESSMENTS, 'aspire_lms_assessments_version', 'v7_clean_questions_no_artifacts'));
   const [quizzesByBatch, setQuizzesByBatch] = useState(() => loadBatchDictState('aspire_lms_quizzes_by_batch', [], 'aspire_lms_quizzes_version', 'v1_quizzes'));
   const [liveSessionsByBatch, setLiveSessionsByBatch] = useState(() => loadBatchDictState('aspire_lms_live_sessions_by_batch', INITIAL_LIVE_SESSIONS, 'aspire_lms_sessions_version', 'v7_null_default_date'));
@@ -385,10 +385,16 @@ export function LmsDataProvider({ children }) {
 
         if (existingIdx !== -1) {
           const target = updatedUsers[existingIdx];
-          const newAvatar = currentUser.avatar || target.avatar;
+          const rawAvatar = currentUser.avatar || target.avatar;
+          const newAvatar = (rawAvatar && !rawAvatar.includes('unsplash.com') && !rawAvatar.includes('avataaars'))
+            ? rawAvatar
+            : `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(currentUser.name || target.name || 'User')}&backgroundColor=2563eb&textColor=ffffff&bold=true`;
           const newName = currentUser.name || target.name;
           const newEmail = currentUser.email || target.email;
-          const newDept = currentUser.department || target.department;
+          const cleanUserDept = (currentUser.department && currentUser.department !== 'General Staff')
+            ? currentUser.department
+            : (currentUser.role === ROLES.INSTRUCTOR ? 'Instructor' : currentUser.department);
+          const newDept = cleanUserDept || (target.department === 'General Staff' ? (target.role || 'Instructor') : target.department);
           const newPhone = currentUser.phone || target.phone;
           const newBatch = (target.batch && target.batch !== 'None' && target.batch !== 'none' && target.batch !== 'Not Assigned')
             ? target.batch
@@ -426,7 +432,7 @@ export function LmsDataProvider({ children }) {
             joinedDate: currentUser.joinedDate || new Date().toISOString().split('T')[0],
             phone: currentUser.phone || '+91 98765-43210',
             batch: currentUser.batch || 'None',
-            avatar: (currentUser.avatar && !currentUser.avatar.includes('unsplash.com')) ? currentUser.avatar : defaultAvatar
+            avatar: (currentUser.avatar && !currentUser.avatar.includes('unsplash.com') && !currentUser.avatar.includes('avataaars')) ? currentUser.avatar : defaultAvatar
           });
           hasChanges = true;
         }
@@ -441,7 +447,7 @@ export function LmsDataProvider({ children }) {
             (u) => u.id === regUser.id || (u.email && u.email.toLowerCase() === regEmail)
           );
           const defaultRegAvatar = `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(regUser.name || 'User')}&backgroundColor=2563eb&textColor=ffffff&bold=true`;
-          const cleanRegAvatar = (regUser.avatar && !regUser.avatar.includes('unsplash.com')) ? regUser.avatar : defaultRegAvatar;
+          const cleanRegAvatar = (regUser.avatar && !regUser.avatar.includes('unsplash.com') && !regUser.avatar.includes('avataaars')) ? regUser.avatar : defaultRegAvatar;
 
           if (existingIdx !== -1) {
             const target = updatedUsers[existingIdx];
@@ -455,8 +461,10 @@ export function LmsDataProvider({ children }) {
               name: regUser.name,
               email: regUser.email,
               role: regUser.role || ROLES.INSTRUCTOR,
-              originalRole: regUser.originalRole || regUser.role,
-              department: regUser.department || 'Curriculum Operations',
+              originalRole: regUser.originalRole || regUser.role || ROLES.INSTRUCTOR,
+              department: (regUser.department && regUser.department !== 'General Staff')
+                ? regUser.department
+                : (regUser.role === ROLES.INSTRUCTOR ? 'Instructor' : 'Curriculum Operations'),
               status: 'Active',
               joinedDate: regUser.joinedDate || new Date().toISOString().split('T')[0],
               phone: regUser.phone || '+91 98765-43210',
@@ -1512,6 +1520,7 @@ export function LmsDataProvider({ children }) {
   const getProjectsForBatch = (batchName) => getBatchItems(projectsByBatch, batchName);
   const getCodingQuestionsForBatch = (batchName) => getBatchItems(codingQuestionsByBatch, batchName);
 
+  const allCourses = getCoursesForBatch('ALL');
   const courses = getCoursesForBatch(activeBatchFilter);
   const assessments = getAssessmentsForBatch(activeBatchFilter);
   const quizzes = getQuizzesForBatch(activeBatchFilter);
@@ -1923,7 +1932,7 @@ export function LmsDataProvider({ children }) {
           const isCurrent = currentUser && (u.id === currentUser.id || (currentUser.email && u.email?.toLowerCase() === currentUser.email?.toLowerCase()));
           const defaultAvatar = `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(u.name || 'User')}&backgroundColor=2563eb&textColor=ffffff&bold=true`;
           const rawAvatar = (isCurrent && currentUser?.avatar) ? currentUser.avatar : u.avatar;
-          const userAvatar = (rawAvatar && !rawAvatar.includes('unsplash.com')) ? rawAvatar : defaultAvatar;
+          const userAvatar = (rawAvatar && !rawAvatar.includes('unsplash.com') && !rawAvatar.includes('avataaars')) ? rawAvatar : defaultAvatar;
 
           const userBatchStr = u.batch || 'None';
           const parsedBatches = userBatchStr === 'None' || !userBatchStr.trim()
@@ -2066,13 +2075,20 @@ export function LmsDataProvider({ children }) {
           const next = { 'Weekday Batch': [], 'Weekend Batch': [] };
           mappedCourses.forEach(c => {
             const target = (c.targetBatch || '').toUpperCase();
-            if (target === 'ALL BATCHES' || target === 'ALL' || target === 'NONE' || !target) {
+            const isAllOrNone = target === 'ALL BATCHES' || target === 'ALL' || target === 'NONE' || !target;
+            const hasWeekend = target.includes('WEEKEND') || target.includes('A26S') || target.includes('A26WE');
+            const hasWeekday = target.includes('WEEKDAY') || target.includes('A26W');
+
+            if (isAllOrNone) {
               next['Weekday Batch'].push(c);
-              next['Weekend Batch'].push(c);
-            } else if (target === 'WEEKEND BATCH' || target.includes('WEEKEND') || target.startsWith('A26S')) {
               next['Weekend Batch'].push(c);
             } else {
-              next['Weekday Batch'].push(c);
+              if (hasWeekday) next['Weekday Batch'].push(c);
+              if (hasWeekend) next['Weekend Batch'].push(c);
+              if (!hasWeekday && !hasWeekend) {
+                next['Weekday Batch'].push(c);
+                next['Weekend Batch'].push(c);
+              }
             }
           });
           return next;
@@ -2572,7 +2588,7 @@ export function LmsDataProvider({ children }) {
                 status: u.status || 'Active',
                 joinedDate: u.joined_date || '',
                 phone: u.phone || '+91 98765-43210',
-                avatar: u.avatar || defaultAvatar
+                avatar: (u.avatar && !u.avatar.includes('unsplash.com') && !u.avatar.includes('avataaars')) ? u.avatar : defaultAvatar
               });
             }
           } else if (payload.eventType === 'UPDATE') {
@@ -2589,7 +2605,7 @@ export function LmsDataProvider({ children }) {
                 status: u.status || 'Active',
                 joinedDate: u.joined_date || '',
                 phone: u.phone || '+91 98765-43210',
-                avatar: u.avatar || defaultAvatar
+                avatar: (u.avatar && !u.avatar.includes('unsplash.com') && !u.avatar.includes('avataaars')) ? u.avatar : defaultAvatar
               };
             }
           } else if (payload.eventType === 'DELETE') {
@@ -2955,13 +2971,20 @@ export function LmsDataProvider({ children }) {
               const next = { 'Weekday Batch': [], 'Weekend Batch': [] };
               mappedCourses.forEach(c => {
                 const target = (c.targetBatch || '').toUpperCase();
-                if (target === 'ALL BATCHES' || target === 'ALL' || target === 'NONE' || !target) {
+                const isAllOrNone = target === 'ALL BATCHES' || target === 'ALL' || target === 'NONE' || !target;
+                const hasWeekend = target.includes('WEEKEND') || target.includes('A26S') || target.includes('A26WE');
+                const hasWeekday = target.includes('WEEKDAY') || target.includes('A26W');
+
+                if (isAllOrNone) {
                   next['Weekday Batch'].push(c);
-                  next['Weekend Batch'].push(c);
-                } else if (target === 'WEEKEND BATCH' || target.includes('WEEKEND') || target.startsWith('A26S')) {
                   next['Weekend Batch'].push(c);
                 } else {
-                  next['Weekday Batch'].push(c);
+                  if (hasWeekday) next['Weekday Batch'].push(c);
+                  if (hasWeekend) next['Weekend Batch'].push(c);
+                  if (!hasWeekday && !hasWeekend) {
+                    next['Weekday Batch'].push(c);
+                    next['Weekend Batch'].push(c);
+                  }
                 }
               });
               return next;
@@ -3432,7 +3455,7 @@ export function LmsDataProvider({ children }) {
       email: newUser.email,
       role: newUser.role,
       original_role: newUser.originalRole,
-      department: newUser.department || 'Curriculum Operations',
+      department: newUser.department || (newUser.role === ROLES.INSTRUCTOR ? 'Instructor' : 'Curriculum Operations'),
       status: 'Active',
       joined_date: newUser.joinedDate,
       phone: newUser.phone,
@@ -3575,18 +3598,29 @@ export function LmsDataProvider({ children }) {
     };
     // Optimistic UI update across batches
     setCoursesByBatch((prev) => {
-      const isAll = newCourse.targetBatch === 'All Batches' || newCourse.targetBatch === 'ALL' || newCourse.targetBatch === 'None' || !newCourse.targetBatch;
-      if (isAll) {
-        return {
-          ...prev,
-          'Weekday Batch': [newCourse, ...(prev['Weekday Batch'] || []).filter(c => c.id !== newCourse.id)],
-          'Weekend Batch': [newCourse, ...(prev['Weekend Batch'] || []).filter(c => c.id !== newCourse.id)]
-        };
+      const target = (newCourse.targetBatch || '').toUpperCase();
+      const isAllOrNone = target === 'ALL BATCHES' || target === 'ALL' || target === 'NONE' || !target;
+      const hasWeekend = target.includes('WEEKEND') || target.includes('A26S') || target.includes('A26WE');
+      const hasWeekday = target.includes('WEEKDAY') || target.includes('A26W');
+
+      const nextWd = [...(prev['Weekday Batch'] || []).filter(c => c.id !== newCourse.id)];
+      const nextWe = [...(prev['Weekend Batch'] || []).filter(c => c.id !== newCourse.id)];
+
+      if (isAllOrNone) {
+        nextWd.unshift(newCourse);
+        nextWe.unshift(newCourse);
+      } else {
+        if (hasWeekday) nextWd.unshift(newCourse);
+        if (hasWeekend) nextWe.unshift(newCourse);
+        if (!hasWeekday && !hasWeekend) {
+          nextWd.unshift(newCourse);
+        }
       }
-      const bKey = resolveBatchKey(newCourse.targetBatch);
+
       return {
         ...prev,
-        [bKey]: [newCourse, ...(prev[bKey] || []).filter(c => c.id !== newCourse.id)]
+        'Weekday Batch': nextWd,
+        'Weekend Batch': nextWe
       };
     });
     logActivity(`Created new course: "${newCourse.title}" (${newCourse.targetBatch})`, 'course');
@@ -6064,6 +6098,7 @@ export function LmsDataProvider({ children }) {
         rolePermissions,
         toggleRolePermission,
         courses,
+        allCourses,
         addCourse,
         updateCourse,
         deleteCourse,
@@ -6247,6 +6282,7 @@ const defaultLmsDataContext = {
   lockAllRewards: () => {},
   activities: [],
   isSupabaseConnected: false,
+  allCourses: [],
   activeBatchFilter: 'ALL',
   setActiveBatchFilter: () => {},
   addCourse: async () => {},

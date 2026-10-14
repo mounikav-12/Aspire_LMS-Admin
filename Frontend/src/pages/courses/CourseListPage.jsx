@@ -379,23 +379,47 @@ const CATEGORY_TABS = [
 ];
 
 export function CourseListPage() {
-  const { courses, addCourse, updateCourse, deleteCourse, activeBatchFilter, setActiveBatchFilter, availableBatches, milestones } = useLmsData();
+  const {
+    courses,
+    allCourses,
+    getCoursesForBatch,
+    addCourse,
+    updateCourse,
+    deleteCourse,
+    activeBatchFilter,
+    setActiveBatchFilter,
+    availableBatches,
+    milestones
+  } = useLmsData();
   const { addToast } = useToast();
 
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('ALL');
-  const [batchFilter, setBatchFilterState] = useState(activeBatchFilter || 'ALL');
-
-  React.useEffect(() => {
-    if (activeBatchFilter && activeBatchFilter !== batchFilter) {
-      setBatchFilterState(activeBatchFilter);
-    }
-  }, [activeBatchFilter]);
+  const [batchFilter, setBatchFilterState] = useState('ALL');
 
   const setBatchFilter = (val) => {
     setBatchFilterState(val);
     if (setActiveBatchFilter) setActiveBatchFilter(val);
   };
+
+  const batchFilterOptions = React.useMemo(() => {
+    const opts = [
+      { value: 'ALL', label: 'All Batches' },
+      { value: 'Weekday Batch', label: 'Weekday Batch (All)' },
+      ...(availableBatches || [])
+        .filter((b) => b.startsWith('A26W') && !b.startsWith('A26S') && !b.startsWith('A26WE'))
+        .map((b) => ({ value: b, label: `${b} (Weekday)` })),
+      { value: 'Weekend Batch', label: 'Weekend Batch (All)' },
+      ...(availableBatches || [])
+        .filter((b) => b.startsWith('A26S') || b.startsWith('A26WE'))
+        .map((b) => ({ value: b, label: `${b} (Weekend)` })),
+      { value: 'None', label: 'Unassigned (None)' }
+    ];
+    if (batchFilter && !opts.some((o) => o.value === batchFilter)) {
+      opts.splice(1, 0, { value: batchFilter, label: `${batchFilter}` });
+    }
+    return opts;
+  }, [availableBatches, batchFilter]);
   const allWeekdayBatchesList = (
     availableBatches && availableBatches.length > 0
       ? availableBatches.filter(
@@ -516,49 +540,67 @@ export function CourseListPage() {
     }
   };
 
-  const filteredCourses = courses.filter((c) => {
+  const rawCourseList = (allCourses && allCourses.length > 0)
+    ? allCourses
+    : (typeof getCoursesForBatch === 'function' ? getCoursesForBatch('ALL') : (courses || []));
+
+  const filteredCourses = rawCourseList.filter((c) => {
     const matchesSearch =
-      c.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      c.instructor.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      c.description.toLowerCase().includes(searchTerm.toLowerCase());
+      (c.title || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (c.instructor || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (c.description || '').toLowerCase().includes(searchTerm.toLowerCase());
     
     const matchesCategory = isCategoryMatch(c, categoryFilter);
 
     const matchesBatch = (() => {
-      if (batchFilter === 'ALL') return true;
-      const isNone = !c.targetBatch || c.targetBatch === 'None' || c.targetBatch === 'NONE';
+      if (!batchFilter || batchFilter === 'ALL') return true;
+      const targetStr = (c.targetBatch || '').trim();
+      const isNone = !targetStr || targetStr.toUpperCase() === 'NONE';
       if (batchFilter === 'None') return isNone;
       if (isNone) return false;
-      if (c.targetBatch === 'All Batches' || c.targetBatch === 'ALL') return true;
-      if (c.targetBatch === batchFilter || c.targetBatch === activeBatchFilter) return true;
+      if (targetStr.toUpperCase() === 'ALL BATCHES' || targetStr.toUpperCase() === 'ALL') return true;
 
-      const isWeekendFilter = batchFilter === 'Weekend Batch' || batchFilter.startsWith('A26S');
-      const isWeekdayFilter = batchFilter === 'Weekday Batch' || (batchFilter.startsWith('A26W') && !batchFilter.startsWith('A26S'));
+      const assignedBatches = new Set(
+        targetStr.split(',').map((s) => s.trim().toUpperCase()).filter(Boolean)
+      );
 
-      const courseIsWeekend = c.targetBatch === 'Weekend Batch' || c.targetBatch?.startsWith('A26S');
-      const courseIsWeekday = c.targetBatch === 'Weekday Batch' || (c.targetBatch?.startsWith('A26W') && !c.targetBatch?.startsWith('A26S'));
-
-      let hasSelectedWeekendBatches = false;
-      let hasSelectedWeekdayBatches = false;
+      // Check card localStorage overrides
       try {
         const savedWe = localStorage.getItem(`aspire_lms_card_we_${c.id}`);
         if (savedWe) {
           const parsed = JSON.parse(savedWe);
-          if (Array.isArray(parsed) && parsed.length > 0) hasSelectedWeekendBatches = true;
+          if (Array.isArray(parsed)) parsed.forEach((b) => assignedBatches.add(String(b).toUpperCase()));
         }
         const savedWd = localStorage.getItem(`aspire_lms_card_wd_${c.id}`);
         if (savedWd) {
           const parsed = JSON.parse(savedWd);
-          if (Array.isArray(parsed) && parsed.length > 0) hasSelectedWeekdayBatches = true;
+          if (Array.isArray(parsed)) parsed.forEach((b) => assignedBatches.add(String(b).toUpperCase()));
         }
       } catch (e) {}
 
+      const cleanFilter = (batchFilter || '').trim().toUpperCase();
+
+      // Direct match (e.g. 'A26S1', 'A26W1')
+      if (assignedBatches.has(cleanFilter)) return true;
+
+      const isWeekendFilter = cleanFilter === 'WEEKEND BATCH' || cleanFilter.startsWith('A26S') || cleanFilter.startsWith('A26WE');
+      const isWeekdayFilter = cleanFilter === 'WEEKDAY BATCH' || (cleanFilter.startsWith('A26W') && !cleanFilter.startsWith('A26S'));
+
+      const courseHasWeekend = assignedBatches.has('WEEKEND BATCH') || Array.from(assignedBatches).some((b) => b.startsWith('A26S') || b.startsWith('A26WE') || b.includes('WEEKEND'));
+      const courseHasWeekday = assignedBatches.has('WEEKDAY BATCH') || Array.from(assignedBatches).some((b) => (b.startsWith('A26W') && !b.startsWith('A26S') && !b.startsWith('A26WE')) || b.includes('WEEKDAY'));
+
       if (isWeekendFilter) {
-        return courseIsWeekend || hasSelectedWeekendBatches;
+        if (assignedBatches.has(cleanFilter)) return true;
+        if (cleanFilter === 'WEEKEND BATCH') return courseHasWeekend;
+        if (assignedBatches.has('WEEKEND BATCH')) return true;
+        return courseHasWeekend;
       }
 
       if (isWeekdayFilter) {
-        return courseIsWeekday || hasSelectedWeekdayBatches;
+        if (assignedBatches.has(cleanFilter)) return true;
+        if (cleanFilter === 'WEEKDAY BATCH') return courseHasWeekday;
+        if (assignedBatches.has('WEEKDAY BATCH')) return true;
+        return courseHasWeekday;
       }
 
       return false;
@@ -624,16 +666,11 @@ export function CourseListPage() {
             Showing {filteredCourses.length} module{filteredCourses.length !== 1 ? 's' : ''}
           </span>
 
-          <div className="w-44">
+          <div className="w-48 sm:w-56">
             <Select
               value={batchFilter}
               onChange={(e) => setBatchFilter(e.target.value)}
-              options={[
-                { value: 'ALL', label: 'All Batches' },
-                { value: 'Weekday Batch', label: 'Weekday Batch' },
-                { value: 'Weekend Batch', label: 'Weekend Batch' },
-                { value: 'None', label: 'Unassigned (None)' }
-              ]}
+              options={batchFilterOptions}
             />
           </div>
         </div>

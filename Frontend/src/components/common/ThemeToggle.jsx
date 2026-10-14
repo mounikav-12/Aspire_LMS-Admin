@@ -47,10 +47,10 @@ export function ThemeToggle({
           >
             <div className="relative w-4.5 h-4.5 flex items-center justify-center">
               <Sun className={`w-4.5 h-4.5 text-amber-500 absolute transition-all duration-300 ease-in-out ${
-                isDark ? 'opacity-100 rotate-0 scale-100' : 'opacity-0 -rotate-90 scale-0 pointer-events-none'
+                !isDark ? 'opacity-100 rotate-0 scale-100' : 'opacity-0 -rotate-90 scale-0 pointer-events-none'
               }`} />
               <Moon className={`w-4.5 h-4.5 text-blue-600 dark:text-blue-400 absolute transition-all duration-300 ease-in-out ${
-                isDark ? 'opacity-0 rotate-90 scale-0 pointer-events-none' : 'opacity-100 rotate-0 scale-100'
+                isDark ? 'opacity-100 rotate-0 scale-100' : 'opacity-0 rotate-90 scale-0 pointer-events-none'
               }`} />
             </div>
             <span className="text-xs font-bold capitalize hidden sm:inline">
@@ -107,10 +107,10 @@ export function ThemeToggle({
         >
           <div className="relative w-4.5 h-4.5 flex items-center justify-center">
             <Sun className={`w-4.5 h-4.5 text-amber-500 absolute transition-all duration-300 ease-in-out ${
-              isDark ? 'opacity-100 rotate-0 scale-100' : 'opacity-0 -rotate-90 scale-0 pointer-events-none'
+              !isDark ? 'opacity-100 rotate-0 scale-100' : 'opacity-0 -rotate-90 scale-0 pointer-events-none'
             }`} />
             <Moon className={`w-4.5 h-4.5 text-slate-600 dark:text-blue-400 absolute transition-all duration-300 ease-in-out ${
-              isDark ? 'opacity-0 rotate-90 scale-0 pointer-events-none' : 'opacity-100 rotate-0 scale-100'
+              isDark ? 'opacity-100 rotate-0 scale-100' : 'opacity-0 rotate-90 scale-0 pointer-events-none'
             }`} />
           </div>
         </button>
@@ -135,10 +135,10 @@ export function ThemeToggle({
           <div className="flex items-center gap-2">
             <div className="relative w-4 h-4 flex items-center justify-center">
               <Sun className={`w-4 h-4 text-amber-500 absolute transition-all duration-300 ease-in-out ${
-                isDark ? 'opacity-100 rotate-0 scale-100' : 'opacity-0 -rotate-90 scale-0 pointer-events-none'
+                !isDark ? 'opacity-100 rotate-0 scale-100' : 'opacity-0 -rotate-90 scale-0 pointer-events-none'
               }`} />
               <Moon className={`w-4 h-4 text-blue-600 dark:text-blue-400 absolute transition-all duration-300 ease-in-out ${
-                isDark ? 'opacity-0 rotate-90 scale-0 pointer-events-none' : 'opacity-100 rotate-0 scale-100'
+                isDark ? 'opacity-100 rotate-0 scale-100' : 'opacity-0 rotate-90 scale-0 pointer-events-none'
               }`} />
             </div>
             <span className="text-xs font-bold text-slate-700 dark:text-slate-200 transition-colors duration-300">
@@ -165,38 +165,65 @@ export function ThemeToggle({
   // 3. Navbar variant (Header icon button with quick toggle + menu dropdown)
   return (
     <div className={`relative ${className}`} ref={dropdownRef}>
+      {/* On/Off Theme Toggle Switch with Sun and Moon Symbols */}
       <div className="flex items-center">
         <button
           type="button"
+          role="switch"
+          aria-checked={isDark}
           onClick={toggleTheme}
-          title={`Currently ${isDark ? 'Dark Mode' : 'Light Mode'} (${theme} preference). Click to toggle theme.`}
-          className="p-1.5 sm:px-2.5 sm:py-1.5 text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 bg-slate-100/80 dark:bg-slate-800 hover:bg-slate-200/80 dark:hover:bg-slate-700/80 border border-slate-200/80 dark:border-slate-700/70 rounded-xl transition-colors duration-300 flex items-center gap-2 cursor-pointer group shadow-2xs"
-          aria-label="Toggle dark mode"
+          onContextMenu={(e) => {
+            e.preventDefault();
+            setIsOpen(!isOpen);
+          }}
+          title={
+            isDark
+              ? 'Dark Mode is ON. Click to switch to Light Mode (right-click for options)'
+              : 'Dark Mode is OFF. Click to switch to Dark Mode (right-click for options)'
+          }
+          aria-label={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+          className="relative inline-flex h-8 w-16 flex-shrink-0 cursor-pointer items-center rounded-full bg-slate-200/90 dark:bg-slate-800 p-1 border border-slate-300/80 dark:border-slate-700 shadow-inner hover:bg-slate-300/70 dark:hover:bg-slate-700/70 transition-colors duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900 select-none group"
         >
-          <div className="relative w-4 h-4 flex items-center justify-center">
-            <Sun className={`w-4 h-4 text-amber-500 absolute transition-all duration-300 ease-in-out ${
-              isDark ? 'opacity-100 rotate-0 scale-100' : 'opacity-0 -rotate-90 scale-0 pointer-events-none'
-            }`} />
-            <Moon className={`w-4 h-4 text-blue-600 dark:text-blue-400 absolute transition-all duration-300 ease-in-out ${
-              isDark ? 'opacity-0 rotate-90 scale-0 pointer-events-none' : 'opacity-100 rotate-0 scale-100'
-            }`} />
+          {/* Track Sun Icon (Left) */}
+          <div className="flex w-1/2 items-center justify-center pointer-events-none">
+            <Sun
+              className={`w-3.5 h-3.5 transition-all duration-200 ${
+                isDark
+                  ? 'text-slate-400 dark:text-slate-500 opacity-60'
+                  : 'text-amber-500 opacity-0'
+              }`}
+            />
           </div>
-          <span className="text-[11px] font-bold text-slate-700 dark:text-slate-200 hidden md:inline transition-colors duration-300">
-            {isDark ? 'Dark' : 'Light'}
-          </span>
-          <ChevronDown
-            onClick={(e) => {
-              e.stopPropagation();
-              setIsOpen(!isOpen);
-            }}
-            className={`w-3 h-3 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-transform duration-200 ${
-              isOpen ? 'rotate-180' : ''
+
+          {/* Track Moon Icon (Right) */}
+          <div className="flex w-1/2 items-center justify-center pointer-events-none">
+            <Moon
+              className={`w-3.5 h-3.5 transition-all duration-200 ${
+                isDark
+                  ? 'text-blue-400 opacity-0'
+                  : 'text-slate-400 dark:text-slate-500 opacity-70'
+              }`}
+            />
+          </div>
+
+          {/* Sliding Thumb Knob with active Sun/Moon icon */}
+          <span
+            className={`pointer-events-none absolute left-1 top-1 flex h-6 w-6 items-center justify-center rounded-full shadow-md transform transition-transform duration-200 ease-out ${
+              isDark
+                ? 'translate-x-8 bg-slate-950 text-blue-400 border border-slate-700 ring-1 ring-white/10'
+                : 'translate-x-0 bg-white text-amber-500 ring-1 ring-black/5'
             }`}
-          />
+          >
+            {isDark ? (
+              <Moon className="w-3.5 h-3.5 fill-blue-400/20 transform transition-transform duration-200 rotate-0" />
+            ) : (
+              <Sun className="w-3.5 h-3.5 fill-amber-400/20 transform transition-transform duration-200 rotate-0" />
+            )}
+          </span>
         </button>
       </div>
 
-      {/* Theme selection dropdown panel */}
+      {/* Theme selection dropdown panel (available via right-click) */}
       {isOpen && (
         <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl p-1.5 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
           <div className="text-[10px] font-black uppercase text-slate-400 dark:text-slate-500 px-2.5 py-1.5 tracking-wider">
