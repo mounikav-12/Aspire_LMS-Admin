@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useLmsData, getStudentEnrolledCourses } from '../../context/LmsDataContext';
 import { useToast } from '../../context/ToastContext';
 import { Button } from '../../components/common/Button';
@@ -107,6 +108,10 @@ export function StudentManagementPage() {
   const [isPinLoading, setIsPinLoading] = useState(false);
   const [hasCopiedPin, setHasCopiedPin] = useState(false);
   const [regeneratingId, setRegeneratingId] = useState(null);
+  const [pinAnchorRect, setPinAnchorRect] = useState(null);
+  const activeButtonRef = useRef(null);
+  const popoverRef = useRef(null);
+  const pinTimerRef = useRef(null);
   const [newStudentSuccessData, setNewStudentSuccessData] = useState(null);
   const [modalCopied, setModalCopied] = useState(false);
 
@@ -119,6 +124,19 @@ export function StudentManagementPage() {
       if (res?.success) {
         if (revealedPinStudentId === studentId) {
           setRevealedPinValue(res.newPin);
+          if (pinTimerRef.current) clearTimeout(pinTimerRef.current);
+          pinTimerRef.current = setTimeout(() => {
+            setRevealedPinStudentId((currentId) => {
+              if (currentId === studentId) {
+                setRevealedPinValue('');
+                setHasCopiedPin(false);
+                setPinAnchorRect(null);
+                activeButtonRef.current = null;
+                return null;
+              }
+              return currentId;
+            });
+          }, 6000);
         }
         addToast(`Generated new Access PIN for ${studentName}: ${res.newPin}`, 'success');
       } else {
@@ -213,15 +231,29 @@ export function StudentManagementPage() {
   };
 
   // Toggle PIN visibility — strictly matched by student ID to prevent mismatch
-  const handleTogglePin = async (student) => {
+  const handleTogglePin = async (student, event) => {
     if (!student || !student.id) return;
+
+    if (pinTimerRef.current) {
+      clearTimeout(pinTimerRef.current);
+      pinTimerRef.current = null;
+    }
 
     // If already revealed for this student, hide it
     if (revealedPinStudentId === student.id) {
       setRevealedPinStudentId(null);
       setRevealedPinValue('');
       setHasCopiedPin(false);
+      setPinAnchorRect(null);
+      activeButtonRef.current = null;
       return;
+    }
+
+    if (event?.currentTarget) {
+      activeButtonRef.current = event.currentTarget;
+      setPinAnchorRect(event.currentTarget.getBoundingClientRect());
+    } else if (activeButtonRef.current) {
+      setPinAnchorRect(activeButtonRef.current.getBoundingClientRect());
     }
 
     // If activePin is already present in state and decrypted, use it directly
@@ -229,6 +261,19 @@ export function StudentManagementPage() {
       setRevealedPinStudentId(student.id);
       setRevealedPinValue(student.activePin);
       setHasCopiedPin(false);
+
+      pinTimerRef.current = setTimeout(() => {
+        setRevealedPinStudentId((currentId) => {
+          if (currentId === student.id) {
+            setRevealedPinValue('');
+            setHasCopiedPin(false);
+            setPinAnchorRect(null);
+            activeButtonRef.current = null;
+            return null;
+          }
+          return currentId;
+        });
+      }, 6000);
       return;
     }
 
@@ -303,17 +348,71 @@ export function StudentManagementPage() {
     }
 
     // Auto-hide after 6 seconds for security
-    setTimeout(() => {
+    pinTimerRef.current = setTimeout(() => {
       setRevealedPinStudentId((currentId) => {
         if (currentId === student.id) {
           setRevealedPinValue('');
           setHasCopiedPin(false);
+          setPinAnchorRect(null);
+          activeButtonRef.current = null;
           return null;
         }
         return currentId;
       });
     }, 6000);
   };
+
+  // Sync popover position on scroll or resize & dismiss on outside click
+  useEffect(() => {
+    if (!revealedPinStudentId) return;
+
+    const updatePosition = () => {
+      if (activeButtonRef.current) {
+        const rect = activeButtonRef.current.getBoundingClientRect();
+        if (rect.bottom < 0 || rect.top > window.innerHeight) {
+          setRevealedPinStudentId(null);
+          setRevealedPinValue('');
+          setHasCopiedPin(false);
+          setPinAnchorRect(null);
+          activeButtonRef.current = null;
+        } else {
+          setPinAnchorRect(rect);
+        }
+      }
+    };
+
+    const handleClickOutside = (e) => {
+      if (
+        popoverRef.current &&
+        !popoverRef.current.contains(e.target) &&
+        activeButtonRef.current &&
+        !activeButtonRef.current.contains(e.target)
+      ) {
+        if (pinTimerRef.current) clearTimeout(pinTimerRef.current);
+        setRevealedPinStudentId(null);
+        setRevealedPinValue('');
+        setHasCopiedPin(false);
+        setPinAnchorRect(null);
+        activeButtonRef.current = null;
+      }
+    };
+
+    window.addEventListener('scroll', updatePosition, true);
+    window.addEventListener('resize', updatePosition);
+    document.addEventListener('mousedown', handleClickOutside);
+
+    return () => {
+      window.removeEventListener('scroll', updatePosition, true);
+      window.removeEventListener('resize', updatePosition);
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [revealedPinStudentId]);
+
+  useEffect(() => {
+    return () => {
+      if (pinTimerRef.current) clearTimeout(pinTimerRef.current);
+    };
+  }, []);
 
   const handleCopyPin = (pinValue, studentName) => {
     if (!pinValue) return;
@@ -478,6 +577,10 @@ export function StudentManagementPage() {
 
   const weekdayCount = students.filter(s => s.batch?.startsWith('A26W') && !s.batch?.startsWith('A26S')).length;
   const weekendCount = students.filter(s => s.batch?.startsWith('A26S') || s.batch?.startsWith('A26WE')).length;
+
+  const activePinStudent = revealedPinStudentId
+    ? filteredStudents.find((s) => s.id === revealedPinStudentId) || students.find((s) => s.id === revealedPinStudentId)
+    : null;
 
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
@@ -691,7 +794,8 @@ export function StudentManagementPage() {
                           {/* PIN Reveal Eye Button */}
                           <div className="relative">
                             <button
-                              onClick={() => handleTogglePin(student)}
+                              ref={revealedPinStudentId === student.id ? activeButtonRef : null}
+                              onClick={(e) => handleTogglePin(student, e)}
                               title={revealedPinStudentId === student.id ? `Hide Access PIN for ${student.name}` : `View Access PIN for ${student.name}`}
                               disabled={isPinLoading && revealedPinStudentId === student.id}
                               className={`group/pin relative p-1.5 rounded-lg transition-all duration-200 cursor-pointer ${
@@ -708,63 +812,6 @@ export function StudentManagementPage() {
                                 <Eye className="w-4 h-4" />
                               )}
                             </button>
-
-                            {/* Decrypted PIN Tooltip Popup */}
-                            {revealedPinStudentId === student.id && revealedPinValue && (
-                              <div className="absolute right-0 top-full mt-2 z-50 animate-in fade-in zoom-in-95 duration-200 text-left">
-                                <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white rounded-xl shadow-2xl shadow-slate-900/60 border border-slate-700/60 p-3 min-w-[220px]">
-                                  <div className="flex items-center justify-between gap-3">
-                                    <div className="flex items-center gap-2">
-                                      <div className="flex items-center justify-center w-7 h-7 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 shadow-md shadow-purple-500/30 flex-shrink-0">
-                                        <KeyRound className="w-3.5 h-3.5 text-white" />
-                                      </div>
-                                      <div>
-                                        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-0.5">Access PIN</p>
-                                        <p className="text-base font-black font-mono tracking-[0.25em] text-emerald-400 leading-none">{revealedPinValue}</p>
-                                      </div>
-                                    </div>
-                                    <div className="flex items-center gap-1">
-                                      <button
-                                        type="button"
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          handleCopyPin(revealedPinValue, student.name);
-                                        }}
-                                        title="Copy PIN"
-                                        className="p-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors cursor-pointer border border-slate-700/60 flex-shrink-0"
-                                      >
-                                        {hasCopiedPin ? (
-                                          <Check className="w-3.5 h-3.5 text-emerald-400" />
-                                        ) : (
-                                          <Copy className="w-3.5 h-3.5" />
-                                        )}
-                                      </button>
-                                      <button
-                                        type="button"
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          handleRegeneratePasskey(student.id, student.name);
-                                        }}
-                                        disabled={regeneratingId === student.id}
-                                        title="Regenerate PIN"
-                                        className="p-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors cursor-pointer border border-slate-700/60 flex-shrink-0"
-                                      >
-                                        <RefreshCw className={`w-3.5 h-3.5 ${regeneratingId === student.id ? 'animate-spin text-blue-400' : ''}`} />
-                                      </button>
-                                    </div>
-                                  </div>
-                                  <div className="mt-2 pt-1.5 border-t border-slate-700/50 flex items-center justify-between text-[8px] text-slate-400 font-medium">
-                                    <span className="flex items-center gap-1">
-                                      <span className="w-1 h-1 rounded-full bg-emerald-400 animate-pulse inline-block" />
-                                      Auto-hides in 6s
-                                    </span>
-                                    <span className="font-semibold text-slate-300 truncate max-w-[100px]">{student.name}</span>
-                                  </div>
-                                  {/* Tooltip Arrow */}
-                                  <div className="absolute -top-1.5 right-4 w-3 h-3 bg-slate-900 border-l border-t border-slate-700/60 transform rotate-45" />
-                                </div>
-                              </div>
-                            )}
                           </div>
 
                           <button
@@ -1026,6 +1073,85 @@ export function StudentManagementPage() {
         confirmText="Remove Student"
         type="danger"
       />
+
+      {/* Decrypted PIN Tooltip Popup Portal */}
+      {revealedPinStudentId && revealedPinValue && pinAnchorRect && activePinStudent && createPortal(
+        (() => {
+          const spaceBelow = window.innerHeight - pinAnchorRect.bottom;
+          const openUpwards = spaceBelow < 130;
+          return (
+            <div
+              ref={popoverRef}
+              style={{
+                position: 'fixed',
+                ...(openUpwards
+                  ? { bottom: `${Math.max(12, window.innerHeight - pinAnchorRect.top + 8)}px` }
+                  : { top: `${pinAnchorRect.bottom + 8}px` }),
+                right: `${Math.max(16, window.innerWidth - pinAnchorRect.right)}px`,
+                zIndex: 9999
+              }}
+              className="animate-in fade-in zoom-in-95 duration-200 text-left select-none pointer-events-auto"
+            >
+              <div className="relative bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white rounded-xl shadow-2xl shadow-slate-900/60 border border-slate-700/60 p-3 min-w-[220px]">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-center justify-center w-7 h-7 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 shadow-md shadow-purple-500/30 flex-shrink-0">
+                      <KeyRound className="w-3.5 h-3.5 text-white" />
+                    </div>
+                    <div>
+                      <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-0.5">Access PIN</p>
+                      <p className="text-base font-black font-mono tracking-[0.25em] text-emerald-400 leading-none">{revealedPinValue}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleCopyPin(revealedPinValue, activePinStudent.name);
+                      }}
+                      title="Copy PIN"
+                      className="p-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors cursor-pointer border border-slate-700/60 flex-shrink-0"
+                    >
+                      {hasCopiedPin ? (
+                        <Check className="w-3.5 h-3.5 text-emerald-400" />
+                      ) : (
+                        <Copy className="w-3.5 h-3.5" />
+                      )}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleRegeneratePasskey(activePinStudent.id, activePinStudent.name);
+                      }}
+                      disabled={regeneratingId === activePinStudent.id}
+                      title="Regenerate PIN"
+                      className="p-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors cursor-pointer border border-slate-700/60 flex-shrink-0"
+                    >
+                      <RefreshCw className={`w-3.5 h-3.5 ${regeneratingId === activePinStudent.id ? 'animate-spin text-blue-400' : ''}`} />
+                    </button>
+                  </div>
+                </div>
+                <div className="mt-2 pt-1.5 border-t border-slate-700/50 flex items-center justify-between text-[8px] text-slate-400 font-medium">
+                  <span className="flex items-center gap-1">
+                    <span className="w-1 h-1 rounded-full bg-emerald-400 animate-pulse inline-block" />
+                    Auto-hides in 6s
+                  </span>
+                  <span className="font-semibold text-slate-300 truncate max-w-[100px]">{activePinStudent.name}</span>
+                </div>
+                {/* Tooltip Arrow */}
+                {openUpwards ? (
+                  <div className="absolute -bottom-1.5 right-4 w-3 h-3 bg-slate-900 border-r border-b border-slate-700/60 transform rotate-45" />
+                ) : (
+                  <div className="absolute -top-1.5 right-4 w-3 h-3 bg-slate-900 border-l border-t border-slate-700/60 transform rotate-45" />
+                )}
+              </div>
+            </div>
+          );
+        })(),
+        document.body
+      )}
     </div>
   );
 }

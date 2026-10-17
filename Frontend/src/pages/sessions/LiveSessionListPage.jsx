@@ -1302,20 +1302,6 @@ export function LiveSessionListPage() {
                         value={formData.stageId || ''}
                         onChange={(e) => {
                           const newStageId = e.target.value;
-                          if (newStageId === '__NEW__') {
-                            setFormData({
-                              ...formData,
-                              stageId: '__NEW__',
-                              stageName: '',
-                              subtopicId: '',
-                              subtopicName: '',
-                              moduleId: '',
-                              moduleName: '',
-                              sessionTitle: '',
-                              topics: [{ id: `top-${Date.now()}-1`, title: '', description: '' }]
-                            });
-                            return;
-                          }
                           if (!newStageId) {
                             setFormData({
                               ...formData,
@@ -1348,8 +1334,7 @@ export function LiveSessionListPage() {
                           ...currentStagesList.map((stg) => ({
                             value: stg.id,
                             label: stg.title
-                          })),
-                          { value: '__NEW__', label: '+ Create New Stage...' }
+                          }))
                         ]}
                       />
                     ) : (
@@ -1360,39 +1345,16 @@ export function LiveSessionListPage() {
                         options={[{ value: '', label: 'Select Course Track first...' }]}
                       />
                     )}
-                    {formData.stageId === '__NEW__' && (
-                      <div className="mt-2">
-                        <Input
-                          label="New Stage Name"
-                          placeholder="e.g. Stage 2: Backend + DSA"
-                          value={formData.stageName}
-                          onChange={(e) => setFormData({ ...formData, stageName: e.target.value })}
-                          required
-                        />
-                      </div>
-                    )}
                   </div>
 
                   {/* Step 3: Milestone Subtopic / Module Track */}
                   <div className="bg-white/95 dark:bg-slate-900/90 p-2.5 sm:p-3 rounded-xl border border-purple-100/90 dark:border-slate-800 shadow-2xs">
-                    {formData.stageId && formData.stageId !== '__NEW__' ? (
+                    {formData.stageId ? (
                       <Select
                         label="3. Milestone Subtopic / Module Track"
                         value={formData.subtopicId || ''}
                         onChange={(e) => {
                           const newSubId = e.target.value;
-                          if (newSubId === '__NEW__') {
-                            setFormData({
-                              ...formData,
-                              subtopicId: '__NEW__',
-                              subtopicName: '',
-                              moduleId: '',
-                              moduleName: '',
-                              sessionTitle: '',
-                              topics: [{ id: `top-${Date.now()}-1`, title: '', description: '' }]
-                            });
-                            return;
-                          }
                           if (!newSubId) {
                             setFormData({
                               ...formData,
@@ -1421,8 +1383,7 @@ export function LiveSessionListPage() {
                           ...currentSubtopicsArr.map((sub, idx) => ({
                             value: sub.id,
                             label: `${idx + 1}. ${sub.title}`
-                          })),
-                          { value: '__NEW__', label: '+ Create New Subtopic...' }
+                          }))
                         ]}
                       />
                     ) : (
@@ -1433,42 +1394,16 @@ export function LiveSessionListPage() {
                         options={[{ value: '', label: 'Select Milestone Stage first...' }]}
                       />
                     )}
-                    {formData.subtopicId === '__NEW__' && currentSubtopicsArr.length > 0 && formData.stageId !== '__NEW__' && (
-                      <div className="mt-2">
-                        <Input
-                          label="New Subtopic Name"
-                          placeholder="e.g. Docker & Containerization"
-                          value={formData.subtopicName}
-                          onChange={(e) => setFormData({ ...formData, subtopicName: e.target.value })}
-                          required
-                        />
-                      </div>
-                    )}
                   </div>
 
                   {/* Step 4: Specific Topic Module */}
                   <div className="bg-white/95 dark:bg-slate-900/90 p-2.5 sm:p-3 rounded-xl border border-purple-100/90 dark:border-slate-800 shadow-2xs">
-                    {formData.subtopicId && formData.subtopicId !== '__NEW__' ? (
+                    {formData.subtopicId ? (
                       <Select
                         label="4. Specific Topic Module"
                         value={formData.moduleId || ''}
                         onChange={(e) => {
                           const newModId = e.target.value;
-                          if (newModId === '__NEW__') {
-                            setFormData({
-                              ...formData,
-                              moduleId: '__NEW__',
-                              moduleName: '',
-                              sessionTitle: '',
-                              topics: [{ id: `top-${Date.now()}-1`, title: '', description: '' }],
-                              description: '',
-                              meetingLink: '',
-                              instructor: '',
-                              time: ''
-                            });
-                            setEditingSession(null);
-                            return;
-                          }
                           if (!newModId) {
                             setFormData({
                               ...formData,
@@ -1535,8 +1470,7 @@ export function LiveSessionListPage() {
                           ...currentInnerModules.map((mod) => ({
                             value: mod.id || mod.title,
                             label: mod.title
-                          })),
-                          { value: '__NEW__', label: '+ Create New Module...' }
+                          }))
                         ]}
                       />
                     ) : (
@@ -1546,17 +1480,6 @@ export function LiveSessionListPage() {
                         disabled
                         options={[{ value: '', label: 'Select Milestone Subtopic first...' }]}
                       />
-                    )}
-                    {formData.moduleId === '__NEW__' && currentInnerModules.length > 0 && formData.subtopicId !== '__NEW__' && (
-                      <div className="mt-2">
-                        <Input
-                          label="New Module Title"
-                          placeholder="e.g. Microservices with Docker"
-                          value={formData.moduleName}
-                          onChange={(e) => setFormData({ ...formData, moduleName: e.target.value, sessionTitle: e.target.value })}
-                          required
-                        />
-                      </div>
                     )}
                   </div>
                 </div>

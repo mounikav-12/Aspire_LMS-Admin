@@ -8,7 +8,8 @@ import { Modal } from '../../components/common/Modal';
 import { ConfirmDialog } from '../../components/common/ConfirmDialog';
 import { Badge } from '../../components/common/Badge';
 import { EmptyState } from '../../components/common/EmptyState';
-import { DEFAULT_STAGES, getSubtopicsForStage, getInnerModulesForSubtopic, normalizeStagesList } from '../sessions/LiveSessionListPage';
+import { DEFAULT_STAGES, getSubtopicsForStage, getInnerModulesForSubtopic, normalizeStagesList, isPythonCourse } from '../sessions/LiveSessionListPage';
+import { isMatchingStage, SUBTOPIC_MODULE_MAP } from '../milestones/MilestonesRoadmapPage';
 import {
   FolderGit2,
   Plus,
@@ -30,6 +31,7 @@ import {
 export function RecordingLibraryPage() {
   const {
     courses = [],
+    allCourses = [],
     courseLessons = [],
     milestones,
     milestonesByBatch,
@@ -42,6 +44,74 @@ export function RecordingLibraryPage() {
   } = useLmsData();
   const { addToast } = useToast();
 
+  const effectiveCourses = (allCourses && allCourses.length > 0) ? allCourses : (courses || []);
+
+  const cleanId = (id) => String(id || '').replace(/-(w|s)$/i, '').trim().toLowerCase();
+  const cleanStr = (s) => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '').trim();
+
+  const isCoursePython = (c, courseId = '', courseName = '') => {
+    const text = `${c?.title || ''} ${c?.courseName || ''} ${c?.name || ''} ${courseName || ''} ${c?.id || ''} ${c?.courseId || ''} ${courseId || ''}`.toLowerCase();
+    return (
+      text.includes('python') ||
+      text.includes('1786624019154') ||
+      text.includes('ml-python') ||
+      (c && isPythonCourse(c))
+    );
+  };
+
+  const getStagesForCourse = (courseId, courseObj, courseName = '') => {
+    const isPy = isCoursePython(courseObj, courseId, courseName);
+
+    // 1. Course milestones in milestonesByBatch
+    const courseMilestones = courseId && courseId !== 'ALL' ? milestonesByBatch?.[courseId]?.stages : null;
+    if (Array.isArray(courseMilestones) && courseMilestones.length > 0) {
+      const list = isPy ? normalizeStagesList(courseMilestones) : courseMilestones;
+      return [...list].sort((a, b) => {
+        const aNum = parseInt(String(a.stageNumber || a.title || '').replace(/\D/g, ''), 10) || 0;
+        const bNum = parseInt(String(b.stageNumber || b.title || '').replace(/\D/g, ''), 10) || 0;
+        return aNum - bNum;
+      });
+    }
+
+    // 2. Course topics from courseObj
+    if (Array.isArray(courseObj?.topics) && courseObj.topics.length > 0) {
+      const list = isPy ? normalizeStagesList(courseObj.topics) : courseObj.topics;
+      return [...list].sort((a, b) => {
+        const aNum = parseInt(String(a.stageNumber || a.title || '').replace(/\D/g, ''), 10) || 0;
+        const bNum = parseInt(String(b.stageNumber || b.title || '').replace(/\D/g, ''), 10) || 0;
+        return aNum - bNum;
+      });
+    }
+
+    // 3. Batched milestones fallback
+    const batchMilestones = milestonesByBatch?.[activeBatchFilter]?.stages;
+    if (Array.isArray(batchMilestones) && batchMilestones.length > 0) {
+      const list = isPy ? normalizeStagesList(batchMilestones) : batchMilestones;
+      return [...list].sort((a, b) => {
+        const aNum = parseInt(String(a.stageNumber || a.title || '').replace(/\D/g, ''), 10) || 0;
+        const bNum = parseInt(String(b.stageNumber || b.title || '').replace(/\D/g, ''), 10) || 0;
+        return aNum - bNum;
+      });
+    }
+
+    // 4. Global milestones fallback
+    if (Array.isArray(milestones?.stages) && milestones.stages.length > 0) {
+      const list = isPy ? normalizeStagesList(milestones.stages) : milestones.stages;
+      return [...list].sort((a, b) => {
+        const aNum = parseInt(String(a.stageNumber || a.title || '').replace(/\D/g, ''), 10) || 0;
+        const bNum = parseInt(String(b.stageNumber || b.title || '').replace(/\D/g, ''), 10) || 0;
+        return aNum - bNum;
+      });
+    }
+
+    // 5. Default stages guarantee (ensures Python and any course always has stages)
+    return [...DEFAULT_STAGES].sort((a, b) => {
+      const aNum = parseInt(String(a.stageNumber || a.title || '').replace(/\D/g, ''), 10) || 0;
+      const bNum = parseInt(String(b.stageNumber || b.title || '').replace(/\D/g, ''), 10) || 0;
+      return aNum - bNum;
+    });
+  };
+
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCourseId, setSelectedCourseId] = useState(() => {
     try {
@@ -49,7 +119,7 @@ export function RecordingLibraryPage() {
       const courseIdParam = urlParams.get('courseId');
       if (courseIdParam) return courseIdParam;
     } catch (e) {}
-    return courses[0]?.id || '';
+    return '';
   });
   const [selectedStageId, setSelectedStageId] = useState('ALL');
   const [selectedSubtopicId, setSelectedSubtopicId] = useState('ALL');
@@ -58,6 +128,9 @@ export function RecordingLibraryPage() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [editingRecording, setEditingRecording] = useState(null);
   const [deletingRecording, setDeletingRecording] = useState(null);
+
+  const activeCourseId = selectedCourseId || effectiveCourses.find(c => isCoursePython(c))?.id || effectiveCourses[0]?.id || '';
+  const activeCourseObj = effectiveCourses.find((c) => c.id === activeCourseId) || effectiveCourses.find(c => isCoursePython(c)) || effectiveCourses[0];
 
   // Form State
   const [formData, setFormData] = useState({
@@ -78,32 +151,14 @@ export function RecordingLibraryPage() {
     moduleName: ''
   });
 
-  const activeCourseId = selectedCourseId || courses[0]?.id || '';
-  const activeCourseObj = courses.find((c) => c.id === activeCourseId) || courses[0];
-
-  const cleanId = (id) => String(id || '').replace(/-(w|s)$/i, '').trim().toLowerCase();
-  const cleanStr = (s) => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '').trim();
+  const isCurrentCoursePython = isCoursePython(activeCourseObj, activeCourseId);
 
   const activeStagesList = React.useMemo(() => {
-    const courseMilestones = activeCourseId && activeCourseId !== 'ALL' ? milestonesByBatch?.[activeCourseId]?.stages : null;
-    if (Array.isArray(courseMilestones) && courseMilestones.length > 0) {
-      return normalizeStagesList(courseMilestones);
-    }
-    const batchMilestones = milestonesByBatch?.[activeBatchFilter]?.stages;
-    if (Array.isArray(batchMilestones) && batchMilestones.length > 0) {
-      return normalizeStagesList(batchMilestones);
-    }
-    if (Array.isArray(milestones?.stages) && milestones.stages.length > 0) {
-      return normalizeStagesList(milestones.stages);
-    }
-    if (activeCourseObj?.topics && activeCourseObj.topics.length > 0) {
-      return normalizeStagesList(activeCourseObj.topics);
-    }
-    return DEFAULT_STAGES;
+    return getStagesForCourse(activeCourseId, activeCourseObj, activeCourseObj?.title);
   }, [activeCourseId, activeCourseObj, milestonesByBatch, activeBatchFilter, milestones]);
 
   const selectedStageObj = selectedStageId !== 'ALL' ? (activeStagesList.find(s => s.id === selectedStageId || isMatchingStage(s.id, selectedStageId)) || null) : null;
-  const subtopicsForStage = selectedStageObj ? getSubtopicsForStage(selectedStageObj) : [];
+  const subtopicsForStage = selectedStageObj ? getSubtopicsForStage(selectedStageObj, isCurrentCoursePython) : [];
 
   const selectedSubtopicObj = selectedSubtopicId !== 'ALL'
     ? (subtopicsForStage.find(sub =>
@@ -113,18 +168,17 @@ export function RecordingLibraryPage() {
         cleanStr(sub.title) === cleanStr(selectedSubtopicId)
       ) || null)
     : null;
-  const modulesForSubtopic = selectedSubtopicObj ? getInnerModulesForSubtopic(selectedSubtopicObj, courseLessons, selectedStageId) : [];
+  const modulesForSubtopic = selectedSubtopicObj ? getInnerModulesForSubtopic(selectedSubtopicObj, courseLessons, selectedStageId, isCurrentCoursePython, activeCourseId) : [];
 
   const handleOpenAddModal = () => {
-    const activeCourse = courses.find((c) => c.id === (selectedCourseId || courses[0]?.id));
-    const nextStages = activeCourse?.id
-      ? (milestonesByBatch?.[activeCourse.id]?.stages || activeCourse?.topics || [])
-      : [];
-    const initStage = selectedStageId !== 'ALL' ? selectedStageObj : nextStages[0];
-    const initSubs = initStage ? getSubtopicsForStage(initStage) : [];
-    const initSub = selectedSubtopicId !== 'ALL' ? selectedSubtopicObj : initSubs[0];
-    const initMods = initSub ? getInnerModulesForSubtopic(initSub, courseLessons, initStage?.id) : [];
-    const initMod = selectedModuleId !== 'ALL' ? initMods.find(m => (m.id || m.title) === selectedModuleId) : initMods[0];
+    const activeCourse = effectiveCourses.find((c) => c.id === (selectedCourseId || activeCourseId)) || effectiveCourses.find(c => isCoursePython(c)) || effectiveCourses[0];
+    const isPy = isCoursePython(activeCourse, activeCourse?.id, activeCourse?.title);
+    const nextStages = getStagesForCourse(activeCourse?.id, activeCourse, activeCourse?.title);
+    const initStage = selectedStageId !== 'ALL' ? (nextStages.find(s => s.id === selectedStageId || isMatchingStage(s.id, selectedStageId)) || nextStages[0]) : nextStages[0];
+    const initSubs = initStage ? getSubtopicsForStage(initStage, isPy) : [];
+    const initSub = selectedSubtopicId !== 'ALL' ? (initSubs.find(s => s.id === selectedSubtopicId || cleanId(s.id) === cleanId(selectedSubtopicId)) || initSubs[0]) : initSubs[0];
+    const initMods = initSub ? getInnerModulesForSubtopic(initSub, courseLessons, initStage?.id, isPy, activeCourse?.id) : [];
+    const initMod = selectedModuleId !== 'ALL' ? (initMods.find(m => (m.id || m.title) === selectedModuleId) || initMods[0]) : initMods[0];
 
     setFormData({
       title: initMod?.title || '',
@@ -150,6 +204,15 @@ export function RecordingLibraryPage() {
     e.preventDefault();
     e.stopPropagation();
     setEditingRecording(rec);
+    const recCourse = effectiveCourses.find((c) => c.id === (rec.courseId || rec.course_id)) || effectiveCourses.find(c => isCoursePython(c)) || effectiveCourses[0];
+    const isPy = isCoursePython(recCourse, rec.courseId || rec.course_id, rec.courseName);
+    const recStages = getStagesForCourse(rec.courseId || rec.course_id, recCourse, rec.courseName);
+    const foundStage = recStages.find(s => s.id === rec.stageId || s.title === rec.stageName || isMatchingStage(s.id, rec.stageId)) || recStages[0];
+    const recSubs = foundStage ? getSubtopicsForStage(foundStage, isPy) : [];
+    const foundSub = recSubs.find(st => st.id === rec.subtopicId || st.title === rec.subtopicName) || recSubs[0];
+    const recMods = foundSub ? getInnerModulesForSubtopic(foundSub, courseLessons, foundStage?.id, isPy, rec.courseId || rec.course_id) : [];
+    const foundMod = recMods.find(m => (m.id || m.title) === (rec.moduleId || rec.moduleName)) || recMods[0];
+
     setFormData({
       title: rec.title || '',
       duration: rec.duration || '',
@@ -158,14 +221,14 @@ export function RecordingLibraryPage() {
       thumbnail: rec.thumbnail || '',
       description: rec.description || '',
       instructions: rec.instructions || '',
-      courseId: rec.courseId || '',
-      courseName: rec.courseName || '',
-      stageId: rec.stageId || '',
-      stageName: rec.stageName || '',
-      subtopicId: rec.subtopicId || '',
-      subtopicName: rec.subtopicName || '',
-      moduleId: rec.moduleId || '',
-      moduleName: rec.moduleName || ''
+      courseId: rec.courseId || rec.course_id || recCourse?.id || '',
+      courseName: rec.courseName || recCourse?.title || '',
+      stageId: rec.stageId || foundStage?.id || '',
+      stageName: rec.stageName || foundStage?.title || '',
+      subtopicId: rec.subtopicId || foundSub?.id || '',
+      subtopicName: rec.subtopicName || foundSub?.title || '',
+      moduleId: rec.moduleId || foundMod?.id || '',
+      moduleName: rec.moduleName || foundMod?.title || ''
     });
   };
 
@@ -278,7 +341,7 @@ export function RecordingLibraryPage() {
             </label>
             <div className="relative">
               <select
-                value={selectedCourseId || courses[0]?.id || ''}
+                value={selectedCourseId || activeCourseId}
                 onChange={(e) => {
                   setSelectedCourseId(e.target.value);
                   setSelectedStageId('ALL');
@@ -287,7 +350,7 @@ export function RecordingLibraryPage() {
                 }}
                 className="px-3.5 py-2 pr-8 rounded-xl text-xs font-bold text-slate-800 bg-slate-50 border border-slate-200 hover:border-purple-300 focus:outline-none focus:border-purple-600 focus:bg-white transition-all shadow-2xs cursor-pointer appearance-none max-w-[240px] truncate"
               >
-                {courses.map((c) => (
+                {effectiveCourses.map((c) => (
                   <option key={c.id} value={c.id}>
                     {c.title}
                   </option>
@@ -508,24 +571,26 @@ export function RecordingLibraryPage() {
 
           {/* CASCADING MILESTONE CURRICULUM LOCATION MAPPING */}
           {(() => {
-            const modalCourseId = formData.courseId || selectedCourseId || courses[0]?.id || '';
-            const currentStagesList = modalCourseId
-              ? (milestonesByBatch?.[modalCourseId]?.stages ||
-                 courses.find((c) => c.id === modalCourseId)?.topics ||
-                 [])
-              : [];
+            const modalCourseId = formData.courseId || selectedCourseId || activeCourseId;
+            const modalCourseObj = effectiveCourses.find((c) => c.id === modalCourseId) || effectiveCourses.find(c => isCoursePython(c)) || effectiveCourses[0];
+            const isModalCoursePython = isCoursePython(modalCourseObj, modalCourseId, formData.courseName);
+            const currentStagesList = getStagesForCourse(modalCourseId, modalCourseObj, formData.courseName || modalCourseObj?.title);
 
             const currentStageObj = formData.stageId
-              ? currentStagesList.find((s) => s.id === formData.stageId || s.title === formData.stageName)
-              : null;
+              ? (currentStagesList.find((s) => s.id === formData.stageId || s.title === formData.stageName || isMatchingStage(s.id, formData.stageId)) || currentStagesList[0] || null)
+              : (currentStagesList[0] || null);
 
-            const currentSubtopicsArr = currentStageObj ? getSubtopicsForStage(currentStageObj) : [];
+            const currentSubtopicsArr = currentStageObj ? getSubtopicsForStage(currentStageObj, isModalCoursePython) : [];
 
             const currentSubtopicObj = formData.subtopicId
-              ? currentSubtopicsArr.find((st) => st.id === formData.subtopicId || st.title === formData.subtopicName)
-              : null;
+              ? (currentSubtopicsArr.find((st) => st.id === formData.subtopicId || st.title === formData.subtopicName) || currentSubtopicsArr[0] || null)
+              : (currentSubtopicsArr[0] || null);
 
-            const currentInnerModules = currentSubtopicObj ? getInnerModulesForSubtopic(currentSubtopicObj, courseLessons, currentStageObj?.id) : [];
+            const currentInnerModules = currentSubtopicObj ? getInnerModulesForSubtopic(currentSubtopicObj, courseLessons, currentStageObj?.id, isModalCoursePython, modalCourseId) : [];
+
+            const currentModObj = formData.moduleId
+              ? (currentInnerModules.find((m) => (m.id || m.title) === (formData.moduleId || formData.moduleName)) || currentInnerModules[0] || null)
+              : (currentInnerModules[0] || null);
 
             return (
               <div className="bg-gradient-to-br from-slate-50 via-purple-50/20 to-blue-50/40 p-3.5 sm:p-4 rounded-2xl border border-slate-200/80 shadow-2xs space-y-3">
@@ -545,17 +610,16 @@ export function RecordingLibraryPage() {
                   <div className="bg-white/95 p-2.5 sm:p-3 rounded-xl border border-purple-100/90 shadow-2xs">
                     <Select
                       label="1. Course Track"
-                      value={formData.courseId || ''}
+                      value={formData.courseId || modalCourseId}
                       onChange={(e) => {
                         const newCourseId = e.target.value;
-                        const courseObj = courses.find((c) => c.id === newCourseId);
-                        const nextStages = newCourseId
-                          ? (milestonesByBatch?.[newCourseId]?.stages || courseObj?.topics || [])
-                          : [];
+                        const courseObj = effectiveCourses.find((c) => c.id === newCourseId) || effectiveCourses.find(c => isCoursePython(c));
+                        const isCoursePy = isCoursePython(courseObj, newCourseId);
+                        const nextStages = getStagesForCourse(newCourseId, courseObj);
                         const firstStage = nextStages[0];
-                        const firstSubs = firstStage ? getSubtopicsForStage(firstStage) : [];
+                        const firstSubs = firstStage ? getSubtopicsForStage(firstStage, isCoursePy) : [];
                         const firstSub = firstSubs[0];
-                        const firstMods = firstSub ? getInnerModulesForSubtopic(firstSub, courseLessons, firstStage?.id) : [];
+                        const firstMods = firstSub ? getInnerModulesForSubtopic(firstSub, courseLessons, firstStage?.id, isCoursePy, newCourseId) : [];
                         const firstMod = firstMods[0];
 
                         setFormData({
@@ -574,7 +638,7 @@ export function RecordingLibraryPage() {
                       }}
                       options={[
                         { value: '', label: 'Select Course' },
-                        ...courses.map((c) => ({ value: c.id, label: c.title }))
+                        ...effectiveCourses.map((c) => ({ value: c.id, label: c.title }))
                       ]}
                       required
                     />
@@ -584,13 +648,13 @@ export function RecordingLibraryPage() {
                   <div className="bg-white/95 p-2.5 sm:p-3 rounded-xl border border-blue-100/90 shadow-2xs">
                     <Select
                       label="2. Milestone Stage"
-                      value={formData.stageId || ''}
+                      value={formData.stageId || currentStageObj?.id || ''}
                       onChange={(e) => {
                         const newStageId = e.target.value;
-                        const newStage = currentStagesList.find((s) => s.id === newStageId);
-                        const newSubs = newStage ? getSubtopicsForStage(newStage) : [];
+                        const newStage = currentStagesList.find((s) => s.id === newStageId || isMatchingStage(s.id, newStageId)) || currentStagesList[0];
+                        const newSubs = newStage ? getSubtopicsForStage(newStage, isModalCoursePython) : [];
                         const newSub = newSubs[0];
-                        const newMods = newSub ? getInnerModulesForSubtopic(newSub, courseLessons, newStage?.id) : [];
+                        const newMods = newSub ? getInnerModulesForSubtopic(newSub, courseLessons, newStage?.id, isModalCoursePython, modalCourseId) : [];
                         const newMod = newMods[0];
 
                         setFormData({
@@ -619,11 +683,11 @@ export function RecordingLibraryPage() {
                   <div className="bg-white/95 p-2.5 sm:p-3 rounded-xl border border-emerald-100/90 shadow-2xs">
                     <Select
                       label="3. Milestone Module"
-                      value={formData.subtopicId || ''}
+                      value={formData.subtopicId || currentSubtopicObj?.id || ''}
                       onChange={(e) => {
                         const newSubId = e.target.value;
-                        const foundSub = currentSubtopicsArr.find((st) => st.id === newSubId);
-                        const foundMods = foundSub ? getInnerModulesForSubtopic(foundSub, courseLessons, currentStageObj?.id) : [];
+                        const foundSub = currentSubtopicsArr.find((st) => st.id === newSubId) || currentSubtopicsArr[0];
+                        const foundMods = foundSub ? getInnerModulesForSubtopic(foundSub, courseLessons, currentStageObj?.id, isModalCoursePython, modalCourseId) : [];
                         const foundMod = foundMods[0];
 
                         setFormData({
@@ -650,10 +714,10 @@ export function RecordingLibraryPage() {
                   <div className="bg-white/95 p-2.5 sm:p-3 rounded-xl border border-purple-100/90 shadow-2xs">
                     <Select
                       label="4. Specific Module"
-                      value={formData.moduleId || ''}
+                      value={formData.moduleId || currentModObj?.id || ''}
                       onChange={(e) => {
                         const newModId = e.target.value;
-                        const foundMod = currentInnerModules.find((m) => (m.id || m.title) === newModId);
+                        const foundMod = currentInnerModules.find((m) => (m.id || m.title) === newModId) || currentInnerModules[0];
 
                         setFormData({
                           ...formData,
