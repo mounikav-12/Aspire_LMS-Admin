@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { useLmsData, getStudentEnrolledCourses } from '../../context/LmsDataContext';
+import { useLmsData, getStudentEnrolledCourses, getNextRegistrationId, getBatchPrefix } from '../../context/LmsDataContext';
 import { useToast } from '../../context/ToastContext';
 import { Button } from '../../components/common/Button';
 import { Input, Select } from '../../components/common/Input';
@@ -38,6 +38,24 @@ import {
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '../../lib/supabaseClient';
 import { generatePasskey, encryptPasskey, decryptPasskey, encryptPin, decryptPin, generatePin } from '../../utils/passkey-crypto';
+
+const resolveInitialBatch = (currentFilter, availableList = []) => {
+  if (currentFilter && currentFilter !== 'ALL') {
+    if (availableList.includes(currentFilter)) {
+      return currentFilter;
+    }
+    const upper = currentFilter.toUpperCase();
+    if (upper === 'WEEKEND' || upper === 'WEEKEND BATCH') {
+      const weekendMatch = availableList.find(b => b.startsWith('A26S') || b.startsWith('A26WE') || b.toUpperCase().includes('WEEKEND'));
+      if (weekendMatch) return weekendMatch;
+    }
+    if (upper === 'WEEKDAY' || upper === 'WEEKDAY BATCH') {
+      const weekdayMatch = availableList.find(b => b.startsWith('A26W') || b.toUpperCase().includes('WEEKDAY'));
+      if (weekdayMatch) return weekdayMatch;
+    }
+  }
+  return availableList[0] || 'A26W1';
+};
 
 export function AccessPinCell({ pin, studentName, studentId, onRegenerate, isRegenerating }) {
   const [copied, setCopied] = useState(false);
@@ -434,12 +452,15 @@ export function StudentManagementPage() {
   });
 
   const handleOpenAddModal = () => {
+    const initialBatch = resolveInitialBatch(batchFilter, batchList);
+    const initialRegId = getNextRegistrationId(initialBatch, students);
+
     setFormData({
       name: '',
       email: '',
       mobileNumber: '',
-      registrationId: '', // Auto-generated when admin selects a batch
-      batch: '',
+      registrationId: initialRegId,
+      batch: initialBatch,
       enrolledCourses: [],
       avatar: getInitialsAvatar('')
     });
@@ -448,12 +469,32 @@ export function StudentManagementPage() {
     setIsAddModalOpen(true);
   };
 
+  // Auto-sync registration ID when students load/update if modal is open in add mode
+  useEffect(() => {
+    if (isAddModalOpen && !editingStudent && (!formData.registrationId || formData.registrationId === 'A26W0001' || formData.registrationId === 'A26S0001')) {
+      const targetBatch = formData.batch || resolveInitialBatch(batchFilter, batchList);
+      if (targetBatch && students.length > 0) {
+        const nextId = getNextRegistrationId(targetBatch, students);
+        setFormData(prev => ({
+          ...prev,
+          batch: targetBatch,
+          registrationId: nextId
+        }));
+      }
+    }
+  }, [students, isAddModalOpen, editingStudent]);
+
   const handleBatchSelectChange = (e) => {
     const selectedBatch = e.target.value;
-    const isWeekend = selectedBatch.startsWith('A26S') || selectedBatch.startsWith('A26WE');
-    const prefix = isWeekend ? 'A26S' : 'A26W';
-    const batchCount = students.filter(s => s.batch === selectedBatch).length + 1;
-    const autoRegId = `${prefix}${String(batchCount).padStart(4, '0')}`;
+    if (editingStudent) {
+      setFormData(prev => ({
+        ...prev,
+        batch: selectedBatch
+      }));
+      return;
+    }
+
+    const autoRegId = getNextRegistrationId(selectedBatch, students);
     setFormData(prev => ({
       ...prev,
       batch: selectedBatch,
@@ -482,8 +523,20 @@ export function StudentManagementPage() {
 
   const handleSaveStudent = async (e) => {
     e.preventDefault();
-    if (!formData.name || !formData.email || !formData.registrationId) {
+    const trimmedRegId = (formData.registrationId || '').trim();
+    if (!formData.name || !formData.email || !trimmedRegId) {
       addToast('Please provide student name, email, and registration ID', 'error');
+      return;
+    }
+
+    const duplicateReg = students.find((s) => {
+      if (editingStudent && s.id === editingStudent.id) return false;
+      const sReg = (s.registrationId || s.registration_id || '').trim().toUpperCase();
+      return sReg && sReg === trimmedRegId.toUpperCase();
+    });
+
+    if (duplicateReg) {
+      addToast(`Registration ID "${trimmedRegId}" is already registered to ${duplicateReg.name}`, 'error');
       return;
     }
 
@@ -897,10 +950,13 @@ export function StudentManagementPage() {
               label="Batch Allocation"
               value={formData.batch}
               onChange={handleBatchSelectChange}
-              options={batchList.map((b) => ({
-                value: b,
-                label: b.startsWith('A26W') ? `${b} (Weekday)` : `${b} (Weekend)`
-              }))}
+              options={batchList.map((b) => {
+                const isWeekend = b.startsWith('A26S') || b.startsWith('A26WE') || b.toUpperCase().includes('WEEKEND');
+                return {
+                  value: b,
+                  label: `${b} (${isWeekend ? 'Weekend' : 'Weekday'})`
+                };
+              })}
             />
 
             <Input
@@ -908,6 +964,23 @@ export function StudentManagementPage() {
               placeholder="e.g. A26W0001 or A26S0001"
               value={formData.registrationId}
               onChange={(e) => setFormData({ ...formData, registrationId: e.target.value })}
+              helperText={
+                editingStudent ? undefined : (
+                  <span className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 font-medium">
+                    <span>Auto-assigned consecutively</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const nextId = getNextRegistrationId(formData.batch, students);
+                        setFormData(prev => ({ ...prev, registrationId: nextId }));
+                      }}
+                      className="text-[11px] text-purple-600 dark:text-purple-400 hover:underline font-semibold cursor-pointer"
+                    >
+                      Reset to Auto
+                    </button>
+                  </span>
+                )
+              }
               required
             />
           </div>

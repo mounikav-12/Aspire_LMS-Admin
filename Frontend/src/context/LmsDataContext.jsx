@@ -25,6 +25,68 @@ export const DEFAULT_WEEKDAY_BATCHES = ['A26W1', 'A26W2', 'A26W3'];
 export const DEFAULT_WEEKEND_BATCHES = ['A26S1', 'A26S2', 'A26S3'];
 export const INITIAL_BATCH_LIST = [...DEFAULT_WEEKDAY_BATCHES, ...DEFAULT_WEEKEND_BATCHES];
 
+export const getBatchPrefix = (batchCode) => {
+  if (!batchCode) return '';
+  const clean = String(batchCode).trim().toUpperCase();
+  if (clean.startsWith('A26S') || clean.startsWith('A26WE') || clean.includes('WEEKEND')) {
+    return 'A26S';
+  }
+  if (clean.startsWith('A26W') || clean.includes('WEEKDAY')) {
+    return 'A26W';
+  }
+  return clean.replace(/\d+$/, '');
+};
+
+export const getNextRegistrationId = (targetBatch, studentList = []) => {
+  let prefix = getBatchPrefix(targetBatch);
+  if (!prefix) {
+    prefix = 'A26W';
+  }
+  const upperPrefix = prefix.toUpperCase();
+  const numbers = [];
+
+  (studentList || []).forEach((s) => {
+    if (!s) return;
+    const regId = String(s.registrationId || s.registration_id || '').trim().toUpperCase();
+    if (!regId) return;
+
+    if (regId.startsWith(upperPrefix)) {
+      const trailingMatch = regId.slice(upperPrefix.length).match(/(\d+)$/);
+      if (trailingMatch) {
+        const num = parseInt(trailingMatch[1], 10);
+        if (!isNaN(num) && num > 0) numbers.push(num);
+      }
+    } else {
+      const sBatch = String(s.batch || '').trim().toUpperCase();
+      const sPrefix = getBatchPrefix(sBatch);
+      const isOtherPrefix = regId.startsWith('A26S') || regId.startsWith('A26W');
+
+      if (!isOtherPrefix && sPrefix === upperPrefix) {
+        const trailingMatch = regId.match(/(\d+)$/);
+        if (trailingMatch) {
+          const num = parseInt(trailingMatch[1], 10);
+          if (!isNaN(num) && num > 0) numbers.push(num);
+        }
+      }
+    }
+  });
+
+  const maxNum = numbers.length > 0 ? Math.max(...numbers) : 0;
+  let candidateNum = maxNum + 1;
+  let candidateId = prefix + String(candidateNum).padStart(4, '0');
+
+  const existingIdSet = new Set(
+    (studentList || []).map((s) => String(s?.registrationId || s?.registration_id || '').trim().toUpperCase())
+  );
+
+  while (existingIdSet.has(candidateId.toUpperCase())) {
+    candidateNum++;
+    candidateId = prefix + String(candidateNum).padStart(4, '0');
+  }
+
+  return candidateId;
+};
+
 export const getStudentEnrolledCourses = (student, coursesList = []) => {
   if (!student) return [];
 
@@ -5582,6 +5644,9 @@ export function LmsDataProvider({ children }) {
     const encryptedPin = await encryptPasskey(initialPasskey);
     const nowIso = new Date().toISOString();
 
+    const cleanBatch = studentData.batch || 'A26W1';
+    const cleanReg = (studentData.registrationId || studentData.registration_id || '').trim() || getNextRegistrationId(cleanBatch, students);
+
     const newStudent = {
       id: `std-${Date.now()}`,
       status: 'Active',
@@ -5589,6 +5654,9 @@ export function LmsDataProvider({ children }) {
       enrolledCourses: studentData.enrolledCourses || ['crs-1786624019154-w'],
       unlockedStages: ['stg-1'],
       ...studentData,
+      batch: cleanBatch,
+      registrationId: cleanReg,
+      registration_id: cleanReg,
       mobileNumber: cleanMobile,
       avatar: cleanAvatar,
       accessPin: encryptedPin,
@@ -5790,11 +5858,42 @@ export function LmsDataProvider({ children }) {
 
   // --- MILESTONE LOCKS ---
   const setLessonLock = async (lockData) => {
-    const lockId = `lock-${lockData.lesson_id}-${lockData.batch_code}`;
-    const unlockDatetime = lockData.unlock_date && lockData.unlock_time
-      ? new Date(`${lockData.unlock_date}T${lockData.unlock_time}:00`).toISOString()
-      : (lockData.unlock_date ? new Date(`${lockData.unlock_date}T00:00:00`).toISOString() : null);
-    const isLocked = unlockDatetime ? Date.now() < new Date(unlockDatetime).getTime() : false;
+    if (!lockData || !lockData.lesson_id) return;
+
+    const batchCode = lockData.batch_code || 'ALL';
+    const lockId = `lock-${lockData.lesson_id}-${batchCode}`;
+
+    // Normalize unlock_date: Postgres DATE column rejects empty strings. Must be valid YYYY-MM-DD or null.
+    let cleanDate = null;
+    if (typeof lockData.unlock_date === 'string' && lockData.unlock_date.trim()) {
+      const trimmedDate = lockData.unlock_date.trim();
+      if (!isNaN(new Date(trimmedDate).getTime())) {
+        cleanDate = trimmedDate;
+      }
+    }
+
+    // Normalize unlock_time: string or null
+    const cleanTime = (typeof lockData.unlock_time === 'string' && lockData.unlock_time.trim())
+      ? lockData.unlock_time.trim()
+      : null;
+
+    // Normalize unlock_datetime: TIMESTAMPTZ column must be valid ISO timestamp or null
+    let unlockDatetime = null;
+    if (cleanDate && cleanTime) {
+      const dt = new Date(`${cleanDate}T${cleanTime}:00`);
+      unlockDatetime = !isNaN(dt.getTime()) ? dt.toISOString() : null;
+    } else if (cleanDate) {
+      const dt = new Date(`${cleanDate}T00:00:00`);
+      unlockDatetime = !isNaN(dt.getTime()) ? dt.toISOString() : null;
+    } else if (lockData.unlock_datetime) {
+      const dt = new Date(lockData.unlock_datetime);
+      unlockDatetime = !isNaN(dt.getTime()) ? dt.toISOString() : null;
+    }
+
+    // Determine is_locked state
+    const isLocked = lockData.is_locked !== undefined
+      ? Boolean(lockData.is_locked)
+      : (unlockDatetime ? Date.now() < new Date(unlockDatetime).getTime() : false);
 
     // Ensure course_id satisfies foreign key constraint in Supabase
     let validCourseId = lockData.course_id;
@@ -5805,19 +5904,26 @@ export function LmsDataProvider({ children }) {
 
     const lockRecord = {
       id: lockId,
-      is_locked: isLocked,
-      updated_at: new Date().toISOString(),
+      course_id: validCourseId,
+      stage_id: lockData.stage_id || '',
+      module_id: lockData.module_id || '',
+      lesson_id: lockData.lesson_id,
+      batch_code: batchCode,
+      unlock_date: cleanDate,
+      unlock_time: cleanTime,
       unlock_datetime: unlockDatetime,
-      ...lockData,
-      course_id: validCourseId
+      is_locked: isLocked,
+      updated_at: new Date().toISOString()
     };
+
     setMilestoneLocks(prev => {
-      const existing = prev.findIndex(l => l.lesson_id === lockData.lesson_id && l.batch_code === lockData.batch_code);
+      const existing = prev.findIndex(l => l.lesson_id === lockData.lesson_id && l.batch_code === batchCode);
       if (existing >= 0) {
         return prev.map((l, i) => i === existing ? { ...l, ...lockRecord } : l);
       }
       return [...prev, lockRecord];
     });
+
     try {
       const { error } = await supabase.from('milestone_locks').upsert([lockRecord], { onConflict: 'lesson_id,batch_code' });
       if (error) console.error('Supabase lock upsert error:', error.message);
@@ -5838,6 +5944,9 @@ export function LmsDataProvider({ children }) {
                  milestoneLocks.find(l => l.lesson_id === itemId && l.batch_code === 'ALL') ||
                  (batchCode === 'ALL' ? milestoneLocks.find(l => l.lesson_id === itemId) : null);
     if (!lock) return { isLocked: false, unlockDateTime: null, label: 'UNLOCKED', unlockDate: null, unlockTime: null };
+    if (lock.is_locked === false) {
+      return { isLocked: false, unlockDateTime: lock.unlock_datetime, label: 'UNLOCKED', unlockDate: lock.unlock_date, unlockTime: lock.unlock_time };
+    }
     const now = new Date();
     const unlockTime = lock.unlock_datetime ? new Date(lock.unlock_datetime) : null;
     if (unlockTime && now >= unlockTime) {

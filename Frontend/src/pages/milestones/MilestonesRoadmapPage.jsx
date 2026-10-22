@@ -755,8 +755,8 @@ export function MilestonesRoadmapPage() {
       course_id: targetCourseId,
       stage_id: stageId || lesson.stage_id || activeSubtopic?.stageId || '',
       module_id: moduleId || lesson.module_id || activeSubtopic?.id || '',
-      unlock_date: '',
-      unlock_time: '',
+      unlock_date: null,
+      unlock_time: null,
       unlock_datetime: null,
       is_locked: true
     });
