@@ -1554,7 +1554,7 @@ export function AssessmentListPage() {
             const codingCount = asm.codingQuestions?.length || asm.codingCount || 0;
             const totalQ = asm.totalQuestions || mcqCount + codingCount;
             const isQuizItem = asm.evalType === 'quiz' || asm.category?.toLowerCase().includes('quiz') || asm.title?.toLowerCase().includes('quiz');
-            const typeBadgeLabel = isQuizItem ? 'MODULE QUIZ' : codingCount > 0 ? 'CODING ASSESSMENT' : 'MCQ ASSESSMENT';
+            const typeBadgeLabel = isQuizItem ? 'WEEKLY ASSESSMENT' : codingCount > 0 ? 'CODING ASSESSMENT' : 'MCQ ASSESSMENT';
             const lockStatus = getItemLockStatus ? getItemLockStatus(asm.id, activeBatchFilter) : null;
 
             return (
@@ -1681,7 +1681,7 @@ export function AssessmentListPage() {
                     onClick={() => handleOpenEditModal(asm)}
                     className="inline-flex items-center gap-1 font-extrabold text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300 transition-all group-hover:translate-x-1 cursor-pointer"
                   >
-                    <span>View {isQuizItem ? 'Quiz' : 'Assessment'} Details</span>
+                    <span>View {isQuizItem ? 'Weekly Assessment' : 'Assessment'} Details</span>
                     <ChevronRight className="w-3.5 h-3.5" />
                   </button>
                 </div>
@@ -1713,8 +1713,8 @@ export function AssessmentListPage() {
         }}
         title={
           editingAssessment
-            ? `Edit ${editingAssessment.evalType === 'quiz' ? 'Quiz' : 'Assessment'} & Questions`
-            : `Create ${activeMainTab === 'QUIZZES' ? 'Quiz' : 'Assessment'}`
+            ? `Edit ${editingAssessment.evalType === 'quiz' ? 'Weekly Assessment' : 'Assessment'} & Questions`
+            : `Create ${activeMainTab === 'QUIZZES' ? 'Weekly Assessment' : 'Assessment'}`
         }
         subtitle="Configure parameters, MCQ questions, and coding task prompts"
         maxWidth="max-w-6xl"
@@ -1759,7 +1759,7 @@ export function AssessmentListPage() {
                 }}
                 options={[
                   { value: 'assessment', label: 'Practice Assessment' },
-                  { value: 'quiz', label: 'Module Quiz' }
+                  { value: 'quiz', label: 'Weekly Assessment' }
                 ]}
               />
             </div>

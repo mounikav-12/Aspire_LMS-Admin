@@ -1544,8 +1544,8 @@ export function MilestonesRoadmapPage() {
       iconName = 'Building2';
       iconBg = 'bg-emerald-600 text-white';
       btnStyle = 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm shadow-emerald-500/30';
-    } else if (itemFormData.type === 'QUIZ') {
-      typeColor = 'bg-purple-100 text-purple-800 border-purple-200';
+    } else if (itemFormData.type === 'QUIZ' || itemFormData.type === 'WEEKLY ASSESSMENT') {
+      typeColor = 'bg-purple-100 dark:bg-purple-950/70 text-purple-800 dark:text-purple-300 border-purple-200 dark:border-purple-800/60';
       iconName = 'HelpCircle';
       iconBg = 'bg-purple-600 text-white';
       btnStyle = 'bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30';
@@ -2303,12 +2303,12 @@ export function MilestonesRoadmapPage() {
                           id: `item-quiz-${qz.id}`,
                           quizId: qz.id,
                           assessmentId: qz.id,
-                          type: 'QUIZ',
+                          type: 'WEEKLY ASSESSMENT',
                           typeColor: 'bg-purple-100 dark:bg-purple-950/70 text-purple-800 dark:text-purple-300 border-purple-200 dark:border-purple-800/60',
                           iconName: 'HelpCircle',
                           iconBg: 'bg-purple-600 text-white',
                           title: qz.title,
-                          actionText: 'TAKE QUIZ',
+                          actionText: 'START',
                           url: '/assessments',
                           btnStyle: 'bg-purple-600 hover:bg-purple-700 text-white shadow-sm shadow-purple-500/30',
                           dueDate: qz.dueDate || '2026-08-30',
@@ -2390,7 +2390,7 @@ export function MilestonesRoadmapPage() {
                         ...autoMatchedCodingQuestions.filter(cq => !rawNonLive.some(it => it.questionId === cq.questionId || it.id === cq.id || (it.type?.includes('CODING') && cleanNorm(it.title) === cleanNorm(cq.title)))),
                         ...autoMatchedProjects.filter(p => !rawNonLive.some(it => it.projectId === p.projectId || it.id === p.id || (it.type === 'PROJECT' && cleanNorm(it.title) === cleanNorm(p.title)))),
                         ...autoMatchedAssessments.filter(asm => !rawNonLive.some(it => it.assessmentId === asm.assessmentId || it.id === asm.id || (it.type === 'ASSESSMENT' && cleanNorm(it.title) === cleanNorm(asm.title)))),
-                        ...autoMatchedQuizzes.filter(qz => !rawNonLive.some(it => it.quizId === qz.quizId || it.id === qz.id || (it.type === 'QUIZ' && cleanNorm(it.title) === cleanNorm(qz.title))))
+                        ...autoMatchedQuizzes.filter(qz => !rawNonLive.some(it => it.quizId === qz.quizId || it.id === qz.id || ((it.type === 'QUIZ' || it.type === 'WEEKLY ASSESSMENT') && cleanNorm(it.title) === cleanNorm(qz.title))))
                       ];
 
                       return (
@@ -2760,7 +2760,7 @@ export function MilestonesRoadmapPage() {
                                                     item.typeColor || 'bg-purple-100 text-purple-700 border-purple-200'
                                                   }`}
                                                 >
-                                                  {item.type}
+                                                  {item.type === 'QUIZ' ? 'WEEKLY ASSESSMENT' : item.type}
                                                 </span>
                                                 {item.difficulty && (
                                                   <span
@@ -2799,18 +2799,23 @@ export function MilestonesRoadmapPage() {
                                           </div>
 
                                           <div className="flex items-center gap-1.5">
-                                            <button
-                                              onClick={() =>
-                                                handleActionClick(item.actionText, item.title, item.url, isModLocked, modSched, item.id)
-                                              }
-                                              className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 transition-all cursor-pointer ${
-                                                item.btnStyle || 'bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30'
-                                              }`}
-                                              title={`${item.actionText} ${item.title}`}
-                                            >
-                                              <span>{item.actionText}</span>
-                                              <ExternalLink className="w-3 h-3" />
-                                            </button>
+                                            {(() => {
+                                              const actionLabel = item.actionText === 'TAKE QUIZ' ? 'START' : (item.actionText || 'START');
+                                              return (
+                                                <button
+                                                  onClick={() =>
+                                                    handleActionClick(actionLabel, item.title, item.url, isModLocked, modSched, item.id)
+                                                  }
+                                                  className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 transition-all cursor-pointer ${
+                                                    item.btnStyle || 'bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/30'
+                                                  }`}
+                                                  title={`${actionLabel} ${item.title}`}
+                                                >
+                                                  <span>{actionLabel}</span>
+                                                  <ExternalLink className="w-3 h-3" />
+                                                </button>
+                                              );
+                                            })()}
                                           </div>
                                         </div>
                                       );
@@ -3260,7 +3265,7 @@ export function MilestonesRoadmapPage() {
                 <div>
                   <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Resource Category</label>
                   <select
-                    value={itemFormData.type}
+                    value={itemFormData.type === 'QUIZ' ? 'WEEKLY ASSESSMENT' : itemFormData.type}
                     onChange={(e) => {
                       const typeVal = e.target.value;
                       let act = 'JOIN';
@@ -3268,7 +3273,7 @@ export function MilestonesRoadmapPage() {
                       if (typeVal === 'ASSESSMENT') act = 'TAKE';
                       if (typeVal === 'CODING CHALLENGE') act = 'SOLVE';
                       if (typeVal === 'PROJECT') act = 'VIEW';
-                      if (typeVal === 'QUIZ') act = 'TAKE QUIZ';
+                      if (typeVal === 'WEEKLY ASSESSMENT' || typeVal === 'QUIZ') act = 'START';
                       setItemFormData({ ...itemFormData, type: typeVal, actionText: act });
                     }}
                     className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-purple-500 font-semibold bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 cursor-pointer"
@@ -3277,7 +3282,7 @@ export function MilestonesRoadmapPage() {
                     <option value="PRACTICAL LAB">PRACTICAL LAB</option>
                     <option value="CODING CHALLENGE">CODING CHALLENGE</option>
                     <option value="ASSESSMENT">ASSESSMENT</option>
-                    <option value="QUIZ">QUIZ</option>
+                    <option value="WEEKLY ASSESSMENT">WEEKLY ASSESSMENT</option>
                     <option value="PROJECT">PROJECT</option>
                   </select>
                 </div>
