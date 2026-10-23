@@ -385,3 +385,11 @@ ON CONFLICT (id) DO NOTHING;
 
 
 
+
+-- =========================================================
+-- DYNAMIC PROJECT DUE DATES MIGRATION (Non-destructive)
+-- =========================================================
+ALTER TABLE public.projects ADD COLUMN IF NOT EXISTS batch_due_dates JSONB DEFAULT '{}'::jsonb;
+ALTER TABLE public.projects ADD COLUMN IF NOT EXISTS student_due_dates JSONB DEFAULT '{}'::jsonb;
+ALTER TABLE public.projects ADD COLUMN IF NOT EXISTS deadline_duration INT DEFAULT NULL;
+ALTER TABLE public.projects ADD COLUMN IF NOT EXISTS unlock_timestamp TIMESTAMPTZ DEFAULT NULL;

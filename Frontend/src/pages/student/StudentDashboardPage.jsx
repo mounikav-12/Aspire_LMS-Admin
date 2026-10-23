@@ -26,9 +26,10 @@ import {
   Brain
 } from 'lucide-react';
 import { getScheduleInfo } from '../../utils/milestoneUtils';
+import { getEffectiveProjectDueDate } from '../../utils/projectDeadlineUtils';
 
 export function StudentDashboardPage() {
-  const { courses, liveSessions, jobs, recordings, projects, milestones, rewards = [], refreshData, isSupabaseConnected } = useLmsData();
+  const { courses, liveSessions, jobs, recordings, projects, milestones, rewards = [], refreshData, isSupabaseConnected, activeBatchFilter, milestoneLocks = [] } = useLmsData();
   const { addToast } = useToast();
 
   const [isSyncing, setIsSyncing] = useState(false);
@@ -127,7 +128,24 @@ export function StudentDashboardPage() {
         };
       }),
       courses: courses.map((c) => ({ id: c.id, title: c.title, category: c.category, topics_count: c.topics?.length || 0 })),
-      projects: (projects || []).map((p) => ({ id: p.id, title: p.title, type: p.type || 'Mini', category: p.category, difficulty: p.difficulty, due_date: p.dueDate, tech_stack: p.techStack })),
+      projects: (projects || []).map((p) => {
+        const effDue = getEffectiveProjectDueDate(p, activeBatchFilter || 'Weekday Batch', null, milestoneLocks);
+        return {
+          id: p.id,
+          title: p.title,
+          type: p.type || 'Mini',
+          category: p.category,
+          difficulty: p.difficulty,
+          due_date: effDue.dueDate || p.dueDate,
+          formatted_due_date: effDue.formattedDueDate,
+          due_datetime: effDue.dueDateTime,
+          unlock_date: effDue.unlockDate,
+          remaining_time: effDue.remainingText,
+          is_overdue: effDue.isOverdue,
+          duration_days: effDue.durationDays,
+          tech_stack: p.techStack
+        };
+      }),
       live_sessions: liveSessions.map((s) => ({ id: s.id, title: s.sessionTitle, meeting_link: s.meetingLink, schedule: s.date })),
       job_openings: jobs.map((j) => ({
         id: j.id,
@@ -340,6 +358,74 @@ export function StudentDashboardPage() {
                       </div>
                     );
                   })}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Dynamic Project Deadlines & Release Schedule Feed */}
+      <div className="bg-white rounded-3xl border border-emerald-200/80 p-6 shadow-md shadow-emerald-600/5 space-y-4">
+        <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-2xl bg-emerald-100 text-emerald-700">
+              <FolderGit2 className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-base font-black text-slate-900">
+                Active Projects & Dynamic Deadlines Feed ({activeBatchFilter || 'All Batches'})
+              </h3>
+              <p className="text-xs text-slate-500 font-medium mt-0.5">
+                Automatically calculated from batch release timestamps (Mini: 3 days, Major: 5 days, Advanced: 10 days).
+              </p>
+            </div>
+          </div>
+          <Badge variant="emerald">GET /v1/student-feed#projects</Badge>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {(projects || []).map((proj) => {
+            const effDue = getEffectiveProjectDueDate(proj, activeBatchFilter || 'Weekday Batch', null, milestoneLocks);
+            return (
+              <div
+                key={proj.id}
+                className="p-4 rounded-2xl border border-slate-200/80 bg-slate-50/70 hover:bg-white hover:border-emerald-300 hover:shadow-md transition-all space-y-3"
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <span className="text-[10px] font-black uppercase text-emerald-800 bg-emerald-100 px-2.5 py-0.5 rounded-full">
+                    {proj.type || 'Mini'} Project
+                  </span>
+                  {effDue.isOverdue ? (
+                    <span className="text-[10px] font-bold text-rose-700 bg-rose-50 border border-rose-200 px-2 py-0.5 rounded-full flex items-center gap-1">
+                      <Clock className="w-2.5 h-2.5 text-rose-600" />
+                      <span>{effDue.remainingText || 'Overdue'}</span>
+                    </span>
+                  ) : effDue.remainingText ? (
+                    <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full flex items-center gap-1">
+                      <Clock className="w-2.5 h-2.5 text-emerald-600" />
+                      <span>{effDue.remainingText}</span>
+                    </span>
+                  ) : (
+                    <span className="text-[10px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">
+                      On Track
+                    </span>
+                  )}
+                </div>
+
+                <div>
+                  <h4 className="text-sm font-black text-slate-900 leading-snug">{proj.title}</h4>
+                  <p className="text-xs text-slate-500 font-medium mt-0.5">{proj.category}</p>
+                </div>
+
+                <div className="pt-2 border-t border-slate-200/60 flex items-center justify-between text-xs">
+                  <div className="flex items-center gap-1 text-slate-600 font-semibold">
+                    <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                    <span>Due: {effDue.formattedDueDate || proj.dueDate || 'No date'}</span>
+                  </div>
+                  <span className="text-[10px] text-slate-400 font-mono">
+                    {effDue.durationDays}d window
+                  </span>
                 </div>
               </div>
             );

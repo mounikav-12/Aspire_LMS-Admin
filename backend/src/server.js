@@ -3,6 +3,15 @@ const cors = require('cors');
 require('dotenv').config();
 const { supabase } = require('./config/supabase');
 const { generatePasskey, encryptPasskey, decryptPasskey } = require('./utils/passkey-crypto');
+const {
+  DEFAULT_PROJECT_DEADLINES,
+  getDefaultDeadlineDays,
+  validateDeadlineDays,
+  calculateDueDate,
+  calculateRemainingTime,
+  recordBatchUnlock,
+  getEffectiveProjectDueDate
+} = require('./utils/projectDeadlineUtils');
 
 const app = express();
 const PORT = process.env.PORT || 5001;
@@ -767,7 +776,11 @@ const formatDbProject = (payload) => {
     requirements: payload.requirements || [],
     steps: payload.steps || [],
     rubric: payload.rubric || [],
-    mentorTip: payload.mentorTip || ''
+    mentorTip: payload.mentorTip || '',
+    batchDueDates: payload.batchDueDates || payload.batch_due_dates || {},
+    studentDueDates: payload.studentDueDates || payload.student_due_dates || {},
+    deadlineDuration: payload.deadlineDuration !== undefined ? payload.deadlineDuration : (payload.deadline_duration !== undefined ? payload.deadline_duration : null),
+    unlockTimestamp: payload.unlockTimestamp || payload.unlock_timestamp || null
   };
 
   const techStack = Array.isArray(payload.techStack)
@@ -813,9 +826,43 @@ const formatDbProject = (payload) => {
 
 app.get('/api/projects', async (req, res) => {
   try {
+    const { batch, student_id } = req.query;
     const { data, error } = await supabase.from('projects').select('*').order('created_at', { ascending: true });
     if (error) throw error;
-    res.json({ success: true, data: data || [] });
+
+    const formatted = (data || []).map((row) => {
+      let meta = {};
+      if (row.description && typeof row.description === 'string' && row.description.trim().startsWith('{')) {
+        try { meta = JSON.parse(row.description); } catch (e) {}
+      }
+      const batchDueDates = meta.batchDueDates || row.batch_due_dates || {};
+      const studentDueDates = meta.studentDueDates || row.student_due_dates || {};
+      const deadlineDuration = meta.deadlineDuration !== undefined ? meta.deadlineDuration : (row.deadline_duration !== undefined ? row.deadline_duration : null);
+
+      const projObj = {
+        ...row,
+        batchDueDates,
+        studentDueDates,
+        deadlineDuration,
+        dueDate: row.due_date
+      };
+
+      if (batch || student_id) {
+        const eff = getEffectiveProjectDueDate(projObj, batch || 'ALL', student_id);
+        return {
+          ...projObj,
+          due_date: eff.dueDate || row.due_date,
+          effective_due_date: eff.dueDate,
+          effective_formatted_due_date: eff.formattedDueDate,
+          is_overdue: eff.isOverdue,
+          remaining_text: eff.remainingText,
+          duration_days: eff.durationDays
+        };
+      }
+      return projObj;
+    });
+
+    res.json({ success: true, data: formatted });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
@@ -1465,7 +1512,26 @@ app.get('/api/v1/student-feed', async (req, res) => {
         milestoneLocks: locks || [],
         courses: courses || [],
         dailySchedule: [],
-        projects: projects || [],
+        projects: (projects || []).map((row) => {
+          let meta = {};
+          if (row.description && typeof row.description === 'string' && row.description.trim().startsWith('{')) {
+            try { meta = JSON.parse(row.description); } catch (e) {}
+          }
+          const batchDueDates = meta.batchDueDates || row.batch_due_dates || {};
+          const studentDueDates = meta.studentDueDates || row.student_due_dates || {};
+          const deadlineDuration = meta.deadlineDuration !== undefined ? meta.deadlineDuration : null;
+          const projObj = { ...row, batchDueDates, studentDueDates, deadlineDuration, dueDate: row.due_date };
+          const eff = getEffectiveProjectDueDate(projObj, 'Weekday Batch');
+          return {
+            ...row,
+            due_date: eff.dueDate || row.due_date,
+            formatted_due_date: eff.formattedDueDate,
+            due_datetime: eff.dueDateTime,
+            remaining_time: eff.remainingText,
+            is_overdue: eff.isOverdue,
+            duration_days: eff.durationDays
+          };
+        }),
         liveSessions: liveSessions || [],
         jobOpportunities: jobs || [],
         rewards: (rewardsData && rewardsData.length > 0 ? rewardsData : DEFAULT_REWARDS_SEED).map(r => ({

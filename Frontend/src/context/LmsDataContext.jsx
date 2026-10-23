@@ -3,6 +3,18 @@ import { supabase } from '../lib/supabaseClient';
 import { useAuth } from './AuthContext';
 import { generatePasskey, encryptPasskey, decryptPasskey, generatePin, encryptPin, decryptPin } from '../utils/passkey-crypto';
 import {
+  DEFAULT_PROJECT_DEADLINES,
+  getDefaultDeadlineDays,
+  validateDeadlineDays,
+  calculateDueDate,
+  calculateRemainingTime,
+  recordBatchUnlock,
+  recordStudentUnlock,
+  getEffectiveProjectDueDate,
+  checkSubmissionDeadline,
+  normalizeProjectType
+} from '../utils/projectDeadlineUtils';
+import {
   INITIAL_COURSES,
   INITIAL_ASSESSMENTS,
   INITIAL_LIVE_SESSIONS,
@@ -292,6 +304,30 @@ export function LmsDataProvider({ children }) {
       const updated = { ...prev, ...newConfig };
       try {
         localStorage.setItem('aspire_lms_rewards_header_config', JSON.stringify(updated));
+      } catch (e) {}
+      return updated;
+    });
+  };
+
+  const DEFAULT_PROJECT_TYPE_DEADLINES = {
+    Mini: 3,
+    Major: 5,
+    Advanced: 10
+  };
+
+  const [projectTypeDeadlines, setProjectTypeDeadlines] = useState(() => {
+    try {
+      const saved = localStorage.getItem('aspire_lms_project_type_deadlines');
+      if (saved) return JSON.parse(saved);
+    } catch (e) {}
+    return DEFAULT_PROJECT_TYPE_DEADLINES;
+  });
+
+  const updateProjectTypeDeadlines = (newDeadlines) => {
+    setProjectTypeDeadlines((prev) => {
+      const updated = { ...prev, ...newDeadlines };
+      try {
+        localStorage.setItem('aspire_lms_project_type_deadlines', JSON.stringify(updated));
       } catch (e) {}
       return updated;
     });
@@ -1410,6 +1446,11 @@ export function LmsDataProvider({ children }) {
       ? row.submissions
       : (typeof row.submissions === 'string' ? JSON.parse(row.submissions || '[]') : (meta.submissions || []));
 
+    const batchDueDates = meta.batchDueDates || row.batch_due_dates || {};
+    const studentDueDates = meta.studentDueDates || row.student_due_dates || {};
+    const deadlineDuration = meta.deadlineDuration !== undefined ? meta.deadlineDuration : (row.deadline_duration !== undefined ? row.deadline_duration : null);
+    const unlockTimestamp = meta.unlockTimestamp || row.unlock_timestamp || null;
+
     return {
       id: row.id,
       title: row.title || 'Untitled Project',
@@ -1430,6 +1471,10 @@ export function LmsDataProvider({ children }) {
       submissions,
       targetBatch,
       targetBatches,
+      batchDueDates,
+      studentDueDates,
+      deadlineDuration,
+      unlockTimestamp,
       overview: row.overview || meta.overview || cleanDescription,
       requirements,
       steps,
@@ -1466,7 +1511,11 @@ export function LmsDataProvider({ children }) {
       requirements: p.requirements || [],
       steps: p.steps || [],
       rubric: p.rubric || [],
-      mentorTip: p.mentorTip || ''
+      mentorTip: p.mentorTip || '',
+      batchDueDates: p.batchDueDates || {},
+      studentDueDates: p.studentDueDates || {},
+      deadlineDuration: p.deadlineDuration !== undefined ? p.deadlineDuration : null,
+      unlockTimestamp: p.unlockTimestamp || null
     };
 
     const targetBatchStr = p.targetBatch || (Array.isArray(p.targetBatches) ? p.targetBatches.join(', ') : 'Weekday Batch');
@@ -4580,12 +4629,28 @@ export function LmsDataProvider({ children }) {
       ...(techStackArray !== undefined ? { techStack: techStackArray } : {})
     };
 
-    setProjectsByBatch((prev) => ({
-      'Weekday Batch': (prev['Weekday Batch'] || []).map((p) => (p.id === id ? { ...p, ...fieldsToApply } : p)),
-      'Weekend Batch': (prev['Weekend Batch'] || []).map((p) => (p.id === id ? { ...p, ...fieldsToApply } : p))
-    }));
+    let fullProjectToSave = null;
+
+    setProjectsByBatch((prev) => {
+      const existing = (prev['Weekday Batch'] || []).find((p) => p.id === id) ||
+                       (prev['Weekend Batch'] || []).find((p) => p.id === id);
+      fullProjectToSave = { ...(existing || {}), id, ...fieldsToApply };
+
+      return {
+        'Weekday Batch': (prev['Weekday Batch'] || []).map((p) => (p.id === id ? { ...p, ...fieldsToApply } : p)),
+        'Weekend Batch': (prev['Weekend Batch'] || []).map((p) => (p.id === id ? { ...p, ...fieldsToApply } : p))
+      };
+    });
     logActivity(`Updated project listing ID ${id} (${bKey})`, 'project');
 
+    try {
+      if (fullProjectToSave) {
+        const dbRow = toDbProject(fullProjectToSave);
+        const { error } = await supabase.from('projects').upsert([dbRow]);
+        if (error) console.error('Supabase project update error:', error.message);
+      }
+    } catch (err) { console.warn('Project update handled:', err); }
+    return;
     try {
       const dbRow = toDbProject({ id, ...fieldsToApply });
       const { error } = await supabase.from('projects').upsert([dbRow]);
@@ -4996,6 +5061,12 @@ export function LmsDataProvider({ children }) {
         };
       })
     }));
+
+    if (unlockDate) {
+      try {
+        syncProjectDeadlinesForLock(moduleId, targetBatch, unlockDate, unlockTime);
+      } catch (err) { console.warn('Module schedule deadline sync handled:', err); }
+    }
   };
 
   const toggleStageLock = (stageId, targetBatch = activeBatchFilter) => {
@@ -5871,6 +5942,64 @@ export function LmsDataProvider({ children }) {
   };
 
   // --- MILESTONE LOCKS ---
+
+  const syncProjectDeadlinesForLock = async (lessonOrModuleId, batchCode, unlockDate, unlockTime = null) => {
+    if (!lessonOrModuleId || !unlockDate) return;
+    const cleanStr = (s) => String(s || '').toLowerCase().replace(/-(w|s)$/i, '').trim();
+    const lIdClean = cleanStr(lessonOrModuleId);
+
+    const allProjects = [...(projectsByBatch['Weekday Batch'] || []), ...(projectsByBatch['Weekend Batch'] || [])];
+    const uniqueProjects = Array.from(new Map(allProjects.map((p) => [p.id, p])).values());
+
+    const matchingProjects = uniqueProjects.filter((p) => {
+      const pId = cleanStr(p.id);
+      const mId = cleanStr(p.moduleId || p.innerTopicId || p.module_id);
+      return pId === lIdClean || (mId && mId === lIdClean);
+    });
+
+    if (matchingProjects.length === 0) return;
+
+    const targetBatches = (!batchCode || batchCode === 'ALL')
+      ? ['Weekday Batch', 'Weekend Batch']
+      : [batchCode];
+
+    for (const proj of matchingProjects) {
+      let currentProj = { ...proj };
+      let changed = false;
+      for (const bCode of targetBatches) {
+        // Prevent duplicate unlock events from accidentally resetting the due date (Requirement 10)
+        const hasExisting = currentProj.batchDueDates && currentProj.batchDueDates[bCode];
+        if (!hasExisting) {
+          const typeDuration = currentProj.deadlineDuration || projectTypeDeadlines[normalizeProjectType(currentProj.type)];
+          currentProj = recordBatchUnlock(currentProj, bCode, unlockDate, typeDuration, false);
+          changed = true;
+        }
+      }
+      if (changed && currentProj.batchDueDates) {
+        await updateProject(currentProj.id, { batchDueDates: currentProj.batchDueDates });
+      }
+    }
+  };
+
+  const setProjectBatchUnlock = async (projectId, batchCode, unlockDate, customDuration = null, forceReset = false) => {
+    if (!projectId || !batchCode || !unlockDate) return;
+    const allProjects = [...(projectsByBatch['Weekday Batch'] || []), ...(projectsByBatch['Weekend Batch'] || [])];
+    const targetProject = allProjects.find((p) => p.id === projectId);
+    if (!targetProject) return;
+
+    const durationDays = customDuration !== null && customDuration !== undefined
+      ? customDuration
+      : (targetProject.deadlineDuration || projectTypeDeadlines[normalizeProjectType(targetProject.type)]);
+
+    const updatedProject = recordBatchUnlock(targetProject, batchCode, unlockDate, durationDays, forceReset);
+    if (updatedProject && updatedProject.batchDueDates) {
+      await updateProject(projectId, {
+        batchDueDates: updatedProject.batchDueDates,
+        ...(customDuration !== null && customDuration !== undefined ? { deadlineDuration: parseInt(customDuration, 10) } : {})
+      });
+    }
+  };
+
   const setLessonLock = async (lockData) => {
     if (!lockData || !lockData.lesson_id) return;
 
@@ -5942,6 +6071,12 @@ export function LmsDataProvider({ children }) {
       const { error } = await supabase.from('milestone_locks').upsert([lockRecord], { onConflict: 'lesson_id,batch_code' });
       if (error) console.error('Supabase lock upsert error:', error.message);
     } catch (err) { console.warn('Lock upsert handled:', err); }
+
+    if (cleanDate) {
+      try {
+        await syncProjectDeadlinesForLock(lockData.lesson_id, batchCode, cleanDate, cleanTime);
+      } catch (err) { console.warn('Project deadline sync on lock handled:', err); }
+    }
   };
 
   const removeLessonLock = async (lessonId, batchCode, lockId = null) => {
@@ -6303,6 +6438,11 @@ export function LmsDataProvider({ children }) {
         addProject,
         updateProject,
         deleteProject,
+        projectTypeDeadlines,
+        updateProjectTypeDeadlines,
+        setProjectBatchUnlock,
+        syncProjectDeadlinesForLock,
+        getEffectiveProjectDueDate,
         milestonesByBatch,
         getMilestoneDataForBatch,
         milestones,
@@ -6430,6 +6570,11 @@ const defaultLmsDataContext = {
   removeItemLock: async () => {},
   getLocksForCourse: () => [],
   projects: [],
+  projectTypeDeadlines: { Mini: 3, Major: 5, Advanced: 10 },
+  updateProjectTypeDeadlines: () => {},
+  setProjectBatchUnlock: async () => {},
+  syncProjectDeadlinesForLock: async () => {},
+  getEffectiveProjectDueDate: () => ({ dueDate: '', formattedDueDate: '', isOverdue: false }),
   codingQuestions: [],
   rewards: [],
   availableBatches: [],

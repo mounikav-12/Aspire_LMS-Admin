@@ -40,6 +40,7 @@ import { useLmsData } from '../../context/LmsDataContext';
 import { BatchFilterSelector } from '../../components/common/BatchFilterSelector';
 import { Button } from '../../components/common/Button';
 import { DEFAULT_CURRICULUM_LESSONS, SUBTOPIC_MODULE_MAP, getStageNumber, isMatchingStage } from '../../data/curriculumData';
+import { getEffectiveProjectDueDate } from '../../utils/projectDeadlineUtils';
 export { SUBTOPIC_MODULE_MAP, getStageNumber, isMatchingStage };
 
 export const formatLocalDate = (d) => {
@@ -2286,20 +2287,26 @@ export function MilestonesRoadmapPage() {
                           const pModName = cleanNorm(p.moduleName || p.topicName);
                           return pModName && curModTitle && pModName === curModTitle;
                         })
-                        .map(p => ({
-                          ...p,
-                          id: `item-project-${p.id}`,
-                          projectId: p.id,
-                          type: 'PROJECT',
-                          typeColor: 'bg-emerald-100 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800/60',
-                          iconName: 'FolderGit2',
-                          iconBg: 'bg-emerald-600 text-white',
-                          title: p.title || 'Capstone Project',
-                          actionText: 'VIEW',
-                          url: '/projects',
-                          btnStyle: 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm shadow-emerald-500/30',
-                          dueDate: p.dueDate || 'Due Aug 30'
-                        }));
+                        .map(p => {
+                          const effDue = getEffectiveProjectDueDate(p, activeBatchFilter, null, milestoneLocks);
+                          return {
+                            ...p,
+                            id: `item-project-${p.id}`,
+                            projectId: p.id,
+                            type: 'PROJECT',
+                            typeColor: 'bg-emerald-100 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800/60',
+                            iconName: 'FolderGit2',
+                            iconBg: 'bg-emerald-600 text-white',
+                            title: p.title || 'Capstone Project',
+                            actionText: 'VIEW',
+                            url: '/projects',
+                            btnStyle: 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm shadow-emerald-500/30',
+                            dueDate: effDue.formattedDueDate || p.dueDate || 'Due Aug 30',
+                            dueDateTime: effDue.dueDateTime,
+                            isOverdue: effDue.isOverdue,
+                            remainingText: effDue.remainingText
+                          };
+                        });
 
                       // Auto-match coding questions for this module strictly by course, stage and exact submodule/lesson ID
                       const autoMatchedCodingQuestions = (allCodingQuestions || [])

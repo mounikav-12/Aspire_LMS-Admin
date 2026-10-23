@@ -10,6 +10,16 @@ import { BatchMultiSelectDropdown } from '../../components/common/BatchMultiSele
 import { ConfirmDialog } from '../../components/common/ConfirmDialog';
 import { DEFAULT_STAGES, getSubtopicsForStage, getInnerModulesForSubtopic, normalizeStagesList, isMatchingStage, SUBTOPIC_MODULE_MAP } from '../../data/curriculumData';
 import {
+  DEFAULT_PROJECT_DEADLINES,
+  getDefaultDeadlineDays,
+  validateDeadlineDays,
+  calculateDueDate,
+  calculateRemainingTime,
+  getEffectiveProjectDueDate,
+  checkSubmissionDeadline,
+  normalizeProjectType
+} from '../../utils/projectDeadlineUtils';
+import {
   FolderGit2,
   Plus,
   Search,
@@ -51,7 +61,7 @@ import {
 } from 'lucide-react';
 
 export function ProjectManagementPage() {
-  const { projects = [], courses = [], courseLessons = [], milestones = {}, milestonesByBatch = {}, addProject, updateProject, deleteProject, gradeSubmission, activeBatchFilter, getLessonLockStatus, availableBatches } = useLmsData();
+  const { projects = [], courses = [], courseLessons = [], milestones = {}, milestonesByBatch = {}, addProject, updateProject, deleteProject, gradeSubmission, activeBatchFilter, getLessonLockStatus, availableBatches, milestoneLocks = [], projectTypeDeadlines = { Mini: 3, Major: 5, Advanced: 10 }, updateProjectTypeDeadlines, setProjectBatchUnlock } = useLmsData();
   const { addToast } = useToast();
 
   // Navigation & Filter States
@@ -116,6 +126,8 @@ export function ProjectManagementPage() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [editingProject, setEditingProject] = useState(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
+  const [isDeadlineConfigOpen, setIsDeadlineConfigOpen] = useState(false);
+  const [tempDeadlines, setTempDeadlines] = useState(projectTypeDeadlines);
 
   // Auto-Import from JSON States
   const [importMode, setImportMode] = useState('paste'); // 'paste' | 'file'
@@ -185,6 +197,7 @@ export function ProjectManagementPage() {
     description: '',
     techStack: '',
     dueDate: '',
+    deadlineDuration: 3,
     templateUrl: '',
     status: 'Assigned',
     overview: '',
@@ -377,6 +390,7 @@ export function ProjectManagementPage() {
       description: proj.description || '',
       techStack: Array.isArray(proj.techStack) ? proj.techStack.join(', ') : (proj.techStack || ''),
       dueDate: proj.dueDate || '',
+      deadlineDuration: proj.deadlineDuration !== undefined && proj.deadlineDuration !== null ? proj.deadlineDuration : getDefaultDeadlineDays(proj.type, projectTypeDeadlines),
       templateUrl: proj.templateUrl || '',
       status: proj.status || 'Published',
       overview: proj.overview || proj.description || '',
@@ -683,6 +697,7 @@ export function ProjectManagementPage() {
       topicName: activeInner?.title || formData.topicName || '',
       targetBatch: targetBatchStr,
       targetBatches,
+      deadlineDuration: parseInt(formData.deadlineDuration, 10) || getDefaultDeadlineDays(formData.type, projectTypeDeadlines),
       techStack: techStackList,
       requirements: requirementsList,
       steps: stepsList,
@@ -778,6 +793,19 @@ export function ProjectManagementPage() {
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
+
+          <Button
+            variant="outline"
+            size="md"
+            icon={Clock}
+            onClick={() => {
+              setTempDeadlines(projectTypeDeadlines || { Mini: 3, Major: 5, Advanced: 10 });
+              setIsDeadlineConfigOpen(true);
+            }}
+            className="border-slate-200 text-slate-700 hover:bg-slate-50 shadow-2xs text-xs font-bold"
+          >
+            Configure Deadlines
+          </Button>
 
           <Button
             variant="primary"
@@ -1078,9 +1106,23 @@ export function ProjectManagementPage() {
 
               {/* Bottom Row: Due Date & Action Button matching screenshot */}
               <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
-                <div className="flex items-center gap-1.5 text-xs text-slate-500 font-semibold">
-                  <Clock className="w-3.5 h-3.5 text-slate-400" />
-                  <span>{proj.dueDate}</span>
+                <div className="flex flex-col gap-0.5">
+                  <div className="flex items-center gap-1.5 text-xs text-slate-700 font-bold">
+                    <Clock className="w-3.5 h-3.5 text-slate-400" />
+                    <span>Due {(() => {
+                      const effDue = getEffectiveProjectDueDate(proj, activeBatchFilter, null, milestoneLocks, projectTypeDeadlines);
+                      return effDue.formattedDueDate || proj.dueDate || 'Due Aug 30';
+                    })()}</span>
+                  </div>
+                  {(() => {
+                    const effDue = getEffectiveProjectDueDate(proj, activeBatchFilter, null, milestoneLocks, projectTypeDeadlines);
+                    if (!effDue.remainingText) return null;
+                    return (
+                      <span className={`text-[10px] font-bold ${effDue.isOverdue ? 'text-rose-600' : 'text-emerald-600'}`}>
+                        {effDue.remainingText}
+                      </span>
+                    );
+                  })()}
                 </div>
 
                 <div className="flex items-center gap-1.5">
@@ -1171,7 +1213,26 @@ export function ProjectManagementPage() {
                         </div>
                       </td>
                       <td className="p-4 font-bold text-slate-800">{p.title}</td>
-                      <td className="p-4 text-slate-500">{sub.submittedAt}</td>
+                      <td className="p-4 text-slate-500">
+                        {(() => {
+                          const effDue = getEffectiveProjectDueDate(p, activeBatchFilter, sub.studentId, milestoneLocks, projectTypeDeadlines);
+                          const deadlineCheck = checkSubmissionDeadline(sub.submittedAt, effDue.dueDateTime || effDue.dueDate);
+                          return (
+                            <div>
+                              <span className="font-medium text-slate-700">{sub.submittedAt}</span>
+                              {deadlineCheck.isLate ? (
+                                <span className="block text-[10px] font-bold text-rose-600 mt-0.5">
+                                  {deadlineCheck.delayText}
+                                </span>
+                              ) : (
+                                <span className="block text-[10px] font-bold text-emerald-600 mt-0.5">
+                                  On Time
+                                </span>
+                              )}
+                            </div>
+                          );
+                        })()}
+                      </td>
                       <td className="p-4">
                         <div className="flex items-center gap-2">
                           <a
@@ -1441,9 +1502,9 @@ export function ProjectManagementPage() {
             )}
           </div>
 
-          {/* Row 1: Project Title, Project Type, Due Date */}
+          {/* Row 1: Project Title, Project Type, Deadline Duration, Due Date */}
           <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-start">
-            <div className="md:col-span-6">
+            <div className="md:col-span-5">
               <Input
                 label="Project Title"
                 type="text"
@@ -1457,23 +1518,46 @@ export function ProjectManagementPage() {
               <Select
                 label="Project Type"
                 value={formData.type}
-                onChange={(e) => setFormData({ ...formData, type: e.target.value })}
+                onChange={(e) => {
+                  const newType = e.target.value;
+                  const defDays = getDefaultDeadlineDays(newType, projectTypeDeadlines);
+                  setFormData({
+                    ...formData,
+                    type: newType,
+                    deadlineDuration: defDays
+                  });
+                }}
                 options={[
-                  { value: 'Mini', label: 'Mini Project' },
-                  { value: 'Major', label: 'Major Project' },
-                  { value: 'Capstone', label: 'Capstone Project' }
+                  { value: 'Mini', label: 'Mini Project (3d default)' },
+                  { value: 'Major', label: 'Major Project (5d default)' },
+                  { value: 'Capstone', label: 'Advanced Project (10d default)' }
                 ]}
               />
             </div>
-            <div className="md:col-span-3">
+            <div className="md:col-span-2">
               <Input
-                label="Due Date Label"
+                label={`Deadline (${normalizeProjectType(formData.type) === 'Advanced' ? '8–10d' : 'Days'})`}
+                type="number"
+                min={normalizeProjectType(formData.type) === 'Advanced' ? 8 : 1}
+                max={normalizeProjectType(formData.type) === 'Advanced' ? 10 : 90}
+                placeholder={String(getDefaultDeadlineDays(formData.type, projectTypeDeadlines))}
+                value={formData.deadlineDuration !== undefined ? formData.deadlineDuration : getDefaultDeadlineDays(formData.type, projectTypeDeadlines)}
+                onChange={(e) => setFormData({ ...formData, deadlineDuration: e.target.value })}
+              />
+            </div>
+            <div className="md:col-span-2">
+              <Input
+                label="Fallback Due Label"
                 type="text"
                 placeholder="e.g. Aug 30"
                 value={formData.dueDate}
                 onChange={(e) => setFormData({ ...formData, dueDate: e.target.value })}
               />
             </div>
+          </div>
+          <div className="text-[11px] text-slate-500 -mt-2 px-1 flex items-center justify-between font-medium">
+            <span>Dynamic Rule: <code>dueDate = projectUnlockDate + {formData.deadlineDuration || getDefaultDeadlineDays(formData.type, projectTypeDeadlines)} calendar days</code></span>
+            <span className="text-purple-600 font-bold">{normalizeProjectType(formData.type) === 'Advanced' ? 'Configurable range: 8–10 calendar days' : 'Calculated per batch unlock'}</span>
           </div>
 
           {/* Row 2: Target Batch Assignment */}
@@ -1931,9 +2015,25 @@ export function ProjectManagementPage() {
               <span className="px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-700">
                 {activeProjectDetail.category}
               </span>
-              <span className="ml-auto text-xs font-semibold text-slate-500 flex items-center gap-1">
-                <Clock className="w-3.5 h-3.5 text-slate-400" /> Due {activeProjectDetail.dueDate}
-              </span>
+              <div className="ml-auto flex items-center gap-2">
+                {(() => {
+                  const effDue = getEffectiveProjectDueDate(activeProjectDetail, activeBatchFilter, null, milestoneLocks, projectTypeDeadlines);
+                  return (
+                    <>
+                      <span className="text-xs font-semibold text-slate-600 flex items-center gap-1 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-200">
+                        <Clock className="w-3.5 h-3.5 text-slate-400" /> Due {effDue.formattedDueDate || activeProjectDetail.dueDate}
+                      </span>
+                      {effDue.remainingText && (
+                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                          effDue.isOverdue ? 'bg-rose-50 text-rose-700 border-rose-200' : 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                        }`}>
+                          {effDue.remainingText}
+                        </span>
+                      )}
+                    </>
+                  );
+                })()}
+              </div>
             </div>
 
             {/* Grid Layout matching image media_1787138288694 */}
@@ -2124,6 +2224,89 @@ export function ProjectManagementPage() {
         title="Delete Project Assignment"
         message="Are you sure you want to delete this project? This will remove it from the Student LMS feed as well."
       />
+      {/* Admin Modal: Configure Default Deadlines per Project Type */}
+      <Modal
+        isOpen={isDeadlineConfigOpen}
+        onClose={() => setIsDeadlineConfigOpen(false)}
+        title="Configure Dynamic Project Deadline Durations"
+        maxWidth="max-w-md"
+      >
+        <div className="space-y-4 pt-2">
+          <p className="text-xs text-slate-500 leading-relaxed font-medium">
+            Configure the default deadline windows (in calendar days) automatically assigned to projects when unlocked for a batch or student.
+          </p>
+
+          <div className="space-y-3">
+            <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200/80 space-y-1">
+              <label className="block text-xs font-bold text-slate-800">
+                Mini Project Default Deadline (Calendar Days)
+              </label>
+              <Input
+                type="number"
+                min="1"
+                max="30"
+                value={tempDeadlines?.Mini ?? 3}
+                onChange={(e) => setTempDeadlines({ ...tempDeadlines, Mini: parseInt(e.target.value, 10) || 3 })}
+              />
+              <span className="text-[10px] text-slate-400 font-medium">Default: 3 calendar days after release date.</span>
+            </div>
+
+            <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200/80 space-y-1">
+              <label className="block text-xs font-bold text-slate-800">
+                Major Project Default Deadline (Calendar Days)
+              </label>
+              <Input
+                type="number"
+                min="1"
+                max="60"
+                value={tempDeadlines?.Major ?? 5}
+                onChange={(e) => setTempDeadlines({ ...tempDeadlines, Major: parseInt(e.target.value, 10) || 5 })}
+              />
+              <span className="text-[10px] text-slate-400 font-medium">Default: 5 calendar days after release date.</span>
+            </div>
+
+            <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200/80 space-y-1">
+              <label className="block text-xs font-bold text-slate-800">
+                Advanced Project Default Deadline (8–10 Days Range)
+              </label>
+              <Input
+                type="number"
+                min="8"
+                max="10"
+                value={tempDeadlines?.Advanced ?? 10}
+                onChange={(e) => {
+                  const val = parseInt(e.target.value, 10) || 10;
+                  setTempDeadlines({ ...tempDeadlines, Advanced: Math.max(8, Math.min(10, val)) });
+                }}
+              />
+              <span className="text-[10px] text-purple-600 font-bold">Default: 10 calendar days (strictly constrained to 8–10 days).</span>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsDeadlineConfigOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={() => {
+                if (updateProjectTypeDeadlines) {
+                  updateProjectTypeDeadlines(tempDeadlines);
+                }
+                addToast('Saved project deadline duration configurations!', 'success');
+                setIsDeadlineConfigOpen(false);
+              }}
+            >
+              Save Deadlines
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }
