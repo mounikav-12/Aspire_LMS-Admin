@@ -61,7 +61,7 @@ import {
 } from 'lucide-react';
 
 export function ProjectManagementPage() {
-  const { projects = [], courses = [], courseLessons = [], milestones = {}, milestonesByBatch = {}, addProject, updateProject, deleteProject, gradeSubmission, activeBatchFilter, getLessonLockStatus, availableBatches, milestoneLocks = [], projectTypeDeadlines = { Mini: 3, Major: 5, Advanced: 10 }, updateProjectTypeDeadlines, setProjectBatchUnlock } = useLmsData();
+  const { projects = [], courses = [], courseLessons = [], milestones = {}, milestonesByBatch = {}, addProject, updateProject, deleteProject, gradeSubmission, activeBatchFilter, getLessonLockStatus, availableBatches, milestoneLocks = [], projectTypeDeadlines = { Mini: 3, Major: 5, Capstone: 10 }, updateProjectTypeDeadlines, setProjectBatchUnlock } = useLmsData();
   const { addToast } = useToast();
 
   // Navigation & Filter States
@@ -799,7 +799,7 @@ export function ProjectManagementPage() {
             size="md"
             icon={Clock}
             onClick={() => {
-              setTempDeadlines(projectTypeDeadlines || { Mini: 3, Major: 5, Advanced: 10 });
+              setTempDeadlines(projectTypeDeadlines || { Mini: 3, Major: 5, Capstone: 10 });
               setIsDeadlineConfigOpen(true);
             }}
             className="border-slate-200 text-slate-700 hover:bg-slate-50 shadow-2xs text-xs font-bold"
@@ -1533,16 +1533,16 @@ export function ProjectManagementPage() {
                 options={[
                   { value: 'Mini', label: 'Mini Project (3d default)' },
                   { value: 'Major', label: 'Major Project (5d default)' },
-                  { value: 'Capstone', label: 'Advanced Project (10d default)' }
+                  { value: 'Capstone', label: 'Capstone Project (10d default)' }
                 ]}
               />
             </div>
             <div className="md:col-span-2">
               <Input
-                label={`Deadline (${normalizeProjectType(formData.type) === 'Advanced' ? '8–10d' : 'Days'})`}
+                label={`Deadline (${normalizeProjectType(formData.type) === 'Capstone' ? '8–10d' : 'Days'})`}
                 type="number"
-                min={normalizeProjectType(formData.type) === 'Advanced' ? 8 : 1}
-                max={normalizeProjectType(formData.type) === 'Advanced' ? 10 : 90}
+                min={normalizeProjectType(formData.type) === 'Capstone' ? 8 : 1}
+                max={normalizeProjectType(formData.type) === 'Capstone' ? 10 : 90}
                 placeholder={String(getDefaultDeadlineDays(formData.type, projectTypeDeadlines))}
                 value={formData.deadlineDuration !== undefined ? formData.deadlineDuration : getDefaultDeadlineDays(formData.type, projectTypeDeadlines)}
                 onChange={(e) => setFormData({ ...formData, deadlineDuration: e.target.value })}
@@ -1560,7 +1560,7 @@ export function ProjectManagementPage() {
           </div>
           <div className="text-[11px] text-slate-500 -mt-2 px-1 flex items-center justify-between font-medium">
             <span>Dynamic Rule: <code>dueDate = projectUnlockDate + {formData.deadlineDuration || getDefaultDeadlineDays(formData.type, projectTypeDeadlines)} calendar days</code></span>
-            <span className="text-purple-600 font-bold">{normalizeProjectType(formData.type) === 'Advanced' ? 'Configurable range: 8–10 calendar days' : 'Calculated per batch unlock'}</span>
+            <span className="text-purple-600 font-bold">{normalizeProjectType(formData.type) === 'Capstone' ? 'Configurable range: 8–10 calendar days' : 'Calculated per batch unlock'}</span>
           </div>
 
           {/* Row 2: Target Batch Assignment */}
@@ -2270,16 +2270,17 @@ export function ProjectManagementPage() {
 
             <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200/80 space-y-1">
               <label className="block text-xs font-bold text-slate-800">
-                Advanced Project Default Deadline (8–10 Days Range)
+                Capstone Project Default Deadline (8–10 Days Range)
               </label>
               <Input
                 type="number"
                 min="8"
                 max="10"
-                value={tempDeadlines?.Advanced ?? 10}
+                value={tempDeadlines?.Capstone ?? tempDeadlines?.Advanced ?? 10}
                 onChange={(e) => {
                   const val = parseInt(e.target.value, 10) || 10;
-                  setTempDeadlines({ ...tempDeadlines, Advanced: Math.max(8, Math.min(10, val)) });
+                  const clamped = Math.max(8, Math.min(10, val));
+                  setTempDeadlines({ ...tempDeadlines, Capstone: clamped, Advanced: clamped });
                 }}
               />
               <span className="text-[10px] text-purple-600 font-bold">Default: 10 calendar days (strictly constrained to 8–10 days).</span>

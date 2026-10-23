@@ -39,9 +39,9 @@ console.log('--- RUNNING DYNAMIC PROJECT DUE DATE UNIT TESTS ---');
   console.log('? Passed: Scenario 1 verified successfully.');
 }
 
-// Test 2: Scenario 2 - Mini, Major, and Advanced Projects receive their respective configured deadlines.
+// Test 2: Scenario 2 - Mini, Major, and Capstone Projects receive their respective configured deadlines.
 {
-  console.log('\n[TEST 2] Project Type Default and Configured Deadlines:');
+  console.log('\n[TEST 2] Project Type Default and Configured Deadlines (Mini, Major, Capstone):');
   const unlockDate = '2026-10-01';
 
   // Mini: 3 calendar days
@@ -56,25 +56,25 @@ console.log('--- RUNNING DYNAMIC PROJECT DUE DATE UNIT TESTS ---');
   assert.strictEqual(majorCalc.durationDays, 5);
   console.log('Major Project (5 days):', majorCalc.dueDate);
 
-  // Advanced: 10 calendar days default
-  const advCalc = calculateDueDate(unlockDate, getDefaultDeadlineDays('Advanced'));
-  assert.strictEqual(advCalc.dueDate, '2026-10-11');
-  assert.strictEqual(advCalc.durationDays, 10);
-  console.log('Advanced Project default (10 days):', advCalc.dueDate);
+  // Capstone: 10 calendar days default
+  const capCalc = calculateDueDate(unlockDate, getDefaultDeadlineDays('Capstone'));
+  assert.strictEqual(capCalc.dueDate, '2026-10-11');
+  assert.strictEqual(capCalc.durationDays, 10);
+  console.log('Capstone Project default (10 days):', capCalc.dueDate);
 
-  // Advanced configurable within 8-10 days: test 8 days
-  const valid8 = validateDeadlineDays('Advanced', 8);
+  // Capstone configurable within 8-10 days: test 8 days
+  const valid8 = validateDeadlineDays('Capstone', 8);
   assert.strictEqual(valid8.isValid, true);
-  const advCalc8 = calculateDueDate(unlockDate, valid8.days);
-  assert.strictEqual(advCalc8.dueDate, '2026-10-09');
-  console.log('Advanced Project configured (8 days):', advCalc8.dueDate);
+  const capCalc8 = calculateDueDate(unlockDate, valid8.days);
+  assert.strictEqual(capCalc8.dueDate, '2026-10-09');
+  console.log('Capstone Project configured (8 days):', capCalc8.dueDate);
 
-  // Advanced validation bounds (clamp outside 8-10)
-  const invalidLow = validateDeadlineDays('Advanced', 5);
+  // Capstone validation bounds (clamp outside 8-10)
+  const invalidLow = validateDeadlineDays('Capstone', 5);
   assert.strictEqual(invalidLow.isValid, false);
   assert.strictEqual(invalidLow.days, 8, 'Low out-of-range value clamped to 8');
 
-  const invalidHigh = validateDeadlineDays('Advanced', 15);
+  const invalidHigh = validateDeadlineDays('Capstone', 15);
   assert.strictEqual(invalidHigh.isValid, false);
   assert.strictEqual(invalidHigh.days, 10, 'High out-of-range value clamped to 10');
 

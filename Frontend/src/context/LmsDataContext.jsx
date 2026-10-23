@@ -313,7 +313,7 @@ export function LmsDataProvider({ children }) {
   const DEFAULT_PROJECT_TYPE_DEADLINES = {
     Mini: 3,
     Major: 5,
-    Advanced: 10
+    Capstone: 10
   };
 
   const [projectTypeDeadlines, setProjectTypeDeadlines] = useState(() => {
@@ -6589,7 +6589,7 @@ const defaultLmsDataContext = {
   removeItemLock: async () => {},
   getLocksForCourse: () => [],
   projects: [],
-  projectTypeDeadlines: { Mini: 3, Major: 5, Advanced: 10 },
+  projectTypeDeadlines: { Mini: 3, Major: 5, Capstone: 10 },
   updateProjectTypeDeadlines: () => {},
   setProjectBatchUnlock: async () => {},
   syncProjectDeadlinesForLock: async () => {},

@@ -9,17 +9,18 @@
 const DEFAULT_PROJECT_DEADLINES = {
   Mini: 3,
   Major: 5,
-  Advanced: 10,
   Capstone: 10
 };
 
+const CAPSTONE_PROJECT_MIN_DAYS = 8;
+const CAPSTONE_PROJECT_MAX_DAYS = 10;
 const ADVANCED_PROJECT_MIN_DAYS = 8;
 const ADVANCED_PROJECT_MAX_DAYS = 10;
 
 const normalizeProjectType = (type) => {
   if (!type) return 'Mini';
   const clean = String(type).trim().toLowerCase();
-  if (clean.includes('capstone') || clean.includes('advanced')) return 'Advanced';
+  if (clean.includes('capstone') || clean.includes('advanced')) return 'Capstone';
   if (clean.includes('major')) return 'Major';
   return 'Mini';
 };
@@ -67,19 +68,19 @@ const validateDeadlineDays = (projectType, days) => {
     };
   }
 
-  if (norm === 'Advanced') {
-    if (numDays < ADVANCED_PROJECT_MIN_DAYS) {
+  if (norm === 'Capstone' || norm === 'Advanced') {
+    if (numDays < CAPSTONE_PROJECT_MIN_DAYS) {
       return {
         isValid: false,
-        days: ADVANCED_PROJECT_MIN_DAYS,
-        message: `Advanced Project deadlines must be configured between ${ADVANCED_PROJECT_MIN_DAYS} and ${ADVANCED_PROJECT_MAX_DAYS} days.`
+        days: CAPSTONE_PROJECT_MIN_DAYS,
+        message: `Capstone Project deadlines must be configured between ${CAPSTONE_PROJECT_MIN_DAYS} and ${CAPSTONE_PROJECT_MAX_DAYS} days.`
       };
     }
-    if (numDays > ADVANCED_PROJECT_MAX_DAYS) {
+    if (numDays > CAPSTONE_PROJECT_MAX_DAYS) {
       return {
         isValid: false,
-        days: ADVANCED_PROJECT_MAX_DAYS,
-        message: `Advanced Project deadlines must be configured between ${ADVANCED_PROJECT_MIN_DAYS} and ${ADVANCED_PROJECT_MAX_DAYS} days.`
+        days: CAPSTONE_PROJECT_MAX_DAYS,
+        message: `Capstone Project deadlines must be configured between ${CAPSTONE_PROJECT_MIN_DAYS} and ${CAPSTONE_PROJECT_MAX_DAYS} days.`
       };
     }
   }
@@ -398,6 +399,8 @@ const getEffectiveProjectDueDate = (
 
 module.exports = {
   DEFAULT_PROJECT_DEADLINES,
+  CAPSTONE_PROJECT_MIN_DAYS,
+  CAPSTONE_PROJECT_MAX_DAYS,
   ADVANCED_PROJECT_MIN_DAYS,
   ADVANCED_PROJECT_MAX_DAYS,
   normalizeProjectType,

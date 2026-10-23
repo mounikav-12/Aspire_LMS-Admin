@@ -377,7 +377,7 @@ export function StudentDashboardPage() {
                 Active Projects & Dynamic Deadlines Feed ({activeBatchFilter || 'All Batches'})
               </h3>
               <p className="text-xs text-slate-500 font-medium mt-0.5">
-                Automatically calculated from batch release timestamps (Mini: 3 days, Major: 5 days, Advanced: 10 days).
+                Automatically calculated from batch release timestamps (Mini: 3 days, Major: 5 days, Capstone: 10 days).
               </p>
             </div>
           </div>
