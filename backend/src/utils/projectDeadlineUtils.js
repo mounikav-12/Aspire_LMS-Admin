@@ -32,6 +32,29 @@ const getDefaultDeadlineDays = (projectType, customConfig = null) => {
   return DEFAULT_PROJECT_DEADLINES[norm] || 3;
 };
 
+
+const isDummyPlaceholderDate = (str) => {
+  if (!str) return true;
+  const clean = String(str).trim().toLowerCase();
+  return (
+    clean === 'sep 30' ||
+    clean === 'due sep 30' ||
+    clean === 'aug 30' ||
+    clean === 'due aug 30' ||
+    clean === 'due' ||
+    clean === 'tbd' ||
+    clean === 'null' ||
+    clean === 'undefined'
+  );
+};
+
+const hasFourDigitYear = (dateInput) => {
+  if (!dateInput) return false;
+  if (dateInput instanceof Date) return !isNaN(dateInput.getTime());
+  const str = String(dateInput);
+  return /\b(19|20)\d{2}\b/.test(str);
+};
+
 const validateDeadlineDays = (projectType, days) => {
   const norm = normalizeProjectType(projectType);
   const numDays = parseInt(days, 10);
@@ -162,6 +185,9 @@ const calculateDueDate = (unlockDateInput, durationDays, unlockTimeInput = null)
 };
 
 const calculateRemainingTime = (dueDateTimeOrDate, nowTimestamp = Date.now()) => {
+  if (!dueDateTimeOrDate || isDummyPlaceholderDate(dueDateTimeOrDate) || !hasFourDigitYear(dueDateTimeOrDate)) {
+    return { isOverdue: false, daysLeft: 0, hoursLeft: 0, label: 'ON_TRACK', text: '' };
+  }
   if (!dueDateTimeOrDate) {
     return { isOverdue: false, daysLeft: 0, hoursLeft: 0, label: 'ON_TRACK', text: '' };
   }
@@ -335,21 +361,38 @@ const getEffectiveProjectDueDate = (
     }
   }
 
-  // Fallback to legacy due date
-  const legacyDueDate = project.dueDate || project.due_date || 'Due Aug 30';
-  const rem = calculateRemainingTime(legacyDueDate);
+  // Fallback if project has an explicit real date with a 4-digit year
+  const legacyDueDate = project.dueDate || project.due_date || '';
+  if (legacyDueDate && !isDummyPlaceholderDate(legacyDueDate) && hasFourDigitYear(legacyDueDate)) {
+    const rem = calculateRemainingTime(legacyDueDate);
+    return {
+      dueDate: legacyDueDate,
+      dueDateTime: null,
+      formattedDueDate: legacyDueDate,
+      formattedDueDateTime: legacyDueDate,
+      unlockDate: null,
+      unlockDateTime: null,
+      durationDays,
+      isOverdue: rem.isOverdue,
+      remainingText: rem.text,
+      statusLabel: rem.label,
+      source: 'legacy'
+    };
+  }
+
+  // Not yet unlocked for this batch - clear placeholder, show dynamic window
   return {
-    dueDate: legacyDueDate,
+    dueDate: '',
     dueDateTime: null,
-    formattedDueDate: legacyDueDate,
-    formattedDueDateTime: legacyDueDate,
+    formattedDueDate: `${durationDays} days after unlock`,
+    formattedDueDateTime: `${durationDays} days after unlock`,
     unlockDate: null,
     unlockDateTime: null,
     durationDays,
-    isOverdue: rem.isOverdue,
-    remainingText: rem.text,
-    statusLabel: rem.label,
-    source: 'legacy'
+    isOverdue: false,
+    remainingText: '',
+    statusLabel: 'PENDING_UNLOCK',
+    source: 'pending'
   };
 };
 
@@ -364,5 +407,7 @@ module.exports = {
   calculateDueDate,
   calculateRemainingTime,
   recordBatchUnlock,
-  getEffectiveProjectDueDate
+  getEffectiveProjectDueDate,
+  isDummyPlaceholderDate,
+  hasFourDigitYear
 };

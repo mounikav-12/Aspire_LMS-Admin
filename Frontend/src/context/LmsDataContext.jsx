@@ -12,7 +12,8 @@ import {
   recordStudentUnlock,
   getEffectiveProjectDueDate,
   checkSubmissionDeadline,
-  normalizeProjectType
+  normalizeProjectType,
+  isDummyPlaceholderDate
 } from '../utils/projectDeadlineUtils';
 import {
   INITIAL_COURSES,
@@ -1459,7 +1460,10 @@ export function LmsDataProvider({ children }) {
       difficulty: row.difficulty || meta.difficulty || 'Intermediate',
       description: cleanDescription,
       techStack,
-      dueDate: row.due_date || row.dueDate || meta.dueDate || 'Due Aug 30',
+      dueDate: (() => {
+        const raw = row.due_date || row.dueDate || meta.dueDate || '';
+        return isDummyPlaceholderDate(raw) ? '' : raw;
+      })(),
       status: row.status || meta.status || 'Published',
       templateUrl: row.template_url || row.templateUrl || meta.templateUrl || 'https://github.com/aspire-lms/starter-repo',
       guidelines: row.guidelines || meta.guidelines || 'Include clean setup instructions and unit tests.',
@@ -1528,7 +1532,7 @@ export function LmsDataProvider({ children }) {
     const computedBatchDueDate = firstBatchCalc ? (firstBatchCalc.formattedDueDate || firstBatchCalc.dueDate) : null;
     const effectiveDueDate = (p.dueDate && p.dueDate !== 'Due Aug 30' && p.dueDate.trim())
       ? p.dueDate
-      : (computedBatchDueDate || p.dueDate || 'Due Aug 30');
+      : (computedBatchDueDate || (isDummyPlaceholderDate(p.dueDate) ? '' : p.dueDate));
 
     return {
       id: String(p.id),

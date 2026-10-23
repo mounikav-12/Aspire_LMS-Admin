@@ -158,21 +158,31 @@ console.log('--- RUNNING DYNAMIC PROJECT DUE DATE UNIT TESTS ---');
   console.log('? Passed: Scenario 5 verified successfully.');
 }
 
-// Test 6: Scenario 6 - Existing projects retain their deadlines during the change.
+// Test 6: Scenario 6 - Unlocked vs Pending Projects without dummy placeholder dates.
 {
-  console.log('\n[TEST 6] Legacy Project Fallback & Backward Compatibility:');
-  const legacyProj = {
-    id: 'legacy-1',
-    title: 'Legacy Python Project',
+  console.log('\n[TEST 6] Pending Unlock Display (No Dummy "Sep 30" or 9154 days overdue):');
+  const unreleasedProj = {
+    id: 'proj-unreleased',
+    title: 'Personal Project Versioning Workflow',
     type: 'Mini',
-    dueDate: 'Due Aug 30'
+    dueDate: 'Due Sep 30' // Legacy string that used to cause 9154 days overdue
   };
 
-  const eff = getEffectiveProjectDueDate(legacyProj, 'Any_Batch');
-  assert.strictEqual(eff.dueDate, 'Due Aug 30');
-  assert.strictEqual(eff.formattedDueDate, 'Due Aug 30');
-  assert.strictEqual(eff.source, 'legacy');
-  console.log('Legacy Project retained dueDate:', eff.formattedDueDate);
+  const eff = getEffectiveProjectDueDate(unreleasedProj, 'Weekday Batch');
+  assert.strictEqual(eff.isOverdue, false, 'Unreleased project must NOT be overdue');
+  assert.strictEqual(eff.remainingText, '', 'Unreleased project must have no overdue text');
+  assert.strictEqual(eff.formattedDueDate, '3 days after unlock');
+  console.log('Unreleased Mini Project display:', eff.formattedDueDate);
+
+  const realDatedProj = {
+    id: 'proj-dated',
+    title: 'Graduation Capstone',
+    type: 'Advanced',
+    dueDate: '2026-11-20'
+  };
+  const effDated = getEffectiveProjectDueDate(realDatedProj, 'Weekday Batch');
+  assert.strictEqual(effDated.formattedDueDate, '2026-11-20');
+  console.log('Explicitly dated project display:', effDated.formattedDueDate);
 
   console.log('? Passed: Scenario 6 verified successfully.');
 }

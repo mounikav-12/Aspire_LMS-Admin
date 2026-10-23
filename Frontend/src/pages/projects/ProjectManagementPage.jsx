@@ -603,7 +603,7 @@ export function ProjectManagementPage() {
       type: "Major",
       category: "Full-Stack Web Dev",
       difficulty: "Intermediate",
-      dueDate: "Sep 30",
+      dueDate: "",
       description: "Build a responsive full-stack Kanban task management platform with real-time updates and team collaboration.",
       techStack: ["React", "Tailwind CSS", "Node.js", "Express", "PostgreSQL"],
       overview: "Students will design, build, and deploy an end-to-end task board application featuring drag-and-drop cards, user authentication, and sprint metrics.",
@@ -1109,9 +1109,12 @@ export function ProjectManagementPage() {
                 <div className="flex flex-col gap-0.5">
                   <div className="flex items-center gap-1.5 text-xs text-slate-700 font-bold">
                     <Clock className="w-3.5 h-3.5 text-slate-400" />
-                    <span>Due {(() => {
+                    <span>{(() => {
                       const effDue = getEffectiveProjectDueDate(proj, activeBatchFilter, null, milestoneLocks, projectTypeDeadlines);
-                      return effDue.formattedDueDate || proj.dueDate || 'Due Aug 30';
+                      if (effDue.source === 'pending' || !effDue.unlockDate) {
+                        return effDue.formattedDueDate;
+                      }
+                      return `Due ${effDue.formattedDueDate}`;
                     })()}</span>
                   </div>
                   {(() => {
@@ -2021,7 +2024,7 @@ export function ProjectManagementPage() {
                   return (
                     <>
                       <span className="text-xs font-semibold text-slate-600 flex items-center gap-1 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-200">
-                        <Clock className="w-3.5 h-3.5 text-slate-400" /> Due {effDue.formattedDueDate || activeProjectDetail.dueDate}
+                        <Clock className="w-3.5 h-3.5 text-slate-400" /> {effDue.source === 'pending' || !effDue.unlockDate ? effDue.formattedDueDate : `Due ${effDue.formattedDueDate}`}
                       </span>
                       {effDue.remainingText && (
                         <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
