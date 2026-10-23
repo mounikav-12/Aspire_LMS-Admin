@@ -39,7 +39,8 @@ import { useToast } from '../../context/ToastContext';
 import { useLmsData } from '../../context/LmsDataContext';
 import { BatchFilterSelector } from '../../components/common/BatchFilterSelector';
 import { Button } from '../../components/common/Button';
-import { DEFAULT_CURRICULUM_LESSONS } from '../../data/curriculumData';
+import { DEFAULT_CURRICULUM_LESSONS, SUBTOPIC_MODULE_MAP, getStageNumber, isMatchingStage } from '../../data/curriculumData';
+export { SUBTOPIC_MODULE_MAP, getStageNumber, isMatchingStage };
 
 export const formatLocalDate = (d) => {
   if (!d || isNaN(new Date(d).getTime())) return '';
@@ -48,53 +49,6 @@ export const formatLocalDate = (d) => {
   const month = String(dateObj.getMonth() + 1).padStart(2, '0');
   const day = String(dateObj.getDate()).padStart(2, '0');
   return `${year}-${month}-${day}`;
-};
-
-export const SUBTOPIC_MODULE_MAP = {
-  'm1_git': 'mod-git',
-  'm1_html': 'mod-html',
-  'm1_css_fund': 'mod-css',
-  'm1_css_adv': 'mod-advcss',
-  'm1_bootstrap': 'mod-bootstrap',
-  'm1_js_ess': 'mod-jsess',
-  'm1_js_func': 'mod-jsfunc',
-  'm1_dom': 'mod-dom',
-  'm1_es6': 'mod-es6async',
-  'm2_py_fund': 'subtop-1787202208426',
-  'm2_py_oop': 'subtop-1787203469178',
-  'm2_postgres': 'subtop-1787203490227',
-  'm2_django_api': 'subtop-1787203534393',
-  'm2_dsa_arrays': 'subtop-1787203669226',
-  'm2_dsa_linkedlist': 'subtop-1787203763954',
-  'm2_dsa_trees': 'subtop-1787203763954',
-  'm2_dsa_dp': 'subtop-1787203763954',
-  'mod-stg3-m1': 'mod-stg3-m1',
-  'mod-stg3-m2': 'mod-stg3-m2',
-  'mod-stg3-m3': 'mod-stg3-m3',
-  'mod-stg4-m1': 'mod-stg4-m1',
-  'mod-stg4-m2': 'mod-stg4-m2',
-  'mod-stg4-m3': 'mod-stg4-m3',
-  'mod-stg4-m4': 'mod-stg4-m4',
-  'mod-stg4-m5': 'mod-stg4-m5'
-};
-
-export const getStageNumber = (stage) => {
-  if (!stage) return null;
-  const str = String(stage).trim().toLowerCase();
-  const match = str.match(/(?:stage|stg|top|s)[-_ ]*0*(\d+)/i) || str.match(/(\d+)/);
-  return match ? parseInt(match[1], 10) : null;
-};
-
-export const isMatchingStage = (stageA, stageB) => {
-  if (!stageA || !stageB) return true;
-  if (stageA === 'ALL' || stageB === 'ALL') return true;
-  const cleanA = String(stageA || '').replace(/-(w|s)$/i, '').trim().toLowerCase();
-  const cleanB = String(stageB || '').replace(/-(w|s)$/i, '').trim().toLowerCase();
-  if (cleanA === cleanB) return true;
-  const numA = getStageNumber(stageA);
-  const numB = getStageNumber(stageB);
-  if (numA !== null && numB !== null && numA === numB) return true;
-  return false;
 };
 
 // Pure Date & Time Release Determination Helper with Hierarchy Inheritance

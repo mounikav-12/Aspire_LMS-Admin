@@ -9,8 +9,7 @@ import { ConfirmDialog } from '../../components/common/ConfirmDialog';
 import { Badge } from '../../components/common/Badge';
 import { EmptyState } from '../../components/common/EmptyState';
 import { BatchFilterSelector } from '../../components/common/BatchFilterSelector';
-import { DEFAULT_STAGES, getSubtopicsForStage, getInnerModulesForSubtopic, normalizeStagesList } from '../sessions/LiveSessionListPage';
-import { isMatchingStage, SUBTOPIC_MODULE_MAP } from '../milestones/MilestonesRoadmapPage';
+import { DEFAULT_STAGES, getSubtopicsForStage, getInnerModulesForSubtopic, normalizeStagesList, isMatchingStage, SUBTOPIC_MODULE_MAP } from '../../data/curriculumData';
 import {
   FileCheck2,
   Plus,

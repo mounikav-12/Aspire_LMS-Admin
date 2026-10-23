@@ -1,7 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { useLmsData } from '../../context/LmsDataContext';
 import { useToast } from '../../context/ToastContext';
-import { isMatchingStage, SUBTOPIC_MODULE_MAP } from '../milestones/MilestonesRoadmapPage';
 import { Button } from '../../components/common/Button';
 import { Input, Select } from '../../components/common/Input';
 import { Modal } from '../../components/common/Modal';

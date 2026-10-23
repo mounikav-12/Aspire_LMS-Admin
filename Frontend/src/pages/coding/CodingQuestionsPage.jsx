@@ -6,8 +6,7 @@ import { Button } from '../../components/common/Button';
 import { Input, Select, CustomSelect } from '../../components/common/Input';
 import { Modal } from '../../components/common/Modal';
 import { ConfirmDialog } from '../../components/common/ConfirmDialog';
-import { DEFAULT_STAGES, getSubtopicsForStage, getInnerModulesForSubtopic, normalizeStagesList } from '../sessions/LiveSessionListPage';
-import { isMatchingStage, getStageNumber, SUBTOPIC_MODULE_MAP } from '../milestones/MilestonesRoadmapPage';
+import { DEFAULT_STAGES, getSubtopicsForStage, getInnerModulesForSubtopic, normalizeStagesList, isMatchingStage, getStageNumber, SUBTOPIC_MODULE_MAP } from '../../data/curriculumData';
 import {
   Code2,
   Plus,

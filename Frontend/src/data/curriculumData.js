@@ -998,3 +998,257 @@ export const normalizeStagesList = (rawStages) => {
 
   return result;
 };
+
+
+export const isPythonCourse = (course) => {
+  if (!course) return false;
+  const t = (course.title || '').toLowerCase();
+  const id = (course.id || '').toLowerCase();
+  return t.includes('python full') || id.includes('1786624019154') || id === 'ml-python-full-stack' || id === 'ml-python-weekend';
+};
+
+export const getSubtopicsForStage = (stage, isPython = null) => {
+  if (!stage) return [];
+  const rawSubs = (Array.isArray(stage.subtopics) && stage.subtopics.length > 0)
+    ? stage.subtopics
+    : (Array.isArray(stage.modules) && stage.modules.length > 0 ? stage.modules : []);
+
+  const isPythonStage = isPython !== null
+    ? isPython
+    : (
+        String(stage.id || '').startsWith('top-stg-') ||
+        String(stage.title || '').toLowerCase().includes('frontend & programming') ||
+        String(stage.title || '').toLowerCase().includes('backend & database') ||
+        String(stage.title || '').toLowerCase().includes('cloud, devops & full stack') ||
+        String(stage.title || '').toLowerCase().includes('backend + dsa')
+      );
+
+  if (!isPythonStage) {
+    return rawSubs;
+  }
+
+  const cleanId = (id) => String(id || '').replace(/-(w|s)$/i, '').trim().toLowerCase();
+  const cleanStr = (s) => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '').trim();
+
+  const stgNum = getStageNumber(stage.id) || getStageNumber(stage.title) || getStageNumber(stage.name);
+  const matchedDefault = DEFAULT_CURRICULUM_STAGES.find(s => 
+    isMatchingStage(s.id, stage.id) || 
+    isMatchingStage(s.title, stage.title) || 
+    (stgNum && (getStageNumber(s.id) === stgNum || getStageNumber(s.title) === stgNum))
+  );
+
+  if (!matchedDefault) {
+    return rawSubs;
+  }
+
+  if (rawSubs.length === 0) {
+    return matchedDefault.subtopics;
+  }
+
+  const mergedSubs = [];
+  matchedDefault.subtopics.forEach((defSub) => {
+    const defClean = cleanId(defSub.id);
+    const defTitle = cleanStr(defSub.title);
+    const existing = rawSubs.find(s => 
+      cleanId(s.id) === defClean ||
+      SUBTOPIC_MODULE_MAP[cleanId(s.id)] === defClean ||
+      SUBTOPIC_MODULE_MAP[defClean] === cleanId(s.id) ||
+      cleanStr(s.title) === defTitle ||
+      (cleanStr(s.title).length > 5 && (cleanStr(s.title).includes(defTitle) || defTitle.includes(cleanStr(s.title))))
+    );
+    if (existing) {
+      mergedSubs.push({
+        ...defSub,
+        ...existing,
+        id: existing.id || defSub.id,
+        title: existing.title || defSub.title
+      });
+    } else {
+      mergedSubs.push(defSub);
+    }
+  });
+
+  rawSubs.forEach((customSub) => {
+    const cClean = cleanId(customSub.id);
+    const cTitle = cleanStr(customSub.title);
+    const alreadyIncluded = mergedSubs.some(s => 
+      cleanId(s.id) === cClean ||
+      cleanStr(s.title) === cTitle
+    );
+    if (!alreadyIncluded) {
+      mergedSubs.push(customSub);
+    }
+  });
+
+  return mergedSubs;
+};
+
+export const getInnerModulesForSubtopic = (subtopic, courseLessons = [], stageId = '', isPython = null, courseId = '') => {
+  if (!subtopic) return [];
+  
+  const cleanId = (id) => String(id || '').replace(/-(w|s)$/i, '').trim();
+  const cleanNorm = (str) => String(str || '').toLowerCase().replace(/[^a-z0-9]/g, '').trim();
+  const stripSuffix = (str) => String(str || '').replace(/-(w|s)$/i, '').trim();
+  const subIdClean = cleanId(subtopic.id);
+  const subIdNorm = cleanNorm(subtopic.id);
+  const subTitleNorm = cleanNorm(subtopic.title || subtopic.name);
+  const mappedModId = SUBTOPIC_MODULE_MAP[subIdClean] || subIdClean;
+
+  const isPythonStage = isPython !== null
+    ? isPython
+    : (
+        String(stageId || '').startsWith('top-stg-') ||
+        String(subtopic.id || '').startsWith('mod-') ||
+        String(subtopic.id || '').startsWith('subtop-1787')
+      );
+
+  let inlineMods = [];
+  if (Array.isArray(subtopic.lessons) && subtopic.lessons.length > 0) {
+    inlineMods = subtopic.lessons;
+  } else if (Array.isArray(subtopic.modules) && subtopic.modules.length > 0) {
+    const unrolled = [];
+    subtopic.modules.forEach(m => {
+      if (Array.isArray(m.items) && m.items.length > 0) {
+        m.items.forEach(it => unrolled.push({
+          id: it.id || `${m.id}-${it.title}`,
+          title: it.title || it.name,
+          duration: it.duration || '1.5 hrs',
+          durationHours: it.duration || '1.5 hrs',
+          type: it.type
+        }));
+      } else if (Array.isArray(m.topics) && m.topics.length > 0) {
+        m.topics.forEach((top, idx) => unrolled.push({
+          id: `${m.id}-top-${idx}`,
+          title: typeof top === 'string' ? top : top.title || top.name,
+          duration: '1.5 hrs',
+          durationHours: '1.5 hrs'
+        }));
+      } else {
+        unrolled.push(m);
+      }
+    });
+    if (unrolled.length > 0) inlineMods = unrolled;
+  } else if (Array.isArray(subtopic.items) && subtopic.items.length > 0) {
+    inlineMods = subtopic.items.map((it, idx) => ({
+      id: typeof it === 'object' ? (it.id || `${subtopic.id}-it-${idx}`) : `${subtopic.id}-it-${idx}`,
+      title: typeof it === 'object' ? (it.title || it.name) : it,
+      duration: '1.5 hrs',
+      durationHours: '1.5 hrs'
+    }));
+  } else if (Array.isArray(subtopic.topics) && subtopic.topics.length > 0) {
+    inlineMods = subtopic.topics.map((top, idx) => ({
+      id: typeof top === 'object' ? (top.id || `${subtopic.id}-top-${idx}`) : `${subtopic.id}-top-${idx}`,
+      title: typeof top === 'object' ? (top.title || top.name) : top,
+      duration: '1.5 hrs',
+      durationHours: '1.5 hrs'
+    }));
+  }
+  
+  if (inlineMods.length > 0 && inlineMods.some(m => cleanNorm(m.title) !== subTitleNorm || (m.id && cleanId(m.id) !== subIdClean))) {
+    return inlineMods.map(l => ({
+      id: l.id || `mod-${Date.now()}`,
+      title: String(l.title || l.name || '').replace(/^Module\s*\d+\s*:\s*/i, '').trim(),
+      description: l.description || '',
+      duration: l.duration || l.durationHours || '1.5 hrs',
+      durationHours: l.durationHours || l.duration || '1.5 hrs',
+      topics: l.topics || [],
+      items: l.items || []
+    }));
+  }
+
+  if (Array.isArray(courseLessons) && courseLessons.length > 0) {
+    const matchedLessons = courseLessons.filter(l => {
+      if (courseId && l.course_id && l.course_id !== courseId && stripSuffix(l.course_id) !== stripSuffix(courseId)) {
+        return false;
+      }
+      const lModClean = cleanId(l.module_id || l.subtopic_id);
+      const lModId = cleanNorm(l.module_id || l.subtopic_id);
+      const lStgId = l.stage_id;
+      const lSubName = cleanNorm(l.subtopic_name || l.subtopicName);
+
+      if (stageId && lStgId && !isMatchingStage(lStgId, stageId)) {
+        return false;
+      }
+
+      if (
+        lModClean === subIdClean ||
+        lModClean === mappedModId ||
+        lModId === subIdNorm ||
+        (lSubName && (lSubName === subTitleNorm || lSubName.includes(subTitleNorm) || subTitleNorm.includes(lSubName)))
+      ) {
+        return true;
+      }
+      return false;
+    });
+
+    if (matchedLessons.length > 0) {
+      return matchedLessons.map(l => ({
+        id: l.id,
+        title: String(l.title || '').replace(/^Module\s*\d+\s*:\s*/i, '').trim(),
+        description: l.description || '',
+        duration: l.duration || l.durationHours || '1.5 hrs',
+        durationHours: l.durationHours || l.duration || '1.5 hrs',
+        topics: l.topics || [],
+        items: []
+      }));
+    }
+  }
+
+  if (isPythonStage) {
+    const curriculumMatch = Object.entries(DEFAULT_CURRICULUM_LESSONS).find(([key, val]) => {
+      const kClean = cleanId(key);
+      const kNorm = cleanNorm(key);
+      const valTitleNorm = cleanNorm(val.title);
+      return (
+        kClean === subIdClean ||
+        kClean === mappedModId ||
+        kNorm === subIdNorm ||
+        SUBTOPIC_MODULE_MAP[kClean] === subIdClean ||
+        SUBTOPIC_MODULE_MAP[subIdClean] === kClean ||
+        (valTitleNorm && (valTitleNorm === subTitleNorm || valTitleNorm.includes(subTitleNorm) || subTitleNorm.includes(valTitleNorm)))
+      );
+    });
+
+    if (curriculumMatch && Array.isArray(curriculumMatch[1].lessons) && curriculumMatch[1].lessons.length > 0) {
+      return curriculumMatch[1].lessons.map(l => ({
+        id: l.id,
+        title: l.title,
+        duration: l.duration || '1.5 hrs',
+        durationHours: l.duration || '1.5 hrs',
+        description: l.description || '',
+        topics: [],
+        items: []
+      }));
+    }
+  }
+
+  return [{ id: subtopic.id || 'mod-1', title: subtopic.title || 'General Module' }];
+};
+
+export const getModuleTopicsForSession = (sess, stagesList) => {
+  if (!sess) return [];
+  const cleanId = (id) => String(id || '').replace(/-(w|s)$/i, '').toLowerCase().trim();
+  const cleanStr = (str) => String(str || '').toLowerCase().replace(/[^a-z0-9]/g, '').trim();
+
+  const sessModId = cleanId(sess.moduleId || sess.module_id);
+  const sessModName = cleanStr(sess.moduleName || sess.module_name);
+
+  if (Array.isArray(sess.topics) && sess.topics.length > 0) {
+    return sess.topics;
+  }
+
+  if (Array.isArray(stagesList)) {
+    for (const stg of stagesList) {
+      const subs = Array.isArray(stg.subtopics) ? stg.subtopics : (Array.isArray(stg.modules) ? stg.modules : []);
+      for (const sub of subs) {
+        if (cleanId(sub.id) === sessModId || (sessModName && cleanStr(sub.title) === sessModName)) {
+          if (Array.isArray(sub.topics) && sub.topics.length > 0) return sub.topics;
+          if (Array.isArray(sub.lessons) && sub.lessons.length > 0) return sub.lessons;
+          if (Array.isArray(sub.modules) && sub.modules.length > 0) return sub.modules;
+        }
+      }
+    }
+  }
+
+  return [];
+};

@@ -8,8 +8,7 @@ import { Input, Select } from '../../components/common/Input';
 import { Modal } from '../../components/common/Modal';
 import { BatchMultiSelectDropdown } from '../../components/common/BatchMultiSelectDropdown';
 import { ConfirmDialog } from '../../components/common/ConfirmDialog';
-import { DEFAULT_STAGES, getSubtopicsForStage, getInnerModulesForSubtopic, normalizeStagesList } from '../sessions/LiveSessionListPage';
-import { isMatchingStage, SUBTOPIC_MODULE_MAP } from '../milestones/MilestonesRoadmapPage';
+import { DEFAULT_STAGES, getSubtopicsForStage, getInnerModulesForSubtopic, normalizeStagesList, isMatchingStage, SUBTOPIC_MODULE_MAP } from '../../data/curriculumData';
 import {
   FolderGit2,
   Plus,
