@@ -793,6 +793,13 @@ const formatDbProject = (payload) => {
 
   const targetBatchStr = payload.targetBatch || payload.target_batch || (Array.isArray(payload.targetBatches) ? payload.targetBatches.join(', ') : 'Weekday Batch');
 
+  const bDates = payload.batchDueDates || payload.batch_due_dates || {};
+  const firstBatchCalc = bDates ? Object.values(bDates).find(b => b && (b.formattedDueDate || b.dueDate)) : null;
+  const computedBatchDueDate = firstBatchCalc ? (firstBatchCalc.formattedDueDate || firstBatchCalc.dueDate) : null;
+  const effectiveDueDate = (payload.dueDate || payload.due_date) && (payload.dueDate !== 'Due Aug 30' && payload.due_date !== 'Due Aug 30')
+    ? (payload.dueDate || payload.due_date)
+    : (computedBatchDueDate || payload.dueDate || payload.due_date || 'Due Aug 30');
+
   return {
     id: payload.id || `proj-${Date.now()}`,
     title: payload.title || 'Untitled Project',
@@ -801,7 +808,7 @@ const formatDbProject = (payload) => {
     difficulty: payload.difficulty || 'Intermediate',
     description: JSON.stringify(meta),
     tech_stack: techStack,
-    due_date: payload.dueDate || payload.due_date || 'Due Aug 30',
+    due_date: effectiveDueDate,
     status: payload.status || 'Published',
     template_url: payload.templateUrl || payload.template_url || '',
     guidelines: payload.guidelines || '',

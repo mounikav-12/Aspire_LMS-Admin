@@ -1523,6 +1523,13 @@ export function LmsDataProvider({ children }) {
       ? p.techStack
       : (typeof p.techStack === 'string' ? p.techStack.split(',').map((s) => s.trim()) : []);
 
+    // Resolve the visible due_date column for Supabase Table Editor
+    const firstBatchCalc = p.batchDueDates ? Object.values(p.batchDueDates).find(b => b && (b.formattedDueDate || b.dueDate)) : null;
+    const computedBatchDueDate = firstBatchCalc ? (firstBatchCalc.formattedDueDate || firstBatchCalc.dueDate) : null;
+    const effectiveDueDate = (p.dueDate && p.dueDate !== 'Due Aug 30' && p.dueDate.trim())
+      ? p.dueDate
+      : (computedBatchDueDate || p.dueDate || 'Due Aug 30');
+
     return {
       id: String(p.id),
       title: p.title || 'Untitled Project',
@@ -1531,7 +1538,7 @@ export function LmsDataProvider({ children }) {
       difficulty: p.difficulty || 'Intermediate',
       description: JSON.stringify(meta),
       tech_stack: techStack,
-      due_date: p.dueDate || 'Due Aug 30',
+      due_date: effectiveDueDate,
       status: p.status || 'Published',
       template_url: p.templateUrl || '',
       guidelines: p.guidelines || '',
@@ -5976,7 +5983,12 @@ export function LmsDataProvider({ children }) {
         }
       }
       if (changed && currentProj.batchDueDates) {
-        await updateProject(currentProj.id, { batchDueDates: currentProj.batchDueDates });
+        const firstCalc = Object.values(currentProj.batchDueDates).find(b => b && (b.formattedDueDate || b.dueDate));
+        const updatedDueDate = firstCalc ? (firstCalc.formattedDueDate || firstCalc.dueDate) : currentProj.dueDate;
+        await updateProject(currentProj.id, {
+          batchDueDates: currentProj.batchDueDates,
+          dueDate: updatedDueDate
+        });
       }
     }
   };
@@ -5993,8 +6005,11 @@ export function LmsDataProvider({ children }) {
 
     const updatedProject = recordBatchUnlock(targetProject, batchCode, unlockDate, durationDays, forceReset);
     if (updatedProject && updatedProject.batchDueDates) {
+      const firstCalc = Object.values(updatedProject.batchDueDates).find(b => b && (b.formattedDueDate || b.dueDate));
+      const updatedDueDate = firstCalc ? (firstCalc.formattedDueDate || firstCalc.dueDate) : targetProject.dueDate;
       await updateProject(projectId, {
         batchDueDates: updatedProject.batchDueDates,
+        dueDate: updatedDueDate,
         ...(customDuration !== null && customDuration !== undefined ? { deadlineDuration: parseInt(customDuration, 10) } : {})
       });
     }
