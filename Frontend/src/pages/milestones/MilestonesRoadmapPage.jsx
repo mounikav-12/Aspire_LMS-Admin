@@ -846,9 +846,9 @@ export function MilestonesRoadmapPage() {
               if (mLock) {
                 return {
                   ...mod,
-                  unlockDate: mLock.unlock_date || mod.unlockDate,
-                  unlockTime: mLock.unlock_time || mod.unlockTime,
-                  unlockDateTime: mLock.unlock_datetime || mod.unlockDateTime
+                  unlockDate: mLock.unlock_date !== undefined ? (mLock.unlock_date || '') : (mod.unlockDate || ''),
+                  unlockTime: mLock.unlock_time !== undefined ? (mLock.unlock_time || '') : (mod.unlockTime || ''),
+                  unlockDateTime: mLock.unlock_datetime !== undefined ? mLock.unlock_datetime : (mod.unlockDateTime || null)
                 };
               }
               return mod;
@@ -860,9 +860,9 @@ export function MilestonesRoadmapPage() {
             ...sub,
             id: subId,
             title: cleanSubTitle,
-            unlockDate: sLock?.unlock_date || sub.unlockDate,
-            unlockTime: sLock?.unlock_time || sub.unlockTime,
-            unlockDateTime: sLock?.unlock_datetime || sub.unlockDateTime,
+            unlockDate: sLock ? (sLock.unlock_date || '') : (sub.unlockDate || ''),
+            unlockTime: sLock ? (sLock.unlock_time || '') : (sub.unlockTime || ''),
+            unlockDateTime: sLock ? (sLock.unlock_datetime || null) : (sub.unlockDateTime || null),
             modulesCount: modules.length,
             modules: modules
           };
@@ -1085,9 +1085,9 @@ export function MilestonesRoadmapPage() {
         if (mLock) {
           return {
             ...mod,
-            unlockDate: mLock.unlock_date || mod.unlockDate,
-            unlockTime: mLock.unlock_time || mod.unlockTime,
-            unlockDateTime: mLock.unlock_datetime || mod.unlockDateTime
+            unlockDate: mLock.unlock_date !== undefined ? (mLock.unlock_date || '') : (mod.unlockDate || ''),
+            unlockTime: mLock.unlock_time !== undefined ? (mLock.unlock_time || '') : (mod.unlockTime || ''),
+            unlockDateTime: mLock.unlock_datetime !== undefined ? mLock.unlock_datetime : (mod.unlockDateTime || null)
           };
         }
         return mod;
@@ -1138,7 +1138,8 @@ export function MilestonesRoadmapPage() {
       id: item.id,
       stageId: stageId || item.id,
       subtopicId: subtopicId || item.id,
-      title: item.title || item.stageNumber || 'Item'
+      title: item.title || item.stageNumber || 'Item',
+      activeLock: batchLock
     });
     // Requirement 3: Display existing unlocked date by default, or current date if not unlocked yet
     setScheduleFormData({
@@ -1223,33 +1224,76 @@ export function MilestonesRoadmapPage() {
   const handleClearSchedule = async () => {
     if (!scheduleTarget) return;
 
+    const targetLockId = scheduleTarget.activeLock?.id;
+
     if (scheduleTarget.type === 'stage') {
+      await removeLessonLock(scheduleTarget.id, selectedBatch, targetLockId);
       setStageSchedule(scheduleTarget.id, {
         unlockDate: '',
         unlockTime: '',
         unlockDateTime: null
       }, selectedBatch);
+      if (selectedCourseId && selectedCourseId !== 'ALL') {
+        setStageSchedule(scheduleTarget.id, {
+          unlockDate: '',
+          unlockTime: '',
+          unlockDateTime: null
+        }, selectedCourseId);
+      }
+      if (scheduleTarget.item) {
+        scheduleTarget.item.unlockDate = '';
+        scheduleTarget.item.unlockTime = '';
+        scheduleTarget.item.unlockDateTime = null;
+      }
       addToast('Stage schedule cleared', 'info');
     } else if (scheduleTarget.type === 'subtopic') {
-      await removeLessonLock(scheduleTarget.id, selectedBatch);
+      await removeLessonLock(scheduleTarget.id, selectedBatch, targetLockId);
       setSubtopicSchedule(scheduleTarget.stageId, scheduleTarget.id, {
         unlockDate: '',
         unlockTime: '',
         unlockDateTime: null
       }, selectedBatch);
+      if (selectedCourseId && selectedCourseId !== 'ALL') {
+        setSubtopicSchedule(scheduleTarget.stageId, scheduleTarget.id, {
+          unlockDate: '',
+          unlockTime: '',
+          unlockDateTime: null
+        }, selectedCourseId);
+      }
+      if (scheduleTarget.item) {
+        scheduleTarget.item.unlockDate = '';
+        scheduleTarget.item.unlockTime = '';
+        scheduleTarget.item.unlockDateTime = null;
+      }
       addToast(`Subtopic schedule cleared (${selectedBatch === 'ALL' ? 'All Batches' : selectedBatch})`, 'info');
     } else if (scheduleTarget.type === 'module') {
-      await removeLessonLock(scheduleTarget.id, selectedBatch);
+      await removeLessonLock(scheduleTarget.id, selectedBatch, targetLockId);
       if (scheduleTarget.stageId && scheduleTarget.subtopicId) {
         setModuleSchedule(scheduleTarget.stageId, scheduleTarget.subtopicId, scheduleTarget.id, {
           unlockDate: '',
           unlockTime: '',
           unlockDateTime: null
         }, selectedBatch);
+        if (selectedCourseId && selectedCourseId !== 'ALL') {
+          setModuleSchedule(scheduleTarget.stageId, scheduleTarget.subtopicId, scheduleTarget.id, {
+            unlockDate: '',
+            unlockTime: '',
+            unlockDateTime: null
+          }, selectedCourseId);
+        }
+      }
+      if (scheduleTarget.item) {
+        scheduleTarget.item.unlockDate = '';
+        scheduleTarget.item.unlockTime = '';
+        scheduleTarget.item.unlockDateTime = null;
       }
       addToast(`Lesson schedule cleared (${selectedBatch === 'ALL' ? 'All Batches' : selectedBatch})`, 'info');
     }
 
+    setScheduleFormData({
+      unlockDate: '',
+      unlockTime: '09:00'
+    });
     setIsScheduleModalOpen(false);
   };
 
@@ -1829,7 +1873,15 @@ export function MilestonesRoadmapPage() {
                         return (
                           <div key={subtopic.id} className="relative group/sub">
                             <div className="relative flex items-center gap-2">
-                              <button
+                              <div
+                                role="button"
+                                tabIndex={0}
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter' || e.key === ' ') {
+                                    e.preventDefault();
+                                    handleSubtopicClick(stage, subtopic);
+                                  }
+                                }}
                                 onClick={() => handleSubtopicClick(stage, subtopic)}
                                 className={`w-full text-left rounded-2xl px-4 py-3.5 transition-all flex items-center justify-between group cursor-pointer border shadow-xs ${
                                   isSubDone
@@ -1960,7 +2012,7 @@ export function MilestonesRoadmapPage() {
                                     <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-purple-600 dark:group-hover:text-purple-400 group-hover:translate-x-0.5 transition-all" />
                                   )}
                                 </div>
-                              </button>
+                              </div>
                             </div>
                           </div>
                         );

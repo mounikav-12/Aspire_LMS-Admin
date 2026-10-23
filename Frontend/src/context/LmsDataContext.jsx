@@ -4923,15 +4923,22 @@ export function LmsDataProvider({ children }) {
 
   const setSubtopicSchedule = (stageId, subtopicId, scheduleData, targetBatch = activeBatchFilter) => {
     const { unlockDate, unlockTime, unlockDateTime, isLocked } = scheduleData;
+    const cleanNorm = (str) => String(str || '').toLowerCase().replace(/[^a-z0-9]/g, '').trim();
+    const stripSuffix = (str) => String(str || '').replace(/-(w|s)$/i, '').trim();
+    const subClean = stripSuffix(subtopicId);
+    const subNorm = cleanNorm(subtopicId);
+
     updateBatchState(targetBatch, (batchData) => ({
       ...batchData,
       stages: (batchData.stages || []).map((stg) => {
-        const isStageMatch = stg.id === stageId || stg.id.replace(/-[ws]$/, '') === String(stageId).replace(/-[ws]$/, '');
+        const isStageMatch = !stageId || stg.id === stageId || stripSuffix(stg.id) === stripSuffix(stageId) || cleanNorm(stg.id) === cleanNorm(stageId);
         if (!isStageMatch) return stg;
         return {
           ...stg,
           subtopics: (stg.subtopics || []).map((sub) => {
-            const isSubMatch = sub.id === subtopicId || sub.id.replace(/-[ws]$/, '') === String(subtopicId).replace(/-[ws]$/, '');
+            const sClean = stripSuffix(sub.id);
+            const sNorm = cleanNorm(sub.id);
+            const isSubMatch = !subtopicId || sub.id === subtopicId || sClean === subClean || sNorm === subNorm;
             if (!isSubMatch) return sub;
             const uDate = unlockDate !== undefined ? unlockDate : sub.unlockDate;
             const uTime = unlockTime !== undefined ? unlockTime : sub.unlockTime;
@@ -4951,20 +4958,27 @@ export function LmsDataProvider({ children }) {
 
   const setModuleSchedule = (stageId, subtopicId, moduleId, scheduleData, targetBatch = activeBatchFilter) => {
     const { unlockDate, unlockTime, unlockDateTime, isLocked } = scheduleData;
+    const cleanNorm = (str) => String(str || '').toLowerCase().replace(/[^a-z0-9]/g, '').trim();
+    const stripSuffix = (str) => String(str || '').replace(/-(w|s)$/i, '').trim();
+    const modClean = stripSuffix(moduleId);
+    const modNorm = cleanNorm(moduleId);
+
     updateBatchState(targetBatch, (batchData) => ({
       ...batchData,
       stages: (batchData.stages || []).map((stg) => {
-        const isStageMatch = stg.id === stageId || stg.id.replace(/-[ws]$/, '') === String(stageId).replace(/-[ws]$/, '');
+        const isStageMatch = !stageId || stg.id === stageId || stripSuffix(stg.id) === stripSuffix(stageId) || cleanNorm(stg.id) === cleanNorm(stageId);
         if (!isStageMatch) return stg;
         return {
           ...stg,
           subtopics: (stg.subtopics || []).map((sub) => {
-            const isSubMatch = sub.id === subtopicId || sub.id.replace(/-[ws]$/, '') === String(subtopicId).replace(/-[ws]$/, '');
+            const isSubMatch = !subtopicId || sub.id === subtopicId || stripSuffix(sub.id) === stripSuffix(subtopicId) || cleanNorm(sub.id) === cleanNorm(subtopicId);
             if (!isSubMatch) return sub;
             return {
               ...sub,
               modules: (sub.modules || []).map((mod) => {
-                const isModMatch = mod.id === moduleId || mod.id.replace(/-[ws]$/, '') === String(moduleId).replace(/-[ws]$/, '');
+                const mClean = stripSuffix(mod.id);
+                const mNorm = cleanNorm(mod.id);
+                const isModMatch = mod.id === moduleId || mClean === modClean || mNorm === modNorm;
                 if (!isModMatch) return mod;
                 const uDate = unlockDate !== undefined ? unlockDate : mod.unlockDate;
                 const uTime = unlockTime !== undefined ? unlockTime : mod.unlockTime;
@@ -5930,12 +5944,56 @@ export function LmsDataProvider({ children }) {
     } catch (err) { console.warn('Lock upsert handled:', err); }
   };
 
-  const removeLessonLock = async (lessonId, batchCode) => {
-    setMilestoneLocks(prev => prev.filter(l => !(l.lesson_id === lessonId && l.batch_code === batchCode)));
+  const removeLessonLock = async (lessonId, batchCode, lockId = null) => {
+    if (!lessonId && !lockId) return;
+
+    const cleanId = String(lessonId || '').trim();
+    const stripSuffix = (str) => String(str || '').replace(/-(w|s)$/i, '').trim();
+    const idClean = stripSuffix(cleanId);
+    const cleanNorm = (str) => String(str || '').toLowerCase().replace(/[^a-z0-9]/g, '').trim();
+    const idNorm = cleanNorm(cleanId);
+
+    const isMatch = (l) => {
+      if (lockId && l.id === lockId) return true;
+      if (!cleanId) return false;
+      const lId = String(l.lesson_id || '').trim();
+      const matchLesson = lId === cleanId || stripSuffix(lId) === idClean || cleanNorm(lId) === idNorm;
+      if (!matchLesson) return false;
+      if (!batchCode || batchCode === 'ALL' || l.batch_code === batchCode || l.batch_code === 'ALL') {
+        return true;
+      }
+      return false;
+    };
+
+    const matchingLocks = milestoneLocks.filter(isMatch);
+    const lockIdsToDelete = Array.from(new Set([
+      ...matchingLocks.map(l => l.id).filter(Boolean),
+      ...(lockId ? [lockId] : [])
+    ]));
+
+    setMilestoneLocks(prev => prev.filter(l => !isMatch(l) && !lockIdsToDelete.includes(l.id)));
+
     try {
-      const { error } = await supabase.from('milestone_locks').delete().eq('lesson_id', lessonId).eq('batch_code', batchCode);
-      if (error) console.error('Supabase lock delete error:', error.message);
-    } catch (err) { console.warn('Lock delete handled:', err); }
+      if (lockIdsToDelete.length > 0) {
+        const { error: idErr } = await supabase.from('milestone_locks').delete().in('id', lockIdsToDelete);
+        if (idErr) console.warn('Supabase lock delete by id error:', idErr.message);
+      }
+      if (cleanId) {
+        let q = supabase.from('milestone_locks').delete();
+        if (idClean && idClean !== cleanId) {
+          q = q.in('lesson_id', [cleanId, idClean]);
+        } else {
+          q = q.eq('lesson_id', cleanId);
+        }
+        if (batchCode && batchCode !== 'ALL') {
+          q = q.in('batch_code', [batchCode, 'ALL']);
+        }
+        const { error: qErr } = await q;
+        if (qErr) console.warn('Supabase lock delete error:', qErr.message);
+      }
+    } catch (err) {
+      console.warn('Lock delete handled:', err);
+    }
   };
 
   const getItemLockStatus = (itemId, batchCode) => {
