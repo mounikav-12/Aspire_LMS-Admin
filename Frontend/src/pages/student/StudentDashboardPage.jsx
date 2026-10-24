@@ -29,7 +29,7 @@ import { getScheduleInfo } from '../../utils/milestoneUtils';
 import { getEffectiveProjectDueDate } from '../../utils/projectDeadlineUtils';
 
 export function StudentDashboardPage() {
-  const { courses, liveSessions, jobs, recordings, projects, milestones, rewards = [], refreshData, isSupabaseConnected, activeBatchFilter, milestoneLocks = [] } = useLmsData();
+  const { courses, liveSessions, jobs, recordings, projects, milestones, rewards = [], refreshData, isSupabaseConnected, activeBatchFilter, milestoneLocks = [], batchesList = [], availableBatches = [] } = useLmsData();
   const { addToast } = useToast();
 
   const [isSyncing, setIsSyncing] = useState(false);
@@ -129,7 +129,7 @@ export function StudentDashboardPage() {
       }),
       courses: courses.map((c) => ({ id: c.id, title: c.title, category: c.category, topics_count: c.topics?.length || 0 })),
       projects: (projects || []).map((p) => {
-        const effDue = getEffectiveProjectDueDate(p, activeBatchFilter || 'Weekday Batch', null, milestoneLocks);
+        const effDue = getEffectiveProjectDueDate(p, activeBatchFilter || 'Weekday Batch', null, milestoneLocks, null, batchesList || availableBatches);
         return {
           id: p.id,
           title: p.title,
@@ -386,7 +386,7 @@ export function StudentDashboardPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {(projects || []).map((proj) => {
-            const effDue = getEffectiveProjectDueDate(proj, activeBatchFilter || 'Weekday Batch', null, milestoneLocks);
+            const effDue = getEffectiveProjectDueDate(proj, activeBatchFilter || 'Weekday Batch', null, milestoneLocks, null, batchesList || availableBatches);
             return (
               <div
                 key={proj.id}
@@ -421,7 +421,7 @@ export function StudentDashboardPage() {
                 <div className="pt-2 border-t border-slate-200/60 flex items-center justify-between text-xs">
                   <div className="flex items-center gap-1 text-slate-600 font-semibold">
                     <Calendar className="w-3.5 h-3.5 text-slate-400" />
-                    <span>Due: {effDue.formattedDueDate || proj.dueDate || 'No date'}</span>
+                    <span>Due: {effDue.dueDate && !effDue.isLocked ? effDue.formattedDueDate : 'Not unlocked'}</span>
                   </div>
                   <span className="text-[10px] text-slate-400 font-mono">
                     {effDue.durationDays}d window

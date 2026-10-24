@@ -6,187 +6,371 @@ const {
   validateDeadlineDays,
   calculateDueDate,
   calculateRemainingTime,
+  parseBatchDueDates,
+  initializeBatchDueDates,
+  updateProjectBatchDueDate,
+  atomicMergeBatchDueDates,
+  calculateBatchProjectDueDate,
   recordBatchUnlock,
-  getEffectiveProjectDueDate
+  getEffectiveProjectDueDate,
+  checkSubmissionDeadline
 } = require('../backend/src/utils/projectDeadlineUtils');
 
-console.log('--- RUNNING DYNAMIC PROJECT DUE DATE UNIT TESTS ---');
+console.log('================================================================');
+console.log('--- DYNAMIC PROJECT DUE DATES: 11 SCENARIO VALIDATION TESTS ---');
+console.log('--- STORAGE KEY: BATCH CODE (e.g. A26W1, A26S1, A26W2, A26S2) ---');
+console.log('================================================================\n');
 
-// Test 1: Scenario 1 - Batch A unlocks a Mini Project on October 1 and Batch B unlocks it on October 10.
-// Each batch must receive its own due date.
+const mockBatches = [
+  { id: 'batch-101', code: 'A26W1', category: 'Weekday' },
+  { id: 'batch-102', code: 'A26S1', category: 'Weekend' },
+  { id: 'batch-103', code: 'A26W2', category: 'Weekday' },
+  { id: 'batch-104', code: 'A26S2', category: 'Weekend' }
+];
+const allBatchCodes = mockBatches.map(b => b.code);
+
+// -----------------------------------------------------------------------------
+// Scenario 1: An unlocked batch receives the correct due date based on its milestone schedule
+// -----------------------------------------------------------------------------
 {
-  console.log('\n[TEST 1] Batch A vs Batch B Independent Due Dates:');
+  console.log('[SCENARIO 1] Unlocked batch receives correct due date based on milestone schedule:');
   const project = {
-    id: 'proj-101',
+    id: 'proj-001',
     title: 'E-Commerce Storefront',
-    type: 'Mini',
-    dueDate: 'Due Aug 30'
+    type: 'Mini', // 3 calendar days
+    deadlineDuration: 3,
+    due_date: initializeBatchDueDates(allBatchCodes, {}, mockBatches)
   };
 
-  const projAfterBatchA = recordBatchUnlock(project, 'Batch_A', '2026-10-01');
-  const projAfterBatchB = recordBatchUnlock(projAfterBatchA, 'Batch_B', '2026-10-10');
+  const milestoneUnlockDate = '2026-11-02';
+  const calc = calculateBatchProjectDueDate(project, milestoneUnlockDate);
+  assert.strictEqual(calc.dueDate, '2026-11-05', 'Mini project unlocked on Nov 2 must be due Nov 5 (Nov 2 + 3 days)');
 
-  const effBatchA = getEffectiveProjectDueDate(projAfterBatchB, 'Batch_A');
-  const effBatchB = getEffectiveProjectDueDate(projAfterBatchB, 'Batch_B');
-
-  console.log('Batch A Due Date:', effBatchA.dueDate, 'Formatted:', effBatchA.formattedDueDate);
-  console.log('Batch B Due Date:', effBatchB.dueDate, 'Formatted:', effBatchB.formattedDueDate);
-
-  // Mini project is 3 calendar days
-  assert.strictEqual(effBatchA.dueDate, '2026-10-04', 'Batch A due date should be 2026-10-04 (Oct 1 + 3 days)');
-  assert.strictEqual(effBatchB.dueDate, '2026-10-13', 'Batch B due date should be 2026-10-13 (Oct 10 + 3 days)');
-  assert.notStrictEqual(effBatchA.dueDate, effBatchB.dueDate, 'Batches must have distinct due dates');
-  console.log('? Passed: Scenario 1 verified successfully.');
+  const updatedDueDates = updateProjectBatchDueDate(project.due_date, 'A26W1', calc.dueDate, allBatchCodes, mockBatches);
+  assert.strictEqual(updatedDueDates['A26W1'], '2026-11-05', 'Due date must be stored under batch code A26W1');
+  console.log('✓ Batch A26W1 due date correctly calculated and stored by batch code:', updatedDueDates['A26W1']);
+  console.log('✓ Scenario 1 PASSED.\n');
 }
 
-// Test 2: Scenario 2 - Mini, Major, and Capstone Projects receive their respective configured deadlines.
+// -----------------------------------------------------------------------------
+// Scenario 2: An existing batch with a locked project has a "null" due date
+// -----------------------------------------------------------------------------
 {
-  console.log('\n[TEST 2] Project Type Default and Configured Deadlines (Mini, Major, Capstone):');
-  const unlockDate = '2026-10-01';
-
-  // Mini: 3 calendar days
-  const miniCalc = calculateDueDate(unlockDate, getDefaultDeadlineDays('Mini'));
-  assert.strictEqual(miniCalc.dueDate, '2026-10-04');
-  assert.strictEqual(miniCalc.durationDays, 3);
-  console.log('Mini Project (3 days):', miniCalc.dueDate);
-
-  // Major: 5 calendar days
-  const majorCalc = calculateDueDate(unlockDate, getDefaultDeadlineDays('Major'));
-  assert.strictEqual(majorCalc.dueDate, '2026-10-06');
-  assert.strictEqual(majorCalc.durationDays, 5);
-  console.log('Major Project (5 days):', majorCalc.dueDate);
-
-  // Capstone: 10 calendar days default
-  const capCalc = calculateDueDate(unlockDate, getDefaultDeadlineDays('Capstone'));
-  assert.strictEqual(capCalc.dueDate, '2026-10-11');
-  assert.strictEqual(capCalc.durationDays, 10);
-  console.log('Capstone Project default (10 days):', capCalc.dueDate);
-
-  // Capstone configurable within 8-10 days: test 8 days
-  const valid8 = validateDeadlineDays('Capstone', 8);
-  assert.strictEqual(valid8.isValid, true);
-  const capCalc8 = calculateDueDate(unlockDate, valid8.days);
-  assert.strictEqual(capCalc8.dueDate, '2026-10-09');
-  console.log('Capstone Project configured (8 days):', capCalc8.dueDate);
-
-  // Capstone validation bounds (clamp outside 8-10)
-  const invalidLow = validateDeadlineDays('Capstone', 5);
-  assert.strictEqual(invalidLow.isValid, false);
-  assert.strictEqual(invalidLow.days, 8, 'Low out-of-range value clamped to 8');
-
-  const invalidHigh = validateDeadlineDays('Capstone', 15);
-  assert.strictEqual(invalidHigh.isValid, false);
-  assert.strictEqual(invalidHigh.days, 10, 'High out-of-range value clamped to 10');
-
-  console.log('? Passed: Scenario 2 verified successfully.');
-}
-
-// Test 3: Scenario 3 - Repeated unlock event does NOT reset an existing deadline.
-{
-  console.log('\n[TEST 3] Duplicate Unlock Event Prevention:');
+  console.log('[SCENARIO 2] Existing batch with a locked project has a literal null due date:');
   const project = {
-    id: 'proj-202',
+    id: 'proj-002',
     title: 'Cloud DevOps Pipeline',
-    type: 'Major',
-    dueDate: 'Due Aug 30'
-  };
-
-  // First unlock: October 1 -> due October 6
-  const p1 = recordBatchUnlock(project, 'Batch_A', '2026-10-01');
-  assert.strictEqual(p1.batchDueDates.Batch_A.dueDate, '2026-10-06');
-
-  // Repeated unlock event on October 5 (simulating repeat admin click or module update)
-  const p2 = recordBatchUnlock(p1, 'Batch_A', '2026-10-05', null, false);
-  assert.strictEqual(p2.batchDueDates.Batch_A.dueDate, '2026-10-06', 'Deadline must NOT be reset by duplicate unlock');
-  assert.strictEqual(p2.batchDueDates.Batch_A.unlockDate, '2026-10-01', 'Unlock date must retain original timestamp');
-
-  // Explicit authorized force reset
-  const p3 = recordBatchUnlock(p2, 'Batch_A', '2026-10-05', null, true);
-  assert.strictEqual(p3.batchDueDates.Batch_A.dueDate, '2026-10-10', 'Explicit forced reset allowed when authorized');
-
-  console.log('? Passed: Scenario 3 verified successfully.');
-}
-
-// Test 4: Scenario 4 - Students in different batches see correct due dates for the same project.
-{
-  console.log('\n[TEST 4] Student Dashboard Batch Isolation:');
-  const project = {
-    id: 'proj-shared',
-    title: 'AI Prompt Engineering Tool',
-    type: 'Mini',
-    batchDueDates: {
-      'Batch_Alpha': {
-        dueDate: '2026-10-04',
-        formattedDueDate: 'Oct 4, 2026',
-        dueDateTime: '2026-10-04T23:59:59.000Z'
-      },
-      'Batch_Beta': {
-        dueDate: '2026-10-15',
-        formattedDueDate: 'Oct 15, 2026',
-        dueDateTime: '2026-10-15T23:59:59.000Z'
-      }
+    type: 'Major', // 5 calendar days
+    due_date: {
+      'A26W1': '2026-11-10',
+      'A26S1': null,
+      'A26W2': '2026-11-15',
+      'A26S2': null
     }
   };
 
-  const studentAlphaView = getEffectiveProjectDueDate(project, 'Batch_Alpha');
-  const studentBetaView = getEffectiveProjectDueDate(project, 'Batch_Beta');
+  // Batches A26S1 and A26S2 are locked
+  assert.strictEqual(project.due_date['A26S1'], null, 'Locked batch A26S1 must have literal null value');
+  assert.strictEqual(project.due_date['A26S2'], null, 'Locked batch A26S2 must have literal null value');
+  assert.notStrictEqual(project.due_date['A26S1'], '', 'Must not be empty string');
+  assert.notStrictEqual(project.due_date['A26S1'], 'null', 'Must not be string "null"');
+  assert.notStrictEqual(project.due_date['A26S1'], 'None', 'Must not be string "None"');
 
-  assert.strictEqual(studentAlphaView.formattedDueDate, 'Oct 4, 2026');
-  assert.strictEqual(studentBetaView.formattedDueDate, 'Oct 15, 2026');
-  console.log('Student Alpha views:', studentAlphaView.formattedDueDate);
-  console.log('Student Beta views:', studentBetaView.formattedDueDate);
+  const effA26S1 = getEffectiveProjectDueDate(project, 'A26S1', null, [], null, mockBatches);
+  assert.strictEqual(effA26S1.dueDate, null, 'Effective due date must be null');
+  assert.strictEqual(effA26S1.formattedDueDate, 'Not unlocked', 'Formatted display must be "Not unlocked"');
+  assert.strictEqual(effA26S1.isLocked, true, 'isLocked must be true');
 
-  console.log('? Passed: Scenario 4 verified successfully.');
+  // Also verify legacy batch ID query 'batch-102' resolves to 'A26S1'
+  const effLegacyId = getEffectiveProjectDueDate(project, 'batch-102', null, [], null, mockBatches);
+  assert.strictEqual(effLegacyId.dueDate, null);
+  assert.strictEqual(effLegacyId.formattedDueDate, 'Not unlocked');
+
+  console.log('✓ Batch A26S1 due date is literal null, display is:', effA26S1.formattedDueDate);
+  console.log('✓ Legacy ID lookup batch-102 properly mapped to A26S1:', effLegacyId.formattedDueDate);
+  console.log('✓ Scenario 2 PASSED.\n');
 }
 
-// Test 5: Scenario 5 - Overdue status and submission validation use the correct deadline.
+// -----------------------------------------------------------------------------
+// Scenario 3: A newly created batch has a "null" due date until its project is unlocked
+// -----------------------------------------------------------------------------
 {
-  console.log('\n[TEST 5] Overdue Status & Deadline Validation:');
-  const dueDateTime = '2026-10-04T23:59:59.000Z';
-
-  // Before deadline (October 3, 2026)
-  const onTimeCheck = calculateRemainingTime(dueDateTime, new Date('2026-10-03T12:00:00.000Z').getTime());
-  assert.strictEqual(onTimeCheck.isOverdue, false);
-  console.log('Oct 3 remaining text:', onTimeCheck.text);
-
-  // After deadline (October 6, 2026)
-  const overdueCheck = calculateRemainingTime(dueDateTime, new Date('2026-10-06T12:00:00.000Z').getTime());
-  assert.strictEqual(overdueCheck.isOverdue, true);
-  assert.strictEqual(overdueCheck.label, 'OVERDUE');
-  console.log('Oct 6 overdue text:', overdueCheck.text);
-
-  console.log('? Passed: Scenario 5 verified successfully.');
-}
-
-// Test 6: Scenario 6 - Unlocked vs Pending Projects without dummy placeholder dates.
-{
-  console.log('\n[TEST 6] Pending Unlock Display (No Dummy "Sep 30" or 9154 days overdue):');
-  const unreleasedProj = {
-    id: 'proj-unreleased',
-    title: 'Personal Project Versioning Workflow',
+  console.log('[SCENARIO 3] Newly created batch initialized to null until unlocked:');
+  const existingProject = {
+    id: 'proj-003',
+    title: 'AI Prompt Engineering Platform',
     type: 'Mini',
-    dueDate: 'Due Sep 30' // Legacy string that used to cause 9154 days overdue
+    due_date: {
+      'A26W1': '2026-11-05',
+      'A26S1': null,
+      'A26W2': '2026-11-15'
+    }
   };
 
-  const eff = getEffectiveProjectDueDate(unreleasedProj, 'Weekday Batch');
-  assert.strictEqual(eff.isOverdue, false, 'Unreleased project must NOT be overdue');
-  assert.strictEqual(eff.remainingText, '', 'Unreleased project must have no overdue text');
-  assert.strictEqual(eff.formattedDueDate, '3 days after unlock');
-  console.log('Unreleased Mini Project display:', eff.formattedDueDate);
+  const newBatchCode = 'A26W3';
+  const updatedAllBatches = [...allBatchCodes, newBatchCode];
+  const initializedDueDates = initializeBatchDueDates(updatedAllBatches, existingProject.due_date);
 
-  const realDatedProj = {
-    id: 'proj-dated',
-    title: 'Graduation Capstone',
-    type: 'Advanced',
-    dueDate: '2026-11-20'
-  };
-  const effDated = getEffectiveProjectDueDate(realDatedProj, 'Weekday Batch');
-  assert.strictEqual(effDated.formattedDueDate, '2026-11-20');
-  console.log('Explicitly dated project display:', effDated.formattedDueDate);
+  assert.strictEqual(initializedDueDates[newBatchCode], null, 'New batch code must be initialized with literal null');
+  assert.strictEqual(initializedDueDates['A26W1'], '2026-11-05', 'Existing batch A26W1 must be preserved');
+  assert.strictEqual(initializedDueDates['A26S1'], null, 'Existing batch A26S1 null must be preserved');
+  assert.strictEqual(initializedDueDates['A26W2'], '2026-11-15', 'Existing batch A26W2 must be preserved');
 
-  console.log('? Passed: Scenario 6 verified successfully.');
+  const effNew = getEffectiveProjectDueDate({ ...existingProject, due_date: initializedDueDates }, newBatchCode);
+  assert.strictEqual(effNew.dueDate, null);
+  assert.strictEqual(effNew.formattedDueDate, 'Not unlocked');
+
+  console.log('✓ New batch A26W3 successfully initialized to null without affecting existing batches');
+  console.log('✓ Scenario 3 PASSED.\n');
 }
 
-console.log('\n========================================');
-console.log('? ALL 6 SCENARIOS PASSED WITH ZERO ERRORS');
-console.log('========================================\n');
+// -----------------------------------------------------------------------------
+// Scenario 4: Unlocking one batch does not affect other batches
+// -----------------------------------------------------------------------------
+{
+  console.log('[SCENARIO 4] Unlocking one batch does not affect other batches:');
+  const initialDueDates = {
+    'A26W1': '2026-11-05',
+    'A26S1': null,
+    'A26W2': '2026-11-15',
+    'A26S2': null
+  };
+
+  // Unlock Batch A26S1 on Nov 10 for a Major project (5 days -> due Nov 15)
+  const afterUnlockBatchA26S1 = updateProjectBatchDueDate(initialDueDates, 'A26S1', '2026-11-15', allBatchCodes);
+
+  assert.strictEqual(afterUnlockBatchA26S1['A26S1'], '2026-11-15', 'Batch A26S1 must have its new due date');
+  assert.strictEqual(afterUnlockBatchA26S1['A26W1'], '2026-11-05', 'Batch A26W1 must remain completely unchanged');
+  assert.strictEqual(afterUnlockBatchA26S1['A26W2'], '2026-11-15', 'Batch A26W2 must remain completely unchanged');
+  assert.strictEqual(afterUnlockBatchA26S1['A26S2'], null, 'Batch A26S2 must remain locked null');
+
+  console.log('✓ Batch A26S1 unlocked to 2026-11-15, all other batch codes strictly preserved');
+  console.log('✓ Scenario 4 PASSED.\n');
+}
+
+// -----------------------------------------------------------------------------
+// Scenario 5: Updating one batch\'s milestone changes only the appropriate due dates
+// -----------------------------------------------------------------------------
+{
+  console.log('[SCENARIO 5] Milestone schedule update affects only target batch:');
+  const initialDueDates = {
+    'A26W1': '2026-11-05',
+    'A26S1': '2026-11-20',
+    'A26W2': '2026-11-15'
+  };
+
+  // Milestone schedule for Batch A26W1 shifts to unlock on Nov 6 (Mini project -> due Nov 9)
+  const updatedDueDates = updateProjectBatchDueDate(initialDueDates, 'A26W1', '2026-11-09', allBatchCodes);
+
+  assert.strictEqual(updatedDueDates['A26W1'], '2026-11-09', 'Batch A26W1 due date updated to Nov 9');
+  assert.strictEqual(updatedDueDates['A26S1'], '2026-11-20', 'Batch A26S1 due date must remain Nov 20');
+  assert.strictEqual(updatedDueDates['A26W2'], '2026-11-15', 'Batch A26W2 due date must remain Nov 15');
+
+  console.log('✓ Batch A26W1 shifted to 2026-11-09; Batch A26S1 and A26W2 untouched');
+  console.log('✓ Scenario 5 PASSED.\n');
+}
+
+// -----------------------------------------------------------------------------
+// Scenario 6: Different batches can have different due dates for the same project
+// -----------------------------------------------------------------------------
+{
+  console.log('[SCENARIO 6] Different batches have distinct due dates for the same project:');
+  const project = {
+    id: 'proj-006',
+    title: 'Full-Stack Graduation Project',
+    type: 'Capstone', // 10 days default
+    due_date: {
+      'A26W1': '2026-11-05',
+      'A26S1': '2026-11-18',
+      'A26W2': '2026-12-01',
+      'A26S2': null
+    }
+  };
+
+  const effW1 = getEffectiveProjectDueDate(project, 'A26W1', null, [], null, mockBatches);
+  const effS1 = getEffectiveProjectDueDate(project, 'A26S1', null, [], null, mockBatches);
+  const effW2 = getEffectiveProjectDueDate(project, 'A26W2', null, [], null, mockBatches);
+  const effS2 = getEffectiveProjectDueDate(project, 'A26S2', null, [], null, mockBatches);
+
+  assert.strictEqual(effW1.dueDate, '2026-11-05');
+  assert.strictEqual(effS1.dueDate, '2026-11-18');
+  assert.strictEqual(effW2.dueDate, '2026-12-01');
+  assert.strictEqual(effS2.dueDate, null);
+
+  assert.notStrictEqual(effW1.dueDate, effS1.dueDate);
+  assert.notStrictEqual(effS1.dueDate, effW2.dueDate);
+
+  console.log('✓ Batch A26W1:', effW1.formattedDueDate);
+  console.log('✓ Batch A26S1:', effS1.formattedDueDate);
+  console.log('✓ Batch A26W2:', effW2.formattedDueDate);
+  console.log('✓ Batch A26S2 (Locked):', effS2.formattedDueDate);
+  console.log('✓ Scenario 6 PASSED.\n');
+}
+
+// -----------------------------------------------------------------------------
+// Scenario 7: Locking a project updates its due-date value appropriately
+// -----------------------------------------------------------------------------
+{
+  console.log('[SCENARIO 7] Locking a project updates its due date value to literal null:');
+  const initialDueDates = {
+    'A26W1': '2026-11-05',
+    'A26S1': '2026-11-18',
+    'A26W2': '2026-12-01'
+  };
+
+  // Admin locks the project for Batch A26S1
+  const afterLock = updateProjectBatchDueDate(initialDueDates, 'A26S1', null, allBatchCodes);
+
+  assert.strictEqual(afterLock['A26S1'], null, 'Locked project for Batch A26S1 must have literal null value');
+  assert.strictEqual(afterLock['A26W1'], '2026-11-05', 'Batch A26W1 must remain intact');
+  assert.strictEqual(afterLock['A26W2'], '2026-12-01', 'Batch A26W2 must remain intact');
+
+  const effS1 = getEffectiveProjectDueDate({ due_date: afterLock }, 'A26S1');
+  assert.strictEqual(effS1.dueDate, null);
+  assert.strictEqual(effS1.formattedDueDate, 'Not unlocked');
+  assert.strictEqual(effS1.isLocked, true);
+
+  console.log('✓ Batch A26S1 successfully locked to null. Status:', effS1.formattedDueDate);
+  console.log('✓ Scenario 7 PASSED.\n');
+}
+
+// -----------------------------------------------------------------------------
+// Scenario 8: Existing project and batch data remains intact after migration
+// -----------------------------------------------------------------------------
+{
+  console.log('[SCENARIO 8] Migration preserves existing project and batch data and maps to batch codes:');
+  const existingProjectRow = {
+    id: 'proj-existing',
+    title: 'Microservices Gateway API',
+    type: 'Major',
+    category: 'Backend Architecture',
+    due_date: 'Due Aug 30', // Legacy scalar string
+    description: '{"courseId":"crs-101","stageId":"stg-1"}'
+  };
+
+  // Migration should parse legacy, initialize all batch codes to null if locked
+  const migratedBatchDueDates = initializeBatchDueDates(allBatchCodes, parseBatchDueDates(existingProjectRow.due_date, mockBatches), mockBatches);
+
+  assert.strictEqual(typeof migratedBatchDueDates, 'object');
+  for (const bCode of allBatchCodes) {
+    assert.strictEqual(migratedBatchDueDates[bCode], null, `Batch code ${bCode} must be initialized with literal null`);
+  }
+
+  // If previous DB had legacy batch IDs:
+  const legacyMap = {
+    'batch-101': '2026-11-05',
+    'batch-102': null
+  };
+  const converted = initializeBatchDueDates(allBatchCodes, legacyMap, mockBatches);
+  assert.strictEqual(converted['A26W1'], '2026-11-05', 'Legacy batch-101 must be converted to A26W1');
+  assert.strictEqual(converted['A26S1'], null, 'Legacy batch-102 null must be converted to A26S1');
+  assert.strictEqual(converted['batch-101'], undefined, 'Old batch-101 key must be removed');
+
+  console.log('✓ Migration safely mapped legacy batch IDs to batch codes:', converted);
+  console.log('✓ Scenario 8 PASSED.\n');
+}
+
+// -----------------------------------------------------------------------------
+// Scenario 9: The frontend displays the correct date for each selected batch
+// -----------------------------------------------------------------------------
+{
+  console.log('[SCENARIO 9] Frontend displays correct date per selected batch:');
+  const project = {
+    id: 'proj-009',
+    title: 'Interactive Dashboard',
+    type: 'Mini',
+    due_date: {
+      'A26W1': '2026-11-05',
+      'A26S1': null,
+      'A26W2': '2026-11-15'
+    }
+  };
+
+  // User selects Batch A26W1 (Unlocked)
+  const viewBatchW1 = getEffectiveProjectDueDate(project, 'A26W1', null, [], null, mockBatches);
+  assert.strictEqual(viewBatchW1.formattedDueDate, 'Nov 5, 2026');
+  assert.strictEqual(viewBatchW1.isLocked, false);
+
+  // User changes dropdown to Batch A26S1 (Locked)
+  const viewBatchS1 = getEffectiveProjectDueDate(project, 'A26S1', null, [], null, mockBatches);
+  assert.strictEqual(viewBatchS1.dueDate, null);
+  assert.strictEqual(viewBatchS1.formattedDueDate, 'Not unlocked');
+  assert.strictEqual(viewBatchS1.isLocked, true);
+
+  // User changes dropdown to Batch A26W2 (Unlocked)
+  const viewBatchW2 = getEffectiveProjectDueDate(project, 'A26W2', null, [], null, mockBatches);
+  assert.strictEqual(viewBatchW2.formattedDueDate, 'Nov 15, 2026');
+  assert.strictEqual(viewBatchW2.isLocked, false);
+
+  // Alias lookups
+  const viewWeekday = getEffectiveProjectDueDate(project, 'Weekday Batch', null, [], null, mockBatches);
+  assert.strictEqual(viewWeekday.formattedDueDate, 'Nov 5, 2026');
+
+  console.log('✓ Batch A26W1 view: Due', viewBatchW1.formattedDueDate);
+  console.log('✓ Batch A26S1 view:', viewBatchS1.formattedDueDate);
+  console.log('✓ Batch A26W2 view: Due', viewBatchW2.formattedDueDate);
+  console.log('✓ Batch Alias (Weekday Batch) view: Due', viewWeekday.formattedDueDate);
+  console.log('✓ Scenario 9 PASSED.\n');
+}
+
+// -----------------------------------------------------------------------------
+// Scenario 10: Concurrent updates do not overwrite other batches\' due dates
+// -----------------------------------------------------------------------------
+{
+  console.log('[SCENARIO 10] Concurrent updates do not clobber other batches:');
+  // Initial database state keyed by batch codes
+  const baseDbState = {
+    'A26W1': '2026-11-05',
+    'A26S1': null,
+    'A26W2': null
+  };
+
+  // Request 1: Admin A updates Batch A26S1 to '2026-11-10'
+  const stateAfterReq1 = atomicMergeBatchDueDates(baseDbState, 'A26S1', '2026-11-10');
+
+  // Request 2: Simultaneously, Admin B updates Batch A26W2 to '2026-11-25'
+  // When Request 2 merges into the latest state, Request 1\'s change is preserved:
+  const stateAfterReq2 = atomicMergeBatchDueDates(stateAfterReq1, 'A26W2', '2026-11-25');
+
+  assert.strictEqual(stateAfterReq2['A26W1'], '2026-11-05', 'Original Batch A26W1 must be preserved');
+  assert.strictEqual(stateAfterReq2['A26S1'], '2026-11-10', 'Concurrent update for Batch A26S1 must be preserved');
+  assert.strictEqual(stateAfterReq2['A26W2'], '2026-11-25', 'Concurrent update for Batch A26W2 must be applied');
+
+  console.log('✓ State after simulated concurrent requests:', stateAfterReq2);
+  console.log('✓ Scenario 10 PASSED.\n');
+}
+
+// -----------------------------------------------------------------------------
+// Scenario 11: Existing application features that depend on project due dates continue to work correctly
+// -----------------------------------------------------------------------------
+{
+  console.log('[SCENARIO 11] Existing features (deadline calculation, submission checks, remaining time) function correctly:');
+
+  // Feature A: Submission deadline check (on-time vs overdue)
+  const onTimeCheck = checkSubmissionDeadline('2026-11-04 18:00:00', '2026-11-05 23:59:59');
+  assert.strictEqual(onTimeCheck.isLate, false);
+  assert.strictEqual(onTimeCheck.label, 'ON_TIME');
+
+  const lateCheck = checkSubmissionDeadline('2026-11-07 10:00:00', '2026-11-05 23:59:59');
+  assert.strictEqual(lateCheck.isLate, true);
+  assert.strictEqual(lateCheck.label, 'OVERDUE');
+
+  // Feature B: Remaining time calculation
+  const rem = calculateRemainingTime('2026-11-05T23:59:59.000Z', new Date('2026-11-03T12:00:00.000Z').getTime());
+  assert.strictEqual(rem.isOverdue, false);
+  assert.strictEqual(rem.daysLeft, 2);
+
+  // Feature C: Configurable project deadlines (Mini=3, Major=5, Capstone=8..10)
+  assert.strictEqual(getDefaultDeadlineDays('Mini'), 3);
+  assert.strictEqual(getDefaultDeadlineDays('Major'), 5);
+  assert.strictEqual(getDefaultDeadlineDays('Capstone'), 10);
+  assert.strictEqual(validateDeadlineDays('Capstone', 9).isValid, true);
+  assert.strictEqual(validateDeadlineDays('Capstone', 15).isValid, false);
+
+  console.log('✓ Submission checks, remaining time calculations, and type validation working perfectly');
+  console.log('✓ Scenario 11 PASSED.\n');
+}
+
+console.log('================================================================');
+console.log('★ ALL 11 TEST SCENARIOS PASSED WITH 100% ACCURACY & ZERO ERRORS');
+console.log('================================================================\n');

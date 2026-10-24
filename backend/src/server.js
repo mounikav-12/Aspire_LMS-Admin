@@ -9,8 +9,15 @@ const {
   validateDeadlineDays,
   calculateDueDate,
   calculateRemainingTime,
+  parseBatchDueDates,
+  initializeBatchDueDates,
+  updateProjectBatchDueDate,
+  atomicMergeBatchDueDates,
+  calculateBatchProjectDueDate,
   recordBatchUnlock,
-  getEffectiveProjectDueDate
+  getEffectiveProjectDueDate,
+  hasFourDigitYear,
+  isDummyPlaceholderDate
 } = require('./utils/projectDeadlineUtils');
 
 const app = express();
@@ -758,9 +765,17 @@ app.get('/api/mcq/:subtopicId', (req, res) => {
 });
 
 // =========================================================
-// 5. PROJECTS API
+// 5. PROJECTS API (DYNAMIC BATCH-SPECIFIC DUE DATES)
 // =========================================================
-const formatDbProject = (payload) => {
+
+/**
+ * Formats a project for database persistence.
+ * Requirements 1, 3, 5:
+ * Stores batch-wise due dates as a key-value dictionary where:
+ * - Key: Actual Batch CODE (e.g. "A26W1", "A26S1", etc.)
+ * - Value: Calculated due date (YYYY-MM-DD), or literal null for locked projects.
+ */
+const formatDbProject = (payload, allBatchCodes = [], batchesList = []) => {
   const meta = {
     text: payload.description || '',
     courseId: payload.courseId || '',
@@ -793,12 +808,11 @@ const formatDbProject = (payload) => {
 
   const targetBatchStr = payload.targetBatch || payload.target_batch || (Array.isArray(payload.targetBatches) ? payload.targetBatches.join(', ') : 'Weekday Batch');
 
-  const bDates = payload.batchDueDates || payload.batch_due_dates || {};
-  const firstBatchCalc = bDates ? Object.values(bDates).find(b => b && (b.formattedDueDate || b.dueDate)) : null;
-  const computedBatchDueDate = firstBatchCalc ? (firstBatchCalc.formattedDueDate || firstBatchCalc.dueDate) : null;
-  const effectiveDueDate = (payload.dueDate || payload.due_date) && (payload.dueDate !== 'Due Aug 30' && payload.due_date !== 'Due Aug 30')
-    ? (payload.dueDate || payload.due_date)
-    : (computedBatchDueDate || payload.dueDate || payload.due_date || 'Due Aug 30');
+  // Normalize batch-specific due dates dictionary (keyed by Batch Code)
+  // Ensure every batch code has an entry; locked batches have literal null
+  const incomingDueDates = payload.due_date || payload.dueDate || payload.batchDueDates || payload.batch_due_dates;
+  const parsedDueDates = parseBatchDueDates(incomingDueDates, batchesList);
+  const normalizedBatchDueDates = initializeBatchDueDates(allBatchCodes, parsedDueDates, batchesList);
 
   return {
     id: payload.id || `proj-${Date.now()}`,
@@ -808,7 +822,7 @@ const formatDbProject = (payload) => {
     difficulty: payload.difficulty || 'Intermediate',
     description: JSON.stringify(meta),
     tech_stack: techStack,
-    due_date: effectiveDueDate,
+    due_date: JSON.stringify(normalizedBatchDueDates),
     status: payload.status || 'Published',
     template_url: payload.templateUrl || payload.template_url || '',
     guidelines: payload.guidelines || '',
@@ -831,18 +845,26 @@ const formatDbProject = (payload) => {
   };
 };
 
+// GET /api/projects - fetches all projects with batch-specific due dates (keyed by batch code)
 app.get('/api/projects', async (req, res) => {
   try {
     const { batch, student_id } = req.query;
     const { data, error } = await supabase.from('projects').select('*').order('created_at', { ascending: true });
     if (error) throw error;
 
+    const { data: batches } = await supabase.from('batches').select('*');
+    const { data: locks } = await supabase.from('milestone_locks').select('*');
+    const allBatchCodes = (batches || []).map(b => b.code);
+
     const formatted = (data || []).map((row) => {
       let meta = {};
       if (row.description && typeof row.description === 'string' && row.description.trim().startsWith('{')) {
         try { meta = JSON.parse(row.description); } catch (e) {}
       }
-      const batchDueDates = meta.batchDueDates || row.batch_due_dates || {};
+
+      // Parse batch-wise due dates (keyed by batch code)
+      const parsedMap = parseBatchDueDates(row.due_date || meta.batchDueDates, batches || []);
+      const batchDueDates = initializeBatchDueDates(allBatchCodes, parsedMap, batches || []);
       const studentDueDates = meta.studentDueDates || row.student_due_dates || {};
       const deadlineDuration = meta.deadlineDuration !== undefined ? meta.deadlineDuration : (row.deadline_duration !== undefined ? row.deadline_duration : null);
 
@@ -851,22 +873,32 @@ app.get('/api/projects', async (req, res) => {
         batchDueDates,
         studentDueDates,
         deadlineDuration,
-        dueDate: row.due_date
+        due_date: batchDueDates,
+        dueDate: batchDueDates
       };
 
       if (batch || student_id) {
-        const eff = getEffectiveProjectDueDate(projObj, batch || 'ALL', student_id);
+        const eff = getEffectiveProjectDueDate(projObj, batch || 'ALL', student_id, locks || [], null, batches || []);
         return {
           ...projObj,
-          due_date: eff.dueDate || row.due_date,
+          due_date: eff.dueDate, // Single date or null for filtered batch
           effective_due_date: eff.dueDate,
           effective_formatted_due_date: eff.formattedDueDate,
+          is_locked: eff.isLocked,
           is_overdue: eff.isOverdue,
           remaining_text: eff.remainingText,
-          duration_days: eff.durationDays
+          duration_days: eff.durationDays,
+          batch_due_dates: batchDueDates,
+          due_dates: batchDueDates
         };
       }
-      return projObj;
+
+      return {
+        ...projObj,
+        due_date: batchDueDates, // Batch code map as JSON object
+        batch_due_dates: batchDueDates,
+        due_dates: batchDueDates
+      };
     });
 
     res.json({ success: true, data: formatted });
@@ -875,9 +907,12 @@ app.get('/api/projects', async (req, res) => {
   }
 });
 
+// POST /api/projects - creates new project initializing batch due dates by batch code
 app.post('/api/projects', async (req, res) => {
   try {
-    const dbItem = formatDbProject(req.body);
+    const { data: batches } = await supabase.from('batches').select('id, code');
+    const allBatchCodes = (batches || []).map(b => b.code);
+    const dbItem = formatDbProject(req.body, allBatchCodes, batches || []);
     const { data, error } = await supabase.from('projects').upsert([dbItem]).select();
     if (error) throw error;
     res.status(201).json({ success: true, data: data ? data[0] : dbItem });
@@ -886,10 +921,23 @@ app.post('/api/projects', async (req, res) => {
   }
 });
 
+// PUT /api/projects/:id - updates project preserving other batches' due dates
 app.put('/api/projects/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const dbItem = formatDbProject({ ...req.body, id });
+    const { data: existing } = await supabase.from('projects').select('*').eq('id', id).single();
+    const { data: batches } = await supabase.from('batches').select('id, code');
+    const allBatchCodes = (batches || []).map(b => b.code);
+
+    // Merge incoming due dates with existing batch dates to preserve other batches
+    let mergedDueDates = req.body.due_date || req.body.dueDate || req.body.batchDueDates;
+    if (existing && existing.due_date) {
+      const existingMap = parseBatchDueDates(existing.due_date, batches || []);
+      const incomingMap = parseBatchDueDates(mergedDueDates, batches || []);
+      mergedDueDates = { ...existingMap, ...incomingMap };
+    }
+
+    const dbItem = formatDbProject({ ...req.body, due_date: mergedDueDates, id }, allBatchCodes, batches || []);
     const { data, error } = await supabase.from('projects').update(dbItem).eq('id', id).select();
     if (error) throw error;
     res.json({ success: true, data: data ? data[0] : dbItem });
@@ -898,12 +946,244 @@ app.put('/api/projects/:id', async (req, res) => {
   }
 });
 
+// DELETE /api/projects/:id - deletes project
 app.delete('/api/projects/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const { error } = await supabase.from('projects').delete().eq('id', id);
     if (error) throw error;
     res.json({ success: true, message: `Project ${id} deleted` });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// PUT & PATCH /api/projects/:id/batch-due-date - atomic batch-specific due date update (Key: Batch Code)
+const handleProjectBatchDueDateUpdate = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { batch_id, batchId, batch_code, batchCode, due_date, dueDate } = req.body;
+    const targetIdentifier = batch_code || batchCode || batch_id || batchId;
+    const targetDueDate = due_date !== undefined ? due_date : dueDate;
+
+    if (!targetIdentifier) {
+      return res.status(400).json({ success: false, message: 'Missing batch identifier (batch_code or batch_id)' });
+    }
+
+    const { data: batches } = await supabase.from('batches').select('id, code');
+    const allBatchCodes = (batches || []).map(b => b.code);
+    let resolvedBatchCode = targetIdentifier;
+    const matchedBatch = (batches || []).find(b => b.code === targetIdentifier || b.id === targetIdentifier);
+    if (matchedBatch) resolvedBatchCode = matchedBatch.code;
+
+    // Try executing PostgreSQL atomic function if available
+    try {
+      const { data: rpcData, error: rpcErr } = await supabase.rpc('update_project_batch_due_date', {
+        p_project_id: id,
+        p_batch_id: resolvedBatchCode,
+        p_due_date: targetDueDate
+      });
+      if (!rpcErr && rpcData) {
+        return res.json({ success: true, projectId: id, batchCode: resolvedBatchCode, batchId: resolvedBatchCode, due_date: rpcData });
+      }
+    } catch (e) {}
+
+    // Safe merge in application layer
+    const { data: projectRow, error: pErr } = await supabase.from('projects').select('*').eq('id', id).single();
+    if (pErr || !projectRow) {
+      return res.status(404).json({ success: false, message: 'Project not found' });
+    }
+
+    const currentMap = parseBatchDueDates(projectRow.due_date, batches || []);
+    const updatedMap = updateProjectBatchDueDate(currentMap, resolvedBatchCode, targetDueDate, allBatchCodes, batches || []);
+
+    const { data: updated, error: upErr } = await supabase
+      .from('projects')
+      .update({ due_date: JSON.stringify(updatedMap) })
+      .eq('id', id)
+      .select();
+
+    if (upErr) throw upErr;
+
+    res.json({
+      success: true,
+      projectId: id,
+      batchCode: resolvedBatchCode,
+      batchId: resolvedBatchCode,
+      due_date: updatedMap,
+      data: updated ? updated[0] : null
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+app.put('/api/projects/:id/batch-due-date', handleProjectBatchDueDateUpdate);
+app.patch('/api/projects/:id/batch-due-date', handleProjectBatchDueDateUpdate);
+
+// POST /api/projects/sync-milestones - dynamically updates project due dates when milestone schedule changes (Requirement 2)
+app.post('/api/projects/sync-milestones', async (req, res) => {
+  try {
+    const { milestoneId, batchCode, batchId, unlockDate, isLocked, customDuration } = req.body;
+    if (!milestoneId) {
+      return res.status(400).json({ success: false, message: 'milestoneId is required' });
+    }
+
+    const { data: batches } = await supabase.from('batches').select('*');
+    const allBatchCodes = (batches || []).map(b => b.code);
+
+    let targetBatchCodes = [];
+    const bIdent = batchCode || batchId || 'ALL';
+    if (bIdent === 'ALL') {
+      targetBatchCodes = allBatchCodes;
+    } else if (bIdent === 'Weekday Batch' || /weekday/i.test(bIdent)) {
+      targetBatchCodes = (batches || []).filter(b => b.category === 'Weekday').map(b => b.code);
+    } else if (bIdent === 'Weekend Batch' || /weekend/i.test(bIdent)) {
+      targetBatchCodes = (batches || []).filter(b => b.category === 'Weekend').map(b => b.code);
+    } else {
+      const match = (batches || []).find(b => b.code === bIdent || b.id === bIdent);
+      targetBatchCodes = match ? [match.code] : [bIdent];
+    }
+
+    const { data: projects, error: pErr } = await supabase.from('projects').select('*');
+    if (pErr) throw pErr;
+
+    const cleanStr = (s) => String(s || '').toLowerCase().replace(/-(w|s)$/i, '').trim();
+    const targetClean = cleanStr(milestoneId);
+
+    const affected = (projects || []).filter((p) => {
+      return cleanStr(p.id) === targetClean ||
+        cleanStr(p.inner_topic_id) === targetClean ||
+        cleanStr(p.subtopic_id) === targetClean ||
+        cleanStr(p.stage_id) === targetClean;
+    });
+
+    const results = [];
+    for (const proj of affected) {
+      const currentMap = parseBatchDueDates(proj.due_date, batches || []);
+      let updatedMap = { ...initializeBatchDueDates(allBatchCodes, currentMap, batches || []) };
+
+      for (const tBatchCode of targetBatchCodes) {
+        if (isLocked || !unlockDate) {
+          updatedMap[tBatchCode] = null; // Requirement 3: literal null
+        } else {
+          const calc = calculateBatchProjectDueDate(proj, unlockDate, customDuration);
+          updatedMap[tBatchCode] = calc ? calc.dueDate : null;
+        }
+      }
+
+      await supabase.from('projects').update({ due_date: JSON.stringify(updatedMap) }).eq('id', proj.id);
+      results.push({ id: proj.id, title: proj.title, due_date: updatedMap });
+    }
+
+    res.json({
+      success: true,
+      affectedCount: affected.length,
+      targetBatches: targetBatchCodes,
+      projects: results
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// GET & POST /api/batches - batch management with automatic null due date initialization (Requirement 3)
+app.get('/api/batches', async (req, res) => {
+  try {
+    const { data, error } = await supabase.from('batches').select('*').order('code', { ascending: true });
+    if (error) throw error;
+    res.json({ success: true, data: data || [] });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+app.post('/api/batches', async (req, res) => {
+  try {
+    const { code, name, category, status } = req.body;
+    if (!code) {
+      return res.status(400).json({ success: false, message: 'Batch code is required' });
+    }
+
+    const newBatchCode = code.trim();
+    const newBatchId = req.body.id || `batch-${Date.now()}`;
+    const newBatch = {
+      id: newBatchId,
+      code: newBatchCode,
+      name: name || null,
+      category: category || (newBatchCode.toUpperCase().includes('W') ? 'Weekday' : 'Weekend'),
+      status: status || 'Active',
+      student_count: 0
+    };
+
+    const { data: inserted, error: bErr } = await supabase.from('batches').upsert([newBatch], { onConflict: 'code' }).select();
+    if (bErr) throw bErr;
+
+    const actualBatch = inserted ? inserted[0] : newBatch;
+
+    // Requirement 3: When creating a new batch, initialize its due date to "null" for all existing projects
+    const { data: projects } = await supabase.from('projects').select('id, due_date');
+    if (projects && projects.length > 0) {
+      for (const p of projects) {
+        const curMap = parseBatchDueDates(p.due_date);
+        if (curMap[newBatchCode] === undefined) {
+          curMap[newBatchCode] = null; // Literal null for new batch code
+          await supabase.from('projects').update({ due_date: JSON.stringify(curMap) }).eq('id', p.id);
+        }
+      }
+    }
+
+    res.status(201).json({ success: true, data: actualBatch, message: 'Batch created and initialized with null project due dates' });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// POST /api/projects/migrate-due-dates - non-destructive migration of existing projects & batches (Key: Batch Code)
+app.post('/api/projects/migrate-due-dates', async (req, res) => {
+  try {
+    const { data: batches } = await supabase.from('batches').select('*');
+    const { data: locks } = await supabase.from('milestone_locks').select('*');
+    const { data: projects } = await supabase.from('projects').select('*');
+
+    const allBatchCodes = (batches || []).map(b => b.code);
+    let updatedCount = 0;
+
+    for (const proj of (projects || [])) {
+      const currentMap = parseBatchDueDates(proj.due_date, batches || []);
+      const newMap = initializeBatchDueDates(allBatchCodes, currentMap, batches || []);
+
+      for (const b of (batches || [])) {
+        if (newMap[b.code] === undefined || newMap[b.code] === null) {
+          const cleanStr = (s) => String(s || '').toLowerCase().replace(/-(w|s)$/i, '').trim();
+          const pId = cleanStr(proj.id);
+          const mId = cleanStr(proj.inner_topic_id);
+          const sId = cleanStr(proj.subtopic_id);
+
+          const matchingLock = (locks || []).find((l) => {
+            const isMatch = cleanStr(l.lesson_id) === pId || cleanStr(l.lesson_id) === mId || cleanStr(l.lesson_id) === sId;
+            if (!isMatch) return false;
+            return l.batch_code === b.code || l.batch_code === b.id || l.batch_code === 'ALL';
+          });
+
+          if (matchingLock && !matchingLock.is_locked && matchingLock.unlock_date) {
+            const calc = calculateBatchProjectDueDate(proj, matchingLock.unlock_date);
+            newMap[b.code] = calc ? calc.dueDate : null;
+          } else {
+            newMap[b.code] = null; // Locked batch has literal null
+          }
+        }
+      }
+
+      await supabase.from('projects').update({ due_date: JSON.stringify(newMap) }).eq('id', proj.id);
+      updatedCount++;
+    }
+
+    res.json({
+      success: true,
+      migratedCount: updatedCount,
+      batches: allBatchCodes
+    });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
@@ -1506,6 +1786,7 @@ app.get('/api/v1/student-feed', async (req, res) => {
     const { data: lessons } = await supabase.from('course_lessons').select('*');
     const { data: locks } = await supabase.from('milestone_locks').select('*');
     const { data: rewardsData } = await supabase.from('rewards').select('*');
+    const { data: batches } = await supabase.from('batches').select('*');
     const { attendanceData } = await getDbAttendanceData();
 
     res.json({
@@ -1524,19 +1805,21 @@ app.get('/api/v1/student-feed', async (req, res) => {
           if (row.description && typeof row.description === 'string' && row.description.trim().startsWith('{')) {
             try { meta = JSON.parse(row.description); } catch (e) {}
           }
-          const batchDueDates = meta.batchDueDates || row.batch_due_dates || {};
+          const batchDueDates = parseBatchDueDates(row.due_date || meta.batchDueDates, batches || []);
           const studentDueDates = meta.studentDueDates || row.student_due_dates || {};
           const deadlineDuration = meta.deadlineDuration !== undefined ? meta.deadlineDuration : null;
-          const projObj = { ...row, batchDueDates, studentDueDates, deadlineDuration, dueDate: row.due_date };
-          const eff = getEffectiveProjectDueDate(projObj, 'Weekday Batch');
+          const projObj = { ...row, batchDueDates, studentDueDates, deadlineDuration, due_date: batchDueDates, dueDate: batchDueDates };
+          const eff = getEffectiveProjectDueDate(projObj, req.query.batch || 'Weekday Batch', null, locks || [], null, batches || []);
           return {
             ...row,
-            due_date: eff.dueDate || row.due_date,
+            due_date: eff.dueDate, // Single date or null
             formatted_due_date: eff.formattedDueDate,
             due_datetime: eff.dueDateTime,
             remaining_time: eff.remainingText,
             is_overdue: eff.isOverdue,
-            duration_days: eff.durationDays
+            is_locked: eff.isLocked,
+            duration_days: eff.durationDays,
+            batch_due_dates: batchDueDates
           };
         }),
         liveSessions: liveSessions || [],
@@ -1745,7 +2028,7 @@ const getSingleStudentPasskeyHandler = async (req, res) => {
 app.get('/admin/api/student-passkey', getSingleStudentPasskeyHandler);
 app.get('/api/student-passkey', getSingleStudentPasskeyHandler);
 
-if (process.env.NODE_ENV !== 'production') {
+if (require.main === module) {
   app.listen(PORT, () => {
     console.log(`🚀 Aspire LMS Unified Express API server running on port ${PORT}`);
     console.log(`🔗 Connected to Supabase Database Project: ${process.env.SUPABASE_URL}`);

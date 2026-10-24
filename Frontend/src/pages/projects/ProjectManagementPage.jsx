@@ -1110,15 +1110,15 @@ export function ProjectManagementPage() {
                   <div className="flex items-center gap-1.5 text-xs text-slate-700 font-bold">
                     <Clock className="w-3.5 h-3.5 text-slate-400" />
                     <span>{(() => {
-                      const effDue = getEffectiveProjectDueDate(proj, activeBatchFilter, null, milestoneLocks, projectTypeDeadlines);
-                      if (effDue.source === 'pending' || !effDue.unlockDate) {
-                        return effDue.formattedDueDate;
+                      const effDue = getEffectiveProjectDueDate(proj, activeBatchFilter, null, milestoneLocks, projectTypeDeadlines, batchesList || availableBatches);
+                      if (!effDue.dueDate || effDue.isLocked) {
+                        return 'Not unlocked';
                       }
                       return `Due ${effDue.formattedDueDate}`;
                     })()}</span>
                   </div>
                   {(() => {
-                    const effDue = getEffectiveProjectDueDate(proj, activeBatchFilter, null, milestoneLocks, projectTypeDeadlines);
+                    const effDue = getEffectiveProjectDueDate(proj, activeBatchFilter, null, milestoneLocks, projectTypeDeadlines, batchesList || availableBatches);
                     if (!effDue.remainingText) return null;
                     return (
                       <span className={`text-[10px] font-bold ${effDue.isOverdue ? 'text-rose-600' : 'text-emerald-600'}`}>
@@ -1218,7 +1218,7 @@ export function ProjectManagementPage() {
                       <td className="p-4 font-bold text-slate-800">{p.title}</td>
                       <td className="p-4 text-slate-500">
                         {(() => {
-                          const effDue = getEffectiveProjectDueDate(p, activeBatchFilter, sub.studentId, milestoneLocks, projectTypeDeadlines);
+                          const effDue = getEffectiveProjectDueDate(p, activeBatchFilter, sub.studentId, milestoneLocks, projectTypeDeadlines, batchesList || availableBatches);
                           const deadlineCheck = checkSubmissionDeadline(sub.submittedAt, effDue.dueDateTime || effDue.dueDate);
                           return (
                             <div>
@@ -2020,11 +2020,11 @@ export function ProjectManagementPage() {
               </span>
               <div className="ml-auto flex items-center gap-2">
                 {(() => {
-                  const effDue = getEffectiveProjectDueDate(activeProjectDetail, activeBatchFilter, null, milestoneLocks, projectTypeDeadlines);
+                  const effDue = getEffectiveProjectDueDate(activeProjectDetail, activeBatchFilter, null, milestoneLocks, projectTypeDeadlines, batchesList || availableBatches);
                   return (
                     <>
                       <span className="text-xs font-semibold text-slate-600 flex items-center gap-1 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-200">
-                        <Clock className="w-3.5 h-3.5 text-slate-400" /> {effDue.source === 'pending' || !effDue.unlockDate ? effDue.formattedDueDate : `Due ${effDue.formattedDueDate}`}
+                        <Clock className="w-3.5 h-3.5 text-slate-400" /> {!effDue.dueDate || effDue.isLocked ? 'Not unlocked' : `Due ${effDue.formattedDueDate}`}
                       </span>
                       {effDue.remainingText && (
                         <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${

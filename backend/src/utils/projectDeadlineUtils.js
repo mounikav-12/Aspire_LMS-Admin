@@ -1,9 +1,18 @@
 /**
  * Project Deadline & Dynamic Due Date Management Utilities (Backend CommonJS)
  *
- * Implements dynamic calculation and tracking of project due dates for
- * Mini, Major, and Advanced projects based on unlock/release timestamps
- * for batches and individual students.
+ * Implements dynamic calculation and tracking of batch-specific project due dates
+ * using PostgreSQL JSONB key-value structures where:
+ * - Key: The actual batch CODE (e.g., "A26W1", "A26S1", "A26W2", "A26S2").
+ * - Value: The project's calculated due date (YYYY-MM-DD), or literal null if locked.
+ *
+ * Requirements:
+ * - Mini: 3 calendar days
+ * - Major: 5 calendar days
+ * - Capstone: 10 calendar days (configurable 8-10 days)
+ * - Formula: dueDate = milestoneUnlockDate + deadlineDays
+ * - Batches with locked projects must have JSON null due dates.
+ * - Independent batch data: updates to one batch never affect other batches.
  */
 
 const DEFAULT_PROJECT_DEADLINES = {
@@ -17,6 +26,9 @@ const CAPSTONE_PROJECT_MAX_DAYS = 10;
 const ADVANCED_PROJECT_MIN_DAYS = 8;
 const ADVANCED_PROJECT_MAX_DAYS = 10;
 
+/**
+ * Normalizes project type string to canonical 'Mini', 'Major', or 'Capstone'.
+ */
 const normalizeProjectType = (type) => {
   if (!type) return 'Mini';
   const clean = String(type).trim().toLowerCase();
@@ -25,6 +37,9 @@ const normalizeProjectType = (type) => {
   return 'Mini';
 };
 
+/**
+ * Gets default deadline duration in calendar days for a given project type.
+ */
 const getDefaultDeadlineDays = (projectType, customConfig = null) => {
   const norm = normalizeProjectType(projectType);
   if (customConfig && typeof customConfig[norm] === 'number' && customConfig[norm] > 0) {
@@ -33,7 +48,9 @@ const getDefaultDeadlineDays = (projectType, customConfig = null) => {
   return DEFAULT_PROJECT_DEADLINES[norm] || 3;
 };
 
-
+/**
+ * Checks if a string is a legacy placeholder rather than a valid date.
+ */
 const isDummyPlaceholderDate = (str) => {
   if (!str) return true;
   const clean = String(str).trim().toLowerCase();
@@ -49,6 +66,9 @@ const isDummyPlaceholderDate = (str) => {
   );
 };
 
+/**
+ * Validates whether date input contains a valid 4-digit year.
+ */
 const hasFourDigitYear = (dateInput) => {
   if (!dateInput) return false;
   if (dateInput instanceof Date) return !isNaN(dateInput.getTime());
@@ -56,6 +76,9 @@ const hasFourDigitYear = (dateInput) => {
   return /\b(19|20)\d{2}\b/.test(str);
 };
 
+/**
+ * Validates configured deadline duration for a project type.
+ */
 const validateDeadlineDays = (projectType, days) => {
   const norm = normalizeProjectType(projectType);
   const numDays = parseInt(days, 10);
@@ -88,6 +111,9 @@ const validateDeadlineDays = (projectType, days) => {
   return { isValid: true, days: numDays, message: null };
 };
 
+/**
+ * Parses date parts without UTC shift issues.
+ */
 const parseLocalDateParts = (dateInput) => {
   if (!dateInput) return null;
 
@@ -139,6 +165,10 @@ const parseLocalDateParts = (dateInput) => {
   return null;
 };
 
+/**
+ * Calculates due date from unlock/milestone date and duration in calendar days.
+ * Formula: dueDate = milestoneUnlockDate + deadlineDays
+ */
 const calculateDueDate = (unlockDateInput, durationDays, unlockTimeInput = null) => {
   const parts = parseLocalDateParts(unlockDateInput);
   if (!parts) return null;
@@ -185,11 +215,11 @@ const calculateDueDate = (unlockDateInput, durationDays, unlockTimeInput = null)
   };
 };
 
+/**
+ * Calculates remaining time / overdue status.
+ */
 const calculateRemainingTime = (dueDateTimeOrDate, nowTimestamp = Date.now()) => {
   if (!dueDateTimeOrDate || isDummyPlaceholderDate(dueDateTimeOrDate) || !hasFourDigitYear(dueDateTimeOrDate)) {
-    return { isOverdue: false, daysLeft: 0, hoursLeft: 0, label: 'ON_TRACK', text: '' };
-  }
-  if (!dueDateTimeOrDate) {
     return { isOverdue: false, daysLeft: 0, hoursLeft: 0, label: 'ON_TRACK', text: '' };
   }
 
@@ -247,15 +277,295 @@ const calculateRemainingTime = (dueDateTimeOrDate, nowTimestamp = Date.now()) =>
   return { isOverdue: false, daysLeft: totalDays, hoursLeft: remainingHours, totalHours, label, text };
 };
 
-const recordBatchUnlock = (project, batchCode, unlockDate, customDuration = null, forceReset = false) => {
-  if (!project || !batchCode) return project;
+// ============================================================================
+// BATCH-WISE DUE DATES JSON / JSONB SYSTEM (Key: Batch Code)
+// ============================================================================
 
-  const batchKey = String(batchCode).trim();
+/**
+ * Resolves an identifier (which could be a batch ID, code, or alias) to its canonical batch code.
+ *
+ * @param {string} identifier - Batch ID or Batch Code
+ * @param {Array<{id: string, code: string}>} [batchesList] - Optional batch registry
+ * @returns {string} - Resolved batch code (e.g., "A26W1")
+ */
+const resolveBatchCode = (identifier, batchesList = []) => {
+  if (!identifier) return '';
+  const clean = String(identifier).trim();
+  if (Array.isArray(batchesList) && batchesList.length > 0) {
+    const lower = clean.toLowerCase();
+    const matched = batchesList.find(b =>
+      String(b.id || '').toLowerCase() === lower ||
+      String(b.code || '').toLowerCase() === lower
+    );
+    if (matched && matched.code) {
+      return matched.code.trim();
+    }
+  }
+  return clean;
+};
+
+/**
+ * Safely parses batch due dates from a JSON object, JSONB string, or legacy field.
+ * Returns a normalized key-value object where:
+ * - Key: Batch CODE (e.g. "A26W1", "A26S1")
+ * - Value: ISO Date string (YYYY-MM-DD), or literal null.
+ *
+ * Automatically converts legacy batch ID keys (e.g. "batch-1788927757318") to batch codes
+ * if batchesList is provided.
+ * Ensures values are never "" or string "null". Locked batches have literal null.
+ *
+ * @param {Object|string|null} dueDatesInput
+ * @param {Array<{id: string, code: string}>} [batchesList]
+ * @returns {Record<string, string|null>}
+ */
+const parseBatchDueDates = (dueDatesInput, batchesList = []) => {
+  if (!dueDatesInput) return {};
+
+  let rawMap = dueDatesInput;
+  if (typeof dueDatesInput === 'string') {
+    const trimmed = dueDatesInput.trim();
+    if (trimmed.startsWith('{') && trimmed.endsWith('}')) {
+      try {
+        rawMap = JSON.parse(trimmed);
+      } catch (e) {
+        return {};
+      }
+    } else {
+      return {};
+    }
+  }
+
+  if (typeof rawMap !== 'object' || rawMap === null || Array.isArray(rawMap)) {
+    return {};
+  }
+
+  const normalized = {};
+  for (const [key, val] of Object.entries(rawMap)) {
+    if (!key) continue;
+    // Resolve key to batch code if it matches a known batch ID
+    const cleanKey = resolveBatchCode(key, batchesList);
+
+    if (val === null || val === undefined || val === '' || val === 'null' || val === 'None' || val === 'undefined') {
+      normalized[cleanKey] = null;
+    } else if (typeof val === 'string') {
+      const trimmedVal = val.trim();
+      const match = trimmedVal.match(/^(\d{4}-\d{2}-\d{2})/);
+      if (match) {
+        normalized[cleanKey] = match[1];
+      } else if (isDummyPlaceholderDate(trimmedVal)) {
+        normalized[cleanKey] = null;
+      } else if (hasFourDigitYear(trimmedVal)) {
+        const parts = parseLocalDateParts(trimmedVal);
+        if (parts) {
+          const y = parts.year;
+          const m = String(parts.month).padStart(2, '0');
+          const d = String(parts.day).padStart(2, '0');
+          normalized[cleanKey] = `${y}-${m}-${d}`;
+        } else {
+          normalized[cleanKey] = null;
+        }
+      } else {
+        normalized[cleanKey] = null;
+      }
+    } else if (typeof val === 'object' && val !== null) {
+      // In case a richer object { dueDate, ... } was stored previously
+      const d = val.dueDate || val.due_date;
+      if (d && hasFourDigitYear(d)) {
+        const parts = parseLocalDateParts(d);
+        if (parts) {
+          const y = parts.year;
+          const m = String(parts.month).padStart(2, '0');
+          const dStr = String(parts.day).padStart(2, '0');
+          normalized[cleanKey] = `${y}-${m}-${dStr}`;
+        } else {
+          normalized[cleanKey] = null;
+        }
+      } else {
+        normalized[cleanKey] = null;
+      }
+    } else {
+      normalized[cleanKey] = null;
+    }
+  }
+
+  return normalized;
+};
+
+/**
+ * Initializes batch due dates for a list of batch codes.
+ * Requirement 3: Locked batches must have literal null due dates.
+ * Preserves any valid existing unlocked dates.
+ *
+ * @param {string[]} allBatchCodes - List of actual batch codes from DB (e.g. ['A26W1', 'A26S1'])
+ * @param {Object} [existingDueDates] - Existing due dates map
+ * @param {Array<{id: string, code: string}>} [batchesList] - Batches list for legacy ID mapping
+ * @returns {Record<string, string|null>}
+ */
+const initializeBatchDueDates = (allBatchCodes = [], existingDueDates = {}, batchesList = []) => {
+  const current = parseBatchDueDates(existingDueDates, batchesList);
+  const result = {};
+
+  // Preserve existing normalized keys (which are batch codes)
+  for (const [k, v] of Object.entries(current)) {
+    const cleanK = resolveBatchCode(k, batchesList);
+    result[cleanK] = v;
+  }
+
+  // Ensure all known batch codes exist, defaulting to null if locked/not yet unlocked
+  for (const bCode of allBatchCodes) {
+    if (!bCode) continue;
+    const cleanCode = resolveBatchCode(bCode, batchesList);
+    if (result[cleanCode] === undefined) {
+      result[cleanCode] = null; // Requirement 3: literal null
+    }
+  }
+
+  // If batchesList was provided, clean up any remaining raw batch ID keys that were mapped to codes
+  if (Array.isArray(batchesList) && batchesList.length > 0) {
+    for (const b of batchesList) {
+      if (b.id && b.code && b.id !== b.code && result[b.id] !== undefined) {
+        if (result[b.code] === undefined || result[b.code] === null) {
+          result[b.code] = result[b.id];
+        }
+        delete result[b.id];
+      }
+    }
+  }
+
+  return result;
+};
+
+/**
+ * Updates a specific batch code's due date in a project's batch map without affecting other batches.
+ * Safe against concurrent updates by returning a clean merged object.
+ *
+ * @param {Object|string} currentDueDates - Existing project due_date JSON or object
+ * @param {string} batchCodeOrId - Batch code (e.g. "A26W1") or legacy ID to update
+ * @param {string|null} newDueDateOrNull - 'YYYY-MM-DD' or null if locking
+ * @param {string[]} [allBatchCodes] - Optional list of all batch codes to ensure initialized
+ * @param {Array<{id: string, code: string}>} [batchesList] - Optional batch registry
+ * @returns {Record<string, string|null>}
+ */
+const updateProjectBatchDueDate = (
+  currentDueDates,
+  batchCodeOrId,
+  newDueDateOrNull,
+  allBatchCodes = [],
+  batchesList = []
+) => {
+  if (!batchCodeOrId) return parseBatchDueDates(currentDueDates, batchesList);
+
+  const targetBatchCode = resolveBatchCode(batchCodeOrId, batchesList);
+  const current = parseBatchDueDates(currentDueDates, batchesList);
+  const result = { ...current };
+
+  // Ensure all batch codes exist if provided
+  if (Array.isArray(allBatchCodes)) {
+    for (const code of allBatchCodes) {
+      if (!code) continue;
+      const clean = resolveBatchCode(code, batchesList);
+      if (result[clean] === undefined) {
+        result[clean] = null;
+      }
+    }
+  }
+
+  let finalValue = null;
+  if (newDueDateOrNull && !isDummyPlaceholderDate(newDueDateOrNull) && hasFourDigitYear(newDueDateOrNull)) {
+    const parts = parseLocalDateParts(newDueDateOrNull);
+    if (parts) {
+      const y = parts.year;
+      const m = String(parts.month).padStart(2, '0');
+      const d = String(parts.day).padStart(2, '0');
+      finalValue = `${y}-${m}-${d}`;
+    }
+  }
+
+  result[targetBatchCode] = finalValue;
+
+  // Clean up any old batch ID key if it corresponds to targetBatchCode
+  if (Array.isArray(batchesList) && batchesList.length > 0) {
+    const matched = batchesList.find(b => b.code === targetBatchCode);
+    if (matched && matched.id && matched.id !== targetBatchCode && result[matched.id] !== undefined) {
+      delete result[matched.id];
+    }
+  }
+
+  return result;
+};
+
+/**
+ * Atomic batch due date update helper for concurrency safety (Requirement 4 & 5).
+ * Merges a single batch code key into the latest database state without overwriting other batches.
+ *
+ * @param {Object} currentMap - Latest project due_date map from DB
+ * @param {string} batchCodeOrId - Batch code or ID to update
+ * @param {string|null} newDateOrNull - New due date or null
+ * @param {Array<{id: string, code: string}>} [batchesList]
+ * @returns {Record<string, string|null>}
+ */
+const atomicMergeBatchDueDates = (currentMap, batchCodeOrId, newDateOrNull, batchesList = []) => {
+  const parsed = parseBatchDueDates(currentMap, batchesList);
+  const cleanCode = resolveBatchCode(batchCodeOrId, batchesList);
+  let cleanDate = null;
+  if (newDateOrNull && hasFourDigitYear(newDateOrNull)) {
+    const parts = parseLocalDateParts(newDateOrNull);
+    if (parts) {
+      cleanDate = `${parts.year}-${String(parts.month).padStart(2, '0')}-${String(parts.day).padStart(2, '0')}`;
+    }
+  }
+  return {
+    ...parsed,
+    [cleanCode]: cleanDate
+  };
+};
+
+/**
+ * Calculates due date for a project when a milestone is announced for a batch.
+ * Reuses existing project type duration rules (Requirement 2).
+ *
+ * @param {Object} project - Project object
+ * @param {string|Date} unlockDate - Milestone unlock date
+ * @param {number|null} customDuration - Custom duration in days
+ * @returns {Object|null}
+ */
+const calculateBatchProjectDueDate = (project, unlockDate, customDuration = null) => {
+  if (!project || !unlockDate) return null;
+  const projectType = project.type || 'Mini';
+  const durationDays = customDuration !== null && customDuration !== undefined
+    ? parseInt(customDuration, 10)
+    : (project.deadlineDuration || getDefaultDeadlineDays(projectType));
+
+  return calculateDueDate(unlockDate, durationDays);
+};
+
+/**
+ * Backward-compatible unlock recorder.
+ * Updates both the primary JSON due_date map and rich batchDueDates structure.
+ * Prevents duplicate unlock events from resetting an established due date unless forced.
+ */
+const recordBatchUnlock = (
+  project,
+  batchCodeOrId,
+  unlockDate,
+  customDuration = null,
+  forceReset = false,
+  allBatchCodes = [],
+  batchesList = []
+) => {
+  if (!project || !batchCodeOrId) return project;
+
+  const batchKey = resolveBatchCode(batchCodeOrId, batchesList);
   const existingBatchDueDates = project.batchDueDates ? { ...project.batchDueDates } : {};
-  const existingRecord = existingBatchDueDates[batchKey];
+  const currentJsonDueDates = parseBatchDueDates(project.due_date || project.dueDate || project.due_dates, batchesList);
 
-  if (existingRecord && existingRecord.dueDate && !forceReset) {
-    return { ...project, batchDueDates: existingBatchDueDates };
+  // If already unlocked and not forcing reset, preserve existing deadline (Requirement 10)
+  if (existingBatchDueDates[batchKey]?.dueDate && !forceReset) {
+    return {
+      ...project,
+      batchDueDates: existingBatchDueDates,
+      due_date: currentJsonDueDates
+    };
   }
 
   const durationDays = customDuration !== null && customDuration !== undefined
@@ -272,24 +582,46 @@ const recordBatchUnlock = (project, batchCode, unlockDate, customDuration = null
     updatedAt: new Date().toISOString()
   };
 
-  return { ...project, batchDueDates: existingBatchDueDates };
+  const updatedJsonMap = updateProjectBatchDueDate(currentJsonDueDates, batchKey, calc.dueDate, allBatchCodes, batchesList);
+
+  return {
+    ...project,
+    batchDueDates: existingBatchDueDates,
+    due_date: updatedJsonMap,
+    dueDate: calc.dueDate
+  };
 };
 
+/**
+ * Resolves effective due date for a project for a specific batch or student.
+ * Supports:
+ * - Batch Code lookup (e.g. 'A26W1', 'A26S1')
+ * - Legacy Batch ID lookup (e.g. 'batch-1788927757318', 'batch-101')
+ * - Batch Category / Alias lookup ('Weekday Batch', 'Weekend Batch')
+ * - 'ALL' batch query
+ *
+ * Returns:
+ * - If locked or null: { dueDate: null, formattedDueDate: 'Not unlocked', isLocked: true, ... }
+ * - If unlocked: { dueDate: 'YYYY-MM-DD', formattedDueDate: 'Nov 5, 2026', isLocked: false, ... }
+ */
 const getEffectiveProjectDueDate = (
   project,
   batchCode = 'ALL',
   studentId = null,
   milestoneLocks = [],
-  customTypeConfig = null
+  customTypeConfig = null,
+  batchesList = []
 ) => {
   if (!project) {
     return {
-      dueDate: '',
-      formattedDueDate: 'No deadline set',
+      dueDate: null,
+      formattedDueDate: 'Not unlocked',
       dueDateTime: null,
       unlockDate: null,
+      isLocked: true,
       isOverdue: false,
       remainingText: '',
+      statusLabel: 'LOCKED',
       source: 'none',
       durationDays: 0
     };
@@ -298,18 +630,24 @@ const getEffectiveProjectDueDate = (
   const projectType = project.type || 'Mini';
   const durationDays = project.deadlineDuration || getDefaultDeadlineDays(projectType, customTypeConfig);
 
-  // Student override
+  // 1. Student override
   if (studentId && project.studentDueDates && project.studentDueDates[studentId]) {
     const sRec = project.studentDueDates[studentId];
     const rem = calculateRemainingTime(sRec.dueDateTime || sRec.dueDate);
+    const parts = parseLocalDateParts(sRec.dueDate);
+    const formatted = parts
+      ? new Date(parts.year, parts.month - 1, parts.day).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+      : sRec.dueDate;
+
     return {
       dueDate: sRec.dueDate,
-      dueDateTime: sRec.dueDateTime,
-      formattedDueDate: sRec.formattedDueDate || sRec.dueDate,
+      dueDateTime: sRec.dueDateTime || (sRec.dueDate ? `${sRec.dueDate}T23:59:59.000Z` : null),
+      formattedDueDate: formatted,
       formattedDueDateTime: sRec.formattedDueDateTime,
       unlockDate: sRec.unlockDate,
       unlockDateTime: sRec.unlockDateTime,
       durationDays: sRec.durationDays || durationDays,
+      isLocked: false,
       isOverdue: rem.isOverdue,
       remainingText: rem.text,
       statusLabel: rem.label,
@@ -317,84 +655,250 @@ const getEffectiveProjectDueDate = (
     };
   }
 
-  // Exact batch match
-  const bDates = project.batchDueDates || {};
-  if (batchCode && bDates[batchCode]) {
-    const bRec = bDates[batchCode];
-    const rem = calculateRemainingTime(bRec.dueDateTime || bRec.dueDate);
+  // 2. Parse batch-wise due dates JSON
+  const batchJsonMap = parseBatchDueDates(project.due_date || project.dueDate || project.due_dates, batchesList);
+  const richBatchDates = project.batchDueDates || {};
+  const cleanTarget = String(batchCode || 'ALL').trim();
+
+  // Helper to format a date string YYYY-MM-DD to "Nov 5, 2026"
+  const formatDateStr = (dateStr) => {
+    if (!dateStr) return 'Not unlocked';
+    const parts = parseLocalDateParts(dateStr);
+    if (!parts) return dateStr;
+    return new Date(parts.year, parts.month - 1, parts.day).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    });
+  };
+
+  // Helper to format response for a resolved date or null
+  const buildResult = (dateVal, sourceLabel, richRec = null) => {
+    if (!dateVal) {
+      return {
+        dueDate: null,
+        formattedDueDate: 'Not unlocked',
+        dueDateTime: null,
+        unlockDate: null,
+        unlockDateTime: null,
+        durationDays,
+        isLocked: true,
+        isOverdue: false,
+        remainingText: '',
+        statusLabel: 'LOCKED',
+        source: sourceLabel
+      };
+    }
+
+    const cleanDate = String(dateVal).slice(0, 10);
+    const dueDateTime = richRec?.dueDateTime || `${cleanDate}T23:59:59.000Z`;
+    const rem = calculateRemainingTime(dueDateTime);
+    const formattedDueDate = formatDateStr(cleanDate);
+
     return {
-      dueDate: bRec.dueDate,
-      dueDateTime: bRec.dueDateTime,
-      formattedDueDate: bRec.formattedDueDate || bRec.dueDate,
-      formattedDueDateTime: bRec.formattedDueDateTime,
-      unlockDate: bRec.unlockDate,
-      unlockDateTime: bRec.unlockDateTime,
-      durationDays: bRec.durationDays || durationDays,
+      dueDate: cleanDate,
+      dueDateTime,
+      formattedDueDate,
+      formattedDueDateTime: `${formattedDueDate}, 11:59 PM`,
+      unlockDate: richRec?.unlockDate || null,
+      unlockDateTime: richRec?.unlockDateTime || null,
+      durationDays: richRec?.durationDays || durationDays,
+      isLocked: false,
       isOverdue: rem.isOverdue,
       remainingText: rem.text,
       statusLabel: rem.label,
-      source: 'batch'
+      source: sourceLabel
     };
-  }
+  };
 
-  // Batch alias
-  if (batchCode && batchCode !== 'ALL') {
-    const isWeekend = /weekend|a26s|a26we/i.test(batchCode);
-    const candidateKeys = isWeekend ? ['Weekend Batch', 'ALL'] : ['Weekday Batch', 'ALL'];
-    for (const key of candidateKeys) {
-      if (bDates[key]) {
-        const bRec = bDates[key];
-        const rem = calculateRemainingTime(bRec.dueDateTime || bRec.dueDate);
-        return {
-          dueDate: bRec.dueDate,
-          dueDateTime: bRec.dueDateTime,
-          formattedDueDate: bRec.formattedDueDate || bRec.dueDate,
-          formattedDueDateTime: bRec.formattedDueDateTime,
-          unlockDate: bRec.unlockDate,
-          unlockDateTime: bRec.unlockDateTime,
-          durationDays: bRec.durationDays || durationDays,
-          isOverdue: rem.isOverdue,
-          remainingText: rem.text,
-          statusLabel: rem.label,
-          source: 'batch_alias'
-        };
+  // If query is for 'ALL'
+  if (cleanTarget === 'ALL') {
+    const entries = Object.entries(batchJsonMap);
+    if (entries.length > 0) {
+      const unlocked = entries.filter(([_, v]) => v !== null && v !== undefined && hasFourDigitYear(v));
+      if (unlocked.length > 0) {
+        unlocked.sort((a, b) => new Date(a[1]).getTime() - new Date(b[1]).getTime());
+        const [earliestBatchCode, earliestDate] = unlocked[0];
+        const richRec = richBatchDates[earliestBatchCode] || null;
+        return buildResult(earliestDate, 'batch_all_active', richRec);
+      }
+      return buildResult(null, 'batch_all_locked');
+    }
+
+    const richKeys = Object.keys(richBatchDates);
+    if (richKeys.length > 0) {
+      const activeRich = richKeys.find(k => richBatchDates[k]?.dueDate);
+      if (activeRich) {
+        return buildResult(richBatchDates[activeRich].dueDate, 'batch_all_rich', richBatchDates[activeRich]);
       }
     }
   }
 
-  // Fallback if project has an explicit real date with a 4-digit year
-  const legacyDueDate = project.dueDate || project.due_date || '';
-  if (legacyDueDate && !isDummyPlaceholderDate(legacyDueDate) && hasFourDigitYear(legacyDueDate)) {
-    const rem = calculateRemainingTime(legacyDueDate);
-    return {
-      dueDate: legacyDueDate,
-      dueDateTime: null,
-      formattedDueDate: legacyDueDate,
-      formattedDueDateTime: legacyDueDate,
-      unlockDate: null,
-      unlockDateTime: null,
-      durationDays,
-      isOverdue: rem.isOverdue,
-      remainingText: rem.text,
-      statusLabel: rem.label,
-      source: 'legacy'
-    };
+  // 3. Exact batch code lookup
+  const targetBatchCode = resolveBatchCode(cleanTarget, batchesList);
+  if (targetBatchCode && batchJsonMap[targetBatchCode] !== undefined) {
+    const val = batchJsonMap[targetBatchCode];
+    const richRec = richBatchDates[targetBatchCode] || richBatchDates[cleanTarget] || null;
+    return buildResult(val, 'batch', richRec);
   }
 
-  // Not yet unlocked for this batch - clear placeholder, show dynamic window
+  // Check direct key in batchJsonMap with original cleanTarget
+  if (batchJsonMap[cleanTarget] !== undefined) {
+    const val = batchJsonMap[cleanTarget];
+    const richRec = richBatchDates[cleanTarget] || null;
+    return buildResult(val, 'batch', richRec);
+  }
+
+  // 4. Check richBatchDates exact match
+  if (richBatchDates[targetBatchCode]) {
+    const bRec = richBatchDates[targetBatchCode];
+    return buildResult(bRec.dueDate, 'batch_rich', bRec);
+  }
+  if (richBatchDates[cleanTarget]) {
+    const bRec = richBatchDates[cleanTarget];
+    return buildResult(bRec.dueDate, 'batch_rich', bRec);
+  }
+
+  // 5. Batch Category / Alias Lookup
+  if (cleanTarget !== 'ALL') {
+    const isWeekend = /weekend|a26s|a26we/i.test(cleanTarget);
+    const candidateAliases = isWeekend
+      ? ['A26S1', 'A26S2', 'Weekend Batch', 'weekend', 'ALL']
+      : ['A26W1', 'A26W2', 'Weekday Batch', 'weekday', 'ALL'];
+
+    for (const alias of candidateAliases) {
+      if (batchJsonMap[alias] !== undefined) {
+        return buildResult(batchJsonMap[alias], 'batch_alias', richBatchDates[alias] || null);
+      }
+      if (richBatchDates[alias]) {
+        return buildResult(richBatchDates[alias].dueDate, 'batch_alias_rich', richBatchDates[alias]);
+      }
+    }
+  }
+
+  // 6. Milestone Locks Table Lookup (Dynamic match if milestone lock exists)
+  if (Array.isArray(milestoneLocks) && milestoneLocks.length > 0) {
+    const projId = project.id;
+    const modId = project.moduleId || project.innerTopicId || project.module_id;
+    const subId = project.subtopicId || project.subtopic_id;
+    const stgId = project.stageId || project.stage_id;
+    const cleanStr = (s) => String(s || '').toLowerCase().replace(/-(w|s)$/i, '').trim();
+
+    const matchingLock = milestoneLocks.find((l) => {
+      const isItemMatch =
+        l.lesson_id === projId || cleanStr(l.lesson_id) === cleanStr(projId) ||
+        (modId && (l.lesson_id === modId || cleanStr(l.lesson_id) === cleanStr(modId))) ||
+        (subId && (l.lesson_id === subId || cleanStr(l.lesson_id) === cleanStr(subId))) ||
+        (stgId && (l.lesson_id === stgId || cleanStr(l.lesson_id) === cleanStr(stgId)));
+
+      if (!isItemMatch) return false;
+      if (cleanTarget === 'ALL') return true;
+      return (
+        l.batch_code === cleanTarget ||
+        l.batch_code === targetBatchCode ||
+        l.batch_code === 'ALL' ||
+        (/weekend|a26s/i.test(cleanTarget) && /weekend|a26s/i.test(l.batch_code)) ||
+        (/weekday|a26w/i.test(cleanTarget) && /weekday|a26w/i.test(l.batch_code))
+      );
+    });
+
+    if (matchingLock) {
+      if (matchingLock.is_locked || !matchingLock.unlock_date) {
+        return buildResult(null, 'milestone_lock_locked');
+      }
+      const calc = calculateDueDate(matchingLock.unlock_date, durationDays, matchingLock.unlock_time);
+      if (calc) {
+        return buildResult(calc.dueDate, 'milestone_lock', calc);
+      }
+    }
+  }
+
+  // 7. Backward-compatible Legacy single-date fallback
+  const legacyDueDate = typeof project.dueDate === 'string' && !project.dueDate.startsWith('{')
+    ? project.dueDate
+    : (typeof project.due_date === 'string' && !project.due_date.startsWith('{') ? project.due_date : '');
+
+  if (legacyDueDate && !isDummyPlaceholderDate(legacyDueDate) && hasFourDigitYear(legacyDueDate)) {
+    return buildResult(legacyDueDate, 'legacy');
+  }
+
+  // 8. Default: Project is locked for this batch
   return {
-    dueDate: '',
+    dueDate: null,
+    formattedDueDate: 'Not unlocked',
     dueDateTime: null,
-    formattedDueDate: `${durationDays} days after unlock`,
-    formattedDueDateTime: `${durationDays} days after unlock`,
     unlockDate: null,
     unlockDateTime: null,
     durationDays,
+    isLocked: true,
     isOverdue: false,
     remainingText: '',
-    statusLabel: 'PENDING_UNLOCK',
+    statusLabel: 'LOCKED',
     source: 'pending'
   };
+};
+
+/**
+ * Validates student submission against calculated deadline.
+ */
+const checkSubmissionDeadline = (submissionDateInput, effectiveDueDateTimeOrDate) => {
+  if (!submissionDateInput || !effectiveDueDateTimeOrDate) {
+    return { isLate: false, label: 'ON_TIME', delayText: '' };
+  }
+
+  const subParts = parseLocalDateParts(submissionDateInput);
+  const dueParts = parseLocalDateParts(effectiveDueDateTimeOrDate);
+  if (!subParts || !dueParts) {
+    return { isLate: false, label: 'ON_TIME', delayText: '' };
+  }
+
+  const subDate = new Date(subParts.year, subParts.month - 1, subParts.day, subParts.hours, subParts.minutes, subParts.seconds);
+  const dueDate = new Date(dueParts.year, dueParts.month - 1, dueParts.day, dueParts.hours, dueParts.minutes, dueParts.seconds);
+
+  const diffMs = subDate.getTime() - dueDate.getTime();
+  if (diffMs <= 0) {
+    return { isLate: false, label: 'ON_TIME', delayText: 'Submitted on time' };
+  }
+
+  const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+  const diffDays = Math.floor(diffHours / 24);
+
+  const delayText = diffDays > 0
+    ? `Submitted late by ${diffDays} day${diffDays > 1 ? 's' : ''}`
+    : `Submitted late by ${diffHours} hour${diffHours > 1 ? 's' : ''}`;
+
+  return {
+    isLate: true,
+    label: 'OVERDUE',
+    delayText
+  };
+};
+
+const recordStudentUnlock = (project, studentId, unlockDate, customDuration = null, forceReset = false) => {
+  if (!project || !studentId) return project;
+  const stdKey = String(studentId).trim();
+  const existingStudentDueDates = project.studentDueDates ? { ...project.studentDueDates } : {};
+  const existingRecord = existingStudentDueDates[stdKey];
+
+  if (existingRecord && existingRecord.dueDate && !forceReset) {
+    return { ...project, studentDueDates: existingStudentDueDates };
+  }
+
+  const durationDays = customDuration !== null && customDuration !== undefined
+    ? parseInt(customDuration, 10)
+    : (project.deadlineDuration || getDefaultDeadlineDays(project.type));
+
+  const calc = calculateDueDate(unlockDate, durationDays);
+  if (!calc) return project;
+
+  existingStudentDueDates[stdKey] = {
+    ...calc,
+    studentId: stdKey,
+    isLocked: false,
+    updatedAt: new Date().toISOString()
+  };
+
+  return { ...project, studentDueDates: existingStudentDueDates };
 };
 
 module.exports = {
@@ -409,8 +913,16 @@ module.exports = {
   parseLocalDateParts,
   calculateDueDate,
   calculateRemainingTime,
+  resolveBatchCode,
+  parseBatchDueDates,
+  initializeBatchDueDates,
+  updateProjectBatchDueDate,
+  atomicMergeBatchDueDates,
+  calculateBatchProjectDueDate,
   recordBatchUnlock,
+  recordStudentUnlock,
   getEffectiveProjectDueDate,
+  checkSubmissionDeadline,
   isDummyPlaceholderDate,
   hasFourDigitYear
 };
