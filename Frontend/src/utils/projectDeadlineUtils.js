@@ -545,6 +545,9 @@ export const recordBatchUnlock = (
 
 /**
  * Resolves effective due date for a project for a specific batch or student.
+ * Features a Self-Healing Fallback: if project.due_date[batchCode] is null in the database
+ * but an unlocked milestone lock exists in milestoneLocks, it calculates the due date on the fly
+ * so the user never sees "Not unlocked" / "No due date" for an unlocked milestone.
  */
 export const getEffectiveProjectDueDate = (
   project,
@@ -552,7 +555,8 @@ export const getEffectiveProjectDueDate = (
   studentId = null,
   milestoneLocks = [],
   customTypeConfig = null,
-  batchesList = []
+  batchesList = [],
+  onSelfHeal = null
 ) => {
   if (!project) {
     return {
@@ -651,6 +655,45 @@ export const getEffectiveProjectDueDate = (
     };
   };
 
+  // Helper: Find matching lock from milestoneLocks array across all hierarchy levels
+  const findMatchingMilestoneLock = (targetCode) => {
+    if (!Array.isArray(milestoneLocks) || milestoneLocks.length === 0) return null;
+
+    const projId = project.id;
+    const innerId = project.inner_topic_id || project.innerTopicId;
+    const modId = project.moduleId || project.module_id;
+    const subId = project.subtopicId || project.subtopic_id;
+    const stgId = project.stageId || project.stage_id;
+    const cleanStr = (s) => String(s || '').toLowerCase().replace(/-(w|s)$/i, '').trim();
+
+    const cProj = cleanStr(projId);
+    const cInner = cleanStr(innerId);
+    const cMod = cleanStr(modId);
+    const cSub = cleanStr(subId);
+    const cStg = cleanStr(stgId);
+
+    return milestoneLocks.find((l) => {
+      const lLesson = cleanStr(l.lesson_id);
+      const lModule = cleanStr(l.module_id);
+      const lStage = cleanStr(l.stage_id);
+
+      const isItemMatch =
+        (lLesson && (lLesson === cProj || lLesson === cInner || lLesson === cMod || lLesson === cSub || lLesson === cStg)) ||
+        (lModule && (lModule === cMod || lModule === cSub || lModule === cProj || lModule === cInner)) ||
+        (lStage && cStg && lStage === cStg);
+
+      if (!isItemMatch) return false;
+      if (!targetCode || targetCode === 'ALL') return true;
+
+      return (
+        l.batch_code === targetCode ||
+        l.batch_code === 'ALL' ||
+        (/weekend|a26s/i.test(targetCode) && /weekend|a26s/i.test(l.batch_code)) ||
+        (/weekday|a26w/i.test(targetCode) && /weekday|a26w/i.test(l.batch_code))
+      );
+    });
+  };
+
   // If query is for 'ALL'
   if (cleanTarget === 'ALL') {
     const entries = Object.entries(batchJsonMap);
@@ -662,94 +705,103 @@ export const getEffectiveProjectDueDate = (
         const richRec = richBatchDates[earliestBatchCode] || null;
         return buildResult(earliestDate, 'batch_all_active', richRec);
       }
-      return buildResult(null, 'batch_all_locked');
     }
 
-    const richKeys = Object.keys(richBatchDates);
-    if (richKeys.length > 0) {
-      const activeRich = richKeys.find(k => richBatchDates[k]?.dueDate);
-      if (activeRich) {
-        return buildResult(richBatchDates[activeRich].dueDate, 'batch_all_rich', richBatchDates[activeRich]);
+    // Check milestoneLocks for any unlocked lock for ALL batches
+    const unlockedLock = milestoneLocks.find((l) => {
+      if (l.is_locked || !l.unlock_date) return false;
+      const cleanStr = (s) => String(s || '').toLowerCase().replace(/-(w|s)$/i, '').trim();
+      const projId = project.id;
+      const modId = project.moduleId || project.innerTopicId || project.module_id;
+      const subId = project.subtopicId || project.subtopic_id;
+      const stgId = project.stageId || project.stage_id;
+      const lLesson = cleanStr(l.lesson_id);
+      const lModule = cleanStr(l.module_id);
+      const lStage = cleanStr(l.stage_id);
+
+      return (
+        (lLesson && (lLesson === cleanStr(projId) || lLesson === cleanStr(modId) || lLesson === cleanStr(subId) || lLesson === cleanStr(stgId))) ||
+        (lModule && (lModule === cleanStr(modId) || lModule === cleanStr(subId))) ||
+        (lStage && cleanStr(stgId) && lStage === cleanStr(stgId))
+      );
+    });
+
+    if (unlockedLock) {
+      const calc = calculateDueDate(unlockedLock.unlock_date, durationDays, unlockedLock.unlock_time);
+      if (calc) {
+        return buildResult(calc.dueDate, 'milestone_fallback_all', calc);
       }
     }
+
+    return buildResult(null, 'batch_all_locked');
   }
 
   // 3. Exact batch code lookup
   const targetBatchCode = resolveBatchCode(cleanTarget, batchesList);
-  if (targetBatchCode && batchJsonMap[targetBatchCode] !== undefined) {
-    const val = batchJsonMap[targetBatchCode];
+  const directValue = (targetBatchCode && batchJsonMap[targetBatchCode] !== undefined)
+    ? batchJsonMap[targetBatchCode]
+    : batchJsonMap[cleanTarget];
+
+  // If a valid date string is already present in batch JSON, return it immediately
+  if (directValue && hasFourDigitYear(directValue) && !isDummyPlaceholderDate(directValue)) {
     const richRec = richBatchDates[targetBatchCode] || richBatchDates[cleanTarget] || null;
-    return buildResult(val, 'batch', richRec);
+    return buildResult(directValue, 'batch', richRec);
   }
 
-  if (batchJsonMap[cleanTarget] !== undefined) {
-    const val = batchJsonMap[cleanTarget];
-    const richRec = richBatchDates[cleanTarget] || null;
-    return buildResult(val, 'batch', richRec);
-  }
-
-  // 4. Check richBatchDates exact match
-  if (richBatchDates[targetBatchCode]) {
+  // Check richBatchDates exact match
+  if (richBatchDates[targetBatchCode]?.dueDate && hasFourDigitYear(richBatchDates[targetBatchCode].dueDate)) {
     const bRec = richBatchDates[targetBatchCode];
     return buildResult(bRec.dueDate, 'batch_rich', bRec);
   }
-  if (richBatchDates[cleanTarget]) {
+  if (richBatchDates[cleanTarget]?.dueDate && hasFourDigitYear(richBatchDates[cleanTarget].dueDate)) {
     const bRec = richBatchDates[cleanTarget];
     return buildResult(bRec.dueDate, 'batch_rich', bRec);
   }
 
-  // 5. Batch Category / Alias Lookup
+  // 4. Batch Category / Alias Lookup
   if (cleanTarget !== 'ALL') {
     const isWeekend = /weekend|a26s|a26we/i.test(cleanTarget);
     const candidateAliases = isWeekend
-      ? ['A26S1', 'A26S2', 'Weekend Batch', 'weekend', 'ALL']
-      : ['A26W1', 'A26W2', 'Weekday Batch', 'weekday', 'ALL'];
+      ? ['A26S1', 'A26S2', 'Weekend Batch', 'weekend']
+      : ['A26W1', 'A26W2', 'Weekday Batch', 'weekday'];
 
     for (const alias of candidateAliases) {
-      if (batchJsonMap[alias] !== undefined) {
-        return buildResult(batchJsonMap[alias], 'batch_alias', richBatchDates[alias] || null);
+      const aliasVal = batchJsonMap[alias];
+      if (aliasVal && hasFourDigitYear(aliasVal) && !isDummyPlaceholderDate(aliasVal)) {
+        return buildResult(aliasVal, 'batch_alias', richBatchDates[alias] || null);
       }
-      if (richBatchDates[alias]) {
+      if (richBatchDates[alias]?.dueDate && hasFourDigitYear(richBatchDates[alias].dueDate)) {
         return buildResult(richBatchDates[alias].dueDate, 'batch_alias_rich', richBatchDates[alias]);
       }
     }
   }
 
-  // 6. Milestone Locks Table Lookup
-  if (Array.isArray(milestoneLocks) && milestoneLocks.length > 0) {
-    const projId = project.id;
-    const modId = project.moduleId || project.innerTopicId || project.module_id;
-    const subId = project.subtopicId || project.subtopic_id;
-    const stgId = project.stageId || project.stage_id;
-    const cleanStr = (s) => String(s || '').toLowerCase().replace(/-(w|s)$/i, '').trim();
-
-    const matchingLock = milestoneLocks.find((l) => {
-      const isItemMatch =
-        l.lesson_id === projId || cleanStr(l.lesson_id) === cleanStr(projId) ||
-        (modId && (l.lesson_id === modId || cleanStr(l.lesson_id) === cleanStr(modId))) ||
-        (subId && (l.lesson_id === subId || cleanStr(l.lesson_id) === cleanStr(subId))) ||
-        (stgId && (l.lesson_id === stgId || cleanStr(l.lesson_id) === cleanStr(stgId)));
-
-      if (!isItemMatch) return false;
-      if (cleanTarget === 'ALL') return true;
-      return (
-        l.batch_code === cleanTarget ||
-        l.batch_code === targetBatchCode ||
-        l.batch_code === 'ALL' ||
-        (/weekend|a26s/i.test(cleanTarget) && /weekend|a26s/i.test(l.batch_code)) ||
-        (/weekday|a26w/i.test(cleanTarget) && /weekday|a26w/i.test(l.batch_code))
-      );
-    });
-
-    if (matchingLock) {
-      if (matchingLock.is_locked || !matchingLock.unlock_date) {
-        return buildResult(null, 'milestone_lock_locked');
-      }
-      const calc = calculateDueDate(matchingLock.unlock_date, durationDays, matchingLock.unlock_time);
-      if (calc) {
-        return buildResult(calc.dueDate, 'milestone_lock', calc);
-      }
+  // 5. SELF-HEALING FALLBACK: Check milestoneLocks table
+  // If the batch had null in the database (or was not yet synced), inspect milestoneLocks.
+  // If milestoneLocks has an UNLOCKED record for this milestone, calculate the dynamic due date
+  // immediately so the student/admin sees the correct date, and optionally trigger self-healing.
+  const activeLock = findMatchingMilestoneLock(targetBatchCode || cleanTarget);
+  if (activeLock) {
+    if (activeLock.is_locked || !activeLock.unlock_date) {
+      // Confirmed locked by milestone lock
+      return buildResult(null, 'milestone_lock_confirmed_locked');
     }
+
+    const calc = calculateDueDate(activeLock.unlock_date, durationDays, activeLock.unlock_time);
+    if (calc) {
+      // Trigger background self-healing write-back if callback provided
+      if (typeof onSelfHeal === 'function') {
+        try {
+          onSelfHeal(project.id, targetBatchCode || cleanTarget, calc.dueDate);
+        } catch (e) {}
+      }
+      return buildResult(calc.dueDate, 'milestone_self_heal_fallback', calc);
+    }
+  }
+
+  // 6. If batch had explicit null in database and no unlocked milestone lock was found, it is locked
+  if (directValue === null) {
+    return buildResult(null, 'batch_explicit_null');
   }
 
   // 7. Backward-compatible Legacy single-date fallback
@@ -761,7 +813,6 @@ export const getEffectiveProjectDueDate = (
     return buildResult(legacyDueDate, 'legacy');
   }
 
-  // 8. Default: Project is locked for this batch
   return {
     dueDate: null,
     formattedDueDate: 'Not unlocked',

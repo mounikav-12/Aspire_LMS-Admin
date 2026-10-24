@@ -1120,6 +1120,15 @@ export function MilestonesRoadmapPage() {
     }
 
     if (scheduleTarget.type === 'stage') {
+      await setLessonLock({
+        lesson_id: scheduleTarget.id,
+        batch_code: selectedBatch,
+        course_id: targetCourseId,
+        stage_id: scheduleTarget.id || '',
+        module_id: '',
+        unlock_date: finalDate,
+        unlock_time: finalTime
+      });
       setStageSchedule(scheduleTarget.id, {
         unlockDate: finalDate,
         unlockTime: finalTime,
@@ -1127,7 +1136,7 @@ export function MilestonesRoadmapPage() {
       }, selectedBatch);
       addToast(
         finalDate
-          ? `📅 Stage release scheduled for ${finalDate} at ${finalTime}`
+          ? `📅 Stage release scheduled for ${finalDate} at ${finalTime} (${selectedBatch === 'ALL' ? 'All Batches' : selectedBatch})`
           : 'Stage schedule updated',
         'success'
       );

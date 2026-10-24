@@ -1052,35 +1052,125 @@ app.post('/api/projects/sync-milestones', async (req, res) => {
     const targetClean = cleanStr(milestoneId);
 
     const affected = (projects || []).filter((p) => {
-      return cleanStr(p.id) === targetClean ||
-        cleanStr(p.inner_topic_id) === targetClean ||
-        cleanStr(p.subtopic_id) === targetClean ||
-        cleanStr(p.stage_id) === targetClean;
+      const pId = cleanStr(p.id);
+      const mId = cleanStr(p.inner_topic_id);
+      const sId = cleanStr(p.subtopic_id);
+      const stgId = cleanStr(p.stage_id);
+
+      return pId === targetClean ||
+        mId === targetClean ||
+        sId === targetClean ||
+        stgId === targetClean;
     });
 
     const results = [];
     for (const proj of affected) {
       const currentMap = parseBatchDueDates(proj.due_date, batches || []);
       let updatedMap = { ...initializeBatchDueDates(allBatchCodes, currentMap, batches || []) };
+      let changed = false;
 
       for (const tBatchCode of targetBatchCodes) {
         if (isLocked || !unlockDate) {
-          updatedMap[tBatchCode] = null; // Requirement 3: literal null
+          if (updatedMap[tBatchCode] !== null) {
+            updatedMap[tBatchCode] = null; // Requirement 3: literal null
+            changed = true;
+          }
         } else {
           const calc = calculateBatchProjectDueDate(proj, unlockDate, customDuration);
-          updatedMap[tBatchCode] = calc ? calc.dueDate : null;
+          const newDate = calc ? calc.dueDate : null;
+          if (updatedMap[tBatchCode] !== newDate) {
+            updatedMap[tBatchCode] = newDate;
+            changed = true;
+          }
         }
       }
 
-      await supabase.from('projects').update({ due_date: JSON.stringify(updatedMap) }).eq('id', proj.id);
-      results.push({ id: proj.id, title: proj.title, due_date: updatedMap });
+      if (changed) {
+        await supabase.from('projects').update({ due_date: JSON.stringify(updatedMap) }).eq('id', proj.id);
+        results.push({ id: proj.id, title: proj.title, due_date: updatedMap });
+      }
     }
 
     res.json({
       success: true,
       affectedCount: affected.length,
+      updatedCount: results.length,
       targetBatches: targetBatchCodes,
       projects: results
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// POST /api/projects/reconcile-all - Global safety reconciliation of all project due dates against milestone locks
+app.post('/api/projects/reconcile-all', async (req, res) => {
+  try {
+    const { data: batches, error: bErr } = await supabase.from('batches').select('*');
+    if (bErr) throw bErr;
+    const allBatchCodes = (batches || []).map(b => b.code);
+
+    const { data: locks, error: lErr } = await supabase.from('milestone_locks').select('*');
+    if (lErr) throw lErr;
+
+    const { data: projects, error: pErr } = await supabase.from('projects').select('*');
+    if (pErr) throw pErr;
+
+    const cleanStr = (s) => String(s || '').toLowerCase().replace(/-(w|s)$/i, '').trim();
+    let reconciledCount = 0;
+    const details = [];
+
+    for (const proj of (projects || [])) {
+      const currentMap = parseBatchDueDates(proj.due_date, batches || []);
+      let updatedMap = { ...initializeBatchDueDates(allBatchCodes, currentMap, batches || []) };
+      let changed = false;
+
+      const pId = cleanStr(proj.id);
+      const mId = cleanStr(proj.inner_topic_id);
+      const sId = cleanStr(proj.subtopic_id);
+      const stgId = cleanStr(proj.stage_id);
+
+      for (const bCode of allBatchCodes) {
+        // Find matching lock for this project and batch
+        const matchLock = (locks || []).find((l) => {
+          if (l.batch_code !== bCode && l.batch_code !== 'ALL') return false;
+          const lLesson = cleanStr(l.lesson_id);
+          const lMod = cleanStr(l.module_id);
+          const lStg = cleanStr(l.stage_id);
+
+          return (lLesson && (lLesson === pId || lLesson === mId || lLesson === sId || lLesson === stgId)) ||
+            (lMod && (lMod === mId || lMod === sId || lMod === pId)) ||
+            (lStg && stgId && lStg === stgId);
+        });
+
+        if (matchLock && !matchLock.is_locked && matchLock.unlock_date) {
+          const calc = calculateBatchProjectDueDate(proj, matchLock.unlock_date);
+          const targetDate = calc ? calc.dueDate : null;
+          if (updatedMap[bCode] !== targetDate) {
+            updatedMap[bCode] = targetDate;
+            changed = true;
+          }
+        } else {
+          // If no unlocked lock or explicitly locked, must be literal null
+          if (updatedMap[bCode] !== null) {
+            updatedMap[bCode] = null;
+            changed = true;
+          }
+        }
+      }
+
+      if (changed) {
+        await supabase.from('projects').update({ due_date: JSON.stringify(updatedMap) }).eq('id', proj.id);
+        reconciledCount++;
+        details.push({ id: proj.id, title: proj.title, due_date: updatedMap });
+      }
+    }
+
+    res.json({
+      success: true,
+      totalProjects: (projects || []).length,
+      reconciledCount,
+      details
     });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });

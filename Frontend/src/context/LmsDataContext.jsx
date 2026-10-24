@@ -5992,16 +5992,39 @@ export function LmsDataProvider({ children }) {
     const cleanStr = (s) => String(s || '').toLowerCase().replace(/-(w|s)$/i, '').trim();
     const lIdClean = cleanStr(lessonOrModuleId);
 
-    const allProjects = Object.values(projectsByBatch).flat();
+    // 1. Dual fetch: Check in-memory projects first, fallback to Supabase if empty
+    let allProjects = Object.values(projectsByBatch).flat();
+    if (allProjects.length === 0) {
+      try {
+        const { data: dbProjects } = await supabase.from('projects').select('*');
+        if (dbProjects && dbProjects.length > 0) {
+          allProjects = dbProjects;
+        }
+      } catch (err) {}
+    }
     const uniqueProjects = Array.from(new Map(allProjects.map((p) => [p.id, p])).values());
 
     const matchingProjects = uniqueProjects.filter((p) => {
       const pId = cleanStr(p.id);
-      const mId = cleanStr(p.moduleId || p.innerTopicId || p.module_id);
+      const mId = cleanStr(p.moduleId || p.innerTopicId || p.inner_topic_id || p.module_id);
       const sId = cleanStr(p.subtopicId || p.subtopic_id);
       const stgId = cleanStr(p.stageId || p.stage_id);
       return pId === lIdClean || (mId && mId === lIdClean) || (sId && sId === lIdClean) || (stgId && stgId === lIdClean);
     });
+
+    // Also trigger backend sync endpoint in parallel for complete persistence
+    try {
+      fetch('/api/projects/sync-milestones', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          milestoneId: lessonOrModuleId,
+          batchCode,
+          unlockDate,
+          isLocked
+        })
+      }).catch(() => {});
+    } catch (e) {}
 
     if (matchingProjects.length === 0) return;
 
@@ -6039,6 +6062,10 @@ export function LmsDataProvider({ children }) {
           batchDueDates: updatedMap,
           dueDate: updatedMap
         });
+        // Direct Supabase update as guarantee
+        try {
+          await supabase.from('projects').update({ due_date: JSON.stringify(updatedMap) }).eq('id', proj.id);
+        } catch (e) {}
       }
     }
   };
