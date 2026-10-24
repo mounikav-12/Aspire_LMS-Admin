@@ -61,7 +61,7 @@ import {
 } from 'lucide-react';
 
 export function ProjectManagementPage() {
-  const { projects = [], courses = [], courseLessons = [], milestones = {}, milestonesByBatch = {}, addProject, updateProject, deleteProject, gradeSubmission, activeBatchFilter, getLessonLockStatus, availableBatches, milestoneLocks = [], projectTypeDeadlines = { Mini: 3, Major: 5, Capstone: 10 }, updateProjectTypeDeadlines, setProjectBatchUnlock } = useLmsData();
+  const { projects = [], courses = [], courseLessons = [], milestones = {}, milestonesByBatch = {}, addProject, updateProject, deleteProject, gradeSubmission, activeBatchFilter, getLessonLockStatus, availableBatches, batchesList = [], milestoneLocks = [], projectTypeDeadlines = { Mini: 3, Major: 5, Capstone: 10 }, updateProjectTypeDeadlines, setProjectBatchUnlock } = useLmsData();
   const { addToast } = useToast();
 
   // Navigation & Filter States

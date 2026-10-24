@@ -20,6 +20,8 @@ DECLARE
   duration_days INT;
   calc_due_date DATE;
   due_date_str TEXT;
+  batch_codes TEXT[];
+  b_code TEXT;
 BEGIN
   IF TG_OP = 'DELETE' THEN
     target_batch_code := OLD.batch_code;
@@ -38,6 +40,26 @@ BEGIN
 
   IF target_batch_code IS NULL OR target_batch_code = '' THEN
     RETURN COALESCE(NEW, OLD);
+  END IF;
+
+  -- Determine target batch codes (expanding 'ALL', 'Weekend Batch', 'Weekday Batch')
+  IF target_batch_code = 'ALL' THEN
+    SELECT ARRAY_AGG(code) INTO batch_codes FROM public.batches WHERE code IS NOT NULL;
+    IF batch_codes IS NULL OR array_length(batch_codes, 1) = 0 THEN
+      batch_codes := ARRAY['A26W1', 'A26S1', 'A26W2', 'A26S2'];
+    END IF;
+  ELSIF target_batch_code ILIKE '%weekend%' THEN
+    SELECT ARRAY_AGG(code) INTO batch_codes FROM public.batches WHERE code ILIKE '%s%' OR code ILIKE '%weekend%';
+    IF batch_codes IS NULL OR array_length(batch_codes, 1) = 0 THEN
+      batch_codes := ARRAY['A26S1', 'A26S2'];
+    END IF;
+  ELSIF target_batch_code ILIKE '%weekday%' THEN
+    SELECT ARRAY_AGG(code) INTO batch_codes FROM public.batches WHERE code ILIKE '%w%' OR code ILIKE '%weekday%';
+    IF batch_codes IS NULL OR array_length(batch_codes, 1) = 0 THEN
+      batch_codes := ARRAY['A26W1', 'A26W2'];
+    END IF;
+  ELSE
+    batch_codes := ARRAY[target_batch_code];
   END IF;
 
   -- Find all projects associated with this lesson, module, or stage
@@ -75,22 +97,26 @@ BEGIN
       calc_due_date := (unlock_d + (duration_days || ' days')::INTERVAL)::DATE;
       due_date_str := to_char(calc_due_date, 'YYYY-MM-DD');
 
-      UPDATE public.projects
-      SET due_date = jsonb_set(
-        COALESCE(due_date, '{}'::jsonb),
-        ARRAY[target_batch_code],
-        to_jsonb(due_date_str)
-      )
-      WHERE id = proj.id;
+      FOREACH b_code IN ARRAY batch_codes LOOP
+        UPDATE public.projects
+        SET due_date = jsonb_set(
+          COALESCE(due_date, '{}'::jsonb),
+          ARRAY[b_code],
+          to_jsonb(due_date_str)
+        )
+        WHERE id = proj.id;
+      END LOOP;
     ELSE
       -- Locked or deleted: Set due date to literal null for this batch
-      UPDATE public.projects
-      SET due_date = jsonb_set(
-        COALESCE(due_date, '{}'::jsonb),
-        ARRAY[target_batch_code],
-        'null'::jsonb
-      )
-      WHERE id = proj.id;
+      FOREACH b_code IN ARRAY batch_codes LOOP
+        UPDATE public.projects
+        SET due_date = jsonb_set(
+          COALESCE(due_date, '{}'::jsonb),
+          ARRAY[b_code],
+          'null'::jsonb
+        )
+        WHERE id = proj.id;
+      END LOOP;
     END IF;
   END LOOP;
 

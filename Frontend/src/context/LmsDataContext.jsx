@@ -2478,6 +2478,31 @@ export function LmsDataProvider({ children }) {
           mappedProjects.forEach((p) => placeItemInBatchDict(p, next));
           return next;
         });
+
+        // Background safety reconciliation against Supabase milestone_locks
+        try {
+          fetch('/api/projects/reconcile-all', { method: 'POST' })
+            .then(res => res.json())
+            .then(result => {
+              if (result && result.details && result.details.length > 0) {
+                setProjectsByBatch((prev) => {
+                  const updateMap = new Map(result.details.map(d => [d.id, d.due_date]));
+                  const patchArr = (arr) => (arr || []).map(p => {
+                    const newDue = updateMap.get(p.id);
+                    if (newDue) {
+                      return { ...p, due_date: newDue, batchDueDates: newDue, dueDate: newDue };
+                    }
+                    return p;
+                  });
+                  return {
+                    'Weekday Batch': patchArr(prev['Weekday Batch']),
+                    'Weekend Batch': patchArr(prev['Weekend Batch'])
+                  };
+                });
+              }
+            })
+            .catch(() => {});
+        } catch (e) {}
       }
 
       // 10. Fetch Students Roster directly from Supabase DB
@@ -4673,30 +4698,18 @@ export function LmsDataProvider({ children }) {
       ...(techStackArray !== undefined ? { techStack: techStackArray } : {})
     };
 
-    let fullProjectToSave = null;
+    const existing = (projectsByBatch['Weekday Batch'] || []).find((p) => p.id === id) ||
+                     (projectsByBatch['Weekend Batch'] || []).find((p) => p.id === id);
+    const fullProjectToSave = { ...(existing || {}), id, ...fieldsToApply };
 
-    setProjectsByBatch((prev) => {
-      const existing = (prev['Weekday Batch'] || []).find((p) => p.id === id) ||
-                       (prev['Weekend Batch'] || []).find((p) => p.id === id);
-      fullProjectToSave = { ...(existing || {}), id, ...fieldsToApply };
-
-      return {
-        'Weekday Batch': (prev['Weekday Batch'] || []).map((p) => (p.id === id ? { ...p, ...fieldsToApply } : p)),
-        'Weekend Batch': (prev['Weekend Batch'] || []).map((p) => (p.id === id ? { ...p, ...fieldsToApply } : p))
-      };
-    });
+    setProjectsByBatch((prev) => ({
+      'Weekday Batch': (prev['Weekday Batch'] || []).map((p) => (p.id === id ? { ...p, ...fieldsToApply } : p)),
+      'Weekend Batch': (prev['Weekend Batch'] || []).map((p) => (p.id === id ? { ...p, ...fieldsToApply } : p))
+    }));
     logActivity(`Updated project listing ID ${id} (${bKey})`, 'project');
 
     try {
-      if (fullProjectToSave) {
-        const dbRow = toDbProject(fullProjectToSave);
-        const { error } = await supabase.from('projects').upsert([dbRow]);
-        if (error) console.error('Supabase project update error:', error.message);
-      }
-    } catch (err) { console.warn('Project update handled:', err); }
-    return;
-    try {
-      const dbRow = toDbProject({ id, ...fieldsToApply });
+      const dbRow = toDbProject(fullProjectToSave);
       const { error } = await supabase.from('projects').upsert([dbRow]);
       if (error) console.error('Supabase project update error:', error.message);
     } catch (err) { console.warn('Project update handled:', err); }
@@ -6028,10 +6041,21 @@ export function LmsDataProvider({ children }) {
 
     if (matchingProjects.length === 0) return;
 
-    const allBatchCodes = (availableBatches || []).length > 0 ? availableBatches : ['A26W1', 'A26S1'];
-    let targetBatches = (!batchCode || batchCode === 'ALL')
-      ? allBatchCodes
-      : [batchCode];
+    const allBatchCodes = (availableBatches || []).length > 0 ? availableBatches : ['A26W1', 'A26S1', 'A26W2', 'A26S2'];
+    const allWeekendCodes = allBatchCodes.filter(c => /weekend|a26s/i.test(c));
+    const allWeekdayCodes = allBatchCodes.filter(c => /weekday|a26w/i.test(c));
+
+    let targetBatches = [];
+    if (!batchCode || batchCode === 'ALL') {
+      targetBatches = allBatchCodes;
+    } else if (/weekend/i.test(batchCode)) {
+      targetBatches = allWeekendCodes.length > 0 ? allWeekendCodes : ['A26S1', 'A26S2'];
+    } else if (/weekday/i.test(batchCode)) {
+      targetBatches = allWeekdayCodes.length > 0 ? allWeekdayCodes : ['A26W1', 'A26W2'];
+    } else {
+      const resolved = resolveBatchCode(batchCode, batchesList);
+      targetBatches = [resolved || batchCode];
+    }
 
     for (const proj of matchingProjects) {
       const currentMap = parseBatchDueDates(proj.due_date || proj.batchDueDates, batchesList);
@@ -6064,7 +6088,7 @@ export function LmsDataProvider({ children }) {
         });
         // Direct Supabase update as guarantee
         try {
-          await supabase.from('projects').update({ due_date: JSON.stringify(updatedMap) }).eq('id', proj.id);
+          await supabase.from('projects').update({ due_date: updatedMap }).eq('id', proj.id);
         } catch (e) {}
       }
     }

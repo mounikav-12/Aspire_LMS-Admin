@@ -1131,9 +1131,16 @@ app.post('/api/projects/reconcile-all', async (req, res) => {
       const stgId = cleanStr(proj.stage_id);
 
       for (const bCode of allBatchCodes) {
-        // Find matching lock for this project and batch
+        // Find matching lock for this project and batch (with batch category awareness)
+        const isWeekend = /weekend|a26s/i.test(bCode);
         const matchLock = (locks || []).find((l) => {
-          if (l.batch_code !== bCode && l.batch_code !== 'ALL') return false;
+          const isBatchMatch =
+            l.batch_code === bCode ||
+            l.batch_code === 'ALL' ||
+            (isWeekend && /weekend|a26s/i.test(l.batch_code)) ||
+            (!isWeekend && /weekday|a26w/i.test(l.batch_code));
+          if (!isBatchMatch) return false;
+
           const lLesson = cleanStr(l.lesson_id);
           const lMod = cleanStr(l.module_id);
           const lStg = cleanStr(l.stage_id);

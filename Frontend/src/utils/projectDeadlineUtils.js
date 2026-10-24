@@ -289,12 +289,17 @@ export const resolveBatchCode = (identifier, batchesList = []) => {
   const clean = String(identifier).trim();
   if (Array.isArray(batchesList) && batchesList.length > 0) {
     const lower = clean.toLowerCase();
-    const matched = batchesList.find(b =>
-      String(b.id || '').toLowerCase() === lower ||
-      String(b.code || '').toLowerCase() === lower
-    );
-    if (matched && matched.code) {
-      return matched.code.trim();
+    const matched = batchesList.find(b => {
+      if (typeof b === 'string') return b.toLowerCase() === lower;
+      return (
+        String(b.id || '').toLowerCase() === lower ||
+        String(b.code || '').toLowerCase() === lower ||
+        String(b.name || '').toLowerCase() === lower
+      );
+    });
+    if (matched) {
+      if (typeof matched === 'string') return matched.trim();
+      if (matched.code) return matched.code.trim();
     }
   }
   return clean;
@@ -656,14 +661,14 @@ export const getEffectiveProjectDueDate = (
   };
 
   // Helper: Find matching lock from milestoneLocks array across all hierarchy levels
-  const findMatchingMilestoneLock = (targetCode) => {
+  const findMatchingMilestoneLock = (targetCode, onlyUnlocked = false) => {
     if (!Array.isArray(milestoneLocks) || milestoneLocks.length === 0) return null;
 
     const projId = project.id;
     const innerId = project.inner_topic_id || project.innerTopicId;
     const modId = project.moduleId || project.module_id;
-    const subId = project.subtopicId || project.subtopic_id;
-    const stgId = project.stageId || project.stage_id;
+    const subId = project.subtopic_id || project.subtopicId;
+    const stgId = project.stage_id || project.stageId;
     const cleanStr = (s) => String(s || '').toLowerCase().replace(/-(w|s)$/i, '').trim();
 
     const cProj = cleanStr(projId);
@@ -673,6 +678,8 @@ export const getEffectiveProjectDueDate = (
     const cStg = cleanStr(stgId);
 
     return milestoneLocks.find((l) => {
+      if (onlyUnlocked && (l.is_locked || !l.unlock_date)) return false;
+
       const lLesson = cleanStr(l.lesson_id);
       const lModule = cleanStr(l.module_id);
       const lStage = cleanStr(l.stage_id);
@@ -708,24 +715,7 @@ export const getEffectiveProjectDueDate = (
     }
 
     // Check milestoneLocks for any unlocked lock for ALL batches
-    const unlockedLock = milestoneLocks.find((l) => {
-      if (l.is_locked || !l.unlock_date) return false;
-      const cleanStr = (s) => String(s || '').toLowerCase().replace(/-(w|s)$/i, '').trim();
-      const projId = project.id;
-      const modId = project.moduleId || project.innerTopicId || project.module_id;
-      const subId = project.subtopicId || project.subtopic_id;
-      const stgId = project.stageId || project.stage_id;
-      const lLesson = cleanStr(l.lesson_id);
-      const lModule = cleanStr(l.module_id);
-      const lStage = cleanStr(l.stage_id);
-
-      return (
-        (lLesson && (lLesson === cleanStr(projId) || lLesson === cleanStr(modId) || lLesson === cleanStr(subId) || lLesson === cleanStr(stgId))) ||
-        (lModule && (lModule === cleanStr(modId) || lModule === cleanStr(subId))) ||
-        (lStage && cleanStr(stgId) && lStage === cleanStr(stgId))
-      );
-    });
-
+    const unlockedLock = findMatchingMilestoneLock('ALL', true);
     if (unlockedLock) {
       const calc = calculateDueDate(unlockedLock.unlock_date, durationDays, unlockedLock.unlock_time);
       if (calc) {
