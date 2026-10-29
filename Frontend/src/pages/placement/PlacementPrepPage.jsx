@@ -13,14 +13,22 @@ import {
   BookOpen,
   Code2,
   FileText,
-  Lightbulb,
   Download,
   ExternalLink,
   Plus,
   Edit2,
   Trash2,
-  FileSpreadsheet
+  FileSpreadsheet,
+  Layers
 } from 'lucide-react';
+
+const CATEGORY_OPTIONS = [
+  { value: 'PDF Guides', label: 'PDF Guides' },
+  { value: 'Notes', label: 'Notes' },
+  { value: 'Cheat Sheets', label: 'Cheat Sheets' },
+  { value: 'Roadmaps', label: 'Roadmaps' },
+  { value: 'Templates', label: 'Templates' }
+];
 
 export function PlacementPrepPage() {
   const { placementResources, addPlacementResource, updatePlacementResource, deletePlacementResource } = useLmsData();
@@ -34,7 +42,7 @@ export function PlacementPrepPage() {
 
   // Form State
   const [formData, setFormData] = useState({
-    category: 'Interview Tips',
+    category: 'PDF Guides',
     title: '',
     author: '',
     readTime: '',
@@ -44,7 +52,7 @@ export function PlacementPrepPage() {
 
   const handleOpenAddModal = () => {
     setFormData({
-      category: 'Interview Tips',
+      category: 'PDF Guides',
       title: '',
       author: '',
       readTime: '',
@@ -57,11 +65,11 @@ export function PlacementPrepPage() {
   const handleOpenEditModal = (res) => {
     setEditingResource(res);
     setFormData({
-      category: res.category,
-      title: res.title,
-      author: res.author,
-      readTime: res.readTime,
-      snippet: res.snippet,
+      category: res.category || 'PDF Guides',
+      title: res.title || '',
+      author: res.author || '',
+      readTime: res.readTime || '',
+      snippet: res.snippet || '',
       linkUrl: res.linkUrl || ''
     });
   };
@@ -93,26 +101,83 @@ export function PlacementPrepPage() {
   };
 
   const tabs = [
-    { id: 'ALL', label: 'All Resources', icon: Sparkles },
-    { id: 'Interview Tips', label: 'Interview Tips', icon: Lightbulb },
-    { id: 'Coding Practice', label: 'Coding Practice', icon: Code2 },
-    { id: 'Articles', label: 'Articles & System Design', icon: BookOpen },
-    { id: 'PDFs', label: 'PDF Cheatsheets', icon: FileText }
+    { id: 'ALL', label: 'All Types' },
+    { id: 'PDF Guides', label: 'PDF Guides' },
+    { id: 'Notes', label: 'Notes' },
+    { id: 'Cheat Sheets', label: 'Cheat Sheets' },
+    { id: 'Roadmaps', label: 'Roadmaps' },
+    { id: 'Templates', label: 'Templates' }
   ];
 
+  const getCategoryBadgeVariant = (category) => {
+    switch (category) {
+      case 'PDF Guides':
+      case 'PDFs':
+        return 'purple';
+      case 'Notes':
+      case 'Interview Tips':
+        return 'emerald';
+      case 'Cheat Sheets':
+      case 'Coding Practice':
+        return 'amber';
+      case 'Roadmaps':
+        return 'rose';
+      case 'Templates':
+        return 'sky';
+      default:
+        return 'blue';
+    }
+  };
+
+  const getCategoryIcon = (category) => {
+    switch (category) {
+      case 'PDF Guides':
+      case 'PDFs':
+        return BookOpen;
+      case 'Notes':
+      case 'Interview Tips':
+        return FileText;
+      case 'Cheat Sheets':
+      case 'Coding Practice':
+        return Code2;
+      case 'Roadmaps':
+        return Layers;
+      case 'Templates':
+        return FileSpreadsheet;
+      default:
+        return BookOpen;
+    }
+  };
+
   const filteredResources = placementResources.filter((res) => {
-    const matchesTab = activeTab === 'ALL' || res.category === activeTab;
+    const resCat = (res.category || '').trim().toLowerCase();
+    const tabId = activeTab.toLowerCase();
+
+    let matchesTab = activeTab === 'ALL';
+    if (!matchesTab) {
+      if (resCat === tabId) {
+        matchesTab = true;
+      } else if (tabId === 'pdf guides' && (resCat === 'pdfs' || resCat === 'pdf' || resCat === 'articles')) {
+        matchesTab = true;
+      } else if (tabId === 'notes' && resCat === 'interview tips') {
+        matchesTab = true;
+      } else if (tabId === 'cheat sheets' && resCat === 'coding practice') {
+        matchesTab = true;
+      }
+    }
+
     const matchesSearch =
-      res.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      res.snippet.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      res.author.toLowerCase().includes(searchTerm.toLowerCase());
+      (res.title || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (res.snippet || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (res.author || '').toLowerCase().includes(searchTerm.toLowerCase());
+
     return matchesTab && matchesSearch;
   });
 
   const handleDownload = (res) => {
     if (res.linkUrl) {
       window.open(res.linkUrl, '_blank');
-      addToast(`Downloading PDF document: "${res.title}"...`, 'success');
+      addToast(`Opening resource document: "${res.title}"...`, 'success');
     }
   };
 
@@ -122,10 +187,10 @@ export function PlacementPrepPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
-            <Sparkles className="w-7 h-7 text-blue-600" /> Placement & Interview Prep Hub
+            <Sparkles className="w-7 h-7 text-indigo-600" /> Placement & Interview Prep Hub
           </h1>
           <p className="text-xs text-slate-500 font-medium mt-1">
-            Curated technical interview tips, coding pattern guides, system design articles, and downloadable PDF cheatsheets.
+            Curated PDF guides, revision notes, cheat sheets, roadmaps, and templates for student placement preparation.
           </p>
         </div>
         <Button variant="primary" size="md" icon={Plus} onClick={handleOpenAddModal}>
@@ -133,23 +198,21 @@ export function PlacementPrepPage() {
         </Button>
       </div>
 
-      {/* Filter Tabs */}
-      <div className="flex flex-wrap items-center gap-2 border-b border-slate-200/80 pb-3">
+      {/* Filter Tabs matching Student LMS design */}
+      <div className="flex flex-wrap items-center gap-2.5 pb-2">
         {tabs.map((tab) => {
-          const Icon = tab.icon;
           const isActive = activeTab === tab.id;
           return (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-extrabold transition-all duration-200 cursor-pointer ${
+              className={`px-5 py-2.5 rounded-full text-xs font-extrabold transition-all duration-200 cursor-pointer ${
                 isActive
-                  ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20 scale-[1.02]'
-                  : 'bg-white border border-slate-200/80 text-slate-600 hover:bg-slate-50 hover:text-blue-600 hover:border-blue-300'
+                  ? 'bg-indigo-600 text-white shadow-md shadow-indigo-500/25 scale-[1.02]'
+                  : 'bg-slate-100/90 text-slate-700 hover:bg-slate-200 hover:text-slate-900'
               }`}
             >
-              <Icon className="w-4 h-4" />
-              <span>{tab.label}</span>
+              {tab.label}
             </button>
           );
         })}
@@ -161,10 +224,10 @@ export function PlacementPrepPage() {
           <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
             type="text"
-            placeholder="Search interview guides, coding practice, or PDF resources..."
+            placeholder="Search PDF guides, notes, cheat sheets, roadmaps, or templates..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 bg-slate-50/70 border border-slate-200 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all"
+            className="w-full pl-10 pr-4 py-2 bg-slate-50/70 border border-slate-200 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all"
           />
         </div>
       </div>
@@ -172,86 +235,86 @@ export function PlacementPrepPage() {
       {/* Cards Grid */}
       {filteredResources.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {filteredResources.map((res) => (
-            <div
-              key={res.id}
-              className="group bg-white rounded-3xl border border-slate-200/80 shadow-2xs hover:shadow-xl hover:border-blue-300 transition-all duration-300 hover:-translate-y-1 p-6 flex flex-col justify-between"
-            >
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Badge
-                      variant={
-                        res.category === 'Interview Tips'
-                          ? 'amber'
-                          : res.category === 'Coding Practice'
-                          ? 'sky'
-                          : res.category === 'PDFs'
-                          ? 'rose'
-                          : 'blue'
-                      }
-                    >
-                      {res.category}
-                    </Badge>
-                  </div>
+          {filteredResources.map((res) => {
+            const Icon = getCategoryIcon(res.category);
+            const badgeVariant = getCategoryBadgeVariant(res.category);
+            const displayCategory = res.category === 'PDFs' ? 'PDF Guides' : res.category;
 
-                  <div className="flex items-center gap-2">
-                    <span className="text-[11px] text-slate-400 font-semibold">{res.readTime}</span>
-                    <div className="flex items-center gap-1 bg-slate-50 p-1 rounded-xl opacity-80 group-hover:opacity-100 transition-opacity">
-                      <button
-                        onClick={() => handleOpenEditModal(res)}
-                        className="p-1 text-slate-400 hover:text-blue-600 rounded-lg hover:bg-white transition-colors cursor-pointer"
-                        title="Edit Resource"
-                      >
-                        <Edit2 className="w-3.5 h-3.5" />
-                      </button>
-                      <button
-                        onClick={() => setDeletingResource(res)}
-                        className="p-1 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-white transition-colors cursor-pointer"
-                        title="Delete Resource"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
+            return (
+              <div
+                key={res.id}
+                className="group bg-white rounded-3xl border border-slate-200/80 shadow-2xs hover:shadow-xl hover:border-indigo-300 transition-all duration-300 hover:-translate-y-1 p-6 flex flex-col justify-between"
+              >
+                <div className="space-y-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-center gap-3.5">
+                      <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-100 shrink-0">
+                        <Icon className="w-6 h-6 text-blue-600" />
+                      </div>
+                      <div>
+                        <h3 className="font-black text-slate-900 text-base leading-snug group-hover:text-indigo-600 transition-colors">
+                          {res.title}
+                        </h3>
+                        <span className="text-[11px] text-slate-400 font-semibold">{res.readTime || 'Resource Guide'}</span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 shrink-0">
+                      <Badge variant={badgeVariant}>
+                        {displayCategory}
+                      </Badge>
+                      <div className="flex items-center gap-1 bg-slate-50 p-1 rounded-xl opacity-80 group-hover:opacity-100 transition-opacity">
+                        <button
+                          onClick={() => handleOpenEditModal(res)}
+                          className="p-1 text-slate-400 hover:text-indigo-600 rounded-lg hover:bg-white transition-colors cursor-pointer"
+                          title="Edit Resource"
+                        >
+                          <Edit2 className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          onClick={() => setDeletingResource(res)}
+                          className="p-1 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-white transition-colors cursor-pointer"
+                          title="Delete Resource"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
                     </div>
                   </div>
+
+                  <p className="text-xs text-slate-500 leading-relaxed font-medium pl-0.5">{res.snippet}</p>
                 </div>
 
-                <h3 className="font-black text-slate-900 text-base leading-snug group-hover:text-blue-600 transition-colors">
-                  {res.title}
-                </h3>
-
-                <p className="text-xs text-slate-500 leading-relaxed font-medium">{res.snippet}</p>
+                <div className="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between text-xs">
+                  <span className="text-slate-400 font-semibold">{res.author ? `By ${res.author}` : ''}</span>
+                  {res.linkUrl ? (
+                    <Button
+                      variant="primary"
+                      size="sm"
+                      icon={Download}
+                      onClick={() => handleDownload(res)}
+                    >
+                      {res.category === 'PDF Guides' || res.category === 'PDFs' ? 'Download PDF' : 'Download Resource'}
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      icon={ExternalLink}
+                      onClick={() => addToast(`Opening resource: ${res.title}`, 'info')}
+                    >
+                      View Resource
+                    </Button>
+                  )}
+                </div>
               </div>
-
-              <div className="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between text-xs">
-                <span className="text-slate-400 font-semibold">{res.author ? `By ${res.author}` : ''}</span>
-                {res.category === 'PDFs' ? (
-                  <Button
-                    variant="primary"
-                    size="sm"
-                    icon={Download}
-                    onClick={() => handleDownload(res)}
-                  >
-                    Download PDF
-                  </Button>
-                ) : (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    icon={ExternalLink}
-                    onClick={() => addToast(`Opening guide: ${res.title}`, 'info')}
-                  >
-                    Read Guide
-                  </Button>
-                )}
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       ) : (
         <EmptyState
           title="No Placement Resources Found"
-          description="Publish interview tips, system design articles, or PDF cheatsheets."
+          description="Publish PDF guides, revision notes, cheat sheets, roadmaps, or templates."
           actionLabel="Add Resource"
           onAction={handleOpenAddModal}
         />
@@ -265,7 +328,7 @@ export function PlacementPrepPage() {
           setEditingResource(null);
         }}
         title={editingResource ? 'Edit Placement Resource' : 'Add Placement Resource'}
-        subtitle="Publish technical interview tips, coding practice guides, or PDF cheatsheets"
+        subtitle="Publish PDF guides, revision notes, cheat sheets, roadmaps, or templates"
       >
         <form onSubmit={handleSaveResource} className="space-y-4">
           <Input
@@ -281,12 +344,7 @@ export function PlacementPrepPage() {
               label="Resource Category"
               value={formData.category}
               onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-              options={[
-                { value: 'Interview Tips', label: 'Interview Tips' },
-                { value: 'Coding Practice', label: 'Coding Practice' },
-                { value: 'Articles', label: 'Articles & System Design' },
-                { value: 'PDFs', label: 'PDF Cheatsheets' }
-              ]}
+              options={CATEGORY_OPTIONS}
             />
 
             <Input
@@ -300,18 +358,18 @@ export function PlacementPrepPage() {
           <div className="grid grid-cols-2 gap-4">
             <Input
               label="Author Name"
+              placeholder="e.g. Career Success Team"
               value={formData.author}
               onChange={(e) => setFormData({ ...formData, author: e.target.value })}
             />
 
             <Input
-              label="PDF File URL / Document Link"
+              label="Document URL / PDF Link"
               icon={FileSpreadsheet}
               placeholder="https://domain.com/cheatsheet.pdf"
               value={formData.linkUrl}
               onChange={(e) => setFormData({ ...formData, linkUrl: e.target.value })}
-              helperText="Enter direct PDF URL or AWS S3 document download link"
-              required
+              helperText="Enter direct PDF URL or document download link"
             />
           </div>
 
@@ -321,10 +379,10 @@ export function PlacementPrepPage() {
             </label>
             <textarea
               rows={3}
-              placeholder="Brief summary of the interview guide or cheat sheet content..."
+              placeholder="Brief summary of the guide, notes, cheat sheet, roadmap, or template..."
               value={formData.snippet}
               onChange={(e) => setFormData({ ...formData, snippet: e.target.value })}
-              className="w-full px-3.5 py-2.5 bg-slate-50/60 hover:bg-white border border-slate-200 rounded-xl text-sm text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all shadow-2xs"
+              className="w-full px-3.5 py-2.5 bg-slate-50/60 hover:bg-white border border-slate-200 rounded-xl text-sm text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all shadow-2xs"
               required
             />
           </div>

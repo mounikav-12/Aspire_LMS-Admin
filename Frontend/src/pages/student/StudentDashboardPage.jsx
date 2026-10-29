@@ -29,7 +29,7 @@ import { getScheduleInfo } from '../../utils/milestoneUtils';
 import { getEffectiveProjectDueDate } from '../../utils/projectDeadlineUtils';
 
 export function StudentDashboardPage() {
-  const { courses, liveSessions, jobs, recordings, projects, milestones, rewards = [], refreshData, isSupabaseConnected, activeBatchFilter, milestoneLocks = [], batchesList = [], availableBatches = [] } = useLmsData();
+  const { courses, liveSessions, jobs, recordings, projects, placementResources = [], milestones, rewards = [], refreshData, isSupabaseConnected, activeBatchFilter, milestoneLocks = [], batchesList = [], availableBatches = [] } = useLmsData();
   const { addToast } = useToast();
 
   const [isSyncing, setIsSyncing] = useState(false);
@@ -161,7 +161,16 @@ export function StudentDashboardPage() {
         perks: j.perks || '',
         is_locked: !!j.isLocked
       })),
-      recordings: recordings.map((r) => ({ id: r.id, title: r.title, video_url: r.videoUrl }))
+      recordings: recordings.map((r) => ({ id: r.id, title: r.title, video_url: r.videoUrl })),
+      placement_resources: (placementResources || []).map((p) => ({
+        id: p.id,
+        title: p.title,
+        category: p.category,
+        author: p.author,
+        read_time: p.readTime,
+        snippet: p.snippet,
+        link_url: p.linkUrl
+      }))
     }
   };
 
