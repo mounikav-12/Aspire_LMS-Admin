@@ -41,7 +41,9 @@ import {
   DEFAULT_CURRICULUM_STAGES,
   DEFAULT_STAGES,
   normalizeStagesList,
-  getStageNumber
+  getStageNumber,
+  isMatchingStage,
+  SUBTOPIC_MODULE_MAP
 } from '../../data/curriculumData';
 
 export {
@@ -49,7 +51,9 @@ export {
   DEFAULT_CURRICULUM_STAGES,
   DEFAULT_STAGES,
   normalizeStagesList,
-  getStageNumber
+  getStageNumber,
+  isMatchingStage,
+  SUBTOPIC_MODULE_MAP
 };
 
 export const isPythonCourse = (course) => {
@@ -449,7 +453,9 @@ export function LiveSessionListPage() {
       const urlParams = new URLSearchParams(window.location.search);
       const courseIdParam = urlParams.get('courseId');
       if (courseIdParam) return courseIdParam;
-    } catch (e) {}
+    } catch (_err) {
+      // ignore URL query param error
+    }
     return courses[0]?.id || '';
   });
   const [selectedStageId, setSelectedStageId] = useState('ALL');
