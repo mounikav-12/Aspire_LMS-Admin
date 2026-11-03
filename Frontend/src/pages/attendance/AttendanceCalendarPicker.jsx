@@ -455,15 +455,35 @@ export function AttendanceCalendarPicker({
 
             <div className="flex items-center justify-between pt-1">
               <span className="text-[10px] text-slate-400 dark:text-slate-500 font-medium flex items-center gap-1">
-                <Lock className="w-3 h-3 text-amber-600 dark:text-amber-500" /> Past dates locked
+                <Lock className="w-3 h-3 text-amber-600 dark:text-amber-500" /> Dates before yesterday locked
               </span>
-              <button
-                type="button"
-                onClick={handleJumpToToday}
-                className="px-2.5 py-1 text-[11px] font-bold text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-950/60 rounded-lg transition-colors cursor-pointer"
-              >
-                Go to Today
-              </button>
+              <div className="flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    const yDate = new Date();
+                    yDate.setDate(yDate.getDate() - 1);
+                    const yStr = `${yDate.getFullYear()}-${String(yDate.getMonth() + 1).padStart(2, "0")}-${String(yDate.getDate()).padStart(2, "0")}`;
+                    onChange(yStr);
+                    setViewYear(yDate.getFullYear());
+                    setViewMonth(yDate.getMonth());
+                    setIsOpen(false);
+                  }}
+                  className="px-2 py-1 text-[11px] font-bold text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
+                  title="Select Yesterday"
+                >
+                  Yesterday
+                </button>
+                <button
+                  type="button"
+                  onClick={handleJumpToToday}
+                  className="px-2.5 py-1 text-[11px] font-bold text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-950/60 rounded-lg transition-colors cursor-pointer"
+                  title="Select Today"
+                >
+                  Today
+                </button>
+              </div>
             </div>
           </div>
         </div>

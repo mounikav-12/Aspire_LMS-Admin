@@ -43,15 +43,28 @@ const getTodayDateString = () => {
   return `${year}-${month}-${day}`;
 };
 
+// Helper to get yesterday's date formatted as YYYY-MM-DD in local time
+const getYesterdayDateString = () => {
+  const d = new Date();
+  d.setDate(d.getDate() - 1);
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
 // Formatter for readable date headers
 const formatReadableDate = (dateStr) => {
   if (!dateStr) return '';
   const [y, m, d] = dateStr.split('-').map(Number);
   const dateObj = new Date(y, m - 1, d);
   const isToday = dateStr === getTodayDateString();
+  const isYesterday = dateStr === getYesterdayDateString();
   const options = { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' };
   const formatted = dateObj.toLocaleDateString('en-US', options);
-  return isToday ? `${formatted} (Today)` : formatted;
+  if (isToday) return `${formatted} (Today)`;
+  if (isYesterday) return `${formatted} (Yesterday)`;
+  return formatted;
 };
 
 // Robust batch code normalizer / matcher
@@ -297,8 +310,12 @@ export function AttendancePage() {
   };
 
   const todayDateString = getTodayDateString();
-  const isPastDate = selectedDate < todayDateString;
+  const yesterdayDateString = getYesterdayDateString();
+  // Strictly allow modifying attendance ONLY for two days: present day (today) and one day before (yesterday)
+  // All dates before yesterday or future dates are locked in read-only mode
+  const isPastDate = selectedDate < yesterdayDateString || selectedDate > todayDateString;
   const isToday = selectedDate === todayDateString;
+  const isYesterday = selectedDate === yesterdayDateString;
 
   // Date navigation helpers - strictly prevents navigating into future dates
   const handleShiftDate = (days) => {
@@ -317,10 +334,10 @@ export function AttendancePage() {
     setSelectedDate(targetDate);
   };
 
-  // Student Attendance Marking Handlers - Locked on past dates
+  // Student Attendance Marking Handlers - Modifiable ONLY for today and yesterday
   const handleMarkStudent = (studentId, status) => {
     if (isPastDate) {
-      addToast('Attendance for past dates is locked and cannot be modified.', 'warning');
+      addToast('Attendance can only be modified for today and yesterday. Older dates are locked.', 'warning');
       return;
     }
 
@@ -347,10 +364,10 @@ export function AttendancePage() {
     setHasUnsavedChanges(true);
   };
 
-  // Fast Bulk Actions - Locked on past dates
+  // Fast Bulk Actions - Modifiable ONLY for today and yesterday
   const handleBulkMark = (status) => {
     if (isPastDate) {
-      addToast('Attendance for past dates is locked.', 'warning');
+      addToast('Attendance can only be modified for today and yesterday.', 'warning');
       return;
     }
 
@@ -369,7 +386,7 @@ export function AttendancePage() {
 
   const handleResetAttendance = () => {
     if (isPastDate) {
-      addToast('Attendance for past dates is locked.', 'warning');
+      addToast('Attendance can only be modified for today and yesterday.', 'warning');
       return;
     }
 
@@ -386,19 +403,41 @@ export function AttendancePage() {
     addToast('Cleared all attendance marks for this session', 'info');
   };
 
-  // Save current roster to attendanceData - Disallowed on past dates
+  // Save current roster to attendanceData - Modifiable ONLY for today and yesterday
   const handleSaveAttendance = async () => {
     if (!selectedBatch) return;
     if (isPastDate) {
-      addToast('Past attendance records are locked and cannot be edited.', 'warning');
+      addToast('Attendance records older than yesterday are locked and cannot be edited.', 'warning');
       return;
     }
 
     setIsSaving(true);
 
     try {
+      // Automatically mark any unmarked student in this batch as 'absent'
+      const batchStudents = students.filter((s) => s.batch === selectedBatch);
+      const finalRoster = { ...currentRosterState };
+      let autoAbsentCount = 0;
+
+      batchStudents.forEach((student) => {
+        const record = finalRoster[student.id];
+        const hasStatus = record?.status === 'present' || record?.status === 'absent';
+
+        if (!hasStatus) {
+          finalRoster[student.id] = {
+            ...(record || {}),
+            status: 'absent',
+            remarks: record?.remarks || ''
+          };
+          autoAbsentCount++;
+        }
+      });
+
+      // Synchronize local roster state so the UI displays the Absent status immediately
+      setCurrentRosterState(finalRoster);
+
       if (saveAttendanceData) {
-        await saveAttendanceData(selectedBatch, selectedDate, currentRosterState);
+        await saveAttendanceData(selectedBatch, selectedDate, finalRoster);
       } else {
         const res = await fetch('/api/attendance', {
           method: 'POST',
@@ -406,7 +445,7 @@ export function AttendancePage() {
           body: JSON.stringify({
             batchCode: selectedBatch,
             date: selectedDate,
-            roster: currentRosterState
+            roster: finalRoster
           })
         });
         if (!res.ok) {
@@ -416,7 +455,12 @@ export function AttendancePage() {
       }
 
       setHasUnsavedChanges(false);
-      addToast(`Attendance for ${selectedBatch} (${selectedDate}) saved to database!`, 'success');
+
+      const successMsg = autoAbsentCount > 0
+        ? `Attendance for ${selectedBatch} saved! (${autoAbsentCount} unmarked student${autoAbsentCount > 1 ? 's' : ''} auto-marked Absent)`
+        : `Attendance for ${selectedBatch} (${selectedDate}) saved to database!`;
+
+      addToast(successMsg, 'success');
     } catch (err) {
       console.error('Save attendance error:', err);
       addToast(`Error saving attendance: ${err.message}`, 'error');
@@ -684,6 +728,12 @@ export function AttendancePage() {
                     Locked (Read-Only)
                   </span>
                 )}
+                {isYesterday && (
+                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200">
+                    <Clock className="w-3 h-3 text-blue-600" />
+                    Yesterday (Editable)
+                  </span>
+                )}
                 <span
                   className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200/80 shadow-2xs"
                   title={attendanceLastSynced ? `Last database sync: ${new Date(attendanceLastSynced).toLocaleTimeString()}` : 'Connected to Supabase realtime broadcast'}
@@ -694,7 +744,9 @@ export function AttendancePage() {
               </div>
               <p className="text-xs md:text-sm text-slate-500 mt-0.5 font-medium">
                 {isPastDate
-                  ? 'Viewing historical attendance records. Past dates cannot be modified.'
+                  ? 'Viewing historical attendance records. Records older than yesterday are locked.'
+                  : isYesterday
+                  ? 'Modifying attendance records for yesterday.'
                   : 'Mark and review daily attendance records for students enrolled in this cohort.'}
               </p>
             </div>
@@ -746,7 +798,7 @@ export function AttendancePage() {
             <div className="flex items-center gap-2">
               <Lock className="w-4 h-4 text-amber-600 flex-shrink-0" />
               <span>
-                <strong>Historical Record ({formatReadableDate(selectedDate)}):</strong> Attendance for this date is locked in read-only mode to prevent records from being altered.
+                <strong>Historical Record ({formatReadableDate(selectedDate)}):</strong> Attendance for dates prior to yesterday is locked in read-only mode. Only today and yesterday can be modified.
               </span>
             </div>
             <button
@@ -809,6 +861,17 @@ export function AttendancePage() {
               }`}
             >
               Today
+            </button>
+
+            <button
+              onClick={() => setSelectedDate(yesterdayDateString)}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                isYesterday
+                  ? 'bg-blue-50 text-blue-700 border border-blue-200 font-extrabold'
+                  : 'bg-slate-100 hover:bg-slate-200/70 text-slate-600'
+              }`}
+            >
+              Yesterday
             </button>
 
             <span className="text-xs font-semibold text-slate-500 hidden sm:inline">
@@ -1222,19 +1285,12 @@ export function AttendancePage() {
                 <h1 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight">
                   Attendance Management
                 </h1>
-                <span
-                  className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200/80 shadow-2xs"
-                  title={attendanceLastSynced ? `Last database sync: ${new Date(attendanceLastSynced).toLocaleTimeString()}` : 'Connected to Supabase realtime broadcast'}
-                >
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                  <span>Realtime Sync Active</span>
-                </span>
               </div>
-              <p className="text-xs md:text-sm text-slate-500 font-medium mt-0.5">
-                {isGlobalAdminMode
-                  ? 'Select an active cohort to mark daily student presence, log notes, and manage attendance records.'
-                  : `Managing daily attendance records and student rosters for ${effectiveStaffUser?.name || 'Staff'}'s assigned cohort.`}
-              </p>
+              {!isGlobalAdminMode && (
+                <p className="text-xs md:text-sm text-slate-500 font-medium mt-0.5">
+                  {`Managing daily attendance records and student rosters for ${effectiveStaffUser?.name || 'Staff'}'s assigned cohort.`}
+                </p>
+              )}
               {!isGlobalAdminMode && (
                 <div className="flex flex-wrap items-center gap-2 mt-2">
                   <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200/80 shadow-2xs">
@@ -1268,7 +1324,13 @@ export function AttendancePage() {
           {isPastDate && (
             <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-50 border border-amber-200 text-amber-800 shadow-2xs">
               <Lock className="w-3.5 h-3.5 text-amber-600" />
-              <span>Past Date (Read-Only)</span>
+              <span>Historical (Read-Only)</span>
+            </span>
+          )}
+          {isYesterday && (
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-blue-50 border border-blue-200 text-blue-800 shadow-2xs">
+              <Clock className="w-3.5 h-3.5 text-blue-600" />
+              <span>Yesterday (Editable)</span>
             </span>
           )}
           <div className="flex items-center gap-1 bg-white border border-slate-200/90 rounded-2xl p-1 shadow-2xs">
@@ -1321,6 +1383,18 @@ export function AttendancePage() {
               }`}
             >
               Today
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setSelectedDate(yesterdayDateString)}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                isYesterday
+                  ? 'bg-blue-50 text-blue-700 font-extrabold border border-blue-200'
+                  : 'text-slate-500 hover:text-slate-800 hover:bg-slate-100'
+              }`}
+            >
+              Yesterday
             </button>
           </div>
         </div>

@@ -750,18 +750,22 @@ const getEffectiveProjectDueDate = (
 
   // 4. Batch Category / Alias Lookup
   if (cleanTarget !== 'ALL') {
-    const isWeekend = /weekend|a26s|a26we/i.test(cleanTarget);
-    const candidateAliases = isWeekend
-      ? ['A26S1', 'A26S2', 'Weekend Batch', 'weekend']
-      : ['A26W1', 'A26W2', 'Weekday Batch', 'weekday'];
+    const isExplicitlyLocked = (targetBatchCode && batchJsonMap[targetBatchCode] === null) || (cleanTarget in batchJsonMap && batchJsonMap[cleanTarget] === null);
+    if (!isExplicitlyLocked) {
+      const isWeekend = /weekend|a26s|a26we/i.test(targetBatchCode || cleanTarget);
+      const candidateAliases = isWeekend
+        ? ['A26S1', 'A26S2', 'Weekend Batch', 'weekend']
+        : ['A26W1', 'A26W2', 'Weekday Batch', 'weekday'];
 
-    for (const alias of candidateAliases) {
-      const aliasVal = batchJsonMap[alias];
-      if (aliasVal && hasFourDigitYear(aliasVal) && !isDummyPlaceholderDate(aliasVal)) {
-        return buildResult(aliasVal, 'batch_alias', richBatchDates[alias] || null);
-      }
-      if (richBatchDates[alias]?.dueDate && hasFourDigitYear(richBatchDates[alias].dueDate)) {
-        return buildResult(richBatchDates[alias].dueDate, 'batch_alias_rich', richBatchDates[alias]);
+      for (const alias of candidateAliases) {
+        if (alias === targetBatchCode || alias === cleanTarget) continue;
+        const aliasVal = batchJsonMap[alias];
+        if (aliasVal && hasFourDigitYear(aliasVal) && !isDummyPlaceholderDate(aliasVal)) {
+          return buildResult(aliasVal, 'batch_alias', richBatchDates[alias] || null);
+        }
+        if (richBatchDates[alias]?.dueDate && hasFourDigitYear(richBatchDates[alias].dueDate)) {
+          return buildResult(richBatchDates[alias].dueDate, 'batch_alias_rich', richBatchDates[alias]);
+        }
       }
     }
   }
